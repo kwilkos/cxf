@@ -42,6 +42,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         LOG.info("the path of wsdl file is " + wsdlUrl);
         wsdlFactory = WSDLFactory.newInstance();
         wsdlReader = wsdlFactory.newWSDLReader();
+        wsdlReader.setFeature("javax.wsdl.verbose", false);
         def = wsdlReader.readWSDL(wsdlUrl);
         bus = Bus.init();
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
@@ -52,6 +53,8 @@ public class ServiceWSDLBuilderTest extends TestCase {
             }
         }
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
+        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         newDef = ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(serviceInfo);
         
     }
@@ -63,6 +66,10 @@ public class ServiceWSDLBuilderTest extends TestCase {
         
     public void testDefinition() throws Exception {
         assertEquals("http://objectweb.org/hello_world_soap_http", newDef.getTargetNamespace());
+        Service serv = newDef.getService(new QName("http://objectweb.org/hello_world_soap_http",
+                                                   "SOAPService"));
+        assertNotNull(serv);
+        assertNotNull(serv.getPort("SoapPort"));
     }
     
     public void testPortType() throws Exception {

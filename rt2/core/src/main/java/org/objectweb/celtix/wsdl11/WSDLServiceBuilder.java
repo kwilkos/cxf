@@ -27,6 +27,7 @@ import org.objectweb.celtix.service.model.AbstractMessageContainer;
 import org.objectweb.celtix.service.model.AbstractPropertiesHolder;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
@@ -99,15 +100,23 @@ public class WSDLServiceBuilder {
             if (bi == null) {
                 bi = buildBinding(service, binding);
             }
-            
-            //build Endpoint for the binding....
-            //REVISIT
+            buildEndpoint(service, bi, port);
         }
         
         
         return service;
     }
 
+    public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {
+        String ns = ((ExtensibilityElement)port.getExtensibilityElements().get(0))
+            .getElementType().getNamespaceURI();
+        EndpointInfo ei = new EndpointInfo(service, ns);
+        ei.setName(port.getName());
+        ei.setBinding(bi);
+        copyExtensors(ei, port.getExtensibilityElements());
+        service.addEndpoint(ei);
+        return ei;
+    }
     public BindingInfo buildBinding(ServiceInfo service, Binding binding) {
         BindingInfo bi = null;
         String ns = ((ExtensibilityElement)binding.getExtensibilityElements().get(0))

@@ -16,16 +16,20 @@ import javax.wsdl.Operation;
 import javax.wsdl.OperationType;
 import javax.wsdl.Output;
 import javax.wsdl.Part;
+import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.factory.WSDLFactory;
 
 import org.objectweb.celtix.service.model.AbstractMessageContainer;
 import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
@@ -56,17 +60,21 @@ public final class ServiceWSDLBuilder {
         }
     }
     
-    public Definition buildDefinition(ServiceInfo service) {
+    public Definition buildDefinition(ServiceInfo service) throws WSDLException {
         Definition def = null;
         try {
             def = service.getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
         } catch (ClassCastException e) {
+            //ignore
+        }
+        if (def == null) {
+            def = WSDLFactory.newInstance().newDefinition();
             def.setQName(service.getName());
             def.setTargetNamespace(service.getTargetNamespace());
             addExtensibiltyElements(def, service.getWSDL11Extensors());
             buildPortType(def, service.getInterface());
-            buildService(def, service);
             buildBinding(def, service.getBindings());
+            buildService(def, service);
         }
         return def;
     }
@@ -147,7 +155,17 @@ public final class ServiceWSDLBuilder {
     }
 
     private void buildService(Definition def, ServiceInfo service) {
-        def.addService(service.getProperty(WSDLServiceBuilder.WSDL_SERVICE, Service.class));
+        Service serv = def.createService();
+        serv.setQName(service.getName());
+        def.addService(serv);
+
+        for (EndpointInfo ei : service.getEndpoints()) {
+            Port port = def.createPort();
+            port.setName(ei.getName());
+            port.setBinding(def.getBinding(ei.getBinding().getName()));
+            addExtensibiltyElements(port, ei.getWSDL11Extensors());
+            serv.addPort(port);
+        }
     }
 
     private void buildPortType(Definition def, InterfaceInfo intf) {

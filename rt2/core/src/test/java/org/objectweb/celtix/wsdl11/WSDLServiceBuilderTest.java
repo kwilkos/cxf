@@ -17,6 +17,7 @@ import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
@@ -38,6 +39,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         LOG.info("the path of wsdl file is " + wsdlUrl);
         wsdlFactory = WSDLFactory.newInstance();
         wsdlReader = wsdlFactory.newWSDLReader();
+        wsdlReader.setFeature("javax.wsdl.verbose", false);
         def = wsdlReader.readWSDL(wsdlUrl);
         bus = Bus.init();
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
@@ -60,6 +62,12 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals("http://objectweb.org/hello_world_soap_http", serviceInfo.getTargetNamespace());
         assertTrue(serviceInfo.getProperty(WSDLServiceBuilder.WSDL_DEFINITION) == def);
         assertTrue(serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SERVICE) == service);
+        
+        assertEquals("Incorrect number of endpoints", serviceInfo.getEndpoints().size(), 1);
+        EndpointInfo ei = serviceInfo.getEndpoint("SoapPort");
+        assertNotNull(ei);
+        assertEquals("http://schemas.xmlsoap.org/wsdl/soap/", ei.getNamespaceURI());
+        assertNotNull(ei.getBinding());
     }
     
     public void testInterfaceInfo() throws Exception {
