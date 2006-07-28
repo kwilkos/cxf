@@ -912,6 +912,21 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
+    
+    public void testBug305770() {
+        try {
+            env.put(ToolConstants.CFG_COMPILE, "compile");
+            env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+            env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes"); 
+            env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305770/Printer.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

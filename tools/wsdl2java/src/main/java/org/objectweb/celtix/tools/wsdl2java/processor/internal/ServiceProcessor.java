@@ -581,6 +581,7 @@ public class ServiceProcessor extends AbstractProcessor {
             // TBD: There is no extensibilityelement in port type
             bindingExt = new JAXWSBinding();
         }
+        
         ji.setBindingExt(bindingExt);
     }
 

@@ -18,7 +18,6 @@ import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
-import javax.wsdl.Message;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
@@ -27,6 +26,7 @@ import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -70,11 +70,14 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected ClassCollector classColletor;
     protected List<String> excludePkgList = new ArrayList<String>();
     protected List<String> excludeGenFiles;
-    List<Schema> schemaList = new ArrayList<Schema>();
+    protected Map<QName, Service> importedServices = new java.util.HashMap<QName, Service>();
+    protected Map<QName, PortType> importedPortTypes = new java.util.HashMap<QName, PortType>();
+   
+    protected List<Schema> schemaList = new ArrayList<Schema>();
     private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
-   
+    
     protected Writer getOutputWriter(String newNameExt) throws ToolException {
         Writer writer = null;
         String newName = null;
@@ -130,7 +133,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             register.registerExtenstions();
             wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
             parseImports(wsdlDefinition);
-            buildWSDLDefinition();
+            buildImportedMaps();
         } catch (WSDLException we) {
             org.objectweb.celtix.common.i18n.Message msg = 
                 new org.objectweb.celtix.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
@@ -138,9 +141,28 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
 
     }
+    @SuppressWarnings("unchecked")
+    private void buildImportedMaps() {
+        for (Definition def : importedDefinitions) {
+            for (java.util.Iterator<QName> ite = def.getServices().keySet().iterator(); ite.hasNext();) {
+                QName qn = ite.next();
+                importedServices.put(qn, (Service)def.getServices().get(qn));
+            }
+            
+        }
+        
+        if (getWSDLDefinition().getServices().size() == 0 && importedServices.size() == 0) {
+            for (Definition def : importedDefinitions) {
+                for (java.util.Iterator<QName> ite = def.getPortTypes().keySet().iterator(); ite.hasNext();) {
+                    QName qn = ite.next();
+                    importedPortTypes.put(qn, (PortType)def.getPortTypes().get(qn));
+                }
+                
+            }
+            
+        }
 
-    private void buildWSDLDefinition() {
-
+        /*
         for (Definition def : importedDefinitions) {
             this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()), def
                 .getTargetNamespace());
@@ -161,7 +183,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 this.wsdlDefinition.addPortType((PortType)portTypes[i]);
             }
         }
-         
+         */
         /*
         for (Definition def : importedDefinitions) {
             this.wsdlDefinition.addNamespace(def.getPrefix(def.getTargetNamespace()), def

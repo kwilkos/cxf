@@ -11,8 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.wsdl.Binding;
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
 import javax.wsdl.PortType;
+import javax.wsdl.Service;
+import javax.xml.namespace.QName;
 
 import com.sun.codemodel.JCodeModel;
 import com.sun.tools.xjc.api.S2JJAXBModel;
@@ -74,8 +78,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(e);
         }
     }
-    
-    public void processImportDefinition(Definition def) throws ToolException {    
+
+    public void processImportDefinition(Definition def) throws ToolException {
         checkSupported(def);
         validateWSDL(def);
         parseCustomization(def);
@@ -99,7 +103,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(e);
         }
     }
-    
 
     public void removeExcludeFiles() throws IOException {
         if (excludeGenFiles == null) {
@@ -121,8 +124,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             if (env.get(ToolConstants.CFG_COMPILE) != null) {
                 String classDir = env.get(ToolConstants.CFG_CLASSDIR) == null ? outPutDir : (String)env
                     .get(ToolConstants.CFG_CLASSDIR);
-                File classFile = new File(classDir, 
-                                          excludeFile.substring(0, excludeFile.indexOf(".java")) + ".class");
+                File classFile = new File(classDir, excludeFile.substring(0, excludeFile.indexOf(".java"))
+                                                    + ".class");
                 classFile.delete();
                 File tmpClzFile = classFile.getParentFile();
                 while (!tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
@@ -162,13 +165,43 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     }
 
+    @SuppressWarnings("unchecked")
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
+
         JavaModel javaModel = new JavaModel();
         getEnvironment().put(ToolConstants.RAW_JAXB_MODEL, getRawJaxbModel());
 
         javaModel.setJAXWSBinding(customizing(definition));
 
-        Map portTypes = definition.getPortTypes();
+        Map<QName, PortType> portTypes = definition.getPortTypes();
+
+        if (portTypes.size() == 0) {
+            for (Iterator ite = definition.getServices().values().iterator(); ite.hasNext();) {
+                Service service = (Service)ite.next();
+                for (Iterator ite2 = service.getPorts().values().iterator(); ite2.hasNext();) {
+                    Port port = (Port)ite2.next();
+                    Binding binding = port.getBinding();
+                    portTypes.put(binding.getPortType().getQName(), binding.getPortType());
+                }
+            }
+        }
+
+        if (portTypes.size() == 0) {
+            for (Iterator ite = importedServices.values().iterator(); ite.hasNext();) {
+                Service service = (Service)ite.next();
+                for (Iterator ite2 = service.getPorts().values().iterator(); ite2.hasNext();) {
+                    Port port = (Port)ite2.next();
+                    Binding binding = port.getBinding();
+                    portTypes.put(binding.getPortType().getQName(), binding.getPortType());
+                }
+            }
+        }
+
+        if (portTypes.size() == 0) {
+            for (Iterator ite = importedPortTypes.values().iterator(); ite.hasNext();) {
+                portTypes.putAll(importedPortTypes);
+            }
+        }
 
         for (Iterator iter = portTypes.keySet().iterator(); iter.hasNext();) {
             PortType portType = (PortType)portTypes.get(iter.next());
@@ -181,7 +214,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(env);
         seiAnnotationProcessor.process(javaModel, definition);
-
         return javaModel;
     }
 

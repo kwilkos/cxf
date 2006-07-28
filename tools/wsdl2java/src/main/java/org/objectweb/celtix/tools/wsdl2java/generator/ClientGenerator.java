@@ -50,8 +50,9 @@ public class ClientGenerator extends AbstractGenerator {
                 Iterator i = js.getPorts().iterator();
                 while (i.hasNext()) {
                     jp = (JavaPort)i.next();
-                    if (jp.getPortType() == interfaceName) {
+                    if (jp.getPortType().equals(interfaceName)) {
                         serviceName = js.getName();
+                        
                         break;
                     }
                 }
@@ -71,6 +72,7 @@ public class ClientGenerator extends AbstractGenerator {
             setAttributes("intf", intf);
             setAttributes("service", js);
             setAttributes("port", jp);
+            
             setCommonAttributes();
            
             doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(),
