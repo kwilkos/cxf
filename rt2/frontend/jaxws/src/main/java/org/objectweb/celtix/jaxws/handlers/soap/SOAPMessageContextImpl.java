@@ -21,7 +21,7 @@ import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
 import org.objectweb.celtix.message.Message;
 
-public class SOAPMessageContextImpl extends WrappedMessageContext  implements SOAPMessageContext {
+public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
 
     SOAPMessageContextImpl(Message m) {
         super(m);
@@ -30,7 +30,7 @@ public class SOAPMessageContextImpl extends WrappedMessageContext  implements SO
     public void setMessage(SOAPMessage message) {
         getWrappedMessage().setSource(SOAPMessage.class, message);
     }
-    
+
     public SOAPMessage getMessage() {
         SOAPMessage message = getWrappedMessage().getSource(SOAPMessage.class);
         if (null == message) {
@@ -41,26 +41,32 @@ public class SOAPMessageContextImpl extends WrappedMessageContext  implements SO
                 MimeHeaders mhs = null;
                 InputStream is = getWrappedMessage().getSource(InputStream.class);
                 message = factory.createMessage(mhs, is);
-                getWrappedMessage().setSource(SOAPMessage.class, message);    
+                getWrappedMessage().setSource(SOAPMessage.class, message);
             } catch (SOAPException ex) {
                 // do something
             } catch (IOException ex) {
                 // do something
-            }         
+            }
         }
         return message;
     }
-    
+
     // TODO: handle the boolean parameter
     public Object[] getHeaders(QName name, JAXBContext context, boolean allRoles) {
-        Element[] headerElements = getWrappedSoapMessage().getHeaders(Element[].class);
+        Element headerElements = getWrappedSoapMessage().getHeaders(Element.class);
+        if (headerElements == null) {
+            return null;
+        }
         Collection<Object> objects = new ArrayList<Object>();
-        for (Element e : headerElements) {
-            if (name.equals(e.getNamespaceURI())) {
-                try {
-                    objects.add(context.createUnmarshaller().unmarshal(e));
-                } catch (JAXBException ex) {
-                    // do something
+        for (int i = 0; i < headerElements.getChildNodes().getLength(); i++) {
+            if (headerElements.getChildNodes().item(i) instanceof Element) {
+                Element e = (Element)headerElements.getChildNodes().item(i);
+                if (name.equals(e.getNamespaceURI())) {
+                    try {
+                        objects.add(context.createUnmarshaller().unmarshal(e));
+                    } catch (JAXBException ex) {
+                        // do something
+                    }
                 }
             }
         }
@@ -72,8 +78,8 @@ public class SOAPMessageContextImpl extends WrappedMessageContext  implements SO
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     private SoapMessage getWrappedSoapMessage() {
         return (SoapMessage)getWrappedMessage();
-    }   
+    }
 }
