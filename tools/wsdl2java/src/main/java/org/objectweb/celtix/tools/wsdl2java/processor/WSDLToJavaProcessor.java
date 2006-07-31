@@ -11,11 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.wsdl.Binding;
 import javax.wsdl.Definition;
-import javax.wsdl.Port;
 import javax.wsdl.PortType;
-import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 
 import com.sun.codemodel.JCodeModel;
@@ -60,6 +57,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(msg);
         }
         generateTypes();
+
         JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
         if (jmodel == null) {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
@@ -88,6 +86,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
             throw new ToolException(msg);
         }
+
         JavaModel jmodel = wsdlDefinitionToJavaModel(def);
         if (jmodel == null) {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
@@ -165,7 +164,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     }
 
-    @SuppressWarnings("unchecked")
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
 
         JavaModel javaModel = new JavaModel();
@@ -173,36 +171,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         javaModel.setJAXWSBinding(customizing(definition));
 
-        Map<QName, PortType> portTypes = definition.getPortTypes();
-
-        if (portTypes.size() == 0) {
-            for (Iterator ite = definition.getServices().values().iterator(); ite.hasNext();) {
-                Service service = (Service)ite.next();
-                for (Iterator ite2 = service.getPorts().values().iterator(); ite2.hasNext();) {
-                    Port port = (Port)ite2.next();
-                    Binding binding = port.getBinding();
-                    portTypes.put(binding.getPortType().getQName(), binding.getPortType());
-                }
-            }
-        }
-
-        if (portTypes.size() == 0) {
-            for (Iterator ite = importedServices.values().iterator(); ite.hasNext();) {
-                Service service = (Service)ite.next();
-                for (Iterator ite2 = service.getPorts().values().iterator(); ite2.hasNext();) {
-                    Port port = (Port)ite2.next();
-                    Binding binding = port.getBinding();
-                    portTypes.put(binding.getPortType().getQName(), binding.getPortType());
-                }
-            }
-        }
-
-        if (portTypes.size() == 0) {
-            for (Iterator ite = importedPortTypes.values().iterator(); ite.hasNext();) {
-                portTypes.putAll(importedPortTypes);
-            }
-        }
-
+        Map<QName, PortType> portTypes = getPortTypes(definition);
+ 
         for (Iterator iter = portTypes.keySet().iterator(); iter.hasNext();) {
             PortType portType = (PortType)portTypes.get(iter.next());
             PortTypeProcessor portTypeProcessor = new PortTypeProcessor(getEnvironment());

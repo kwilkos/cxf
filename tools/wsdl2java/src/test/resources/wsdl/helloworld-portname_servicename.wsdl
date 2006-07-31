@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://helloworldaxis.samples.tuscany.apache.org" 
+    xmlns:impl="http://helloworldaxis.samples.tuscany.apache.org" 
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    name="helloworld">
+    <wsdl:import namespace="http://helloworldaxis.samples.tuscany.apache.org" location="helloworld-noservice.wsdl" />
+    <wsdl:service name="HelloWorldServiceImpl">
+        <wsdl:port binding="impl:helloworldSoapBinding" name="HelloWorldServiceImpl">
+            <wsdlsoap:address location="http://localhost:8080/axis/services/helloworld"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

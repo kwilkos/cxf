@@ -339,6 +339,31 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         clz = classLoader.loadClass("org.objectweb.Greeter_Service");
     }
  
+    public void testImportNameCollision() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-portname_servicename.wsdl"));
+        env.setPackageName("org.objectweb");
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File objectweb = new File(org, "objectweb");
+        assertTrue(objectweb.exists());
+
+        File[] files = objectweb.listFiles();
+        assertEquals(3, files.length);
+
+        File serviceCollision = new File(objectweb, "HelloWorldServiceImpl_Service.java");
+        assertTrue(serviceCollision.exists());
+
+        Class clz = classLoader.loadClass("org.objectweb.HelloWorldServiceImpl");
+        assertTrue("SEI class HelloWorldServiceImpl modifier should be interface", clz.isInterface());
+
+        clz = classLoader.loadClass("org.objectweb.HelloWorldServiceImpl_Service");
+    }
+ 
     public void testHelloWorldExternalBindingFile() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_jaxws_base.wsdl"));
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/hello_world_jaxws_binding.wsdl"));

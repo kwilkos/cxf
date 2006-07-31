@@ -18,6 +18,7 @@ import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
+import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
@@ -141,6 +142,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
 
     }
+    
     @SuppressWarnings("unchecked")
     private void buildImportedMaps() {
         for (Definition def : importedDefinitions) {
@@ -286,7 +288,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         SchemaCompiler schemaCompiler = XJC.createSchemaCompiler();
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classColletor);
 
-        allocator.setPortTypes(wsdlDefinition.getPortTypes().values(), env.mapPackageName(this.wsdlDefinition
+        allocator.setPortTypes(getPortTypes(wsdlDefinition).values(), env.mapPackageName(this.wsdlDefinition
             .getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
         schemaCompiler.setErrorListener(this);
@@ -336,6 +338,39 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         } else {
             rawJaxbModelGenCode = rawJaxbModel;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Map<QName, PortType> getPortTypes(Definition definition) {
+        Map<QName, PortType> portTypes = definition.getPortTypes();
+
+        if (portTypes.size() == 0) {
+            for (Iterator ite = definition.getServices().values().iterator(); ite.hasNext();) {
+                Service service = (Service)ite.next();
+                for (Iterator ite2 = service.getPorts().values().iterator(); ite2.hasNext();) {
+                    Port port = (Port)ite2.next();
+                    Binding binding = port.getBinding();
+                    portTypes.put(binding.getPortType().getQName(), binding.getPortType());
+                }
+            }
+        }
+
+        if (portTypes.size() == 0) {
+            for (Iterator ite = importedServices.values().iterator(); ite.hasNext();) {
+                Service service = (Service)ite.next();
+                for (Iterator ite2 = service.getPorts().values().iterator(); ite2.hasNext();) {
+                    Port port = (Port)ite2.next();
+                    Binding binding = port.getBinding();
+                    portTypes.put(binding.getPortType().getQName(), binding.getPortType());
+                }
+            }
+        }
+
+        if (portTypes.size() == 0) {
+            portTypes.putAll(importedPortTypes);
+        }
+
+        return portTypes;
     }
 
     private boolean isSchemaParsed(String targetNamespace) {
