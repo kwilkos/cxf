@@ -17,10 +17,12 @@ import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.wsdl.WSDLManager;
+import org.objectweb.celtix.wsdl11.WSDLManagerImpl;
 
 
 public class CeltixBus extends Bus {
@@ -28,7 +30,8 @@ public class CeltixBus extends Bus {
     public static final String BUS_PROPERTY_NAME = "bus";
     public static final String BINDINGFACTORYMANAGER_PROPERTY_NAME = "bindingFactoryManager";
     public static final String TRANSPORTFACTORYMANAGER_PROPERTY_NAME = "transportFactoryManager";
-    public static final String WSDLMANAGER_PROPERTY_NAME = "wsdlManager";
+    public static final String WSDL11MANAGER_PROPERTY_NAME = "wsdl11Manager";
+    public static final String INSTRUMENTATIONMANAGER_PROPERTY_NAME = "instrumentationManager";
     public static final String LIFECYCLEMANAGER_PROPERTY_NAME = "lifeCycleManager";
     public static final String WORKQUEUEMANAGER_PROPERTY_NAME = "workQueueManager";
     public static final String RESOURCEMANAGER_PROPERTY_NAME = "resourceManager";
@@ -39,7 +42,8 @@ public class CeltixBus extends Bus {
     private Map<String, Object> properties = new HashMap<String, Object>();
     private BindingFactoryManager bindingFactoryManager;
     // private TransportFactoryManager transportFactoryManager;
-    private WSDLManager wsdlManager;
+    private WSDLManager wsdl11Manager;
+    private InstrumentationManager instrumentationManager;
     // private CeltixBusLifeCycleManager lifeCycleManager;
     // private WorkQueueManager workQueueManager;
     private ResourceManager resourceManager;
@@ -78,8 +82,7 @@ public class CeltixBus extends Bus {
             newPropertyValues.add(bindingFactoryManager);
         }
         
-        
-        
+            
         /*
         if (properties.get(CELTIX_TRANSPORTFACTORYMANAGER) != null) {
             transportFactoryManager = (TransportFactoryManager)properties.get(CELTIX_TRANSPORTFACTORYMANAGER);
@@ -87,6 +90,22 @@ public class CeltixBus extends Bus {
             transportFactoryManager = new TransportFactoryManagerImpl(this);
         }
         */
+        
+
+        wsdl11Manager = (WSDLManager)properties.get(WSDL11MANAGER_PROPERTY_NAME);
+        if (null == wsdl11Manager) {            
+            wsdl11Manager = new WSDLManagerImpl();
+            properties.put(BINDINGFACTORYMANAGER_PROPERTY_NAME, wsdl11Manager);
+            newPropertyValues.add(wsdl11Manager);
+        }
+
+        
+        instrumentationManager = (InstrumentationManager)properties.get(INSTRUMENTATIONMANAGER_PROPERTY_NAME);
+        if (null == instrumentationManager) {            
+            // instrumentationManager = new InstrumentationManagerImpl();
+            // properties.put(INSTRUMENTATIONMANAGER_PROPERTY_NAME, instrumentationManager);
+            // newPropertyValues.add(instrumentationManager);
+        }
         
         /*
         if (properties.get(CELTIX_WSDLMANAGER) != null) {
@@ -157,8 +176,12 @@ public class CeltixBus extends Bus {
     }
     */
 
-    public WSDLManager getWSDLManager() {
-        return wsdlManager;
+    public WSDLManager getWSDL11Manager() {
+        return wsdl11Manager;
+    }
+    
+    public InstrumentationManager getInstrumentationManager() {
+        return instrumentationManager;
     }
 
     /*

@@ -44,7 +44,7 @@ public class StreamMessageContextImpl extends WrappedMessageContext
     } 
 
     public OutputStream getOutputStream() { 
-        OutputStream os =  getWrappedMessage().getSource(OutputStream.class);
+        OutputStream os =  getWrappedMessage().getResult(OutputStream.class);
         if (os == null) { 
             throw new IllegalStateException(BUNDLE.getString("NO_OUTPUT_STREAM_EXC"));
         }
@@ -52,6 +52,6 @@ public class StreamMessageContextImpl extends WrappedMessageContext
     } 
 
     public void setOutputStream(OutputStream os) { 
-        getWrappedMessage().setSource(OutputStream.class, os);
+        getWrappedMessage().setResult(OutputStream.class, os);
     } 
 }

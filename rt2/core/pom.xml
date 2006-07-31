@@ -27,6 +27,12 @@
         </dependency>
 
         <dependency>
+	    <groupId>org.objectweb.celtixfire</groupId>
+	    <artifactId>cxf-tools-java2wsdl</artifactId>
+	    <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>

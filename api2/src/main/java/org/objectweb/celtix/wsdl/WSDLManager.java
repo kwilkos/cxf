@@ -73,8 +73,4 @@ public interface WSDLManager {
      */
     void addDefinition(Object key, Definition wsdl);
     
-    /**
-     * Shouts down the WSDL manager, and do clean up things
-     */
-    void shutdown();
 }

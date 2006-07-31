@@ -12,6 +12,8 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 // import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
+import org.objectweb.celtix.management.InstrumentationManager;
+
 // import org.objectweb.celtix.jaxws.EndpointRegistry;
 // import org.objectweb.celtix.plugins.PluginManager;
 import org.objectweb.celtix.phase.Phase;
@@ -141,25 +143,39 @@ public abstract class Bus implements InterceptorProvider {
     public abstract void shutdown(boolean wait) throws BusException;
 
     /** 
-     * Returns the configuration of this <code>Bus</code>.
+     * Returns the configuration of this bus.
      * 
-     * @return Configuration the configuration of this <code>bus</code>.
+     * @return the configuration of this bus
      */
     public abstract Configuration getConfiguration();
 
     /** 
-     * Returns the <code>TransportFactoryManager</code> of this <code>Bus</code>.
+     * Returns the <code>TransportFactoryManager</code> bus.
      * 
-     * @return TransportRegistry the servant registry of this <code>Bus</code>.
+     * @return the transport factory manager of this bus
      */
     // public abstract TransportFactoryManager getTransportFactoryManager();
 
     /** 
-     * Returns the BindingFactoryManager of this <code>Bus</code>.
+     * Returns the BindingFactoryManager of this bus.
      * 
-     * @return the BindingFactoryManager of this <code>Bus</code>.
+     * @return the binding factory manager of this bus
      */
-    public abstract BindingFactoryManager getBindingManager();    
+    public abstract BindingFactoryManager getBindingManager(); 
+    
+    /** 
+     * Returns the InstrumentationManager of this bus.
+     * 
+     * @return the instrumentation manager of this bus
+     */
+    public abstract InstrumentationManager getInstrumentationManager(); 
+    
+    /** 
+     * Returns the <code>WSDLManager</code> of this bus.
+     * 
+     * @return the wsdl 1.1 manager of this bus
+     */
+    public abstract WSDLManager getWSDL11Manager();
     
     /**
      * Returns the list of in phases for this bus.
@@ -173,12 +189,7 @@ public abstract class Bus implements InterceptorProvider {
      */
     public abstract List<Phase> getOutPhases();
 
-    /** 
-     * Returns the <code>ClientRegistry</code> of this <code>Bus</code>.
-     * 
-     * @return WSDLManager the wsdl manager of this <code>Bus</code>.
-     */
-    public abstract WSDLManager getWSDLManager();
+    
 
     /** 
      * Returns the <code>BusLifeCycleManager</code> of this <code>Bus</code>.
