@@ -10,11 +10,12 @@ import javax.xml.ws.handler.MessageContext;
 
 public class BindingProviderImpl implements BindingProvider {
     
-    private Binding binding;
+    private final Binding binding;
     private ThreadLocal requestContext;
     private Map<String, Object> responseContext;
     
-    public BindingProviderImpl() {
+    public BindingProviderImpl(Binding b) {
+        binding = b;
     }
     
     @SuppressWarnings("unchecked")
@@ -38,10 +39,6 @@ public class BindingProviderImpl implements BindingProvider {
 
     public Binding getBinding() {
         return binding;
-    }
-    
-    protected void setBinding(Binding b) {
-        binding = b;
     }
     
     protected void populateResponseContext(MessageContext ctx) {

@@ -9,14 +9,13 @@ import org.objectweb.celtix.phase.Phase;
 public abstract class AbstractProtocolHandlerInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
 
-    protected AbstractProtocolHandlerInterceptor(HandlerChainInvoker invoker) {
-        super(invoker);
+    protected AbstractProtocolHandlerInterceptor() {
         setPhase(Phase.USER_PROTOCOL);
     }
     
     public void handleMessage(T message) {
         MessageContext context = createProtocolMessageContext(message);
-        invoker.invokeProtocolHandlers(isRequestor(message), context);            
+        getInvoker(message).invokeProtocolHandlers(isRequestor(message), context);            
     }
     
     protected MessageContext createProtocolMessageContext(Message message) {

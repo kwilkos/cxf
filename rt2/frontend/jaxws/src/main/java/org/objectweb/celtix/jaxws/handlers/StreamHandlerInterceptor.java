@@ -5,18 +5,17 @@ import org.objectweb.celtix.phase.Phase;
 
 public class StreamHandlerInterceptor extends AbstractJAXWSHandlerInterceptor {
 
-    public StreamHandlerInterceptor(HandlerChainInvoker invoker) {
-        super(invoker);
+    public StreamHandlerInterceptor() {
         setPhase(Phase.USER_STREAM);
     }
 
+    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) {
         StreamMessageContextImpl sctx = new StreamMessageContextImpl(message);
-        invoker.invokeStreamHandlers(sctx);
+        getInvoker(message).invokeStreamHandlers(sctx);
     } 
     
     public void handleFault(Message message) {
-        
     }
     
     

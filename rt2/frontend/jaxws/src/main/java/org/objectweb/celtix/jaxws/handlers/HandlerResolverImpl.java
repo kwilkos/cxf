@@ -10,8 +10,7 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.PortInfo;
 
-//import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
-import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.Bus;
 //import org.objectweb.celtix.handlers.HandlerChainBuilder;
 
 public class HandlerResolverImpl implements HandlerResolver {
@@ -23,7 +22,7 @@ public class HandlerResolverImpl implements HandlerResolver {
     //private QName service;
     private ClassLoader serviceEndpointInterfaceClassLoader;
 
-    public HandlerResolverImpl(Configuration pBusConfiguration, QName pService) {
+    public HandlerResolverImpl(Bus bus, QName serviceName) {
         //this.busConfiguration = pBusConfiguration;
         //this.service = pService;
     }

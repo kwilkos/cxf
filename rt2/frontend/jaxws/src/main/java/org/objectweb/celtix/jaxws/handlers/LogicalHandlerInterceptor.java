@@ -5,14 +5,13 @@ import org.objectweb.celtix.phase.Phase;
 
 public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSHandlerInterceptor<T> {
     
-    public LogicalHandlerInterceptor(HandlerChainInvoker invoker) {
-        super(invoker);
+    public LogicalHandlerInterceptor() {
         setPhase(Phase.USER_LOGICAL);
     }
     
     public void handleMessage(T message) {
         LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
-        if (!invoker.invokeLogicalHandlers(isRequestor(message), lctx)) {
+        if (!getInvoker(message).invokeLogicalHandlers(isRequestor(message), lctx)) {
             // need to abort - not sure how to do this:
             // we have access to the interceptor chain via the message but 
             // there is no support for terminating the chain yet
@@ -26,7 +25,7 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
     
     public void onCompletion(T message) {
         if (isRequestor(message) && (isOneway(message) || !isOutbound(message))) {
-            invoker.mepComplete(message);
+            getInvoker(message).mepComplete(message);
         }
     }
    

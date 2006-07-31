@@ -14,11 +14,12 @@ public interface Message extends Map<String, Object> {
     String INTERFACE_INFO = "org.objectweb.celtix.service.model.interface";
     String OPERATION_INFO = "org.objectweb.celtix.service.model.operation";
     String BINDING = "org.objectweb.celtix.binding";
-    String TRANSPORT = "org.objectweb.celtix.transport";
-    String REQUESTOR_ROLE = "org.objectweb.celtix.client";
-    
-    
+    String TRANSPORT = "org.objectweb.celtix.transport";    
     String BUS = "org.objectweb.celtix.bus";
+    String REQUESTOR_ROLE = "org.objectweb.celtix.client";
+    String DATAREADER_FACTORY_KEY = "org.objectweb.celtix.databinding.reader.factory.key";
+    String DATAWRITER_FACTORY_KEY = "org.objectweb.celtix.databinding.writer.factory.key";
+    
     
     String getId();
     

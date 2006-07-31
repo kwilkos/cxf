@@ -53,17 +53,6 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     public void setExecutor(Executor e) {
         executor = e;     
     }
-     
-    /*
-    public void start(String address) {
-        // find a transport compatible with binding  and address address
-        
-    }
-
-    public void stop() {
-        
-    }
-    */
     
     final void createBinding(Bus bus, BindingInfo bi) {
         String namespace = bi.getNamespaceURI();

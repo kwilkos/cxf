@@ -1,11 +1,8 @@
-package org.objectweb.celtix.client;
+package org.objectweb.celtix.endpoint;
 
-import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.service.model.OperationInfo;
 
 public interface Client {
-
-    Endpoint getEndpoint();
     
     Object invoke(OperationInfo oi, Object[] params);
    

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
@@ -12,14 +13,15 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import org.objectweb.celtix.bindings.soap2.SoapInterceptor;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.jaxws.handlers.AbstractProtocolHandlerInterceptor;
-import org.objectweb.celtix.jaxws.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.message.Message;
 
 public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<SoapMessage>
     implements SoapInterceptor {
     
-    public SOAPHandlerInterceptor(HandlerChainInvoker invoker) {
-        super(invoker);
+    private Binding binding;
+    
+    public SOAPHandlerInterceptor(Binding b) {
+        binding = b;
     }
 
     public Set<URI> getRoles() {
@@ -31,7 +33,7 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
     @SuppressWarnings("unchecked")
     public Set<QName> getUnderstoodHeaders() {
         Set<QName> understood = new HashSet<QName>();  
-        for (Handler h : invoker.getProtocolHandlers()) {
+        for (Handler h : binding.getHandlerChain()) {
             if (h instanceof SOAPHandler) {
                 understood.addAll(((SOAPHandler)h).getHeaders());
             }

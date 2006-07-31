@@ -1,26 +1,50 @@
 package org.objectweb.celtix.jaxws;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
+import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.endpoint.Client;
+import org.objectweb.celtix.endpoint.ClientImpl;
+import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.jaxws.handlers.HandlerResolverImpl;
+import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
 import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.service.model.EndpointInfo;
+import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
 
 public class ServiceImpl extends ServiceDelegate {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(ServiceImpl.class);
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();    
     
     private Bus bus;
     private URL wsdlURL;
     
     private Service service;
+    private Endpoint endpoint;
+    private HandlerResolver handlerResolver;
+    private final Collection<QName> ports = new HashSet<QName>();
     
     public ServiceImpl(Bus b, URL url, QName name, Class cls) {
         bus = b;
@@ -28,86 +52,63 @@ public class ServiceImpl extends ServiceDelegate {
         
         WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
         service = sf.create(); 
+        handlerResolver = new HandlerResolverImpl(bus, name);
+    }
+    
+
+    public void addPort(QName portName, String bindingId, String address) {
+        throw new WebServiceException(new Message("UNSUPPORTED_API_EXC", LOG, "addPort").toString());        
     }
 
-    @Override
-    public void addPort(QName arg0, String arg1, String arg2) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public <T> Dispatch<T> createDispatch(QName arg0, Class<T> arg1, Mode arg2) {
-        // TODO Auto-generated method stub
+    public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) { 
         return null;
     }
 
-    @Override
-    public Dispatch<Object> createDispatch(QName arg0, JAXBContext arg1, Mode arg2) {
-        // TODO Auto-generated method stub
+    public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
         return null;
     }
 
-    @Override
     public Executor getExecutor() {
-        // TODO Auto-generated method stub
-        return null;
+        return endpoint.getExecutor();
     }
 
-    @Override
     public HandlerResolver getHandlerResolver() {
-        // TODO Auto-generated method stub
-        return null;
+        return handlerResolver;
     }
 
-    @Override
-    public <T> T getPort(Class<T> arg0) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T getPort(Class<T> type) {
+        return createPort(null, type);
     }
 
-    @Override
-    public <T> T getPort(QName arg0, Class<T> arg1) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> T getPort(QName portName, Class<T> type) {
+        if (portName == null) {
+            throw new WebServiceException(BUNDLE.getString("PORT_NAME_NULL_EXC"));
+        }
+        return createPort(portName, type);
     }
 
-    @Override
     public Iterator<QName> getPorts() {
-        // TODO Auto-generated method stub
-        return null;
+        return ports.iterator();
     }
 
-    @Override
     public QName getServiceName() {
-        // TODO Auto-generated method stub
-        return null;
+        return service.getName();
     }
 
-    @Override
     public URL getWSDLDocumentLocation() {
-        // TODO Auto-generated method stub
-        return null;
+        return wsdlURL;
     }
 
-    @Override
-    public void setExecutor(Executor arg0) {
-        // TODO Auto-generated method stub
-        
+    public void setExecutor(Executor e) {
+        endpoint.setExecutor(e);
     }
 
-    @Override
-    public void setHandlerResolver(HandlerResolver arg0) {
-        // TODO Auto-generated method stub
-        
+    public void setHandlerResolver(HandlerResolver hr) {
+        handlerResolver = hr;   
     }
     
     public Bus getBus() {
         return bus;
-    }
-
-    public URL getWsdlURL() {
-        return wsdlURL;
     }
 
     public Service getService() {
@@ -116,65 +117,41 @@ public class ServiceImpl extends ServiceDelegate {
     
     protected <T> T createPort(QName portName, Class<T> serviceEndpointInterface) {
 
-        /*
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
-
-        //Assuming Annotation is Present
-        javax.jws.WebService wsAnnotation = serviceEndpointInterface.getAnnotation(WebService.class);
-
-        if (wsdlLocation == null) {
-            wsdlLocation = getWsdlLocation(wsAnnotation);
+        
+        QName pn = portName;
+        ServiceInfo si = service.getServiceInfo();
+        EndpointInfo ei = null;
+        if (portName == null) {
+            if (1 == si.getEndpoints().size()) {
+                ei = si.getEndpoints().iterator().next();
+                pn = new QName(service.getName().getNamespaceURI(), ei.getName());
+            }
+        } else {
+            ei = si.getEndpoint(portName.getLocalPart());
         }
-
-        if (wsdlLocation == null) {
-            throw new WebServiceException("No wsdl url specified");
-        }
-
-        if (serviceName == null) {
-            serviceName = getServiceName(wsAnnotation);
+        if (null == pn) {
+            throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));  
         }
         
-        if (portName == null) {
-            portName = getPortName(wsAnnotation);
-            if (portName == null) {
-                try {
-                    Definition def = bus.getWSDLManager().getDefinition(wsdlLocation);
-                    javax.wsdl.Service service = def.getService(serviceName);
-                    if (service.getPorts().size() == 1) {
-                        Port port = (Port)service.getPorts().values().iterator().next();
-                        portName = new QName(serviceName.getNamespaceURI(), port.getName());
-                    } else {
-                        throw new WebServiceException("Unable to determine portName");                      
-                    }
-                } catch (WSDLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlLocation,
-                serviceName, portName.getLocalPart());
-
-        Configuration portConfiguration = createPortConfiguration(portName, ref);
-
-        EndpointInvocationHandler endpointHandler =
-                new EndpointInvocationHandler(bus, ref, this, portConfiguration, serviceEndpointInterface);
-
-        createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
-
+        JaxwsEndpointImpl jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
+        Client client = new ClientImpl(bus, endpoint);
+        
+        InvocationHandler ih = new EndpointInvocationHandler(endpoint, client, 
+                                                             jaxwsEndpoint.getJaxwsBinding());
+        
+        // configuration stuff 
+        // createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
+        
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
                                             new Class[] {serviceEndpointInterface, BindingProvider.class},
-                                            endpointHandler);
+                                            ih);
 
         LOG.log(Level.FINE, "created proxy", obj);
-
-        endpointList.add(portName);
-
-        return serviceEndpointInterface.cast(obj);
-        */
         
-        return null;
+        ports.add(pn);
+        return serviceEndpointInterface.cast(obj);
     }
 
 }

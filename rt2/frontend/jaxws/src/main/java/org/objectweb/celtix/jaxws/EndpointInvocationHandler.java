@@ -7,11 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
+import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.client.Client;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.endpoint.Client;
+import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 
@@ -20,8 +22,16 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
     // private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
     
+    private Endpoint endpoint;
     private Client client;
+    
     private Map<Method, OperationInfo> infoMap = new ConcurrentHashMap<Method, OperationInfo>();
+    
+    EndpointInvocationHandler(Endpoint e, Client c, Binding b) {
+        super(b);
+        endpoint = e;
+        client = c;
+    }
     
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         
@@ -43,7 +53,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             } else {
                 operationName = method.getName();
             }
-            InterfaceInfo ii = client.getEndpoint().getService().getServiceInfo().getInterface();
+            InterfaceInfo ii = endpoint.getService().getServiceInfo().getInterface();
             oi = ii.getOperation(operationName);
             if (null == oi) {
                 Message msg = new Message("NO_OPERATION_INFO", LOG, operationName);

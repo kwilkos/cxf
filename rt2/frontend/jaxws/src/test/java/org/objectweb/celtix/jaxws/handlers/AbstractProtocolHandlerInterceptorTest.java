@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.message.AbstractWrappedMessage;
+import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.Message;
 
 import static org.easymock.EasyMock.eq;
@@ -20,11 +21,14 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     private IMocksControl control;
     private HandlerChainInvoker invoker;
     private IIOPMessage message;
+    private Exchange exchange;
     
     public void setUp() {
         control = createNiceControl();
         invoker = control.createMock(HandlerChainInvoker.class);
         message = control.createMock(IIOPMessage.class);
+        exchange = control.createMock(Exchange.class);
+        
     }
     
     public void tearDown() {
@@ -32,17 +36,21 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     }
 
     public void testInterceptSuccess() {
+        expect(message.getExchange()).andReturn(exchange);
+        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
         expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(true);
         control.replay();
-        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
+        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor();
         assertEquals("unexpected phase", "user-protocol", pi.getPhase());
         pi.handleMessage(message);
     }
     
     public void testInterceptFailure() {
+        expect(message.getExchange()).andReturn(exchange);
+        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
         expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(false);
         control.replay();
-        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(invoker);
+        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor();
         pi.handleMessage(message);  
     }
 
@@ -61,10 +69,6 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     }
     
     class IIOPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<IIOPMessage> {
-
-        IIOPHandlerInterceptor(HandlerChainInvoker i) {
-            super(i);
-        }        
         
     }
     
