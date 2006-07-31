@@ -13,6 +13,8 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
+import org.objectweb.celtix.buslifecycle.CeltixBusLifeCycleManager;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
@@ -44,7 +46,7 @@ public class CeltixBus extends Bus {
     // private TransportFactoryManager transportFactoryManager;
     private WSDLManager wsdl11Manager;
     private InstrumentationManager instrumentationManager;
-    // private CeltixBusLifeCycleManager lifeCycleManager;
+    private BusLifeCycleManager lifeCycleManager;
     // private WorkQueueManager workQueueManager;
     private ResourceManager resourceManager;
 
@@ -107,17 +109,12 @@ public class CeltixBus extends Bus {
             // newPropertyValues.add(instrumentationManager);
         }
         
-        /*
-        if (properties.get(CELTIX_WSDLMANAGER) != null) {
-            wsdlManager = (WSDLManager)properties.get(CELTIX_WSDLMANAGER);
-        } else {
-            wsdlManager = new WSDLManagerImpl(this);
+        lifeCycleManager = (BusLifeCycleManager)properties.get(LIFECYCLEMANAGER_PROPERTY_NAME);
+        if (null == lifeCycleManager) {            
+            lifeCycleManager = new CeltixBusLifeCycleManager();
+            properties.put(LIFECYCLEMANAGER_PROPERTY_NAME, lifeCycleManager);
+            newPropertyValues.add(lifeCycleManager);
         }
-        */
-        
-        
-        
-        // lifeCycleManager = new CeltixBusLifeCycleManager();
         
         // workQueueManager = new WorkQueueManagerImpl(this);
         
@@ -184,11 +181,11 @@ public class CeltixBus extends Bus {
         return instrumentationManager;
     }
 
-    /*
     public BusLifeCycleManager getLifeCycleManager() {
         return lifeCycleManager;
     }
-
+    
+    /*
     public WorkQueueManager getWorkQueueManager() {
         return workQueueManager;
     }

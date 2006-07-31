@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 // import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
@@ -169,6 +170,13 @@ public abstract class Bus implements InterceptorProvider {
      * @return the instrumentation manager of this bus
      */
     public abstract InstrumentationManager getInstrumentationManager(); 
+    
+    /** 
+     * Returns the BusLifeCycleManager of this bus.
+     * 
+     * @return the life cycle manager of this bus
+     */
+    public abstract BusLifeCycleManager getLifeCycleManager(); 
     
     /** 
      * Returns the <code>WSDLManager</code> of this bus.
