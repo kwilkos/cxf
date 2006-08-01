@@ -19,7 +19,10 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class ServiceWSDLBuilderTest extends TestCase {
@@ -30,28 +33,38 @@ public class ServiceWSDLBuilderTest extends TestCase {
     private Definition def;
     private Definition newDef;
     private Service service;
-    private WSDLFactory wsdlFactory;
-    private WSDLReader wsdlReader;
-    private Bus bus;
+
     private WSDLServiceBuilder wsdlServiceBuilder;
     private ServiceInfo serviceInfo;
     
+    private IMocksControl control;
+    private Bus bus;
+    private BindingFactoryManager bindingFactoryManager;
+    
     public void setUp() throws Exception {
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+  
         String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
-        wsdlFactory = WSDLFactory.newInstance();
-        wsdlReader = wsdlFactory.newWSDLReader();
+        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
+        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
         wsdlReader.setFeature("javax.wsdl.verbose", false);
         def = wsdlReader.readWSDL(wsdlUrl);
-        bus = Bus.init();
+        
+        control = EasyMock.createNiceControl();
+        bus = control.createMock(Bus.class);
+        bindingFactoryManager = control.createMock(BindingFactoryManager.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+
         for (Service serv : WSDLServiceBuilder.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
                 service = serv;
                 break;
             }
         }
+        
+        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
+        control.replay();
+        
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
@@ -59,7 +72,8 @@ public class ServiceWSDLBuilderTest extends TestCase {
         
     }
     
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception {        
+        control.verify();
         newDef = null;
     }
     

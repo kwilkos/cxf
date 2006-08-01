@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://celtix.objectweb.org/configuration/instrumentation/types"
+           xmlns:tns="http://celtix.objectweb.org/configuration/instrumentation/types"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified" >
+    
+    <xs:complexType name="InstrumentationPolicyType">
+   		<xs:sequence>        
+        	<xs:element name="InstrumentationEnabled" type="xs:boolean" default="true"/>
+        	<xs:element name="JMXEnabled" type="xs:boolean" default="true"/>        
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="JMXConnectorPolicyType">
+		<xs:sequence>                  
+        	<xs:element name="Threaded" type="xs:boolean"/>
+        	<xs:element name="Daemon" type="xs:boolean"/>
+        	<xs:element name="JMXServiceURL" type="xs:string"/>        
+        </xs:sequence>
+    </xs:complexType>
+    
+
+    <xs:complexType name="MBServerPolicyType">
+    	<xs:sequence>
+    		<xs:element name="JMXConnector" type="tns:JMXConnectorPolicyType"/>   	    	
+    	</xs:sequence>	
+    </xs:complexType>
+    
+	
+    <xs:element name="instrumentation" type="tns:InstrumentationPolicyType"/>
+    <xs:element name="MBServer" type="tns:MBServerPolicyType"/>   
+
+</xs:schema>

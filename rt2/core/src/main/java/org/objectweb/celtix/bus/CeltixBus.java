@@ -18,8 +18,11 @@ import org.objectweb.celtix.buslifecycle.CeltixBusLifeCycleManager;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.event.EventProcessor;
+import org.objectweb.celtix.event.EventProcessorImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.management.InstrumentationManager;
+import org.objectweb.celtix.management.InstrumentationManagerImpl;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
@@ -34,6 +37,7 @@ public class CeltixBus extends Bus {
     public static final String TRANSPORTFACTORYMANAGER_PROPERTY_NAME = "transportFactoryManager";
     public static final String WSDL11MANAGER_PROPERTY_NAME = "wsdl11Manager";
     public static final String INSTRUMENTATIONMANAGER_PROPERTY_NAME = "instrumentationManager";
+    public static final String EVENTPROCESSOR_PROPERTY_NAME = "eventProcessor";
     public static final String LIFECYCLEMANAGER_PROPERTY_NAME = "lifeCycleManager";
     public static final String WORKQUEUEMANAGER_PROPERTY_NAME = "workQueueManager";
     public static final String RESOURCEMANAGER_PROPERTY_NAME = "resourceManager";
@@ -46,6 +50,7 @@ public class CeltixBus extends Bus {
     // private TransportFactoryManager transportFactoryManager;
     private WSDLManager wsdl11Manager;
     private InstrumentationManager instrumentationManager;
+    private EventProcessor eventProcessor;
     private BusLifeCycleManager lifeCycleManager;
     // private WorkQueueManager workQueueManager;
     private ResourceManager resourceManager;
@@ -104,9 +109,16 @@ public class CeltixBus extends Bus {
         
         instrumentationManager = (InstrumentationManager)properties.get(INSTRUMENTATIONMANAGER_PROPERTY_NAME);
         if (null == instrumentationManager) {            
-            // instrumentationManager = new InstrumentationManagerImpl();
-            // properties.put(INSTRUMENTATIONMANAGER_PROPERTY_NAME, instrumentationManager);
-            // newPropertyValues.add(instrumentationManager);
+            instrumentationManager = new InstrumentationManagerImpl();
+            properties.put(INSTRUMENTATIONMANAGER_PROPERTY_NAME, instrumentationManager);
+            newPropertyValues.add(instrumentationManager);
+        }
+        
+        eventProcessor = (EventProcessor)properties.get(EVENTPROCESSOR_PROPERTY_NAME);
+        if (null == instrumentationManager) {            
+            eventProcessor = new EventProcessorImpl();
+            properties.put(EVENTPROCESSOR_PROPERTY_NAME, EVENTPROCESSOR_PROPERTY_NAME);
+            newPropertyValues.add(eventProcessor);
         }
         
         lifeCycleManager = (BusLifeCycleManager)properties.get(LIFECYCLEMANAGER_PROPERTY_NAME);
@@ -179,6 +191,10 @@ public class CeltixBus extends Bus {
     
     public InstrumentationManager getInstrumentationManager() {
         return instrumentationManager;
+    }
+    
+    public EventProcessor getEventProcessor() {
+        return eventProcessor;
     }
 
     public BusLifeCycleManager getLifeCycleManager() {

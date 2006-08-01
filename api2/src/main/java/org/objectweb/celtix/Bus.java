@@ -12,6 +12,7 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 // import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.event.EventProcessor;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.management.InstrumentationManager;
 
@@ -170,6 +171,13 @@ public abstract class Bus implements InterceptorProvider {
      * @return the instrumentation manager of this bus
      */
     public abstract InstrumentationManager getInstrumentationManager(); 
+    
+    /** 
+     * Returns the EventProcessor of this bus.
+     * 
+     * @return the event processor manager of this bus
+     */
+    public abstract EventProcessor getEventProcessor(); 
     
     /** 
      * Returns the BusLifeCycleManager of this bus.

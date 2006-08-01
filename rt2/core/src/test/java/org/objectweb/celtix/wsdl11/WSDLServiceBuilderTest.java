@@ -1,5 +1,6 @@
 package org.objectweb.celtix.wsdl11;
 
+
 import java.util.Collection;
 import java.util.logging.Logger;
 
@@ -12,7 +13,10 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
@@ -26,34 +30,43 @@ public class WSDLServiceBuilderTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
     private static final String WSDL_PATH = "/wsdl/hello_world.wsdl";
     private Definition def;
-    private Service service;
-    private WSDLFactory wsdlFactory;
-    private WSDLReader wsdlReader;
-    private Bus bus;
-    private WSDLServiceBuilder wsdlServiceBuilder;
+    private Service service;    
     private ServiceInfo serviceInfo;
     
+    private IMocksControl control;
+    private Bus bus;
+    private BindingFactoryManager bindingFactoryManager;
+    
     public void setUp() throws Exception {
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            
         String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
-        wsdlFactory = WSDLFactory.newInstance();
-        wsdlReader = wsdlFactory.newWSDLReader();
+        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
+        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
         wsdlReader.setFeature("javax.wsdl.verbose", false);
         def = wsdlReader.readWSDL(wsdlUrl);
-        bus = Bus.init();
-        wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+
+        WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
         for (Service serv : WSDLServiceBuilder.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
                 service = serv;
                 break;
             }
         }
+        
+        control = EasyMock.createNiceControl();
+        bus = control.createMock(Bus.class);
+        bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+        
+        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
+        
+        control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
     }
     
     public void tearDown() throws Exception {
-        
+        control.verify(); 
     }
     
     public void testServiceInfo() throws Exception {

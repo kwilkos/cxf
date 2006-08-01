@@ -2,6 +2,7 @@ package org.objectweb.celtix.bus;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,26 +11,56 @@ import javax.annotation.Resource;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
+import org.objectweb.celtix.event.EventProcessor;
+import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.phase.Phase;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class CeltixBusTest extends TestCase {
 
     private CeltixBus bus;
+    private IMocksControl control;
+    private BindingFactoryManager bindingFactoryManager;
+    private WSDLManager wsdlManager;
+    private EventProcessor eventProcessor;
+    private InstrumentationManager instrumentationManager;
+    private BusLifeCycleManager lifecycleManager;
+    
 
     public void setUp() {
         bus = new CeltixBus();
+        control = EasyMock.createNiceControl();
     }
     
     public void testInitWithoutProperties() throws BusException {
-        Bus b = Bus.init();
-        assertTrue(b instanceof CeltixBus);
+        // don't test as this construction of a whole bunch of objects ...
     }
     
-    public void testInitWithProperties() {
+    public void testInitWithProperties() throws BusException {
+        Map<String, Object> properties = new HashMap<String, Object>();
+        bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        wsdlManager = control.createMock(WSDLManager.class);
+        eventProcessor = control.createMock(EventProcessor.class);
+        instrumentationManager = control.createMock(InstrumentationManager.class);
+        lifecycleManager = control.createMock(BusLifeCycleManager.class);
+        properties.put("bindingFactoryManager", bindingFactoryManager);
+        properties.put("wsdl11Manager", wsdlManager);
+        properties.put("eventProcessor", eventProcessor);
+        properties.put("instrumentationManager", instrumentationManager);
+        properties.put("lifeCycleManager", lifecycleManager);
         
+        bus.initialize(properties);
+        
+        assertSame(bindingFactoryManager, bus.getBindingManager());
+        assertSame(wsdlManager, bus.getWSDL11Manager());
+        assertSame(eventProcessor, bus.getEventProcessor());
+        assertSame(instrumentationManager, bus.getInstrumentationManager());
+        assertSame(lifecycleManager, bus.getLifeCycleManager());
     }
 
     public void testCreatePhases() {
