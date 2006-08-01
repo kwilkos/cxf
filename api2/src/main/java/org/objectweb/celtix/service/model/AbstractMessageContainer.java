@@ -77,6 +77,16 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
         }
         return -1;
     }
+    public MessagePartInfo getMessagePartByIndex(int i) {
+        int idx = 0;
+        for (MessagePartInfo p : messageParts.values()) {
+            if (idx == i) {
+                return p;
+            }
+            ++idx;
+        }
+        return null;
+    }
 
     /**
      * Removes an message part from this container.

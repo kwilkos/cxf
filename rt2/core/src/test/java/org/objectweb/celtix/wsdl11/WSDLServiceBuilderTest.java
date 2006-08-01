@@ -104,6 +104,26 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertTrue(greetMe.hasInput());
         assertTrue(greetMe.hasOutput());
         
+        assertTrue("greatMe should be wrapped", greetMe.isWrappedCapable());
+        assertNotNull(greetMe.getInput().getUnwrappedMessage());
+        assertNotNull(greetMe.getOutput().getUnwrappedMessage());
+        assertEquals("wrapped part not set", 1, greetMe.getInput().getUnwrappedMessage().size());
+        assertEquals("wrapped part not set", 1, greetMe.getOutput().getUnwrappedMessage().size());
+        assertEquals("wrapper part name wrong", "requestType",
+                     greetMe.getInput().getUnwrappedMessage().getMessagePartByIndex(0)
+                         .getName().getLocalPart());
+        assertEquals("wrapper part type name wrong", "MyStringType",
+                     greetMe.getInput().getUnwrappedMessage().getMessagePartByIndex(0)
+                         .getTypeQName().getLocalPart());
+        
+        assertEquals("wrapper part name wrong", "responseType",
+                     greetMe.getOutput().getUnwrappedMessage().getMessagePartByIndex(0)
+                         .getName().getLocalPart());
+        assertEquals("wrapper part type name wrong", "string",
+                     greetMe.getOutput().getUnwrappedMessage().getMessagePartByIndex(0)
+                         .getTypeQName().getLocalPart());
+        
+        
         OperationInfo greetMeOneWay = serviceInfo.getInterface().getOperation("greetMeOneWay");
         assertNotNull(greetMeOneWay);
         assertEquals(greetMeOneWay.getName(), "greetMeOneWay");

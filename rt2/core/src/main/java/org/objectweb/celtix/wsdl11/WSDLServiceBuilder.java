@@ -1,5 +1,6 @@
 package org.objectweb.celtix.wsdl11;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import javax.wsdl.BindingFault;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Fault;
+import javax.wsdl.Import;
 import javax.wsdl.Input;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
@@ -18,8 +20,18 @@ import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
+import javax.xml.namespace.QName;
 
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaObject;
+import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
@@ -38,7 +50,7 @@ import org.objectweb.celtix.service.model.ServiceInfo;
 public class WSDLServiceBuilder {
     
 
-       
+    public static final String WSDL_SCHEMA_LIST = WSDLServiceBuilder.class.getName() + ".SCHEMA";
     public static final String WSDL_DEFINITION = WSDLServiceBuilder.class.getName() + ".DEFINITION";
     public static final String WSDL_SERVICE = WSDLServiceBuilder.class.getName() + ".SERVICE";
     public static final String WSDL_PORTTYPE = WSDLServiceBuilder.class.getName() + ".WSDL_PORTTYPE";
@@ -59,12 +71,16 @@ public class WSDLServiceBuilder {
     // utility for dealing with the JWSDL collections that are 1.4 based.   We can 
     // kind of use a normal for loop with this
     @SuppressWarnings("unchecked")
-    public static <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
+    static <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
         return (Collection<T>)p;
     }
     @SuppressWarnings("unchecked")
-    public static <T, U> Map.Entry<T, U> cast(Map.Entry<?, ?> p, Class<T> pc, Class<U> uc) {
+    static <T, U> Map.Entry<T, U> cast(Map.Entry<?, ?> p, Class<T> pc, Class<U> uc) {
         return (Map.Entry<T, U>)p;
+    }
+    @SuppressWarnings("unchecked")
+    static <T, U> Map<T, U> cast(Map<?, ?> p, Class<T> pc, Class<U> uc) {
+        return (Map<T, U>)p;
     }
     
     private void copyExtensors(AbstractPropertiesHolder info, List<?> extList) {
@@ -79,6 +95,10 @@ public class WSDLServiceBuilder {
         ServiceInfo service = new ServiceInfo();
         service.setProperty(WSDL_DEFINITION, def);
         service.setProperty(WSDL_SERVICE, serv);
+        
+        XmlSchemaCollection schemas = getSchemas(def);
+        service.setProperty(WSDL_SCHEMA_LIST, schemas);
+        
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
         copyExtensors(service, def.getExtensibilityElements());
@@ -105,6 +125,53 @@ public class WSDLServiceBuilder {
         
         
         return service;
+    }
+
+    private XmlSchemaCollection getSchemas(Definition def) {
+        XmlSchemaCollection schemaCol = new XmlSchemaCollection();
+        List<Definition> defList = new ArrayList<Definition>();
+        parseImports(def, defList);
+        extractSchema(def, schemaCol);
+        for (Definition def2 : defList) {
+            extractSchema(def2, schemaCol);
+        }
+        return schemaCol;
+    }
+    @SuppressWarnings("unchecked")
+    private void parseImports(Definition def,
+                              List<Definition> defList) {
+        List<Import> importList = new ArrayList<Import>();
+        
+        Collection<List<Import>> ilist = (Collection<List<Import>>)def.getImports().values();
+        for (List<Import> list : ilist) {
+            importList.addAll(list);
+        }
+        for (Import impt : importList) {
+            parseImports(impt.getDefinition(), defList);
+            defList.add(impt.getDefinition());
+        }
+    }
+
+    private void extractSchema(Definition def,
+                               XmlSchemaCollection schemaCol) {
+        Types typesElement = def.getTypes();
+        if (typesElement != null) {
+            for (Object obj : typesElement.getExtensibilityElements()) {
+                org.w3c.dom.Element schemaElem = null;
+                if (obj instanceof Schema) {
+                    Schema schema = (Schema)obj;
+                    schemaElem = schema.getElement();
+                } else if (obj instanceof UnknownExtensibilityElement) {
+                    org.w3c.dom.Element elem = ((UnknownExtensibilityElement) obj).getElement();
+                    if (elem.getLocalName().equals("schema")) {
+                        schemaElem = elem;
+                    }
+                }
+                if (schemaElem != null) {
+                    schemaCol.read(schemaElem);
+                }
+            }
+        }
     }
 
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {
@@ -179,7 +246,7 @@ public class WSDLServiceBuilder {
         
     }
 
-    public void buildInterfaceOperation(InterfaceInfo inf, Operation op) {
+    private void buildInterfaceOperation(InterfaceInfo inf, Operation op) {
         OperationInfo opInfo = inf.addOperation(op.getName());
         opInfo.setProperty(WSDL_OPERATION, op);
         Input input = op.getInput();
@@ -200,9 +267,127 @@ public class WSDLServiceBuilder {
             FaultInfo finfo = opInfo.addFault(entry.getKey(), entry.getValue().getMessage().getQName());
             buildMessage(finfo, entry.getValue().getMessage());
         }
+        checkForWrapped(opInfo);
     }
 
-    public void buildMessage(AbstractMessageContainer minfo, Message msg) {
+    private void checkForWrapped(OperationInfo opInfo) {
+        
+        MessageInfo inputMessage = opInfo.getInput();
+        MessageInfo outputMessage = opInfo.getOutput();
+
+        // RULE No.1:
+        // The operation's input and output message (if present) each contain only a single part
+        // input message must exist
+        if (inputMessage == null
+            || inputMessage.size() != 1
+            || (outputMessage != null && outputMessage.size() != 1)) {
+            return;
+        }
+
+        XmlSchemaCollection schemas = (XmlSchemaCollection)opInfo.getInterface()
+            .getService().getProperty(WSDL_SCHEMA_LIST);
+        XmlSchemaElement inputEl = null;
+        XmlSchemaElement outputEl = null;
+        
+        // RULE No.2:
+        // The input message part refers to a global element decalration whose localname
+        // is equal to the operation name
+        MessagePartInfo inputPart = inputMessage.getMessagePartByIndex(0);
+        if (!inputPart.isElement()) { 
+            return;
+        } else {
+            QName inputElementName = inputPart.getElementQName();
+            inputEl = schemas.getElementByQName(inputElementName);
+            if (inputEl == null
+                || !opInfo.getName().equals(inputElementName.getLocalPart())) {
+                return;
+            }
+        }
+        
+        // RULE No.3:
+        // The output message part refers to a global element decalration
+        MessagePartInfo outputPart = null;
+        if (outputMessage != null && outputMessage.size() == 1) {
+            outputPart = outputMessage.getMessagePartByIndex(0);
+            if (outputPart != null) {
+                if (!outputPart.isElement()
+                    || schemas.getElementByQName(outputPart.getElementQName()) == null) {
+                    return;
+                }
+                outputEl = schemas.getElementByQName(outputPart.getElementQName());
+            }
+        }
+
+        // RULE No.4 and No5:
+        // wrapper element should be pure complex type
+        
+        // Now lets see if we have any attributes...
+        // This should probably look at the restricted and substitute types too.
+        MessageInfo unwrappedInput = new MessageInfo(opInfo, inputMessage.getName());
+        MessageInfo unwrappedOutput = null;
+
+        if (inputEl.getSchemaType() instanceof XmlSchemaComplexType
+            && (hasAttributes((XmlSchemaComplexType)inputEl.getSchemaType())
+                || !isWrappableSequence((XmlSchemaComplexType)inputEl.getSchemaType(), unwrappedInput))) {
+            return;
+        }
+        if (outputMessage != null) {
+            unwrappedOutput = new MessageInfo(opInfo, outputMessage.getName());
+            if (outputEl != null
+                && (hasAttributes((XmlSchemaComplexType)outputEl.getSchemaType())
+                    || !isWrappableSequence((XmlSchemaComplexType)outputEl.getSchemaType(),
+                                            unwrappedOutput))) {
+                return;
+            }
+        }
+        
+        //we are wrappable!!
+        opInfo.setWrappedCapable();
+        inputMessage.setUnwrappedMessage(unwrappedInput);
+        if (outputMessage != null) { 
+            outputMessage.setUnwrappedMessage(unwrappedOutput);
+        }
+    }
+    private boolean hasAttributes(XmlSchemaComplexType complexType) {
+        // Now lets see if we have any attributes...
+        // This should probably look at the restricted and substitute types too.
+        if (complexType.getAnyAttribute() != null
+            || complexType.getAttributes().getCount() > 0) {
+            return true;
+        }
+        return false;
+    }
+    private boolean isWrappableSequence(XmlSchemaComplexType type, MessageInfo wrapper) {
+        if (type.getParticle() instanceof XmlSchemaSequence) {
+            XmlSchemaSequence seq = (XmlSchemaSequence) type.getParticle();
+            XmlSchemaObjectCollection items = seq.getItems();
+
+            for (int x = 0; x < items.getCount(); x++) {
+                XmlSchemaObject o = items.getItem(x);
+                if (!(o instanceof XmlSchemaElement)) {
+                    return false;
+                }
+                XmlSchemaElement el = (XmlSchemaElement)o;
+                if (el.getMaxOccurs() > 1) {
+                    return false;
+                }
+                // If this is an anonymous complex type, mark it as unwrapped.
+                // We're doing this because things like JAXB don't have support
+                // for finding classes from anonymous type names.
+                if (el.getSchemaTypeName() == null && el.getRefName() == null) {
+                    return false;
+                }
+                
+                MessagePartInfo mpi = wrapper.addMessagePart(el.getQName());
+                mpi.setTypeQName(el.getSchemaTypeName());
+            }
+            
+            return true;
+        }
+        return false;
+    }
+
+    private void buildMessage(AbstractMessageContainer minfo, Message msg) {
         for (Part part : cast(msg.getOrderedParts(null), Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(part.getName());
             if (part.getTypeName() != null) {
@@ -215,5 +400,4 @@ public class WSDLServiceBuilder {
         }
     }
     
-       
 }

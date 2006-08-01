@@ -19,6 +19,7 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     String outName;
     MessageInfo outputMessage;
     Map<String, FaultInfo> faults;
+    boolean wrappedCapable;
     
     OperationInfo(InterfaceInfo it, String n) { 
         intf = it;
@@ -81,6 +82,16 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     
     public boolean isOneWay() {
         return inputMessage != null && outputMessage == null;
+    }
+    
+    public boolean isWrappedCapable() {
+        return wrappedCapable;
+    }
+    public void setWrappedCapable(boolean t) {
+        wrappedCapable = t;
+    }
+    public void setWrappedCapable() {
+        setWrappedCapable(true);
     }
     
     
