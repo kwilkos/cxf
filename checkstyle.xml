@@ -133,7 +133,7 @@ lengths, if/try depths, etc...
             <property name="option" value="text"/>
         </module>
         <module name="LeftCurly"/>
-        <!-- module name="NeedBraces"/ -->
+        <module name="NeedBraces"/>
         <module name="RightCurly"/>
 
 

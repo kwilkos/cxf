@@ -327,20 +327,15 @@ public class WSDLServiceBuilder {
         MessageInfo unwrappedInput = new MessageInfo(opInfo, inputMessage.getName());
         MessageInfo unwrappedOutput = null;
 
+        XmlSchemaComplexType xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType
-            && (hasAttributes((XmlSchemaComplexType)inputEl.getSchemaType()) || !isWrappableSequence(
-                                                                                                     (XmlSchemaComplexType)inputEl
-                                                                                                         .getSchemaType(),
-                                                                                                     unwrappedInput))) {
+            && (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedInput))) {
             return;
         }
         if (outputMessage != null) {
             unwrappedOutput = new MessageInfo(opInfo, outputMessage.getName());
-            if (outputEl != null
-                && (hasAttributes((XmlSchemaComplexType)outputEl.getSchemaType()) || !isWrappableSequence(
-                                                                                                          (XmlSchemaComplexType)outputEl
-                                                                                                              .getSchemaType(),
-                                                                                                          unwrappedOutput))) {
+            xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
+            if (outputEl != null && (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedOutput))) {
                 return;
             }
         }
