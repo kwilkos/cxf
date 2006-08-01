@@ -21,7 +21,7 @@ public class ClientImpl implements Client {
     public Object invoke(OperationInfo oi, Object[] params) {
 
         Message message = endpoint.getBinding().createMessage();
-        message.setSource(Object[].class, params);
+        message.setContent(Object[].class, params);
         setOutMessageProperties(message, oi);
    
 

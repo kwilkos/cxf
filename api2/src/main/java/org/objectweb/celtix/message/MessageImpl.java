@@ -7,24 +7,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.celtix.channels.Channel;
 import org.objectweb.celtix.interceptors.InterceptorChain;
+import org.objectweb.celtix.messaging.Conduit;
+import org.objectweb.celtix.messaging.Destination;
 
 public class MessageImpl extends HashMap<String, Object> implements Message {
     private List<Attachment> attachments = new ArrayList<Attachment>();
-    private Channel channel;
+    private Conduit conduit;
+    private Destination destination;
     private Exchange exchange;
     private String id;
     private InterceptorChain interceptorChain;
-    private Map<Class, Object> results = new HashMap<Class, Object>();
-    private Map<Class, Object> sources = new HashMap<Class, Object>();
+    private Map<Class, Object> contents = new HashMap<Class, Object>();
     
     public Collection<Attachment> getAttachments() {
         return attachments;
     }
 
-    public Channel getChannel() {
-        return channel;
+    public Conduit getConduit() {
+        return conduit;
+    }
+
+    public Destination getDestination() {
+        return destination;
     }
 
     public Exchange getExchange() {
@@ -40,29 +45,24 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T getResult(Class<T> format) {
-        return (T) results.get(format);
+    public <T> T getContent(Class<T> format) {
+        return (T) contents.get(format);
     }
 
-    public <T> void setResult(Class<T> format, Object content) {
-        results.put(format, content);
+    public <T> void setContent(Class<T> format, Object content) {
+        contents.put(format, content);
     }
 
-    public Set<Class> getResultFormats() {
-        return results.keySet();
+    public Set<Class> getContentFormats() {
+        return contents.keySet();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T getSource(Class<T> format) {
-        return (T) sources.get(format);
+    public void setConduit(Conduit c) {
+        this.conduit = c;
     }
 
-    public Set<Class> getSourceFormats() {
-        return sources.keySet();
-    }
-
-    public void setChannel(Channel c) {
-        this.channel = c;
+    public void setDestination(Destination d) {
+        this.destination = d;
     }
 
     public void setExchange(Exchange e) {
@@ -75,10 +75,6 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
 
     public void setInterceptorChain(InterceptorChain ic) {
         this.interceptorChain = ic;
-    }
-
-    public <T> void setSource(Class<T> format, Object content) {
-        sources.put(format, content);
     }
     
 }

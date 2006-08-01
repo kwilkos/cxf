@@ -1,5 +1,6 @@
 package org.objectweb.celtix.messaging;
 
+import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 /**
@@ -25,16 +26,11 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 public interface Conduit extends Observable {
     
     /**
-     * @return a fresh outbound message.
-     */
-    OutMessage createMessage();
-
-    /**
      * Send an outbound message.
      * 
      * @param message the message to be sent.
      */
-    void send(OutMessage message);
+    void send(Message message);
     
     /**
      * @return the reference associated with the target Destination

@@ -4,8 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.celtix.channels.Channel;
 import org.objectweb.celtix.interceptors.InterceptorChain;
+import org.objectweb.celtix.messaging.Conduit;
+import org.objectweb.celtix.messaging.Destination;
 
 /**
  * A base class to build your own message implementations on.
@@ -48,8 +49,12 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getAttachments();
     }
 
-    public Channel getChannel() {
-        return message.getChannel();
+    public Conduit getConduit() {
+        return message.getConduit();
+    }
+    
+    public Destination getDestination() {
+        return message.getDestination();
     }
 
     public Exchange getExchange() {
@@ -64,20 +69,12 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getInterceptorChain();
     }
 
-    public <T> T getResult(Class<T> format) {
-        return message.getResult(format);
+    public <T> T getContent(Class<T> format) {
+        return message.getContent(format);
     }
 
-    public Set<Class> getResultFormats() {
-        return message.getResultFormats();
-    }
-
-    public <T> T getSource(Class<T> format) {
-        return message.getSource(format);
-    }
-
-    public Set<Class> getSourceFormats() {
-        return message.getSourceFormats();
+    public Set<Class> getContentFormats() {
+        return message.getContentFormats();
     }
 
     public int hashCode() {
@@ -104,12 +101,8 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.remove(key);
     }
 
-    public <T> void setResult(Class<T> format, Object content) {
-        message.setResult(format, content);
-    }
-
-    public <T> void setSource(Class<T> format, Object content) {
-        message.setSource(format, content);
+    public <T> void setContent(Class<T> format, Object content) {
+        message.setContent(format, content);
     }
 
     public int size() {

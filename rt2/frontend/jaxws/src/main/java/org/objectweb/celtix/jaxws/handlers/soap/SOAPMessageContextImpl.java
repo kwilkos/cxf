@@ -28,20 +28,20 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
     }
 
     public void setMessage(SOAPMessage message) {
-        getWrappedMessage().setSource(SOAPMessage.class, message);
+        getWrappedMessage().setContent(SOAPMessage.class, message);
     }
 
     public SOAPMessage getMessage() {
-        SOAPMessage message = getWrappedMessage().getSource(SOAPMessage.class);
+        SOAPMessage message = getWrappedMessage().getContent(SOAPMessage.class);
         if (null == message) {
 
             try {
                 MessageFactory factory = MessageFactory.newInstance();
                 // getMimeHeaders from message
                 MimeHeaders mhs = null;
-                InputStream is = getWrappedMessage().getSource(InputStream.class);
+                InputStream is = getWrappedMessage().getContent(InputStream.class);
                 message = factory.createMessage(mhs, is);
-                getWrappedMessage().setSource(SOAPMessage.class, message);
+                getWrappedMessage().setContent(SOAPMessage.class, message);
             } catch (SOAPException ex) {
                 // do something
             } catch (IOException ex) {

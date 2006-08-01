@@ -15,12 +15,12 @@ public class LogicalMessageImpl implements LogicalMessage {
     }
 
     public Source getPayload() {
-        return msgContext.getWrappedMessage().getSource(Source.class);
+        return msgContext.getWrappedMessage().getContent(Source.class);
         // throw new UnsupportedOperationException("getPayload");
     }
 
     public void setPayload(Source s) {
-        msgContext.getWrappedMessage().setSource(Source.class, s);
+        msgContext.getWrappedMessage().setContent(Source.class, s);
         // throw new UnsupportedOperationException("setPayload");
     }
 

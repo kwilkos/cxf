@@ -5,7 +5,6 @@ import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 
@@ -52,8 +51,7 @@ public final class TestUtil {
         ByteArrayDataSource bads = new ByteArrayDataSource(clazz.getResourceAsStream("primarySoapPart.xml"),
                                                            "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
-        soapMessage.setResult(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
-        soapMessage.setResult(InputStream.class, bads.getInputStream());
+        soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
 
         // setup the message attachments
         Collection<Attachment> attachments = soapMessage.getAttachments();

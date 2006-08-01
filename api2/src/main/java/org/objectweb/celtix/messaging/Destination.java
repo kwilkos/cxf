@@ -1,5 +1,6 @@
 package org.objectweb.celtix.messaging;
 
+import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 /**
@@ -24,7 +25,7 @@ public interface Destination extends Observable {
      * @param address the backchannel address (null to indicate anonymous)
      * @return a suitable Conduit
      */
-    Conduit getBackChannel(InMessage message, EndpointReferenceType address);
+    Conduit getBackChannel(Message message, EndpointReferenceType address);
 
     /**
      * Shutdown the Destination, i.e. stop accepting incoming messages.

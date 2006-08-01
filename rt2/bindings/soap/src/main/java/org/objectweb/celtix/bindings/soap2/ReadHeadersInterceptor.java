@@ -30,19 +30,19 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
             init();
             process();
         } catch (Exception e) {
-            message.setResult(Exception.class, e);
+            message.setContent(Exception.class, e);
             return;
         }
         // continue interceptor chain processing
     }
 
     private void init() throws Exception {
-        InputStream in = (InputStream)message.getSource(InputStream.class);
+        InputStream in = (InputStream)message.getContent(InputStream.class);
         if (in == null) {
             throw new WebServiceException("Missing Soap part input stream in soap message");
         }
         xmlReader = StaxUtils.createXMLStreamReader(in);
-        message.setSource(XMLStreamReader.class, xmlReader);
+        message.setContent(XMLStreamReader.class, xmlReader);
     }
 
     private void process() throws Exception {

@@ -70,7 +70,7 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
     public boolean isXOPPackage() {
         String contentTypeOfSoapBodyPart;
         String typeOfSoapBodyPart;
-        Attachment primaryMimePart = message.getSource(Attachment.class);
+        Attachment primaryMimePart = message.getContent(Attachment.class);
         if (primaryMimePart == null) {
             return false;
         } else {

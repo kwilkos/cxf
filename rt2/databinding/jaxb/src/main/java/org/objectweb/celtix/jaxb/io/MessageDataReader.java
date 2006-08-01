@@ -32,15 +32,15 @@ public class MessageDataReader implements DataReader<Message> {
             au = new JAXBAttachmentUnmarshaller(input); 
         }
         Object source = null;
-        XMLStreamReader xsr = (XMLStreamReader)input.getSource(XMLStreamReader.class);
+        XMLStreamReader xsr = (XMLStreamReader)input.getContent(XMLStreamReader.class);
         if (xsr != null) {
             source = xsr;
         } else {
-            XMLEventReader xer = (XMLEventReader)input.getSource(XMLEventReader.class);
+            XMLEventReader xer = (XMLEventReader)input.getContent(XMLEventReader.class);
             if (xer != null) {
                 source = xer;
             } else {
-                Node node = (Node)input.getSource(Node.class);
+                Node node = (Node)input.getContent(Node.class);
                 source = node;
             }
         }

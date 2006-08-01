@@ -61,7 +61,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         assertEquals("DummaySoapInterceptor getUnderstood has been called!", true, dsi
             .isCalledGetUnderstood());
 
-        Exception ie = (Exception)soapMessage.getSource(Exception.class);
+        Exception ie = (Exception)soapMessage.getContent(Exception.class);
         if (ie != null) {
             fail("InBound Exception found! e=" + ie.getMessage());
         }
@@ -79,7 +79,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         assertEquals("DummaySoapInterceptor getUnderstood has been called!", true, dsi
             .isCalledGetUnderstood());
 
-        Exception ie = (Exception)soapMessage.getSource(Exception.class);
+        Exception ie = (Exception)soapMessage.getContent(Exception.class);
         if (ie == null) {
             fail("InBound Exception Missing! Exception should be Can't understands QNames: " + PASSENGER
                  + ", ");
@@ -95,8 +95,8 @@ public class MustUnderstandInterceptorTest extends TestBase {
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
             .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
-        soapMessage.setSource(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
-        soapMessage.setSource(InputStream.class, bads.getInputStream());
+        soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
+        soapMessage.setContent(InputStream.class, bads.getInputStream());
 
     }
 

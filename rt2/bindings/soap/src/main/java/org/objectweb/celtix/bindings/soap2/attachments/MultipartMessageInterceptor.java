@@ -56,10 +56,10 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
             init();
             process();
         } catch (MessagingException me) {
-            message.setSource(Exception.class, me);
+            message.setContent(Exception.class, me);
             return;
         } catch (IOException ioe) {
-            message.setSource(Exception.class, ioe);
+            message.setContent(Exception.class, ioe);
             return;
         }
     }
@@ -88,7 +88,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
             return;
         } else {
             contentType = (String)httpHeaders.get("Content-Type");
-            input = message.getSource(InputStream.class);
+            input = message.getContent(InputStream.class);
             if (contentType == null || input == null) {
                 return;
             }
@@ -126,10 +126,10 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
     private void process() throws MessagingException, IOException {
 
         Attachment soapMimePart = readMimePart();
-        message.setSource(Attachment.class, soapMimePart);
+        message.setContent(Attachment.class, soapMimePart);
 
         InputStream in = soapMimePart.getDataHandler().getInputStream();
-        message.setSource(InputStream.class, in);
+        message.setContent(InputStream.class, in);
 
         if (isMultipartType) {
             Collection<Attachment> attachments = message.getAttachments();

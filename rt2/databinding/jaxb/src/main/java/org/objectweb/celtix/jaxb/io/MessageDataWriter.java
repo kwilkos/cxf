@@ -28,15 +28,15 @@ public class MessageDataWriter implements DataWriter<Message> {
         //if the mtom is enabled, we need to create the attachment mashaller
         JAXBAttachmentMarshaller am = new JAXBAttachmentMarshaller(output); 
         Object source = null;        
-        XMLStreamWriter xsw = (XMLStreamWriter)output.getResult(XMLStreamWriter.class);
+        XMLStreamWriter xsw = (XMLStreamWriter)output.getContent(XMLStreamWriter.class);
         if (xsw != null) {
             source = xsw;
         } else {
-            XMLEventWriter xew = (XMLEventWriter)output.getResult(XMLEventWriter.class);
+            XMLEventWriter xew = (XMLEventWriter)output.getContent(XMLEventWriter.class);
             if (xew != null) {
                 source = xew;
             } else {
-                Node node = (Node)output.getResult(Node.class);
+                Node node = (Node)output.getContent(Node.class);
                 source = node;
             }
         }

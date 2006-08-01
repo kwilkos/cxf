@@ -4,8 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.objectweb.celtix.channels.Channel;
 import org.objectweb.celtix.interceptors.InterceptorChain;
+import org.objectweb.celtix.messaging.Conduit;
+import org.objectweb.celtix.messaging.Destination;
 
 public interface Message extends Map<String, Object> {
     
@@ -25,23 +26,40 @@ public interface Message extends Map<String, Object> {
     
     InterceptorChain getInterceptorChain();
     
-    Channel getChannel();
+    /**
+     * @return the associated Conduit if message is outbound, null otherwise
+     */
+    Conduit getConduit();
+
+    /**
+     * @return the associated Destination if message is inbound, null otherwise
+     */
+    Destination getDestination();
     
     Exchange getExchange();
     
     Collection<Attachment> getAttachments();
     
+    /**
+     * Retreive the encapsulated content as a particular type (a result type
+     * if message is outbound, a source type if message is inbound)
+     * 
+     * @param format the expected content format 
+     * @return the encapsulated content
+     */    
+    <T> T getContent(Class<T> format);
+
+    /**
+     * Provide the encapsulated content as a particular type (a result type
+     * if message is outbound, a source type if message is inbound)
+     * 
+     * @param format the provided content format 
+     * @param content the content to be encapsulated
+     */    
+    <T> void setContent(Class<T> format, Object content);
     
-    <T> T getSource(Class<T> format);
-    
-    <T> void setSource(Class<T> format, Object content);
-    
-    Set<Class> getSourceFormats();
-    
-    
-    <T> T getResult(Class<T> format);
-    
-    <T> void setResult(Class<T> format, Object content);
-    
-    Set<Class> getResultFormats();
+    /**
+     * @return the set of currently encapsulated content formats
+     */
+    Set<Class> getContentFormats();
 }

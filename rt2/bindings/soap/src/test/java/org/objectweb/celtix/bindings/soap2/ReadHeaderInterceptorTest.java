@@ -63,8 +63,8 @@ public class ReadHeaderInterceptorTest extends TestBase {
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
             .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
-        soapMessage.setSource(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
-        soapMessage.setSource(InputStream.class, bads.getInputStream());
+        soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
+        soapMessage.setContent(InputStream.class, bads.getInputStream());
 
     }
 }

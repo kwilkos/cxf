@@ -39,11 +39,11 @@ public class SoapOutInterceptorTest extends TestBase {
             fail("Failed in creating soap message! " + ioe.getMessage());
         }
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        Exception oe = (Exception)soapMessage.getResult(Exception.class);
+        Exception oe = (Exception)soapMessage.getContent(Exception.class);
         if (oe != null) {
             fail("OutBound Exception found! e=" + oe.getMessage());
         }
-        CachedOutputStream cos = (CachedOutputStream)soapMessage.getResult(OutputStream.class);
+        CachedOutputStream cos = (CachedOutputStream)soapMessage.getContent(OutputStream.class);
 
         try {
             XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(cos.getInputStream());
@@ -120,10 +120,10 @@ public class SoapOutInterceptorTest extends TestBase {
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
             .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
-        soapMessage.setSource(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
-        soapMessage.setSource(InputStream.class, bads.getInputStream());
+        soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
+        soapMessage.setContent(InputStream.class, bads.getInputStream());
 
-        soapMessage.setResult(OutputStream.class, new CachedOutputStream(-1, null));
+        soapMessage.setContent(OutputStream.class, new CachedOutputStream(-1, null));
     }
 
 }

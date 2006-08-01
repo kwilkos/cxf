@@ -32,7 +32,7 @@ public class StreamMessageContextImpl extends WrappedMessageContext
     }
 
     public InputStream getInputStream() {   
-        InputStream is = getWrappedMessage().getSource(InputStream.class);
+        InputStream is = getWrappedMessage().getContent(InputStream.class);
         if (is == null) { 
             throw new IllegalStateException(BUNDLE.getString("NO_INPUT_STREAM_EXC"));
         }
@@ -40,11 +40,11 @@ public class StreamMessageContextImpl extends WrappedMessageContext
     } 
 
     public void setInputStream(InputStream is) { 
-        getWrappedMessage().setSource(InputStream.class, is);
+        getWrappedMessage().setContent(InputStream.class, is);
     } 
 
     public OutputStream getOutputStream() { 
-        OutputStream os =  getWrappedMessage().getResult(OutputStream.class);
+        OutputStream os =  getWrappedMessage().getContent(OutputStream.class);
         if (os == null) { 
             throw new IllegalStateException(BUNDLE.getString("NO_OUTPUT_STREAM_EXC"));
         }
@@ -52,6 +52,6 @@ public class StreamMessageContextImpl extends WrappedMessageContext
     } 
 
     public void setOutputStream(OutputStream os) { 
-        getWrappedMessage().setResult(OutputStream.class, os);
+        getWrappedMessage().setContent(OutputStream.class, os);
     } 
 }

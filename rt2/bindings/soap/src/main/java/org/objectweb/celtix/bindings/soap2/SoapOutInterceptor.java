@@ -31,12 +31,12 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         // Create XML Stream Writer from Output Stream setted by
         // TransportOutInterceptor
         soapMessage = (SoapMessage)message;
-        OutputStream ops = (OutputStream)soapMessage.getResult(OutputStream.class);
+        OutputStream ops = (OutputStream)soapMessage.getContent(OutputStream.class);
         try {
             threshCount++;
             CachedOutputStream cos = new CachedOutputStream(threshCount, null);
             xtw = StaxUtils.createXMLStreamWriter(cos);
-            soapMessage.setResult(XMLStreamWriter.class, xtw);
+            soapMessage.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = soapMessage.getVersion();
             xtw.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope().getLocalPart(),
                                   soapVersion.getNamespace());
@@ -51,15 +51,15 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             // Write Envelop end element
             xtw.writeEndElement();
             xtw.flush();
-            soapMessage.setResult(InputStream.class, cos.getInputStream());
+            //soapMessage.setContent(InputStream.class, cos.getInputStream());
             Collection<Attachment> attachments = message.getAttachments();
             if (attachments.size() > 0) {
-                AttachmentSerializer.serializeMultipartMessage(soapMessage, ops);
+                AttachmentSerializer.serializeMultipartMessage(soapMessage, cos.getInputStream(), ops);
             } else {
                 streamCopy(cos.getInputStream(), ops);
             }
         } catch (Exception e) {
-            soapMessage.setResult(Exception.class, e);
+            soapMessage.setContent(Exception.class, e);
             return;
         }
         // Continue the Chain processing

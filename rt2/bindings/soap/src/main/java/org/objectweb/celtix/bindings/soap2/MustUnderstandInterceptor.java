@@ -33,7 +33,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
                 sb.append(qname.toString() + ", ");
             }
             SOAPException mustUnderstandException = new SOAPException(sb.toString());
-            soapMessage.setSource(Exception.class, mustUnderstandException);
+            soapMessage.setContent(Exception.class, mustUnderstandException);
         }
     }
 

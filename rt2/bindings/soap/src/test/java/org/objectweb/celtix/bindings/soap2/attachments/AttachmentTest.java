@@ -46,29 +46,35 @@ public class AttachmentTest extends TestBase {
         chain.add(mmi);
     }
 
-    public void testDoInterceptOfSoap12() {
+    public void testDoInterceptOfSoap12() throws Exception {
         try {
             soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
-        testHandleMessage(soapMessage, true);
+        InputStream is =
+            soapMessage.getContent(Attachment.class).getDataHandler().getDataSource().getInputStream();
+        testHandleMessage(soapMessage, is, true);
     }
 
-    public void testDoInterceptOfSoap11() {
+    public void testDoInterceptOfSoap11() throws Exception {
         try {
             soapMessage = TestUtil.createSoapMessage(new Soap11(), chain, this.getClass());
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
-        testHandleMessage(soapMessage, true);
+        InputStream is =
+            soapMessage.getContent(Attachment.class).getDataHandler().getDataSource().getInputStream();
+        testHandleMessage(soapMessage, is, true);
     }
 
     public void testDoUnmarshallXopEnabled() {
         Object obj = null;
         try {
             soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
-            testHandleMessage(soapMessage, false);
+            InputStream is =
+                soapMessage.getContent(Attachment.class).getDataHandler().getDataSource().getInputStream();
+            testHandleMessage(soapMessage, is, false);
 
             JAXBContext context = JAXBContext
                 .newInstance("org.objectweb.celtix.bindings.soap2.attachments.types");
@@ -77,7 +83,7 @@ public class AttachmentTest extends TestBase {
             JAXBAttachmentUnmarshaller jau = new JAXBAttachmentUnmarshaller(soapMessage);
             u.setAttachmentUnmarshaller(jau);
 
-            XMLStreamReader r = (XMLStreamReader)soapMessage.getSource(XMLStreamReader.class);
+            XMLStreamReader r = (XMLStreamReader)soapMessage.getContent(XMLStreamReader.class);
             while (r.hasNext()) {
                 r.nextTag();
                 if (r.getLocalName().equals("Body")) {
@@ -112,7 +118,7 @@ public class AttachmentTest extends TestBase {
         assertTrue(detailType.getSound().length > 0);
     }
 
-    public void testDoMarshallXopEnabled() {
+    public void testDoMarshallXopEnabled() throws Exception {
         // mashalling data object
         QName elName = new QName("http://celtix.objectweb.org/bindings/soap2/attachments/types", "Detail");
         soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
@@ -139,10 +145,8 @@ public class AttachmentTest extends TestBase {
             }
             // No envelop & body generated!
             m.marshal(mObj, writer);
-            // Set result
-            soapMessage.setResult(InputStream.class, cosXml.getInputStream());
             // Do intercept
-            testHandleMessage(soapMessage, true);
+            testHandleMessage(soapMessage, cosXml.getInputStream(), true);
 
         } catch (XMLStreamException xse) {
             fail(xse.getStackTrace().toString());
@@ -156,21 +160,20 @@ public class AttachmentTest extends TestBase {
             }
             fail(me.getStackTrace().toString());
 
-        } catch (Exception ex) {
-            fail(ex.getStackTrace().toString());
-        }
+        } 
         // serialize message to transport output stream
 
     }
 
-    private static void testHandleMessage(SoapMessage soapMessage, boolean testXmlConent) {
+    private static void testHandleMessage(SoapMessage soapMessage, InputStream is, boolean testXmlConent) {
         try {
             CachedOutputStream cos = new CachedOutputStream(64 * 1024, null);
-            String contentType = AttachmentSerializer.serializeMultipartMessage(soapMessage, cos);
+            String contentType =
+                AttachmentSerializer.serializeMultipartMessage(soapMessage, is, cos);
             soapMessage.getAttachments().clear();
 
             assertTrue(cos.getInputStream() != null);
-            soapMessage.setSource(InputStream.class, cos.getInputStream());
+            soapMessage.setContent(InputStream.class, cos.getInputStream());
 
             Map<String, String> mimeHttpHeaders = new HashMap<String, String>();
             soapMessage.put(MessageContext.HTTP_REQUEST_HEADERS, mimeHttpHeaders);
@@ -179,18 +182,18 @@ public class AttachmentTest extends TestBase {
 
             soapMessage.getInterceptorChain().doIntercept(soapMessage);
 
-            Attachment primarySoapPart = (Attachment)soapMessage.getSource(Attachment.class);
+            Attachment primarySoapPart = (Attachment)soapMessage.getContent(Attachment.class);
             assertEquals("type header determined by Soap Version",
                          soapMessage.getVersion().getSoapMimeType(), primarySoapPart.getHeader("type"));
             assertTrue(primarySoapPart.getDataHandler() != null);
 
-            XMLStreamReader xsr = (XMLStreamReader)soapMessage.getSource(XMLStreamReader.class);
+            XMLStreamReader xsr = (XMLStreamReader)soapMessage.getContent(XMLStreamReader.class);
             if (xsr == null) {
-                InputStream in = (InputStream)soapMessage.getSource(InputStream.class);
+                InputStream in = (InputStream)soapMessage.getContent(InputStream.class);
                 assertTrue(in != null);
                 XMLInputFactory f = XMLInputFactory.newInstance();
                 xsr = f.createXMLStreamReader(in);
-                soapMessage.setSource(XMLStreamReader.class, xsr);
+                soapMessage.setContent(XMLStreamReader.class, xsr);
             }
             assertTrue(xsr != null);
 

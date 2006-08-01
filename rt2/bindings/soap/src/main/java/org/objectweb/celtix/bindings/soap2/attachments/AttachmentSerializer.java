@@ -27,14 +27,17 @@ public final class AttachmentSerializer {
     }
 
     /**
-     * Using result & attachment in soapMessage to write to output stream
+     * Using result in soapMessage & attachment to write to output stream
      * 
      * @param soapMessage
+     * @param in input stream contain the attachment
      * @param out
      * @throws CxfRioException
      */
 
-    public static String serializeMultipartMessage(SoapMessage soapMessage, OutputStream out)
+    public static String serializeMultipartMessage(SoapMessage soapMessage,
+                                                   InputStream in,
+                                                   OutputStream out)
         throws MessagingException, IOException {
         
         Session session = Session.getDefaultInstance(new Properties(), null);
@@ -43,7 +46,7 @@ public final class AttachmentSerializer {
         String subType = getMimeSubType(soapMessage.getVersion(), soapPartId);
         MimeMultipart mimeMP = new MimeMultipart(subType);
                
-        InputStream in = (InputStream) soapMessage.getResult(InputStream.class);
+        // InputStream in = soapMessage.getContent(InputStream.class); 
         AttachmentDataSource ads = new AttachmentDataSource("application/xop+xml", in);
         MimeBodyPart soapPart = new MimeBodyPart();
         soapPart.setDataHandler(new DataHandler(ads));
