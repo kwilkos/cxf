@@ -103,7 +103,7 @@ public final class ServiceWSDLBuilder {
         BindingOperation bindingOperation = null;
         for (BindingOperationInfo bindingOperationInfo : bindingOperationInfos) {
             bindingOperation = def.createBindingOperation();
-            bindingOperation.setName(bindingOperationInfo.getName());
+            bindingOperation.setName(bindingOperationInfo.getName().getLocalPart());
             for (Operation operation 
                     : WSDLServiceBuilder.cast(binding.getPortType().getOperations(), Operation.class)) {
                 if (operation.getName().equals(bindingOperation.getName())) {
@@ -125,7 +125,7 @@ public final class ServiceWSDLBuilder {
         for (BindingFaultInfo bindingFaultInfo 
             : bindingFaultInfos) {
             bindingFault = def.createBindingFault();
-            bindingFault.setName(bindingFaultInfo.getFaultInfo().getFaultName());
+            bindingFault.setName(bindingFaultInfo.getFaultInfo().getFaultName().getLocalPart());
             bindingOperation.addBindingFault(bindingFault);
             addExtensibiltyElements(bindingFault, bindingFaultInfo.getWSDL11Extensors());
         }
@@ -190,7 +190,7 @@ public final class ServiceWSDLBuilder {
                     WSDLServiceBuilder.WSDL_OPERATION, Operation.class);
             } catch (ClassCastException e) {
                 operation = def.createOperation();
-                operation.setName(operationInfo.getName());
+                operation.setName(operationInfo.getName().getLocalPart());
                 if (operationInfo.isOneWay()) {
                     operation.setStyle(OperationType.ONE_WAY);
                 }
@@ -212,7 +212,7 @@ public final class ServiceWSDLBuilder {
                 Fault fault = null;
                 for (FaultInfo faultInfo : faults) {
                     fault = def.createFault();
-                    fault.setName(faultInfo.getFaultName());
+                    fault.setName(faultInfo.getFaultName().getLocalPart());
                     message = def.createMessage();
                     buildMessage(def, message, faultInfo);
                     fault.setMessage(message);

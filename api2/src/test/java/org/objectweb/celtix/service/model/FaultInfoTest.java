@@ -9,7 +9,7 @@ public class FaultInfoTest extends TestCase {
     private FaultInfo faultInfo;
     
     public void setUp() throws Exception {
-        faultInfo = new FaultInfo("fault", new QName(
+        faultInfo = new FaultInfo(new QName("urn:test:ns", "fault"), new QName(
              "http://objectweb.org/hello_world_soap_http", "faultMessage"), null);
     }
     
@@ -18,12 +18,12 @@ public class FaultInfoTest extends TestCase {
     }
     
     public void testName() throws Exception {
-        assertEquals(faultInfo.getFaultName(), "fault");
+        assertEquals(faultInfo.getFaultName(), new QName("urn:test:ns", "fault"));
         assertEquals(faultInfo.getName().getLocalPart(), "faultMessage");
         assertEquals(faultInfo.getName().getNamespaceURI(),
                      "http://objectweb.org/hello_world_soap_http");
         
-        faultInfo.setFaultName("fault2");
-        assertEquals(faultInfo.getFaultName(), "fault2");
+        faultInfo.setFaultName(new QName("urn:test:ns", "fault"));
+        assertEquals(faultInfo.getFaultName(), new QName("urn:test:ns", "fault"));
     }
 }

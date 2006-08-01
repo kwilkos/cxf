@@ -17,7 +17,7 @@ public final class ServiceModelUtil {
     private ServiceModelUtil() {
     }
 
-    public static BindingOperationInfo getOperation(SoapMessage soapMessage, String opName) {
+    public static BindingOperationInfo getOperation(SoapMessage soapMessage, QName opName) {
         BindingInfo service = (BindingInfo)soapMessage.get(Message.BINDING_INFO);
         return service.getOperation(opName);
     }

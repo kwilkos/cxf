@@ -9,7 +9,7 @@ public class OperationInfoTest extends TestCase {
     private OperationInfo operationInfo;
     
     public void setUp() throws Exception {
-        operationInfo = new OperationInfo(null, "operationTest");
+        operationInfo = new OperationInfo(null, new QName("urn:test:ns", "operationTest"));
     }
     
     public void tearDown() throws Exception {
@@ -18,13 +18,13 @@ public class OperationInfoTest extends TestCase {
     
     public void testName() throws Exception {
         assertNull(operationInfo.getInterface());
-        assertEquals("operationTest", operationInfo.getName());
-        operationInfo.setName("operationTest2");
-        assertEquals("operationTest2", operationInfo.getName());
+        assertEquals("operationTest", operationInfo.getName().getLocalPart());
+        operationInfo.setName(new QName("urn:test:ns", "operationTest2"));
+        assertEquals("operationTest2", operationInfo.getName().getLocalPart());
         boolean catchExecption = false;
         try {
             operationInfo.setName(null);
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             catchExecption = true;
         }
         if (!catchExecption) {
@@ -69,16 +69,17 @@ public class OperationInfoTest extends TestCase {
     
     public void testFault() throws Exception {
         assertEquals(operationInfo.getFaults().size(), 0);
-        operationInfo.addFault("fault", new QName(
+        QName faultName = new QName("urn:test:ns", "fault");
+        operationInfo.addFault(faultName, new QName(
             "http://objectweb.org/hello_world_soap_http", "faultMessage"));
         assertEquals(operationInfo.getFaults().size(), 1);
-        FaultInfo fault = operationInfo.getFault("fault");
+        FaultInfo fault = operationInfo.getFault(faultName);
         assertNotNull(fault);
-        assertEquals(fault.getFaultName(), "fault");
+        assertEquals(fault.getFaultName().getLocalPart(), "fault");
         assertEquals(fault.getName().getLocalPart(), "faultMessage");
         assertEquals(fault.getName().getNamespaceURI(), 
                      "http://objectweb.org/hello_world_soap_http");
-        operationInfo.removeFault("fault");
+        operationInfo.removeFault(faultName);
         assertEquals(operationInfo.getFaults().size(), 0);
     }
 }

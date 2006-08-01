@@ -7,15 +7,13 @@ import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service {
 
-    private QName serviceName;
     private ServiceInfo serviceInfo;
     
-    public ServiceImpl(QName sn, ServiceInfo si) {
-        serviceName = sn;
+    public ServiceImpl(ServiceInfo si) {
         serviceInfo = si;
     }
     public QName getName() {
-        return serviceName;
+        return serviceInfo.getName();
     }
 
     public ServiceInfo getServiceInfo() {

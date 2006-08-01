@@ -7,6 +7,7 @@ import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.service.model.AbstractPropertiesHolder;
 import org.objectweb.celtix.service.model.BindingInfo;
@@ -53,7 +54,8 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
             if (bop.getBindingOutput() != null) {
                 inName = bop.getBindingOutput().getName();
             }
-            BindingOperationInfo bop2 = bi.buildOperation(bop.getName(), inName, outName);
+            BindingOperationInfo bop2 = bi.buildOperation(new QName(service.getName().getNamespaceURI(), 
+                bop.getName()), inName, outName);
             copyExtensors(bop2, bop.getExtensibilityElements());
             bi.addOperation(bop2);
             

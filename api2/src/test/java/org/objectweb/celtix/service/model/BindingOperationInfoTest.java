@@ -5,10 +5,11 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 public class BindingOperationInfoTest extends TestCase {
+    private static final String TEST_NS = "urn:test:ns";
     private BindingOperationInfo bindingOperationInfo;
     
     public void setUp() throws Exception {
-        OperationInfo operationInfo = new OperationInfo(null, "operationTest");
+        OperationInfo operationInfo = new OperationInfo(null, new QName(TEST_NS, "operationTest"));
         MessageInfo inputMessage = operationInfo.createMessage(new QName(
             "http://objectweb.org/hello_world_soap_http", "testInputMessage"));
         operationInfo.setInput("input", inputMessage);
@@ -16,13 +17,13 @@ public class BindingOperationInfoTest extends TestCase {
         MessageInfo outputMessage = operationInfo.createMessage(new QName(
             "http://objectweb.org/hello_world_soap_http", "testOutputMessage"));
         operationInfo.setOutput("output", outputMessage);
-        operationInfo.addFault("fault", new QName(
+        operationInfo.addFault(new QName(TEST_NS, "fault"), new QName(
             "http://objectweb.org/hello_world_soap_http", "faultMessage"));
         bindingOperationInfo = new BindingOperationInfo(null, operationInfo);
     }
     
     public void testName() throws Exception {
-        assertEquals(bindingOperationInfo.getName(), "operationTest");
+        assertEquals(bindingOperationInfo.getName(), new QName(TEST_NS, "operationTest"));
     }
     
     public void testBinding() throws Exception {
@@ -30,13 +31,13 @@ public class BindingOperationInfoTest extends TestCase {
     }
     
     public void testOperation() throws Exception {
-        assertEquals(bindingOperationInfo.getOperationInfo().getName(), "operationTest");
+        assertEquals(bindingOperationInfo.getOperationInfo().getName(), new QName(TEST_NS, "operationTest"));
         assertTrue(bindingOperationInfo.getOperationInfo().hasInput());
         assertTrue(bindingOperationInfo.getOperationInfo().hasOutput());
         assertEquals(bindingOperationInfo.getOperationInfo().getInputName(), "input");
         assertEquals(bindingOperationInfo.getOperationInfo().getOutputName(), "output");
         assertEquals(bindingOperationInfo.getFaults().iterator().next().getFaultInfo().getFaultName(),
-                     "fault");
+                     new QName(TEST_NS, "fault"));
         assertEquals(1, bindingOperationInfo.getFaults().size());
     }
     

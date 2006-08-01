@@ -10,9 +10,9 @@ import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.service.AbstractServiceFactoryBean;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.ServiceImpl;
+import org.objectweb.celtix.service.factory.AbstractServiceFactoryBean;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class WSDLServiceFactory extends AbstractServiceFactoryBean {
@@ -42,7 +42,7 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         
         javax.wsdl.Service wsdlService = definition.getService(serviceName);
         ServiceInfo si = new WSDLServiceBuilder(bus).buildService(definition, wsdlService);
-        return new ServiceImpl(serviceName, si);     
+        return new ServiceImpl(si);     
     }
     
 }

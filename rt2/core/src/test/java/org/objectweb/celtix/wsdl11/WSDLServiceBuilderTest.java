@@ -88,18 +88,19 @@ public class WSDLServiceBuilderTest extends TestCase {
     }
     
     public void testOperationInfo() throws Exception {
-        
+        QName name = new QName(serviceInfo.getName().getNamespaceURI(), "sayHi");
         assertEquals(serviceInfo.getInterface().getOperations().size(), 4);
-        OperationInfo sayHi = serviceInfo.getInterface().getOperation("sayHi"); 
+        OperationInfo sayHi = serviceInfo.getInterface().getOperation(new QName(serviceInfo.getName().getNamespaceURI(), "sayHi")); 
         assertNotNull(sayHi);
-        assertEquals(sayHi.getName(), "sayHi");
+        assertEquals(sayHi.getName(), name);
         assertFalse(sayHi.isOneWay());
         assertTrue(sayHi.hasInput());
         assertTrue(sayHi.hasOutput());
         
-        OperationInfo greetMe = serviceInfo.getInterface().getOperation("greetMe");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
+        OperationInfo greetMe = serviceInfo.getInterface().getOperation(name);
         assertNotNull(greetMe);
-        assertEquals(greetMe.getName(), "greetMe");
+        assertEquals(greetMe.getName(), name);
         assertFalse(greetMe.isOneWay());
         assertTrue(greetMe.hasInput());
         assertTrue(greetMe.hasOutput());
@@ -123,22 +124,23 @@ public class WSDLServiceBuilderTest extends TestCase {
                      greetMe.getOutput().getUnwrappedMessage().getMessagePartByIndex(0)
                          .getTypeQName().getLocalPart());
         
-        
-        OperationInfo greetMeOneWay = serviceInfo.getInterface().getOperation("greetMeOneWay");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
+        OperationInfo greetMeOneWay = serviceInfo.getInterface().getOperation(name);
         assertNotNull(greetMeOneWay);
-        assertEquals(greetMeOneWay.getName(), "greetMeOneWay");
+        assertEquals(greetMeOneWay.getName(), name);
         assertTrue(greetMeOneWay.isOneWay());
         assertTrue(greetMeOneWay.hasInput());
         assertFalse(greetMeOneWay.hasOutput());
         
-        OperationInfo pingMe = serviceInfo.getInterface().getOperation("pingMe");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "pingMe");
+        OperationInfo pingMe = serviceInfo.getInterface().getOperation(name);
         assertNotNull(pingMe);
-        assertEquals(pingMe.getName(), "pingMe");
+        assertEquals(pingMe.getName(), name);
         assertFalse(pingMe.isOneWay());
         assertTrue(pingMe.hasInput());
         assertTrue(pingMe.hasOutput());
                 
-        assertNull(serviceInfo.getInterface().getOperation("what ever"));
+        assertNull(serviceInfo.getInterface().getOperation(new QName("what ever")));
     }
     
     public void testBindingInfo() throws Exception {
@@ -159,28 +161,33 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(bindingOperationInfos.size(), 4);
         LOG.info("the binding operation is " + bindingOperationInfos.iterator().next().getName());
         
-        BindingOperationInfo sayHi = bindingInfo.getOperation("sayHi");
+        QName name = new QName(serviceInfo.getName().getNamespaceURI(), "sayHi");
+        BindingOperationInfo sayHi = bindingInfo.getOperation(name);
         assertNotNull(sayHi);
-        assertEquals(sayHi.getName(), "sayHi");
+        assertEquals(sayHi.getName(), name);
         
-        BindingOperationInfo greetMe = bindingInfo.getOperation("greetMe");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
+        BindingOperationInfo greetMe = bindingInfo.getOperation(name);
         assertNotNull(greetMe);
-        assertEquals(greetMe.getName(), "greetMe");
+        assertEquals(greetMe.getName(), name);
         
-        BindingOperationInfo greetMeOneWay = bindingInfo.getOperation("greetMeOneWay");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
+        BindingOperationInfo greetMeOneWay = bindingInfo.getOperation(name);
         assertNotNull(greetMeOneWay);
-        assertEquals(greetMeOneWay.getName(), "greetMeOneWay");
+        assertEquals(greetMeOneWay.getName(), name);
         
-        BindingOperationInfo pingMe = bindingInfo.getOperation("pingMe");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "pingMe");
+        BindingOperationInfo pingMe = bindingInfo.getOperation(name);
         assertNotNull(pingMe);
-        assertEquals(pingMe.getName(), "pingMe");
+        assertEquals(pingMe.getName(), name);
     }
     
     public void testBindingMessageInfo() throws Exception {
         BindingInfo bindingInfo = null;
         bindingInfo = serviceInfo.getBindings().iterator().next();
         
-        BindingOperationInfo sayHi = bindingInfo.getOperation("sayHi");
+        QName name = new QName(serviceInfo.getName().getNamespaceURI(), "sayHi");
+        BindingOperationInfo sayHi = bindingInfo.getOperation(name);
         BindingMessageInfo input = sayHi.getInput();
         assertNotNull(input);
         assertEquals(input.getMessageInfo().getName().getLocalPart(), "sayHiRequest");
@@ -215,7 +222,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         
         assertTrue(sayHi.getFaults().size() == 0);
         
-        BindingOperationInfo pingMe = bindingInfo.getOperation("pingMe");
+        name = new QName(serviceInfo.getName().getNamespaceURI(), "pingMe");
+        BindingOperationInfo pingMe = bindingInfo.getOperation(name);
         assertNotNull(pingMe);
         assertEquals(1, pingMe.getFaults().size());
         BindingFaultInfo fault = pingMe.getFaults().iterator().next();

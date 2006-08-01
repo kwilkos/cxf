@@ -13,15 +13,15 @@ import javax.xml.namespace.QName;
 public final class OperationInfo extends AbstractPropertiesHolder {
     
     final InterfaceInfo intf;
-    String opName;
+    QName opName;
     String inName;
     MessageInfo inputMessage;
     String outName;
     MessageInfo outputMessage;
-    Map<String, FaultInfo> faults;
+    Map<QName, FaultInfo> faults;
     boolean wrappedCapable;
     
-    OperationInfo(InterfaceInfo it, String n) { 
+    OperationInfo(InterfaceInfo it, QName n) { 
         intf = it;
         setName(n);
     }
@@ -30,16 +30,16 @@ public final class OperationInfo extends AbstractPropertiesHolder {
      * Returns the name of the Operation.
      * @return the name of the Operation
      */
-    public String getName() {
+    public QName getName() {
         return opName;
     }
     /**
      * Sets the name of the operation.
      * @param name the new name of the operation
      */
-    public void setName(String name) {
-        if (name == null || name.length() == 0) {
-            throw new IllegalArgumentException("Invalid name [" + name + "]");
+    public void setName(QName name) {
+        if (name == null) {
+            throw new NullPointerException("Name cannot be null.");
         }        
         opName = name;
     }
@@ -100,10 +100,10 @@ public final class OperationInfo extends AbstractPropertiesHolder {
      *
      * @param name the fault name.
      */
-    public FaultInfo addFault(String name, QName message) {
-        if (name == null || name.length() == 0) {
-            throw new IllegalArgumentException("Invalid name [" + name + "]");
-        }
+    public FaultInfo addFault(QName name, QName message) {
+        if (name == null) {
+            throw new NullPointerException("Name cannot be null.");
+        } 
         if (faults != null && faults.containsKey(name)) {
             throw new IllegalArgumentException("A fault with name [" + name
                                                + "] already exists in this operation");
@@ -120,7 +120,7 @@ public final class OperationInfo extends AbstractPropertiesHolder {
      */
     synchronized void addFault(FaultInfo fault) {
         if (faults == null) { 
-            faults = new ConcurrentHashMap<String, FaultInfo>(4);
+            faults = new ConcurrentHashMap<QName, FaultInfo>(4);
         }
         faults.put(fault.getFaultName(), fault);
     }
@@ -130,7 +130,7 @@ public final class OperationInfo extends AbstractPropertiesHolder {
      *
      * @param name the qualified fault name.
      */
-    public void removeFault(String name) {
+    public void removeFault(QName name) {
         if (faults != null) {
             faults.remove(name);
         }
@@ -142,7 +142,7 @@ public final class OperationInfo extends AbstractPropertiesHolder {
      * @param name the name.
      * @return the fault; or <code>null</code> if not found.
      */
-    public FaultInfo getFault(String name) {
+    public FaultInfo getFault(QName name) {
         if (faults != null) {
             return faults.get(name);
         }

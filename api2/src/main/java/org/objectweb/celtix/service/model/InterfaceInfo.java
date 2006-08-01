@@ -11,7 +11,7 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
     QName name;
     ServiceInfo service;
     
-    Map<String, OperationInfo> operations = new ConcurrentHashMap<String, OperationInfo>(4);
+    Map<QName, OperationInfo> operations = new ConcurrentHashMap<QName, OperationInfo>(4);
     
     
     public InterfaceInfo(ServiceInfo info, QName q) {
@@ -37,10 +37,10 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
      * @param name the qualified name of the operation.
      * @return the operation.
      */
-    public OperationInfo addOperation(String oname) {
-        if ((oname == null) || (oname.length() == 0)) {
-            throw new IllegalArgumentException("Invalid name [" + oname + "]");
-        }
+    public OperationInfo addOperation(QName oname) {
+        if (oname == null) {
+            throw new NullPointerException("Name cannot be null.");
+        } 
         if (operations.containsKey(oname)) {
             throw new IllegalArgumentException("An operation with name [" + oname
                                                + "] already exists in this service");
@@ -66,7 +66,7 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
      * @param name the name.
      * @return the operation; or <code>null</code> if not found.
      */
-    public OperationInfo getOperation(String oname) {
+    public OperationInfo getOperation(QName oname) {
         return operations.get(oname);
     }
 

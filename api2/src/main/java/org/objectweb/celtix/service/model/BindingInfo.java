@@ -16,7 +16,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
     ServiceInfo service;
     final String namespaceURI;
     
-    Map<String, BindingOperationInfo> operations = new ConcurrentHashMap<String, BindingOperationInfo>(4);
+    Map<QName, BindingOperationInfo> operations = new ConcurrentHashMap<QName, BindingOperationInfo>(4);
     
     Invoker invoker;
     
@@ -53,7 +53,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
             return "".equals(a) ? "".equals(b) : a.equals(b);
         }
     }
-    public BindingOperationInfo buildOperation(String opName, String inName, String outName) {
+    public BindingOperationInfo buildOperation(QName opName, String inName, String outName) {
         for (OperationInfo op : getInterface().getOperations()) {
             if (opName.equals(op.getName())
                 && nameEquals(inName, op.getInputName())
@@ -71,9 +71,9 @@ public class BindingInfo extends AbstractPropertiesHolder {
      * @param operation the operation.
      */
     public void addOperation(BindingOperationInfo operation) {
-        if ((operation.getName() == null) || (operation.getName().length() == 0)) {
-            throw new IllegalArgumentException("Invalid name [" + operation.getName() + "]");
-        }
+        if (operation.getName() == null) {
+            throw new NullPointerException("Binding operation name cannot be null.");
+        } 
         if (operations.containsKey(operation.getName())) {
             throw new IllegalArgumentException("An operation with name [" + operation.getName()
                                                + "] already exists in this service");
@@ -88,7 +88,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
      * @param name the name.
      * @return the operation; or <code>null</code> if not found.
      */
-    public BindingOperationInfo getOperation(String oname) {
+    public BindingOperationInfo getOperation(QName oname) {
         return operations.get(oname);
     }
 

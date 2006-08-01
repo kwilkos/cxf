@@ -27,9 +27,10 @@ public class InterfaceInfoTest extends TestCase {
  
     
     public void testOperation() throws Exception {
-        interfaceInfo.addOperation("sayHi");
-        assertEquals("sayHi", interfaceInfo.getOperation("sayHi").getName());
-        interfaceInfo.addOperation("greetMe");
+        QName name = new QName("urn:test:ns", "sayHi");
+        interfaceInfo.addOperation(name);
+        assertEquals("sayHi", interfaceInfo.getOperation(name).getName().getLocalPart());
+        interfaceInfo.addOperation(new QName("urn:test:ns", "greetMe"));
         assertEquals(interfaceInfo.getOperations().size(), 2);
     }
     

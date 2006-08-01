@@ -3,17 +3,17 @@ package org.objectweb.celtix.service.model;
 import javax.xml.namespace.QName;
 
 public final class FaultInfo extends AbstractMessageContainer {
-    private String faultName;
+    private QName faultName;
     
-    public FaultInfo(String fname, QName mname, OperationInfo info) {
+    public FaultInfo(QName fname, QName mname, OperationInfo info) {
         super(info, mname);
         faultName = fname;
     }
     
-    public String getFaultName() {
+    public QName getFaultName() {
         return faultName;
     }
-    public void setFaultName(String fname) {
+    public void setFaultName(QName fname) {
         faultName = fname;
     }
 }

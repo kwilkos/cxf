@@ -9,7 +9,7 @@ public class BindingFaultInfoTest extends TestCase {
     private BindingFaultInfo bindingFaultInfo;
     
     public void setUp() throws Exception {
-        FaultInfo faultInfo = new FaultInfo("fault", new QName(
+        FaultInfo faultInfo = new FaultInfo(new QName("http://faultns/", "fault"), new QName(
             "http://objectweb.org/hello_world_soap_http", "faultMessage"), null);
         bindingFaultInfo = new BindingFaultInfo(faultInfo, null);
     }
@@ -17,7 +17,7 @@ public class BindingFaultInfoTest extends TestCase {
     public void testBindingFaultInfo() {
         assertNotNull(bindingFaultInfo.getFaultInfo());
         assertNull(bindingFaultInfo.getBindingOperation());
-        assertEquals(bindingFaultInfo.getFaultInfo().getFaultName(), "fault");
+        assertEquals(bindingFaultInfo.getFaultInfo().getFaultName(), new QName("http://faultns/", "fault"));
         assertEquals(bindingFaultInfo.getFaultInfo().getName().getLocalPart(), "faultMessage");
         assertEquals(bindingFaultInfo.getFaultInfo().getName().getNamespaceURI(),
                      "http://objectweb.org/hello_world_soap_http");

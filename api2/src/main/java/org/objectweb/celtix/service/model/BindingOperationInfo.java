@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.xml.namespace.QName;
+
 
 /**
  * 
@@ -16,7 +18,7 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
 
     final BindingMessageInfo inputMessage;
     final BindingMessageInfo outputMessage;
-    Map<String, BindingFaultInfo> faults;
+    Map<QName, BindingFaultInfo> faults;
     
     BindingOperationInfo(BindingInfo bi, OperationInfo opinfo) { 
         bindingInfo = bi;
@@ -35,7 +37,7 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         
         Collection<FaultInfo> of = opinfo.getFaults();
         if (!of.isEmpty()) {
-            faults = new ConcurrentHashMap<String, BindingFaultInfo>(of.size());
+            faults = new ConcurrentHashMap<QName, BindingFaultInfo>(of.size());
             for (FaultInfo fault : of) {
                 faults.put(fault.getFaultName(), new BindingFaultInfo(fault, this));
             }
@@ -46,7 +48,7 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         return bindingInfo;
     }
     
-    public String getName() {
+    public QName getName() {
         return opInfo.getName();
     }
     
