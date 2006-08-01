@@ -733,7 +733,7 @@
                                         <loadfile property="eclipse.code.format" srcFile="${basedir}/${topDirectoryLocation}/etc/eclipse/CeltixCodeFormatter.xml"/>
                                         <loadfile property="eclipse.code.templates" srcFile="${basedir}/${topDirectoryLocation}/etc/eclipse/codetemplates.xml"/>
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
-                                            <entry key="formatter_profile" value="Celtix Java Conventions"/>
+                                            <entry key="formatter_profile" value="_Celtix Java Conventions"/>
                                             <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}"/>
                                             <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}"/>
         
