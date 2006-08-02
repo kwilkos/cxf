@@ -1,5 +1,7 @@
 package org.objectweb.celtix.jaxws.support;
 
+import java.util.Map;
+
 import javax.xml.ws.Binding;
 
 import org.objectweb.celtix.Bus;
@@ -32,7 +34,7 @@ public class JaxwsClientImpl extends ClientImpl {
         super(bs, e);
     }
  
-    protected void setExchangeProperties(Exchange exchange) {
+    protected void setExchangeProperties(Exchange exchange, Map<String, Object> ctx) {
         HandlerChainInvoker invoker = new HandlerChainInvoker(binding.getHandlerChain());
         exchange.put(AbstractJAXWSHandlerInterceptor.HANDLER_CHAIN_INVOKER, invoker);
         exchange.put(Message.DATAREADER_FACTORY_KEY, JaxwsEndpointImpl.JAXWS_DATAREADER_FACTORY);

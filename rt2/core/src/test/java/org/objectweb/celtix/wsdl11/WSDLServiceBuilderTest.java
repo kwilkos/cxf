@@ -108,20 +108,25 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertTrue(greetMe.hasInput());
         assertTrue(greetMe.hasOutput());
 
-        assertTrue("greatMe should be wrapped", greetMe.isWrappedCapable());
-        assertNotNull(greetMe.getInput().getUnwrappedMessage());
-        assertNotNull(greetMe.getOutput().getUnwrappedMessage());
-        assertEquals("wrapped part not set", 1, greetMe.getInput().getUnwrappedMessage().size());
-        assertEquals("wrapped part not set", 1, greetMe.getOutput().getUnwrappedMessage().size());
-        assertEquals("wrapper part name wrong", "requestType", greetMe.getInput().getUnwrappedMessage()
+        assertTrue("greatMe should be wrapped", greetMe.isUnwrappedCapable());
+        OperationInfo greetMeUnwrapped = greetMe.getUnwrappedOperation();
+        
+        assertNotNull(greetMeUnwrapped.getInput());
+        assertNotNull(greetMeUnwrapped.getOutput());
+        assertEquals("wrapped part not set", 1, greetMeUnwrapped.getInput().size());
+        assertEquals("wrapped part not set", 1, greetMeUnwrapped.getOutput().size());
+        assertEquals("wrapper part name wrong", "requestType", greetMeUnwrapped.getInput()
             .getMessagePartByIndex(0).getName().getLocalPart());
-        assertEquals("wrapper part type name wrong", "MyStringType", greetMe.getInput().getUnwrappedMessage()
+        assertEquals("wrapper part type name wrong", "MyStringType", greetMeUnwrapped.getInput()
             .getMessagePartByIndex(0).getTypeQName().getLocalPart());
 
-        assertEquals("wrapper part name wrong", "responseType", greetMe.getOutput().getUnwrappedMessage()
+        assertEquals("wrapper part name wrong", "responseType", greetMeUnwrapped.getOutput()
             .getMessagePartByIndex(0).getName().getLocalPart());
-        assertEquals("wrapper part type name wrong", "string", greetMe.getOutput().getUnwrappedMessage()
+        assertEquals("wrapper part type name wrong", "string", greetMeUnwrapped.getOutput()
             .getMessagePartByIndex(0).getTypeQName().getLocalPart());
+        
+        
+        
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
         OperationInfo greetMeOneWay = serviceInfo.getInterface().getOperation(name);

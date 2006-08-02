@@ -49,6 +49,7 @@ import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.SchemaInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.service.model.TypeInfo;
+import org.objectweb.celtix.service.model.UnwrappedOperationInfo;
 
 public class WSDLServiceBuilder {
 
@@ -351,10 +352,11 @@ public class WSDLServiceBuilder {
         }
 
         // we are wrappable!!
-        opInfo.setWrappedCapable();
-        inputMessage.setUnwrappedMessage(unwrappedInput);
+        OperationInfo unwrapped = new UnwrappedOperationInfo(opInfo);
+        opInfo.setUnwrappedOperation(unwrapped);
+        unwrapped.setInput(opInfo.getInputName(), unwrappedInput);
         if (outputMessage != null) {
-            outputMessage.setUnwrappedMessage(unwrappedOutput);
+            unwrapped.setOutput(opInfo.getOutputName(), unwrappedOutput);
         }
     }
 

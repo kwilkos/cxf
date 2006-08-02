@@ -39,7 +39,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         OperationInfo oi = getOperationInfo(proxy, method);
 
         // REVISIT - Holder objects, etc...
-        Object obj[] = client.invoke(oi, args);
+        Object obj[] = client.invoke(oi, args, null);
 
         return obj.length == 0 ? null : obj[0];
     }

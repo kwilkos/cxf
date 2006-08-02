@@ -10,7 +10,7 @@ import javax.xml.namespace.QName;
 /**
  * 
  */
-public final class OperationInfo extends AbstractPropertiesHolder {
+public class OperationInfo extends AbstractPropertiesHolder {
     
     final InterfaceInfo intf;
     QName opName;
@@ -19,11 +19,16 @@ public final class OperationInfo extends AbstractPropertiesHolder {
     String outName;
     MessageInfo outputMessage;
     Map<QName, FaultInfo> faults;
-    boolean wrappedCapable;
+    
+    OperationInfo unwrappedOperation;
     
     OperationInfo(InterfaceInfo it, QName n) { 
         intf = it;
         setName(n);
+    }
+    OperationInfo(OperationInfo op) {
+        intf = op.getInterface();
+        setName(op.getName());
     }
     
     /**
@@ -37,7 +42,7 @@ public final class OperationInfo extends AbstractPropertiesHolder {
      * Sets the name of the operation.
      * @param name the new name of the operation
      */
-    public void setName(QName name) {
+    public final void setName(QName name) {
         if (name == null) {
             throw new NullPointerException("Name cannot be null.");
         }        
@@ -84,14 +89,17 @@ public final class OperationInfo extends AbstractPropertiesHolder {
         return inputMessage != null && outputMessage == null;
     }
     
-    public boolean isWrappedCapable() {
-        return wrappedCapable;
+    public boolean isUnwrappedCapable() {
+        return unwrappedOperation != null;
     }
-    public void setWrappedCapable(boolean t) {
-        wrappedCapable = t;
+    public OperationInfo getUnwrappedOperation() {
+        return unwrappedOperation;
     }
-    public void setWrappedCapable() {
-        setWrappedCapable(true);
+    public void setUnwrappedOperation(OperationInfo op) {
+        unwrappedOperation = op;
+    }
+    public boolean isUnwrapped() {
+        return false;
     }
     
     

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -26,8 +25,7 @@ import org.objectweb.celtix.message.Message;
  * PhaseInterceptors can supply a Collection of IDs which they should run before
  * or after, supplying fine grained ordering.
  * <p>
- * NOTE: This is roughly modeled on the AXIS2 phase & handler ideas.
- * 
+ *  
  * @author Dan Diephouse
  */
 public class PhaseInterceptorChain implements InterceptorChain {
@@ -48,8 +46,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         Collections.sort(ps, new PhaseComparator());
         this.phases = ps;
 
-        for (Iterator itr = ps.iterator(); itr.hasNext();) {
-            Phase phase = (Phase)itr.next();
+        for (Phase phase : ps) {
             interceptors.put(phase.getName(), new ArrayList<Interceptor>());
         }
 
@@ -62,8 +59,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
             return;
         }
 
-        for (Iterator itr = newhandlers.iterator(); itr.hasNext();) {
-            Interceptor handler = (Interceptor)itr.next();
+        for (Interceptor handler : newhandlers) {
             add(handler);
         }
     }
@@ -173,7 +169,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         for (List<Interceptor> interceptorList : interceptors.values()) {
             allInterceptors.addAll(interceptorList);
         }
-        return allInterceptors.listIterator();
+        return Collections.unmodifiableList(allInterceptors).listIterator();
     }
     
 

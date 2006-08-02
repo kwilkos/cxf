@@ -1,6 +1,9 @@
 package org.objectweb.celtix.endpoint;
 
+import java.util.Map;
+
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
@@ -18,7 +21,7 @@ public class ClientImpl implements Client {
     }
     
 
-    public Object[] invoke(OperationInfo oi, Object[] params) {
+    public Object[] invoke(OperationInfo oi, Object[] params, Map<String, Object> ctx) {
 
         Message message = endpoint.getBinding().createMessage();
         message.setContent(Object[].class, params);
@@ -26,14 +29,17 @@ public class ClientImpl implements Client {
    
 
         Exchange exchange = new ExchangeImpl();
+        exchange.putAll(ctx);
         exchange.setOutMessage(message);
-        setExchangeProperties(exchange);
+        setExchangeProperties(exchange, ctx);
 
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getOutPhases());
         chain.add(bus.getOutInterceptors());
         chain.add(endpoint.getService().getOutInterceptors());
         chain.add(endpoint.getOutInterceptors());
         chain.add(endpoint.getBinding().getOutInterceptors());
+        
+        modifyChain(chain, ctx);
 
         // execute chain
 
@@ -52,7 +58,11 @@ public class ClientImpl implements Client {
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
     }
     
-    protected void setExchangeProperties(Exchange exchange) {
+    protected void setExchangeProperties(Exchange exchange, Map<String, Object> ctx) {
+        // no-op
+    }
+    
+    protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {
         // no-op
     }
 
