@@ -41,7 +41,6 @@ public class MustUnderstandInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;
 
     private Definition def;
-    private Definition newDef;
     private Service service;
 
     private WSDLServiceBuilder wsdlServiceBuilder;
@@ -176,7 +175,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        newDef = ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(serviceInfo);
+        ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(serviceInfo);
     }
 
     private class DummySoapInterceptor extends AbstractSoapInterceptor {
