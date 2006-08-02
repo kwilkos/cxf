@@ -28,9 +28,10 @@ public final class ServiceModelUtil {
         if (obj == null) {
             Set<QName> set = new HashSet<QName>();
             for (SOAPHeader head : bmi.getExtensors(SOAPHeader.class)) {
-                String pn = head.getPart();
-                set.add(new QName(bmi.getBindingOperation().getBinding().getService().getTargetNamespace(),
-                                  pn));
+                String pn = head.getPart();   
+                set.add(new QName(head.getMessage().getNamespaceURI(), pn));
+                //set.add(new QName(bmi.getBindingOperation().getBinding().getService().getTargetNamespace(),
+                //                  pn));
             }
             bmi.setProperty(HEADERS_PROPERTY, set);
             return set;
@@ -42,10 +43,16 @@ public final class ServiceModelUtil {
         Set<QName> headers = new HashSet<QName>();
         BindingInfo binding = (BindingInfo)soapMessage.get(Message.BINDING_INFO);
         if (binding != null) {
-            for (BindingOperationInfo opi : binding.getOperations()) {
-                headers.addAll(getHeaderParts(opi.getInput()));
-                headers.addAll(getHeaderParts(opi.getOutput()));
-            }
+            String operationName = (String)soapMessage.get(Message.OPERATION_INFO);
+            if (operationName != null) {
+                for (BindingOperationInfo opi : binding.getOperations()) {
+                    if (opi.getName().getLocalPart().equals(operationName)) {
+                        headers.addAll(getHeaderParts(opi.getInput()));
+                        headers.addAll(getHeaderParts(opi.getOutput()));
+                        break;
+                    }
+                }
+            } 
         }
         return headers;
     }

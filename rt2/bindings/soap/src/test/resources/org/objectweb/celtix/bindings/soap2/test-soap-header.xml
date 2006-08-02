@@ -12,7 +12,7 @@
 	    <n:name>Bob</n:name>
 	</n:passenger>
     </env:Header>
-    <env:Body>
+    <env:Body>	
 	<p:itinerary
 	    xmlns:p="http://travelcompany.example.org/reservation/travel">
 	    <p:departure>

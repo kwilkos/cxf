@@ -11,11 +11,11 @@ public final class StringUtils {
     public static String extract(String string, String startToken, String endToken) {
         int start = string.indexOf(startToken) + startToken.length();
         int end = string.lastIndexOf(endToken);
-        
+
         if (start == -1 || end == -1) {
             return null;
         }
-            
+
         return string.substring(start, end);
     }
 
@@ -49,5 +49,16 @@ public final class StringUtils {
         }
         return true;
     }
-}
 
+    public static boolean isEqualUri(String uri1, String uri2) {
+
+        if (uri1.substring(uri1.length() - 1).equals("/") && !uri2.substring(uri2.length() - 1).equals("/")) {
+            return uri1.substring(0, uri1.length() - 1).equals(uri2);
+        } else if (uri2.substring(uri2.length() - 1).equals("/")
+                   && !uri1.substring(uri1.length() - 1).equals("/")) {
+            return uri2.substring(0, uri2.length() - 1).equals(uri1);
+        } else {
+            return uri1.equals(uri2);
+        }
+    }
+}

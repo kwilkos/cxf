@@ -37,6 +37,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -353,7 +354,7 @@ public final class EndpointReferenceUtils {
         for (Object obj : metadata.getAny()) {
             if (obj instanceof Element) {
                 Element el = (Element)obj;
-                if ("http://schemas.xmlsoap.org/wsdl/".equals(el.getNamespaceURI())
+                if (StringUtils.isEqualUri(el.getNamespaceURI(), WSDLConstants.WSDL11_NAMESPACE) 
                     && "definitions".equals(el.getLocalName())) {
                     return manager.getDefinition(el);
                 }
