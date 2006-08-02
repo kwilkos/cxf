@@ -10,12 +10,11 @@ import javax.annotation.Resource;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.configuration.utils.PropertiesLoaderUtils;
-import org.objectweb.celtix.configuration.utils.PropertiesUtils;
+import org.objectweb.celtix.common.util.PropertiesLoaderUtils;
 
 public final class BindingFactoryManagerImpl implements BindingFactoryManager {
 
-    private static final String FACTORY_NAMESPACE_MAPPINGS_RESOURCE = "META-INF/bindings.properties";
+    private static final String FACTORY_NAMESPACE_MAPPINGS_RESOURCE = "META-INF/bindings.properties.xml";
     
     final Map<String, BindingFactory> bindingFactories;
     Properties factoryNamespaceMappings;
@@ -29,7 +28,7 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
         try {
             factoryNamespaceMappings = PropertiesLoaderUtils
                 .loadAllProperties(FACTORY_NAMESPACE_MAPPINGS_RESOURCE, Thread.currentThread()
-                    .getContextClassLoader());
+                                   .getContextClassLoader());
         } catch (IOException ex) {
             throw new BusException(ex);
         }
@@ -40,7 +39,7 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
         BindingFactory factory = null;
         try {
             Class<? extends BindingFactory> clazz = 
-                    Class.forName(className).asSubclass(BindingFactory.class);
+                Class.forName(className).asSubclass(BindingFactory.class);
 
             factory = clazz.newInstance();
 
@@ -61,7 +60,7 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     }
     
     public void registerBindingFactory(String name,
-        BindingFactory factory) throws BusException {
+                                       BindingFactory factory) throws BusException {
         bindingFactories.put(name, factory);
     }
     
@@ -74,8 +73,8 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
         if (null == factory) { 
             String classname = factoryNamespaceMappings.getProperty(namespace);
             if (null != classname) {
-                Collection<String> names = PropertiesUtils.getPropertyNames(
-                    factoryNamespaceMappings, classname);
+                Collection<String> names = PropertiesLoaderUtils.
+                    getPropertyNames(factoryNamespaceMappings, classname);
                 String[] allNamespaces = new String[names.size()];
                 allNamespaces = names.toArray(allNamespaces);
                 factory = loadBindingFactory(classname, allNamespaces);

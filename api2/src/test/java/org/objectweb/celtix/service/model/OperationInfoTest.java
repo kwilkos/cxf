@@ -21,16 +21,12 @@ public class OperationInfoTest extends TestCase {
         assertEquals("operationTest", operationInfo.getName().getLocalPart());
         operationInfo.setName(new QName("urn:test:ns", "operationTest2"));
         assertEquals("operationTest2", operationInfo.getName().getLocalPart());
-        boolean catchExecption = false;
         try {
             operationInfo.setName(null);
-        } catch (NullPointerException e) {
-            catchExecption = true;
-        }
-        if (!catchExecption) {
             fail("should catch IllegalArgumentException since name is null");
+        } catch (NullPointerException e) {
+            // intentionally empty
         }
-        
     }
     
     public void testInput() throws Exception {

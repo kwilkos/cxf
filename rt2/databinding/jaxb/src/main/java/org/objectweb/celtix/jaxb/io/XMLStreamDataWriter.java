@@ -25,10 +25,4 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
                                         elName, output, null);
         }
     }
-    
-    /*
-    public void writeWrapper(ObjectMessageContext objCtx, boolean isOutBound, T output) {
-        // TODO.
-    }
-    */
 }

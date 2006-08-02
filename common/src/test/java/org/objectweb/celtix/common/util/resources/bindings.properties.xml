@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="http://schemas.xmlsoap.org/wsdl/soap/">org.objectweb.celtix.bindings.soap.SOAPBindingFactory</entry>
+    <entry key="http://schemas.xmlsoap.org/wsdl/soap/http">org.objectweb.celtix.bindings.soap.SOAPBindingFactory</entry>
+    <entry key="http://celtix.objectweb.org/transports/jms">org.objectweb.celtix.bindings.soap.SOAPBindingFactory</entry>
+</properties>
