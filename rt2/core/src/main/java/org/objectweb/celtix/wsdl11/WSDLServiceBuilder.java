@@ -26,6 +26,7 @@ import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
 
+import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -45,7 +46,9 @@ import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
+import org.objectweb.celtix.service.model.SchemaInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
+import org.objectweb.celtix.service.model.TypeInfo;
 
 public class WSDLServiceBuilder {
 
@@ -97,9 +100,10 @@ public class WSDLServiceBuilder {
         service.setProperty(WSDL_DEFINITION, def);
         service.setProperty(WSDL_SERVICE, serv);
 
-        XmlSchemaCollection schemas = getSchemas(def);
+        TypeInfo typeInfo = new TypeInfo(service);
+        XmlSchemaCollection schemas = getSchemas(def, typeInfo);
         service.setProperty(WSDL_SCHEMA_LIST, schemas);
-
+        service.setTypeInfo(typeInfo);
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
         copyExtensors(service, def.getExtensibilityElements());
@@ -127,13 +131,13 @@ public class WSDLServiceBuilder {
         return service;
     }
 
-    private XmlSchemaCollection getSchemas(Definition def) {
+    private XmlSchemaCollection getSchemas(Definition def, TypeInfo typeInfo) {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);
-        extractSchema(def, schemaCol);
+        extractSchema(def, schemaCol, typeInfo);
         for (Definition def2 : defList) {
-            extractSchema(def2, schemaCol);
+            extractSchema(def2, schemaCol, typeInfo);
         }
         return schemaCol;
     }
@@ -151,8 +155,9 @@ public class WSDLServiceBuilder {
             defList.add(impt.getDefinition());
         }
     }
-
-    private void extractSchema(Definition def, XmlSchemaCollection schemaCol) {
+    
+ 
+    private void extractSchema(Definition def, XmlSchemaCollection schemaCol, TypeInfo typeInfo) {
         Types typesElement = def.getTypes();
         if (typesElement != null) {
             for (Object obj : typesElement.getExtensibilityElements()) {
@@ -167,10 +172,15 @@ public class WSDLServiceBuilder {
                     }
                 }
                 if (schemaElem != null) {
-                    schemaCol.read(schemaElem);
+                    XmlSchema xmlSchema = schemaCol.read(schemaElem);
+                    SchemaInfo schemaInfo = new SchemaInfo(typeInfo, xmlSchema.getTargetNamespace());
+                    schemaInfo.setElement(schemaElem);
+                    typeInfo.addSchema(schemaInfo);
+                    
                 }
             }
         }
+        
     }
 
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {

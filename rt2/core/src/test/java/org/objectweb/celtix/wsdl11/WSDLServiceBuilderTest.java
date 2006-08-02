@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
@@ -21,7 +22,9 @@ import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
+import org.objectweb.celtix.service.model.SchemaInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
+import org.objectweb.celtix.service.model.TypeInfo;
 
 public class WSDLServiceBuilderTest extends TestCase {
 
@@ -232,5 +235,20 @@ public class WSDLServiceBuilderTest extends TestCase {
         elementName = fault.getFaultInfo().getMessageParts().get(0).getElementQName();
         assertEquals(elementName.getLocalPart(), "faultDetail");
         assertEquals(elementName.getNamespaceURI(), "http://objectweb.org/hello_world_soap_http/types");
+    }
+    
+ 
+    public void testSchema() {
+        XmlSchemaCollection schemas = 
+            serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, XmlSchemaCollection.class);
+        assertNotNull(schemas);
+        TypeInfo typeInfo = serviceInfo.getTypeInfo();
+        assertNotNull(typeInfo);
+        assertEquals(typeInfo.getSchemas().size(), 1);
+        SchemaInfo schemaInfo = typeInfo.getSchemas().iterator().next();
+        assertNotNull(schemaInfo);
+        assertEquals(schemaInfo.getNamespaceURI(), "http://objectweb.org/hello_world_soap_http/types");
+        assertEquals(schemas.read(schemaInfo.getElement()).getTargetNamespace(),
+                     "http://objectweb.org/hello_world_soap_http/types");
     }
 }

@@ -19,10 +19,13 @@ import javax.wsdl.Part;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
+
+import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
 import org.objectweb.celtix.service.model.AbstractMessageContainer;
 import org.objectweb.celtix.service.model.BindingFaultInfo;
@@ -34,7 +37,9 @@ import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
+import org.objectweb.celtix.service.model.SchemaInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
+import org.objectweb.celtix.service.model.TypeInfo;
 
 public final class ServiceWSDLBuilder {
     
@@ -72,6 +77,7 @@ public final class ServiceWSDLBuilder {
             def.setQName(service.getName());
             def.setTargetNamespace(service.getTargetNamespace());
             addExtensibiltyElements(def, service.getWSDL11Extensors());
+            buildTypes(def, service.getTypeInfo());
             buildPortType(def, service.getInterface());
             buildBinding(def, service.getBindings());
             buildService(def, service);
@@ -79,6 +85,17 @@ public final class ServiceWSDLBuilder {
         return def;
     }
 
+
+    private void buildTypes(Definition def, TypeInfo typeInfo) {
+        Types types = def.createTypes();
+        for (SchemaInfo schemaInfo : typeInfo.getSchemas()) {
+            SchemaImpl schemaImpl = new SchemaImpl();
+            schemaImpl.setElement(schemaInfo.getElement());
+            types.addExtensibilityElement(schemaImpl);
+        }
+        
+        def.setTypes(types);
+    }
 
     private void buildBinding(Definition def, Collection<BindingInfo> bindingInfos) {
         Binding binding = null;

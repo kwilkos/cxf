@@ -11,6 +11,7 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     QName name;
     String targetNamespace;
     InterfaceInfo intf;
+    TypeInfo typeInfo;
     Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
     Map<String, EndpointInfo> endpoints = new ConcurrentHashMap<String, EndpointInfo>(2);
     
@@ -61,5 +62,13 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     
     public Collection<BindingInfo> getBindings() {
         return Collections.unmodifiableCollection(bindings.values());
+    }
+
+    public TypeInfo getTypeInfo() {
+        return typeInfo;
+    }
+
+    public void setTypeInfo(TypeInfo typeInfo) {
+        this.typeInfo = typeInfo;
     }
 }

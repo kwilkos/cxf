@@ -12,13 +12,19 @@ import javax.wsdl.Operation;
 import javax.wsdl.Output;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.Types;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Element;
+
 import junit.framework.TestCase;
 
 
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
@@ -218,4 +224,17 @@ public class ServiceWSDLBuilderTest extends TestCase {
         assertNotNull(binding);
         assertEquals(binding.getBindingOperations().size(), 4);
     }
+    
+    public void testSchemas() throws Exception {
+        Types types = newDef.getTypes();
+        assertNotNull(types);
+        Collection<ExtensibilityElement> schemas = 
+            WSDLServiceBuilder.cast(types.getExtensibilityElements(), ExtensibilityElement.class);
+        assertEquals(schemas.size(), 1);
+        XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
+        Element schemaElem = ((Schema)schemas.iterator().next()).getElement();
+        assertEquals(schemaCollection.read(schemaElem).getTargetNamespace(), 
+                     "http://objectweb.org/hello_world_soap_http/types");
+    }
+    
 }
