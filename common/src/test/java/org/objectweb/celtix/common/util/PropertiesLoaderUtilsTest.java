@@ -11,7 +11,7 @@ public class PropertiesLoaderUtilsTest extends TestCase {
     
     public void setUp() throws Exception {
         properties = PropertiesLoaderUtils.
-            loadAllProperties("org/objectweb/celtix/common/util/resources/bindings.properties",
+            loadAllProperties("org/objectweb/celtix/common/util/resources/bindings.properties.xml",
                               Thread.currentThread().getContextClassLoader());
         assertNotNull(properties);        
         
