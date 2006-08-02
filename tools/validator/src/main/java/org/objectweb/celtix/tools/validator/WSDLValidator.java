@@ -74,11 +74,7 @@ public class WSDLValidator extends AbstractCeltixToolContainer {
     public static void main(String[] pargs) {
         args = pargs;
 
-        try {
-            
-            System.err.println("-------- " + WSDLValidator.class
-                .getResourceAsStream("wsdlvalidator.xml"));
-            
+        try { 
             ToolRunner.runTool(WSDLValidator.class, WSDLValidator.class
                 .getResourceAsStream("wsdlvalidator.xml"), false, args);
         } catch (BadUsageException ex) {

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
@@ -50,12 +51,14 @@ import org.xml.sax.SAXParseException;
 
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.tools.common.ToolException;
 import org.objectweb.celtix.tools.common.WSDLConstants;
 import org.objectweb.celtix.tools.util.WSDLExtensionRegister;
 
 public class SchemaValidator extends AbstractValidator {
-
+    protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
     protected String[] defaultSchemas;
     protected String schemaLocation = "./";
 
@@ -139,6 +142,16 @@ public class SchemaValidator extends AbstractValidator {
     public boolean validate(InputSource wsdlsource, String[] schemas, boolean deep) throws ToolException {
         boolean isValid = false;
         try {
+            
+            Document document = docBuilder.parse(wsdlsource.getSystemId());
+           
+            
+            if (document.getFirstChild() != null 
+                && !"definitions".equals(document.getFirstChild().getLocalName())) {
+                Message msg = new Message("NOT_A_WSDLFILE", LOG, wsdlsource.getSystemId());
+                throw new ToolException(msg);
+            }
+            
             SAXParserFactory saxFactory = SAXParserFactory.newInstance();
             saxFactory.setFeature("http://xml.org/sax/features/namespaces", true);
             saxParser = saxFactory.newSAXParser();
@@ -159,8 +172,8 @@ public class SchemaValidator extends AbstractValidator {
                 throw new ToolException(errHandler.getErrorMessages());
             }
 
-            Document document = docBuilder.parse(wsdlsource.getSystemId());
-
+            
+            
             doSchemaValidation(document, errHandler);
 
             if (!errHandler.isValid()) {
@@ -215,6 +228,7 @@ public class SchemaValidator extends AbstractValidator {
 
     private void doSchemaValidation(Document doc, NewStackTraceErrorHandler handler) throws IOException,
         SAXException {
+
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         NodeList nodes = doc.getElementsByTagNameNS(WSDLConstants.NS_XMLNS, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {

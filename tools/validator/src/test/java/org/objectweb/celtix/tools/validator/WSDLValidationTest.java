@@ -20,8 +20,6 @@ public class WSDLValidationTest extends ToolTestBase {
 
     }
 
-
-
     public void testValidateUniqueBody() {
         try {
 
@@ -87,6 +85,19 @@ public class WSDLValidationTest extends ToolTestBase {
                        getStdErr().indexOf("reference binding is not defined") > -1);
 
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        
+    }
+    
+    public void testBug() throws Exception {
+        try {
+            String[] args = new String[] {"-d", schemaDir, "-verbose",
+                                          getLocation("/wsdl/bug305872/http.xsd")};
+            WSDLValidator.main(args);
+            
+            assertTrue("Tools should check if this file is a wsdl file",
+                       getStdErr().indexOf("is not a wsdl file") > -1);
         } catch (Exception e) {
             e.printStackTrace();
         }
