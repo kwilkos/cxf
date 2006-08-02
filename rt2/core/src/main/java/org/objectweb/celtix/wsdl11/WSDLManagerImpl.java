@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.utils.PropertiesLoaderUtils;
+import org.objectweb.celtix.common.util.PropertiesLoaderUtils;
 import org.objectweb.celtix.wsdl.JAXBExtensionHelper;
 import org.objectweb.celtix.wsdl.WSDLManager;
 
