@@ -354,7 +354,7 @@ public final class EndpointReferenceUtils {
         for (Object obj : metadata.getAny()) {
             if (obj instanceof Element) {
                 Element el = (Element)obj;
-                if (StringUtils.isEqualUri(el.getNamespaceURI(), WSDLConstants.WSDL11_NAMESPACE) 
+                if (StringUtils.isEqualUri(el.getNamespaceURI(), "http://schemas.xmlsoap.org/wsdl/")
                     && "definitions".equals(el.getLocalName())) {
                     return manager.getDefinition(el);
                 }
