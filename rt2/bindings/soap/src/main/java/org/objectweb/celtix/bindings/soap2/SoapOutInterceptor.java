@@ -23,27 +23,24 @@ import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
 
-    private static long threshCount;
-    private SoapMessage soapMessage;
-    private XMLStreamWriter xtw;
 
-    public void handleMessage(SoapMessage message) {
+    public void handleMessage(SoapMessage message) {                       
         // Create XML Stream Writer from Output Stream setted by
         // TransportOutInterceptor
-        soapMessage = (SoapMessage)message;
+        long threshCount = 0;
+        SoapMessage soapMessage = (SoapMessage)message;
         OutputStream ops = (OutputStream)soapMessage.getContent(OutputStream.class);
         try {
             threshCount++;
             CachedOutputStream cos = new CachedOutputStream(threshCount, null);
-            xtw = StaxUtils.createXMLStreamWriter(cos);
+            XMLStreamWriter xtw = StaxUtils.createXMLStreamWriter(cos);
             soapMessage.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = soapMessage.getVersion();
             xtw.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope().getLocalPart(),
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             Element eleHeaders = soapMessage.getHeaders(Element.class);
-            serializeDom2XmlStreamWriter(eleHeaders, xtw, new HashSet<String>());
-            
+            serializeDom2XmlStreamWriter(eleHeaders, xtw, new HashSet<String>());            
             // Calling for Wrapped/Rpt/Doc/ Interceptor for writing SOAP body
             // message.getInterceptorChain().doIntercept(message);
             
@@ -62,8 +59,6 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             soapMessage.setContent(Exception.class, e);
             return;
         }
-        // Continue the Chain processing
-        //  message.getInterceptorChain().doIntercept(message);
     }
 
     private static void streamCopy(InputStream input, OutputStream output) throws IOException {

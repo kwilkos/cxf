@@ -31,18 +31,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
 
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
-
-    private AbstractWrappedMessage message;
-    private boolean isMultipartType;
-    private PushbackInputStream stream;
-    private String boundary;
-    private int threshold = 1024 * 100;
-    private File tempDirectory;
-    private String contentType;
-    private List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
-
-    private InputStream input;
-    private Map httpHeaders;
+    public static final int THRESHHOLD = 1024 * 100;
 
     /**
      * contruct the soap message with attachments from mime input stream
@@ -50,11 +39,55 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
      * @param messageParam
      */
     public void handleMessage(Message messageParam) {
+
+        boolean isMultipartType = false;
+        PushbackInputStream stream = null;
+        String boundary = null;
+        File tempDirectory = null;
+        String contentType = null;
+        List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
+
+        InputStream input;
+        Map httpHeaders;
         // processing message if its multi-part/form-related
+        AbstractWrappedMessage message = (AbstractWrappedMessage)messageParam;
         try {
-            this.message = (AbstractWrappedMessage)messageParam;
-            init();
-            process();
+            httpHeaders = (Map)message.get(MessageContext.HTTP_REQUEST_HEADERS);
+            if (httpHeaders == null) {
+                return;
+            } else {
+                contentType = (String)httpHeaders.get("Content-Type");
+                input = message.getContent(InputStream.class);
+                if (contentType == null || input == null) {
+                    return;
+                }
+            }
+            if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
+                isMultipartType = true;
+                int i = contentType.indexOf("boundary=\"");
+                int end;
+                int len;
+                if (i == -1) {
+                    i = contentType.indexOf("boundary=");
+                    end = contentType.indexOf(";", i + 9);
+                    if (end == -1) {
+                        end = contentType.length();
+                    }
+                    len = 9;
+                } else {
+                    end = contentType.indexOf("\"", i + 10);
+                    len = 10;
+                }
+                if (i == -1 || end == -1) {
+                    throw new IOException("Invalid content type: missing boundary! " + contentType);
+                }
+                boundary = "--" + contentType.substring(i + len, end);
+                stream = new PushbackInputStream(input, boundary.length());
+                if (!readTillFirstBoundary(stream, boundary.getBytes())) {
+                    throw new IOException("Couldn't find MIME boundary: " + boundary);
+                }
+            }
+            process(message, isMultipartType, stream, boundary, tempDirectory, cache);
         } catch (MessagingException me) {
             message.setContent(Exception.class, me);
             return;
@@ -70,7 +103,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
     /**
      * release the resource
      */
-    public void dispose() {
+    public void dispose(List<CachedOutputStream> cache) {
         for (Iterator itr = cache.iterator(); itr.hasNext();) {
             CachedOutputStream cos = (CachedOutputStream)itr.next();
             cos.dispose();
@@ -78,54 +111,13 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
     }
 
     /**
-     * doing message initialization
-     * 
-     * @throws IOException
-     */
-    private void init() throws IOException {
-        httpHeaders = (Map)message.get(MessageContext.HTTP_REQUEST_HEADERS);
-        if (httpHeaders == null) {
-            return;
-        } else {
-            contentType = (String)httpHeaders.get("Content-Type");
-            input = message.getContent(InputStream.class);
-            if (contentType == null || input == null) {
-                return;
-            }
-        }
-        if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-            isMultipartType = true;
-            int i = contentType.indexOf("boundary=\"");
-            int end;
-            int len;
-            if (i == -1) {
-                i = contentType.indexOf("boundary=");
-                end = contentType.indexOf(";", i + 9);
-                if (end == -1) {
-                    end = contentType.length();
-                }
-                len = 9;
-            } else {
-                end = contentType.indexOf("\"", i + 10);
-                len = 10;
-            }
-            if (i == -1 || end == -1) {
-                throw new IOException("Invalid content type: missing boundary! " + contentType);
-            }
-            this.boundary = "--" + contentType.substring(i + len, end);
-            this.stream = new PushbackInputStream(input, boundary.length());
-            if (!readTillFirstBoundary(stream, boundary.getBytes())) {
-                throw new IOException("Couldn't find MIME boundary: " + boundary);
-            }
-        }
-    }
-
-    /**
      * construct the primary soap body part and attachments
      */
-    private void process() throws MessagingException, IOException {
+    private void process(AbstractWrappedMessage message, boolean isMultipartType, PushbackInputStream stream,
+                         String boundary, File tempDirectory, List<CachedOutputStream> cache)
+        throws MessagingException, IOException {
 
-        Attachment soapMimePart = readMimePart();
+        Attachment soapMimePart = readMimePart(stream, boundary, tempDirectory, cache);
         message.setContent(Attachment.class, soapMimePart);
 
         InputStream in = soapMimePart.getDataHandler().getInputStream();
@@ -133,8 +125,10 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
 
         if (isMultipartType) {
             Collection<Attachment> attachments = message.getAttachments();
-            for (Attachment att = readMimePart(); att != null && att.getId() != null; att = readMimePart()) {
+            Attachment att = readMimePart(stream, boundary, tempDirectory, cache);
+            while (att != null && att.getId() != null) {
                 attachments.add(att);
+                att = readMimePart(stream, boundary, tempDirectory, cache);
             }
         }
 
@@ -179,7 +173,8 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
         return false;
     }
 
-    private Attachment readMimePart() throws MessagingException, IOException {
+    private Attachment readMimePart(PushbackInputStream stream, String boundary, File tempDirectory,
+                                    List<CachedOutputStream> cache) throws MessagingException, IOException {
 
         int v = stream.read();
         if (v == -1) {
@@ -189,7 +184,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
         InternetHeaders headers;
         headers = new InternetHeaders(stream);
         MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary.getBytes());
-        final CachedOutputStream cos = new CachedOutputStream(threshold, tempDirectory);
+        final CachedOutputStream cos = new CachedOutputStream(THRESHHOLD, tempDirectory);
         copy(partStream, cos);
         final String ct = headers.getHeader("Content-Type", null);
         cache.add(cos);

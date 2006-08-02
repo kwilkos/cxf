@@ -14,19 +14,17 @@ import org.objectweb.celtix.interceptors.Interceptor;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
-    private SoapMessage soapMessage;
-    private Set<Element> mustUnderstandHeaders = new HashSet<Element>();
-    private Set<QName> notUnderstandQNames = new HashSet<QName>();
-    private Set<QName> mustUnderstandQNames;
-    private Set<URI> serviceRoles = new HashSet<URI>();
+    public void handleMessage(SoapMessage soapMessage) {
 
-    public void handleMessage(SoapMessage message) {
 
-        // TODO Auto-generated method stub
-        soapMessage = message;
-        buildMustUnderstandHeaders();
-        initServiceSideInfo();
-        if (!checkUnderstand()) {
+        Set<Element> mustUnderstandHeaders = new HashSet<Element>();
+        Set<URI> serviceRoles = new HashSet<URI>();
+        Set<QName> notUnderstandQNames = new HashSet<QName>();
+        Set<QName> mustUnderstandQNames = new HashSet<QName>();
+        
+        buildMustUnderstandHeaders(mustUnderstandHeaders, soapMessage, serviceRoles);
+        initServiceSideInfo(mustUnderstandQNames, soapMessage, serviceRoles);
+        if (!checkUnderstand(mustUnderstandHeaders, mustUnderstandQNames, notUnderstandQNames)) {
             StringBuffer sb = new StringBuffer(300);
             sb.append("Can't understands QNames: ");
             for (QName qname : notUnderstandQNames) {
@@ -37,12 +35,9 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private void initServiceSideInfo() {
-        if (mustUnderstandQNames != null) {
-            return;
-        } else {
-            mustUnderstandQNames = new HashSet<QName>();
-        }
+    private void initServiceSideInfo(Set<QName> mustUnderstandQNames, SoapMessage soapMessage,
+                                     Set<URI> serviceRoles) {
+
         Set<QName> paramHeaders = ServiceModelUtil.getHeaderQNameInOperationParam(soapMessage);
         if (paramHeaders != null) {
             mustUnderstandQNames.addAll(paramHeaders);
@@ -58,7 +53,8 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private void buildMustUnderstandHeaders() {
+    private void buildMustUnderstandHeaders(Set<Element> mustUnderstandHeaders, SoapMessage soapMessage,
+                                            Set<URI> serviceRoles) {
         Element headers = (Element)soapMessage.getHeaders(Element.class);
         for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
             Element header = (Element)headers.getChildNodes().item(i);
@@ -90,7 +86,9 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private boolean checkUnderstand() {
+    private boolean checkUnderstand(Set<Element> mustUnderstandHeaders, Set<QName> mustUnderstandQNames,
+                                    Set<QName> notUnderstandQNames) {
+
         for (Element header : mustUnderstandHeaders) {
             QName qname = new QName(header.getNamespaceURI(), header.getLocalName());
             if (!mustUnderstandQNames.contains(qname)) {

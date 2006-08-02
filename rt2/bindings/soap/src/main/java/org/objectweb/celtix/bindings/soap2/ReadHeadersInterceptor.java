@@ -19,33 +19,24 @@ import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
 
-    private SoapMessage message;
-    private XMLStreamReader xmlReader;
-    private Document doc;
-
     public void handleMessage(SoapMessage messageParam) {
-        // TODO Auto-generated method stub
-        this.message = (SoapMessage)messageParam;
+
+        SoapMessage message = (SoapMessage)messageParam;
         try {
-            init();
-            process();
+            InputStream in = (InputStream)message.getContent(InputStream.class);
+            if (in == null) {
+                throw new WebServiceException("Missing Soap part input stream in soap message");
+            }
+            XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(in);
+            message.setContent(XMLStreamReader.class, xmlReader);
+            process(xmlReader, message);
         } catch (Exception e) {
             message.setContent(Exception.class, e);
             return;
         }
-        // continue interceptor chain processing
     }
 
-    private void init() throws Exception {
-        InputStream in = (InputStream)message.getContent(InputStream.class);
-        if (in == null) {
-            throw new WebServiceException("Missing Soap part input stream in soap message");
-        }
-        xmlReader = StaxUtils.createXMLStreamReader(in);
-        message.setContent(XMLStreamReader.class, xmlReader);
-    }
-
-    private void process() throws Exception {
+    private void process(XMLStreamReader xmlReader, SoapMessage message) throws Exception {
         boolean found = false;
         try {
             while (xmlReader.hasNext()) {
@@ -59,10 +50,11 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 }
             }
             if (found) {
-                // retrive the header tag under the envelop tag, build a dom
-                // node represent it
-                createDomDocument();
-                addHeaderElementIntoDoc();
+                DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = null;
+                builder = builderFactory.newDocumentBuilder();
+                Document doc = builder.newDocument();
+                addHeaderElementIntoDoc(xmlReader, message, doc);
             } else {
                 throw new SOAPException("Parsing soap message error, "
                                         + "can't find <Soap:Header> in message part!");
@@ -73,15 +65,17 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private void addHeaderElementIntoDoc() throws XMLStreamException {
+    private void addHeaderElementIntoDoc(XMLStreamReader xmlReader, SoapMessage message, Document doc)
+        throws XMLStreamException {
         QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
         Element eleHeaders = doc.createElementNS(name.getNamespaceURI(), name.getLocalPart());
         eleHeaders.setPrefix(message.getVersion().getPrefix());
-        processElement(null, eleHeaders);
+        processElement(null, eleHeaders, xmlReader, doc);
         message.setHeaders(Element.class, eleHeaders);
     }
 
-    private void processElement(Element parent, Element ele) throws XMLStreamException {
+    private void processElement(Element parent, Element ele, XMLStreamReader xmlReader, Document doc)
+        throws XMLStreamException {
         int attIndex = 0;
         StringBuffer sb = null;
         boolean hasChild = false;
@@ -101,7 +95,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 }
                 eleChild.setPrefix(xmlReader.getPrefix());
                 hasChild = true;
-                processElement(ele, eleChild);
+                processElement(ele, eleChild, xmlReader, doc);
             } else if (eventType == XMLStreamConstants.END_ELEMENT) {
                 if (!hasChild && sb != null) {
                     ele.setTextContent(sb.toString());
@@ -134,10 +128,4 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private void createDomDocument() throws Exception {
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
-        builder = builderFactory.newDocumentBuilder();
-        doc = builder.newDocument();
-    }
 }
