@@ -4,10 +4,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+
 public class InterfaceInfo extends AbstractPropertiesHolder {
+    private static final Logger LOG = LogUtils.getL7dLogger(InterfaceInfo.class);
+    
     QName name;
     ServiceInfo service;
     
@@ -39,11 +45,12 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
      */
     public OperationInfo addOperation(QName oname) {
         if (oname == null) {
-            throw new NullPointerException("Name cannot be null.");
+            throw new NullPointerException(
+                new Message("OPERATION.NAME.NOT.NULL", LOG).toString());
         } 
         if (operations.containsKey(oname)) {
-            throw new IllegalArgumentException("An operation with name [" + oname
-                                               + "] already exists in this service");
+            throw new IllegalArgumentException(
+                new Message("DUPLICATED.OPERATION.NAME", LOG, new Object[]{oname}).toString());
         }
 
         OperationInfo operation = new OperationInfo(this, oname);

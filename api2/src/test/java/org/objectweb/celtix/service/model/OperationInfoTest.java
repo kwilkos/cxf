@@ -25,7 +25,7 @@ public class OperationInfoTest extends TestCase {
             operationInfo.setName(null);
             fail("should catch IllegalArgumentException since name is null");
         } catch (NullPointerException e) {
-            // intentionally empty
+            assertEquals(e.getMessage(), "Operation Name cannot be null.");
         }
     }
     
@@ -77,5 +77,21 @@ public class OperationInfoTest extends TestCase {
                      "http://objectweb.org/hello_world_soap_http");
         operationInfo.removeFault(faultName);
         assertEquals(operationInfo.getFaults().size(), 0);
+        try {
+            operationInfo.addFault(null, null);
+            fail("should get NullPointerException");
+        } catch (NullPointerException e) {
+            assertEquals(e.getMessage(), "Faule Name cannot be null.");
+        }
+        try {
+            operationInfo.addFault(faultName, null);
+            operationInfo.addFault(faultName, null);
+            fail("should get IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), 
+                "A fault with name [{urn:test:ns}fault] already exists in this operation");
+        }
     }
+    
+    
 }

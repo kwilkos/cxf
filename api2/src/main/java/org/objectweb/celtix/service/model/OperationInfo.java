@@ -4,14 +4,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 
 /**
  * 
  */
 public class OperationInfo extends AbstractPropertiesHolder {
-    
+    private static final Logger LOG = LogUtils.getL7dLogger(OperationInfo.class);
     final InterfaceInfo intf;
     QName opName;
     String inName;
@@ -44,7 +48,8 @@ public class OperationInfo extends AbstractPropertiesHolder {
      */
     public final void setName(QName name) {
         if (name == null) {
-            throw new NullPointerException("Name cannot be null.");
+            throw new NullPointerException(
+                new Message("OPERATION.NAME.NOT.NULL", LOG).toString());
         }        
         opName = name;
     }
@@ -110,11 +115,11 @@ public class OperationInfo extends AbstractPropertiesHolder {
      */
     public FaultInfo addFault(QName name, QName message) {
         if (name == null) {
-            throw new NullPointerException("Name cannot be null.");
+            throw new NullPointerException(new Message("FAULT.NAME.NOT.NULL", LOG).toString());
         } 
         if (faults != null && faults.containsKey(name)) {
-            throw new IllegalArgumentException("A fault with name [" + name
-                                               + "] already exists in this operation");
+            throw new IllegalArgumentException(
+                new Message("DUPLICATED.FAULT.NAME", LOG, new Object[] {name}).toString());
         }
         FaultInfo fault = new FaultInfo(name, message, this);
         addFault(fault);

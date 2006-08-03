@@ -8,9 +8,12 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
+
 public class BindingInfo extends AbstractPropertiesHolder {
     
-    private static final Logger LOG = Logger.getLogger(BindingInfo.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(BindingInfo.class);
     
     QName name;
     ServiceInfo service;
@@ -72,13 +75,14 @@ public class BindingInfo extends AbstractPropertiesHolder {
      */
     public void addOperation(BindingOperationInfo operation) {
         if (operation.getName() == null) {
-            throw new NullPointerException("Binding operation name cannot be null.");
+            throw new NullPointerException(
+                new Message("BINDING.OPERATION.NAME.NOT.NULL", LOG).toString());
         } 
         if (operations.containsKey(operation.getName())) {
-            throw new IllegalArgumentException("An operation with name [" + operation.getName()
-                                               + "] already exists in this service");
+            throw new IllegalArgumentException(
+                new Message("DUPLICATED.OPERATION.NAME", LOG, new Object[]{operation.getName()}).toString());
         }
-        LOG.fine("the operation name is " + operation.getName());
+        
         operations.put(operation.getName(), operation);
     }
 

@@ -32,6 +32,28 @@ public class InterfaceInfoTest extends TestCase {
         assertEquals("sayHi", interfaceInfo.getOperation(name).getName().getLocalPart());
         interfaceInfo.addOperation(new QName("urn:test:ns", "greetMe"));
         assertEquals(interfaceInfo.getOperations().size(), 2);
+        boolean duplicatedOperationName = false;
+        try {
+            interfaceInfo.addOperation(name);
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), 
+                "An operation with name [{urn:test:ns}sayHi] already exists in this service");
+            duplicatedOperationName = true;
+        }
+        if (!duplicatedOperationName) {
+            fail("should get IllegalArgumentException");
+        }
+        boolean isNull = false;
+        try {
+            QName qname = null;
+            interfaceInfo.addOperation(qname);
+        } catch (NullPointerException e) {
+            isNull = true;
+            assertEquals(e.getMessage(), "Operation Name cannot be null.");
+        }
+        if (!isNull) {
+            fail("should get NullPointerException");
+        }
     }
     
 }
