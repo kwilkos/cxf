@@ -39,7 +39,12 @@ public interface Message extends Map<String, Object> {
     Exchange getExchange();
     
     Collection<Attachment> getAttachments();
-    
+
+    /**
+     * @return the mime type string  
+     */
+    String getAttachmentMimeType();
+
     /**
      * Retreive the encapsulated content as a particular type (a result type
      * if message is outbound, a source type if message is inbound)
@@ -62,4 +67,5 @@ public interface Message extends Map<String, Object> {
      * @return the set of currently encapsulated content formats
      */
     Set<Class> getContentFormats();
+        
 }

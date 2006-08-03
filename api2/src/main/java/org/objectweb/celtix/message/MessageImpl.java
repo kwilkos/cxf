@@ -24,6 +24,11 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
         return attachments;
     }
 
+    public String getAttachmentMimeType() {
+        //for sub class overriding
+        return null;
+    }
+    
     public Conduit getConduit() {
         return conduit;
     }

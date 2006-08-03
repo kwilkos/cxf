@@ -34,4 +34,8 @@ public class SoapMessage extends AbstractWrappedMessage {
         headers.put(format, content);
     }
     
+    public String getAttachmentMimeType() {
+        return version.getSoapMimeType();
+    }
+    
 }

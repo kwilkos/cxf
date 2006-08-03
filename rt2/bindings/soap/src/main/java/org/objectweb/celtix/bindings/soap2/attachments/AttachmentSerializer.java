@@ -15,9 +15,8 @@ import javax.mail.internet.MimeMultipart;
 
 import org.objectweb.celtix.bindings.attachments.AttachmentDataSource;
 import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.bindings.soap2.SoapMessage;
-import org.objectweb.celtix.bindings.soap2.SoapVersion;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Message;
 
 public final class AttachmentSerializer {
 
@@ -35,7 +34,7 @@ public final class AttachmentSerializer {
      * @throws CxfRioException
      */
 
-    public static String serializeMultipartMessage(SoapMessage soapMessage,
+    public static String serializeMultipartMessage(Message message,
                                                    InputStream in,
                                                    OutputStream out)
         throws MessagingException, IOException {
@@ -43,7 +42,7 @@ public final class AttachmentSerializer {
         Session session = Session.getDefaultInstance(new Properties(), null);
         MimeMessage mimeMessage = new MimeMessage(session);
         String soapPartId = AttachmentUtil.createContentID(null);
-        String subType = getMimeSubType(soapMessage.getVersion(), soapPartId);
+        String subType = getMimeSubType(message, soapPartId);
         MimeMultipart mimeMP = new MimeMultipart(subType);
                
         // InputStream in = soapMessage.getContent(InputStream.class); 
@@ -52,12 +51,12 @@ public final class AttachmentSerializer {
         soapPart.setDataHandler(new DataHandler(ads));
         soapPart.setContentID("<" + soapPartId  + ">");
         soapPart.addHeader("Content-Type", "application/xop+xml");        
-        soapPart.addHeader("type", soapMessage.getVersion().getSoapMimeType());
-        soapPart.addHeader("charset", SoapMessage.CHARSET);
+        soapPart.addHeader("type", message.getAttachmentMimeType());
+        soapPart.addHeader("charset", "utf-8");
         soapPart.addHeader("Content-Transfer-Encoding", "binary");
         mimeMP.addBodyPart(soapPart);
         
-        for (Iterator itr = soapMessage.getAttachments().iterator(); itr.hasNext();) {
+        for (Iterator itr = message.getAttachments().iterator(); itr.hasNext();) {
             Attachment att = (Attachment)itr.next();
             MimeBodyPart part = new MimeBodyPart();
             part.setDataHandler(att.getDataHandler());
@@ -78,12 +77,12 @@ public final class AttachmentSerializer {
      * @param message
      * @return
      */
-    public static String getMimeSubType(SoapVersion soapVersion, String soapPartId) {
+    public static String getMimeSubType(Message message, String soapPartId) {
         StringBuffer ct = new StringBuffer();
         ct.append("related; ");
         ct.append("type=\"application/xop+xml\"; ");
         ct.append("start=\"<" + soapPartId + ">\"; ");
-        ct.append("start-info=\"" + soapVersion.getSoapMimeType() + "\"");
+        ct.append("start-info=\"" + message.getAttachmentMimeType() + "\"");
         return ct.toString();
     }
 
