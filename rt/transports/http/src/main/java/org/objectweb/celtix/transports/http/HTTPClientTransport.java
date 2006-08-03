@@ -48,7 +48,6 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
 import org.objectweb.celtix.context.MessageContextWrapper;
@@ -312,12 +311,13 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
         Configuration portConfiguration = busConfiguration
             .getChild(PORT_CONFIGURATION_URI,
                       id);
-        
+       
+        // REVISIT: the following should never be necessary 
+ 
         if (portConfiguration == null) {
-            ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-            portConfiguration = cb.getConfiguration(PORT_CONFIGURATION_URI, id,
-                                                    bus.getConfiguration());
+            portConfiguration = bus.getConfiguration().getChild(PORT_CONFIGURATION_URI, id);
             if (null == portConfiguration) {
+                ConfigurationBuilder cb = bus.getConfigurationBuilder();
                 portConfiguration = cb.buildConfiguration(PORT_CONFIGURATION_URI, id,
                                                           bus.getConfiguration());
             }
@@ -335,11 +335,10 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
     }
 
     private Configuration createConfiguration(Configuration portCfg) {
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
-                                                HTTP_CLIENT_CONFIGURATION_ID,
-                                                portCfg);
+        Configuration cfg = portCfg.getChild(HTTP_CLIENT_CONFIGURATION_URI,
+                                                HTTP_CLIENT_CONFIGURATION_ID);
         if (null == cfg) {
+            ConfigurationBuilder cb = bus.getConfigurationBuilder();
             cfg = cb.buildConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
                                         HTTP_CLIENT_CONFIGURATION_ID,
                                         portCfg);

@@ -6,7 +6,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.CommandLineOption;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 
 public class BusConfigurationBuilder  {
     
@@ -21,9 +20,8 @@ public class BusConfigurationBuilder  {
         BUS_ID_OPT = new CommandLineOption("-BUSid");
     }
     
-    Configuration build(String[] args, Map<String, Object> properties) {
+    Configuration build(ConfigurationBuilder builder, String[] args, Map<String, Object> properties) {
         String id = getBusId(args, properties);
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder(null);
         Configuration c = builder.getConfiguration(BUS_CONFIGURATION_URI, id);
         if (null == c) {
             c = builder.buildConfiguration(BUS_CONFIGURATION_URI, id);

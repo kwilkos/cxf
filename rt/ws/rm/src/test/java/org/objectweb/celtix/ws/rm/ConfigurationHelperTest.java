@@ -14,7 +14,7 @@ import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -77,7 +77,7 @@ public class ConfigurationHelperTest extends TestCase {
     }
     
     private void doSetUp(boolean server) {
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
         Configuration busCfg = builder.buildConfiguration(
             BusConfigurationBuilder.BUS_CONFIGURATION_URI, "celtix");
         Configuration parent = null;
@@ -94,8 +94,9 @@ public class ConfigurationHelperTest extends TestCase {
         control = EasyMock.createNiceControl();
         AbstractBindingBase binding = control.createMock(AbstractBindingBase.class);
         Bus bus = control.createMock(Bus.class);
-        expect(binding.getBus()).andReturn(bus);
+        expect(binding.getBus()).andReturn(bus).times(2);
         expect(bus.getConfiguration()).andReturn(busCfg);
+        expect(bus.getConfigurationBuilder()).andReturn(builder);
         EndpointReferenceType epr = EndpointReferenceUtils.getEndpointReference(
             "http://localhost:9000/SoapContext/GreeterPort");
         EndpointReferenceUtils.setServiceAndPortName(epr, SERVICE_NAME, PORT_NAME);

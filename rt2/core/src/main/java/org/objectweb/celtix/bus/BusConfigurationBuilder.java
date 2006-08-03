@@ -5,7 +5,6 @@ import java.util.Map;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 
 public class BusConfigurationBuilder  {
     
@@ -15,9 +14,8 @@ public class BusConfigurationBuilder  {
     public static final String DEFAULT_BUS_ID = "celtix";
    
     
-    Configuration build(Map<String, Object> properties) {
+    Configuration build(ConfigurationBuilder builder, Map<String, Object> properties) {
         String id = getBusId(properties);
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder(null);
         Configuration c = builder.getConfiguration(BUS_CONFIGURATION_URI, id);
         if (null == c) {
             c = builder.buildConfiguration(BUS_CONFIGURATION_URI, id);

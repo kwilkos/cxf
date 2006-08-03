@@ -15,7 +15,6 @@ import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType;
 import org.objectweb.celtix.ws.rm.policy.RMAssertionType.BaseRetransmissionInterval;
@@ -42,7 +41,7 @@ public class ConfigurationHelper {
 
     public ConfigurationHelper(AbstractBindingBase binding, boolean server) {
         Configuration busCfg = binding.getBus().getConfiguration();
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        ConfigurationBuilder builder = binding.getBus().getConfigurationBuilder();
         Configuration parent;
         org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = binding.getEndpointReference();
 

@@ -28,7 +28,6 @@ import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -79,7 +78,7 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
         AbstractBindingBase binding = (AbstractBindingBase)
             (clientBinding == null ? serverBinding : clientBinding);
         Configuration busCfg = binding.getBus().getConfiguration();
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        ConfigurationBuilder builder = binding.getBus().getConfigurationBuilder();
         Configuration parent;
         org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = 
             binding.getEndpointReference();

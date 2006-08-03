@@ -5,7 +5,6 @@ import java.util.List;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.ExtensibilityElement;
 
-import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
@@ -17,10 +16,6 @@ public class WsdlHttpConfigurationProvider implements ConfigurationProvider {
     public WsdlHttpConfigurationProvider(Port p, boolean s) {
         port = p;
         serverType = s;
-    }
-
-    public void init(Configuration configuration) {
-        // not needed
     }
 
     public Object getObject(String name) {

@@ -1,5 +1,6 @@
 package org.objectweb.celtix.configuration.impl;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class InMemoryProvider implements ConfigurationProvider {
         map = new HashMap<String, Object>();
     }
     
-    public void init(Configuration configuration) {
+    public void init(URL url, Configuration configuration) {
     }
 
     public Object getObject(String name) {

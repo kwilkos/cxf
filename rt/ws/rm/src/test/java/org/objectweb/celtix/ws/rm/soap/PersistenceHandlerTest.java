@@ -27,7 +27,7 @@ import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.transports.ClientTransport;
 import org.objectweb.celtix.transports.ServerTransport;
@@ -75,6 +75,7 @@ public class PersistenceHandlerTest extends TestCase {
     private AbstractClientBinding clientBinding;
     private AbstractServerBinding serverBinding;
     private ConfigurationHelper ch;   
+    private ConfigurationBuilder configurationBuilder;
     private RMStore store; 
     private RetransmissionQueue queue;
     private Bus bus;
@@ -96,8 +97,6 @@ public class PersistenceHandlerTest extends TestCase {
     }  
     
     public void tearDown() {        
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-        builder.clearConfigurations();
         RMHandler.getHandlerMap().clear();
     }
     
@@ -409,7 +408,7 @@ public class PersistenceHandlerTest extends TestCase {
     
     private void setupConfigurationBuilder(boolean server) {
         Configuration configuration;
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
+        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
         Configuration busCfg = builder.buildConfiguration(
             BusConfigurationBuilder.BUS_CONFIGURATION_URI, "PersistenceHandlerTest");
         Configuration parent = null;
@@ -425,11 +424,12 @@ public class PersistenceHandlerTest extends TestCase {
         
         bus = control.createMock(Bus.class);
         if (!server) {
-            expect(clientBinding.getBus()).andReturn(bus);
+            expect(clientBinding.getBus()).andReturn(bus).times(2);
         } else {
-            expect(serverBinding.getBus()).andReturn(bus);
+            expect(serverBinding.getBus()).andReturn(bus).times(2);
         }
         expect(bus.getConfiguration()).andReturn(busCfg);
+        expect(bus.getConfigurationBuilder()).andReturn(builder);
         EndpointReferenceType epr = EndpointReferenceUtils.getEndpointReference(
             "http://localhost:9000/SoapContext/GreeterPort");
         EndpointReferenceUtils.setServiceAndPortName(epr, SERVICE_NAME, PORT_NAME);

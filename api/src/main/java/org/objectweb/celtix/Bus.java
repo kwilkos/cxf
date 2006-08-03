@@ -11,6 +11,7 @@ import javax.xml.ws.WebServiceException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.plugins.PluginManager;
@@ -190,6 +191,13 @@ public abstract class Bus {
      */
     public abstract void shutdown(boolean wait) throws BusException;
 
+    /** 
+     * Returns the <code>ConfigurationBuilder</code> of this <code>Bus</code>.
+     * 
+     * @return ConfigurationBuilder the configuration builder of this <code>bus</code>.
+     */
+    public abstract ConfigurationBuilder getConfigurationBuilder();
+    
     /** 
      * Returns the <code>Configuration</code> of this <code>Bus</code>.
      * 

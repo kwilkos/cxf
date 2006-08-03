@@ -39,13 +39,6 @@ public class ConfigurationImpl implements Configuration {
                                             : null);
 
         providers = new Vector<ConfigurationProvider>();
-
-        DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
-        ConfigurationProvider defaultProvider = factory.createDefaultProvider(this);
-
-        if (null != defaultProvider) {
-            providers.add(defaultProvider);
-        }
     }
 
     public Object getId() {

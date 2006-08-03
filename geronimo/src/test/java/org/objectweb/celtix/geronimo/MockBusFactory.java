@@ -104,12 +104,17 @@ public final class MockBusFactory {
     }
 
     public Configuration addChildConfig(String namespaceURI, Object id, Configuration childConfig) {
+        return addChildConfig(namespaceURI, id, childConfig, mockConfiguration);
+    }
+
+    public Configuration addChildConfig(String namespaceURI, Object id, Configuration childConfig,
+        Configuration parentConfig) {
 
         if (childConfig == null) {
             childConfig = EasyMock.createNiceMock(Configuration.class);
         }
 
-        EasyMock.expect(mockConfiguration.getChild(EasyMock.eq(namespaceURI), 
+        EasyMock.expect(parentConfig.getChild(EasyMock.eq(namespaceURI), 
                                             id != null
                                             ? EasyMock.eq(id)
                                             : EasyMock.anyObject()))

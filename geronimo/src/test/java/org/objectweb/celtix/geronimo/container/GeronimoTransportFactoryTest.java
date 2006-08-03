@@ -8,7 +8,9 @@ import javax.xml.namespace.QName;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.geronimo.MockBusFactory;
 import org.objectweb.celtix.transports.ServerTransport;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -34,6 +36,15 @@ public class GeronimoTransportFactoryTest extends TestCase {
         
         MockBusFactory busFactory = new MockBusFactory();
         Bus mockBus = busFactory.createMockBus();
+
+        Configuration child = 
+            busFactory.addChildConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null, null);
+        Configuration httpServerCfg = 
+            busFactory.addChildConfig("http://celtix.objectweb.org/bus/transports/http/http-server-config",
+                null, null, child);
+        EasyMock.replay(child);
+        EasyMock.replay(httpServerCfg);
+
         busFactory.replay();
 
         factory.init(mockBus);

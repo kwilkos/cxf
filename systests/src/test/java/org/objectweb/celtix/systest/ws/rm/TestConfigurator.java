@@ -10,7 +10,6 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.ws.addressing.MAPAggregator;
 import org.objectweb.celtix.ws.addressing.soap.MAPCodec;
 import org.objectweb.celtix.ws.rm.RMHandler;
@@ -23,8 +22,8 @@ public class TestConfigurator {
 
     private ConfigurationBuilder builder;
 
-    public TestConfigurator() {
-        builder = ConfigurationBuilderFactory.getBuilder();
+    public TestConfigurator(ConfigurationBuilder b) {
+        builder = b;
 
     }
 

@@ -14,8 +14,6 @@ import junit.framework.TestSuite;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.greeter_control.Control;
 import org.objectweb.celtix.greeter_control.ControlService;
 import org.objectweb.celtix.greeter_control.Greeter;
@@ -77,9 +75,6 @@ public class SequenceTest extends ClientServerTestBase {
                 // avoid re-using a previously created configuration for a bus
                 // with id "celtix"
 
-                ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-                builder.clearConfigurations();
-
                 super.setUp();
 
             }
@@ -104,8 +99,6 @@ public class SequenceTest extends ClientServerTestBase {
             }
             assertTrue("Cound not find persistence handler in pre logical system handler chain", found);
         }
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-        builder.clearConfigurations();
     }
 
     // --- tests ---
@@ -537,14 +530,14 @@ public class SequenceTest extends ClientServerTestBase {
 
         createControl();
 
-        control.stopGreeter();
-        control.startGreeter(configuration);
+        assertTrue("Failed to stop greeter", control.stopGreeter());
+        assertTrue("Failed to start greeter", control.startGreeter(configuration));
 
         if (null != configuration && configuration.length() > 0) {
             ControlImpl.setConfigFileProperty(configuration);
         }
 
-        TestConfigurator tc = new TestConfigurator();
+        TestConfigurator tc = new TestConfigurator(bus.getConfigurationBuilder());
         tc.configureClient(SERVICE_NAME, PORT_NAME.getLocalPart());
 
         URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");

@@ -17,7 +17,9 @@ import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.buslifecycle.CeltixBusLifeCycleManager;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationException;
+import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
 import org.objectweb.celtix.event.EventProcessor;
 import org.objectweb.celtix.event.EventProcessorImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
@@ -33,6 +35,7 @@ import org.objectweb.celtix.wsdl11.WSDLManagerImpl;
 public class CeltixBus extends Bus {
 
     public static final String BUS_PROPERTY_NAME = "bus";
+    public static final String CONFIGURATIONBUILDER_PROPERTY_NAME = "configurationBuilder";
     public static final String BINDINGFACTORYMANAGER_PROPERTY_NAME = "bindingFactoryManager";
     public static final String TRANSPORTFACTORYMANAGER_PROPERTY_NAME = "transportFactoryManager";
     public static final String WSDL11MANAGER_PROPERTY_NAME = "wsdl11Manager";
@@ -44,6 +47,7 @@ public class CeltixBus extends Bus {
 
     
     
+    private ConfigurationBuilder configurationBuilder;
     private Configuration configuration;
     private Map<String, Object> properties = new HashMap<String, Object>();
     private BindingFactoryManager bindingFactoryManager;
@@ -74,10 +78,17 @@ public class CeltixBus extends Bus {
         if (null != p) {
             properties.putAll(p);
         }
+       
+         
+        configurationBuilder = (ConfigurationBuilder)properties.get(CONFIGURATIONBUILDER_PROPERTY_NAME);
+        if (null == configurationBuilder) {            
+            configurationBuilder = new ConfigurationBuilderImpl();
+            properties.put(CONFIGURATIONBUILDER_PROPERTY_NAME, configurationBuilder);
+        }
         
         Collection<Object> newPropertyValues = new ArrayList<Object>();
         try { 
-            configuration = new BusConfigurationBuilder().build(properties);
+            configuration = new BusConfigurationBuilder().build(configurationBuilder, properties);
         } catch (ConfigurationException ex) {
             // TODO: bus configuration metadata
         }
@@ -169,6 +180,10 @@ public class CeltixBus extends Bus {
 
     public void run() {
         // workQueueManager.run();
+    }
+
+    public ConfigurationBuilder getConfigurationBuilder() {
+        return configurationBuilder;
     }
 
     public Configuration getConfiguration() {

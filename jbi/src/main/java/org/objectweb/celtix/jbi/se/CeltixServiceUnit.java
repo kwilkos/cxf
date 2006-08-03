@@ -29,7 +29,6 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 
 /**
@@ -275,7 +274,7 @@ public class CeltixServiceUnit {
         }
 
         String id = getServiceName().toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         cb.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, id, busCfg);
         System.setProperty("celtix.config.file", oldConfiguration);
     }
@@ -301,7 +300,7 @@ public class CeltixServiceUnit {
         }
         String id = getServiceName().toString() + "/" + getEndpointName();
         LOG.info("the client bean id is " + id);
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         cb.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
         System.setProperty("celtix.config.file", oldConfiguration);
     }

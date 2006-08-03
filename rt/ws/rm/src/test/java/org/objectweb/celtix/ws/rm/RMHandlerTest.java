@@ -25,7 +25,6 @@ import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.objectweb.celtix.greeter_control.Greeter;
 import org.objectweb.celtix.greeter_control.GreeterService;
@@ -86,7 +85,6 @@ public class RMHandlerTest extends TestCase {
     public void setUpReal() throws Exception {
         ConfigurationProviderImpl.clearBeanFactoriesMap();
         TypeSchemaHelper.clearCache();
-        ConfigurationBuilderFactory.clearBuilder();
 
         celtixCfgFile = System.getProperty(CFG_FILE_PROPERTY);
         URL url = RMHandlerTest.class.getResource("resources/RMHandlerTest.xml");
@@ -104,7 +102,6 @@ public class RMHandlerTest extends TestCase {
             System.clearProperty(CFG_FILE_PROPERTY);
         }
 
-        ConfigurationBuilderFactory.clearBuilder();
         TypeSchemaHelper.clearCache();
         ConfigurationProviderImpl.clearBeanFactoriesMap();
     }

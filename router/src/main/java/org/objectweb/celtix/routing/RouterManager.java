@@ -16,7 +16,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.routing.configuration.UrlListPolicy;
 
 import org.objectweb.celtix.tools.common.toolspec.ToolRunner;
@@ -50,11 +49,10 @@ public class RouterManager {
         Configuration busCfg = bus.getConfiguration();
         assert null != busCfg;
         Configuration cfg = null;
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        cfg = cb.getConfiguration(ROUTING_CONFIGURATION_URI, 
-                                  ROUTING_CONFIGURATION_ID,
-                                  busCfg);
+        cfg = busCfg.getChild(ROUTING_CONFIGURATION_URI, 
+                                  ROUTING_CONFIGURATION_ID);
         if (null == cfg) {
+            ConfigurationBuilder cb = bus.getConfigurationBuilder();
             cfg = cb.buildConfiguration(ROUTING_CONFIGURATION_URI,
                                         ROUTING_CONFIGURATION_ID,
                                         busCfg);

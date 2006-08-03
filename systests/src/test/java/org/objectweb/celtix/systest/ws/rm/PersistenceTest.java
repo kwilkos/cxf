@@ -23,8 +23,6 @@ import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bus.configuration.wsrm.StoreInitParamType;
 import org.objectweb.celtix.bus.configuration.wsrm.StoreType;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.greeter_control.Greeter;
 import org.objectweb.celtix.greeter_control.GreeterService;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
@@ -67,8 +65,6 @@ public class PersistenceTest extends ClientServerTestBase {
         protected void run() {
 
             ControlImpl.setConfigFileProperty("oneway-client-crash");
-            ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-            builder.clearConfigurations();
             
             GreeterImpl implementor = new GreeterImpl();
             String address = "http://localhost:9020/SoapContext/GreeterPort";
@@ -107,8 +103,6 @@ public class PersistenceTest extends ClientServerTestBase {
                 URL url = getClass().getResource("oneway-client-crash.xml"); 
                 assertNotNull("cannot find test resource", url);
                 configFileName = url.toString(); 
-                ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-                builder.clearConfigurations();
 
                 super.setUp();
 
@@ -185,8 +179,6 @@ public class PersistenceTest extends ClientServerTestBase {
         } else {
             System.setProperty("celtix.config.file", cfgFileProperty);
         }
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-        builder.clearConfigurations();
     }
    
     public void testPopulateStore() throws Exception {

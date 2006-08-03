@@ -7,9 +7,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
+
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.resource.DefaultResourceManager;
@@ -37,16 +37,13 @@ public class DefaultConfigurationProviderFactory {
         return theInstance;
     }
     
-    public ConfigurationProvider createDefaultProvider(Configuration configuration) {
+    public ConfigurationProvider createDefaultProvider() {
         
-        String className = getDefaultProviderClassName();
-       
+        String className = getDefaultProviderClassName();       
         Class<? extends ConfigurationProvider> providerClass;
         try {
             providerClass = Class.forName(className).asSubclass(ConfigurationProvider.class);
-            ConfigurationProvider provider = providerClass.newInstance();
-            provider.init(configuration);
-            return provider;
+            return providerClass.newInstance();
         } catch (ConfigurationException ex) {
             throw ex;
         } catch (Exception ex) {

@@ -21,7 +21,6 @@ import org.objectweb.celtix.common.util.Base64Exception;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
@@ -101,12 +100,11 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
         } catch (WSDLException ex) {
             // ignore
         }
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
   
-        Configuration cfg = cb.getConfiguration(HTTP_SERVER_CONFIGURATION_URI, 
-                                                HTTP_SERVER_CONFIGURATION_ID, 
-                                                endpointConfiguration);
+        Configuration cfg = endpointConfiguration.getChild(HTTP_SERVER_CONFIGURATION_URI, 
+                                                HTTP_SERVER_CONFIGURATION_ID);
         if (null == cfg) {
+            ConfigurationBuilder cb = bus.getConfigurationBuilder();
             cfg = cb.buildConfiguration(HTTP_SERVER_CONFIGURATION_URI, 
                                         HTTP_SERVER_CONFIGURATION_ID, 
                                         endpointConfiguration);

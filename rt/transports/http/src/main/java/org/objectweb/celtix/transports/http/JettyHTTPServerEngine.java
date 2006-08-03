@@ -17,7 +17,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.security.SSLServerPolicy;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
 import org.objectweb.celtix.transports.https.JettySslListenerConfigurer;
 
@@ -51,10 +50,12 @@ public final class JettyHTTPServerEngine {
     private Configuration createConfiguration(Bus bus, int p) {
         // REVISIT: listener config should not be child of bus configuration
         Configuration busCfg = bus.getConfiguration();
+         
         String id = "http-listener." + p;
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        Configuration cfg = cb.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
+        // Configuration cfg = cb.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
+        Configuration cfg = busCfg.getChild(HTTP_LISTENER_CONFIGURATION_URI, id);
         if (null == cfg) {
+            ConfigurationBuilder cb = bus.getConfigurationBuilder();
             cfg = cb.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
         }
         return cfg;

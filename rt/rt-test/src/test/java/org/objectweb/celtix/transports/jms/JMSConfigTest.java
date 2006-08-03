@@ -10,7 +10,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 //import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 //import org.objectweb.celtix.transports.jms.JMSClientBehaviorPolicyType;
@@ -37,7 +36,6 @@ public class JMSConfigTest extends TestCase {
     public void setUp() throws Exception {
         TypeSchemaHelper.clearCache();
         ConfigurationProviderImpl.clearBeanFactoriesMap();
-        ConfigurationBuilderFactory.clearBuilder();
         bus = Bus.init();
     }
 
@@ -49,7 +47,6 @@ public class JMSConfigTest extends TestCase {
 
         TypeSchemaHelper.clearCache();
         ConfigurationProviderImpl.clearBeanFactoriesMap();
-        ConfigurationBuilderFactory.clearBuilder();
     }
 
     private void createNecessaryConfig(URL wsdlUrl, QName serviceName,
@@ -63,7 +60,7 @@ public class JMSConfigTest extends TestCase {
         Configuration portCfg = null;
 
         String id = EndpointReferenceUtils.getServiceName(ref).toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
 
         // Server Endpoint Config
         endpointCfg = cb.buildConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, id, busCfg);

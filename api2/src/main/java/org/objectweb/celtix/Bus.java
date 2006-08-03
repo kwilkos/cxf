@@ -12,6 +12,7 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 // import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.event.EventProcessor;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.management.InstrumentationManager;
@@ -143,6 +144,13 @@ public abstract class Bus implements InterceptorProvider {
      * @throws BusException
      */
     public abstract void shutdown(boolean wait) throws BusException;
+    
+    /** 
+     * Returns the configuration builder of this bus.
+     * 
+     * @return the configuration builder of this bus
+     */
+    public abstract ConfigurationBuilder getConfigurationBuilder();
 
     /** 
      * Returns the configuration of this bus.

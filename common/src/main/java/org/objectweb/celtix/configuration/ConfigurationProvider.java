@@ -1,9 +1,8 @@
 package org.objectweb.celtix.configuration;
 
 
+
 public interface ConfigurationProvider {
-    
-    void init(Configuration configuration);
 
     /**
      * Lookup the value for the configuration item with the given name in the 

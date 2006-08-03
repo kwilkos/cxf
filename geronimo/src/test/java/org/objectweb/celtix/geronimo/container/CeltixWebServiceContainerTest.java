@@ -13,6 +13,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.geronimo.MockBusFactory;
 import org.objectweb.celtix.geronimo.builder.PortInfo;
 import org.objectweb.celtix.transports.TransportFactoryManager;
@@ -43,10 +44,15 @@ public class CeltixWebServiceContainerTest extends TestCase {
 
         // setup test fixture
         //
+
+        Configuration child = mockBusFactory.addChildConfig(
+            "http://celtix.objectweb.org/bus/jaxws/endpoint-config", null, null);
+
         BindingFactory bindingFact = mockBusFactory.getMock(BindingFactory.class);
         assertNotNull("could not get binding factory", bindingFact);
         transport.invoke(req, resp);        
         EasyMock.replay(transport);
+        EasyMock.replay(child);
         
         
         ServerBinding mockServerBinding = EasyMock.createMock(ServerBinding.class);

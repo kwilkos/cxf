@@ -19,7 +19,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlJMSConfigurationProvider;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 //import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
 import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
 import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
@@ -75,7 +74,7 @@ public class JMSTransportBase {
     private Configuration createConfiguration(Bus b,
                                                   EndpointReferenceType ref,
                                                   boolean isServer) {
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = b.getConfigurationBuilder();
 
         Configuration busConfiguration = b.getConfiguration();
         Configuration parent = null;

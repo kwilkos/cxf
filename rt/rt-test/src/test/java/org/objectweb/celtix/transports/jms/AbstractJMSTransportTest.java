@@ -23,7 +23,6 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
@@ -63,7 +62,6 @@ public abstract class AbstractJMSTransportTest extends TestCase {
     public void setUp() throws Exception {
         ConfigurationProviderImpl.clearBeanFactoriesMap();
         TypeSchemaHelper.clearCache();
-        ConfigurationBuilderFactory.clearBuilder();
         
         bus = Bus.init();
     }
@@ -78,7 +76,6 @@ public abstract class AbstractJMSTransportTest extends TestCase {
         
         ConfigurationProviderImpl.clearBeanFactoriesMap();
         TypeSchemaHelper.clearCache();
-        ConfigurationBuilderFactory.clearBuilder();        
     }
 
     public void testOneWayTextQueueJMSTransport() throws Exception {
@@ -407,7 +404,7 @@ public abstract class AbstractJMSTransportTest extends TestCase {
         Configuration busCfg = bus.getConfiguration();
         assert null != busCfg;
         String id = EndpointReferenceUtils.getServiceName(ref).toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         cb.buildConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, id, busCfg);
         cb.buildConfiguration(JMSConstants.PORT_CONFIGURATION_URI,
                               id + "/" + EndpointReferenceUtils.getPortName(ref).toString(),

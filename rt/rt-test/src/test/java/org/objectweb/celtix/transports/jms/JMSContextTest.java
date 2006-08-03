@@ -22,7 +22,6 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -260,7 +259,7 @@ public class JMSContextTest extends TestCase {
         assert null != busCfg;
 
         String id = EndpointReferenceUtils.getServiceName(ref).toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         cb.buildConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, id, busCfg);
         cb.buildConfiguration(JMSConstants.PORT_CONFIGURATION_URI,
                               id + "/" + EndpointReferenceUtils.getPortName(ref).toString(),

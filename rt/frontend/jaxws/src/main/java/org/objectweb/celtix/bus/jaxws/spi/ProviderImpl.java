@@ -24,7 +24,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public ServiceDelegate createServiceDelegate(URL url,
                                                  QName qname,
                                                  Class cls) {
-        return new ServiceImpl(Bus.getCurrent(), url, qname, cls);
+        return new ServiceImpl(Bus.getCurrent(), url, qname, cls);        
     }
 
     @Override

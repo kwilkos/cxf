@@ -32,7 +32,6 @@ import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.bus.handlers.PortInfoImpl;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -271,7 +270,7 @@ public class ServiceImpl extends ServiceDelegate {
 
         Configuration portCfg = null;
         String id = serviceName.toString() + "/" + portName.getLocalPart();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id,
                                       bus.getConfiguration());
         if (null == portCfg) {

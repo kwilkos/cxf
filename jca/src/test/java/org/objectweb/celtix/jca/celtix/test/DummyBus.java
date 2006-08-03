@@ -14,6 +14,7 @@ import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.plugins.PluginManager;
@@ -89,6 +90,12 @@ public class DummyBus extends Bus {
 
     @Override
     public BusEventCache getEventCache() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ConfigurationBuilder getConfigurationBuilder() {
         // TODO Auto-generated method stub
         return null;
     }

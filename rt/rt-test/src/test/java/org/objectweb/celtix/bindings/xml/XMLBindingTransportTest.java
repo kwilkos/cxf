@@ -9,7 +9,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -43,7 +42,7 @@ public class XMLBindingTransportTest extends TestCase {
                                                   EndpointReferenceType ref) throws Exception {
         Configuration portCfg = null;
         String id = portName.getLocalPart();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, bus.getConfiguration());
         
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);

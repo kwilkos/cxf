@@ -49,7 +49,6 @@ import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.endpoints.ContextInspector;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
@@ -628,9 +627,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
 
         Configuration cfg = null;
         String id = EndpointReferenceUtils.getServiceName(reference).toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        cfg = cb.getConfiguration(ENDPOINT_CONFIGURATION_URI, id, busCfg);
+        cfg = busCfg.getChild(ENDPOINT_CONFIGURATION_URI, id);
         if (null == cfg) {
+            ConfigurationBuilder cb = bus.getConfigurationBuilder();
             cfg = cb.buildConfiguration(ENDPOINT_CONFIGURATION_URI, id, busCfg);
         }
         return cfg;

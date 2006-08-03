@@ -19,7 +19,6 @@ import org.objectweb.celtix.bus.instrumentation.MBServerPolicyType;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.management.jmx.JMXManagedComponentManager;
 
 
@@ -43,7 +42,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     private JMXManagedComponentManager jmxManagedComponentManager;
     private ComponentEventFilter componentEventFilter;
     private boolean instrumentationEnabled;
-    private boolean jmxEnabled;
+    private boolean jmxEnabled;    
     
     public InstrumentationManagerImpl(Bus b) throws BusException {
         InstrumentationPolicyType instrumentation = null;
@@ -97,7 +96,7 @@ public class InstrumentationManagerImpl implements InstrumentationManager, BusEv
     
     private Configuration getConfiguration(Configuration configuration) {
         
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
         
         Configuration itCfg = cb.getConfiguration(INSTRUMENTATION_CONFIGURATION_URI, 
                                                   INSTRUMENTATION_CONFIGURATION_ID, 

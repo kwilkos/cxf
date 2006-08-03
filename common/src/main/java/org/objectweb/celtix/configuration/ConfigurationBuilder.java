@@ -1,7 +1,17 @@
 package org.objectweb.celtix.configuration;
 
+import java.net.URL;
+
 
 public interface ConfigurationBuilder {
+    
+    /**
+     * Returns the configurations builders's url which it provides to the <code>configuration</code> 
+     * objects it creates and their providers.
+     * 
+     * @return the builder's url
+     */
+    URL getURL();
     
     /**
      * Returns the top level <code>Configuration</code> object with the specified namespace and
@@ -65,17 +75,5 @@ public interface ConfigurationBuilder {
      * @return the configuration metadata model.
      */
     ConfigurationMetadata getModel(String namespaceURI);
-    
-    /**
-     * Removes all metadata models from its cache.
-     *
-     */
-    void clearModels();
      
-    /**
-     * Removes all top level configurations from its cache.
-     *
-     */
-    void clearConfigurations();
-    
 }

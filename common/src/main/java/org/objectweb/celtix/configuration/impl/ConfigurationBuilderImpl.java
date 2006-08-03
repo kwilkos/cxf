@@ -13,12 +13,16 @@ import java.util.logging.Logger;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
+import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.PropertiesResolver;
+import org.objectweb.celtix.resource.ResourceManager;
 import org.springframework.core.io.UrlResource;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {
@@ -31,11 +35,20 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
     protected Map<String, Map<String, Configuration>> configurations;
     private Map<String, ConfigurationMetadata> models;
-
+    private URL url;
 
     public ConfigurationBuilderImpl() {
+        this(null);        
+    }
+
+    public ConfigurationBuilderImpl(URL u) {
         models = new HashMap<String, ConfigurationMetadata>();
         configurations = new HashMap<String, Map<String, Configuration>>();
+        url = u;
+    }
+    
+    public URL getURL() {
+        return url;
     }
 
     public Configuration getConfiguration(String namespaceUri, String id) {
@@ -66,13 +79,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         if (null == model) {
             throw new ConfigurationException(new Message("UNKNOWN_NAMESPACE_EXC", BUNDLE, namespaceUri));
         }
-        /*
-        if (parent != null && !isValidChildConfiguration(model, parent)) {
-            throw new ConfigurationException(new Message("INVALID_CHILD_CONFIGURATION",
-                                                         BUNDLE, namespaceUri,
-                                                         parent.getModel().getNamespaceURI()));
-        }
-        */
+      
         if (parent == null && !isValidTopConfiguration(model, parent)) {
             throw new ConfigurationException(new Message("INVALID_TOP_CONFIGURATION",
                                                          BUNDLE, namespaceUri));
@@ -87,8 +94,19 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             }
             instances.put(id, c);
         }
+        
+        DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
+        ConfigurationProvider defaultProvider = factory.createDefaultProvider();
+  
+        inject(defaultProvider, c);
+
+        if (null != defaultProvider) {
+            c.getProviders().add(defaultProvider); 
+        }
+        
         return c;
     }
+    
 
     /* The presence of parentNamespaceURI means that the underlying type of
      * configuration can only be created as a child of a configuration with
@@ -104,16 +122,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
         return false;
     }
-
-    /*
-    private boolean isValidChildConfiguration(ConfigurationMetadata model, Configuration parent) {
-        if (parent != null && parent.getModel().getNamespaceURI().equals(model.getParentNamespaceURI())) {
-            return true;
-        }
-
-        return false;
-    }
-    */
 
     public Configuration buildConfiguration(String namespaceUri, String id) {
         return buildConfiguration(namespaceUri, id, null);
@@ -147,6 +155,16 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         models.clear();
     }
     
+    protected void inject(ConfigurationProvider provider, Configuration configuration) {
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("configuration", configuration);
+        properties.put("url", url);
+        PropertiesResolver resolver = new PropertiesResolver(properties);
+        ResourceManager manager = new DefaultResourceManager(resolver);
+        ResourceInjector injector = new ResourceInjector(manager);
+        injector.inject(provider);
+    }
+    
     private String getResourceName(String namespaceURI) {
         String resourceName = null;
         Enumeration<URL> candidates;
@@ -154,8 +172,8 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
             candidates = Thread.currentThread().getContextClassLoader()
                 .getResources(METADATA_RESOURCE_MAPPINGS_RESOURCE);
             while (candidates.hasMoreElements()) {
-                URL url = candidates.nextElement();
-                UrlResource ur = new UrlResource(url); 
+                URL u = candidates.nextElement();
+                UrlResource ur = new UrlResource(u); 
                 Properties mappings = new Properties();
                 mappings.loadFromXML(ur.getInputStream()); 
                 resourceName = mappings.getProperty(namespaceURI);

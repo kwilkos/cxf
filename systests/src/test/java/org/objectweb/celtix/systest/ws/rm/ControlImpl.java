@@ -10,6 +10,8 @@ import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.greeter_control.Control;
 import org.objectweb.celtix.greeter_control.types.StartGreeterResponse;
 import org.objectweb.celtix.greeter_control.types.StopGreeterResponse;
@@ -25,14 +27,21 @@ public class ControlImpl implements Control {
     private static QName serviceName = new QName("http://celtix.objectweb.org/greeter_control", 
                                                  "GreeterService");
     private Endpoint endpoint;
+    private Bus greeterBus;
     
     public boolean startGreeter(String configuration) {
-        
+       
         if (!(null == configuration || "".equals(configuration))) {
             setConfigFileProperty(configuration);
         }
-        
-        TestConfigurator tc = new TestConfigurator();        
+      
+        try { 
+            greeterBus = Bus.init();
+        } catch (BusException ex) {
+            return false;
+        }
+ 
+        TestConfigurator tc = new TestConfigurator(greeterBus.getConfigurationBuilder());        
         tc.configureServer(serviceName);
         
         GreeterImpl implementor = new GreeterImpl();
@@ -51,6 +60,13 @@ public class ControlImpl implements Control {
             LOG.info("No endpoint active.");
         }
         endpoint = null;
+        if (null != greeterBus) {
+            try {
+                greeterBus.shutdown(true);
+            } catch (BusException ex) {
+                return false;
+            }
+        }
         return true;
     }
     

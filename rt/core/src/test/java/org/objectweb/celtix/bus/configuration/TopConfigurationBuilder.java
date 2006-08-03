@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.impl.ConfigurationMetadataBuilder;
 import org.objectweb.celtix.resource.DefaultResourceManager;
@@ -16,9 +15,7 @@ public class TopConfigurationBuilder {
     }
     
     public Configuration build(String id) {
-        ConfigurationBuilder cb = null;
-        cb = ConfigurationBuilderFactory.getBuilder(null);
-        
+        ConfigurationBuilder cb = new CeltixConfigurationBuilder();     
         ConfigurationMetadataBuilder builder = new ConfigurationMetadataBuilder(true);
         InputStream is = DefaultResourceManager.instance()
             .getResourceAsStream("org/objectweb/celtix/bus/configuration/resources/top.xml");

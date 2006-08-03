@@ -11,7 +11,7 @@ import javax.management.MBeanServer;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
 import org.objectweb.celtix.configuration.instrumentation.types.InstrumentationPolicyType;
 import org.objectweb.celtix.configuration.instrumentation.types.MBServerPolicyType;
 import org.objectweb.celtix.management.jmx.JMXManagedComponentManager;
@@ -32,9 +32,13 @@ public class InstrumentationManagerImpl implements InstrumentationManager {
 
     
     public InstrumentationManagerImpl() {
+        this(new ConfigurationBuilderImpl());
+    }
+
+    public InstrumentationManagerImpl(ConfigurationBuilder builder) {
         LOG.info("Setting up InstrumentationManager");
         
-        configuration = getConfiguration();
+        configuration = getConfiguration(builder);
         InstrumentationPolicyType ip = 
             configuration.getObject(InstrumentationPolicyType.class, "InstrumentationControl");   
         
@@ -51,9 +55,8 @@ public class InstrumentationManagerImpl implements InstrumentationManager {
         
     }
     
-    private Configuration getConfiguration() {
+    private Configuration getConfiguration(ConfigurationBuilder cb) {
         
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
         
         Configuration itCfg = cb.getConfiguration(INSTRUMENTATION_CONFIGURATION_URI, 
                                                   INSTRUMENTATION_CONFIGURATION_ID, 

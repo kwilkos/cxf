@@ -36,14 +36,14 @@ public class AbstractConfigurationImplTest extends TestCase {
         org.easymock.EasyMock.expectLastCall().andReturn("org.objectweb.celtix.some.Unknown");
         EasyMock.replay(factory);
         try {
-            factory.createDefaultProvider(null);
+            factory.createDefaultProvider();
             fail("Expected ConfigurationException not thrown.");
         } catch (ConfigurationException ex) {
             assertEquals("DEFAULT_PROVIDER_INSTANTIATION_EXC", ex.getCode()); 
         }
 
         factory = DefaultConfigurationProviderFactory.getInstance();
-        assertNotNull(factory.createDefaultProvider(null));
+        assertNotNull(factory.createDefaultProvider());
     }
     
     public void testConstruction() {

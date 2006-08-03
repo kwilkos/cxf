@@ -34,7 +34,8 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.InputStreamMessageContext;
@@ -76,6 +77,7 @@ public class HTTPTransportTest extends TestCase {
     private boolean invokerControlRegainedNotified;
     private boolean invokerControlRegainedWaitTimedOut;
     private ClientBinding clientBinding;
+    private ConfigurationBuilder configurationBuilder = new ConfigurationBuilderImpl();
 
     public HTTPTransportTest(String arg0) {
         super(arg0);
@@ -97,9 +99,10 @@ public class HTTPTransportTest extends TestCase {
     }
 
     public void setUp() throws BusException {
+        configurationBuilder = new ConfigurationBuilderImpl();
+
         ConfigurationProviderImpl.clearBeanFactoriesMap();
         TypeSchemaHelper.clearCache();
-        ConfigurationBuilderFactory.clearBuilder();        
 
         
         bus = EasyMock.createMock(Bus.class);
@@ -136,7 +139,6 @@ public class HTTPTransportTest extends TestCase {
         
         ConfigurationProviderImpl.clearBeanFactoriesMap();
         TypeSchemaHelper.clearCache();
-        ConfigurationBuilderFactory.clearBuilder();        
     }
 
     int readBytes(byte bytes[], InputStream ins) throws IOException {
@@ -257,7 +259,6 @@ public class HTTPTransportTest extends TestCase {
         Configuration serverCfg = EasyMock.createMock(Configuration.class);
         ServerTransport server = helpSetupServerSide(topaddrURL, serviceName, serverCfg);
         
-        
         ServerTransportCallback callback = new TestServerTransportCallback(server, false, false, 
                                                                            null, false, false) {
             public void dispatch(InputStreamMessageContext ctx, ServerTransport transport) {
@@ -309,7 +310,7 @@ public class HTTPTransportTest extends TestCase {
         throws WSDLException, IOException {
         Configuration bc = EasyMock.createMock(Configuration.class);
         Configuration ec = EasyMock.createMock(Configuration.class);
-        
+
         bus.getConfiguration();
         EasyMock.expectLastCall().andReturn(bc);
         bc.getChild("http://celtix.objectweb.org/bus/jaxws/endpoint-config", serviceName.toString());
@@ -329,6 +330,9 @@ public class HTTPTransportTest extends TestCase {
             bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config",
                         "http-listener." + topaddrURL.getPort());
             EasyMock.expectLastCall().andReturn(null);
+        
+            bus.getConfigurationBuilder();
+            EasyMock.expectLastCall().andReturn(configurationBuilder);
             first = false;
         }
 
@@ -607,10 +611,18 @@ public class HTTPTransportTest extends TestCase {
             if (initial) {
                 assertFalse(((HTTPClientTransport)client).hasDecoupledEndpoint());
                 EasyMock.reset(bus);
-                Configuration lc = EasyMock.createMock(Configuration.class);
+                Configuration bc = EasyMock.createMock(Configuration.class);
                 bus.getConfiguration();
-                EasyMock.expectLastCall().andReturn(lc);
+                EasyMock.expectLastCall().andReturn(bc);
+
+                bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config",
+                        "http-listener." + DECOUPLED_PORT);
+                EasyMock.expectLastCall().andReturn(null);
+                bus.getConfigurationBuilder();
+                EasyMock.expectLastCall().andReturn(configurationBuilder);
+
                 EasyMock.replay(bus);
+                EasyMock.replay(bc);
                 EasyMock.reset(clientBinding);
                 clientBinding.createResponseCallback();
                 EasyMock.expectLastCall().andReturn(responseCallback);
@@ -753,6 +765,8 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(pc);
         pc.getChild("http://celtix.objectweb.org/bus/transports/http/http-client-config", "http-client");
         EasyMock.expectLastCall().andReturn(null);
+        bus.getConfigurationBuilder();
+        EasyMock.expectLastCall().andReturn(configurationBuilder);
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
         pc.getString("address");
@@ -797,15 +811,21 @@ public class HTTPTransportTest extends TestCase {
         EasyMock.expectLastCall().andReturn(ec);
         ec.getChild("http://celtix.objectweb.org/bus/transports/http/http-server-config", "http-server");
         EasyMock.expectLastCall().andReturn(null);
+        bus.getConfigurationBuilder();
+        EasyMock.expectLastCall().andReturn(configurationBuilder);
+         
         bus.getWSDLManager();
         EasyMock.expectLastCall().andReturn(wsdlManager);
         if (first) {
             //first call will configure the port listener
             bus.getConfiguration();
             EasyMock.expectLastCall().andReturn(bc);
+            
             bc.getChild("http://celtix.objectweb.org/bus/transports/http/http-listener-config",
                         "http-listener." + url.getPort());
             EasyMock.expectLastCall().andReturn(null);
+            bus.getConfigurationBuilder();
+            EasyMock.expectLastCall().andReturn(configurationBuilder);
             first = false;
         }
         // check the bus configuration call for serviceMoinitoring 

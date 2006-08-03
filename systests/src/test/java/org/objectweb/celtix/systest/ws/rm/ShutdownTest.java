@@ -15,8 +15,6 @@ import junit.framework.TestSuite;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationBuilderFactory;
 import org.objectweb.celtix.greeter_control.Greeter;
 import org.objectweb.celtix.greeter_control.GreeterService;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
@@ -60,8 +58,6 @@ public class ShutdownTest extends ClientServerTestBase {
                 URL url = getClass().getResource("oneway-terminate-on-shutdown.xml"); 
                 assertNotNull("cannot find test resource", url);
                 configFileName = url.toString(); 
-                ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-                builder.clearConfigurations();
 
                 super.setUp();
 
@@ -71,9 +67,6 @@ public class ShutdownTest extends ClientServerTestBase {
     
     public void setUp() throws BusException {
         
-        // Map<String, Object> busProperties = new HashMap<String, Object>();
-        // busProperties.put(BusConfigurationBuilder.BUS_ID_PROPERTY, "oneway-terminate-on-shutdown");
-        // bus = Bus.init(null, busProperties);
         bus = Bus.init();
 
         URL wsdl = getClass().getResource("/wsdl/greeter_control.wsdl");
@@ -119,8 +112,6 @@ public class ShutdownTest extends ClientServerTestBase {
     }
     
     public void tearDown() {
-        ConfigurationBuilder builder = ConfigurationBuilderFactory.getBuilder();
-        builder.clearConfigurations();
     }
     
     public void testOnewayTerminateOnShutdown() throws Exception {

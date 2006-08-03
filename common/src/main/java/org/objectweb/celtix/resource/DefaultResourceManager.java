@@ -2,6 +2,7 @@ package org.objectweb.celtix.resource;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -16,11 +17,20 @@ public class DefaultResourceManager implements ResourceManager {
 
     protected final List<ResourceResolver> registeredResolvers = new LinkedList<ResourceResolver>();
 
-
     public DefaultResourceManager() { 
         initializeDefaultResolvers(); 
     } 
     
+    public DefaultResourceManager(ResourceResolver resolver) {
+        addResourceResolver(resolver);
+    }
+    
+    public DefaultResourceManager(List<ResourceResolver> resolvers) {
+        for (Iterator<ResourceResolver> it = resolvers.iterator(); it.hasNext();) {
+            addResourceResolver(it.next());
+        }
+    }
+ 
     public final <T> T resolveResource(String name, Class<T> type) { 
         return findResource(name, type, false, registeredResolvers);
     } 

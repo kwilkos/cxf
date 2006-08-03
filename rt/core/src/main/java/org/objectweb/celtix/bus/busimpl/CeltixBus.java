@@ -11,6 +11,7 @@ import org.objectweb.celtix.BusEventListener;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bus.bindings.BindingManagerImpl;
+import org.objectweb.celtix.bus.configuration.CeltixConfigurationBuilder;
 import org.objectweb.celtix.bus.configuration.ConfigurationEvent;
 import org.objectweb.celtix.bus.configuration.ConfigurationEventFilter;
 import org.objectweb.celtix.bus.resource.ResourceManagerImpl;
@@ -19,6 +20,7 @@ import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 import org.objectweb.celtix.bus.wsdl.WSDLManagerImpl;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.management.Instrumentation;
 import org.objectweb.celtix.management.InstrumentationFactory;
@@ -35,6 +37,7 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
     public static final String CELTIX_WSDLMANAGER = "celtix.WSDLManager";
     public static final String CELTIX_TRANSPORTFACTORYMANAGER = "celtix.TRANSPORTFACTORYMANAGER";
 
+    private ConfigurationBuilder configurationBuilder;
     private Configuration configuration;
     private BindingManager bindingManager;
     private Object clientRegistry;
@@ -67,7 +70,9 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
         //TODO: shall we add BusEventProcessor to a celtix bus registry?
         eventProcessor = new BusEventProcessor(this, eventCache);
 
-        configuration = new BusConfigurationBuilder().build(args, properties);
+        configurationBuilder = new CeltixConfigurationBuilder();       
+        configuration = new BusConfigurationBuilder().build(configurationBuilder, args, properties);
+        
         //Register bus on bus configuration to receive ConfigurationEvent
         ConfigurationEventFilter configurationEventFilter = new ConfigurationEventFilter();
         addListener((BusEventListener)this, configurationEventFilter);
@@ -169,6 +174,10 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
     @Override
     public void run() {
         workQueueManager.run();
+    }
+    
+    public ConfigurationBuilder getConfigurationBuilder() {
+        return configurationBuilder;
     }
 
     /**

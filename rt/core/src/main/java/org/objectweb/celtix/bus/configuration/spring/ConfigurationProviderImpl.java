@@ -2,12 +2,16 @@ package org.objectweb.celtix.bus.configuration.spring;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -30,15 +34,19 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     private static Map<UrlResource, CeltixXmlBeanFactory> beanFactories;
 
     private Object bean;
+    
+    @Resource()
     private Configuration configuration;
-
-
+    
+    @Resource()
+    private URL url;
+    
     public static void clearBeanFactoriesMap() {
         beanFactories = null;
     }
 
-    public void init(Configuration c) {
-        configuration = c;
+    @PostConstruct
+    public void init() {
 
         if (null == beanFactories) {
             beanFactories = new HashMap<UrlResource, CeltixXmlBeanFactory>();
@@ -196,20 +204,23 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
      */
 
     protected UrlResource getBeanDefinitionsResource() {
-
         UrlResource urlRes = null;
-        String url = System.getProperty(CONFIG_FILE_PROPERTY_NAME);
-        if (null != url) {
-            try {
-                urlRes = new UrlResource(url);
-            } catch (MalformedURLException ex) {
-                // continue using default configuration
-                LOG.log(Level.WARNING, new Message("MALFORMED_URL_MSG", LOG, url).toString(), ex);
+        try {
+            if (null == url) {
+                String surl = System.getProperty(CONFIG_FILE_PROPERTY_NAME);
+                if (null != surl) {
+                    url = new URL(surl);
+                }
             }
-
-            return urlRes;
+            if (null != url) {
+                urlRes = new UrlResource(url);
+            } 
+        } catch (MalformedURLException ex) {
+            // continue using default configuration
+            LOG.log(Level.WARNING, new Message("MALFORMED_URL_MSG", LOG, url).toString(), ex);
         }
-        return null;
+
+        return urlRes;
     }
 
     private void findBean(CeltixXmlBeanFactory beanFactory) {
