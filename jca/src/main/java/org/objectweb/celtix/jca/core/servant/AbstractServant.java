@@ -1,7 +1,8 @@
 package org.objectweb.celtix.jca.core.servant;
 
-
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 
@@ -10,7 +11,7 @@ import org.objectweb.celtix.BusException;
  * A <code>Servant</code> defines the endpoint of an invocation
  * and is usually used to wrap an instance of a Java class.
  */
-public abstract class AbstractServant {
+public abstract class AbstractServant implements InvocationHandler {
     private final String wsdlLocation;
     private final Bus theBus;
 
@@ -41,7 +42,7 @@ public abstract class AbstractServant {
      * @return Object The return value of the target invocation.
      * @throws BusException If there is an error invoking the specified method.
      */
-    public abstract Object invoke(Object target, Method method, Object args[]) throws BusException;
+    public abstract Object invoke(Object target, Method method, Object args[]) throws Throwable;
 
 
     /**

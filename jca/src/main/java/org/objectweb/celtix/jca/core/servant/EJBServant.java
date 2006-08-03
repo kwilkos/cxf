@@ -37,6 +37,7 @@ public class EJBServant extends AbstractServant {
     protected Properties props;
     private EJBObject ejb;
     private String jndiLookup;
+//     private ClassLoader ejbHomeClassLoader = null;
 
     /**
      * Constructor for creating an EJBServant.
@@ -74,32 +75,55 @@ public class EJBServant extends AbstractServant {
      * @return Object the result of dispatching the method. Void.TYPE for void methods.
      * @throws BusException if there is an errror invoking operation.
      */
-    public Object invoke(Object target, Method method, Object args[]) throws BusException {
-        Object retval = null;
+    public Object invoke(Object target, Method method, Object[] args) throws Throwable {
+//         Object retval = null;
 
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
+//         ClassLoader original = Thread.currentThread().getContextClassLoader();
 
+//         try {
+//             Thread.currentThread().setContextClassLoader(target.getClass().getClassLoader());
+
+//             try {
+//                 retval = method.invoke(target, args);
+
+//                 if ((retval == null) && method.getReturnType().equals(Void.TYPE)) {
+//                     retval = Void.TYPE;
+//                 }
+//             } catch (InvocationTargetException ite) {
+//                 resetCacheTarget();
+//                 throw new BusException(ite.getCause());
+//             } catch (Exception ex) {
+//                 resetCacheTarget();
+//                 throw new BusException(ex);
+//             }
+//         } finally {
+//             Thread.currentThread().setContextClassLoader(original);
+//         }
+
+//         return retval;
+//     }
+        Object result;
+        Class[] argsClass;
         try {
-            Thread.currentThread().setContextClassLoader(target.getClass().getClassLoader());
-
-            try {
-                retval = method.invoke(target, args);
-
-                if ((retval == null) && method.getReturnType().equals(Void.TYPE)) {
-                    retval = Void.TYPE;
+            if (args != null) {
+                argsClass = new Class[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    argsClass[i] = args[i].getClass();
                 }
-            } catch (InvocationTargetException ite) {
-                resetCacheTarget();
-                throw new BusException(ite.getCause());
-            } catch (Exception ex) {
-                resetCacheTarget();
-                throw new BusException(ex);
+            } else {
+                argsClass = null;
             }
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
-        }
+            Method tMethod = ejb.getClass().getMethod(method.getName(), argsClass);  
 
-        return retval;
+            //            result = tMethod.invoke(target, args);
+            result = tMethod.invoke(ejb, args);
+        } catch (InvocationTargetException e) {
+            throw e.getTargetException();
+        } catch (Exception e) {
+            throw new RuntimeException("unexpected invocation exception: " 
+                                       + e.getMessage());
+        }
+        return result;
     }
 
 
@@ -129,8 +153,13 @@ public class EJBServant extends AbstractServant {
                 }
 
                 EJBHome home = getEJBHome(ejbContext, jndiLookup);
+
+//                 ejbHomeClassLoader = home.getClass().getClassLoader();
+
                 Method createMethod = home.getClass().getMethod("create", new Class[0]);
+
                 ejb = (EJBObject) createMethod.invoke(home, new Object[0]);
+                
             } catch (NamingException e) {
                 throw new BusException(e);
             } catch (NoSuchMethodException e) {
@@ -187,15 +216,7 @@ public class EJBServant extends AbstractServant {
      * @throws NamingException if there is an error getting initial context.
      */
     public Context getInitialContext(Properties propers) throws NamingException {
-        System.out.println(" *** invoke get context. ");
-        Context context = new InitialContext(propers);
-
-        if (context == null) {
-            System.out.println(" *** context is null in ejbservant. ");
-        } else {
-            System.out.println(" *** context is not null in ejbservant. ");
-        }
-        return context;
+        return new InitialContext(propers);
     }
 
     /**
@@ -207,7 +228,9 @@ public class EJBServant extends AbstractServant {
      */
     protected EJBHome getEJBHome(Context ejbContext, String jndiName) throws NamingException {
         Object obj = ejbContext.lookup(jndiName);
-
         return (EJBHome) PortableRemoteObject.narrow(obj, EJBHome.class);
     }
+//     public ClassLoader getEJBHomeClassLoader() {
+//         return ejbHomeClassLoader;
+//     }
 }

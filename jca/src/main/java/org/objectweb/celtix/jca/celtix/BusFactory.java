@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -20,6 +21,7 @@ import javax.resource.ResourceException;
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
+import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
@@ -36,6 +38,7 @@ import org.objectweb.celtix.jca.core.resourceadapter.ResourceAdapterInternalExce
 import org.objectweb.celtix.jca.core.resourceadapter.UriHandlerInit;
 import org.objectweb.celtix.jca.core.servant.CeltixConnectEJBServant;
 import org.objectweb.celtix.jca.core.servant.EJBServant;
+import org.objectweb.celtix.tools.util.ProcessorUtil;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
@@ -52,6 +55,7 @@ public class BusFactory {
     private ClassLoader appserverClassLoader;
     private ManagedConnectionFactoryImpl mcf;
     private Object raBootstrapContext;
+    private String nameSpace;
 
     public BusFactory(ManagedConnectionFactoryImpl aMcf) {
         this.mcf = aMcf;
@@ -205,7 +209,12 @@ public class BusFactory {
     private Endpoint processWSDL(String jndiName, QName serviceQName, String wsdlLocation, String portName)
         throws Exception {
         Endpoint ei = null;
-        
+        System.out.println("************************************************");
+        System.out.println("              jndiName: " + jndiName);
+        System.out.println("              serviceQName: " + serviceQName.toString());
+        System.out.println("              wsdlLocation: " + wsdlLocation);
+        System.out.println("              portName: " + portName);
+        System.out.println("************************************************");
         URL wsdlUrl = new URL(wsdlLocation);
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
@@ -236,7 +245,9 @@ public class BusFactory {
             if (!list.isEmpty()) {
                 bindingId = ((ExtensibilityElement) list.get(0)).getElementType().getNamespaceURI();
             }
-        } 
+        }
+        PortType pt = binding.getPortType();
+        QName portTypeQName = pt.getQName();
         // get address
         String address = "";
         List<?> list = port.getExtensibilityElements();
@@ -256,18 +267,23 @@ public class BusFactory {
             }
         }
         
-        EJBServant servant = new CeltixConnectEJBServant(this, wsdlLocation, jndiName);
+        EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl,
+                                                                                serviceQName,
+                                                                                portName);
 
-        if (getBootstrapContext() == null) {
-            LOG.info("No transaction inflow involved.");
-            EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl,
-                                                                                    serviceQName,
-                                                                                    portName);
-            ei = new EndpointImpl(bus, servant, bindingId, ref);
-        } else {
-            // for transaction
-            LOG.info("Transaction inflow involved.");
-        }       
+        EJBServant servant = new CeltixConnectEJBServant(this, wsdlLocation, jndiName, null);
+        servant.getTargetObject();
+
+        String interfaceClassPackage = ProcessorUtil.parsePackageName(nameSpace, null);
+        String interfaceClassString = interfaceClassPackage + "." + portTypeQName.getLocalPart();
+        Class seiClass = Class.forName(interfaceClassString);
+        Class[] proxyInterfaces = new Class[] {seiClass};
+
+        Object fimpl = Proxy.newProxyInstance(seiClass.getClassLoader(),
+                                              proxyInterfaces,
+                                              servant);
+
+        ei = new EndpointImpl(bus, fimpl, bindingId, ref);
         ei.publish(address);
         return ei;
     }
@@ -349,7 +365,6 @@ public class BusFactory {
     }
 
     QName serviceQNameFromString(String qns) throws ResourceAdapterInternalException {
-        String ns = null;
         String lp = null;
 
         // String re = "(\[(.*)\])?([^\@]+)(@?(.*))??";
@@ -360,7 +375,7 @@ public class BusFactory {
             while (st.hasMoreTokens()) {
                 String t = st.nextToken();
                 if ("{".equals(t)) {
-                    ns = st.nextToken();
+                    nameSpace = st.nextToken();
                     st.nextToken();
                     // consume '}'
                 } else if (",".equals(t)) {
@@ -379,8 +394,8 @@ public class BusFactory {
                        + "[{namespace}]local part[@ wsdl location url]. value:"
                        + qns, nsee);
         }
-        LOG.fine("QN=" + qns + ", ns=" + ns + ", lp=" + lp);
-        return new QName(ns, lp);
+        LOG.fine("QN=" + qns + ", ns=" + nameSpace + ", lp=" + lp);
+        return new QName(nameSpace, lp);
     }
 
     String portNameFromString(String qns) throws ResourceAdapterInternalException {

@@ -2,19 +2,19 @@ package org.objectweb.celtix.jca.celtix;
 
 
 import java.io.File;
-import java.io.FileInputStream;
+//import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+//import java.io.FileOutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
+//import java.net.URL;
+//import java.nio.MappedByteBuffer;
+//import java.nio.channels.FileChannel;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
+//import javax.xml.ws.Endpoint;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -280,7 +280,7 @@ public class BusFactoryTest extends TestCase {
         busFactory.setBus((Bus)mockBus);
         busFactory.initialiseServants();
         
-    }*/
+    }
     
     public void testAddServantsCache() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
@@ -309,22 +309,22 @@ public class BusFactoryTest extends TestCase {
         assertTrue("servants should be deregistered", busFactory.getRegisteredServants().isEmpty());
         bus.shutdown(true);
     }
-
+    */
     
-    public void testInitServantsFromPropertiesWithPortName() throws Exception {
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        BusFactory busFactory = new BusFactory(mcf);
-        Bus mockBus = EasyMock.createMock(Bus.class);
-        busFactory.setBus(mockBus);
-        Properties props = new Properties();
-        props.put("jndiName", "{http://objectweb.org/hello_world_soap_http}SOAPService,SoapPort@file:///");
-        try {
-            busFactory.initialiseServantsFromProperties(props, true);
-        } catch (ResourceException expected) {
-            assertTrue("reasonable message", expected.toString().indexOf("jndiName") != -1);
-            assertTrue(expected instanceof ResourceAdapterInternalException);            
-        }
-    }
+//     public void testInitServantsFromPropertiesWithPortName() throws Exception {
+//         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
+//         BusFactory busFactory = new BusFactory(mcf);
+//         Bus mockBus = EasyMock.createMock(Bus.class);
+//         busFactory.setBus(mockBus);
+//         Properties props = new Properties();
+//         props.put("jndiName", "{http://objectweb.org/hello_world_soap_http}SOAPService,SoapPort@file:///");
+//         try {
+//             busFactory.initialiseServantsFromProperties(props, true);
+//         } catch (ResourceException expected) {
+//             assertTrue("reasonable message", expected.toString().indexOf("jndiName") != -1);
+//             assertTrue(expected instanceof ResourceAdapterInternalException);            
+//         }
+//     }
 
     public void testInitServantsFromPropertiesWithMissingWsdlLocInPropertiesAndConfig() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
@@ -410,7 +410,7 @@ public class BusFactoryTest extends TestCase {
         busFactory.initialiseServantsFromProperties(props, false);
            
     }
-            
+    /*
     public void testPropertiesMonitorThreadCausesSomeFailures() throws Exception {
         FileChannel in = null;
         FileChannel out = null;
@@ -460,8 +460,8 @@ public class BusFactoryTest extends TestCase {
         testFile.delete();
         
     }
-
-   /*public void testInitServantsWithBootstrapContextNotNull() throws Exception {
+    
+   public void testInitServantsWithBootstrapContextNotNull() throws Exception {
         System.setProperty("test.bus.class", DummyBus.class.getName());
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setCeltixInstallDir(DummyBus.vobRoot());

@@ -21,7 +21,7 @@ public class CeltixConnectEJBServant extends EJBServant {
     BusFactory busFactory;
 
     public CeltixConnectEJBServant(BusFactory bf, String wsdlLoc, 
-                                    String jndiName) throws Exception {
+                                    String jndiName, Class sei) throws Exception {
         super(wsdlLoc, bf.getBus(), jndiName, null);
         appserverInitialContext = bf.getInitialContext();
         busFactory = bf;
@@ -33,6 +33,7 @@ public class CeltixConnectEJBServant extends EJBServant {
     }
 
     public Context getInitialContext(Properties props) throws NamingException {
+        //        return super.getInitialContext(props);
         return appserverInitialContext;
     }
 
@@ -55,12 +56,12 @@ public class CeltixConnectEJBServant extends EJBServant {
         return retval;
     }
 
-    public Object invoke(Object target, Method method, Object[] args) throws BusException {
+    public Object invoke(Object target, Method method, Object[] args) throws Throwable {
         return doInvoke(target, method, args);
     }
 
     protected Object doInvoke(Object target, Method method, Object[] args)
-        throws BusException {
+        throws Throwable {
         LOG.info("CeltixConnectEJBServant invoke() in thread: " + Thread.currentThread());
         Object retval = null;
         retval = super.invoke(target, method, args);
