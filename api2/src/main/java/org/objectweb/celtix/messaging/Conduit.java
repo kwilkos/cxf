@@ -1,5 +1,7 @@
 package org.objectweb.celtix.messaging;
 
+import java.io.IOException;
+
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
@@ -30,7 +32,7 @@ public interface Conduit extends Observable {
      * 
      * @param message the message to be sent.
      */
-    void send(Message message);
+    void send(Message message) throws IOException;
     
     /**
      * @return the reference associated with the target Destination

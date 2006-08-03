@@ -1,5 +1,9 @@
 package org.objectweb.celtix.messaging;
 
+import java.io.IOException;
+
+import javax.wsdl.WSDLException;
+
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 /**
@@ -12,5 +16,5 @@ public interface ConduitInitiator {
      * @param target the target endpoint
      * @return a suitable new or pre-existing Conduit
      */
-    Conduit getConduit(EndpointReferenceType target);
+    Conduit getConduit(EndpointReferenceType target) throws WSDLException, IOException;
 }
