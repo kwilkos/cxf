@@ -19,13 +19,13 @@ xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"
 attributeFormDefault="unqualified" elementFormDefault="qualified">
 	
 	<xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2" 
-	   schemaLocation="http://docs.oasis-open.org/wsrf/bf-2.xsd" />
+	   schemaLocation="./bf-2.xsd" />
 	<xsd:import namespace="http://www.w3.org/2005/08/addressing" 
-	   schemaLocation="http://www.w3.org/2005/08/addressing/ws-addr.xsd" />
+	   schemaLocation="./ws-addr.xsd" />
 	<xsd:import namespace="http://docs.oasis-open.org/wsrf/rl-2" 
-	   schemaLocation="http://docs.oasis-open.org/wsrf/rl-2.xsd" />	
+	   schemaLocation="./rl-2.xsd" />	
 	<xsd:import namespace="http://docs.oasis-open.org/wsrf/rp-2" 
-	   schemaLocation="http://docs.oasis-open.org/wsrf/rp-2.xsd" />
+	   schemaLocation="./rp-2.xsd" />
 	
 		
 	<xsd:element name="printer_name" type="pr:printer_nameType" />

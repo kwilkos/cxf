@@ -22,11 +22,11 @@
 	xmlns:wsrf-rw="http://docs.oasis-open.org/wsrf/rw-2" name="WSRFIPP"
 	targetNamespace="http://docs.oasis-open.org/wsrf/primer-1.2-examples-cd-02/Printer/Printer.wsdl">
 
-	<wsdl:import location="http://docs.oasis-open.org/wsrf/rw-2.wsdl"
+	<wsdl:import location="./rw-2.wsdl"
 		namespace="http://docs.oasis-open.org/wsrf/rw-2" />
-	<wsdl:import location="http://docs.oasis-open.org/wsrf/rpw-2.wsdl"
+	<wsdl:import location="./rpw-2.wsdl"
 		namespace="http://docs.oasis-open.org/wsrf/rpw-2" />
-	<wsdl:import location="http://docs.oasis-open.org/wsrf/rlw-2.wsdl"
+	<wsdl:import location="./rlw-2.wsdl"
 		namespace="http://docs.oasis-open.org/wsrf/rlw-2" />
 
 
@@ -38,7 +38,7 @@
 				schemaLocation="./Printer.xsd" />
 			<xsd:import
 				namespace="http://www.w3.org/2006/02/addressing/wsdl"
-				schemaLocation="http://www.w3.org/2006/02/addressing/wsdl/ws-addr-wsdl.xsd" />
+				schemaLocation="./ws-addr.xsd" />
 		</xsd:schema>
 	</wsdl:types>
 
