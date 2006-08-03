@@ -75,7 +75,6 @@ public class PersistenceHandlerTest extends TestCase {
     private AbstractClientBinding clientBinding;
     private AbstractServerBinding serverBinding;
     private ConfigurationHelper ch;   
-    private ConfigurationBuilder configurationBuilder;
     private RMStore store; 
     private RetransmissionQueue queue;
     private Bus bus;

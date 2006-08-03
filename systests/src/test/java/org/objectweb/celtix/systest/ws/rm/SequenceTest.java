@@ -71,13 +71,6 @@ public class SequenceTest extends ClientServerTestBase {
                     .equals(System.getProperty("os.name"))));
             }
 
-            public void setUp() throws Exception {
-                // avoid re-using a previously created configuration for a bus
-                // with id "celtix"
-
-                super.setUp();
-
-            }
         };
     }
 
