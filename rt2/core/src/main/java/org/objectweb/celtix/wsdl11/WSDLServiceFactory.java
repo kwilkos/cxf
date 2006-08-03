@@ -19,13 +19,11 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     
     private static final Logger LOG = LogUtils.getL7dLogger(WSDLServiceFactory.class);
     
-    private Bus bus;
     private URL wsdlUrl;
     private QName serviceName;
-    
-    
+        
     public WSDLServiceFactory(Bus b, URL url, QName sn) {
-        bus = b;
+        setBus(b);
         wsdlUrl = url;
         serviceName = sn;        
     }
@@ -35,14 +33,16 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         
         Definition definition = null;
         try {
-            definition = bus.getWSDL11Manager().getDefinition(wsdlUrl);
+            definition = getBus().getWSDL11Manager().getDefinition(wsdlUrl);
         } catch (WSDLException ex) {
             LOG.log(Level.SEVERE, "SERVICE_CREATION_MSG", ex);
         }
         
         javax.wsdl.Service wsdlService = definition.getService(serviceName);
-        ServiceInfo si = new WSDLServiceBuilder(bus).buildService(definition, wsdlService);
-        return new ServiceImpl(si);     
+        ServiceInfo si = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
+        ServiceImpl service = new ServiceImpl(si);
+        
+        return service;
     }
     
 }

@@ -14,14 +14,13 @@ public class SoapBinding implements Binding {
     private List<Interceptor> out;
     private List<Interceptor> fault;
     
-    SoapBinding() {
+    public SoapBinding() {
         in = new ArrayList<Interceptor>();
         out = new ArrayList<Interceptor>();
         fault = new ArrayList<Interceptor>();
         
         in.add(new MustUnderstandInterceptor());
-        
-        // ...
+        in.add(new ReadHeadersInterceptor());
     }
     
     public Message createMessage() {

@@ -9,7 +9,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.ws.WebServiceException;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -25,7 +24,8 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         try {
             InputStream in = (InputStream)message.getContent(InputStream.class);
             if (in == null) {
-                throw new WebServiceException("Missing Soap part input stream in soap message");
+                // TODO: Make an internal Fault exception class
+                throw new RuntimeException("Missing Soap part input stream in soap message");
             }
             XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(in);
             message.setContent(XMLStreamReader.class, xmlReader);
