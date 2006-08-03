@@ -61,6 +61,7 @@ public class OperationProcessor  extends AbstractProcessor {
         method.setJAXWSBinding(customizing(intf, operation));
         processMethod(method, operation);
         Map<String, Fault> faults = operation.getFaults();
+       
         FaultProcessor faultProcessor = new FaultProcessor(env);
         faultProcessor.process(method, faults);
 

@@ -32,10 +32,15 @@ public class FaultProcessor extends AbstractProcessor {
             return;
         }
 
-        Collection<Fault> faultsValue = faults.values();
-        for (Fault fault : faultsValue) {
+        //Collection<Fault> faultsValue = faults.values();
+        java.util.Iterator<Fault> ite = faults.values().iterator();
+        while (ite.hasNext()) {
+            Fault fault = ite.next();
             processFault(method, fault);
         }
+        /*for (Fault fault : faultsValue) {
+            processFault(method, fault);
+        }*/
     }
 
     private boolean isNameCollision(String packageName, String className) {  
@@ -111,6 +116,6 @@ public class FaultProcessor extends AbstractProcessor {
 
             expClass.addField(fField);
         }
-        model.addExceptionClass(name, expClass);
+        model.addExceptionClass(packageName + "." + name, expClass);
     }
 }

@@ -948,6 +948,15 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         }
     }
     
+    public void testHangingBug() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bughanging/wsdl/wsrf.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+       
+    }
+    
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

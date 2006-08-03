@@ -90,7 +90,7 @@ public class WSDLValidationTest extends ToolTestBase {
         }        
     }
     
-    public void testBug() throws Exception {
+    public void testBug305872() throws Exception {
         try {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/wsdl/bug305872/http.xsd")};
