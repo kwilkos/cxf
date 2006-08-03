@@ -16,31 +16,21 @@ public class NodeDataReader implements DataReader<Node> {
         factory = cb;
     }
     
-    public Object read(int idx, Node input) {
-        return read(null, idx, input);
+    public Object read(Node input) {
+        return read(null, input);
+    }
+
+    public Object read(QName name, Node xmlNode) {
+        return read(name, xmlNode, null);
     }
     
-    public Object read(QName name, int idx, Node xmlNode) {
-        Class<?> cls = null;
-        /*
-        if (idx == -1) {
-            cls = callback.getMethod().getReturnType();
-        } else {
-            cls = callback.getMethod().getParameterTypes()[idx];
-            if (cls.isAssignableFrom(Holder.class)) {
-                //INOUT and OUT Params are mapped to Holder<T>. 
-                Type[] genericParameterTypes = callback.getMethod().getGenericParameterTypes();
-                //ParameterizedType represents Holder<?>
-                ParameterizedType paramType = (ParameterizedType)genericParameterTypes[idx];
-                cls = JAXBEncoderDecoder.getClassFromType(
-                                         paramType.getActualTypeArguments()[0]);                
-            }
-        }
-        */
-        
+    public Object read(QName name, Node xmlNode, Class cls) {
         return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
                                              factory.getSchema(),
-                                             xmlNode, name, cls, null);
+                                             xmlNode,
+                                             name,
+                                             cls,
+                                             null);
     }
     
    

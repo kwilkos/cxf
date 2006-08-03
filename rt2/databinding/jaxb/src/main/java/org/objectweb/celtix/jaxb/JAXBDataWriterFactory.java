@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.databinding.DataWriterFactory;
 import org.objectweb.celtix.jaxb.io.EventDataWriter;
+import org.objectweb.celtix.jaxb.io.NodeDataWriter;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataWriter;
 
 public class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWriterFactory {
@@ -17,11 +18,15 @@ public class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWr
 
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> cls) {
+        
         if (cls == XMLStreamWriter.class) {
             return (DataWriter<T>)new XMLStreamDataWriter(this);
         } else if (cls == XMLEventWriter.class) {
             return (DataWriter<T>)new EventDataWriter(this);            
+        } else if (cls == Node.class) {
+            return (DataWriter<T>)new NodeDataWriter(this);
         }
+        
         return null;
     }
 

@@ -20,13 +20,15 @@ public class MessageDataReader implements DataReader<Message> {
         factory = cb;
     }
 
-    public Object read(int idx, Message input) {
-        return read(null, idx, input);
+    public Object read(Message input) {
+        return read(null, input);
     }
-
-    public Object read(QName name, int idx, Message input) {
-        Class<?> cls = null;
-        
+    
+    public Object read(QName name, Message input) {
+        return read(name, input, null);
+    }
+    
+    public Object read(QName name, Message input, Class cls) {
         JAXBAttachmentUnmarshaller au = null;        
         if (input.get(Message.ATTACHMENT_DESERIALIZER) != null) {
             au = new JAXBAttachmentUnmarshaller(input); 

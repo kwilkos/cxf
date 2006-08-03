@@ -55,7 +55,6 @@ public final class JAXBEncoderDecoder {
             Set<Class> classes = new HashSet<Class>();
             getClassesForContext(cls, classes, cls.getClassLoader());
             
-            
             try {
                 classes.add(Class.forName("org.objectweb.celtix.ws.addressing.wsdl.AttributedQNameType"));
                 classes.add(Class.forName("org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory"));
@@ -64,7 +63,6 @@ public final class JAXBEncoderDecoder {
                 //REVISIT - ignorable if WS-ADDRESSING not available?
                 //maybe add a way to allow interceptors to add stuff to the context?
             }
-
             context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
             contextMap.put(cls, context);
         }
@@ -332,7 +330,7 @@ public final class JAXBEncoderDecoder {
         return (elName == null) ? obj : getElementValue(obj, elName);
     }
 
-    private static Object getElementValue(Object obj, QName elName) {
+    public static Object getElementValue(Object obj, QName elName) {
         if (null == obj) {
             return null;
         }

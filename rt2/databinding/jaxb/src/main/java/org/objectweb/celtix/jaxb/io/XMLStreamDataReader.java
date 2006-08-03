@@ -14,12 +14,15 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
         factory = cb;
     }
 
-    public Object read(int idx, XMLStreamReader input) {
-        return read(null, idx, input);
+    public Object read(XMLStreamReader input) {
+        return read(null, input);
     }
 
-    public Object read(QName name, int idx, XMLStreamReader reader) {
-        Class<?> cls = null;
+    public Object read(QName name, XMLStreamReader reader) {
+        return read(name, reader, null);
+    }
+
+    public Object read(QName name, XMLStreamReader reader, Class cls) {
         return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
                                              factory.getSchema(),
                                              reader,

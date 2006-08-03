@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.jaxb.io.EventDataReader;
+import org.objectweb.celtix.jaxb.io.NodeDataReader;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataReader;
 
 
@@ -18,13 +19,14 @@ public class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataRe
     
     
 
-    
     @SuppressWarnings("unchecked")
     public <T> DataReader<T> createReader(Class<T> cls) {
-        if (cls == XMLEventReader.class) {
+        if (cls == XMLStreamReader.class) {
             return (DataReader<T>)new XMLStreamDataReader(this);
         } else if (cls == XMLEventReader.class) {
             return (DataReader<T>)new EventDataReader(this);            
+        } else if (cls == Node.class) {
+            return (DataReader<T>)new NodeDataReader(this);
         }
         // TODO Auto-generated method stub
         return null;
