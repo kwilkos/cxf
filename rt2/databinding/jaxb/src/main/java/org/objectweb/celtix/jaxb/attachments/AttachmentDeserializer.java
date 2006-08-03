@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.objectweb.celtix.jaxb.attachments;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,48 +22,42 @@ import javax.xml.ws.handler.MessageContext;
 import org.objectweb.celtix.bindings.attachments.AttachmentDataSource;
 import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
-import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 
-public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
+public class AttachmentDeserializer {
 
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
     public static final int THRESHHOLD = 1024 * 100;
 
-    /**
-     * contruct the soap message with attachments from mime input stream
-     * 
-     * @param messageParam
-     */
-    public void handleMessage(Message messageParam) {
+    private PushbackInputStream stream;
+    private String boundary;
+    private File tempDirectory;
+    private String contentType;
+    private List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
+    private Message message;
 
-        boolean isMultipartType = false;
-        PushbackInputStream stream = null;
-        String boundary = null;
-        File tempDirectory = null;
-        String contentType = null;
-        List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
+    public AttachmentDeserializer(Message messageParam) {
+        message = messageParam;
+    }
 
+    public boolean preprocessMessage() {
         InputStream input;
         Map httpHeaders;
         // processing message if its multi-part/form-related
-        AbstractWrappedMessage message = (AbstractWrappedMessage)messageParam;
         try {
             httpHeaders = (Map)message.get(MessageContext.HTTP_REQUEST_HEADERS);
             if (httpHeaders == null) {
-                return;
+                return false;
             } else {
                 contentType = (String)httpHeaders.get("Content-Type");
                 input = message.getContent(InputStream.class);
                 if (contentType == null || input == null) {
-                    return;
+                    return false;
                 }
             }
             if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
-                isMultipartType = true;
                 int i = contentType.indexOf("boundary=\"");
                 int end;
                 int len;
@@ -86,52 +80,53 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
                 if (!readTillFirstBoundary(stream, boundary.getBytes())) {
                     throw new IOException("Couldn't find MIME boundary: " + boundary);
                 }
+                processSoapBody();
+                return true;
             }
-            process(message, isMultipartType, stream, boundary, tempDirectory, cache);
-        } catch (MessagingException me) {
-            message.setContent(Exception.class, me);
-            return;
+            return false;
         } catch (IOException ioe) {
             message.setContent(Exception.class, ioe);
-            return;
+            return false;
+        } catch (MessagingException me) {
+            message.setContent(Exception.class, me);
+            return false;
         }
-    }
-
-    public void handleFault(Message messageParam) {
     }
 
     /**
      * release the resource
      */
-    public void dispose(List<CachedOutputStream> cache) {
+    public void dispose() {
         for (Iterator itr = cache.iterator(); itr.hasNext();) {
             CachedOutputStream cos = (CachedOutputStream)itr.next();
             cos.dispose();
         }
     }
 
+    public void process() throws MessagingException, IOException {
+        processSoapBody();
+        processAttachments();
+    }
+
     /**
      * construct the primary soap body part and attachments
      */
-    private void process(AbstractWrappedMessage message, boolean isMultipartType, PushbackInputStream stream,
-                         String boundary, File tempDirectory, List<CachedOutputStream> cache)
-        throws MessagingException, IOException {
+    public void processSoapBody() throws MessagingException, IOException {
 
-        Attachment soapMimePart = readMimePart(stream, boundary, tempDirectory, cache);
+        Attachment soapMimePart = readMimePart();
         message.setContent(Attachment.class, soapMimePart);
 
         InputStream in = soapMimePart.getDataHandler().getInputStream();
         message.setContent(InputStream.class, in);
+    }
 
-        if (isMultipartType) {
-            Collection<Attachment> attachments = message.getAttachments();
-            Attachment att = readMimePart(stream, boundary, tempDirectory, cache);
-            while (att != null && att.getId() != null) {
-                attachments.add(att);
-                att = readMimePart(stream, boundary, tempDirectory, cache);
-            }
+    public void processAttachments() throws MessagingException, IOException {
+        Collection<Attachment> attachments = message.getAttachments();
+        Attachment att = readMimePart();
+        while (att != null && att.getId() != null) {
+            attachments.add(att);
+            att = readMimePart();
         }
-
     }
 
     /**
@@ -142,7 +137,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
      * @param boundary
      * @throws MessagingException
      */
-    private boolean readTillFirstBoundary(PushbackInputStream pushbackInStream, byte[] boundaryParam)
+    private static boolean readTillFirstBoundary(PushbackInputStream pushbackInStream, byte[] boundaryParam)
         throws IOException {
 
         // work around a bug in PushBackInputStream where the buffer isn't
@@ -173,8 +168,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
         return false;
     }
 
-    private Attachment readMimePart(PushbackInputStream stream, String boundary, File tempDirectory,
-                                    List<CachedOutputStream> cache) throws MessagingException, IOException {
+    private Attachment readMimePart() throws MessagingException, IOException {
 
         int v = stream.read();
         if (v == -1) {

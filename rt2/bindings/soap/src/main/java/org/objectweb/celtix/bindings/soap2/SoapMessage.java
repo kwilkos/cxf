@@ -7,8 +7,6 @@ import org.objectweb.celtix.message.AbstractWrappedMessage;
 import org.objectweb.celtix.message.Message;
 
 public class SoapMessage extends AbstractWrappedMessage {
-
-    public static final String CHARSET = "utf-8";
     
     private Map<Class, Object> headers = new HashMap<Class, Object>(); 
     

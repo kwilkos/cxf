@@ -25,15 +25,19 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
+import org.objectweb.celtix.bindings.soap2.MultipartMessageInterceptor;
 import org.objectweb.celtix.bindings.soap2.Soap11;
 import org.objectweb.celtix.bindings.soap2.Soap12;
 import org.objectweb.celtix.bindings.soap2.SoapMessage;
 import org.objectweb.celtix.bindings.soap2.TestBase;
 import org.objectweb.celtix.bindings.soap2.TestUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
-import org.objectweb.celtix.jaxb.JAXBAttachmentMarshaller;
-import org.objectweb.celtix.jaxb.JAXBAttachmentUnmarshaller;
+import org.objectweb.celtix.jaxb.attachments.AttachmentDeserializer;
+import org.objectweb.celtix.jaxb.attachments.AttachmentSerializer;
+import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentMarshaller;
+import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentUnmarshaller;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Message;
 
 public class AttachmentTest extends TestBase {
 
@@ -52,8 +56,8 @@ public class AttachmentTest extends TestBase {
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
-        InputStream is =
-            soapMessage.getContent(Attachment.class).getDataHandler().getDataSource().getInputStream();
+        InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
+            .getInputStream();
         testHandleMessage(soapMessage, is, true);
     }
 
@@ -63,8 +67,8 @@ public class AttachmentTest extends TestBase {
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
-        InputStream is =
-            soapMessage.getContent(Attachment.class).getDataHandler().getDataSource().getInputStream();
+        InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
+            .getInputStream();
         testHandleMessage(soapMessage, is, true);
     }
 
@@ -72,8 +76,8 @@ public class AttachmentTest extends TestBase {
         Object obj = null;
         try {
             soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
-            InputStream is =
-                soapMessage.getContent(Attachment.class).getDataHandler().getDataSource().getInputStream();
+            InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
+                .getInputStream();
             testHandleMessage(soapMessage, is, false);
 
             JAXBContext context = JAXBContext
@@ -160,7 +164,7 @@ public class AttachmentTest extends TestBase {
             }
             fail(me.getStackTrace().toString());
 
-        } 
+        }
         // serialize message to transport output stream
 
     }
@@ -168,8 +172,8 @@ public class AttachmentTest extends TestBase {
     private static void testHandleMessage(SoapMessage soapMessage, InputStream is, boolean testXmlConent) {
         try {
             CachedOutputStream cos = new CachedOutputStream(64 * 1024, null);
-            String contentType =
-                AttachmentSerializer.serializeMultipartMessage(soapMessage, is, cos);
+            AttachmentSerializer as = new AttachmentSerializer(soapMessage, is, cos);
+            String contentType = as.serializeMultipartMessage();
             soapMessage.getAttachments().clear();
 
             assertTrue(cos.getInputStream() != null);
@@ -201,7 +205,7 @@ public class AttachmentTest extends TestBase {
                 boolean found = false;
                 while (xsr.hasNext()) {
                     xsr.nextTag();
-                    //System.out.println(xsr.getName());
+                    // System.out.println(xsr.getName());
                     if (xsr.getName().getLocalPart().equals("Detail")) {
                         found = true;
                         break;
@@ -209,7 +213,9 @@ public class AttachmentTest extends TestBase {
                 }
                 assertTrue("Data Root Tag not found in message soap part!", found);
             }
-            
+            AttachmentDeserializer ad = (AttachmentDeserializer)soapMessage
+                .get(Message.ATTACHMENT_DESERIALIZER);
+            ad.processAttachments();
             Collection<Attachment> attachments = soapMessage.getAttachments();
             assertTrue(attachments.size() == 2);
             Iterator<Attachment> it = attachments.iterator();
@@ -229,5 +235,4 @@ public class AttachmentTest extends TestBase {
             fail(me.getStackTrace().toString());
         }
     }
-
 }

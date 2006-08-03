@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.objectweb.celtix.jaxb.attachments;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,17 +12,25 @@ import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.bindings.attachments.AttachmentDataSource;
 import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
 
-public final class AttachmentSerializer {
+public class AttachmentSerializer {
 
-    private static final String[] FILTER = new String[] {"Message-ID", "Mime-Version", "Content-Type"};    
+    private static final String[] FILTER = new String[] {"Message-ID", "Mime-Version", "Content-Type"};
 
-    private AttachmentSerializer() {
+    private Message message;
+    private InputStream in;
+    private OutputStream out;
+
+    public AttachmentSerializer(Message messageParam, InputStream inParam, OutputStream outParam) {
+        message = messageParam;
+        in = inParam;
+        out = outParam;
     }
 
     /**
@@ -34,40 +42,43 @@ public final class AttachmentSerializer {
      * @throws CxfRioException
      */
 
-    public static String serializeMultipartMessage(Message message,
-                                                   InputStream in,
-                                                   OutputStream out)
-        throws MessagingException, IOException {
-        
+    public String serializeMultipartMessage() throws WebServiceException {
+
         Session session = Session.getDefaultInstance(new Properties(), null);
         MimeMessage mimeMessage = new MimeMessage(session);
         String soapPartId = AttachmentUtil.createContentID(null);
         String subType = getMimeSubType(message, soapPartId);
         MimeMultipart mimeMP = new MimeMultipart(subType);
-               
-        // InputStream in = soapMessage.getContent(InputStream.class); 
+
+        // InputStream in = soapMessage.getContent(InputStream.class);
         AttachmentDataSource ads = new AttachmentDataSource("application/xop+xml", in);
         MimeBodyPart soapPart = new MimeBodyPart();
-        soapPart.setDataHandler(new DataHandler(ads));
-        soapPart.setContentID("<" + soapPartId  + ">");
-        soapPart.addHeader("Content-Type", "application/xop+xml");        
-        soapPart.addHeader("type", message.getAttachmentMimeType());
-        soapPart.addHeader("charset", "utf-8");
-        soapPart.addHeader("Content-Transfer-Encoding", "binary");
-        mimeMP.addBodyPart(soapPart);
-        
-        for (Iterator itr = message.getAttachments().iterator(); itr.hasNext();) {
-            Attachment att = (Attachment)itr.next();
-            MimeBodyPart part = new MimeBodyPart();
-            part.setDataHandler(att.getDataHandler());
-            part.setContentID("<" + att.getId() + ">");
-            if (att.isXOP()) {
-                part.addHeader("Content-Transfer-Encoding", "binary");
+        try {
+            soapPart.setDataHandler(new DataHandler(ads));
+            soapPart.setContentID("<" + soapPartId + ">");
+            soapPart.addHeader("Content-Type", "application/xop+xml");
+            soapPart.addHeader("type", message.getAttachmentMimeType());
+            soapPart.addHeader("charset", "utf-8");
+            soapPart.addHeader("Content-Transfer-Encoding", "binary");
+            mimeMP.addBodyPart(soapPart);
+
+            for (Iterator itr = message.getAttachments().iterator(); itr.hasNext();) {
+                Attachment att = (Attachment)itr.next();
+                MimeBodyPart part = new MimeBodyPart();
+                part.setDataHandler(att.getDataHandler());
+                part.setContentID("<" + att.getId() + ">");
+                if (att.isXOP()) {
+                    part.addHeader("Content-Transfer-Encoding", "binary");
+                }
+                mimeMP.addBodyPart(part);
             }
-            mimeMP.addBodyPart(part);
+            mimeMessage.setContent(mimeMP);
+            mimeMessage.writeTo(out, FILTER);
+        } catch (MessagingException me) {
+            throw new WebServiceException(me);
+        } catch (IOException ioe) {
+            throw new WebServiceException(ioe);
         }
-        mimeMessage.setContent(mimeMP);
-        mimeMessage.writeTo(out, FILTER);
         return mimeMP.getContentType();
     }
 

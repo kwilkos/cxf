@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.objectweb.celtix.jaxb.attachments;
 
 import java.util.Collection;
 import java.util.UUID;

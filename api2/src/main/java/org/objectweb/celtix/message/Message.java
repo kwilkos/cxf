@@ -20,7 +20,8 @@ public interface Message extends Map<String, Object> {
     String REQUESTOR_ROLE = "org.objectweb.celtix.client";
     String DATAREADER_FACTORY_KEY = "org.objectweb.celtix.databinding.reader.factory.key";
     String DATAWRITER_FACTORY_KEY = "org.objectweb.celtix.databinding.writer.factory.key";
-    
+    String ATTACHMENT_DESERIALIZER = "org.objectweb.celtix.databinding.attachments.AttachmentDeserializer";
+    String ATTACHMENT_SERIALIZER = "org.objectweb.celtix.databinding.attachments.AttachmentSerializer";
     
     String getId();
     

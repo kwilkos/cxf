@@ -56,7 +56,7 @@ public class Soap12 implements SoapVersion {
     }
 
     public String getSoapMimeType() {
-        return "application/soap+xml; charset=" + SoapMessage.CHARSET;
+        return "application/soap+xml; charset=utf-8";
     }
     
     public double getVersion() {

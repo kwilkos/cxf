@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.objectweb.celtix.jaxb.attachments;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,6 +19,17 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
     public JAXBAttachmentUnmarshaller(Message messageParam) {
         super();
         this.message = messageParam;
+        AttachmentDeserializer ad = (AttachmentDeserializer)message.get(Message.ATTACHMENT_DESERIALIZER);
+        if (ad == null) {
+            throw new WebServiceException("Can't find Attachment Deserializer in message"
+                                          + " when doing JAXBAttachmentUnmarshaller");
+        } else {
+            try {
+                ad.processAttachments();
+            } catch (Exception e) {
+                throw new WebServiceException(e);
+            }
+        }
     }
 
     @Override
@@ -87,7 +98,5 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
         return false;
 
     }
-    
-
 
 }

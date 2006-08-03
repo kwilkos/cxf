@@ -7,9 +7,9 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.databinding.DataWriter;
-import org.objectweb.celtix.jaxb.JAXBAttachmentMarshaller;
 import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentMarshaller;
 import org.objectweb.celtix.message.Message;
 
 public class MessageDataWriter implements DataWriter<Message> {

@@ -7,9 +7,9 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Node;
 
 import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.jaxb.JAXBAttachmentUnmarshaller;
 import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
 import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentUnmarshaller;
 import org.objectweb.celtix.message.Message;
 
 public class MessageDataReader implements DataReader<Message> {
@@ -28,7 +28,7 @@ public class MessageDataReader implements DataReader<Message> {
         Class<?> cls = null;
         
         JAXBAttachmentUnmarshaller au = null;        
-        if (input.getAttachments().size() > 0) {
+        if (input.get(Message.ATTACHMENT_DESERIALIZER) != null) {
             au = new JAXBAttachmentUnmarshaller(input); 
         }
         Object source = null;
