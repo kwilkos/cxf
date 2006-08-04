@@ -25,6 +25,10 @@ import org.objectweb.celtix.event.EventProcessorImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.management.InstrumentationManagerImpl;
+import org.objectweb.celtix.messaging.ConduitInitiatorManager;
+import org.objectweb.celtix.messaging.ConduitInitiatorManagerImpl;
+import org.objectweb.celtix.messaging.DestinationFactoryManager;
+import org.objectweb.celtix.messaging.DestinationFactoryManagerImpl;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
@@ -37,7 +41,8 @@ public class CeltixBus extends Bus {
     public static final String BUS_PROPERTY_NAME = "bus";
     public static final String CONFIGURATIONBUILDER_PROPERTY_NAME = "configurationBuilder";
     public static final String BINDINGFACTORYMANAGER_PROPERTY_NAME = "bindingFactoryManager";
-    public static final String TRANSPORTFACTORYMANAGER_PROPERTY_NAME = "transportFactoryManager";
+    public static final String CONDUITINITIATORMANAGER_PROPERTY_NAME = "conduitInitiatorManager";
+    public static final String DESTINATIONFACTORYMANAGER_PROPERTY_NAME = "destinationFactoryManager";
     public static final String WSDL11MANAGER_PROPERTY_NAME = "wsdl11Manager";
     public static final String INSTRUMENTATIONMANAGER_PROPERTY_NAME = "instrumentationManager";
     public static final String EVENTPROCESSOR_PROPERTY_NAME = "eventProcessor";
@@ -51,7 +56,8 @@ public class CeltixBus extends Bus {
     private Configuration configuration;
     private Map<String, Object> properties = new HashMap<String, Object>();
     private BindingFactoryManager bindingFactoryManager;
-    // private TransportFactoryManager transportFactoryManager;
+    private ConduitInitiatorManager conduitInitiatorManager;
+    private DestinationFactoryManager destinationFactoryManager;
     private WSDLManager wsdl11Manager;
     private InstrumentationManager instrumentationManager;
     private EventProcessor eventProcessor;
@@ -100,15 +106,21 @@ public class CeltixBus extends Bus {
             newPropertyValues.add(bindingFactoryManager);
         }
         
-            
-        /*
-        if (properties.get(CELTIX_TRANSPORTFACTORYMANAGER) != null) {
-            transportFactoryManager = (TransportFactoryManager)properties.get(CELTIX_TRANSPORTFACTORYMANAGER);
-        } else {
-            transportFactoryManager = new TransportFactoryManagerImpl(this);
+        conduitInitiatorManager = (ConduitInitiatorManager)properties
+            .get(CONDUITINITIATORMANAGER_PROPERTY_NAME);
+        if (null == conduitInitiatorManager) {            
+            conduitInitiatorManager = new ConduitInitiatorManagerImpl();
+            properties.put(CONDUITINITIATORMANAGER_PROPERTY_NAME, conduitInitiatorManager);
+            newPropertyValues.add(conduitInitiatorManager);
         }
-        */
         
+        destinationFactoryManager = (DestinationFactoryManager)properties
+            .get(DESTINATIONFACTORYMANAGER_PROPERTY_NAME);
+        if (null == destinationFactoryManager) {            
+            destinationFactoryManager = new DestinationFactoryManagerImpl();
+            properties.put(DESTINATIONFACTORYMANAGER_PROPERTY_NAME, destinationFactoryManager);
+            newPropertyValues.add(destinationFactoryManager);
+        }        
 
         wsdl11Manager = (WSDLManager)properties.get(WSDL11MANAGER_PROPERTY_NAME);
         if (null == wsdl11Manager) {            
@@ -117,7 +129,6 @@ public class CeltixBus extends Bus {
             newPropertyValues.add(wsdl11Manager);
         }
 
-        
         instrumentationManager = (InstrumentationManager)properties.get(INSTRUMENTATIONMANAGER_PROPERTY_NAME);
         if (null == instrumentationManager) {            
             instrumentationManager = new InstrumentationManagerImpl();
@@ -165,13 +176,7 @@ public class CeltixBus extends Bus {
         
         // lifeCycleManager.preShutdown();
         
-        // shutdown in inverse order of construction
-        
-        // workQueueManager.shutdown(wait);
-        
-        // wsdlManager.shutdown();
-
-        // transportFactoryManager.shutdown();
+        // invoke preDestroy on all properties
         
         // lifeCycleManager.postShutdown();
         
@@ -194,11 +199,13 @@ public class CeltixBus extends Bus {
         return bindingFactoryManager;
     }
 
-    /*
-    public TransportFactoryManager getTransportFactoryManager() {
-        return transportFactoryManager;
+    public ConduitInitiatorManager getConduitInitiatorManager() {
+        return conduitInitiatorManager;
     }
-    */
+
+    public DestinationFactoryManager getDestinationFactoryManager() {
+        return destinationFactoryManager;
+    }
 
     public WSDLManager getWSDL11Manager() {
         return wsdl11Manager;

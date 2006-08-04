@@ -36,7 +36,6 @@ public class JaxwsEndpointImpl extends EndpointImpl {
     public static final String JAXWS_DATAWRITER_FACTORY = 
         "org.objectweb.celtix.frontends.jaxws.databinding.writer.factory";
     
-    private List<Interceptor> handlerInterceptors; 
     private Binding binding;
     
     @SuppressWarnings("unchecked")
@@ -47,6 +46,8 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         
         createJaxwsBinding();
         
+        List<Interceptor> handlerInterceptors;
+        
         handlerInterceptors = new ArrayList<Interceptor>();
         handlerInterceptors.add(new LogicalHandlerInterceptor());
         if (getBinding() instanceof SoapBinding) {
@@ -55,27 +56,15 @@ public class JaxwsEndpointImpl extends EndpointImpl {
              // TODO: what for non soap bindings?
         }
         handlerInterceptors.add(new StreamHandlerInterceptor());
-    }
-    
-    public List<Interceptor> getFaultInterceptors() {
-        List<Interceptor> fault = super.getOutInterceptors();
+        
+        List<Interceptor> fault = super.getFaultInterceptors();
         fault.addAll(handlerInterceptors);
-        return fault;
-    }
-    
-    public List<Interceptor> getInInterceptors() {
         List<Interceptor> in = super.getInInterceptors();
         in.addAll(handlerInterceptors);
-        return in;
-    }
-    
-    
-    public List<Interceptor> getOutInterceptors() {
         List<Interceptor> out = super.getOutInterceptors();
-        out.addAll(handlerInterceptors);
-        return out;
+        out.addAll(handlerInterceptors);    
     }
-
+   
     void registerFrontendDatabindings() {
         InterfaceInfo ii = getService().getServiceInfo().getInterface();
         for (OperationInfo oi : ii.getOperations()) {

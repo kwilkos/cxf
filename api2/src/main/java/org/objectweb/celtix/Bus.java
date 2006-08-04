@@ -16,6 +16,8 @@ import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.event.EventProcessor;
 import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.management.InstrumentationManager;
+import org.objectweb.celtix.messaging.ConduitInitiatorManager;
+import org.objectweb.celtix.messaging.DestinationFactoryManager;
 
 // import org.objectweb.celtix.jaxws.EndpointRegistry;
 // import org.objectweb.celtix.plugins.PluginManager;
@@ -160,11 +162,18 @@ public abstract class Bus implements InterceptorProvider {
     public abstract Configuration getConfiguration();
 
     /** 
-     * Returns the <code>TransportFactoryManager</code> bus.
+     * Returns the <code>ConduitInitiatorManager</code> bus.
      * 
-     * @return the transport factory manager of this bus
+     * @return the conduit initiator manager of this bus
      */
-    // public abstract TransportFactoryManager getTransportFactoryManager();
+    public abstract ConduitInitiatorManager getConduitInitiatorManager();
+    
+    /** 
+     * Returns the <code>DestinationFactoryManager</code> bus.
+     * 
+     * @return the destination factory manager of this bus
+     */
+    public abstract DestinationFactoryManager getDestinationFactoryManager();
 
     /** 
      * Returns the BindingFactoryManager of this bus.
