@@ -15,37 +15,32 @@
  */
 package org.objectweb.celtix.helpers;
 
-import java.text.Collator;
 import java.util.Arrays;
-import java.util.Locale;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class JavaUtils {
-
-    /** Collator for comparing the strings */
-    static final Collator ENGLISH_COLLATOR = Collator.getInstance(Locale.ENGLISH);
 
     /** Use this character as suffix */
     static final char KEYWORD_PREFIX = '_';
 
     /**
-     * These are java keywords as specified at the following URL (sorted
-     * alphabetically).
+     * These are java keywords as specified at the following URL.
      * http://java.sun.com/docs/books/jls/second_edition/html/lexical.doc.html#229308
      * Note that false, true, and null are not strictly keywords; they are
      * literal values, but for the purposes of this array, they can be treated
-     * as literals. ****** PLEASE KEEP THIS LIST SORTED IN ASCENDING ORDER
-     * ******
+     * as literals.
      */
-    static final String KEYWORDS[] = {
+    private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "class", "const", "continue", "default", "do", "double",
-        "else", "extends", "false", "final", "finally", "float", "for", "goto",
+        "else", "enum", "extends", "false", "final", "finally", "float", "for", "goto",
         "if", "implements", "import", "instanceof", "int", "interface", "long",
         "native", "new", "null", "package", "private", "protected", "public",
         "return", "short", "static", "strictfp", "super", "switch",
         "synchronized", "this", "throw", "throws", "transient", "true", "try",
         "void", "volatile", "while"
-    };
+    ));
 
     private JavaUtils() {
     }
@@ -56,7 +51,7 @@ public final class JavaUtils {
      * @return boolean true/false
      */
     public static boolean isJavaKeyword(String keyword) {
-        return Arrays.binarySearch(KEYWORDS, keyword, ENGLISH_COLLATOR) >= 0;
+        return KEYWORDS.contains(keyword); 
     }
 
     /**

@@ -5,17 +5,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
+
+import org.objectweb.celtix.helpers.JavaUtils;
 
 public final class JAXBUtils {
     
@@ -30,18 +29,6 @@ public final class JAXBUtils {
     
     public static final String JAXB_URI = "http://java.sun.com/xml/ns/jaxb";
     
-    private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(
-        "abstract",    "continue",    "for",           "new",          "switch",
-        "assert",      "default",     "if",            "package",      "synchronized",
-        "boolean",     "do",          "goto",          "private",      "this",
-        "break",       "double",      "implements",    "protected",    "throw",
-        "byte",        "else",        "import",        "public",       "throws",
-        "case",        "enum",        "instanceof",    "return",       "transient",
-        "catch",       "extends",     "int",           "short",        "try",
-        "char",        "final",       "interface",     "static",       "void", 
-        "class",       "finally",     "long",          "strictfp",     "volatile",
-        "const",       "float",       "native",        "super",        "while"
-    ));
     
     private static final char[] XML_NAME_PUNCTUATION_CHARS = new char[] {
         /* hyphen                       */ '\u002D', 
@@ -122,7 +109,7 @@ public final class JAXBUtils {
      * @return true if the word is a keyword.
      */
     public static boolean isJavaKeyword(String word) {
-        return KEYWORDS.contains(word);
+        return JavaUtils.isJavaKeyword(word);
     }
 
     /**
