@@ -129,6 +129,24 @@ public class AttachmentDeserializer {
         }
     }
 
+    public Attachment getAttachment(String cid) throws MessagingException, IOException {
+        Collection<Attachment> attachments = message.getAttachments();
+        for (Attachment att : attachments) {
+            if (att.getId().equals(cid)) {
+                return att;
+            }
+        }
+        Attachment att = readMimePart();
+        while (att != null && att.getId() != null) {            
+            attachments.add(att);
+            if (att.getId().equals(cid)) {
+                return att;
+            }
+            att = readMimePart();
+        }
+        return null;
+    }
+
     /**
      * Move the read pointer to the begining of the first part read till the end
      * of first boundary

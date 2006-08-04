@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.activation.DataHandler;
+import javax.mail.MessagingException;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.ws.WebServiceException;
 
@@ -15,47 +16,27 @@ import org.objectweb.celtix.message.Message;
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     private Message message;
+    private AttachmentDeserializer ad;
 
     public JAXBAttachmentUnmarshaller(Message messageParam) {
         super();
         this.message = messageParam;
-        AttachmentDeserializer ad = (AttachmentDeserializer)message.get(Message.ATTACHMENT_DESERIALIZER);
+        ad = (AttachmentDeserializer)message.get(Message.ATTACHMENT_DESERIALIZER);
         if (ad == null) {
             throw new WebServiceException("Can't find Attachment Deserializer in message"
                                           + " when doing JAXBAttachmentUnmarshaller");
-        } else {
-            try {
-                ad.processAttachments();
-            } catch (Exception e) {
-                throw new WebServiceException(e);
-            }
         }
     }
 
     @Override
     public DataHandler getAttachmentAsDataHandler(String contentId) {
-        // TODO Auto-generated method stub
-        for (Attachment a : message.getAttachments()) {
-            if (contentId.equals(a.getId())) {
-                return a.getDataHandler();
-            }
-        }
-        throw new IllegalArgumentException("Attachment " + contentId + " was not found.");
+        return getAttachment(contentId).getDataHandler();
     }
 
     @Override
     public byte[] getAttachmentAsByteArray(String contentId) {
         // TODO Auto-generated method stub
-        Attachment att = null;
-        for (Attachment a : message.getAttachments()) {
-            if (contentId.equals(a.getId())) {
-                att = a;
-            }
-        }
-        if (att == null) {
-            throw new IllegalArgumentException("Attachment " + contentId + " was not found.");
-        }
-
+        Attachment att = getAttachment(contentId);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             copy(att.getDataHandler().getInputStream(), bos);
@@ -97,6 +78,23 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
         }
         return false;
 
+    }
+    
+    private Attachment getAttachment(String contentId) {
+        Attachment att = null;
+        try {
+            att = ad.getAttachment(contentId);
+        } catch (MessagingException me) {
+            throw new WebServiceException("Failed in getting attachment " + contentId + ". Cause: "
+                                               + me.getMessage());
+        } catch (IOException ioe) {
+            throw new WebServiceException("Failed in getting attachment " + contentId + ". Cause: "
+                                               + ioe.getMessage());
+        }
+        if (att == null) {
+            throw new IllegalArgumentException("Attachment " + contentId + " was not found.");
+        }
+        return att;
     }
 
 }
