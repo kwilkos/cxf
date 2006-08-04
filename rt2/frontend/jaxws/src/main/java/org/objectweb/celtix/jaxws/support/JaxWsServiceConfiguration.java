@@ -6,9 +6,8 @@ import org.objectweb.celtix.service.factory.AbstractServiceConfiguration;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
-    @SuppressWarnings("unchecked")
     WebService getWebServiceAttribute() {
-        return (WebService) getServiceFactory().getServiceClass().getAnnotation(WebService.class);
+        return getServiceFactory().getServiceClass().getAnnotation(WebService.class);
     }
     
     @Override

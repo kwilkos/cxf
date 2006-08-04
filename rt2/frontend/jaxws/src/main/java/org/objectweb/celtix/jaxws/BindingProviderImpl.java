@@ -11,18 +11,17 @@ import javax.xml.ws.handler.MessageContext;
 public class BindingProviderImpl implements BindingProvider {
     
     private final Binding binding;
-    private ThreadLocal requestContext;
+    private ThreadLocal<Map<String, Object>> requestContext;
     private Map<String, Object> responseContext;
     
     public BindingProviderImpl(Binding b) {
         binding = b;
     }
     
-    @SuppressWarnings("unchecked")
     public Map<String, Object> getRequestContext() {
         if (requestContext == null) {
-            requestContext = new ThreadLocal() {
-                protected synchronized Object initialValue() {
+            requestContext = new ThreadLocal<Map<String, Object>>() {
+                protected synchronized Map<String, Object> initialValue() {
                     return new HashMap<String, Object>();
                 }
             };

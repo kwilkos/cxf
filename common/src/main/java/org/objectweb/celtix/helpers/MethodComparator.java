@@ -7,11 +7,9 @@ import java.util.Comparator;
  * Sorts methods according to their name, number of parameters, and parameter
  * types.
  */
-public class MethodComparator implements Comparator {
+public class MethodComparator implements Comparator<Method> {
 
-    public int compare(Object o1, Object o2) {
-        Method m1 = (Method)o1;
-        Method m2 = (Method)o2;
+    public int compare(Method m1, Method m2) {
 
         int val = m1.getName().compareTo(m2.getName());
         if (val == 0) {

@@ -230,7 +230,6 @@ public class HandlerChainInvoker {
         return continueProcessing;        
     }    
 
-    @SuppressWarnings("unchecked")
     private boolean invokeHandleFault(List<? extends Handler> handlerChain, MessageContext ctx) {
         
         boolean continueProcessing = true; 

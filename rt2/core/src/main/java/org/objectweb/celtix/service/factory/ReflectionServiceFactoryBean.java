@@ -25,7 +25,7 @@ import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     
-    private Class serviceClass;
+    private Class<?> serviceClass;
     private URL wsdlURL;
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
@@ -100,7 +100,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return svcInfo;
     }
 
-    @SuppressWarnings("unchecked")
     protected InterfaceInfo createInterface(ServiceInfo serviceInfo) {
         QName intfName = getInterfaceName();
         InterfaceInfo intf = new InterfaceInfo(serviceInfo, intfName);
@@ -407,11 +406,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         this.serviceConfigurations = configurations;
     }
 
-    public Class getServiceClass() {
+    public Class<?> getServiceClass() {
         return serviceClass;
     }
 
-    public void setServiceClass(Class serviceClass) {
+    public void setServiceClass(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
     }
 

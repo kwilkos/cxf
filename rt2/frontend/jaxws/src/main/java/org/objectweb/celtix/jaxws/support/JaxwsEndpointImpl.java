@@ -38,7 +38,6 @@ public class JaxwsEndpointImpl extends EndpointImpl {
     
     private Binding binding;
     
-    @SuppressWarnings("unchecked")
     public JaxwsEndpointImpl(Bus bus, Service s, EndpointInfo ei) {
         super(bus, s, ei);
         
@@ -65,7 +64,7 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         out.addAll(handlerInterceptors);    
     }
    
-    void registerFrontendDatabindings() {
+    final void registerFrontendDatabindings() {
         InterfaceInfo ii = getService().getServiceInfo().getInterface();
         for (OperationInfo oi : ii.getOperations()) {
             if (null == oi.getProperty(JAXWS_DATAREADER_FACTORY)) {
@@ -81,7 +80,7 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         return binding;
     }
     
-    void createJaxwsBinding() {
+    final void createJaxwsBinding() {
         if (getBinding() instanceof SoapBinding) {
             binding = new SOAPBindingImpl((SoapBinding)getBinding());
         } else {

@@ -3,7 +3,6 @@ package org.objectweb.celtix.management.jmx;
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +31,7 @@ public final class MBServerConnectorFactory {
 
     private static String serviceUrl = DEFAULT_SERVICE_URL;
 
-    private static Map environment;
+    private static Map<String, ?> environment;
 
     private static boolean threaded;
 
@@ -83,11 +82,7 @@ public final class MBServerConnectorFactory {
         serviceUrl = url;
     }
 
-    public void setEnvironment(Properties env) {
-        environment = env;
-    }
-   
-    public void setEnvironment(Map env) {
+    public void setEnvironment(Map<String, ?> env) {
         environment = env;
     }
     
@@ -100,7 +95,6 @@ public final class MBServerConnectorFactory {
     }
 
 
-    @SuppressWarnings("unchecked")
     public void createConnector() throws IOException {
         
         if (server == null) {

@@ -11,13 +11,11 @@ import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<SoapMessage> 
     implements SoapInterceptor {
 
-    @SuppressWarnings("unchecked")
     public Set<URI> getRoles() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
-    @SuppressWarnings("unchecked")
     public Set<QName> getUnderstoodHeaders() {
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 }

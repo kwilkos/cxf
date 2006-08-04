@@ -49,9 +49,8 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
         return this.interceptorChain;
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getContent(Class<T> format) {
-        return (T) contents.get(format);
+        return format.cast(contents.get(format));
     }
 
     public <T> void setContent(Class<T> format, Object content) {
