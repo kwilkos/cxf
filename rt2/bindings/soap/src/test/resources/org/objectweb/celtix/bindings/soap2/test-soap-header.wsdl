@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="soap_header" targetNamespace="http://mycompany.example.com/employees"
+<definitions name="soap_header" targetNamespace="http://org.objectweb.celtix/headers"
 	     xmlns:m="http://travelcompany.example.org/reservation"
+	     xmlns:n="http://mycompany.example.com/employees"
 	     xmlns="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
 	     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-	     xmlns:tns="http://mycompany.example.com/employees"
+	     xmlns:tns="http://org.objectweb.celtix/headers"
 	     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <types>
-	<schema targetNamespace="http://mycompany.example.com/employees"
-		xmlns="http://www.w3.org/2001/XMLSchema" 
-		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-
-	    <element name="passenger">
-		<complexType>
-		    <sequence>
-			<element name="name" type="xsd:string"/>
-		    </sequence>
-		</complexType>
-	    </element>
-
-	    <element name="inHeader">
-		<complexType>
-		    <sequence>
-			<element name="" type="xsd:string"/>
-		    </sequence>
-		</complexType>
-	    </element>
-	</schema>
-    </types>
+	<types>
+		<schema targetNamespace="http://org.objectweb.celtix/headers"
+			xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+			<element name="inHeader">
+				<complexType>
+					<sequence>
+						<element name="" type="xsd:string"/>
+					</sequence>
+				</complexType>
+			</element>
+		</schema>
+		
+		<schema targetNamespace="http://mycompany.example.com/employees"
+			xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">			
+			<element name="passenger">
+				<complexType>
+					<sequence>
+						<element name="name" type="xsd:string"/>
+					</sequence>
+				</complexType>
+			</element>
+		</schema>
+		
+	</types>
 
     <message name="inHeaderRequest">
 	<part element="tns:inHeader" name="me"/>
-	<part element="tns:passenger" name="passenger"/>
+	<part element="n:passenger" name="passenger"/>
     </message>
     <message name="inHeaderResponse">
 	<part element="tns:inHeaderResponse" name="the_response"/>
@@ -62,7 +67,7 @@
 
     <service name="HeaderService">
 	<port binding="tns:headerTesterSOAPBinding" name="SoapPort">
-	    <soap:address location="http://mycompany.example.com/employees"/>
+	    <soap:address location="http://org.objectweb.celtix/headers"/>
 	</port>
     </service>
 </definitions>

@@ -1,6 +1,7 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.wsdl.extensions.soap.SOAPHeader;
@@ -10,6 +11,7 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.MessagePartInfo;
 
 public final class ServiceModelUtil {
     private static final String HEADERS_PROPERTY = ServiceModelUtil.class.getName() + ".HEADERS";
@@ -24,14 +26,22 @@ public final class ServiceModelUtil {
 
     @SuppressWarnings("unchecked")
     public static Set<QName> getHeaderParts(BindingMessageInfo bmi) {
-        Object obj = bmi.getProperty(HEADERS_PROPERTY);
+        Object obj = bmi.getProperty(HEADERS_PROPERTY);        
         if (obj == null) {
             Set<QName> set = new HashSet<QName>();
+            List<MessagePartInfo> mps = bmi.getMessageInfo().getMessageParts();
             for (SOAPHeader head : bmi.getExtensors(SOAPHeader.class)) {
                 String pn = head.getPart();   
-                set.add(new QName(head.getMessage().getNamespaceURI(), pn));
-                //set.add(new QName(bmi.getBindingOperation().getBinding().getService().getTargetNamespace(),
-                //                  pn));
+                for (MessagePartInfo mpi : mps) {
+                    if (pn.equals(mpi.getName().getLocalPart())) {
+                        if (mpi.isElement()) {
+                            set.add(mpi.getElementQName());
+                        } else {
+                            set.add(mpi.getTypeQName());
+                        }
+                        break;
+                    }
+                }
             }
             bmi.setProperty(HEADERS_PROPERTY, set);
             return set;

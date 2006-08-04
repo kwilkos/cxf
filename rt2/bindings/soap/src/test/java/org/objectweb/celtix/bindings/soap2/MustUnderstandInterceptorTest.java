@@ -116,7 +116,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
             dsi.getUnderstoodHeaders().add(RESERVATION);
             mockServiceModel();
             soapMessage.put(Message.BINDING_INFO, serviceInfo
-                .getBinding(new QName("http://mycompany.example.com/employees", "headerTesterSOAPBinding")));
+                .getBinding(new QName("http://org.objectweb.celtix/headers", "headerTesterSOAPBinding")));
             soapMessage.put(Message.OPERATION_INFO, "inHeader");
         } catch (IOException ioe) {
             fail("Failed in creating soap message");
@@ -171,7 +171,6 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
         EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
         control.replay();
-
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
