@@ -12,6 +12,10 @@ import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
+import org.objectweb.celtix.service.model.SchemaInfo;
+import org.objectweb.celtix.service.model.ServiceInfo;
+
+
 
 public final class ServiceModelUtil {
     private static final String HEADERS_PROPERTY = ServiceModelUtil.class.getName() + ".HEADERS";
@@ -65,5 +69,21 @@ public final class ServiceModelUtil {
             } 
         }
         return headers;
+    }
+    
+    public static SchemaInfo getSchema(ServiceInfo serviceInfo, MessagePartInfo messagePartInfo) {
+        SchemaInfo schemaInfo = null;
+        String tns = null;
+        if (messagePartInfo.isElement()) {
+            tns = messagePartInfo.getElementQName().getNamespaceURI();
+        } else {
+            tns = messagePartInfo.getTypeQName().getNamespaceURI();
+        }
+        for (SchemaInfo schema : serviceInfo.getTypeInfo().getSchemas()) {
+            if (tns.equals(schema.getNamespaceURI())) {
+                schemaInfo = schema;
+            }
+        }
+        return schemaInfo;
     }
 }

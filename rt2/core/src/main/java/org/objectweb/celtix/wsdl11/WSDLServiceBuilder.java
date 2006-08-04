@@ -74,12 +74,12 @@ public class WSDLServiceBuilder {
     // utility for dealing with the JWSDL collections that are 1.4 based. We can
     // kind of use a normal for loop with this
     @SuppressWarnings("unchecked")
-    static <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
+    public static <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
         return (Collection<T>)p;
     }
 
     @SuppressWarnings("unchecked")
-    static <T, U> Map.Entry<T, U> cast(Map.Entry<?, ?> p, Class<T> pc, Class<U> uc) {
+    public static <T, U> Map.Entry<T, U> cast(Map.Entry<?, ?> p, Class<T> pc, Class<U> uc) {
         return (Map.Entry<T, U>)p;
     }
 
