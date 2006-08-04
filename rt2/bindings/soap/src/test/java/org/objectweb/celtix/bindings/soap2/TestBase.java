@@ -60,7 +60,7 @@ public class TestBase extends TestCase {
         return StaxUtils.createXMLStreamWriter(os);
     }
 
-    public Method getTestMethod(Class sei, String methodName) {
+    public Method getTestMethod(Class<?> sei, String methodName) {
         Method[] iMethods = sei.getMethods();
         for (Method m : iMethods) {
             if (methodName.equals(m.getName())) {
@@ -86,7 +86,7 @@ public class TestBase extends TestCase {
         WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         Service service = null;
-        for (Iterator it = def.getServices().values().iterator(); it.hasNext();) {
+        for (Iterator<?> it = def.getServices().values().iterator(); it.hasNext();) {
             Object obj = it.next();
             if (obj instanceof Service) {
                 service = (Service)obj;
@@ -104,7 +104,7 @@ public class TestBase extends TestCase {
     }
     
 
-    public JAXBDataReaderFactory getTestReaderFactory(Class clz) throws Exception {
+    public JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
         JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
         readerFacotry.setJAXBContext(ctx);

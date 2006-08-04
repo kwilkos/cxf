@@ -26,7 +26,7 @@ public final class BundleUtils {
      * @param cls the Class requiring the bundle
      * @return an appropriate ResourceBundle name
      */
-    public static String getBundleName(Class cls) {
+    public static String getBundleName(Class<?> cls) {
         return cls.getPackage().getName() + MESSAGE_BUNDLE;
     }
     
@@ -37,7 +37,7 @@ public final class BundleUtils {
      * @param cls the Class requiring the bundle
      * @return an appropriate ResourceBundle name
      */
-    public static String getBundleName(Class cls, String name) {
+    public static String getBundleName(Class<?> cls, String name) {
         return cls.getPackage().getName() + "." + name;
     }
 
@@ -48,7 +48,7 @@ public final class BundleUtils {
      * @param cls the Class requiring the bundle
      * @return an appropriate ResourceBundle
      */
-    public static ResourceBundle getBundle(Class cls) {
+    public static ResourceBundle getBundle(Class<?> cls) {
         return ResourceBundle.getBundle(getBundleName(cls));
     }
     
@@ -60,7 +60,7 @@ public final class BundleUtils {
      * @param name the name of the resource
      * @return an appropriate ResourceBundle
      */
-    public static ResourceBundle getBundle(Class cls, String name) {
+    public static ResourceBundle getBundle(Class<?> cls, String name) {
         return ResourceBundle.getBundle(getBundleName(cls, name));
     }
 }

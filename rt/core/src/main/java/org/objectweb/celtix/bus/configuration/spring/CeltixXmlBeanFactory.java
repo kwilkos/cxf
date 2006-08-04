@@ -15,6 +15,7 @@ import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 import org.objectweb.celtix.tools.generators.spring.BeanGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionParser;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.Resource;
 
@@ -22,7 +23,8 @@ import org.springframework.core.io.Resource;
 public class CeltixXmlBeanFactory extends DefaultListableBeanFactory {
 
     private static final Logger LOG = LogUtils.getL7dLogger(CeltixXmlBeanFactory.class);
-    private static final Class DEFAULT_PARSER_CLASS = CeltixXmlBeanDefinitionParser.class;
+    private static final Class<? extends XmlBeanDefinitionParser> DEFAULT_PARSER_CLASS
+        = CeltixXmlBeanDefinitionParser.class;
     
     private final PropertyEditor editor;
 
@@ -78,7 +80,7 @@ public class CeltixXmlBeanFactory extends DefaultListableBeanFactory {
             QName qn = definition.getType();
             String className = BeanGenerator.getClassName(qn, true);
 
-            Class cl = JAXBUtils.holderClass(className);
+            Class<?> cl = JAXBUtils.holderClass(className);
             if (null != cl) {
                 continue;
             }

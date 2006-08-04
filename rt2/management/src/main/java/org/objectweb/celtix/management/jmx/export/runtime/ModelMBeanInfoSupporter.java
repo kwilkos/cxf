@@ -26,8 +26,8 @@ public class ModelMBeanInfoSupporter {
         = new HashMap<String, ModelMBeanAttributeInfo>();
     protected Map<String, ModelMBeanNotificationInfo> notifications
         = new HashMap<String, ModelMBeanNotificationInfo>();
-    protected Map<Constructor, ModelMBeanConstructorInfo> constructors 
-        = new HashMap<Constructor, ModelMBeanConstructorInfo>();
+    protected Map<Constructor<?>, ModelMBeanConstructorInfo> constructors 
+        = new HashMap<Constructor<?>, ModelMBeanConstructorInfo>();
     protected Map<String, ModelMBeanOperationInfo> operations 
         = new HashMap<String, ModelMBeanOperationInfo>();
     
@@ -95,7 +95,7 @@ public class ModelMBeanInfoSupporter {
     }
       
     
-    public void addModelMBeanConstructor(Constructor c,
+    public void addModelMBeanConstructor(Constructor<?> c,
                                           String description,
                                           Descriptor desc) {
         this.constructors.put(c,

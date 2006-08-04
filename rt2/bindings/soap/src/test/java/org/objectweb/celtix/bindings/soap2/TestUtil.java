@@ -26,7 +26,7 @@ public final class TestUtil {
     private TestUtil() {
     }
 
-    public static DetailType createDetailObject(Class clazz)
+    public static DetailType createDetailObject(Class<?> clazz)
         throws IOException {
         
         DetailType detailObj = new DetailType();
@@ -45,7 +45,8 @@ public final class TestUtil {
         return detailObj;        
     }
     
-    public static SoapMessage createSoapMessage(SoapVersion soapVersion, InterceptorChain chain, Class clazz)
+    public static SoapMessage createSoapMessage(SoapVersion soapVersion,
+                                                InterceptorChain chain, Class<?> clazz)
         throws IOException {        
         
         SoapMessage soapMessage = createEmptySoapMessage(soapVersion, chain);        

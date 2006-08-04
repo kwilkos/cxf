@@ -4,7 +4,7 @@ import java.util.ListIterator;
 
 import org.objectweb.celtix.message.Message;
 
-public interface InterceptorChain  {
+public interface InterceptorChain extends Iterable<Interceptor<? extends Message>> {
     
     enum State {
         PAUSED,

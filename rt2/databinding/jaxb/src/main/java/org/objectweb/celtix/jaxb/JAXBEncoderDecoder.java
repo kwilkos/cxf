@@ -44,15 +44,15 @@ import org.objectweb.celtix.common.util.StringUtils;
  */
 public final class JAXBEncoderDecoder {
     
-    static Map<Class, JAXBContext> contextMap = new ConcurrentHashMap<Class, JAXBContext>();
+    static Map<Class<?>, JAXBContext> contextMap = new ConcurrentHashMap<Class<?>, JAXBContext>();
     
     private JAXBEncoderDecoder() {        
     }
     
-    public static JAXBContext createJAXBContextForClass(Class cls) throws JAXBException {
+    public static JAXBContext createJAXBContextForClass(Class<?> cls) throws JAXBException {
         JAXBContext context = contextMap.get(cls);
         if (context == null) {
-            Set<Class> classes = new HashSet<Class>();
+            Set<Class<?>> classes = new HashSet<Class<?>>();
             getClassesForContext(cls, classes, cls.getClassLoader());
             
             try {
@@ -69,7 +69,7 @@ public final class JAXBEncoderDecoder {
         return context;
     }
     
-    private static Class getValidClass(Class cls) {
+    private static Class<?> getValidClass(Class<?> cls) {
         if (cls.isEnum()) {
             return cls;
         }
@@ -94,7 +94,7 @@ public final class JAXBEncoderDecoder {
         return cls;
     }
     
-    private static void addClass(Class cls, Set<Class> classes) {
+    private static void addClass(Class<?> cls, Set<Class<?>> classes) {
         if (cls.isArray()) {
             classes.add(cls);
             return;
@@ -118,7 +118,7 @@ public final class JAXBEncoderDecoder {
         }
     }
     
-    private static void addType(Type cls, Set<Class> classes) {
+    private static void addType(Type cls, Set<Class<?>> classes) {
         if (cls instanceof Class) {
             addClass((Class)cls, classes);
         } else if (cls instanceof ParameterizedType) {
@@ -133,7 +133,7 @@ public final class JAXBEncoderDecoder {
     
     //collect ALL the classes that are accessed by the class
     private static void getClassesForContext(Class<?> theClass, 
-                                             Set<Class> classes, 
+                                             Set<Class<?>> classes, 
                                              ClassLoader loader) {
         Method methods[] = theClass.getMethods();
         for (Method meth : methods) {
@@ -151,7 +151,7 @@ public final class JAXBEncoderDecoder {
             if (meth.getReturnType().isArray()) {
                 addClass(meth.getReturnType(), classes);
             }
-            for (Class cls : meth.getParameterTypes()) {
+            for (Class<?> cls : meth.getParameterTypes()) {
                 addClass(cls, classes);
             }
             
@@ -168,14 +168,14 @@ public final class JAXBEncoderDecoder {
                 //Get the RequestWrapper
                 RequestWrapper reqWrapper = meth.getAnnotation(RequestWrapper.class);
                 if (reqWrapper != null) {
-                    Class cls = Class.forName(reqWrapper.className(), false,
+                    Class<?> cls = Class.forName(reqWrapper.className(), false,
                                         loader);
                     addClass(cls, classes);
                 }
                 //Get the RequestWrapper
                 ResponseWrapper respWrapper = meth.getAnnotation(ResponseWrapper.class);
                 if (respWrapper != null) {
-                    Class cls = Class.forName(respWrapper.className(),
+                    Class<?> cls = Class.forName(respWrapper.className(),
                                               false,
                                               loader);
                     addClass(cls, classes);
@@ -185,7 +185,7 @@ public final class JAXBEncoderDecoder {
             }
         }
 
-        for (Class intf : theClass.getInterfaces()) {
+        for (Class<?> intf : theClass.getInterfaces()) {
             getClassesForContext(intf, classes, loader);
         }
         if (theClass.getSuperclass() != null) {
@@ -354,7 +354,7 @@ public final class JAXBEncoderDecoder {
         return same;
     }
     
-    public static Class getClassFromType(Type t) {
+    public static Class<?> getClassFromType(Type t) {
         if (t instanceof Class) {
             return (Class)t;
         } else if (t instanceof GenericArrayType) {

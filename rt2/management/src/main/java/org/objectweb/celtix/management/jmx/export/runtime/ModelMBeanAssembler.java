@@ -167,7 +167,7 @@ public class ModelMBeanAssembler {
                                     operationDescriptor);
     }
     
-    public ModelMBeanInfo getModelMbeanInfo(Class clazz) {
+    public ModelMBeanInfo getModelMbeanInfo(Class<?> clazz) {
         supporter.clear();
         ManagedResource mr = getManagedResource(clazz);
         if (mr == null) {

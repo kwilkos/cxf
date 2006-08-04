@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -214,5 +215,16 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
 
         intercs.add(begin + 1, interc);
+    }
+
+    public Iterator<Interceptor<? extends Message>> iterator() {
+        List<Interceptor<? extends Message>> allInterceptors 
+            = new ArrayList<Interceptor<? extends Message>>();
+        for (List<Interceptor> interceptorList : interceptors.values()) {
+            for (Interceptor i : interceptorList) {
+                allInterceptors.add((Interceptor<? extends Message>)i);
+            }
+        }
+        return allInterceptors.iterator();
     }
 }

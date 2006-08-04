@@ -176,7 +176,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     private void initBean() {
         String beanClassName =
             SpringUtils.getBeanClassName(configuration.getModel().getNamespaceURI());
-        Class beanClass = null;
+        Class<?> beanClass = null;
         try {
             beanClass = Class.forName(beanClassName);
         } catch (ClassCastException ex) {
@@ -226,7 +226,7 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
     private void findBean(CeltixXmlBeanFactory beanFactory) {
 
         String beanClassName = SpringUtils.getBeanClassName(configuration.getModel().getNamespaceURI());
-        Class beanClass = null;
+        Class<?> beanClass = null;
         try {
             beanClass = Class.forName(beanClassName);
         } catch (ClassCastException ex) {

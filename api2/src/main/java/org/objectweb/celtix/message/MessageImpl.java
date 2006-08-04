@@ -18,7 +18,7 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
     private Exchange exchange;
     private String id;
     private InterceptorChain interceptorChain;
-    private Map<Class, Object> contents = new HashMap<Class, Object>();
+    private Map<Class<?>, Object> contents = new HashMap<Class<?>, Object>();
     
     public Collection<Attachment> getAttachments() {
         return attachments;
@@ -57,7 +57,7 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
         contents.put(format, content);
     }
 
-    public Set<Class> getContentFormats() {
+    public Set<Class<?>> getContentFormats() {
         return contents.keySet();
     }
 

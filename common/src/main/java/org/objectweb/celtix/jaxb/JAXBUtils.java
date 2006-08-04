@@ -44,7 +44,7 @@ public final class JAXBUtils {
     private static final String XML_NAME_PUNCTUATION_STRING = new String(XML_NAME_PUNCTUATION_CHARS);
     
     private static final Map<String, String> BUILTIN_DATATYPES_MAP;
-    private static final Map<String, Class> HOLDER_TYPES_MAP;
+    private static final Map<String, Class<?>> HOLDER_TYPES_MAP;
     
     static {
         BUILTIN_DATATYPES_MAP = new HashMap<String, String>();        
@@ -76,7 +76,7 @@ public final class JAXBUtils {
         BUILTIN_DATATYPES_MAP.put("NOTATION", "javax.xml.namespace.QName");
         BUILTIN_DATATYPES_MAP.put("string", "java.lang.String");
         
-        HOLDER_TYPES_MAP = new HashMap<String, Class>();
+        HOLDER_TYPES_MAP = new HashMap<String, Class<?>>();
         HOLDER_TYPES_MAP.put("int", java.lang.Integer.class);
         HOLDER_TYPES_MAP.put("long", java.lang.Long.class);
         HOLDER_TYPES_MAP.put("short", java.lang.Short.class);
@@ -98,7 +98,7 @@ public final class JAXBUtils {
         return BUILTIN_DATATYPES_MAP.get(type);
     }
     
-    public static Class holderClass(String type) {
+    public static Class<?> holderClass(String type) {
         return HOLDER_TYPES_MAP.get(type);
     }
     

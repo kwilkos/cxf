@@ -77,7 +77,7 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getContent(format);
     }
 
-    public Set<Class> getContentFormats() {
+    public Set<Class<?>> getContentFormats() {
         return message.getContentFormats();
     }
 

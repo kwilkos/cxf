@@ -302,7 +302,7 @@ class BeanName {
         return LOOSE_BINDING == c;
     }
     
-    final class ComponentIterator implements Iterator {
+    final class ComponentIterator implements Iterator<String> {
         int componentStart = -1;
         int componentEnd = -1;
         String current;
@@ -314,7 +314,7 @@ class BeanName {
             return componentEnd + 1 < normalisedName.length();
         }
 
-        public Object next() {
+        public String next() {
             if (-1 == componentStart && -1 == componentEnd && isBinding(normalisedName.charAt(0))) {
                 componentStart++;
                 componentEnd++;

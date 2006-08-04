@@ -152,7 +152,7 @@ public class XMLUtils {
         }
     }
 
-    public QName getNamespace(Map namespaces, String str, String defaultNamespace) {
+    public QName getNamespace(Map<String, String> namespaces, String str, String defaultNamespace) {
         String prefix = null;
         String localName = null;
         

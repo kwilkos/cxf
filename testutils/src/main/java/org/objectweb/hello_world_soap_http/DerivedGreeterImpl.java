@@ -66,7 +66,8 @@ public class DerivedGreeterImpl implements Greeter {
         /*not called */
     }
 
-    public Response<TestDocLitFaultResponse> testDocLitFaultAsync(String faultType, AsyncHandler ah) {
+    public Response<TestDocLitFaultResponse> testDocLitFaultAsync(String faultType,
+                                                                  AsyncHandler<TestDocLitFaultResponse> ah) {
         return null;
         /*not called */
     }

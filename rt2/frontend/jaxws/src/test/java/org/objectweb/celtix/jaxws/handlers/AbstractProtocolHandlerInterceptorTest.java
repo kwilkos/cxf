@@ -64,7 +64,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         
     }
      
-    interface IIOPHandler<T extends IIOPMessageContext> extends Handler {
+    interface IIOPHandler<T extends IIOPMessageContext> extends Handler<IIOPMessageContext> {
         
     }
     

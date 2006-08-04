@@ -2,7 +2,6 @@ package org.objectweb.celtix.bindings.soap2;
 
 import java.net.URI;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -42,9 +41,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         if (paramHeaders != null) {
             mustUnderstandQNames.addAll(paramHeaders);
         }
-        Iterator it = soapMessage.getInterceptorChain().getIterator();
-        while (it.hasNext()) {
-            Interceptor interceptorInstance = (Interceptor)it.next();
+        for (Interceptor<?> interceptorInstance : soapMessage.getInterceptorChain()) {
             if (interceptorInstance instanceof SoapInterceptor) {
                 SoapInterceptor si = (SoapInterceptor)interceptorInstance;
                 serviceRoles.addAll(si.getRoles());

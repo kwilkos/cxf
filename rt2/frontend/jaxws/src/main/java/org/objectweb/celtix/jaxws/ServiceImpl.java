@@ -46,7 +46,7 @@ public class ServiceImpl extends ServiceDelegate {
     private HandlerResolver handlerResolver;
     private final Collection<QName> ports = new HashSet<QName>();
     
-    public ServiceImpl(Bus b, URL url, QName name, Class cls) {
+    public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
         wsdlURL = url;
         

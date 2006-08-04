@@ -57,7 +57,7 @@ public class WSDLMetaDataCache {
     public Map<String, WSDLOperationInfo> getAllOperationInfo() {
         if (allOperationInfo == null) {
             allOperationInfo = new HashMap<String, WSDLOperationInfo>();
-            for (Iterator it = binding.getBindingOperations().iterator(); it.hasNext();) {
+            for (Iterator<?> it = binding.getBindingOperations().iterator(); it.hasNext();) {
                 final BindingOperation bindingOperation = (BindingOperation)it.next();
                 if (bindingOperation.getOperation() != null) {
                     WSDLOperationInfo data = new WSDLOperationInfo(this,
@@ -74,8 +74,8 @@ public class WSDLMetaDataCache {
 
     
     
-    private static <T> T getExtensibilityElement(List elements, Class<T> type) {
-        for (Iterator i = elements.iterator(); i.hasNext();) {
+    private static <T> T getExtensibilityElement(List<?> elements, Class<T> type) {
+        for (Iterator<?> i = elements.iterator(); i.hasNext();) {
             Object element = i.next();
             if (type.isInstance(element)) {
                 return type.cast(element);

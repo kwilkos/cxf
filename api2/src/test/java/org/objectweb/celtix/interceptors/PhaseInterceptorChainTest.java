@@ -93,7 +93,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(1, i2.invoked);
     }
     
-    public class Phase1Interceptor extends AbstractPhaseInterceptor {
+    public class Phase1Interceptor extends AbstractPhaseInterceptor<Message> {
         int invoked;
         
         public Phase1Interceptor() {
@@ -106,7 +106,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         }
     }
     
-    public class Phase2Interceptor extends AbstractPhaseInterceptor {
+    public class Phase2Interceptor extends AbstractPhaseInterceptor<Message> {
         int invoked;
         public Phase2Interceptor() {
             setPhase("phase2");

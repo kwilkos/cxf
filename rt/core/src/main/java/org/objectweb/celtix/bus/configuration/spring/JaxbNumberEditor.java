@@ -18,7 +18,7 @@ public class JaxbNumberEditor extends CustomNumberEditor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(JaxbNumberEditor.class);
     
-    JaxbNumberEditor(Class cl) {
+    JaxbNumberEditor(Class<?> cl) {
         super(cl, false);
     }
     

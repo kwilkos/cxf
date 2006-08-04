@@ -3,7 +3,6 @@ package org.objectweb.celtix.jaxb.attachments;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -62,8 +61,7 @@ public class AttachmentSerializer {
             soapPart.addHeader("Content-Transfer-Encoding", "binary");
             mimeMP.addBodyPart(soapPart);
 
-            for (Iterator itr = message.getAttachments().iterator(); itr.hasNext();) {
-                Attachment att = (Attachment)itr.next();
+            for (Attachment att : message.getAttachments()) {
                 MimeBodyPart part = new MimeBodyPart();
                 part.setDataHandler(att.getDataHandler());
                 part.setContentID("<" + att.getId() + ">");

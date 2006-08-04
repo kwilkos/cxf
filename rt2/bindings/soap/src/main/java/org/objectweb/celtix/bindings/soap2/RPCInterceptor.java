@@ -88,7 +88,7 @@ public class RPCInterceptor extends AbstractSoapInterceptor {
         message.put("OBJECTS", parameters);
     }
 
-    protected Class getParameterTypeClass(SoapMessage message, int idx) {
+    protected Class<?> getParameterTypeClass(SoapMessage message, int idx) {
         // For the RPC style, if we use jaxb to do the unmarshall, AFAIK it requires the class info.
         // Don't know from which part we can get the implementor class,
         // We just assume that this cls can be retrieved from the message.

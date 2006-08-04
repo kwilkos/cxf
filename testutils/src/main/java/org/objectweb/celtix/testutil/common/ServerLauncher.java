@@ -146,8 +146,9 @@ public class ServerLauncher {
                 if (null == serverArgs) {
                     inProcessServer = svcls.newInstance();
                 } else {
-                    Constructor ctor = svcls.getConstructor(serverArgs.getClass());
-                    inProcessServer = (AbstractTestServerBase)ctor.newInstance(new Object[] {serverArgs});
+                    Constructor<? extends AbstractTestServerBase> ctor
+                        = svcls.getConstructor(serverArgs.getClass());
+                    inProcessServer = ctor.newInstance(new Object[] {serverArgs});
                 }
                 inProcessServer.startInProcess();
                 serverIsReady = true;

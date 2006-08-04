@@ -8,7 +8,6 @@ import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -97,8 +96,7 @@ public class AttachmentDeserializer {
      * release the resource
      */
     public void dispose() {
-        for (Iterator itr = cache.iterator(); itr.hasNext();) {
-            CachedOutputStream cos = (CachedOutputStream)itr.next();
+        for (CachedOutputStream cos : cache) {
             cos.dispose();
         }
     }
@@ -207,7 +205,7 @@ public class AttachmentDeserializer {
             id = id.substring(1, id.length() - 1);
         }
         AttachmentImpl att = new AttachmentImpl(id, dh);
-        for (Enumeration e = headers.getAllHeaders(); e.hasMoreElements();) {
+        for (Enumeration<?> e = headers.getAllHeaders(); e.hasMoreElements();) {
             Header header = (Header)e.nextElement();
             att.setHeader(header.getName(), header.getValue());
         }

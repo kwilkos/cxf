@@ -24,7 +24,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
 
-    static final Map<Class, Integer> WSDL_INDENT_MAP = new HashMap<Class, Integer>();
+    static final Map<Class<?>, Integer> WSDL_INDENT_MAP = new HashMap<Class<?>, Integer>();
     static final int DEFAULT_INDENT_LEVEL = 2;
 
     XMLStreamWriter baseWriter;
@@ -37,7 +37,7 @@ public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
 
     public PrettyPrintXMLStreamWriter(XMLStreamWriter writer,
                                       PrintWriter printWriter,
-                                      Class parent) {
+                                      Class<?> parent) {
         baseWriter = writer;
         pw = printWriter;
         indent = getIndentLevel(parent);
@@ -220,7 +220,7 @@ public class PrettyPrintXMLStreamWriter implements XMLStreamWriter {
         elems.push(new CurrentElement(currElemName));
     }
 
-    private int getIndentLevel(Class parent) {
+    private int getIndentLevel(Class<?> parent) {
         Integer result = (Integer)WSDL_INDENT_MAP.get(parent);
         if (result == null) {
             return DEFAULT_INDENT_LEVEL;

@@ -27,7 +27,7 @@ public final class LogUtils {
      * @param cls the Class to contain the Logger
      * @return an appropriate Logger 
      */
-    public static Logger getL7dLogger(Class cls) {
+    public static Logger getL7dLogger(Class<?> cls) {
         return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls));
     }
     
@@ -38,7 +38,7 @@ public final class LogUtils {
      * @param name the resource name
      * @return an appropriate Logger 
      */
-    public static Logger getL7dLogger(Class cls, String name) {
+    public static Logger getL7dLogger(Class<?> cls, String name) {
         return Logger.getLogger(cls.getName(), BundleUtils.getBundleName(cls, name));
     }
 

@@ -53,7 +53,7 @@ public class WsdlPortProvider implements ConfigurationProvider {
             return null;
         }
         
-        List list = binding.getExtensibilityElements();     
+        List<?> list = binding.getExtensibilityElements();     
         if (list.isEmpty()) {
             // TODO
             // throw new WebServiceException("Could not get the extension element URI");

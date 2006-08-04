@@ -45,7 +45,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
             it.hasNext();) {
             Definition definition = it.next();
             String defName = "Definition: " + definition.getQName().toString();          
-            for (Iterator jt = definition.getServices().keySet().iterator();
+            for (Iterator<?> jt = definition.getServices().keySet().iterator();
                 jt.hasNext();) {
                 QName serviceQName = (QName)jt.next();
                 String name = defName + " Service: " + serviceQName.toString();
@@ -65,7 +65,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
             it.hasNext();) {
             Definition definition = it.next();
             String defName = "Definition: " + definition.getQName().toString();
-            for (Iterator jt = definition.getBindings().values().iterator();
+            for (Iterator<?> jt = definition.getBindings().values().iterator();
                 jt.hasNext();) {
                 Binding binding = (Binding)jt.next();
                 String name = defName + " Binding: " + binding.getQName().toString();
@@ -85,7 +85,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
             it.hasNext();) {
             Definition definition = it.next();
             String defName = "Definition: " + definition.getQName().toString();
-            for (Iterator jt = definition.getPortTypes().values().iterator();
+            for (Iterator<?> jt = definition.getPortTypes().values().iterator();
                 jt.hasNext();) {
                 PortType port = (PortType)jt.next();               
                 String name = defName + " PortType: " + port.getQName().toString();
@@ -109,7 +109,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
             it.hasNext();) {
             definition = it.next();
             if (def.compareTo(definition.getQName().getLocalPart()) == 0) {
-                for (Iterator jt = definition.getPortTypes().values().iterator();
+                for (Iterator<?> jt = definition.getPortTypes().values().iterator();
                         jt.hasNext();) {                    
                     port = (PortType)jt.next();
                     if (pt.compareTo(port.getQName().getLocalPart()) == 0) {
@@ -120,7 +120,7 @@ public class WSDLManagerInstrumentation implements Instrumentation {
             }
         }
         if (definition != null && port != null) {
-            for (Iterator it = port.getOperations().iterator(); it.hasNext();) {
+            for (Iterator<?> it = port.getOperations().iterator(); it.hasNext();) {
                 Operation opt = (Operation)it.next();
                 String name = "Operation: " + opt.getName();
                 strList.add(name);

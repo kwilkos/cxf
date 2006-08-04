@@ -29,7 +29,7 @@ public class SoapVersionFactory {
         versions.put(version.getNamespace(), version);
     }
 
-    public Iterator getVersions() {
+    public Iterator<SoapVersion> getVersions() {
         return versions.values().iterator();
     }
 }

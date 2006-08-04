@@ -38,10 +38,10 @@ public final class PropertiesLoaderUtils {
 
         
         Properties properties = new Properties();
-        Enumeration urls = classLoader.getResources(resourceName);
+        Enumeration<URL> urls = classLoader.getResources(resourceName);
 
         while (urls.hasMoreElements()) {
-            URL url = (URL)urls.nextElement();
+            URL url = urls.nextElement();
             // TODO: May need a log here, instead of the system.out
             InputStream is = null;
             try {
@@ -66,7 +66,7 @@ public final class PropertiesLoaderUtils {
      */
     public static Collection<String> getPropertyNames(Properties properties, String value) {
         Collection<String> names = new ArrayList<String>();
-        Enumeration e = properties.propertyNames();
+        Enumeration<?> e = properties.propertyNames();
         while (e.hasMoreElements()) {
             String name = (String)e.nextElement();
             if (value.equals(properties.getProperty(name))) {

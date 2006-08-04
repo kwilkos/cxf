@@ -31,7 +31,7 @@ public class PropertiesLoaderUtilsTest extends TestCase {
     }
 
     public void testGetPropertyNames() throws Exception {
-        Collection names = PropertiesLoaderUtils.getPropertyNames(properties, soapBindingFactory);
+        Collection<String> names = PropertiesLoaderUtils.getPropertyNames(properties, soapBindingFactory);
         assertNotNull(names);
         assertEquals(3, names.size());
         assertTrue(names.contains("http://schemas.xmlsoap.org/wsdl/soap/"));

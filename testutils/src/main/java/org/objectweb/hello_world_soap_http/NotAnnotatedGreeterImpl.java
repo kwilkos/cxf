@@ -77,12 +77,13 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         /*not called */
     }
     
-    public Future<?> testDocLitFaultAsync(String faultType, AsyncHandler ah) {  
+    public Future<?> testDocLitFaultAsync(String faultType,
+                                          AsyncHandler<TestDocLitFaultResponse> ah) {  
         return null; 
         /*not called */
     }
     
-    public Future<?> testDocLitBareAsync(String bare, AsyncHandler ah) {
+    public Future<?> testDocLitBareAsync(String bare, AsyncHandler<BareDocumentResponse> ah) {
         return null;
         /* not called */
     }

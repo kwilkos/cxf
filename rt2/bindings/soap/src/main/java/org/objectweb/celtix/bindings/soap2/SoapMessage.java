@@ -8,7 +8,7 @@ import org.objectweb.celtix.message.Message;
 
 public class SoapMessage extends AbstractWrappedMessage {
     
-    private Map<Class, Object> headers = new HashMap<Class, Object>(); 
+    private Map<Class<?>, Object> headers = new HashMap<Class<?>, Object>(); 
     
     private SoapVersion version;
 

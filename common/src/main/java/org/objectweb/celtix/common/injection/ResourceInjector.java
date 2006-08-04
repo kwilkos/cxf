@@ -288,7 +288,7 @@ public class ResourceInjector implements AnnotationVisitor {
      */
     protected Class<?> getResourceType(Resource res, Field field) {
         assert res != null;
-        Class type = res.type();
+        Class<?> type = res.type();
         if (res.type() == null || Object.class == res.type()) {
             type = field.getType();
         }
