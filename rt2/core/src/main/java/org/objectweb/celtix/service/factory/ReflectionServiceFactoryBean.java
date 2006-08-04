@@ -45,8 +45,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         initializeDefaultInterceptors();
 
         // Do we want to do this here? It is convenient...
-        if (createEndpoints)
+        if (createEndpoints) {
             activateEndpoints();
+        }
         
         return getService();
     }
@@ -115,8 +116,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         Arrays.sort(methods, new MethodComparator());
 
         for (Method m : serviceClass.getMethods()) {
-            if (isValidMethod(m))
+            if (isValidMethod(m)) {
                 createOperation(serviceInfo, intf, m);
+            }
         }
         return intf;
     }
@@ -200,8 +202,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected String getServiceName() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String name = c.getServiceName();
-            if (name != null)
+            if (name != null) {
                 return name;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -209,8 +212,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected String getServiceNamespace() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String name = c.getServiceNamespace();
-            if (name != null)
+            if (name != null) {
                 return name;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -218,8 +222,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected boolean isValidMethod(final Method method) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Boolean b = c.isOperation(method);
-            if (b != null)
+            if (b != null) {
                 return b.booleanValue();
+            }
         }
         return true;
     }
@@ -228,8 +233,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             Boolean b = c.isOutParam(method, j);
-            if (b != null)
+            if (b != null) {
                 return b.booleanValue();
+            }
         }
         return true;
     }
@@ -238,8 +244,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             Boolean b = c.isInParam(method, j);
-            if (b != null)
+            if (b != null) {
                 return b.booleanValue();
+            }
         }
         return true;
     }
@@ -248,8 +255,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName q = c.getInputMessageName(op);
-            if (q != null)
+            if (q != null) {
                 return q;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -258,8 +266,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName q = c.getOutputMessageName(op);
-            if (q != null)
+            if (q != null) {
                 return q;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -268,8 +277,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             Boolean b = c.hasOutMessage(mep);
-            if (b != null)
+            if (b != null) {
                 return b.booleanValue();
+            }
         }
         return true;
     }
@@ -301,8 +311,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName q = c.getFaultName(service, o, exClass, beanClass);
-            if (q != null)
+            if (q != null) {
                 return q;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -311,8 +322,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             String s = c.getAction(op);
-            if (s != null)
+            if (s != null) {
                 return s;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -321,8 +333,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             Boolean b = c.isHeader(method, j);
-            if (b != null)
+            if (b != null) {
                 return b.booleanValue();
+            }
         }
         return true;
     }
@@ -341,8 +354,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName s = c.getOperationName(service, method);
-            if (s != null)
+            if (s != null) {
                 return s;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -351,21 +365,24 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             Boolean b = c.isAsync(method);
-            if (b != null)
+            if (b != null) {
                 return b.booleanValue();
+            }
         }
         return true;
     }
 
     protected QName getInParameterName(final Service service, final OperationInfo op, final Method method,
                                        final int paramNumber, final boolean doc) {
-        if (paramNumber == -1)
+        if (paramNumber == -1) {
             throw new RuntimeException();
+        }
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName q = c.getInParameterName(op, method, paramNumber, doc);
-            if (q != null)
+            if (q != null) {
                 return q;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
@@ -375,8 +392,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             QName q = c.getOutParameterName(op, method, paramNumber, doc);
-            if (q != null)
+            if (q != null) {
                 return q;
+            }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }

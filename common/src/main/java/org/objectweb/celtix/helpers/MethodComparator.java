@@ -22,8 +22,9 @@ public class MethodComparator implements Comparator {
                 for (int i = 0; i < types1.length; i++) {
                     val = types1[i].getName().compareTo(types2[i].getName());
 
-                    if (val != 0)
+                    if (val != 0) {
                         break;
+                    }
                 }
             }
         }

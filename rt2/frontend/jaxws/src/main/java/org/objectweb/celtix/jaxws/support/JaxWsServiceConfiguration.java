@@ -14,7 +14,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public String getServiceName() {
         WebService ws = getWebServiceAttribute();
-        if (ws != null) return ws.serviceName();
+        if (ws != null) {
+            return ws.serviceName();
+        }
         
         return null;
     }
@@ -22,7 +24,9 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public String getServiceNamespace() {
         WebService ws = getWebServiceAttribute();
-        if (ws != null) return ws.targetNamespace();
+        if (ws != null) {
+            return ws.targetNamespace();
+        }
         
         return null;
     }
