@@ -17,6 +17,8 @@ import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
 import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.message.Exchange;
+import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.MessageImpl;
 
 public final class TestUtil {
@@ -71,8 +73,10 @@ public final class TestUtil {
     }
     
     public static SoapMessage createEmptySoapMessage(SoapVersion soapVersion, InterceptorChain chain) {
+        Exchange exchange = new ExchangeImpl();
         MessageImpl messageImpl = new MessageImpl();
         messageImpl.setInterceptorChain(chain);
+        messageImpl.setExchange(exchange);
         SoapMessage soapMessage = new SoapMessage(messageImpl);
         soapMessage.setVersion(soapVersion);
         return soapMessage;        

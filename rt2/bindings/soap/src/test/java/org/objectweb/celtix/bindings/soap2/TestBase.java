@@ -1,24 +1,31 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-// import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.util.*;
 
-// import javax.xml.bind.JAXBContext;
+import javax.wsdl.Definition;
+import javax.wsdl.Service;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import junit.framework.TestCase;
 
-// import org.objectweb.celtix.bindings.DataBindingCallback.Mode;
-// import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
-// import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
+
+import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
+import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.staxutils.StaxUtils;
+import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
 
 public class TestBase extends TestCase {
 
@@ -53,17 +60,54 @@ public class TestBase extends TestCase {
         return StaxUtils.createXMLStreamWriter(os);
     }
 
+    public Method getTestMethod(Class sei, String methodName) {
+        Method[] iMethods = sei.getMethods();
+        for (Method m : iMethods) {
+            if (methodName.equals(m.getName())) {
+                return m;
+            }
+        }
+        return null;
+    }    
+
     public ServiceInfo getTestService(Class<?> clz) {
         //FIXME?!?!?!??  There should NOT be JAX-WS stuff here
         return null;
     }
 
-    /*
-    protected JAXBDataBindingCallback getTestCallback(Class<?> clz, String methodName) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        Method m = org.objectweb.celtix.testutil.common.TestUtil.getMethod(clz,
-                                                                           methodName);
-        return new JAXBDataBindingCallback(m, Mode.PARTS, ctx);
+    public ServiceInfo getMockedServiceModel(String wsdlUrl) throws Exception {
+        WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
+        wsdlReader.setFeature("javax.wsdl.verbose", false);
+        Definition def = wsdlReader.readWSDL(wsdlUrl);
+
+        IMocksControl control = EasyMock.createNiceControl();
+        Bus bus = control.createMock(Bus.class);
+        BindingFactoryManager bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+
+        Service service = null;
+        for (Iterator it = def.getServices().values().iterator(); it.hasNext();) {
+            Object obj = it.next();
+            if (obj instanceof Service) {
+                service = (Service)obj;
+                break;
+            }
+        }
+
+        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
+        control.replay();
+
+        ServiceInfo serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
+        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
+        return serviceInfo;
     }
-    */
+    
+
+    public JAXBDataReaderFactory getTestReaderFactory(Class clz) throws Exception {
+        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
+        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
+        readerFacotry.setJAXBContext(ctx);
+        return readerFacotry;
+    }
 }

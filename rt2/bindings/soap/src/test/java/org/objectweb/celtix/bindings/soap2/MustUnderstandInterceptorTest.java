@@ -4,31 +4,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
-import javax.wsdl.Definition;
-import javax.wsdl.Service;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
-
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.wsdl11.ServiceWSDLBuilder;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
 
 public class MustUnderstandInterceptorTest extends TestBase {
 
@@ -39,16 +27,6 @@ public class MustUnderstandInterceptorTest extends TestBase {
     private MustUnderstandInterceptor mui;
     private DummySoapInterceptor dsi;
     private ReadHeadersInterceptor rhi;
-
-    private Definition def;
-    private Service service;
-
-    private WSDLServiceBuilder wsdlServiceBuilder;
-    private ServiceInfo serviceInfo;
-
-    private IMocksControl control;
-    private Bus bus;
-    private BindingFactoryManager bindingFactoryManager;
 
     public void setUp() throws Exception {
 
@@ -114,9 +92,12 @@ public class MustUnderstandInterceptorTest extends TestBase {
         try {
             prepareSoapMessage();
             dsi.getUnderstoodHeaders().add(RESERVATION);
-            mockServiceModel();
+            ServiceInfo serviceInfo = getMockedServiceModel(getClass().
+                                                            getResource("test-soap-header.wsdl").
+                                                            toString());
             soapMessage.put(Message.BINDING_INFO, serviceInfo
-                .getBinding(new QName("http://org.objectweb.celtix/headers", "headerTesterSOAPBinding")));
+                            .getBinding(new QName("http://org.objectweb.celtix/headers",
+                                                  "headerTesterSOAPBinding")));
             soapMessage.put(Message.OPERATION_INFO, "inHeader");
         } catch (IOException ioe) {
             fail("Failed in creating soap message");
@@ -146,35 +127,6 @@ public class MustUnderstandInterceptorTest extends TestBase {
         soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
         soapMessage.setContent(InputStream.class, bads.getInputStream());
 
-    }
-
-    private void mockServiceModel() throws Exception {
-
-        String wsdlUrl = this.getClass().getResource("test-soap-header.wsdl").toString();
-        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
-        WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
-        wsdlReader.setFeature("javax.wsdl.verbose", false);
-        def = wsdlReader.readWSDL(wsdlUrl);
-
-        control = EasyMock.createNiceControl();                
-        bus = control.createMock(Bus.class);
-        bindingFactoryManager = control.createMock(BindingFactoryManager.class);
-        wsdlServiceBuilder = new WSDLServiceBuilder(bus);
-
-        for (Iterator it = def.getServices().values().iterator(); it.hasNext();) {
-            Object obj = it.next();
-            if (obj instanceof Service) {
-                service = (Service)obj;
-                break;
-            }
-        }
-
-        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
-        control.replay();
-        serviceInfo = wsdlServiceBuilder.buildService(def, service);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(serviceInfo);
     }
 
     private class DummySoapInterceptor extends AbstractSoapInterceptor {
