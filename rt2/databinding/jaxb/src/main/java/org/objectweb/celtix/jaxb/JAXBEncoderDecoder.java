@@ -217,6 +217,12 @@ public final class JAXBEncoderDecoder {
         
         Class<?> cls = null != elValue ? elValue.getClass() : null;
         Marshaller u = createMarshaller(context, cls);
+        try {
+            // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to generate the xml declaration.
+            u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+        } catch (javax.xml.bind.PropertyException e) {
+            // intentionally empty.
+        }
         Object mObj = elValue;      
 
         try {

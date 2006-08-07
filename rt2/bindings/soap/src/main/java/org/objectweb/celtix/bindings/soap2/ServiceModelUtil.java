@@ -23,6 +23,15 @@ public final class ServiceModelUtil {
     private ServiceModelUtil() {
     }
 
+    public static String getTargetNamespace(SoapMessage message) {
+        return ((BindingInfo) message.get(Message.BINDING_INFO)).getService().getTargetNamespace();
+    }
+    
+    public static BindingOperationInfo getOperation(SoapMessage soapMessage, String opName) {
+        BindingInfo service = (BindingInfo)soapMessage.get(Message.BINDING_INFO);
+        return service.getOperation(new QName(getTargetNamespace(soapMessage), opName));
+    }
+
     public static BindingOperationInfo getOperation(SoapMessage soapMessage, QName opName) {
         BindingInfo service = (BindingInfo)soapMessage.get(Message.BINDING_INFO);
         return service.getOperation(opName);

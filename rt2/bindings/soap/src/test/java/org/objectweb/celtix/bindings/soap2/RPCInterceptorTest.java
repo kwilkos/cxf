@@ -11,7 +11,6 @@ import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
@@ -26,7 +25,7 @@ public class RPCInterceptorTest extends TestBase {
 
         soapMessage.getExchange().put(SoapMessage.DATAREADER_FACTORY_KEY, "test.reader.factory");
         soapMessage.put(SoapMessage.BINDING_INFO,
-                        getTestService("resources/wsdl/hello_world_rpc_lit.wsdl"));
+                        getTestService("resources/wsdl/hello_world_rpc_lit.wsdl", "SoapPortRPCLit"));
         soapMessage.put("IMPLEMENTOR_METHOD", getTestMethod(GreeterRPCLit.class, "sendReceiveData"));
     }
 
@@ -64,14 +63,8 @@ public class RPCInterceptorTest extends TestBase {
         assertEquals("return is element 2", s.getElem2());
     }
 
-    private BindingInfo getTestService(String wsdlUrl) throws Exception {
-        ServiceInfo service = getMockedServiceModel(getClass().getResource(wsdlUrl).toString());
-        assertNotNull(service);
-
-        assertEquals(1, service.getEndpoints().size());
-        
-        BindingInfo binding = service.getEndpoint("SoapPortRPCLit").getBinding();
-        assertNotNull(binding);
+    protected BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
+        BindingInfo binding = super.getTestService(wsdlUrl, port);
 
         assertEquals(3, binding.getOperations().size());
 
