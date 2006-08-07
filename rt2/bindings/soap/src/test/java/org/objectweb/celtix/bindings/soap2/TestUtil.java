@@ -1,7 +1,6 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.awt.Image;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -96,6 +96,12 @@ public class WSDLServiceBuilder {
         }
     }
 
+    public ServiceInfo buildService(Definition d, QName name) {
+        Service service = d.getService(name);
+        
+        return buildService(d, service);
+    }
+    
     public ServiceInfo buildService(Definition def, Service serv) {
         ServiceInfo service = new ServiceInfo();
         service.setProperty(WSDL_DEFINITION, def);

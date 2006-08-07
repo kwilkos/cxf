@@ -1,8 +1,11 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Service;
@@ -16,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;

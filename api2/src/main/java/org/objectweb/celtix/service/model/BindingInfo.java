@@ -114,7 +114,6 @@ public class BindingInfo extends AbstractPropertiesHolder {
         invoker = i;
     }
     
-    
 }
 
 

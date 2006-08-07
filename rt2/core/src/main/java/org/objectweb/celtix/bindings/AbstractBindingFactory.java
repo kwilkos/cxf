@@ -42,9 +42,14 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
         String namespace = ((ExtensibilityElement)binding.getExtensibilityElements().get(0))
             .getElementType().getNamespaceURI();
         BindingInfo bi = createBindingInfo(service, namespace);
+        
+        return initializeBindingInfo(service, binding, bi);
+    }
+
+    protected BindingInfo initializeBindingInfo(ServiceInfo service, Binding binding, BindingInfo bi) {
         bi.setName(binding.getQName());
         copyExtensors(bi, binding.getExtensibilityElements());
-        
+
         for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
             String inName = null;
             String outName = null;
@@ -52,24 +57,26 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
                 inName = bop.getBindingInput().getName();
             }
             if (bop.getBindingOutput() != null) {
-                inName = bop.getBindingOutput().getName();
+                outName = bop.getBindingOutput().getName();
             }
-            BindingOperationInfo bop2 = bi.buildOperation(new QName(service.getName().getNamespaceURI(), 
-                bop.getName()), inName, outName);
-            copyExtensors(bop2, bop.getExtensibilityElements());
-            bi.addOperation(bop2);
-            
-            if (bop.getBindingInput() != null) {
-                copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
+            BindingOperationInfo bop2 = bi.buildOperation(new QName(service.getName().getNamespaceURI(),
+                                                                    bop.getName()), inName, outName);
+            if (bop2 != null) {
+
+                copyExtensors(bop2, bop.getExtensibilityElements());
+                bi.addOperation(bop2);
+                if (bop.getBindingInput() != null) {
+                    copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
+                }
+                if (bop.getBindingOutput() != null) {
+                    copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
+                }
+                for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
+                    copyExtensors(bop2.getFault(f.getName()), bop.getBindingFault(f.getName())
+                        .getExtensibilityElements());
+                }
             }
-            if (bop.getBindingOutput() != null) {
-                copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
-            }
-            for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
-                copyExtensors(bop2.getFault(f.getName()),
-                              bop.getBindingFault(f.getName()).getExtensibilityElements());
-            }
-        } 
+        }
         return bi;
     }
 
@@ -81,8 +88,10 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
     }
 
     private void copyExtensors(AbstractPropertiesHolder info, List<?> extList) {
-        for (ExtensibilityElement ext : cast(extList, ExtensibilityElement.class)) {
-            info.addExtensor(ext);
+        if (info != null) {
+            for (ExtensibilityElement ext : cast(extList, ExtensibilityElement.class)) {
+                info.addExtensor(ext);
+            }
         }
     }
 }
