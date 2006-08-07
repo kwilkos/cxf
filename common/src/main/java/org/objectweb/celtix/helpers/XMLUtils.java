@@ -216,4 +216,9 @@ public class XMLUtils {
     public String writeQName(Definition def, QName qname) {
         return def.getPrefix(qname.getNamespaceURI()) + ":" + qname.getLocalPart();
     }
+    
+    @SuppressWarnings("unchecked")
+    public static <T, U> Map<T, U> cast(Map<?, ?> p, Class<T> pc, Class<U> uc) {
+        return (Map<T, U>)p;
+    }
 }

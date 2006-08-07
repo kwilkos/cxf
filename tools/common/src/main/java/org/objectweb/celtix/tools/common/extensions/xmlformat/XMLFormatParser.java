@@ -1,5 +1,6 @@
 package org.objectweb.celtix.tools.common.extensions.xmlformat;
 
+
 import javax.wsdl.Definition;
 
 import org.w3c.dom.*;
@@ -16,9 +17,12 @@ public class XMLFormatParser {
         String rootNodeValue = rootNodeAttribute.getValue();
         
         if (rootNodeValue != null) {
-            xmlFormat.setRootNode(xmlUtils.getNamespace(def.getNamespaces(),
-                                                        rootNodeValue,
-                                                        def.getTargetNamespace()));
+            xmlFormat.setRootNode(xmlUtils.getNamespace(
+                XMLUtils.cast(def.getNamespaces(), String.class, String.class),
+                rootNodeValue,
+                def.getTargetNamespace()));
         }
     }
+    
+    
 }
