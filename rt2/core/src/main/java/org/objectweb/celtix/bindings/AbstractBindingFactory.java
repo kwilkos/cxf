@@ -1,6 +1,5 @@
 package org.objectweb.celtix.bindings;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.wsdl.Binding;
@@ -14,6 +13,8 @@ import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.wsdl11.WSDLBindingFactory;
+
+import static org.objectweb.celtix.helpers.CastUtils.cast;
 
 public abstract class AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
@@ -78,13 +79,6 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
             }
         }
         return bi;
-    }
-
-    // utility for dealing with the JWSDL collections that are 1.4 based.   We can 
-    // kind of use a normal for loop with this
-    @SuppressWarnings("unchecked")
-    private <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
-        return (Collection<T>)p;
     }
 
     private void copyExtensors(AbstractPropertiesHolder info, List<?> extList) {

@@ -16,6 +16,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
@@ -48,7 +49,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         def = wsdlReader.readWSDL(wsdlUrl);
 
         WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
-        for (Service serv : WSDLServiceBuilder.cast(def.getServices().values(), Service.class)) {
+        for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
                 service = serv;
                 break;

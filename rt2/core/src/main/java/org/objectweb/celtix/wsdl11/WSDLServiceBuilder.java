@@ -51,6 +51,8 @@ import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.service.model.TypeInfo;
 import org.objectweb.celtix.service.model.UnwrappedOperationInfo;
 
+import static org.objectweb.celtix.helpers.CastUtils.cast;
+
 public class WSDLServiceBuilder {
 
     public static final String WSDL_SCHEMA_LIST = WSDLServiceBuilder.class.getName() + ".SCHEMA";
@@ -69,23 +71,6 @@ public class WSDLServiceBuilder {
 
     public WSDLServiceBuilder(Bus bus) {
         this.bus = bus;
-    }
-
-    // utility for dealing with the JWSDL collections that are 1.4 based. We can
-    // kind of use a normal for loop with this
-    @SuppressWarnings("unchecked")
-    public static <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
-        return (Collection<T>)p;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T, U> Map.Entry<T, U> cast(Map.Entry<?, ?> p, Class<T> pc, Class<U> uc) {
-        return (Map.Entry<T, U>)p;
-    }
-
-    @SuppressWarnings("unchecked")
-    static <T, U> Map<T, U> cast(Map<?, ?> p, Class<T> pc, Class<U> uc) {
-        return (Map<T, U>)p;
     }
 
     private void copyExtensors(AbstractPropertiesHolder info, List<?> extList) {
@@ -149,11 +134,10 @@ public class WSDLServiceBuilder {
         return schemaCol;
     }
 
-    @SuppressWarnings("unchecked")
     private void parseImports(Definition def, List<Definition> defList) {
         List<Import> importList = new ArrayList<Import>();
 
-        Collection<List<Import>> ilist = (Collection<List<Import>>)def.getImports().values();
+        Collection<List<Import>> ilist = cast(def.getImports().values());
         for (List<Import> list : ilist) {
             importList.addAll(list);
         }
@@ -417,5 +401,6 @@ public class WSDLServiceBuilder {
             }
         }
     }
+
 
 }

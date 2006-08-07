@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.MessageObserver;
@@ -184,14 +185,13 @@ public class HTTPConduitTest extends TestCase {
         verifySentMessage(message, false);
     }
     
-    @SuppressWarnings("unchecked")
     private void verifySentMessage(Message message, boolean expectHeaders)
         throws IOException {
         control.verify();
         control.reset();
         
         Map<String, List<String>> headers =
-            (Map<String, List<String>>)message.get(HTTP_REQUEST_HEADERS);
+            CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
         assertNotNull("expected request headers set", headers);
         assertTrue("expected output stream format",
                    message.getContentFormats().contains(OutputStream.class));

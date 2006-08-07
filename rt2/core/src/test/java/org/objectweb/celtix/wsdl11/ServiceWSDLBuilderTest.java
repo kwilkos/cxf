@@ -29,6 +29,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class ServiceWSDLBuilderTest extends TestCase {
@@ -61,7 +62,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
-        for (Service serv : WSDLServiceBuilder.cast(def.getServices().values(), Service.class)) {
+        for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
                 service = serv;
                 break;
@@ -104,7 +105,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         PortType portType = newDef.getPortType(new QName(newDef.getTargetNamespace(), 
             "Greeter"));
         Collection<Operation> operations =  
-            WSDLServiceBuilder.cast(
+            CastUtils.cast(
                 portType.getOperations(), Operation.class);
         
         assertEquals(operations.size(), 4);
@@ -229,7 +230,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         Types types = newDef.getTypes();
         assertNotNull(types);
         Collection<ExtensibilityElement> schemas = 
-            WSDLServiceBuilder.cast(types.getExtensibilityElements(), ExtensibilityElement.class);
+            CastUtils.cast(types.getExtensibilityElements(), ExtensibilityElement.class);
         assertEquals(schemas.size(), 1);
         XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
         Element schemaElem = ((Schema)schemas.iterator().next()).getElement();

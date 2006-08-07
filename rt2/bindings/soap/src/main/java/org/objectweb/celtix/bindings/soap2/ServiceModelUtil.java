@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
@@ -37,7 +38,6 @@ public final class ServiceModelUtil {
         return service.getOperation(opName);
     }
 
-    @SuppressWarnings("unchecked")
     public static Set<QName> getHeaderParts(BindingMessageInfo bmi) {
         Object obj = bmi.getProperty(HEADERS_PROPERTY);        
         if (obj == null) {
@@ -59,7 +59,7 @@ public final class ServiceModelUtil {
             bmi.setProperty(HEADERS_PROPERTY, set);
             return set;
         }
-        return (Set<QName>)obj;
+        return CastUtils.cast((Set<?>)obj);
     }
 
     public static Set<QName> getHeaderQNameInOperationParam(SoapMessage soapMessage) {

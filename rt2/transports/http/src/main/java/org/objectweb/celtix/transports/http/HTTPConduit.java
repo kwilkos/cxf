@@ -23,6 +23,7 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
@@ -200,10 +201,9 @@ public class HTTPConduit implements Conduit {
      * @param message the outbound message
      * @return the headers
      */
-    @SuppressWarnings("unchecked")
     private Map<String, List<String>> setHeaders(Message message) {
         Map<String, List<String>> headers =
-            (Map<String, List<String>>)message.get(HTTP_REQUEST_HEADERS);
+            CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
         if (null == headers) {
             headers = new HashMap<String, List<String>>();
             message.put(HTTP_REQUEST_HEADERS, headers);
@@ -217,10 +217,9 @@ public class HTTPConduit implements Conduit {
      * @param message the outbound message
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
     private void flushHeaders(Message message) throws IOException {
         Map<String, List<String>> headers = 
-            (Map<String, List<String>>)message.get(HTTP_REQUEST_HEADERS);
+            CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
         URLConnection connection = (URLConnection)message.get(HTTP_CONNECTION);
         if (null != headers) {
             for (String header : headers.keySet()) {

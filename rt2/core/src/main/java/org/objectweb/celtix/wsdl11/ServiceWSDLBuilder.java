@@ -27,6 +27,7 @@ import javax.wsdl.factory.WSDLFactory;
 
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
+import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.service.model.AbstractMessageContainer;
 import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
@@ -102,7 +103,7 @@ public final class ServiceWSDLBuilder {
         for (BindingInfo bindingInfo : bindingInfos) {
             binding = def.createBinding();
             for (PortType portType 
-                    : WSDLServiceBuilder.cast(def.getPortTypes().values(), PortType.class)) {
+                    : CastUtils.cast(def.getPortTypes().values(), PortType.class)) {
                 if (portType.getQName().equals(bindingInfo.getInterface().getName())) {
                     binding.setPortType(portType);
                     break;
@@ -122,7 +123,7 @@ public final class ServiceWSDLBuilder {
             bindingOperation = def.createBindingOperation();
             bindingOperation.setName(bindingOperationInfo.getName().getLocalPart());
             for (Operation operation 
-                    : WSDLServiceBuilder.cast(binding.getPortType().getOperations(), Operation.class)) {
+                    : CastUtils.cast(binding.getPortType().getOperations(), Operation.class)) {
                 if (operation.getName().equals(bindingOperation.getName())) {
                     bindingOperation.setOperation(operation);
                     break;
