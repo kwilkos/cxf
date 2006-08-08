@@ -32,6 +32,8 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
 
         assertEquals("SOAPService", service.getName().getLocalPart());
         assertEquals("http://objectweb.org/hello_world_soap_http", service.getName().getNamespaceURI());
+        
+        
     }
 
     Bus createBus() throws Exception {

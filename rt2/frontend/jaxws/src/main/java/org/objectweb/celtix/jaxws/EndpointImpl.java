@@ -9,6 +9,8 @@ import javax.xml.ws.Binding;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
+import org.objectweb.celtix.service.Service;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
     
@@ -17,17 +19,23 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     Object implementor;
     Endpoint endpoint;
     javax.xml.ws.Binding binding;
-
+    Service service;
+    boolean published;
+    
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;
         implementor = i;
         bindingURI = uri;
         
-        
-        // build ServiceInfo and create celtix service
+        // build up the Service model
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setServiceClass(implementor.getClass());
+        serviceFactory.setBus(bus);
+        service = serviceFactory.create();
         
         // use service's endpoint factory to create the celtix endpoint - this
         // creates the celtix binding etc. also.
+
         
         // create JAX-WS Binding, i.e. handler chain and add JAX-WS handler interceptors to 
         // celtix binding (even if the handler chain is empty)
@@ -67,8 +75,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     @Override
     public boolean isPublished() {
-        // TODO Auto-generated method stub
-        return false;
+        return published;
     }
 
     @Override

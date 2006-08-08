@@ -3,6 +3,7 @@ package org.objectweb.celtix.service.factory;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.databinding.DataWriterFactory;
+import org.objectweb.celtix.interceptors.ServiceInvokerInterceptor;
 import org.objectweb.celtix.service.Service;
 
 public abstract class AbstractServiceFactoryBean {
@@ -14,6 +15,7 @@ public abstract class AbstractServiceFactoryBean {
     public abstract Service create();
 
     protected void initializeDefaultInterceptors() {
+        service.getInInterceptors().add(new ServiceInvokerInterceptor());
     }
     
     protected void initializeDataBindings() {

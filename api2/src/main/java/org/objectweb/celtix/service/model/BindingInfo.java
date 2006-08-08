@@ -21,8 +21,6 @@ public class BindingInfo extends AbstractPropertiesHolder {
     
     Map<QName, BindingOperationInfo> operations = new ConcurrentHashMap<QName, BindingOperationInfo>(4);
     
-    Invoker invoker;
-    
     public BindingInfo(ServiceInfo serv, String n) {
         service = serv;
         namespaceURI = n;
@@ -46,7 +44,6 @@ public class BindingInfo extends AbstractPropertiesHolder {
     public QName getName() {
         return name;
     }
-    
     
     private boolean nameEquals(String a, String b) {
         if (a == null) {
@@ -103,17 +100,7 @@ public class BindingInfo extends AbstractPropertiesHolder {
      */
     public Collection<BindingOperationInfo> getOperations() {
         return Collections.unmodifiableCollection(operations.values());
-    }   
-    
-    
-    public Invoker getDefaultInvoker() {
-        return invoker;
     }
-    
-    public void setDefaultInvoker(Invoker i) {
-        invoker = i;
-    }
-    
 }
 
 

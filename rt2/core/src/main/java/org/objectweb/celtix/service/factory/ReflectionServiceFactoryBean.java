@@ -10,12 +10,9 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.endpoint.Endpoint;
-import org.objectweb.celtix.endpoint.EndpointImpl;
 import org.objectweb.celtix.helpers.MethodComparator;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.ServiceImpl;
-import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
@@ -24,48 +21,26 @@ import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
 
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
-    
+
     private Class<?> serviceClass;
     private URL wsdlURL;
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
     private QName serviceName;
-    private boolean createEndpoints = true;
-    
+
     public ReflectionServiceFactoryBean() {
     }
-    
+
     @Override
     public Service create() {
         initializeServiceConfigurations();
         initializeServiceModel();
-        
+
         initializeDataBindings();
 
         initializeDefaultInterceptors();
 
-        // Do we want to do this here? It is convenient...
-        if (createEndpoints) {
-            activateEndpoints();
-        }
-        
         return getService();
-    }
-
-    protected void activateEndpoints() {
-        for (EndpointInfo ei : getService().getServiceInfo().getEndpoints()) {
-            Endpoint endpoint = createEndpoint(ei);
-            
-            createDestination(endpoint);
-        }
-    }
-
-    protected Endpoint createEndpoint(EndpointInfo ei) {
-        return new EndpointImpl(getBus(), getService(), ei);
-    }
-
-    protected void createDestination(Endpoint endpoint) {
-        // TODO here we need to create a destination which starts listening for requests
     }
 
     protected void initializeServiceConfigurations() {
@@ -73,7 +48,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             c.setServiceFactory(this);
         }
     }
-    
+
     protected void initializeServiceModel() {
         if (wsdlURL != null) {
             LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
@@ -83,12 +58,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         } else {
             ServiceInfo serviceInfo = new ServiceInfo();
             serviceInfo.setName(getServiceQName());
-            
+
             createInterface(serviceInfo);
-            
+
             ServiceImpl service = new ServiceImpl(serviceInfo);
             setService(service);
-            
+
             // TODO Add hooks to create default bindings
         }
     }
@@ -96,7 +71,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected ServiceInfo createServiceInfo(InterfaceInfo intf) {
         ServiceInfo svcInfo = new ServiceInfo();
         svcInfo.setInterface(intf);
-        
+
         return svcInfo;
     }
 
@@ -188,8 +163,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected QName getServiceQName() {
         if (serviceName == null) {
             serviceName = new QName(getServiceNamespace(), getServiceName());
-        } 
-        
+        }
+
         return serviceName;
     }
 
@@ -207,7 +182,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
-    
+
     protected String getServiceNamespace() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String name = c.getServiceNamespace();
@@ -217,7 +192,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
-    
+
     protected boolean isValidMethod(final Method method) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Boolean b = c.isOperation(method);

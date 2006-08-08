@@ -27,7 +27,6 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private EndpointInfo endpointInfo;
     private Executor executor;
     
-    
     public EndpointImpl(Bus bus, Service s, EndpointInfo ei) {
         service = s;
         endpointInfo = ei;
