@@ -1,6 +1,7 @@
 package org.objectweb.celtix.jca.core.resourceadapter;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.objectweb.celtix.common.logging.LogUtils;
@@ -19,6 +20,10 @@ public class ResourceAdapterInternalException extends javax.resource.spi.Resourc
         super(msg + ResourceAdapterInternalException.optionalReasonFromCause(cause));
         setCause(cause);
         if (cause != null) {
+            if (null != LOGGER.getLevel()
+                 && LOGGER.getLevel().intValue() < Level.INFO.intValue()) {
+                cause.printStackTrace();
+            }    
             LOGGER.warning(cause.toString());
         }
     }

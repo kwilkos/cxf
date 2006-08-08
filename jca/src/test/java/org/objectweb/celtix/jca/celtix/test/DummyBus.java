@@ -3,7 +3,6 @@ package org.objectweb.celtix.jca.celtix.test;
 
 import java.util.Map;
 import java.util.ResourceBundle;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusEvent;
 import org.objectweb.celtix.BusEventCache;
@@ -31,6 +30,7 @@ public class DummyBus extends Bus {
     static int shutdownCount;
     static boolean correctThreadContextClassLoader;
     static boolean throwException;
+    static Bus bus = new DummyBus();
   
    
     static String[] invokeArgs;
@@ -50,13 +50,12 @@ public class DummyBus extends Bus {
         initializeCount++;
         correctThreadContextClassLoader = 
             Thread.currentThread().getContextClassLoader() 
-                == org.objectweb.celtix.jca.celtix.ManagedConnectionFactoryImpl.class.getClassLoader();
-        
+            == org.objectweb.celtix.jca.celtix.ManagedConnectionFactoryImpl.class.getClassLoader();
         if (throwException) {
             throw new BusException(new Message("tested bus exception!", 
                                                (ResourceBundle)null, new Object[]{}));
         }
-        return null;
+        return bus;
         
     }
 

@@ -9,9 +9,12 @@ import java.security.ProtectionDomain;
 import java.security.SecureClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import org.objectweb.celtix.common.classloader.FireWallClassLoader;
 
 
 public class PlugInClassLoader extends SecureClassLoader {
@@ -21,11 +24,17 @@ public class PlugInClassLoader extends SecureClassLoader {
     private static final String URL_SCHEME_COLON = "classloader:";
     private static final String JARS_PROPS_FILE = "jars.properties";
     private static final String FILTERS_PROPS_FILE = "filters.properties";
+    private static final String NEFILTERS_PROPS_FILE = "negativefilters.properties";
     private String jarUrls[] = new String[0];
     private final ProtectionDomain protectionDomain;
+    
+    private ClassLoader ploader;
 
-    public PlugInClassLoader(ClassLoader p) throws IOException {
-        super(new FireWallClassLoader(p, getFilterList(p)));
+    public PlugInClassLoader(ClassLoader p) throws IOException {        
+        super(new FireWallClassLoader(p, 
+                                      getFilterList(p, FILTERS_PROPS_FILE),
+                                      getFilterList(p, NEFILTERS_PROPS_FILE)));
+        ploader = p;
         protectionDomain = getClass().getProtectionDomain();
         jarUrls = loadUrls(p);
         processJarUrls(jarUrls);
@@ -34,15 +43,17 @@ public class PlugInClassLoader extends SecureClassLoader {
     private void processJarUrls(String urls[]) {
         for (int i = 0; i < urls.length; i++) {
             if (urls[i].startsWith(ZIP_COLON)) {
-                urls[i] = FILE_COLON + urls[i].substring(ZIP_COLON.length());
-                LOG.fine("process the url:" + urls[i]);                
+                urls[i] = FILE_COLON + urls[i].substring(ZIP_COLON.length());                              
             }
         }
     }
 
-    private static String[] getFilterList(ClassLoader parent) throws IOException {
-        Properties filtersProps = getProperties(parent, FILTERS_PROPS_FILE);
-
+    private static String[] getFilterList(ClassLoader parent, String propFile) throws IOException {
+        Properties filtersProps = getProperties(parent, propFile);
+        Iterator<Object> i = filtersProps.keySet().iterator();
+        while (i.hasNext()) {            
+            LOG.config("get Filter " + propFile + "::" + (String)i.next());            
+        }    
         return (String[])filtersProps.keySet().toArray(new String[] {});
     }
 
@@ -84,7 +95,7 @@ public class PlugInClassLoader extends SecureClassLoader {
             URL url = parent.getResource(key);
 
             if (url != null) {
-                LOG.fine(url.toString());
+                LOG.config(url.toString());
                 urlList.add(url.toString());
             }
         }
@@ -94,12 +105,11 @@ public class PlugInClassLoader extends SecureClassLoader {
 
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         String path = name.replace('.', '/').concat(".class");
-
+        LOG.fine("findClass " + path);
         byte bytes[] = null;
 
         for (int i = 0; i < jarUrls.length; i++) {
-            String fullpath = jarUrls[i] + "!/" + path;
-
+            String fullpath = jarUrls[i] + "!/" + path;           
             try {
                 bytes = PlugInClassLoaderHelper.getResourceAsBytes(fullpath);
 
@@ -116,20 +126,27 @@ public class PlugInClassLoader extends SecureClassLoader {
         if (bytes != null) {
             return defineClass(name, bytes, 0, bytes.length, protectionDomain);
         } else {
-            throw new ClassNotFoundException(name);
+            LOG.config("can't find name " + name + " , try to using the ploader");
+            Class<?> result = ploader.loadClass(name);
+            if (null == result) {
+                throw new ClassNotFoundException(name);
+            } else {
+                return result;
+            }                
         }
     }
-
+    
+   
     protected URL findResource(String name) {
         LOG.fine("findResource: " + name);
         for (int i = 0; i < jarUrls.length; i++) {
-            String fullpath = jarUrls[i] + "!/" + name;
-
-            if (PlugInClassLoaderHelper.hasResource(fullpath)) {
+            String fullpath = jarUrls[i] + "!/" + name;         
+              
+            if (PlugInClassLoaderHelper.hasResource(fullpath)) {                
                 return genURL(fullpath);
             }
         }
-
+        
         return null;
     }
 

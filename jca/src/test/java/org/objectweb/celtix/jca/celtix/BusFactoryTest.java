@@ -2,19 +2,15 @@ package org.objectweb.celtix.jca.celtix;
 
 
 import java.io.File;
-//import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
 import java.net.MalformedURLException;
-//import java.net.URL;
-//import java.nio.MappedByteBuffer;
-//import java.nio.channels.FileChannel;
+
 import java.util.Properties;
 import java.util.ResourceBundle;
 
 import javax.resource.ResourceException;
 import javax.xml.namespace.QName;
-//import javax.xml.ws.Endpoint;
+
 
 import junit.framework.Test;
 import junit.framework.TestCase;

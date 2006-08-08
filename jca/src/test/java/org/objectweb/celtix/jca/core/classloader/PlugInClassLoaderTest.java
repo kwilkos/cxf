@@ -79,13 +79,12 @@ public class PlugInClassLoaderTest extends TestCase {
         // ensure it is available
         getClass().getClassLoader().loadClass(className); 
         try {
-            plugInClassLoader.loadClass(className);
-            fail("Expected ClassNotFoundException");
+            Class claz = plugInClassLoader.loadClass(className);
+            assertEquals("That should be same classloader ", claz.getClassLoader(),
+                        getClass().getClassLoader());
+            
         } catch (ClassNotFoundException ex) {
-            LOG.fine("Exception message: " + ex.getMessage());
-            assertNotNull("Exception message must not be null.", ex.getMessage());
-            assertTrue("not found class must be part of the message. ",
-                    ex.getMessage().indexOf(className) > -1);
+            fail("Do not Expect ClassNotFoundException");            
         }
     }
 
@@ -96,6 +95,7 @@ public class PlugInClassLoaderTest extends TestCase {
         URL url = resultClass.getResource("dummy.txt");
         LOG.info("URL: " + url);
         assertTrue("bad url: " + url, url.toString().startsWith("classloader:"));
+        
 
         InputStream configStream = url.openStream();
         assertNotNull("stream must not be null. ", configStream);
@@ -148,10 +148,5 @@ public class PlugInClassLoaderTest extends TestCase {
         URL url = plugInClassLoader.findResource("foo!/bar/");
         assertNull("url must be null. ", url);
     }
-
-    /*public void testProcessJarURLs() throws Exception {
-        String[] urls = new String[] {"zip://foo.bar"};
-        plugInClassLoader.processJarUrls(urls);
-        assertEquals("zip transformed to file", "file://foo.bar", urls[0]);
-    }*/
+   
 }
