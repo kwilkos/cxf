@@ -33,6 +33,7 @@ import javax.xml.ws.ResponseWrapper;
 
 import org.w3c.dom.Node;
 
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.common.util.StringUtils;
 import org.objectweb.celtix.ws.addressing.wsdl.AttributedQNameType;
 import org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory;
@@ -100,7 +101,7 @@ public final class JAXBEncoderDecoder {
                 // The object factory stuff doesn't work for enums
                 classes.add(cls);
             }
-            String name = cls.getPackage().getName() + ".ObjectFactory";
+            String name = PackageUtils.getPackageName(cls) + ".ObjectFactory";
             try {
                 cls = Class.forName(name, false, cls.getClassLoader());
                 if (cls != null) {

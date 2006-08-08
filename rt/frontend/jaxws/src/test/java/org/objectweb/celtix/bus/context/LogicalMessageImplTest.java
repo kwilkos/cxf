@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.ws.handler.MessageContext;
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContextImpl;
 import org.objectweb.handler_test.HandlerTest;
@@ -24,7 +25,7 @@ public class LogicalMessageImplTest extends TestCase {
     public void setUp() throws Exception { 
 
         ctx.setMethod(Greeter.class.getMethod("greetMe", String.class)); 
-        jaxbCtx = JAXBContext.newInstance(GreetMe.class.getPackage().getName());
+        jaxbCtx = JAXBContext.newInstance(PackageUtils.getPackageName(GreetMe.class));
     } 
 
 

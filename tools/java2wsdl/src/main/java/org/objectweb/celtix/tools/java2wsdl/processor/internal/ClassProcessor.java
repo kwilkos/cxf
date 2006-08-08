@@ -14,6 +14,7 @@ import javax.wsdl.OperationType;
 
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.tools.common.ProcessorEnvironment;
 import org.objectweb.celtix.tools.common.ToolConstants;
 import org.objectweb.celtix.tools.common.ToolException;
@@ -234,10 +235,11 @@ public class ClassProcessor {
         }
         model.setServiceName(serviceName);
 
-        String packageName = "";
+        /*String packageName = "";
         if (clazz.getPackage() != null) {
             packageName = clazz.getPackage().getName();
-        }
+        }*/
+        String packageName = PackageUtils.getPackageName(clazz);
         model.setPackageName(packageName);
 
         String targetNamespace = URIParserUtil.getNamespace(packageName);

@@ -13,6 +13,7 @@ import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.handler_test.types.PingResponse;
 import org.objectweb.handler_test.types.PingWithArgs;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
@@ -31,7 +32,7 @@ public class TestHandler<T extends LogicalMessageContext>
         super(serverSide); 
 
         try {
-            jaxbCtx = JAXBContext.newInstance(GreetMe.class.getPackage().getName());
+            jaxbCtx = JAXBContext.newInstance(PackageUtils.getPackageName(GreetMe.class));
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

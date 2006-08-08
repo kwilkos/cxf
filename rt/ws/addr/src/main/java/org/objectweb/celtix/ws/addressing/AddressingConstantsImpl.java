@@ -6,6 +6,7 @@ import java.util.ResourceBundle;
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 
 /**
  * Encapsulation of version-specific WS-Addressing constants.
@@ -157,7 +158,7 @@ public class AddressingConstantsImpl implements AddressingConstants {
      * @return package name of the implementation
      */
     public String getPackageName() {
-        return AddressingConstantsImpl.class.getPackage().getName();
+        return PackageUtils.getPackageName(AddressingConstantsImpl.class);
     }
     
     /**

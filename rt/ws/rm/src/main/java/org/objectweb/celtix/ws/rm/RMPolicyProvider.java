@@ -19,6 +19,7 @@ import org.w3c.dom.NodeList;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -96,7 +97,7 @@ public class RMPolicyProvider implements ConfigurationProvider {
                                                            "RMAssertion");
         if (nl.getLength() > 0) {
             JAXBContext context = null;
-            String packageName = RMUtils.getWSRMPolicyFactory().getClass().getPackage().getName();
+            String packageName = PackageUtils.getPackageName(RMUtils.getWSRMPolicyFactory().getClass());
             try {
                 context = JAXBContext.newInstance(packageName, getClass().getClassLoader());
                 Unmarshaller u = context.createUnmarshaller();

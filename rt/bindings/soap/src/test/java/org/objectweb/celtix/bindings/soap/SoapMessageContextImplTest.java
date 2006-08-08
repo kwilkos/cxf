@@ -10,6 +10,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.header_test.types.TestHeader1;
 import org.objectweb.header_test.types.TestHeader2Response;
@@ -35,7 +36,7 @@ public class SoapMessageContextImplTest extends TestCase {
         SOAPMessageContext smc = new SOAPMessageContextImpl(new GenericMessageContext());
         assertNotNull(smc);
 
-        JAXBContext jaxbContext = JAXBContext.newInstance(TestHeader1.class.getPackage().getName());
+        JAXBContext jaxbContext = JAXBContext.newInstance(PackageUtils.getPackageName(TestHeader1.class));
         //Test 1 No Headers in SOAP Message
         setSOAPMessage(smc, "resources/TestIntDocLitTypeTestReq.xml");
         Object[] obj1 = smc.getHeaders(null, jaxbContext, true);

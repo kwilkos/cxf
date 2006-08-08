@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 // importation convention: if the same class name is used for 
 // 2005/08 and 2004/08, then the former version is imported
 // and the latter is fully qualified when used
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedQName;
 import org.objectweb.celtix.ws.addressing.v200408.AttributedURI;
 import org.objectweb.celtix.ws.addressing.v200408.ObjectFactory;
@@ -303,7 +304,7 @@ public class VersionTransformer {
         public static final ObjectFactory WSA_OBJECT_FACTORY = 
             new ObjectFactory();
         public static final String WS_ADDRESSING_PACKAGE =
-            AttributedURI.class.getPackage().getName();
+            PackageUtils.getPackageName(AttributedURI.class);
         public static final Class<org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType>
         EPR_TYPE = 
             org.objectweb.celtix.ws.addressing.v200408.EndpointReferenceType.class;

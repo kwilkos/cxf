@@ -47,6 +47,7 @@ import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.context.ObjectMessageContext;
@@ -675,7 +676,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint
             
             String ns = wsProvider.targetNamespace(); 
             if (null == ns || "".equals(ns)) {
-                ns = "http://localhost/" + implementorClass.getPackage().getName().replace(".", "/");
+                ns = "http://localhost/" + PackageUtils.getPackageName(implementorClass).replace(".", "/");
             }
             
             try {

@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.ObjectFactory;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.configuration.Configuration;
 
 import static org.easymock.EasyMock.*;
@@ -40,10 +41,10 @@ public class HandlerResolverImplTest extends TestCase {
     public void testGetHandlerChainFromConfiguration() {
         ObjectFactory factory = new ObjectFactory();
         HandlerType h1 = factory.createHandlerType();
-        h1.setHandlerClass(getClass().getPackage().getName() + ".TestHandler");
+        h1.setHandlerClass(PackageUtils.getPackageName(getClass()) + ".TestHandler");
         h1.setHandlerName("first");
         HandlerType h2 = factory.createHandlerType();
-        h2.setHandlerClass(getClass().getPackage().getName() + ".TestHandler");
+        h2.setHandlerClass(PackageUtils.getPackageName(getClass()) + ".TestHandler");
         h2.setHandlerName("second");
 
         HandlerChainType chain = factory.createHandlerChainType();

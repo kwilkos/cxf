@@ -17,6 +17,7 @@ import javax.xml.bind.Unmarshaller;
 
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType;
 import org.objectweb.celtix.configuration.types.ClassNamespaceMappingType;
 import org.objectweb.celtix.configuration.types.ExtensionType;
@@ -69,8 +70,9 @@ public final class StandardTypesHelper {
         JAXBContext context = null;
         Object obj = null;
 
-        String packageName = org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType.class
-            .getPackage().getName();
+        String packageName = PackageUtils.getPackageName(
+            org.objectweb.celtix.configuration.types.ClassNamespaceMappingListType.class);
+            
 
         context = JAXBContext.newInstance(packageName, cl);
         Unmarshaller u = context.createUnmarshaller();
@@ -137,7 +139,7 @@ public final class StandardTypesHelper {
         JAXBContext context = null;
         Object obj = null;
 
-        String packageName = ExtensionTypeList.class.getPackage().getName();
+        String packageName = PackageUtils.getPackageName(ExtensionTypeList.class);
 
         context = JAXBContext.newInstance(packageName, cl);
         Unmarshaller u = context.createUnmarshaller();

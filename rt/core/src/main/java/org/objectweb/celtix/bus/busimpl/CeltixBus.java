@@ -133,10 +133,10 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
      * it creates a new <code>Bus</code>.
      * @throws BusException If there is an error initializing <code>Bus</code>.
      */
-    public static synchronized Bus init(String[] args)
+    /*public static synchronized Bus init(String[] args)
         throws BusException {
         return null;
-    }
+    }*/
 
     /**
      * Shuts down the <code>Bus</code>.

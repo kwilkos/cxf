@@ -28,6 +28,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.addressing.AddressingProperties;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
@@ -55,7 +56,7 @@ public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RMSoapHandler.class);
     private static final String WS_RM_PACKAGE = 
-        SequenceType.class.getPackage().getName();
+        PackageUtils.getPackageName(SequenceType.class);
 
     /**
      * Constructor.

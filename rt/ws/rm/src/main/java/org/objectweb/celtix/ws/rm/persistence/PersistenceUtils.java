@@ -22,6 +22,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.context.GenericMessageContext;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
@@ -125,7 +126,7 @@ public class PersistenceUtils {
     
     private JAXBContext getContext() throws JAXBException {
         if (null == context) {
-            context = JAXBContext.newInstance(SequenceAcknowledgement.class.getPackage().getName(),
+            context = JAXBContext.newInstance(PackageUtils.getPackageName(SequenceAcknowledgement.class),
                                               getClass().getClassLoader()); 
         }
         return context;

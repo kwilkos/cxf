@@ -22,6 +22,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.common.util.PackageUtils;
+
 
 /**
  * JAXBExtensionHelper
@@ -50,11 +52,11 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
                                      Class<?> parentType,
                                      Class<? extends TExtensibilityElementImpl> cls) throws JAXBException {
         
-        JAXBContext context = JAXBContext.newInstance(cls.getPackage().getName(), cls.getClassLoader());
+        JAXBContext context = JAXBContext.newInstance(PackageUtils.getPackageName(cls), cls.getClassLoader());
         JAXBExtensionHelper helper = new JAXBExtensionHelper(context, cls);
         
         try {
-            Class<?> objectFactory = Class.forName(cls.getPackage().getName() + ".ObjectFactory");
+            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(cls) + ".ObjectFactory");
             Method methods[] = objectFactory.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.getParameterTypes().length == 1
@@ -90,7 +92,7 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
             
             Object mObj = obj;
             
-            Class<?> objectFactory = Class.forName(typeClass.getPackage().getName() + ".ObjectFactory");
+            Class<?> objectFactory = Class.forName(PackageUtils.getPackageName(typeClass) + ".ObjectFactory");
             Method methods[] = objectFactory.getDeclaredMethods();
             for (Method method : methods) {
                 if (method.getParameterTypes().length == 1

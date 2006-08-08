@@ -26,6 +26,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.context.StreamMessageContext;
 import org.objectweb.celtix.systest.common.ClientServerSetupBase;
 import org.objectweb.celtix.systest.common.ClientServerTestBase;
@@ -229,7 +230,8 @@ public class HandlerInvocationTest extends ClientServerTestBase {
                     if (outbound) {
                         LogicalMessage msg = ctx.getMessage();
                         assertNotNull("logical message is null", msg);
-                        JAXBContext jaxbCtx = JAXBContext.newInstance(GreetMe.class.getPackage().getName());
+                        JAXBContext jaxbCtx = 
+                            JAXBContext.newInstance(PackageUtils.getPackageName(GreetMe.class));
                         PingResponse resp = new PingResponse();
                         resp.getHandlersInfo().add(clientHandlerMessage);
 

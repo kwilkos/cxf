@@ -21,6 +21,7 @@ import org.objectweb.celtix.bindings.BindingContextUtils;
 import org.objectweb.celtix.bindings.DataBindingCallback;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
 import org.objectweb.celtix.context.ObjectMessageContext;
 import org.objectweb.celtix.context.OutputStreamMessageContext;
 import org.objectweb.celtix.jaxb.JAXBDataBindingCallback;
@@ -44,7 +45,7 @@ public final class ContextUtils {
     public static final ObjectFactory WSA_OBJECT_FACTORY = new ObjectFactory();
 
     private static final String WS_ADDRESSING_PACKAGE = 
-        EndpointReferenceType.class.getPackage().getName();
+        PackageUtils.getPackageName(EndpointReferenceType.class);
     private static final Logger LOG = LogUtils.getL7dLogger(ContextUtils.class);
     
     
