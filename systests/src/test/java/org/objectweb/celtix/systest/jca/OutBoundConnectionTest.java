@@ -25,8 +25,7 @@ import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
 
 public class OutBoundConnectionTest extends ClientServerTestBase {
 
-    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
-                                                "SOAPService");    
+      
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
                                              "SoapPort");
 
@@ -42,14 +41,16 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
         };
     }
     public void testBasicConnection() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        SOAPService service = new SOAPService();
+        assertNotNull(service);
+        URL wsdl = service.getWSDLDocumentLocation();
         assertNotNull(wsdl);
         
         // setup the service model for connection        
                 
         CeltixConnectionRequestInfo cri = new CeltixConnectionRequestInfo(Greeter.class, 
                                            wsdl,
-                                           serviceName,
+                                           service.getServiceName(),
                                            portName);
         
         ManagedConnectionFactoryImpl managedFactory = new ManagedConnectionFactoryImpl();
@@ -59,10 +60,7 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
         
         assertTrue("returned connect does not implement Connection interface", o instanceof Connection);
         assertTrue("returned connect does not implement Connection interface", o instanceof Greeter);
-        
-        SOAPService service = new SOAPService(wsdl, serviceName);
-        assertNotNull(service);
-        
+   
         Greeter greeter = (Greeter) o;
         
         String response1 = new String("Hello Milestone-");
@@ -93,14 +91,16 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
     
     
     public void testBasicConnection2() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        SOAPService service = new SOAPService();
+        assertNotNull(service);
+        URL wsdl = service.getWSDLDocumentLocation();
         assertNotNull(wsdl);
         
         // setup the service model for connection        
                 
         CeltixConnectionRequestInfo cri = new CeltixConnectionRequestInfo(Greeter.class, 
                                            wsdl,
-                                           serviceName,
+                                           service.getServiceName(),
                                            null);
         
         ManagedConnectionFactoryImpl managedFactory = new ManagedConnectionFactoryImpl();
@@ -110,9 +110,6 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
         
         assertTrue("returned connect does not implement Connection interface", o instanceof Connection);
         assertTrue("returned connect does not implement Connection interface", o instanceof Greeter);
-        
-        SOAPService service = new SOAPService(wsdl, serviceName);
-        assertNotNull(service);
         
         Greeter greeter = (Greeter) o;
         
