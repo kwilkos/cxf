@@ -20,6 +20,7 @@ import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.SchemaInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
+import org.objectweb.celtix.service.model.ServiceModelUtil;
 import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
 
 public class ServiceModelUtilTest extends TestCase {

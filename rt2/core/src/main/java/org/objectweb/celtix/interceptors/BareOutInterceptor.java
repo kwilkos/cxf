@@ -1,47 +1,34 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.objectweb.celtix.interceptors;
 
-import java.util.List;
+import java.io.*;
+import java.util.*;
+
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.databinding.DataWriterFactory;
-import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceModelUtil;
-import org.objectweb.celtix.staxutils.StaxUtils;
 
-public class RPCOutInterceptor extends AbstractSoapInterceptor {
-    
-    private NSStack nsStack;
-    
-    private void init() {
-        nsStack = new NSStack();
-        nsStack.push();
-    }
+public class BareOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public void handleMessage(SoapMessage message) {
+    public void handleMessage(Message message) {
         try {
-            init();
-            
-            BindingOperationInfo operation = ServiceModelUtil.getOperation(message,
-                                                                           getOperationName(message));
-
-            assert operation.getName() != null;
-            
+            String opName = (String) message.get(Message.INVOCATION_OPERATION);
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
+
+            BindingOperationInfo operation = ServiceModelUtil.getOperation(message, opName);
+            
             DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, operation.getOperationInfo());
-
-            addOperationNode(message, xmlWriter);
-
+            
             int countParts = 0;
             List<MessagePartInfo> parts = null;
-            
             if (isOutboundMessage(message)) {
                 parts = operation.getOutput().getMessageInfo().getMessageParts();
             } else {
@@ -66,13 +53,10 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
                     dataWriter.write(arg, elName, xmlWriter);
                 }
             }
-
             // Finishing the writing.
-            xmlWriter.writeEndElement();
             xmlWriter.flush();
             xmlWriter.close();
         } catch (Exception e) {
-            e.printStackTrace();
             message.setContent(Exception.class, e);
         }
     }
@@ -83,14 +67,10 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
             name = part.getTypeQName();
         }
         return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
-    }
+    }    
 
-    protected boolean isOutboundMessage(SoapMessage message) {
-        return message.containsKey(Message.INBOUND_MESSAGE);
-    }
-
-    protected DataWriter<XMLStreamWriter> getDataWriter(SoapMessage message, OperationInfo oi) {
-        String key = (String) message.getExchange().get(SoapMessage.DATAWRITER_FACTORY_KEY);
+    protected DataWriter<XMLStreamWriter> getDataWriter(Message message, OperationInfo oi) {
+        String key = (String) message.getExchange().get(Message.DATAWRITER_FACTORY_KEY);
         DataWriterFactory factory = (DataWriterFactory) oi.getProperty(key);
 
         DataWriter<XMLStreamWriter> dataWriter = null;
@@ -106,26 +86,12 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
         }        
         return dataWriter;
     }
-    
-    private String getOperationName(SoapMessage message) {
-        return (String) message.get(Message.INVOCATION_OPERATION);
-    }
 
-    protected void addOperationNode(SoapMessage message, XMLStreamWriter xmlWriter)
-        throws XMLStreamException {
-        String responseSuffix = isOutboundMessage(message) ? "Response" : "";
-        String namespaceURI = ServiceModelUtil.getTargetNamespace(message);
-        nsStack.add(namespaceURI);
-        String prefix = nsStack.getPrefix(namespaceURI);
-            
-        String operationName = getOperationName(message) + responseSuffix;
-            
-        StaxUtils.writeStartElement(xmlWriter, prefix, operationName, namespaceURI);
-        xmlWriter.flush();
+    protected boolean isOutboundMessage(Message message) {
+        return message.containsKey(Message.INBOUND_MESSAGE);
     }
 
     private XMLStreamWriter getXMLStreamWriter(Message message) {
         return message.getContent(XMLStreamWriter.class);
     }
 }
-

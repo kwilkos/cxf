@@ -37,7 +37,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private void initServiceSideInfo(Set<QName> mustUnderstandQNames, SoapMessage soapMessage,
                                      Set<URI> serviceRoles) {
 
-        Set<QName> paramHeaders = ServiceModelUtil.getHeaderQNameInOperationParam(soapMessage);
+        Set<QName> paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
         if (paramHeaders != null) {
             mustUnderstandQNames.addAll(paramHeaders);
         }

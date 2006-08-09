@@ -6,22 +6,21 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.databinding.DataReaderFactory;
+import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
+import org.objectweb.celtix.service.model.ServiceModelUtil;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxStreamFilter;
 import org.objectweb.celtix.staxutils.StaxUtils;
+
+public class RPCInInterceptor extends AbstractSoapInterceptor {
         
-public class RPCInterceptor extends AbstractSoapInterceptor {
-        
-    private static final String INBOUND_MESSAGE = "message.inbound";
-    
     private BindingOperationInfo getOperation(SoapMessage message, DepthXMLStreamReader xmlReader) {
         if (!StaxUtils.toNextElement(xmlReader)) {
             message.setContent(Exception.class,
@@ -50,7 +49,7 @@ public class RPCInterceptor extends AbstractSoapInterceptor {
         if (!isOperationResolved(message)) {
             operation = getOperation(message, xmlReader);
             // Store operation into the message.
-            message.put(MessageContext.WSDL_OPERATION, operation.getName().getLocalPart());
+            message.put(Message.INVOCATION_OPERATION, operation.getName().getLocalPart());
         }
 
         MessageInfo msg;
@@ -85,7 +84,7 @@ public class RPCInterceptor extends AbstractSoapInterceptor {
                                    getParameterTypeClass(message, idx)));
         }
         
-        message.put("OBJECTS", parameters);
+        message.put(Message.INVOCATION_OBJECTS, parameters);
     }
 
     protected Class<?> getParameterTypeClass(SoapMessage message, int idx) {
@@ -103,7 +102,7 @@ public class RPCInterceptor extends AbstractSoapInterceptor {
     }
 
     protected boolean isInboundMessage(SoapMessage message) {
-        return message.containsKey(INBOUND_MESSAGE);
+        return message.containsKey(Message.INBOUND_MESSAGE);
     }
 
     protected DataReader<XMLStreamReader> getDataReader(SoapMessage message, OperationInfo oi) {
@@ -125,7 +124,7 @@ public class RPCInterceptor extends AbstractSoapInterceptor {
     }
     
     protected boolean isOperationResolved(SoapMessage message) {
-        return message.get(MessageContext.WSDL_OPERATION) != null;
+        return message.get(Message.INVOCATION_OPERATION) != null;
     }
     
     private DepthXMLStreamReader getXMLStreamReader(SoapMessage message) {

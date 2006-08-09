@@ -7,8 +7,8 @@ import java.util.Arrays;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
@@ -35,7 +35,7 @@ public class RPCOutInterceptorTest extends TestBase {
                         getTestService("resources/wsdl/hello_world_rpc_lit.wsdl", "SoapPortRPCLit"));
 
         soapMessage.setContent(XMLStreamWriter.class, getXMLStreamWriter(baos));
-        soapMessage.put(MessageContext.WSDL_OPERATION, "sendReceiveData");
+        soapMessage.put(Message.INVOCATION_OPERATION, "sendReceiveData");
     }
 
     public void tearDown() throws Exception {
@@ -43,7 +43,7 @@ public class RPCOutInterceptorTest extends TestBase {
     }
 
     public void testWriteOutbound() throws Exception {
-        soapMessage.put("OBJECTS", Arrays.asList(getTestObject()));
+        soapMessage.put(Message.INVOCATION_OBJECTS, Arrays.asList(getTestObject()));
 
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
 
@@ -64,8 +64,8 @@ public class RPCOutInterceptorTest extends TestBase {
     }
 
     public void testWriteInbound() throws Exception {
-        soapMessage.put("OBJECTS", Arrays.asList(getTestObject()));
-        soapMessage.put("message.inbound", "message.inbound");
+        soapMessage.put(Message.INVOCATION_OBJECTS, Arrays.asList(getTestObject()));
+        soapMessage.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
         
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
 

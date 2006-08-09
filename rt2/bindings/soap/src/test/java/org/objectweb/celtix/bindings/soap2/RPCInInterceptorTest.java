@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.handler.MessageContext;
 
+import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
@@ -14,12 +14,12 @@ import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;
 import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
 
-public class RPCInterceptorTest extends TestBase {
+public class RPCInInterceptorTest extends TestBase {
     
     public void setUp() throws Exception {
         super.setUp();
 
-        RPCInterceptor interceptor = new RPCInterceptor();
+        RPCInInterceptor interceptor = new RPCInInterceptor();
         interceptor.setPhase("phase1");
         chain.add(interceptor);
 
@@ -32,14 +32,14 @@ public class RPCInterceptorTest extends TestBase {
     public void testInterceptorRPCLitInbound() throws Exception {
         soapMessage.setContent(InputStream.class, getTestStream(getClass(),
                                                                 "resources/greetMeRpcLitReq.xml"));
-        soapMessage.put("message.inbound", "message.inbound");
+        soapMessage.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
 
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
 
-        List<?> parameters = (List<?>) soapMessage.get("OBJECTS");
+        List<?> parameters = (List<?>) soapMessage.get(Message.INVOCATION_OBJECTS);
         assertEquals(1, parameters.size());
 
-        assertEquals("sendReceiveData", (String) soapMessage.get(MessageContext.WSDL_OPERATION));
+        assertEquals("sendReceiveData", (String) soapMessage.get(Message.INVOCATION_OPERATION));
         
         Object obj = parameters.get(0);
         assertTrue(obj instanceof MyComplexStruct);
@@ -52,7 +52,7 @@ public class RPCInterceptorTest extends TestBase {
                                                                "resources/greetMeRpcLitResp.xml"));
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
 
-        List<?> objs = (List<?>) soapMessage.get("OBJECTS");
+        List<?> objs = (List<?>) soapMessage.get(Message.INVOCATION_OBJECTS);
         assertEquals(1, objs.size());
         
         Object retValue = objs.get(0);
