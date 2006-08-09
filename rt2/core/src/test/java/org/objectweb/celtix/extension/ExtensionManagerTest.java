@@ -26,13 +26,16 @@ public class ExtensionManagerTest extends TestCase {
     public void testProcessExtension() {
         Extension e = new Extension();
         e.setClassName("java.lang.String");
+        String name = "immediate";
+        e.setName(name);
         e.setDeferred(false);
         Object obj = manager.processExtension(e);
         assertNotNull("Object was not loaded.", obj);
+        assertSame("Loaded object was not inserted in map of active objects.", obj, manager.get(name));
         e.setDeferred(true);
         e.setClassName("no.such.Class");
-        String key = "http://celtix.objectweb.org/deferred";
-        e.setKey(key);
+        String ns = "http://celtix.objectweb.org/deferred";
+        e.getNamespaces().add(ns);
         obj = manager.processExtension(e);
         assertNull("Object was loaded.", obj);
     }
@@ -40,12 +43,15 @@ public class ExtensionManagerTest extends TestCase {
     public void testActivateViaNS() {
         Extension e = new Extension();
         e.setClassName(MyService.class.getName());
-        String key = "http://celtix.objectweb.org/integer";
-        e.setKey(key);
+        String ns = "http://celtix.objectweb.org/integer";
+        e.getNamespaces().add(ns);
+        String name = "deferred";
+        e.setName(name);
         e.setDeferred(true);
         manager.processExtension(e);
-        manager.activateViaNS("http://celtix.objectweb.org/integer");
+        manager.activateViaNS(ns);
         assertEquals("Unexpected number of MyService instances.", 1, MyService.counter);
+        assertNotNull("Loaded object was not inserted in map of active objects.", manager.get(name));
         // second activation should be a no-op
         manager.activateViaNS("http://celtix.objectweb.org/integer");
         assertEquals("Unexpected number of MyService instances.", 1, MyService.counter);

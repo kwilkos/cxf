@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.celtix.common.injection.ResourceInjector;
@@ -16,12 +17,13 @@ public class ExtensionManager {
 
     private ClassLoader loader;
     private ResourceInjector injector;
-
-    private Map<String, Collection<Extension>> deferred;    
+    private Map<String, Object> active;
+    private Map<String, Collection<Extension>> deferred;
 
     public ExtensionManager(String resource, ClassLoader cl, ResourceInjector i) {
         loader = cl;
         injector = i;
+        active = new HashMap<String, Object>();
         deferred = new HashMap<String, Collection<Extension>>();
 
         try {
@@ -30,7 +32,10 @@ public class ExtensionManager {
             throw new ExtensionException(ex);
         }
     }
-    
+
+    public Object get(String name) {
+        return active.get(name);
+    }
 
     public void activateViaNS(String namespaceURI) {
         Collection<Extension> extensions = deferred.get(namespaceURI);
@@ -40,6 +45,7 @@ public class ExtensionManager {
         for (Extension e : extensions) {
             Object obj = e.load(loader);
             injector.inject(obj);
+            active.put(e.getName(), obj);
         }
         extensions.clear();
         deferred.remove(namespaceURI);
@@ -47,14 +53,14 @@ public class ExtensionManager {
 
     final void load(String resource) throws IOException {
         Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(resource);
-        Collection<Object> loaded = new ArrayList<Object>();
+        List<Object> loaded = new ArrayList<Object>();
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             UrlResource urlRes = new UrlResource(url);
             InputStream is = urlRes.getInputStream();
-            Object obj = loadFragment(is);
-            if (null != obj) {
-                loaded.add(obj);
+            List<Object> objs = loadFragment(is);
+            if (null != objs && objs.size() > 0) {
+                loaded.addAll(objs);
             }
         }
         for (Object obj : loaded) {
@@ -62,24 +68,32 @@ public class ExtensionManager {
         }
     }
 
-    final Object loadFragment(InputStream is) {
-        Extension e = new ExtensionFragmentParser().getExtension(is);
-        return processExtension(e);
+    final List<Object> loadFragment(InputStream is) {
+        List<Extension> extensions = new ExtensionFragmentParser().getExtensions(is);
+        List<Object> objs = new ArrayList<Object>();
+        for (Extension e : extensions) {
+            objs.add(processExtension(e));
+        }
+        return objs;
     }
-    
+
     final Object processExtension(Extension e) {
-    
+
         if (!e.isDeferred()) {
-            return e.load(loader);
+            Object obj = e.load(loader);
+            active.put(e.getName(), obj);
+            return obj;
         }
 
-        String key = e.getKey();
-        Collection<Extension> extensions = deferred.get(key);
-        if (null == extensions) {
-            extensions = new ArrayList<Extension>();
-            deferred.put(key, extensions);
+        Collection<String> namespaces = e.getNamespaces();
+        for (String ns : namespaces) {
+            Collection<Extension> extensions = deferred.get(ns);
+            if (null == extensions) {
+                extensions = new ArrayList<Extension>();
+                deferred.put(ns, extensions);
+            }
+            extensions.add(e);
         }
-        extensions.add(e);
         return null;
     }
 

@@ -1,11 +1,15 @@
 package org.objectweb.celtix.extension;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 
 public class Extension {
 
     private String className;
     private boolean deferred;
-    private String keyName;
+    private String name;
+    private Collection<String> namespaces = new ArrayList<String>();
     
     String getClassName() {
         return className;
@@ -23,12 +27,16 @@ public class Extension {
         deferred = d;
     }
     
-    String getKey() {
-        return keyName;
+    String getName() {
+        return name;
     }
     
-    void setKey(String k) {
-        keyName = k;
+    void setName(String n) {
+        name = n;
+    }
+    
+    Collection<String> getNamespaces() {
+        return namespaces;
     }
     
     Object load(ClassLoader cl) {

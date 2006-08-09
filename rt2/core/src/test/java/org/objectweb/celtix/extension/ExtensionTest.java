@@ -7,14 +7,15 @@ public class ExtensionTest extends TestCase {
     public void testMutators() {
         Extension e = new Extension();
         String namespaceURI = "http://schemas.xmlsoap.org/wsdl/soap/";
-        e.setKey(namespaceURI);
-        assertEquals("Unexpected namespaceURI.", namespaceURI, e.getKey());
+        e.setName(namespaceURI);
+        assertEquals("Unexpected namespaceURI.", namespaceURI, e.getName());
         String className = "org.objectweb.celtix.bindings.soap.SoapBinding";
         e.setClassName(className);
         assertEquals("Unexpected classname.", className, e.getClassName());
         assertTrue("Extension is deferred.", !e.isDeferred());
         e.setDeferred(true);
         assertTrue("Extension is not deferred.", e.isDeferred());
+        assertEquals("Unexpected size of namespace list.", 0, e.getNamespaces().size());
     }
     
     public void testLoad() throws ExtensionException {
