@@ -751,7 +751,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         Method method = clz.getMethod("pingMe", new Class[] {});
         assertEquals("void", method.getReturnType().getSimpleName());
         assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
-        assertEquals("org.objectweb.hello_world.PingMeFault", method.getExceptionTypes()[0]
+        assertEquals("org.objectweb.hello_world.messages.PingMeFault", method.getExceptionTypes()[0]
             .getCanonicalName());
     }
     
