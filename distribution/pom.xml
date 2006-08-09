@@ -22,6 +22,11 @@
     <dependencies>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-jca</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
             <artifactId>cxf-jbi</artifactId>
             <version>${project.version}</version>
         </dependency>
