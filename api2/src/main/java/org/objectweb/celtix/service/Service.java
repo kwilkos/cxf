@@ -26,6 +26,8 @@ public interface Service extends Map<String, Object>, InterceptorProvider {
     void setDataWriterFactory(DataWriterFactory dataWriterFactory);
     
     Executor getExecutor();
+
+    void setExecutor(Executor executor);
     
     Invoker getInvoker();
 }

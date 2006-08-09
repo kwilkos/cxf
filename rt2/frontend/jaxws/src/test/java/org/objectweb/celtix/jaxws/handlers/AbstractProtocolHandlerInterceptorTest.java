@@ -1,5 +1,6 @@
 package org.objectweb.celtix.jaxws.handlers;
 
+import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 
@@ -19,6 +20,7 @@ import static org.easymock.classextension.EasyMock.createNiceControl;
 public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     
     private IMocksControl control;
+    private Binding binding;
     private HandlerChainInvoker invoker;
     private IIOPMessage message;
     private Exchange exchange;
@@ -40,7 +42,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
         expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(true);
         control.replay();
-        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor();
+        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(binding);
         assertEquals("unexpected phase", "user-protocol", pi.getPhase());
         pi.handleMessage(message);
     }
@@ -50,7 +52,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
         expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(false);
         control.replay();
-        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor();
+        IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(binding);
         pi.handleMessage(message);  
     }
 
@@ -69,7 +71,9 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     }
     
     class IIOPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<IIOPMessage> {
-        
+        IIOPHandlerInterceptor(Binding binding) {
+            super(binding);
+        }
     }
     
     

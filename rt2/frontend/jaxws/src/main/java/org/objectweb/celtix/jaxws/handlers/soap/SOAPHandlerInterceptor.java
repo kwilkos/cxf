@@ -18,10 +18,8 @@ import org.objectweb.celtix.message.Message;
 public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<SoapMessage>
     implements SoapInterceptor {
     
-    private Binding binding;
-    
-    public SOAPHandlerInterceptor(Binding b) {
-        binding = b;
+    public SOAPHandlerInterceptor(Binding binding) {
+        super(binding);
     }
 
     public Set<URI> getRoles() {
@@ -33,7 +31,7 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
     @SuppressWarnings("unchecked")
     public Set<QName> getUnderstoodHeaders() {
         Set<QName> understood = new HashSet<QName>();  
-        for (Handler h : binding.getHandlerChain()) {
+        for (Handler h : getBinding().getHandlerChain()) {
             if (h instanceof SOAPHandler) {
                 understood.addAll(((SOAPHandler)h).getHeaders());
             }

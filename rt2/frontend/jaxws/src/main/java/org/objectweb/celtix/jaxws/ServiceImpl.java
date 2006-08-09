@@ -69,7 +69,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public Executor getExecutor() {
-        return endpoint.getExecutor();
+        return service.getExecutor();
     }
 
     public HandlerResolver getHandlerResolver() {
@@ -100,7 +100,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public void setExecutor(Executor e) {
-        endpoint.setExecutor(e);
+        service.setExecutor(e);
     }
 
     public void setHandlerResolver(HandlerResolver hr) {

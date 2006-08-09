@@ -1,5 +1,6 @@
 package org.objectweb.celtix.jaxws.handlers;
 
+import javax.xml.ws.Binding;
 import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
@@ -8,8 +9,9 @@ import org.objectweb.celtix.phase.Phase;
 
 public abstract class AbstractProtocolHandlerInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {
-
-    protected AbstractProtocolHandlerInterceptor() {
+    
+    protected AbstractProtocolHandlerInterceptor(Binding binding) {
+        super(binding);
         setPhase(Phase.USER_PROTOCOL);
     }
     

@@ -48,13 +48,13 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         List<Interceptor> handlerInterceptors;
         
         handlerInterceptors = new ArrayList<Interceptor>();
-        handlerInterceptors.add(new LogicalHandlerInterceptor());
+        handlerInterceptors.add(new LogicalHandlerInterceptor(binding));
         if (getBinding() instanceof SoapBinding) {
             handlerInterceptors.add(new SOAPHandlerInterceptor(binding));
         } else {
              // TODO: what for non soap bindings?
         }
-        handlerInterceptors.add(new StreamHandlerInterceptor());
+        handlerInterceptors.add(new StreamHandlerInterceptor(binding));
         
         List<Interceptor> fault = super.getFaultInterceptors();
         fault.addAll(handlerInterceptors);

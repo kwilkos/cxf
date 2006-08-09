@@ -45,15 +45,19 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
     
     
-    @Override
     public Binding getBinding() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
+    // TO DO: verify that on the server side we can have a 1:1 relationship ebtween Service and Endpoint
+    
+    public void setExecutor(Executor executor) {
+        endpoint.getService().setExecutor(executor);        
+    }
+    
     public Executor getExecutor() {
-        return endpoint.getExecutor();
+        return endpoint.getService().getExecutor();
     }
 
     @Override
@@ -90,12 +94,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         
     }
 
-    @Override
-    public void setExecutor(Executor executor) {
-        endpoint.setExecutor(executor);        
-    }
-
-    @Override
     public void setMetadata(List<Source> arg0) {
         // TODO Auto-generated method stub
         

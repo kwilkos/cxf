@@ -7,8 +7,6 @@ import javax.xml.ws.Binding;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.endpoint.ClientImpl;
 import org.objectweb.celtix.endpoint.Endpoint;
-import org.objectweb.celtix.jaxws.handlers.AbstractJAXWSHandlerInterceptor;
-import org.objectweb.celtix.jaxws.handlers.HandlerChainInvoker;
 import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.Message;
 
@@ -35,8 +33,6 @@ public class JaxwsClientImpl extends ClientImpl {
     }
  
     protected void setExchangeProperties(Exchange exchange, Map<String, Object> ctx) {
-        HandlerChainInvoker invoker = new HandlerChainInvoker(binding.getHandlerChain());
-        exchange.put(AbstractJAXWSHandlerInterceptor.HANDLER_CHAIN_INVOKER, invoker);
         exchange.put(Message.DATAREADER_FACTORY_KEY, JaxwsEndpointImpl.JAXWS_DATAREADER_FACTORY);
         exchange.put(Message.DATAWRITER_FACTORY_KEY, JaxwsEndpointImpl.JAXWS_DATAWRITER_FACTORY);
     }

@@ -27,7 +27,7 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
         final Exchange exchange = message.getExchange();
         final Endpoint endpoint = (Endpoint)exchange.get(ExchangeConstants.ENDPOINT);
         final Service service = endpoint.getService();
-        final Invoker invoker = service.getInvoker();
+        final Invoker invoker = service.getInvoker();        
 
         getExecutor(endpoint).execute(new Runnable() {
 
@@ -46,12 +46,6 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
      * @return
      */
     private Executor getExecutor(final Endpoint endpoint) {
-        final Service service = endpoint.getService();
-        Executor e = service.getExecutor();
-        if (e == null) {
-            e = endpoint.getExecutor();
-        }
-            
-        return e;
+        return endpoint.getService().getExecutor();
     }
 }
