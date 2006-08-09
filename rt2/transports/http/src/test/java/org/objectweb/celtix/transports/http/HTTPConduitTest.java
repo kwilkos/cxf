@@ -31,7 +31,6 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
-
 public class HTTPConduitTest extends TestCase {
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
     private static final String PAYLOAD = "message payload";
@@ -233,6 +232,7 @@ public class HTTPConduitTest extends TestCase {
         EasyMock.expectLastCall().andReturn(is);
         
         control.replay();
+        wrappedOS.flush();
         wrappedOS.close();
         
         assertNotNull("expected in message", inMessage);

@@ -1,7 +1,5 @@
 package org.objectweb.celtix.transports.http;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -66,15 +64,15 @@ public class HTTPConduit implements Conduit {
      * 
      * @param ref the target endpoint
      * @param factory the URL connection factory
-     * @param c the configuration
+     * @param cfg the configuration
      * @throws WSDLException
      * @throws IOException
      */
     public HTTPConduit(EndpointReferenceType ref,
                        URLConnectionFactory factory,
-                       HTTPConduitConfiguration c)
+                       HTTPConduitConfiguration cfg)
         throws WSDLException, IOException {
-        config = c;
+        config = cfg;
         targetEndpoint = ref;
         connectionFactory = factory != null
                             ? factory
@@ -253,35 +251,31 @@ public class HTTPConduit implements Conduit {
     }
         
     /**
-     * Wrapper stream required for two reasons:
-     * <ol>
-     * <li> So that that no data is written onto the wire until the headers are frozen
-     * <li> To intercept the close call
-     * </ol>
+     * Wrapper stream responsible for flushing headers and handling incoming
+     * HTTP-level response (not necessarily the MEP response).
      */
-    private class WrappedOutputStream extends FilterOutputStream {
-        Message outMessage;
-        URLConnection connection;
+    private class WrappedOutputStream extends AbstractWrappedOutputStream {
+        protected URLConnection connection;
         
         WrappedOutputStream(Message m, URLConnection c) {
-            super(new ByteArrayOutputStream());
-            outMessage = m;
+            super(m);
             connection = c;
         }
 
-        public void close() throws IOException {
-            out.flush();
+        /**
+         * Perform any actions required on stream flush (freeze headers,
+         * reset output stream ... etc.)
+         */
+        protected void doFlush() throws IOException {
             flushHeaders(outMessage);
             resetOut(connection.getOutputStream());
-            handleResponse();
         }
 
-        private void resetOut(OutputStream newOut) throws IOException {
-            ByteArrayOutputStream bout = (ByteArrayOutputStream)out;
-            if (bout.size() > 0) {
-                bout.writeTo(newOut);
-            }
-            out = newOut;
+        /**
+         * Perform any actions required on stream closure (handle response etc.)
+         */
+        protected void doClose() throws IOException {
+            handleResponse();
         }
 
         private void handleResponse() throws IOException {
@@ -305,4 +299,5 @@ public class HTTPConduit implements Conduit {
             incomingObserver.onMessage(inMessage);
         }
     }
+
 }

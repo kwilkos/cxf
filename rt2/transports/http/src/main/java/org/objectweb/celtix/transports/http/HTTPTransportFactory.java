@@ -11,6 +11,7 @@ import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.DestinationFactory;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
+
 public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory {
 
     protected Bus bus;
@@ -24,8 +25,8 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
         return new HTTPConduit(bus, target);
     }
 
-    public Destination getDestination(EndpointReferenceType reference) {
-        // TODO Auto-generated method stub
-        return null;
+    public Destination getDestination(EndpointReferenceType reference)
+        throws WSDLException, IOException {
+        return new JettyHTTPDestination(bus, reference);
     }
 }
