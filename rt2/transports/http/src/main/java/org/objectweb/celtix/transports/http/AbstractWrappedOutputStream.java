@@ -45,6 +45,13 @@ public abstract class AbstractWrappedOutputStream extends FilterOutputStream {
      * Perform any actions required on stream closure (handle response etc.)
      */
     protected abstract void doClose() throws IOException;
+    
+    /**
+     * @return the underlying output stream
+     */
+    protected OutputStream getOut() {
+        return out;
+    }
 
     /**
      * Copy the cached output stream to the "real" output stream, 

@@ -175,8 +175,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
                 String header = (String)iter.next();
                 List<?> headerList = (List<?>)headers.get(header);
-                for (Object string : headerList) {
-                    response.addField(header, (String)string);
+                for (Object value : headerList) {
+                    response.addField(header, (String)value);
                 }
             }
         }
@@ -263,7 +263,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             } else {
                 response.setStatus(200);
             }
-                
+            
             copyResponseHeaders(outMessage, response);
             responseStream = response.getOutputStream();
                     
@@ -277,15 +277,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     
         if (isOneWay(outMessage)) {
             outMessage.remove(HTTP_RESPONSE);
-        } else {
-            responseStream = null;
         }
         return responseStream;
     }
     
     protected boolean isOneWay(Message message) {
         // REVISIT need a mechanism whereby higher level (binding, WS-A layer
-        // o rfrontend) marks message as oneway
+        // or frontend) marks message as oneway
         return false;
     }
     
@@ -312,7 +310,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         }
 
         /**
-         * Send an outbound message.
+         * Send an outbound message, assumed to contain all the name-value
+         * mappings of the corresponding input message (if any). 
          * 
          * @param message the message to be sent.
          */
