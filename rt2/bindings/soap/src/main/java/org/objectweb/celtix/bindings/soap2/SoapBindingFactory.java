@@ -49,9 +49,9 @@ public class SoapBindingFactory extends AbstractBindingFactory implements Bindin
         
         if (sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_RPC)) {
             sb.getInInterceptors().add(new RPCInInterceptor());
-        } else if(sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_BARE)) {
+        } else if (sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_BARE)) {
             sb.getInInterceptors().add(new BareInInterceptor());
-        } else if(sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_WRAPPED)) {
+        } else if (sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_WRAPPED)) {
             sb.getInInterceptors().add(new WrapperInterceptor());
         }        
                 
