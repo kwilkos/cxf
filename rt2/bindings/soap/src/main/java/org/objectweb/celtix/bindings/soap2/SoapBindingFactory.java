@@ -1,8 +1,10 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPBinding;
@@ -14,10 +16,12 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.bindings.AbstractBindingFactory;
 import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.bindings.BindingFactory;
+import org.objectweb.celtix.bindings.soap2.binding.WrapperInterceptor;
 import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapHeaderInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapOperationInfo;
+import org.objectweb.celtix.interceptors.BareInInterceptor;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
@@ -28,8 +32,30 @@ import org.objectweb.celtix.wsdl11.WSDLBindingFactory;
 
 public class SoapBindingFactory extends AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
+    private Map cachedBinding = new HashMap<BindingInfo, Binding>();
+        
     public Binding createBinding(BindingInfo binding) {
-        return new SoapBinding();
+        
+        if (cachedBinding.get(binding) != null) {
+            return (Binding)cachedBinding.get(binding);
+        }
+        
+        SoapBinding sb = new SoapBinding();
+        SoapBindingInfo sbi = (SoapBindingInfo)binding;
+                
+        sb.getInInterceptors().add(new MultipartMessageInterceptor());        
+        sb.getInInterceptors().add(new ReadHeadersInterceptor());        
+        sb.getInInterceptors().add(new MustUnderstandInterceptor());
+        
+        if (sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_RPC)) {
+            sb.getInInterceptors().add(new RPCInInterceptor());
+        } else if(sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_BARE)) {
+            sb.getInInterceptors().add(new BareInInterceptor());
+        } else if(sbi.getStyle().equalsIgnoreCase(SoapConstants.STYLE_WRAPPED)) {
+            sb.getInInterceptors().add(new WrapperInterceptor());
+        }        
+                
+        return sb;
     }
 
     public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding) {

@@ -17,10 +17,7 @@ public class SoapBinding implements Binding {
     public SoapBinding() {
         in = new ArrayList<Interceptor>();
         out = new ArrayList<Interceptor>();
-        fault = new ArrayList<Interceptor>();
-        
-        in.add(new MustUnderstandInterceptor());
-        in.add(new ReadHeadersInterceptor());
+        fault = new ArrayList<Interceptor>();     
     }
     
     public Message createMessage() {
