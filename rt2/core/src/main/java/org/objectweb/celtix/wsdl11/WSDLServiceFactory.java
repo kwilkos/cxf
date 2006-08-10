@@ -14,6 +14,7 @@ import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.ServiceImpl;
 import org.objectweb.celtix.service.factory.AbstractServiceFactoryBean;
 import org.objectweb.celtix.service.model.ServiceInfo;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     
@@ -33,7 +34,7 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         
         Definition definition = null;
         try {
-            definition = getBus().getWSDL11Manager().getDefinition(wsdlUrl);
+            definition = getBus().getExtension(WSDLManager.class).getDefinition(wsdlUrl);
         } catch (WSDLException ex) {
             LOG.log(Level.SEVERE, "SERVICE_CREATION_MSG", ex);
         }

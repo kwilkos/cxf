@@ -2,7 +2,6 @@ package org.objectweb.celtix.bus;
 
 import java.util.Map;
 
-import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 
@@ -34,7 +33,7 @@ public class BusConfigurationBuilder  {
         }
 
         // next check system properties
-        busId = System.getProperty(Bus.BUS_CLASS_PROPERTY);
+        busId = System.getProperty(BUS_ID_PROPERTY);
         if (null != busId && !"".equals(busId)) {
             return busId;
         }

@@ -10,6 +10,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.bindings.BindingFactory;
+import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.interceptors.AbstractBasicInterceptorProvider;
@@ -67,7 +68,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
         String namespace = bi.getBindingId();
         BindingFactory bf = null;
         try {
-            bf = bus.getBindingManager().getBindingFactory(namespace);
+            bf = bus.getExtension(BindingFactoryManager.class).getBindingFactory(namespace);
             binding = bf.createBinding(bi);
         } catch (BusException ex) {
             throw new WebServiceException(ex);

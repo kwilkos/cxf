@@ -31,6 +31,7 @@ import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
     
@@ -193,10 +194,11 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
             try {
                 
-                Definition def = EndpointReferenceUtils.getWSDLDefinition(bus.getWSDL11Manager(), reference);
+                Definition def = EndpointReferenceUtils.getWSDLDefinition(
+                    bus.getExtension(WSDLManager.class), reference);
                 resp.addField("Content-Type", "text/xml");
                 OutputStream os = resp.getOutputStream();
-                bus.getWSDL11Manager().getWSDLFactory().newWSDLWriter().writeWSDL(def, os);
+                bus.getExtension(WSDLManager.class).getWSDLFactory().newWSDLWriter().writeWSDL(def, os);
                 resp.getOutputStream().flush();
                 resp.commit();
                 req.setHandled(true);

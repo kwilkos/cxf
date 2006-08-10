@@ -23,6 +23,7 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
  * Encapsulates all aspects of HTTP Conduit configuration.
@@ -44,7 +45,7 @@ public class HTTPConduitConfiguration {
     final Configuration portConfiguration;
 
     HTTPConduitConfiguration(Bus bus, EndpointReferenceType ref) throws WSDLException {
-        port = EndpointReferenceUtils.getPort(bus.getWSDL11Manager(), ref);
+        port = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
         portConfiguration = getPortConfiguration(bus, ref);
         address = portConfiguration.getString("address");
         EndpointReferenceUtils.setAddress(ref, address);
@@ -212,7 +213,7 @@ public class HTTPConduitConfiguration {
         if (portConfig == null) {
             portConfig = bus.getConfiguration().getChild(PORT_CONFIGURATION_URI, id);
             if (null == portConfig) {
-                ConfigurationBuilder cb = bus.getConfigurationBuilder();
+                ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
                 portConfig = cb.buildConfiguration(PORT_CONFIGURATION_URI, id,
                                                    bus.getConfiguration());
             }
@@ -220,7 +221,7 @@ public class HTTPConduitConfiguration {
             // add the additional provider
             Port p = null;
             try  {
-                p = EndpointReferenceUtils.getPort(bus.getWSDL11Manager(), ref);
+                p = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
             } catch (WSDLException ex) {
                 throw new WebServiceException("Could not get port from wsdl", ex);
             }
@@ -233,7 +234,7 @@ public class HTTPConduitConfiguration {
         Configuration cfg = portCfg.getChild(HTTP_CLIENT_CONFIGURATION_URI,
                                              HTTP_CLIENT_CONFIGURATION_ID);
         if (null == cfg) {
-            ConfigurationBuilder cb = bus.getConfigurationBuilder();
+            ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
             cfg = cb.buildConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
                                         HTTP_CLIENT_CONFIGURATION_ID,
                                         portCfg);

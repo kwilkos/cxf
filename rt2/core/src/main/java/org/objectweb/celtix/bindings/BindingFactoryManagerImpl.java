@@ -1,39 +1,30 @@
 package org.objectweb.celtix.bindings;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
-import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.common.util.PropertiesLoaderUtils;
+import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.extension.ExtensionManager;
 
 public final class BindingFactoryManagerImpl implements BindingFactoryManager {
-
-    private static final String FACTORY_NAMESPACE_MAPPINGS_RESOURCE = "META-INF/bindings.properties.xml";
+    
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(BindingFactoryManagerImpl.class);
     
     final Map<String, BindingFactory> bindingFactories;
     Properties factoryNamespaceMappings;
     
     @Resource
-    Bus bus;
+    ExtensionManager extensionManager;
    
     public BindingFactoryManagerImpl() throws BusException {
         bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
-        
-        try {
-            factoryNamespaceMappings = PropertiesLoaderUtils
-                .loadAllProperties(FACTORY_NAMESPACE_MAPPINGS_RESOURCE, Thread.currentThread()
-                                   .getContextClassLoader());
-        } catch (IOException ex) {
-            throw new BusException(ex);
-        }
     }
-
     
     BindingFactory loadBindingFactory(String className, String ...namespaceURIs) throws BusException {
         BindingFactory factory = null;
@@ -42,9 +33,6 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
                 Class.forName(className).asSubclass(BindingFactory.class);
 
             factory = clazz.newInstance();
-
-            // inject resources into factory
-            bus.getResourceManager();
 
             for (String namespace : namespaceURIs) {
                 registerBindingFactory(namespace, factory);
@@ -60,25 +48,20 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     }
     
     public void registerBindingFactory(String name,
-                                       BindingFactory factory) throws BusException {
+                                       BindingFactory factory) {
         bindingFactories.put(name, factory);
     }
     
-    public void unregisterBindingFactory(String name) throws BusException {
+    public void unregisterBindingFactory(String name) {
         bindingFactories.remove(name);
     }
     
     public BindingFactory getBindingFactory(String namespace) throws BusException {
         BindingFactory factory = bindingFactories.get(namespace);
         if (null == factory) { 
-            String classname = factoryNamespaceMappings.getProperty(namespace);
-            if (null != classname) {
-                Collection<String> names = PropertiesLoaderUtils.
-                    getPropertyNames(factoryNamespaceMappings, classname);
-                String[] allNamespaces = new String[names.size()];
-                allNamespaces = names.toArray(allNamespaces);
-                factory = loadBindingFactory(classname, allNamespaces);
-            }
+            extensionManager.activateViaNS(namespace);
+            factory = bindingFactories.get(namespace);
+            throw new BusException(new Message("NO_BINDING_FACTORY_EXC", BUNDLE, namespace));
         }
         return factory;
     }

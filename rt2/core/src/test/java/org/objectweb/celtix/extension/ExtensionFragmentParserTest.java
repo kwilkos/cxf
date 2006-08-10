@@ -15,8 +15,8 @@ public class ExtensionFragmentParserTest extends TestCase {
         
         Extension e = extensions.get(0);
         assertTrue("Extension is deferred.", !e.isDeferred());
-        assertEquals("Unexpected name.", "immediate", e.getName());
-        assertEquals("Unexpected class.", "java.lang.String", e.getClassName());
+        assertEquals("Unexpected class name.", 
+                     "org.objectweb.celtix.foo.FooImpl", e.getClassname());
         Collection<String> namespaces = e.getNamespaces();
         for (String ns : namespaces) {
             assertTrue("Unexpected namespace.", "http://celtix.objectweb.org/a/b/c".equals(ns)
@@ -26,8 +26,8 @@ public class ExtensionFragmentParserTest extends TestCase {
         
         e = extensions.get(1);
         assertTrue("Extension is not deferred.", e.isDeferred());
-        assertEquals("Unexpected name.", "deferredBoolean", e.getName());
-        assertEquals("Unexpected class.", "java.lang.Boolean", e.getClassName());
+        assertEquals("Unexpected implementation class name.", 
+                     "java.lang.Boolean", e.getClassname());
         namespaces = e.getNamespaces();
         for (String ns : namespaces) {
             assertEquals("Unexpected namespace.", "http://celtix.objectweb.org/x/y/z", ns);            

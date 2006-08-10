@@ -108,7 +108,7 @@ public class TestBase extends TestCase {
             }
         }
 
-        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
         control.replay();
 
         ServiceInfo serviceInfo = wsdlServiceBuilder.buildService(def, service);

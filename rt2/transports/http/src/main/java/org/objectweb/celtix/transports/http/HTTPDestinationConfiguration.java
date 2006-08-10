@@ -16,6 +16,7 @@ import org.objectweb.celtix.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
  * Encapsulates aspects of HTTP Destination configuration not related
@@ -93,7 +94,7 @@ public class HTTPDestinationConfiguration {
             .getChild(ENDPOINT_CONFIGURATION_URI, serviceName.toString());
         Port port = null;
         try {
-            port = EndpointReferenceUtils.getPort(bus.getWSDL11Manager(), ref);
+            port = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
         } catch (WSDLException ex) {
             // ignore
         }
@@ -101,7 +102,7 @@ public class HTTPDestinationConfiguration {
         Configuration cfg = endpointConfiguration.getChild(HTTP_SERVER_CONFIGURATION_URI, 
                                                 HTTP_SERVER_CONFIGURATION_ID);
         if (null == cfg) {
-            ConfigurationBuilder cb = bus.getConfigurationBuilder();
+            ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
             cfg = cb.buildConfiguration(HTTP_SERVER_CONFIGURATION_URI, 
                                         HTTP_SERVER_CONFIGURATION_ID, 
                                         endpointConfiguration);

@@ -11,20 +11,32 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.celtix.common.injection.ResourceInjector;
+import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.PropertiesResolver;
+import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
 import org.springframework.core.io.UrlResource;
 
-public class ExtensionManager {
+public class ExtensionManagerImpl implements ExtensionManager {
 
-    private ClassLoader loader;
+    public static final String EXTENSIONMANAGER_PROPERTY_NAME = "extensionManager";
+    
+    private final ClassLoader loader;
     private ResourceInjector injector;
-    private Map<String, Object> active;
     private Map<String, Collection<Extension>> deferred;
+    private Map<Class, Object> activated;
 
-    public ExtensionManager(String resource, ClassLoader cl, ResourceInjector i) {
+    public ExtensionManagerImpl(String resource, ClassLoader cl, Map<String, Object> properties) {
         loader = cl;
-        injector = i;
-        active = new HashMap<String, Object>();
+
+        properties.put(EXTENSIONMANAGER_PROPERTY_NAME, this);
+
+        ResourceResolver resolver = new PropertiesResolver(properties);
+        ResourceManager resourceManager = new DefaultResourceManager(resolver);
+        injector = new ResourceInjector(resourceManager);
+
         deferred = new HashMap<String, Collection<Extension>>();
+        activated = new HashMap<Class, Object>();
 
         try {
             load(resource);
@@ -33,8 +45,12 @@ public class ExtensionManager {
         }
     }
 
-    public Object get(String name) {
-        return active.get(name);
+    public <T> T getExtension(Class<T> extensionType) {
+        Object obj = activated.get(extensionType);
+        if (null != obj) {
+            return extensionType.cast(obj);
+        }
+        return null;
     }
 
     public void activateViaNS(String namespaceURI) {
@@ -43,9 +59,7 @@ public class ExtensionManager {
             return;
         }
         for (Extension e : extensions) {
-            Object obj = e.load(loader);
-            injector.inject(obj);
-            active.put(e.getName(), obj);
+            loadAndRegister(e);
         }
         extensions.clear();
         deferred.remove(namespaceURI);
@@ -53,36 +67,26 @@ public class ExtensionManager {
 
     final void load(String resource) throws IOException {
         Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(resource);
-        List<Object> loaded = new ArrayList<Object>();
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             UrlResource urlRes = new UrlResource(url);
             InputStream is = urlRes.getInputStream();
-            List<Object> objs = loadFragment(is);
-            if (null != objs && objs.size() > 0) {
-                loaded.addAll(objs);
-            }
+            loadFragment(is);       
         }
-        for (Object obj : loaded) {
-            injector.inject(obj);
-        }
+        
     }
 
-    final List<Object> loadFragment(InputStream is) {
+    final void loadFragment(InputStream is) {
         List<Extension> extensions = new ExtensionFragmentParser().getExtensions(is);
-        List<Object> objs = new ArrayList<Object>();
         for (Extension e : extensions) {
-            objs.add(processExtension(e));
+            processExtension(e);
         }
-        return objs;
     }
 
-    final Object processExtension(Extension e) {
+    final void processExtension(Extension e) {
 
         if (!e.isDeferred()) {
-            Object obj = e.load(loader);
-            active.put(e.getName(), obj);
-            return obj;
+            loadAndRegister(e);
         }
 
         Collection<String> namespaces = e.getNamespaces();
@@ -94,7 +98,14 @@ public class ExtensionManager {
             }
             extensions.add(e);
         }
-        return null;
+    }
+    
+    final void loadAndRegister(Extension e) {
+        Object obj = e.load(loader);
+        injector.inject(obj);
+        if (null != e.getInterfaceName()) {
+            activated.put(e.loadInterface(loader), obj);
+        }
     }
 
 }

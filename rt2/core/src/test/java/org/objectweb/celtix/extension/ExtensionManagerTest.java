@@ -1,69 +1,80 @@
 package org.objectweb.celtix.extension;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.common.injection.ResourceInjector;
-import org.objectweb.celtix.resource.DefaultResourceManager;
-import org.objectweb.celtix.resource.PropertiesResolver;
+import org.easymock.classextension.IMocksControl;
 
 public class ExtensionManagerTest extends TestCase {
 
-    private ExtensionManager manager;
+    private ExtensionManagerImpl manager;
+    private IMocksControl control;
+    private MyService myService;
     
     public  void setUp() {
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("name", "cxf");
-        ResourceInjector injector = new ResourceInjector(new DefaultResourceManager(
-            new PropertiesResolver(properties)));
-        manager = new ExtensionManager("test-extension.xml", 
-            Thread.currentThread().getContextClassLoader(), injector); 
-        MyService.counter = 0;
+        properties.put("extensionManagerTest", this);
+        manager = new ExtensionManagerImpl("test-extension.xml", 
+            Thread.currentThread().getContextClassLoader(), properties); 
+        MyService.instances.clear();
+        myService = null;
     }
     
-    public void testProcessExtension() {
+    public void testLoadAndRegister() {
         Extension e = new Extension();
-        e.setClassName("java.lang.String");
-        String name = "immediate";
-        e.setName(name);
+        e.setClassname("java.lang.String");
+        e.setDeferred(false);        
+        manager.loadAndRegister(e);
+        
+        
+        String interfaceName = "java.lang.Runnable";
         e.setDeferred(false);
-        Object obj = manager.processExtension(e);
-        assertNotNull("Object was not loaded.", obj);
-        assertSame("Loaded object was not inserted in map of active objects.", obj, manager.get(name));
-        e.setDeferred(true);
-        e.setClassName("no.such.Class");
-        String ns = "http://celtix.objectweb.org/deferred";
-        e.getNamespaces().add(ns);
-        obj = manager.processExtension(e);
-        assertNull("Object was loaded.", obj);
+        e.setClassname("java.lang.Thread");
+        e.setInterfaceName(interfaceName);
+        assertNull("Object is registered.", manager.getExtension(Runnable.class));
+        manager.loadAndRegister(e);
+        assertNotNull("Object was not registered.", manager.getExtension(Runnable.class));
+        
     }
     
-    public void testActivateViaNS() {
+    @SuppressWarnings("unchecked")
+    public void testActivateViaNS() {        
+        
         Extension e = new Extension();
-        e.setClassName(MyService.class.getName());
+        e.setClassname(MyService.class.getName());
         String ns = "http://celtix.objectweb.org/integer";
         e.getNamespaces().add(ns);
-        String name = "deferred";
-        e.setName(name);
         e.setDeferred(true);
         manager.processExtension(e);
         manager.activateViaNS(ns);
-        assertEquals("Unexpected number of MyService instances.", 1, MyService.counter);
-        assertNotNull("Loaded object was not inserted in map of active objects.", manager.get(name));
-        // second activation should be a no-op
-        manager.activateViaNS("http://celtix.objectweb.org/integer");
-        assertEquals("Unexpected number of MyService instances.", 1, MyService.counter);
+        assertEquals("Unexpected number of MyService instances.", 1, MyService.instances.size());
+        assertSame(this, MyService.instances.get(0).extensionManagerTest);
+        assertSame(myService, MyService.instances.get(0));
     }
     
     public static class MyService {
-        static int counter;
+        
+        static List<MyService> instances = new ArrayList<MyService>();
+        
+        @Resource
+        ExtensionManagerTest extensionManagerTest;
         
         MyService() {
-            counter++;
+            instances.add(this);
+        }
+        
+        @PostConstruct
+        void registerMyselfAsExtension() {
+            extensionManagerTest.myService = this;
         }
     }
-    
+
     
 }

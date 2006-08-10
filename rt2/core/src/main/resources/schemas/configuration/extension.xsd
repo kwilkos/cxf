@@ -16,8 +16,8 @@
         <xs:sequence>
 			<xs:element name="namespace" type="xs:anyURI" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
-		<xs:attribute name="name" type="xs:string" use="required"/>
 		<xs:attribute name="class" type="xs:string" use="required"/>
+		<xs:attribute name="interface" type="xs:string" use="optional"/>
 		<xs:attribute name="deferred" type="xs:boolean" use="optional" default="false"/>
 	</xs:complexType>	
 </xs:schema>

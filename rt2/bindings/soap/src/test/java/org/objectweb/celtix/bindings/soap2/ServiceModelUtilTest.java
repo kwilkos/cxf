@@ -53,7 +53,7 @@ public class ServiceModelUtilTest extends TestCase {
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
-        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
 
         control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);

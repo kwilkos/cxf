@@ -36,6 +36,7 @@ import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactory;
+import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.service.model.AbstractMessageContainer;
 import org.objectweb.celtix.service.model.AbstractPropertiesHolder;
 import org.objectweb.celtix.service.model.BindingInfo;
@@ -190,7 +191,7 @@ public class WSDLServiceBuilder {
         String ns = ((ExtensibilityElement)binding.getExtensibilityElements().get(0)).getElementType()
             .getNamespaceURI();
         try {
-            BindingFactory factory = bus.getBindingManager().getBindingFactory(ns);
+            BindingFactory factory = bus.getExtension(BindingFactoryManager.class).getBindingFactory(ns);
             if (factory instanceof WSDLBindingFactory) {
                 WSDLBindingFactory wFactory = (WSDLBindingFactory)factory;
                 bi = wFactory.createBindingInfo(service, binding);

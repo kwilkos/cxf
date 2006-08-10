@@ -15,6 +15,7 @@ import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
+import org.objectweb.celtix.messaging.ConduitInitiatorManager;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.service.model.OperationInfo;
 
@@ -75,7 +76,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     private Conduit getConduit() {
         String transportID = endpoint.getEndpointInfo().getTransportId();
         try {
-            ConduitInitiator ci = bus.getConduitInitiatorManager().getConduitInitiator(transportID);
+            ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
+                .getConduitInitiator(transportID);
             return ci.getConduit(null);
         } catch (BusException ex) {
             // TODO: wrap in runtime exception

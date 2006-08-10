@@ -20,7 +20,7 @@ public class ExtensionFragmentParser {
     private static final String EXTENSION_ELEM_NAME = "extension";
     private static final String NAMESPACE_ELEM_NAME = "namespace";
     private static final String CLASS_ATTR_NAME = "class";
-    private static final String NAME_ATTR_NAME = "name";
+    private static final String INTERFACE_ATTR_NAME = "interface";
     private static final String DEFERRED_ATTR_NAME = "deferred";
     
     List<Extension> getExtensions(InputStream is) {
@@ -51,8 +51,8 @@ public class ExtensionFragmentParser {
                     && EXTENSION_ELEM_NAME.equals(nd.getLocalName())) {
                 Extension e = new Extension();
                 Element elem = (Element)nd;
-                e.setClassName(elem.getAttribute(CLASS_ATTR_NAME));
-                e.setName(elem.getAttribute(NAME_ATTR_NAME));
+                e.setClassname(elem.getAttribute(CLASS_ATTR_NAME));
+                e.setInterfaceName(elem.getAttribute(INTERFACE_ATTR_NAME));
                 String bval = elem.getAttribute(DEFERRED_ATTR_NAME).trim();
                 e.setDeferred("1".equals(bval) || "true".equals(bval));
                 

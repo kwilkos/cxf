@@ -14,20 +14,15 @@ public interface ConduitInitiatorManager {
      * @param name A string containing the name used to identify the
      * <code>ConduitInitiator</code>
      * @param factory The <code>ConduitInitiator</code> to be registered.
-     * @throws BusException If there is an error registering the conduit initiator.
      */
-    void registerConduitInitiator(String name,
-        ConduitInitiator factory) throws BusException;
+    void registerConduitInitiator(String name, ConduitInitiator factory);
 
     /**
      * Unregister a <code>ConduitInitiator</code>.
      * @param name A string containing the name of the
      * <code>ConduitInitiator</code>.
-     * @throws BusException If there is an error deregistering
-     * the conduit initiator.
      */
-    void deregisterConduitInitiator(String name)
-        throws BusException;
+    void deregisterConduitInitiator(String name);
     
     /**
      * Returns the <code>ConduitInitiator</code> registered with the specified name, 

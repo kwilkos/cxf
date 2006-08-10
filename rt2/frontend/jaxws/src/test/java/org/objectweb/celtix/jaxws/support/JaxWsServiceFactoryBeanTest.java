@@ -10,6 +10,7 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
 import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
 import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.wsdl.WSDLManager;
 import org.objectweb.celtix.wsdl11.WSDLManagerImpl;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
@@ -44,10 +45,10 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
         BindingFactoryManager bfm = new BindingFactoryManagerImpl();
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
 
-        expect(bus.getBindingManager()).andReturn(bfm).anyTimes();
+        expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm).anyTimes();
 
         WSDLManagerImpl wsdlMan = new WSDLManagerImpl();
-        expect(bus.getWSDL11Manager()).andReturn(wsdlMan);
+        expect(bus.getExtension(WSDLManager.class)).andReturn(wsdlMan);
 
         control.replay();
 

@@ -40,7 +40,7 @@ public class SoapBindingFactoryTest extends TestCase {
         BindingFactoryManager bfm = new BindingFactoryManagerImpl();
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
 
-        expect(bus.getBindingManager()).andReturn(bfm);
+        expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
         control.replay();
 
         WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);

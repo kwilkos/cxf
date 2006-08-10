@@ -7,17 +7,15 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.phase.Phase;
 
 public class PhaseFactory {
-    private Bus bus;
-    
+  
     PhaseFactory(Bus b) {
-        bus = b;
     }
     
     List<Phase> createInPhases() {
         List<Phase> inPhases = new ArrayList<Phase>(); 
         
         // TODO: get from configuration instead
-        bus.getConfiguration();
+        // bus.getConfiguration();
         
         int i = 0;
         

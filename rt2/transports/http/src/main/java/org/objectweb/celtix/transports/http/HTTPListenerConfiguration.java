@@ -44,7 +44,7 @@ public class HTTPListenerConfiguration {
         // Configuration cfg = cb.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
         Configuration cfg = busCfg.getChild(HTTP_LISTENER_CONFIGURATION_URI, id);
         if (null == cfg) {
-            ConfigurationBuilder cb = bus.getConfigurationBuilder();
+            ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
             cfg = cb.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, id, busCfg);
         }
         return cfg;

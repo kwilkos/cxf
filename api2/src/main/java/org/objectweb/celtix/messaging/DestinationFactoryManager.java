@@ -14,20 +14,15 @@ public interface DestinationFactoryManager {
      * @param name A string containing the name used to identify the
      * <code>DestinationFactory</code>
      * @param factory The <code>DestinationFactory</code> to be registered.
-     * @throws BusException If there is an error registering the destination factory.
      */
-    void registerDestinationFactory(String name,
-        DestinationFactory factory) throws BusException;
+    void registerDestinationFactory(String name, DestinationFactory factory);
 
     /**
      * Unregister a <code>DestinationFactory</code>.
      * @param name A string containing the name of the
      * <code>DestinationFactory</code>.
-     * @throws BusException If there is an error deregistering
-     * the destination factory.
      */
-    void deregisterDestinationFactory(String name)
-        throws BusException;
+    void deregisterDestinationFactory(String name);
     
     /**
      * Returns the <code>DestinationFactory</code> registered with the specified name, 

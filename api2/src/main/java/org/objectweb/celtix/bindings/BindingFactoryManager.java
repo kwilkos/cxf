@@ -17,19 +17,15 @@ public interface BindingFactoryManager {
      * @param name The name of the BindingFactory.
      * @param binding The instance of the class that implements the
      * BindingFactory interface.
-     * @throws BusException If there is an error registering the BindingFactory.
      */
-    void registerBindingFactory(String name,
-        BindingFactory binding) throws BusException;
+    void registerBindingFactory(String name, BindingFactory binding);
     
     /**
      * Deregisters the BindingFactory with the provided name.
      *
      * @param name The name of the BindingFactory.
-     * @throws BusException If there is an error deregistering the name.
      */
-    void unregisterBindingFactory(String name)
-        throws BusException;
+    void unregisterBindingFactory(String name);
 
     /**
      * Retrieves the BindingFactory registered with the given name.

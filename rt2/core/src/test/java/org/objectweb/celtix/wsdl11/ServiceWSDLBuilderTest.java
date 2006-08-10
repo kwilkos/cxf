@@ -69,7 +69,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
             }
         }
         
-        EasyMock.expect(bus.getBindingManager()).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
         control.replay();
         
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
