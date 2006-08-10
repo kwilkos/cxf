@@ -9,8 +9,6 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.soap2.SoapBinding;
 import org.objectweb.celtix.endpoint.EndpointImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.jaxws.bindings.BindingImpl;
 import org.objectweb.celtix.jaxws.bindings.soap.SOAPBindingImpl;
 import org.objectweb.celtix.jaxws.handlers.LogicalHandlerInterceptor;
@@ -18,8 +16,6 @@ import org.objectweb.celtix.jaxws.handlers.StreamHandlerInterceptor;
 import org.objectweb.celtix.jaxws.handlers.soap.SOAPHandlerInterceptor;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.service.model.InterfaceInfo;
-import org.objectweb.celtix.service.model.OperationInfo;
 
 /**
  * A JAX-WS specific implementation of the Celtix {@link Endpoint} interface.
@@ -31,18 +27,11 @@ import org.objectweb.celtix.service.model.OperationInfo;
  */
 public class JaxwsEndpointImpl extends EndpointImpl {
 
-    public static final String JAXWS_DATAREADER_FACTORY = 
-        "org.objectweb.celtix.frontends.jaxws.databinding.reader.factory";
-    public static final String JAXWS_DATAWRITER_FACTORY = 
-        "org.objectweb.celtix.frontends.jaxws.databinding.writer.factory";
-    
     private Binding binding;
     
     public JaxwsEndpointImpl(Bus bus, Service s, EndpointInfo ei) {
         super(bus, s, ei);
-        
-        registerFrontendDatabindings();
-        
+
         createJaxwsBinding();
         
         List<Interceptor> handlerInterceptors;
@@ -62,18 +51,6 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         in.addAll(handlerInterceptors);
         List<Interceptor> out = super.getOutInterceptors();
         out.addAll(handlerInterceptors);    
-    }
-   
-    final void registerFrontendDatabindings() {
-        InterfaceInfo ii = getService().getServiceInfo().getInterface();
-        for (OperationInfo oi : ii.getOperations()) {
-            if (null == oi.getProperty(JAXWS_DATAREADER_FACTORY)) {
-                oi.setProperty(JAXWS_DATAREADER_FACTORY, new JAXBDataReaderFactory());
-            }
-            if (null == oi.getProperty(JAXWS_DATAWRITER_FACTORY)) {
-                oi.setProperty(JAXWS_DATAWRITER_FACTORY, new JAXBDataWriterFactory());
-            }    
-        }
     }
     
     public Binding getJaxwsBinding() {

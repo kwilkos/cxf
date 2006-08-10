@@ -7,7 +7,9 @@ import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.interceptors.AbstractBasicInterceptorProvider;
 import org.objectweb.celtix.interceptors.InterceptorChain;
+import org.objectweb.celtix.interceptors.MessageSenderInterceptor;
 import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
@@ -16,7 +18,7 @@ import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.service.model.OperationInfo;
 
-public class ClientImpl implements Client {
+public class ClientImpl extends AbstractBasicInterceptorProvider implements Client {
 
     Bus bus;
     Endpoint endpoint;
@@ -24,6 +26,8 @@ public class ClientImpl implements Client {
     public ClientImpl(Bus b, Endpoint e) {
         bus = b;
         endpoint = e;
+        
+        getOutInterceptors().add(new MessageSenderInterceptor());
     }
     
 
@@ -43,17 +47,36 @@ public class ClientImpl implements Client {
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getOutPhases());
         chain.add(bus.getOutInterceptors());
         chain.add(endpoint.getService().getOutInterceptors());
-        chain.add(endpoint.getOutInterceptors());
+        chain.add(getOutInterceptors());
         chain.add(endpoint.getBinding().getOutInterceptors());
         
         modifyChain(chain, ctx);
         
         // setup conduit
+        Conduit conduit = getConduit();
+        exchange.setConduit(conduit);
+
+        // execute chain
         
-        String transportID = endpoint.getEndpointInfo().getNamespaceURI();
+        chain.doIntercept(message);
+
+        // correlate response        
+        if (conduit.getBackChannel() != null) {
+            // process partial response and wait for decoupled response
+        } else {
+            // process response: send was synchronous so when we get here we can assume that the 
+            // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
+        }
+
+        return exchange.getInMessage().getContent(Object[].class);
+    }
+
+
+    private Conduit getConduit() {
+        String transportID = endpoint.getEndpointInfo().getTransportId();
         try {
             ConduitInitiator ci = bus.getConduitInitiatorManager().getConduitInitiator(transportID);
-            ci.getConduit(null);
+            return ci.getConduit(null);
         } catch (BusException ex) {
             // TODO: wrap in runtime exception
             ex.printStackTrace();
@@ -64,33 +87,8 @@ public class ClientImpl implements Client {
             // TODO: can getConduitInitiator really throw a WSDLException?
             ex.printStackTrace();
         }
-
-        // execute chain
         
-        chain.doIntercept(message);
-        
-        // send message 
-        
-        Conduit conduit = exchange.getConduit();
-        
-        try {
-            conduit.send(message);
-        } catch (IOException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        }
-        
-        // correlate response
-        
-        if (conduit.getBackChannel() != null) {
-            // process partial response and wait for decoupled response
-        } else {
-            // process response: send was synchronous so when we get here we can assume that the 
-            // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
-        }
-        
-        
-        return exchange.getInMessage().getContent(Object[].class);
+        return null;
     }
     
     

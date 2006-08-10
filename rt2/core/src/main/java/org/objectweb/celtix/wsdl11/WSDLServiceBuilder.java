@@ -178,7 +178,7 @@ public class WSDLServiceBuilder {
         String ns = ((ExtensibilityElement)port.getExtensibilityElements().get(0)).getElementType()
             .getNamespaceURI();
         EndpointInfo ei = new EndpointInfo(service, ns);
-        ei.setName(port.getName());
+        ei.setName(new QName(service.getName().getNamespaceURI(), port.getName()));
         ei.setBinding(bi);
         copyExtensors(ei, port.getExtensibilityElements());
         service.addEndpoint(ei);

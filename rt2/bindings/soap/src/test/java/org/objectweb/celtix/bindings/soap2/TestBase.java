@@ -12,6 +12,7 @@ import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBContext;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -35,7 +36,7 @@ public class TestBase extends TestCase {
 
     protected PhaseInterceptorChain chain;
     protected SoapMessage soapMessage;
-    
+
     public void setUp() throws Exception {
         List<Phase> phases = new ArrayList<Phase>();
         Phase phase1 = new Phase("phase1", 1);
@@ -72,17 +73,18 @@ public class TestBase extends TestCase {
             }
         }
         return null;
-    }    
+    }
 
     public ServiceInfo getTestService(Class<?> clz) {
-        //FIXME?!?!?!??  There should NOT be JAX-WS stuff here
+        // FIXME?!?!?!?? There should NOT be JAX-WS stuff here
         return null;
     }
 
     protected BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
         ServiceInfo service = getMockedServiceModel(getClass().getResource(wsdlUrl).toString());
         assertNotNull(service);
-        BindingInfo binding = service.getEndpoint(port).getBinding();
+        BindingInfo binding = service.getEndpoint(new QName(service.getName().getNamespaceURI(), port))
+            .getBinding();
         assertNotNull(binding);
         return binding;
     }
@@ -114,7 +116,6 @@ public class TestBase extends TestCase {
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         return serviceInfo;
     }
-    
 
     protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);

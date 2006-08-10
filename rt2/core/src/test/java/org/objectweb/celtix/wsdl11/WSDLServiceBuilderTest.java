@@ -79,9 +79,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertTrue(serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SERVICE) == service);
 
         assertEquals("Incorrect number of endpoints", serviceInfo.getEndpoints().size(), 1);
-        EndpointInfo ei = serviceInfo.getEndpoint("SoapPort");
+        EndpointInfo ei = serviceInfo.getEndpoint(new QName("http://objectweb.org/hello_world_soap_http",
+                                                            "SoapPort"));
         assertNotNull(ei);
-        assertEquals("http://schemas.xmlsoap.org/wsdl/soap/", ei.getNamespaceURI());
+        assertEquals("http://schemas.xmlsoap.org/wsdl/soap/", ei.getTransportId());
         assertNotNull(ei.getBinding());
     }
 

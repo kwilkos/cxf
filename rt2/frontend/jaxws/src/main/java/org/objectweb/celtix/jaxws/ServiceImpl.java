@@ -126,10 +126,10 @@ public class ServiceImpl extends ServiceDelegate {
         if (portName == null) {
             if (1 == si.getEndpoints().size()) {
                 ei = si.getEndpoints().iterator().next();
-                pn = new QName(service.getName().getNamespaceURI(), ei.getName());
+                pn = new QName(service.getName().getNamespaceURI(), ei.getName().getLocalPart());
             }
         } else {
-            ei = si.getEndpoint(portName.getLocalPart());
+            ei = si.getEndpoint(portName);
         }
         if (null == pn) {
             throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));  

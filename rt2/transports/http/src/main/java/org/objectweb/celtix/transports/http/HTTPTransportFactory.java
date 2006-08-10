@@ -9,6 +9,7 @@ import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.DestinationFactory;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
@@ -29,4 +30,9 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
         throws WSDLException, IOException {
         return new JettyHTTPDestination(bus, reference);
     }
+
+    public Destination getDestination(EndpointInfo ei) throws WSDLException, IOException {
+        throw new UnsupportedOperationException();
+    }
+    
 }

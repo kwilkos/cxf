@@ -18,7 +18,7 @@ import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.EndpointInfo;
 
 public class EndpointImpl extends AbstractBasicInterceptorProvider implements Endpoint {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
@@ -26,13 +26,15 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private Binding binding;
     private EndpointInfo endpointInfo;
     private Executor executor;
+    private Bus bus;
     
     public EndpointImpl(Bus bus, Service s, EndpointInfo ei) {
+        this.bus = bus;
         service = s;
         endpointInfo = ei;
-        createBinding(bus, endpointInfo.getBinding());      
+        createBinding(endpointInfo.getBinding());
     }
-    
+
     public EndpointInfo getEndpointInfo() {
         return endpointInfo;
     }
@@ -40,8 +42,8 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     public Service getService() {
         return service;
     }
-    
-    public Binding getBinding() {    
+
+    public Binding getBinding() {
         return binding;
     }
 
@@ -50,18 +52,26 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     }
 
     public void setExecutor(Executor e) {
-        executor = e;     
+        executor = e;
     }
-    
-    final void createBinding(Bus bus, BindingInfo bi) {
-        String namespace = bi.getNamespaceURI();
+
+    public Bus getBus() {
+        return bus;
+    }
+
+    public void setBus(Bus bus) {
+        this.bus = bus;
+    }
+
+    final void createBinding(BindingInfo bi) {
+        String namespace = bi.getBindingId();
         BindingFactory bf = null;
         try {
             bf = bus.getBindingManager().getBindingFactory(namespace);
             binding = bf.createBinding(bi);
         } catch (BusException ex) {
             throw new WebServiceException(ex);
-        } 
+        }
         if (null == bf) {
             Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
             throw new WebServiceException(msg.toString());

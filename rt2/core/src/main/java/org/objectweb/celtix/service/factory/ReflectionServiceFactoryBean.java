@@ -34,6 +34,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     @Override
     public Service create() {
         initializeServiceConfigurations();
+        
         initializeServiceModel();
 
         initializeDataBindings();

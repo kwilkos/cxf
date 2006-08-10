@@ -13,7 +13,7 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     InterfaceInfo intf;
     TypeInfo typeInfo;
     Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
-    Map<String, EndpointInfo> endpoints = new ConcurrentHashMap<String, EndpointInfo>(2);
+    Map<QName, EndpointInfo> endpoints = new ConcurrentHashMap<QName, EndpointInfo>(2);
     
     public ServiceInfo() {
     }
@@ -49,7 +49,7 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     public void addBinding(BindingInfo binding) {
         bindings.put(binding.getName(), binding);
     }
-    public EndpointInfo getEndpoint(String qn) {
+    public EndpointInfo getEndpoint(QName qn) {
         return endpoints.get(qn);
     }
     public void addEndpoint(EndpointInfo ep) {

@@ -3,6 +3,8 @@ package org.objectweb.celtix.service.factory;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.databinding.DataWriterFactory;
+import org.objectweb.celtix.interceptors.MessageSenderInterceptor;
+import org.objectweb.celtix.interceptors.OutgoingChainInterceptor;
 import org.objectweb.celtix.interceptors.ServiceInvokerInterceptor;
 import org.objectweb.celtix.service.Service;
 
@@ -16,6 +18,8 @@ public abstract class AbstractServiceFactoryBean {
 
     protected void initializeDefaultInterceptors() {
         service.getInInterceptors().add(new ServiceInvokerInterceptor());
+        service.getOutInterceptors().add(new OutgoingChainInterceptor());
+        service.getOutInterceptors().add(new MessageSenderInterceptor());
     }
     
     protected void initializeDataBindings() {

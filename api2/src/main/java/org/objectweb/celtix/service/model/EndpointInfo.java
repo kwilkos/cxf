@@ -1,17 +1,19 @@
 package org.objectweb.celtix.service.model;
 
+import javax.xml.namespace.QName;
+
 public class EndpointInfo extends AbstractPropertiesHolder {
-    final String namespaceURI;
+    final String endpointType;
     ServiceInfo service;
     BindingInfo binding;
-    String name;
+    QName name;
     
     public EndpointInfo(ServiceInfo serv, String ns) {
-        namespaceURI = ns;
+        endpointType = ns;
         service = serv;
     }
-    public String getNamespaceURI() {
-        return namespaceURI;
+    public String getTransportId() {
+        return endpointType;
     }    
     public InterfaceInfo getInterface() {
         return service.getInterface();
@@ -20,10 +22,10 @@ public class EndpointInfo extends AbstractPropertiesHolder {
         return service;
     }
     
-    public String getName() {
+    public QName getName() {
         return name;
     }
-    public void setName(String n) {
+    public void setName(QName n) {
         name = n;
     }
 

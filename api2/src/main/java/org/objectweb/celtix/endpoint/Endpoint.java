@@ -7,8 +7,12 @@ import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.model.EndpointInfo;
 
+/**
+ * Represents an endpoint that receives messages. 
+ *
+ */
 public interface Endpoint extends InterceptorProvider {
-   
+
     EndpointInfo getEndpointInfo();
     
     Binding getBinding();
@@ -18,5 +22,4 @@ public interface Endpoint extends InterceptorProvider {
     void setExecutor(Executor executor);
     
     Executor getExecutor();
-    
 }

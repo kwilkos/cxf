@@ -1,5 +1,7 @@
 package org.objectweb.celtix.jaxws.support;
 
+import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
+import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.service.factory.ReflectionServiceFactoryBean;
 
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
@@ -8,6 +10,9 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         super();
 
         getServiceConfigurations().add(new JaxWsServiceConfiguration());
+        setDataReaderFactory(new JAXBDataReaderFactory());
+        setDataWriterFactory(new JAXBDataWriterFactory());
     }
 
+    
 }

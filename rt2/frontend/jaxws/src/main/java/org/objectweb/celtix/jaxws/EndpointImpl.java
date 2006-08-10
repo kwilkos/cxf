@@ -17,7 +17,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     Bus bus;
     String bindingURI;
     Object implementor;
-    Endpoint endpoint;
+    org.objectweb.celtix.endpoint.EndpointImpl endpoint;
     javax.xml.ws.Binding binding;
     Service service;
     boolean published;
@@ -35,7 +35,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         
         // use service's endpoint factory to create the celtix endpoint - this
         // creates the celtix binding etc. also.
-
+        
         
         // create JAX-WS Binding, i.e. handler chain and add JAX-WS handler interceptors to 
         // celtix binding (even if the handler chain is empty)

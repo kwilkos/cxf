@@ -179,7 +179,7 @@ public final class ServiceWSDLBuilder {
 
         for (EndpointInfo ei : service.getEndpoints()) {
             Port port = def.createPort();
-            port.setName(ei.getName());
+            port.setName(ei.getName().getLocalPart());
             port.setBinding(def.getBinding(ei.getBinding().getName()));
             addExtensibiltyElements(port, ei.getWSDL11Extensors());
             serv.addPort(port);

@@ -17,13 +17,13 @@ public class BindingInfo extends AbstractPropertiesHolder {
     
     QName name;
     ServiceInfo service;
-    final String namespaceURI;
+    final String bindingId;
     
     Map<QName, BindingOperationInfo> operations = new ConcurrentHashMap<QName, BindingOperationInfo>(4);
     
-    public BindingInfo(ServiceInfo serv, String n) {
-        service = serv;
-        namespaceURI = n;
+    public BindingInfo(ServiceInfo service, String bindingId) {
+        this.service = service;
+        this.bindingId = bindingId;
     }
     
     public InterfaceInfo getInterface() {
@@ -34,8 +34,8 @@ public class BindingInfo extends AbstractPropertiesHolder {
         return service;
     }
 
-    public String getNamespaceURI() {
-        return namespaceURI;
+    public String getBindingId() {
+        return bindingId;
     }
     
     public void setName(QName n) {
