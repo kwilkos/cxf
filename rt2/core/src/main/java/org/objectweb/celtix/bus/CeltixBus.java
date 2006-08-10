@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.extension.ExtensionManager;
 import org.objectweb.celtix.extension.ExtensionManagerImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.phase.Phase;
@@ -26,21 +25,24 @@ public class CeltixBus implements Bus {
     private List<Interceptor> outInterceptors;
     private List<Interceptor> faultInterceptors;
     private Map<Class, Object> extensions;
-    private ExtensionManager extensionManager;
     
     public CeltixBus() {
         this(new HashMap<Class, Object>());
     }
-    
+
     public CeltixBus(Map<Class, Object> e) {
+        this(e, new HashMap<String, Object>());
+    }
+    
+    public CeltixBus(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
         
-        Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(BUS_PROPERTY_NAME, this);
    
-        extensionManager = new ExtensionManagerImpl(BUS_EXTENSION_RESOURCE, 
+        new ExtensionManagerImpl(BUS_EXTENSION_RESOURCE, 
                                                     Thread.currentThread().getContextClassLoader(),
+                                                    extensions,
                                                     properties);
         
         createPhases();
@@ -64,7 +66,7 @@ public class CeltixBus implements Bus {
         if (null != obj) {
             return extensionType.cast(obj);
         }
-        return extensionManager.getExtension(extensionType);
+        return null;
     }
 
     public <T> void setExtension(T extension, Class<T> extensionType) {

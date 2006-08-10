@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions xmlns="http://celtix.objectweb.org/bus/extension">
+
+    <extension class="org.objectweb.celtix.transports.http.HTTPTransportFactory"
+           interface="org.objectweb.celtix.messaging.ConduitInitiator" deferred="true">
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
+        <namespace>http://celtix.objectweb.org/transports/http/configuration</namespace>
+    </extension>
+    
+    <extension class="org.objectweb.celtix.transports.http.HTTPTransportFactory"
+           interface="org.objectweb.celtix.messaging.DestinationFactory" deferred="true">
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
+        <namespace>http://celtix.objectweb.org/transports/http/configuration</namespace>
+    </extension>
+</extensions>

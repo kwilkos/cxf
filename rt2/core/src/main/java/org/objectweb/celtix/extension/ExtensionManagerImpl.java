@@ -24,10 +24,17 @@ public class ExtensionManagerImpl implements ExtensionManager {
     private final ClassLoader loader;
     private ResourceInjector injector;
     private Map<String, Collection<Extension>> deferred;
-    private Map<Class, Object> activated;
+    private final Map<Class, Object> activated;
 
-    public ExtensionManagerImpl(String resource, ClassLoader cl, Map<String, Object> properties) {
+    public ExtensionManagerImpl(String resource, ClassLoader cl, Map<Class, Object> initialExtensions) {
+        this(resource, cl, initialExtensions, new HashMap<String, Object>());
+    }
+
+    public ExtensionManagerImpl(String resource, ClassLoader cl, Map<Class, Object> initialExtensions, 
+        Map<String, Object> properties) {
+
         loader = cl;
+        activated = initialExtensions;
 
         properties.put(EXTENSIONMANAGER_PROPERTY_NAME, this);
 
@@ -36,21 +43,12 @@ public class ExtensionManagerImpl implements ExtensionManager {
         injector = new ResourceInjector(resourceManager);
 
         deferred = new HashMap<String, Collection<Extension>>();
-        activated = new HashMap<Class, Object>();
 
         try {
             load(resource);
         } catch (IOException ex) {
             throw new ExtensionException(ex);
         }
-    }
-
-    public <T> T getExtension(Class<T> extensionType) {
-        Object obj = activated.get(extensionType);
-        if (null != obj) {
-            return extensionType.cast(obj);
-        }
-        return null;
     }
 
     public void activateViaNS(String namespaceURI) {
@@ -101,10 +99,19 @@ public class ExtensionManagerImpl implements ExtensionManager {
     }
     
     final void loadAndRegister(Extension e) {
+        Class<?> cls = null;
+        if (null != e.getInterfaceName()) {
+            cls = e.loadInterface(loader);
+        }
+
+        if (null != activated && null != cls && null != activated.get(cls)) {
+            return;
+        }
+ 
         Object obj = e.load(loader);
         injector.inject(obj);
-        if (null != e.getInterfaceName()) {
-            activated.put(e.loadInterface(loader), obj);
+        if (null != activated && null != e.getInterfaceName()) {
+            activated.put(cls, obj);
         }
     }
 

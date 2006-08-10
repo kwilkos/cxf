@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions xmlns="http://celtix.objectweb.org/bus/extension">
+
+    <extension class="org.objectweb.celtix.management.InstrumentationManagerImpl"
+           interface="org.objectweb.celtix.management.InstrumentationManager"/>
+    <extension class="org.objectweb.celtix.management.EventProcessorImpl"
+           interface="org.objectweb.celtix.event.EventProcessor"/>
+    
+</extensions>
