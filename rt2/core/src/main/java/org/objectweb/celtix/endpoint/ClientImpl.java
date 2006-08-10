@@ -17,6 +17,7 @@ import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.ConduitInitiatorManager;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
+import org.objectweb.celtix.phase.PhaseManager;
 import org.objectweb.celtix.service.model.OperationInfo;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client {
@@ -44,8 +45,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         setExchangeProperties(exchange, ctx);
 
         // setup chain
-        
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getOutPhases());
+        PhaseManager pm = bus.getExtension(PhaseManager.class);
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         chain.add(bus.getOutInterceptors());
         chain.add(endpoint.getService().getOutInterceptors());
         chain.add(getOutInterceptors());

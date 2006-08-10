@@ -9,5 +9,7 @@
            interface="org.objectweb.celtix.messaging.ConduitInitiatorManager"/>
     <extension class="org.objectweb.celtix.wsdl11.WSDLManagerImpl"
            interface="org.objectweb.celtix.wsdl.WSDLManager"/>
+    <extension class="org.objectweb.celtix.phase.PhaseManagerImpl"
+           interface="org.objectweb.celtix.phase.PhaseManager"/>
     
 </extensions>

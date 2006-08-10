@@ -1,13 +1,17 @@
 package org.objectweb.celtix.bindings;
 
+import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.service.model.AbstractPropertiesHolder;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
@@ -18,6 +22,19 @@ import static org.objectweb.celtix.helpers.CastUtils.cast;
 
 public abstract class AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
+    @Resource
+    Bus bus;
+    
+    @Resource
+    Collection<String> activationNamespaces;
+    
+    @PostConstruct
+    void registerWithBindingManager() {
+        BindingFactoryManager manager = bus.getExtension(BindingFactoryManager.class);
+        for (String ns : activationNamespaces) {
+            manager.registerBindingFactory(ns, this);
+        }
+    }
     
     /**
      * Creates a "default" BindingInfo object for the service.  Called by 

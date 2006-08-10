@@ -14,6 +14,7 @@ import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.phase.Phase;
+import org.objectweb.celtix.phase.PhaseManager;
 import org.objectweb.celtix.service.ServiceImpl;
 
 import static org.easymock.EasyMock.expect;
@@ -36,10 +37,12 @@ public class OutgoingChainInterceptorTest extends TestCase {
     Bus getBus() {
         IMocksControl control = createNiceControl();
         Bus bus = control.createMock(Bus.class);
+        PhaseManager pm = control.createMock(PhaseManager.class);
         
         List<Phase> phases = new ArrayList<Phase>();
         phases.add(new Phase(Phase.SEND, 1000));
-        expect(bus.getOutPhases()).andReturn(phases);
+        expect(bus.getExtension(PhaseManager.class)).andReturn(pm);
+        expect(pm.getOutPhases()).andReturn(phases);
 
         control.replay();
         

@@ -1,32 +1,31 @@
 package org.objectweb.celtix.extension;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.IMocksControl;
+import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
+import org.objectweb.celtix.resource.SinglePropertyResolver;
 
 public class ExtensionManagerTest extends TestCase {
 
+    private static final String EXTENSIONMANAGER_TEST_RESOURECE_NAME = "extensionManagerTest";
     private ExtensionManagerImpl manager;
-    private IMocksControl control;
     private MyService myService;
     private Map<Class, Object> extensions;
     
     public  void setUp() {
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("extensionManagerTest", this);
+        ResourceResolver resolver = new SinglePropertyResolver(EXTENSIONMANAGER_TEST_RESOURECE_NAME, this);
+        ResourceManager rm = new DefaultResourceManager(resolver);
+        
         extensions = new HashMap<Class, Object>();
         extensions.put(Integer.class, new Integer(0));
+        
         manager = new ExtensionManagerImpl("test-extension.xml", 
-            Thread.currentThread().getContextClassLoader(), extensions, properties); 
-        MyService.instances.clear();
+            Thread.currentThread().getContextClassLoader(), extensions, rm); 
         myService = null;
     }
     
@@ -64,27 +63,21 @@ public class ExtensionManagerTest extends TestCase {
         e.getNamespaces().add(ns);
         e.setDeferred(true);
         manager.processExtension(e);
+        assertNull(myService);
         manager.activateViaNS(ns);
-        assertEquals("Unexpected number of MyService instances.", 1, MyService.instances.size());
-        assertSame(this, MyService.instances.get(0).extensionManagerTest);
-        assertSame(myService, MyService.instances.get(0));
+        assertNotNull(myService);
+        assertEquals(1, myService.getActivationNamespaces().size());
+        assertEquals(ns, myService.getActivationNamespaces().iterator().next());
+        
+        // second activation should be a no-op
+        
+        MyService first = myService;
+        manager.activateViaNS(ns);
+        assertSame(first, myService);
     }
     
-    public static class MyService {
-        
-        static List<MyService> instances = new ArrayList<MyService>();
-        
-        @Resource
-        ExtensionManagerTest extensionManagerTest;
-        
-        MyService() {
-            instances.add(this);
-        }
-        
-        @PostConstruct
-        void registerMyselfAsExtension() {
-            extensionManagerTest.myService = this;
-        }
+    public void setMyService(MyService m) {
+        myService = m;
     }
 
     

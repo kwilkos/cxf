@@ -7,6 +7,7 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
+import org.objectweb.celtix.phase.PhaseManager;
 
 public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -17,7 +18,8 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
 
     public void handleMessage(Message message) {
         Bus bus = (Bus) message.getExchange().get(Message.BUS);
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getOutPhases());
+        PhaseManager pm = bus.getExtension(PhaseManager.class);
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
         Endpoint ep = (Endpoint) message.getExchange().get(ExchangeConstants.ENDPOINT);
         chain.add(ep.getOutInterceptors());

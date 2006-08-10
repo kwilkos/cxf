@@ -33,7 +33,7 @@ import org.objectweb.celtix.wsdl11.WSDLBindingFactory;
 public class SoapBindingFactory extends AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
-        
+     
     public Binding createBinding(BindingInfo binding) {
         
         if (cachedBinding.get(binding) != null) {

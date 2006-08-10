@@ -9,8 +9,11 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.extension.ExtensionManagerImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.phase.Phase;
-
+import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.objectweb.celtix.resource.PropertiesResolver;
+import org.objectweb.celtix.resource.ResourceManager;
+import org.objectweb.celtix.resource.ResourceResolver;
+import org.objectweb.celtix.resource.SinglePropertyResolver;
 
 public class CeltixBus implements Bus {
     
@@ -18,9 +21,6 @@ public class CeltixBus implements Bus {
     
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
     
-    
-    private List<Phase> inPhases;
-    private List<Phase> outPhases;
     private List<Interceptor> inInterceptors;
     private List<Interceptor> outInterceptors;
     private List<Interceptor> faultInterceptors;
@@ -31,22 +31,26 @@ public class CeltixBus implements Bus {
     }
 
     public CeltixBus(Map<Class, Object> e) {
-        this(e, new HashMap<String, Object>());
+        this(e, null);
     }
     
     public CeltixBus(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
         
-        properties.put(BUS_PROPERTY_NAME, this);
+        ResourceManager resourceManager = new DefaultResourceManager();
+        if (null != properties) {
+            ResourceResolver propertiesResolver = new PropertiesResolver(properties);
+            resourceManager.addResourceResolver(propertiesResolver);
+        }
+        
+        ResourceResolver busResolver = new SinglePropertyResolver(BUS_PROPERTY_NAME, this);
+        resourceManager.addResourceResolver(busResolver);
    
         new ExtensionManagerImpl(BUS_EXTENSION_RESOURCE, 
                                                     Thread.currentThread().getContextClassLoader(),
                                                     extensions,
-                                                    properties);
-        
-        createPhases();
-                
+                                                    resourceManager);
     }
     
     public List<Interceptor> getFaultInterceptors() {
@@ -73,25 +77,8 @@ public class CeltixBus implements Bus {
         extensions.put(extensionType, extension);
     }
     
-    // TODO: define PhaseManager interface and register PhaseManagerImpl as an extension
-    
-    public List<Phase> getInPhases() {
-        return inPhases;
-    }
-
-    public List<Phase> getOutPhases() {
-        return outPhases;
-    }
-    
     // TODO:
     public Configuration getConfiguration() {
         return null;
     }
-
-    final void createPhases() {
-        PhaseFactory pf = new PhaseFactory(this);
-        inPhases = pf.createInPhases();
-        outPhases = pf.createOutPhases();
-    }
-
 }

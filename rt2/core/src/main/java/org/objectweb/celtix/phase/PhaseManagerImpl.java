@@ -1,18 +1,28 @@
-package org.objectweb.celtix.bus;
+package org.objectweb.celtix.phase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.phase.Phase;
-
-public class PhaseFactory {
-  
-    PhaseFactory(Bus b) {
-    }
+public class PhaseManagerImpl implements PhaseManager {
+ 
+    private  List<Phase> inPhases;
+    private  List<Phase> outPhases;
     
-    List<Phase> createInPhases() {
-        List<Phase> inPhases = new ArrayList<Phase>(); 
+    public PhaseManagerImpl() {
+        createInPhases();
+        createOutPhases();
+    } 
+
+    public List<Phase> getInPhases() {
+        return inPhases;
+    }
+  
+    public List<Phase> getOutPhases() {
+        return outPhases;
+    }
+
+    final void createInPhases() {
+        inPhases = new ArrayList<Phase>(); 
         
         // TODO: get from configuration instead
         // bus.getConfiguration();
@@ -34,13 +44,10 @@ public class PhaseFactory {
         inPhases.add(new Phase(Phase.POST_LOGICAL, ++i * 1000));
         inPhases.add(new Phase(Phase.PRE_INVOKE, ++i * 1000));
         // Collections.sort(inPhases);
-        
-        
-        return inPhases;
     }
     
-    List<Phase> createOutPhases() {
-        List<Phase> outPhases = new ArrayList<Phase>();
+    final void createOutPhases() {
+        outPhases = new ArrayList<Phase>();
         
         // TODO: get from configuration instead
         
@@ -62,7 +69,5 @@ public class PhaseFactory {
         outPhases.add(new Phase(Phase.SEND, ++i * 1000));
         
         // Collections.sort(outPhases);
-        
-        return outPhases;
     }
 }

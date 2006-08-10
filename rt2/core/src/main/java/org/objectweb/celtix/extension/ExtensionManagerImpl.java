@@ -11,36 +11,32 @@ import java.util.List;
 import java.util.Map;
 
 import org.objectweb.celtix.common.injection.ResourceInjector;
-import org.objectweb.celtix.resource.DefaultResourceManager;
-import org.objectweb.celtix.resource.PropertiesResolver;
 import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.resource.ResourceResolver;
+import org.objectweb.celtix.resource.SinglePropertyResolver;
 import org.springframework.core.io.UrlResource;
 
 public class ExtensionManagerImpl implements ExtensionManager {
 
     public static final String EXTENSIONMANAGER_PROPERTY_NAME = "extensionManager";
+    public static final String ACTIVATION_NAMESPACES_PROPERTY_NAME = "activationNamespaces";
     
     private final ClassLoader loader;
-    private ResourceInjector injector;
+    private ResourceManager resourceManager;
     private Map<String, Collection<Extension>> deferred;
     private final Map<Class, Object> activated;
 
-    public ExtensionManagerImpl(String resource, ClassLoader cl, Map<Class, Object> initialExtensions) {
-        this(resource, cl, initialExtensions, new HashMap<String, Object>());
-    }
 
     public ExtensionManagerImpl(String resource, ClassLoader cl, Map<Class, Object> initialExtensions, 
-        Map<String, Object> properties) {
+        ResourceManager rm) {
 
         loader = cl;
         activated = initialExtensions;
+        resourceManager = rm;
 
-        properties.put(EXTENSIONMANAGER_PROPERTY_NAME, this);
-
-        ResourceResolver resolver = new PropertiesResolver(properties);
-        ResourceManager resourceManager = new DefaultResourceManager(resolver);
-        injector = new ResourceInjector(resourceManager);
+        ResourceResolver extensionManagerResolver =
+            new SinglePropertyResolver(EXTENSIONMANAGER_PROPERTY_NAME, this);
+        resourceManager.addResourceResolver(extensionManagerResolver);
 
         deferred = new HashMap<String, Collection<Extension>>();
 
@@ -109,7 +105,25 @@ public class ExtensionManagerImpl implements ExtensionManager {
         }
  
         Object obj = e.load(loader);
-        injector.inject(obj);
+        
+        // let the object know for which namespaces it has been activated
+        ResourceResolver namespacesResolver = null;
+        if (null != e.getNamespaces()) {            
+            namespacesResolver = new SinglePropertyResolver(ACTIVATION_NAMESPACES_PROPERTY_NAME, 
+                                                            e.getNamespaces());
+            resourceManager.addResourceResolver(namespacesResolver);
+        }
+        
+        ResourceInjector injector = new ResourceInjector(resourceManager);
+        
+        try {
+            injector.inject(obj);
+        } finally {
+            if (null != namespacesResolver) {
+                resourceManager.removeResourceResolver(namespacesResolver);
+            }
+        }
+        
         if (null != activated && null != e.getInterfaceName()) {
             activated.put(cls, obj);
         }
