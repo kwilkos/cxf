@@ -7,10 +7,12 @@ public class PhaseManagerImpl implements PhaseManager {
  
     private  List<Phase> inPhases;
     private  List<Phase> outPhases;
+    private  List<Phase> faultPhases;
     
     public PhaseManagerImpl() {
         createInPhases();
         createOutPhases();
+        createFaultPhases();
     } 
 
     public List<Phase> getInPhases() {
@@ -19,6 +21,10 @@ public class PhaseManagerImpl implements PhaseManager {
   
     public List<Phase> getOutPhases() {
         return outPhases;
+    }
+
+    public List<Phase> getFaultPhases() {
+        return faultPhases;
     }
 
     final void createInPhases() {
@@ -69,5 +75,9 @@ public class PhaseManagerImpl implements PhaseManager {
         outPhases.add(new Phase(Phase.SEND, ++i * 1000));
         
         // Collections.sort(outPhases);
+    }
+
+    final void createFaultPhases() {
+        faultPhases = new ArrayList<Phase>();
     }
 }
