@@ -26,12 +26,14 @@ public class BareInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         String opName = (String) message.get(Message.INVOCATION_OPERATION);
+
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         BindingOperationInfo operation = ServiceModelUtil.getOperation(message, opName);
+
         DataReader<XMLStreamReader> dr = getDataReader(message, operation.getOperationInfo());
         
         MessageInfo msg;
-        
+
         if (isInboundMessage(message)) {
             msg = operation.getInput().getMessageInfo();
         } else {
@@ -51,15 +53,17 @@ public class BareInInterceptor extends AbstractPhaseInterceptor<Message> {
                                                         + " does not exist!"));
             }
             QName name = xmlReader.getName();
-            if (!p.getName().equals(name)) {
+            QName elName = ServiceModelUtil.getPartName(p);
+            
+            if (!elName.equals(name)) {
                 message.setContent(Exception.class,
                                    new RuntimeException("Parameter " + name + " does not exist!"));
             }
-            parameters.add(dr.read(p.getName(),
+            parameters.add(dr.read(elName,
                                    xmlReader));
         }
         
-        message.put("OBJECTS", parameters);
+        message.put(Message.INVOCATION_OBJECTS, parameters);
     }
 
     protected DataReader<XMLStreamReader> getDataReader(Message message, OperationInfo oi) {

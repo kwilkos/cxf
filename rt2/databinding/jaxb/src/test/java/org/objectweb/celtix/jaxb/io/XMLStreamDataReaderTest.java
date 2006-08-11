@@ -24,11 +24,6 @@ import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
  
 public class XMLStreamDataReaderTest extends TestCase {
 
-    public static final QName  SOAP_ENV = 
-        new QName("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
-    public static final QName  SOAP_BODY = 
-            new QName("http://schemas.xmlsoap.org/soap/envelope/", "Body");
-
     private XMLInputFactory factory;
     private XMLStreamReader reader;
     private InputStream is;
@@ -44,17 +39,12 @@ public class XMLStreamDataReaderTest extends TestCase {
     public void testReadWrapper() throws Exception {
         JAXBDataReaderFactory rf = getTestReaderFactory(Greeter.class);
 
-        QName[] tags = {SOAP_ENV, 
-                        SOAP_BODY};
-
         reader = getTestReader("../resources/GreetMeDocLiteralReq.xml");
         assertNotNull(reader);
         
-        XMLStreamReader localReader = getTestFilteredReader(reader, tags);
-
         DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
         assertNotNull(dr);
-        Object val = dr.read(localReader);
+        Object val = dr.read(reader);
         assertNotNull(val);
         assertTrue(val instanceof GreetMe);
         assertEquals("TestSOAPInputPMessage", ((GreetMe)val).getRequestType());
@@ -63,17 +53,13 @@ public class XMLStreamDataReaderTest extends TestCase {
     public void testReadWrapperReturn() throws Exception {
         JAXBDataReaderFactory rf = getTestReaderFactory(Greeter.class);
 
-        QName[] tags = {SOAP_ENV, 
-                        SOAP_BODY};
-
         reader = getTestReader("../resources/GreetMeDocLiteralResp.xml");
         assertNotNull(reader);
-        XMLStreamReader localReader = getTestFilteredReader(reader, tags);
 
         DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
         assertNotNull(dr);
         
-        Object retValue = dr.read(localReader);
+        Object retValue = dr.read(reader);
         
         assertNotNull(retValue);
         assertTrue(retValue instanceof GreetMeResponse);
@@ -83,9 +69,7 @@ public class XMLStreamDataReaderTest extends TestCase {
     public void testReadRPC() throws Exception {
         JAXBDataReaderFactory rf = getTestReaderFactory(GreeterRPCLit.class);
 
-        QName[] tags = {SOAP_ENV, 
-                        SOAP_BODY,
-                        new QName("http://objectweb.org/hello_world_rpclit", "sendReceiveData")};
+        QName[] tags = {new QName("http://objectweb.org/hello_world_rpclit", "sendReceiveData")};
 
         reader = getTestReader("../resources/greetMeRpcLitReq.xml");
         assertNotNull(reader);
@@ -98,6 +82,7 @@ public class XMLStreamDataReaderTest extends TestCase {
                              localReader,
                              MyComplexStruct.class);
         assertNotNull(val);
+
         assertTrue(val instanceof MyComplexStruct);
         assertEquals("this is element 1", ((MyComplexStruct)val).getElem1());
         assertEquals("this is element 2", ((MyComplexStruct)val).getElem2());
@@ -108,18 +93,13 @@ public class XMLStreamDataReaderTest extends TestCase {
     public void testReadBare() throws Exception {
         JAXBDataReaderFactory rf = getTestReaderFactory(PutLastTradedPricePortType.class);
 
-        QName[] tags = {SOAP_ENV, 
-                        SOAP_BODY};
-
         reader = getTestReader("../resources/sayHiDocLitBareReq.xml");
         assertNotNull(reader);
         
-        XMLStreamReader localReader = getTestFilteredReader(reader, tags);
-
         DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
         assertNotNull(dr);
         Object val = dr.read(new QName("http://objectweb.org/hello_world_doc_lit_bare/types", "inout"),
-                             localReader,
+                             reader,
                              null);
 
         assertNotNull(val);

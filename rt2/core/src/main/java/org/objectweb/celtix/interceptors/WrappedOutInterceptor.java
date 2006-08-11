@@ -1,10 +1,7 @@
 package org.objectweb.celtix.interceptors;
 
-import java.io.*;
 import java.util.*;
 
-
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.objectweb.celtix.databinding.DataWriter;
@@ -12,53 +9,35 @@ import org.objectweb.celtix.databinding.DataWriterFactory;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceModelUtil;
 
-public class BareOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
+    
     public void handleMessage(Message message) {
         try {
             String opName = (String) message.get(Message.INVOCATION_OPERATION);
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-
             BindingOperationInfo operation = ServiceModelUtil.getOperation(message, opName);
             DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, operation.getOperationInfo());
+
+            List<?> objs = (List<?>) message.get(message.INVOCATION_OBJECTS);
             
-            int countParts = 0;
-            List<MessagePartInfo> parts = null;
-            if (isOutboundMessage(message)) {
-                parts = operation.getOutput().getMessageInfo().getMessageParts();
-            } else {
-                parts = operation.getInput().getMessageInfo().getMessageParts();
+            if (objs != null && objs.size() > 0) {
+                dataWriter.write(objs.get(0),
+                                 xmlWriter);
             }
-            countParts = parts.size();
-
-            if (countParts > 0) {
-                List<?> objs = (List<?>) message.get(Message.INVOCATION_OBJECTS);
-                Object[] args = objs.toArray();
-                Object[] els  = parts.toArray();
-
-                if (args.length != els.length) {
-                    message.setContent(Exception.class,
-                                       new RuntimeException("The number of arguments is not equal!"));
-                }
-                
-                for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = args[idx];
-                    MessagePartInfo  part = (MessagePartInfo) els[idx];
-                    QName elName = ServiceModelUtil.getPartName(part);
-                    dataWriter.write(arg, elName, xmlWriter);
-                }
-            }
-            // Finishing the writing.
+            
             xmlWriter.flush();
             xmlWriter.close();
         } catch (Exception e) {
-            e.printStackTrace();
             message.setContent(Exception.class, e);
         }
+    }
+
+    protected boolean isOutboundMessage(Message message) {
+        return message.containsKey(Message.INBOUND_MESSAGE);
     }
 
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message, OperationInfo oi) {
@@ -78,11 +57,7 @@ public class BareOutInterceptor extends AbstractPhaseInterceptor<Message> {
         }        
         return dataWriter;
     }
-
-    protected boolean isOutboundMessage(Message message) {
-        return message.containsKey(Message.INBOUND_MESSAGE);
-    }
-
+    
     private XMLStreamWriter getXMLStreamWriter(Message message) {
         return message.getContent(XMLStreamWriter.class);
     }
