@@ -23,7 +23,8 @@ public class ObjectFactory {
 
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.objectweb.hello_world_soap_http.types
+     * Create a new ObjectFactory that can be used to create new instances of
+     * schema derived classes for package: org.objectweb.hello_world_soap_http.types
      * 
      */
     public ObjectFactory() {

@@ -30,9 +30,11 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "responseType"
-})
+@XmlType(name = "",
+         propOrder = {
+             "responseType"
+         }
+         )
 @XmlRootElement(name = "greetMeResponse")
 public class GreetMeResponse {
 

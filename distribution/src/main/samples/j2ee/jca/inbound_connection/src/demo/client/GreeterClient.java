@@ -11,7 +11,7 @@ import org.objectweb.hello_world_soap_http.SOAPService;
 /**
  * validate call to ejb in jboss from command line
  */
-public class GreeterClient {
+public final class GreeterClient {
 
     private static final QName SERVICE_NAME 
         = new QName("http://objectweb.org/hello_world_soap_http", "SOAPService");
@@ -22,7 +22,7 @@ public class GreeterClient {
     public static void main(String[] args) throws Exception {
         
         
-        if(args.length < 1) { 
+        if (args.length < 1) { 
             System.out.println("please specify wsdl");
             System.exit(1); 
         } 

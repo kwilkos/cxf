@@ -19,7 +19,8 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;complexContent>
  *       &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *         &lt;sequence>
- *           &lt;element name="requestType" type="{http://objectweb.org/hello_world_soap_http/types}MyStringType"/>
+ *           &lt;element name="requestType"
+ *                       type="{http://objectweb.org/hello_world_soap_http/types}MyStringType"/>
  *         &lt;/sequence>
  *       &lt;/restriction>
  *     &lt;/complexContent>
@@ -30,9 +31,11 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "requestType"
-})
+@XmlType(name = "",
+         propOrder = {
+             "requestType"
+         }
+         )
 @XmlRootElement(name = "greetMe")
 public class GreetMe {
 

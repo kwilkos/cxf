@@ -11,7 +11,7 @@ import javax.ejb.SessionContext;
 public class GreeterBean implements SessionBean {
 
     private SessionContext sessionCtx;
-    private String response = null;
+    private String response = "";
 
     public String sayHi() throws RemoteException {
         System.out.println("sayHi invoked");
@@ -23,10 +23,20 @@ public class GreeterBean implements SessionBean {
         return "Hi " + user + " from an EJB"; 
     }
 
-    public void ejbActivate() {}
-    public void ejbRemove() {}
-    public void ejbPassivate() {}
-    public void ejbCreate() throws CreateException {}
-    public void setSessionContext(SessionContext sessionCtx) { this.sessionCtx = sessionCtx; }
+    public void ejbActivate() {
+    }
+    
+    public void ejbRemove() {
+    }
+    
+    public void ejbPassivate() {
+    }
+    
+    public void ejbCreate() throws CreateException {
+    }
+    
+    public void setSessionContext(SessionContext con) {
+        this.sessionCtx = con;
+    }
 
 }
