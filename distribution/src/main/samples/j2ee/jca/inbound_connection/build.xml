@@ -11,7 +11,7 @@
     <property name="ejb.xml" location="./etc/ejb.xml"/>
     
     <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
-    <property name="servants.props.file" location="${basedir}/../../../etc/ejb_servants.properties"/>
+    <property name="servants.props.file" location="${basedir}/../../../../etc/ejb_servants.properties"/>
     <property file="${servants.props.file}"/>
     <property name="j2ee.archives" value="j2ee-archives"/>
 
@@ -115,7 +115,7 @@
     -->
     <target name="activate" description="updates ejb_servants.properties for demo " unless="GreeterBean">
       <property name="servant.definition" 
-		value="GreeterBean={http://www.iona.com/hello_world_soap_http}SOAPService@file:${wsdl.location}"/>
+		value="GreeterBean={http://objectweb.org/hello_world_soap_http}SOAPService@file:${wsdl.location}"/>
       <echo message="updating ${servants.props.file}" />
 
       <echo file="${servants.props.file}" append="true">
