@@ -8,7 +8,7 @@ import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.endpoint.ServerImpl;
 import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
 import org.objectweb.celtix.service.Service;
 
@@ -17,7 +17,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     Bus bus;
     String bindingURI;
     Object implementor;
-    org.objectweb.celtix.endpoint.EndpointImpl endpoint;
+    ServerImpl server;
     javax.xml.ws.Binding binding;
     Service service;
     boolean published;
@@ -53,11 +53,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     // TO DO: verify that on the server side we can have a 1:1 relationship ebtween Service and Endpoint
     
     public void setExecutor(Executor executor) {
-        endpoint.getService().setExecutor(executor);        
+        server.getEndpoint().getService().setExecutor(executor);        
     }
     
     public Executor getExecutor() {
-        return endpoint.getService().getExecutor();
+        return server.getEndpoint().getService().getExecutor();
     }
 
     @Override
@@ -107,14 +107,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-        
+        server.stop();
     }
     
-    public Endpoint getEndpoint() {
-        return endpoint;
-    }
-    
-    
-    
+    public ServerImpl getServer() {
+        return server;
+    }  
 }

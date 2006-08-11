@@ -25,6 +25,8 @@ public class CeltixBus implements Bus {
     private List<Interceptor> outInterceptors;
     private List<Interceptor> faultInterceptors;
     private Map<Class, Object> extensions;
+//    private ConfigurationBuilder configurationBuilder;
+    private Configuration configuration;
     
     public CeltixBus() {
         this(new HashMap<Class, Object>());
@@ -51,6 +53,17 @@ public class CeltixBus implements Bus {
                                                     Thread.currentThread().getContextClassLoader(),
                                                     extensions,
                                                     resourceManager);
+        
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
+        }
+//        
+//        properties.put(BusConfigurationBuilder.BUS_ID_PROPERTY, BUS_PROPERTY_NAME);
+//        properties.put(BUS_PROPERTY_NAME, this);
+//        
+//        configurationBuilder = new CeltixConfigurationBuilder();       
+//        configuration = new BusConfigurationBuilder().build(configurationBuilder, properties);
+
     }
     
     public List<Interceptor> getFaultInterceptors() {
@@ -76,9 +89,9 @@ public class CeltixBus implements Bus {
     public <T> void setExtension(T extension, Class<T> extensionType) {
         extensions.put(extensionType, extension);
     }
-    
+
     // TODO:
     public Configuration getConfiguration() {
-        return null;
+        return configuration;
     }
 }

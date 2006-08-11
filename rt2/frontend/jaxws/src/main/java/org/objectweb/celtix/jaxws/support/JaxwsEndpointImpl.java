@@ -64,7 +64,4 @@ public class JaxwsEndpointImpl extends EndpointImpl {
             binding = new BindingImpl();
         }
     }
-    
-    
-
 }
