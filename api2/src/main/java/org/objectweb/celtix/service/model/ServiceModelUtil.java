@@ -44,9 +44,11 @@ public final class ServiceModelUtil {
         if (name == null) {
             name = part.getTypeQName();
         }
-        if (name.getLocalPart() == null) {
-            return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
-        }
         return name;
+    }
+
+    public static QName getRPCPartName(MessagePartInfo part) {
+        QName name = getPartName(part);
+        return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
     }
 }

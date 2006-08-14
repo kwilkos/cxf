@@ -16,12 +16,12 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.bindings.AbstractBindingFactory;
 import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.bindings.BindingFactory;
-import org.objectweb.celtix.bindings.soap2.binding.WrapperInterceptor;
 import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapHeaderInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapOperationInfo;
 import org.objectweb.celtix.interceptors.BareInInterceptor;
+import org.objectweb.celtix.interceptors.WrappedInInterceptor;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
@@ -52,7 +52,7 @@ public class SoapBindingFactory extends AbstractBindingFactory implements Bindin
         } else if (SoapConstants.STYLE_BARE.equalsIgnoreCase(sbi.getStyle())) {
             sb.getInInterceptors().add(new BareInInterceptor());
         } else {
-            sb.getInInterceptors().add(new WrapperInterceptor());
+            sb.getInInterceptors().add(new WrappedInInterceptor());
         }        
                 
         return sb;

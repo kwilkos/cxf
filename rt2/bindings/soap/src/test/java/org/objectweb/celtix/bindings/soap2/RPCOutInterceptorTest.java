@@ -24,10 +24,6 @@ public class RPCOutInterceptorTest extends TestBase {
     public void setUp() throws Exception {
         super.setUp();
         
-        RPCOutInterceptor interceptor = new RPCOutInterceptor();
-        interceptor.setPhase("phase1");
-        chain.add(interceptor);
-
         baos =  new ByteArrayOutputStream();
 
         soapMessage.getExchange().put(SoapMessage.DATAWRITER_FACTORY_KEY, "test.writer.factory");
@@ -43,10 +39,13 @@ public class RPCOutInterceptorTest extends TestBase {
     }
 
     public void testWriteOutbound() throws Exception {
+        RPCOutInterceptor interceptor = new RPCOutInterceptor();
         soapMessage.put(Message.INVOCATION_OBJECTS, Arrays.asList(getTestObject()));
 
-        soapMessage.getInterceptorChain().doIntercept(soapMessage);
+        interceptor.handleMessage(soapMessage);
 
+        assertNull(soapMessage.getContent(Exception.class));
+        
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         XMLStreamReader xr = StaxUtils.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
@@ -64,10 +63,12 @@ public class RPCOutInterceptorTest extends TestBase {
     }
 
     public void testWriteInbound() throws Exception {
+        RPCOutInterceptor interceptor = new RPCOutInterceptor();
         soapMessage.put(Message.INVOCATION_OBJECTS, Arrays.asList(getTestObject()));
         soapMessage.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
         
-        soapMessage.getInterceptorChain().doIntercept(soapMessage);
+        interceptor.handleMessage(soapMessage);
+        assertNull(soapMessage.getContent(Exception.class));
 
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
         XMLStreamReader xr = StaxUtils.createXMLStreamReader(bais);
@@ -90,8 +91,6 @@ public class RPCOutInterceptorTest extends TestBase {
         assertEquals("this is elem1", reader.getText());
     }
 
-
-        
 
     public BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
         BindingInfo binding = super.getTestService(wsdlUrl, port);

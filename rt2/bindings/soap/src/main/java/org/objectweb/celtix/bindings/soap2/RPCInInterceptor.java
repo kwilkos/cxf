@@ -75,11 +75,15 @@ public class RPCInInterceptor extends AbstractSoapInterceptor {
                                                         + " does not exist!"));
             }
             QName name = xmlReader.getName();
-            if (!p.getName().equals(name)) {
-                message.setContent(Exception.class,
-                                   new RuntimeException("Parameter " + name + " does not exist!"));
+            QName elName = ServiceModelUtil.getRPCPartName(p);
+
+            if (!elName.getLocalPart().equals(name.getLocalPart())) {
+                String expMessage = "Parameter "
+                    + name
+                    + " does not equal to the name in the servicemodel!";
+                message.setContent(Exception.class, new RuntimeException(expMessage));
             }
-            parameters.add(dr.read(p.getName(),
+            parameters.add(dr.read(elName,
                                    xmlReader,
                                    getParameterTypeClass(message, idx)));
         }
