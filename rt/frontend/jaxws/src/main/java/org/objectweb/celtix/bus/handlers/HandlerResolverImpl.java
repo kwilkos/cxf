@@ -10,8 +10,11 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.PortInfo;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.handlers.HandlerChainBuilder;
 
 public class HandlerResolverImpl implements HandlerResolver {
@@ -19,17 +22,13 @@ public class HandlerResolverImpl implements HandlerResolver {
         "http://celtix.objectweb.org/bus/jaxws/port-config";
 
     private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();
-    private Configuration busConfiguration;
+    private Bus bus;
     private QName service;
     private ClassLoader serviceEndpointInterfaceClassLoader;
 
-    public HandlerResolverImpl(Configuration pBusConfiguration, QName pService) {
-        this.busConfiguration = pBusConfiguration;
-        this.service = pService;
-    }
-
-    public HandlerResolverImpl() {
-        this(null, null);
+    public HandlerResolverImpl(Bus b, QName s) {
+        bus = b;
+        service = s;
     }
 
     public List<Handler> getHandlerChain(PortInfo portInfo) {
@@ -50,10 +49,12 @@ public class HandlerResolverImpl implements HandlerResolver {
         if (service != null) {
             id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
         }
-        if (null != busConfiguration) {
-            portConfiguration = busConfiguration
-                .getChild(PORT_CONFIGURATION_URI, id);
+        if (bus != null) {
+            CompoundName cn = new CompoundName(bus.getConfiguration().getId(), id);
+            ConfigurationBuilder cb = bus.getConfigurationBuilder();
+            portConfiguration = cb.getConfiguration(PORT_CONFIGURATION_URI, cn);
         }
+       
         if (null != portConfiguration) {
             HandlerChainBuilder builder = new HandlerChainBuilder();
             builder.setHandlerClassLoader(serviceEndpointInterfaceClassLoader);

@@ -77,7 +77,7 @@ public class CeltixBus extends Bus implements BusEventListener, InstrumentationF
         ConfigurationEventFilter configurationEventFilter = new ConfigurationEventFilter();
         addListener((BusEventListener)this, configurationEventFilter);
 
-        busID = (String)configuration.getId();
+        busID = configuration.getId().toString();
 
         try {
             //REVISIT - dynamic discovery of objects, generic registry instead of fields

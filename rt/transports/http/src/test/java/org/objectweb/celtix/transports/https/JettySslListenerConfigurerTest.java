@@ -10,9 +10,9 @@ import junit.framework.TestSuite;
 
 import org.easymock.classextension.EasyMock;
 import org.mortbay.http.SslListener;
-import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.configuration.security.SSLServerPolicy;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 
 public class JettySslListenerConfigurerTest extends TestCase {
@@ -20,8 +20,9 @@ public class JettySslListenerConfigurerTest extends TestCase {
     
     private static final String DROP_BACK_SRC_DIR = 
         "../../../../../../../src/test/java/org/objectweb/celtix/transports/https/";
+    private static final CompoundName HTTP_LISTENER_CONFIG_ID = 
+        new CompoundName("celtix", "http-listener.1234");
 
-    Bus bus;
     private Configuration configuration;
 
     
@@ -46,12 +47,10 @@ public class JettySslListenerConfigurerTest extends TestCase {
     }
 
     public void setUp() throws BusException {
-        bus = EasyMock.createMock(Bus.class);
         configuration = EasyMock.createMock(Configuration.class);
     }
 
     public void tearDown() throws Exception {
-        EasyMock.reset(bus);
         EasyMock.reset(configuration);
         Properties props = System.getProperties();
         props.remove("javax.net.ssl.trustStore");
@@ -60,7 +59,7 @@ public class JettySslListenerConfigurerTest extends TestCase {
     
     public void testSecurityConfigurer() {
         try {
-            System.setProperty("celtix.security.configurer.celtix.null",
+            System.setProperty("celtix.security.configurer." + HTTP_LISTENER_CONFIG_ID.toString(),
                                "org.objectweb.celtix.transports.https.SetAllDataSecurityDataProvider");
             SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
             TestHandler handler = new TestHandler();
@@ -104,7 +103,7 @@ public class JettySslListenerConfigurerTest extends TestCase {
                        handler.checkLogContainsString("Unsupported SSLServerPolicy property : "
                                                       + "CertValidator"));
             
-            System.setProperty("celtix.security.configurer.celtix.null",
+            System.setProperty("celtix.security.configurer." + HTTP_LISTENER_CONFIG_ID.toString(),
                 "org.objectweb.celtix.bus.transports.https.DoesNotExistSetAllDataSecurityDataProvider");
             SSLServerPolicy sslServerPolicy2 = new SSLServerPolicy();
             TestHandler handler2 = new TestHandler();
@@ -123,7 +122,7 @@ public class JettySslListenerConfigurerTest extends TestCase {
                                  + "org.objectweb.celtix.bus.transports.https."
                                  + "DoesNotExistSetAllDataSecurityDataProvider, "));
         } finally {
-            System.setProperty("celtix.security.configurer.celtix.null", "");
+            System.getProperties().remove("celtix.security.configurer." + HTTP_LISTENER_CONFIG_ID.toString());
         }
     }
     
@@ -318,7 +317,9 @@ public class JettySslListenerConfigurerTest extends TestCase {
     private JettySslListenerConfigurer createJettySslListenerConfigurer(
                                              SSLServerPolicy sslServerPolicy,
                                              String urlStr, 
-                                             TestHandler handler) {
+                                            TestHandler handler) {
+        EasyMock.expect(configuration.getId()).andReturn(HTTP_LISTENER_CONFIG_ID);
+        EasyMock.replay(configuration);
         try {
             
             
@@ -335,6 +336,7 @@ public class JettySslListenerConfigurerTest extends TestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        EasyMock.verify(configuration);
         return null;
     }
     

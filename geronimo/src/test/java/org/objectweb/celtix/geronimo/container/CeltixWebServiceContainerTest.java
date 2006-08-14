@@ -45,14 +45,14 @@ public class CeltixWebServiceContainerTest extends TestCase {
         // setup test fixture
         //
 
-        Configuration child = mockBusFactory.addChildConfig(
-            "http://celtix.objectweb.org/bus/jaxws/endpoint-config", null, null);
+        Configuration endpointCfg = 
+            mockBusFactory.getConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null);
 
         BindingFactory bindingFact = mockBusFactory.getMock(BindingFactory.class);
         assertNotNull("could not get binding factory", bindingFact);
         transport.invoke(req, resp);        
         EasyMock.replay(transport);
-        EasyMock.replay(child);
+        EasyMock.replay(endpointCfg);
         
         
         ServerBinding mockServerBinding = EasyMock.createMock(ServerBinding.class);

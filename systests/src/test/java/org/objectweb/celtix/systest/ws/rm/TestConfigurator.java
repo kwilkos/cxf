@@ -8,6 +8,7 @@ import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerChainType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.HandlerType;
 import org.objectweb.celtix.bus.jaxws.configuration.types.SystemHandlerChainType;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.ws.addressing.MAPAggregator;
@@ -47,22 +48,20 @@ public class TestConfigurator {
     
     private Configuration createEndpointConfiguration(String busId, QName serviceName) {
         Configuration busCfg = getBusConfiguration(busId);
-        return builder.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, 
-                                                               serviceName.toString(), busCfg);
+        return builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, 
+            new CompoundName(busCfg.getId(), serviceName.toString()));
     }
     
     private Configuration createPortConfiguration(String busId, QName serviceName, String portName) {
         Configuration busCfg = getBusConfiguration(busId);
         String id = serviceName.toString() + "/" + portName;
-        return builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
+        return builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
+            new CompoundName(busCfg.getId(), id));
     }
     
     private Configuration getBusConfiguration(String busId) {
-        Configuration busCfg = builder.getConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, busId);
-        if (null == busCfg) {
-            busCfg = builder.buildConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI, busId);
-        }
-        return busCfg;
+        return builder.getConfiguration(BusConfigurationBuilder.BUS_CONFIGURATION_URI,
+            new CompoundName(busId));
     }
 
     private void configureHandlers(Configuration config, boolean isServer) {
@@ -143,8 +142,7 @@ public class TestConfigurator {
         
         // create rm handler configuration 
 
-        builder.buildConfiguration(RMHandler.RM_CONFIGURATION_URI,
-                                   RMHandler.RM_CONFIGURATION_ID,
-                                   config);        
+        builder.getConfiguration(RMHandler.RM_CONFIGURATION_URI,
+            new CompoundName(config.getId(), RMHandler.RM_CONFIGURATION_ID));
     }
 }

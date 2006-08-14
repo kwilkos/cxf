@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.impl.TypeSchemaHelper;
@@ -51,11 +52,9 @@ public class JMSConfigTest extends TestCase {
 
     private void createNecessaryConfig(URL wsdlUrl, QName serviceName,
                                        String portName) throws Exception {
-        assert bus != null;
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName,
                                                                              portName);
         Configuration busCfg = bus.getConfiguration();
-        assert null != busCfg;
         Configuration endpointCfg = null;
         Configuration portCfg = null;
 
@@ -63,20 +62,21 @@ public class JMSConfigTest extends TestCase {
         ConfigurationBuilder cb = bus.getConfigurationBuilder();
 
         // Server Endpoint Config
-        endpointCfg = cb.buildConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, id, busCfg);
+        CompoundName ecn = new CompoundName("celtix", id);
+        endpointCfg = cb.getConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, ecn);
 
         // Client Service Endpoint  Port config.
-        portCfg = cb.buildConfiguration(JMSConstants.PORT_CONFIGURATION_URI,
-                              id + "/" + EndpointReferenceUtils.getPortName(ref).toString(),
-                              busCfg);
+        CompoundName pcn = new CompoundName("celtix",
+            id + "/" + EndpointReferenceUtils.getPortName(ref).toString());
+        portCfg = cb.getConfiguration(JMSConstants.PORT_CONFIGURATION_URI, pcn);
+
+        CompoundName cn = new CompoundName(ecn, JMSConstants.JMS_SERVER_CONFIG_ID);
         // Server Transport Config.
-        cb.buildConfiguration(JMSConstants.JMS_SERVER_CONFIGURATION_URI,
-                                                 JMSConstants.JMS_SERVER_CONFIG_ID,
-                                                 endpointCfg);
+        cb.getConfiguration(JMSConstants.JMS_SERVER_CONFIGURATION_URI, cn);
+
+        cn = new CompoundName(pcn, JMSConstants.JMS_CLIENT_CONFIG_ID);
         //Client Transport Config.
-        cb.buildConfiguration(JMSConstants.JMS_CLIENT_CONFIGURATION_URI,
-                                    JMSConstants.JMS_CLIENT_CONFIG_ID,
-                                    portCfg);
+        cb.getConfiguration(JMSConstants.JMS_CLIENT_CONFIGURATION_URI, cn);
     }
 
     public void testDefaultClientConfig() throws Exception {

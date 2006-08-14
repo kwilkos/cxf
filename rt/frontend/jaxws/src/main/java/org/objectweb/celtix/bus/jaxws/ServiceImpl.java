@@ -30,6 +30,7 @@ import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.bus.handlers.AnnotationHandlerChainBuilder;
 import org.objectweb.celtix.bus.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.bus.handlers.PortInfoImpl;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -60,7 +61,7 @@ public class ServiceImpl extends ServiceDelegate {
         wsdlLocation = location;
         serviceName = name;
         endpointList = new Vector<QName>();
-        handlerResolver = new HandlerResolverImpl(bus.getConfiguration(), serviceName);
+        handlerResolver = new HandlerResolverImpl(bus, serviceName);
         executor = bus.getWorkQueueManager().getAutomaticWorkQueue();
     }
 
@@ -269,14 +270,10 @@ public class ServiceImpl extends ServiceDelegate {
     private Configuration createPortConfiguration(QName portName, EndpointReferenceType ref) {
 
         Configuration portCfg = null;
-        String id = serviceName.toString() + "/" + portName.getLocalPart();
+        CompoundName id = new CompoundName(bus.getConfiguration().getId(),
+            serviceName.toString() + "/" + portName.getLocalPart());
         ConfigurationBuilder cb = bus.getConfigurationBuilder();
-        portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id,
-                                      bus.getConfiguration());
-        if (null == portCfg) {
-            LOG.info("the configuration for port is null, will build configuration");
-            portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, bus.getConfiguration());
-        }
+        portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, id);
 
         // add the additional provider
 
@@ -287,6 +284,7 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException("Could not get port from wsdl", ex);
         }
         portCfg.getProviders().add(new WsdlPortProvider(port));
+    
         return portCfg;
     }
 

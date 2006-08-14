@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
+import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
 import org.objectweb.celtix.extension.ExtensionManagerImpl;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.resource.DefaultResourceManager;
@@ -25,8 +27,8 @@ public class CeltixBus implements Bus {
     private List<Interceptor> outInterceptors;
     private List<Interceptor> faultInterceptors;
     private Map<Class, Object> extensions;
-//    private ConfigurationBuilder configurationBuilder;
     private Configuration configuration;
+    private String id;
     
     public CeltixBus() {
         this(new HashMap<Class, Object>());
@@ -39,12 +41,29 @@ public class CeltixBus implements Bus {
     public CeltixBus(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
+     
+        BusConfigurationHelper helper = new BusConfigurationHelper();
+        
+        id = helper.getBusId(properties);
+ 
+        ConfigurationBuilder builder = (ConfigurationBuilder)extensions.get(ConfigurationBuilder.class);
+        if (null == builder) {
+            builder = new ConfigurationBuilderImpl();
+            extensions.put(ConfigurationBuilder.class, builder);
+        }
+        configuration = helper.getConfiguration(builder, id);
         
         ResourceManager resourceManager = new DefaultResourceManager();
-        if (null != properties) {
-            ResourceResolver propertiesResolver = new PropertiesResolver(properties);
-            resourceManager.addResourceResolver(propertiesResolver);
+        
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
         }
+        
+        properties.put(BusConfigurationHelper.BUS_ID_PROPERTY, BUS_PROPERTY_NAME);
+        properties.put(BUS_PROPERTY_NAME, this);
+        
+        ResourceResolver propertiesResolver = new PropertiesResolver(properties);
+        resourceManager.addResourceResolver(propertiesResolver);
         
         ResourceResolver busResolver = new SinglePropertyResolver(BUS_PROPERTY_NAME, this);
         resourceManager.addResourceResolver(busResolver);
@@ -54,15 +73,7 @@ public class CeltixBus implements Bus {
                                                     extensions,
                                                     resourceManager);
         
-        if (properties == null) {
-            properties = new HashMap<String, Object>();
-        }
-//        
-//        properties.put(BusConfigurationBuilder.BUS_ID_PROPERTY, BUS_PROPERTY_NAME);
-//        properties.put(BUS_PROPERTY_NAME, this);
-//        
-//        configurationBuilder = new CeltixConfigurationBuilder();       
-//        configuration = new BusConfigurationBuilder().build(configurationBuilder, properties);
+        
 
     }
     
@@ -90,8 +101,12 @@ public class CeltixBus implements Bus {
         extensions.put(extensionType, extension);
     }
 
-    // TODO:
     public Configuration getConfiguration() {
         return configuration;
     }
+
+    public String getId() {
+        return id;
+    }
+    
 }

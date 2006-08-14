@@ -10,7 +10,7 @@ import org.xml.sax.SAXParseException;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.bus.configuration.AbstractConfigurationImplTest;
+import org.objectweb.celtix.bus.configuration.ConfigurationImplTest;
 import org.objectweb.celtix.bus.configuration.spring.ConfigurationProviderImpl;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.impl.TypeSchema.TypeSchemaErrorHandler;
@@ -67,7 +67,7 @@ public class TypeSchemaTest extends TestCase {
             assertEquals("SCHEMA_LOCATION_ERROR_EXC", ex.getCode());
         }
         
-        URL url = AbstractConfigurationImplTest.class.getResource("resources/test-types.xsd");
+        URL url = ConfigurationImplTest.class.getResource("resources/test-types.xsd");
         
         // absolute uri with absolute path
         

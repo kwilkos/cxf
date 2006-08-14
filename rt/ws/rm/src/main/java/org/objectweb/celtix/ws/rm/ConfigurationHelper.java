@@ -11,8 +11,7 @@ import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
 import org.objectweb.celtix.bus.configuration.wsrm.DestinationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SequenceTerminationPolicyType;
 import org.objectweb.celtix.bus.configuration.wsrm.SourcePolicyType;
-import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-import org.objectweb.celtix.bus.jaxws.ServiceImpl;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
@@ -38,27 +37,31 @@ public class ConfigurationHelper {
     static final String DESTINATION_POLICIES_PROPERTY_NAME = "destinationPolicies";
     
     private Configuration configuration;
+    private final boolean server;
 
-    public ConfigurationHelper(AbstractBindingBase binding, boolean server) {
+    public ConfigurationHelper(AbstractBindingBase binding, boolean s) {
+        server = s;
         Configuration busCfg = binding.getBus().getConfiguration();
         ConfigurationBuilder builder = binding.getBus().getConfigurationBuilder();
-        Configuration parent;
         org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = binding.getEndpointReference();
-
+        CompoundName id = null;
         if (server) {
-            parent = builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, EndpointReferenceUtils
-                .getServiceName(ref).toString(), busCfg);
+            id = new CompoundName(
+                busCfg.getId().toString(),
+                EndpointReferenceUtils.getServiceName(ref).toString(),
+                RM_CONFIGURATION_ID
+            );
         } else {
-            String id = EndpointReferenceUtils.getServiceName(ref).toString() + "/"
-                        + EndpointReferenceUtils.getPortName(ref);
-            parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);            
+            id = new CompoundName(
+                busCfg.getId().toString(),
+                EndpointReferenceUtils.getServiceName(ref).toString()
+                + "/" + EndpointReferenceUtils.getPortName(ref),
+                RM_CONFIGURATION_ID
+            );
         }
 
-        configuration = builder.getConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
-        if (null == configuration) {
-            configuration = builder.buildConfiguration(RM_CONFIGURATION_URI, RM_CONFIGURATION_ID, parent);
+        configuration = builder.getConfiguration(RM_CONFIGURATION_URI, id);
 
-        }
         boolean policyProviderRegistered = false;
         for (ConfigurationProvider p : configuration.getProviders()) {
             if (p instanceof RMPolicyProvider) {
@@ -109,17 +112,7 @@ public class ConfigurationHelper {
     }
 
     public String getEndpointId() {
-        StringBuffer buf = new StringBuffer();
-        Configuration cfg = configuration.getParent();
-        
-        while (null != cfg) {
-            if (buf.length() > 0) {
-                buf.insert(0, ".");
-            }
-            buf.insert(0, cfg.getId().toString());
-            cfg = cfg.getParent();
-        }
-        return buf.toString();
+        return configuration.getId().getParentName().toString();
     }
     
     public SourcePolicyType getSourcePolicies() {

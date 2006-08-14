@@ -1,10 +1,9 @@
 package org.objectweb.celtix.bus.configuration;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
@@ -21,26 +20,14 @@ public class CeltixConfigurationBuilder extends ConfigurationBuilderImpl {
         super(url);
     }  
     
-    public Configuration buildConfiguration(String namespaceUri, String id, Configuration parent) {
+    public Configuration buildConfiguration(String namespaceUri, CompoundName id) {
         ConfigurationMetadata model = getModel(namespaceUri);
         if (null == model) {
             throw new ConfigurationException(new Message("UNKNOWN_NAMESPACE_EXC", BUNDLE, namespaceUri));
         }
         
-        if (parent == null && !isValidTopConfiguration(model, parent)) {
-            throw new ConfigurationException(new Message("INVALID_TOP_CONFIGURATION",
-                                                         BUNDLE, namespaceUri));
-        }
-
-        Configuration c = new CeltixConfigurationImpl(model, id, parent);
-        if (null == parent) {
-            Map<String, Configuration> instances = configurations.get(namespaceUri);
-            if (null == instances) {
-                instances = new HashMap<String, Configuration>();
-                configurations.put(namespaceUri, instances);
-            }
-            instances.put(id, c);
-        }
+        Configuration c = new CeltixConfigurationImpl(model, id);
+        configurations.put(id, c);
         
         DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
         ConfigurationProvider defaultProvider = factory.createDefaultProvider();

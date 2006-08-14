@@ -10,5 +10,7 @@ public interface Bus extends InterceptorProvider {
     <T> void setExtension(T extension, Class<T> extensionType);
 
     Configuration getConfiguration();
+    
+    String getId();
 
 }

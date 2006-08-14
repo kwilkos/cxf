@@ -13,8 +13,7 @@ import org.w3c.dom.Element;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.objectweb.celtix.bus.configuration.LeafConfigurationBuilder;
-import org.objectweb.celtix.bus.configuration.TopConfigurationBuilder;
+import org.objectweb.celtix.bus.configuration.TestConfigurationBuilder;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.impl.TypeSchema;
@@ -113,10 +112,8 @@ public class CustomPropertyEditorsTest extends TestCase {
         URL url = CustomPropertyEditorsTest.class.getResource("resources/top3.xml");
         UrlResource urlRes = new UrlResource(url);
         CeltixXmlBeanFactory bf = new CeltixXmlBeanFactory(urlRes);
-        Configuration top = new TopConfigurationBuilder().build("top3");
+        Configuration top = new TestConfigurationBuilder().build("top3");
         bf.registerCustomEditors(top); 
-        Configuration leaf = new LeafConfigurationBuilder().build(top, "leaf");
-        bf.registerCustomEditors(leaf);
       
         // the first form results in a BeanCreationException (caused by a 
         // PropertyAccessExceptionsException)

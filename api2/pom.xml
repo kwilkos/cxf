@@ -75,10 +75,17 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
                                 </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>
+                                </xsdOption>
                             </xsdOptions>
+                            <beanfiles>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/bus-config.xml</beanfile>
+                            </beanfiles>
                         </configuration>
                         <goals>
                             <goal>xsdtojava</goal>
+                            <goal>beangen</goal>
                         </goals>
                     </execution>
                 </executions>

@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.management.MBeanServer;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
@@ -22,9 +23,12 @@ import org.objectweb.celtix.management.jmx.JMXManagedComponentManager;
 public class InstrumentationManagerImpl implements InstrumentationManager {    
     static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
     static final String INSTRUMENTATION_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/instrumentation/instrumentation-config";
+        "http://celtix.objectweb.org/configuration/instrumentation";
+
+    // TODO: avoid clashes with bus id
+
     static final String INSTRUMENTATION_CONFIGURATION_ID = 
-        "Instrumentation";
+        "instrumentation";
     
     private Configuration configuration;
     private List <Instrumentation> instrumentations;
@@ -57,16 +61,8 @@ public class InstrumentationManagerImpl implements InstrumentationManager {
     
     private Configuration getConfiguration(ConfigurationBuilder cb) {
         
-        
-        Configuration itCfg = cb.getConfiguration(INSTRUMENTATION_CONFIGURATION_URI, 
-                                                  INSTRUMENTATION_CONFIGURATION_ID, 
-                                                configuration);
-        if (null == itCfg) {
-            itCfg = cb.buildConfiguration(INSTRUMENTATION_CONFIGURATION_URI, 
-                                          INSTRUMENTATION_CONFIGURATION_ID, 
-                                        configuration);           
-        }
-        return itCfg;
+        CompoundName id = new CompoundName(INSTRUMENTATION_CONFIGURATION_ID); 
+        return cb.getConfiguration(INSTRUMENTATION_CONFIGURATION_URI,  id);
     }
 
     public void shutdown() {

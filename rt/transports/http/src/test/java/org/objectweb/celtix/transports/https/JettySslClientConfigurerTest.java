@@ -14,13 +14,16 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.transports.http.JettyHTTPServerEngine;
 
 public class JettySslClientConfigurerTest extends TestCase {
 
     private static final String DROP_BACK_SRC_DIR = "../../../../../../../"
-        + "src/test/java/org/objectweb/celtix/transports/https/";
+                                                    + "src/test/java/org/objectweb/celtix/transports/https/";
+    private static final CompoundName HTTP_CLIENT_CONFIG_ID = new CompoundName("celtix", "port",
+                                                                               "http-client");
 
     Bus bus;
     private Configuration configuration;
@@ -61,24 +64,23 @@ public class JettySslClientConfigurerTest extends TestCase {
     }
 
     public void testSecurityConfigurer() {
+
         try {
-            System.setProperty("celtix.security.configurer.celtix.null.http-client",
+            System.setProperty("celtix.security.configurer." + HTTP_CLIENT_CONFIG_ID.toString(),
                                "org.objectweb.celtix.transports.https.SetAllDataSecurityDataProvider");
+
             SSLClientPolicy sslClientPolicy = new SSLClientPolicy();
             TestHandler handler = new TestHandler();
 
-            JettySslClientConfigurer jettySslClientConfigurer =
-                createJettySslClientConfigurer(sslClientPolicy,
-                                               "https://dummyurl",
-                                               handler);
+            JettySslClientConfigurer jettySslClientConfigurer = 
+                createJettySslClientConfigurer(sslClientPolicy, "https://dummyurl", handler);
 
             jettySslClientConfigurer.configure();
 
-
-            assertTrue("Keystore loaded success message not present",
-                       handler.checkLogContainsString("Successfully loaded keystore"));
-            assertTrue("Trust store loaded success message not present",
-                       handler.checkLogContainsString("Successfully loaded trust store"));
+            assertTrue("Keystore loaded success message not present", handler
+                .checkLogContainsString("Successfully loaded keystore"));
+            assertTrue("Trust store loaded success message not present", handler
+                .checkLogContainsString("Successfully loaded trust store"));
 
             assertTrue("Keystore type not being read", handler
                 .checkLogContainsString("The key store type has been set in configuration " + "to JKS"));
@@ -123,7 +125,7 @@ public class JettySslClientConfigurerTest extends TestCase {
             assertTrue("CertValidator caching set but no warning about not supported", handler
                 .checkLogContainsString("Unsupported SSLClientPolicy property : " + "CertValidator"));
         } finally {
-            System.setProperty("celtix.security.configurer.celtix.null.http-client", "");
+            System.getProperties().remove("celtix.security.configurer." + HTTP_CLIENT_CONFIG_ID.toString());
         }
     }
 
@@ -223,7 +225,6 @@ public class JettySslClientConfigurerTest extends TestCase {
                                                                                            handler);
 
         jettySslClientConfigurer.configure();
-
 
         SSLSocketFactory sSLSocketFactory = jettySslClientConfigurer.getHttpsConnection()
             .getSSLSocketFactory();
@@ -471,6 +472,9 @@ public class JettySslClientConfigurerTest extends TestCase {
 
     private JettySslClientConfigurer createJettySslClientConfigurer(SSLClientPolicy sslClientPolicy,
                                                                     String urlStr, TestHandler handler) {
+
+        EasyMock.expect(configuration.getId()).andReturn(HTTP_CLIENT_CONFIG_ID);
+        EasyMock.replay(configuration);
         try {
             DummyHttpsConnection connection = new DummyHttpsConnection(null);
             JettySslClientConfigurer jettySslClientConfigurer = new JettySslClientConfigurer(sslClientPolicy,
@@ -483,6 +487,7 @@ public class JettySslClientConfigurerTest extends TestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        EasyMock.verify(configuration);
         return null;
     }
 

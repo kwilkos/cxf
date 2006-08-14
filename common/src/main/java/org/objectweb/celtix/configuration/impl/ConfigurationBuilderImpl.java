@@ -11,10 +11,12 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.injection.ResourceInjector;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationException;
@@ -33,7 +35,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
     private static final String METADATA_RESOURCE_MAPPINGS_RESOURCE 
         = "META-INF/config-metadata-mappings.xml";
 
-    protected Map<String, Map<String, Configuration>> configurations;
+    protected Map<CompoundName, Configuration> configurations;
     private Map<String, ConfigurationMetadata> models;
     private URL url;
 
@@ -43,7 +45,7 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
 
     public ConfigurationBuilderImpl(URL u) {
         models = new HashMap<String, ConfigurationMetadata>();
-        configurations = new HashMap<String, Map<String, Configuration>>();
+        configurations = new HashMap<CompoundName, Configuration>();
         url = u;
     }
     
@@ -51,49 +53,41 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         return url;
     }
 
-    public Configuration getConfiguration(String namespaceUri, String id) {
-        Map<String, Configuration> instances  = configurations.get(namespaceUri);
-        if (null == instances) {
-            if (null == getModel(namespaceUri)) {
-                throw new ConfigurationException(new Message("UNKNOWN_NAMESPACE_EXC", BUNDLE, namespaceUri));
-            }
-            return null;
-        }
-        return instances.get(id);
-    }
-
-    public Configuration getConfiguration(String namespaceUri, String id, Configuration parent) {
-        if (parent == null) {
-            return null;
-        }
-
-        Configuration c = parent.getChild(namespaceUri, id);
-        if (null == c && null == getModel(namespaceUri)) {
-            throw new ConfigurationException(new Message("UNKNOWN_NAMESPACE_EXC", BUNDLE, namespaceUri));
+    public Configuration getConfiguration(String namespaceUri, CompoundName id) {
+        
+        Configuration c = configurations.get(id);
+        if (null == c) {
+            c = buildConfiguration(namespaceUri, id);
         }
         return c;
     }
+  
 
-    public Configuration buildConfiguration(String namespaceUri, String id, Configuration parent) {
+    public ConfigurationMetadata getModel(String namespaceUri) {
+        ConfigurationMetadata model = models.get(namespaceUri);
+        if (null == model) {
+            String resourceName = getResourceName(namespaceUri);
+            if (null != resourceName) {
+                model = loadModel(resourceName);
+                addModel(namespaceUri, model);
+            }
+        }
+        return model;
+    }
+    
+    public void addModel(String namespaceURI, ConfigurationMetadata model) {
+        models.put(namespaceURI, model);
+    }
+
+    
+    protected Configuration buildConfiguration(String namespaceUri, CompoundName id) {
         ConfigurationMetadata model = getModel(namespaceUri);
         if (null == model) {
             throw new ConfigurationException(new Message("UNKNOWN_NAMESPACE_EXC", BUNDLE, namespaceUri));
         }
-      
-        if (parent == null && !isValidTopConfiguration(model, parent)) {
-            throw new ConfigurationException(new Message("INVALID_TOP_CONFIGURATION",
-                                                         BUNDLE, namespaceUri));
-        }
 
-        Configuration c = new ConfigurationImpl(model, id, parent);
-        if (null == parent) {
-            Map<String, Configuration> instances = configurations.get(namespaceUri);
-            if (null == instances) {
-                instances = new HashMap<String, Configuration>();
-                configurations.put(namespaceUri, instances);
-            }
-            instances.put(id, c);
-        }
+        Configuration c = new ConfigurationImpl(model, id);
+        configurations.put(id, c);
         
         DefaultConfigurationProviderFactory factory = DefaultConfigurationProviderFactory.getInstance();
         ConfigurationProvider defaultProvider = factory.createDefaultProvider();
@@ -105,54 +99,6 @@ public class ConfigurationBuilderImpl implements ConfigurationBuilder {
         }
         
         return c;
-    }
-    
-
-    /* The presence of parentNamespaceURI means that the underlying type of
-     * configuration can only be created as a child of a configuration with
-     * namespace 'parentNamespace'. The absence of this attribute means that it
-     * can be be created as a top level configuration object
-     **/
-    protected boolean isValidTopConfiguration(ConfigurationMetadata model, Configuration parent) {
-        String parentNamespaceURI = model.getParentNamespaceURI();
-
-        if (parentNamespaceURI == null || "".equals(parentNamespaceURI)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public Configuration buildConfiguration(String namespaceUri, String id) {
-        return buildConfiguration(namespaceUri, id, null);
-    }
-
-    public final void addModel(ConfigurationMetadata model) {
-        models.put(model.getNamespaceURI(), model);
-    }
-
-    public ConfigurationMetadata getModel(String namespaceUri) {
-        ConfigurationMetadata model = models.get(namespaceUri);
-        if (null == model) {
-            String resourceName = getResourceName(namespaceUri);
-            if (null != resourceName) {
-                model = loadModel(resourceName);
-                addModel(model);
-            }
-        }
-        return model;
-    }
-
-    public void addModel(String resource) {        
-        addModel(loadModel(resource));
-    }
-    
-    public void clearConfigurations() {
-        configurations.clear();
-    }
-    
-    public void clearModels() {
-        models.clear();
     }
     
     protected void inject(ConfigurationProvider provider, Configuration configuration) {

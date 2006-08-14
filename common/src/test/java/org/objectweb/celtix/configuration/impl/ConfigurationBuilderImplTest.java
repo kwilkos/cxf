@@ -6,6 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationException;
@@ -17,9 +18,6 @@ public class ConfigurationBuilderImplTest extends TestCase {
     private static final String TEST_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/configuration/test/meta1";
     private static final String BUS_CONFIGURATION_URI = "http://celtix.objectweb.org/bus/bus-config";
-    private static final String HTTP_LISTENER_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/transports/http/http-listener-config";
-    private static final String HTTP_LISTENER_CONFIGURATION_ID = "http-listener.44959";
     private static final String UNKNOWN_CONFIGURATION_URI = 
         "http://celtix.objectweb.org/unknown/unknown-config";  
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME = 
@@ -45,23 +43,8 @@ public class ConfigurationBuilderImplTest extends TestCase {
         }
     }
     
-    public void testGetConfigurationUnknownNamespace() {
-        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
-        try {
-            builder.getConfiguration(UNKNOWN_CONFIGURATION_URI, "celtix");            
-        } catch (ConfigurationException ex) {
-            assertEquals("UNKNOWN_NAMESPACE_EXC", ex.getCode());
-        }
-        Configuration parent = EasyMock.createMock(Configuration.class);
-        try {
-            builder.getConfiguration(UNKNOWN_CONFIGURATION_URI, "celtix", parent);            
-        } catch (ConfigurationException ex) {
-            assertEquals("UNKNOWN_NAMESPACE_EXC", ex.getCode());
-        }
-    }
-    
-    public void testGetAddModel() {
-        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
+    public void testGetModel() {
+        ConfigurationBuilderImpl builder = new ConfigurationBuilderImpl();
         try {
             builder.getModel(UNKNOWN_CONFIGURATION_URI);
         } catch (ConfigurationException ex) {
@@ -69,98 +52,59 @@ public class ConfigurationBuilderImplTest extends TestCase {
         }
         
         ConfigurationMetadata unknownModel = EasyMock.createMock(ConfigurationMetadata.class);
-        unknownModel.getNamespaceURI();
-        EasyMock.expectLastCall().andReturn(UNKNOWN_CONFIGURATION_URI);
-        EasyMock.replay(unknownModel);
-        builder.addModel(unknownModel);
-        assertSame(unknownModel, builder.getModel(UNKNOWN_CONFIGURATION_URI));
-        EasyMock.verify(unknownModel); 
+        builder.addModel(UNKNOWN_CONFIGURATION_URI, unknownModel);
+        
+        ConfigurationMetadata model = builder.getModel(UNKNOWN_CONFIGURATION_URI);
+        assertSame(unknownModel, model);
     }
     
-    
-    public void testAddModel() throws Exception {
+    public void testGetConfigurationUnknownNamespace() {
         ConfigurationBuilder builder = new ConfigurationBuilderImpl();
+        CompoundName id = new CompoundName("celtix");
         try {
-            builder.getModel("a.wsdl");
+            builder.getConfiguration(UNKNOWN_CONFIGURATION_URI, id);            
         } catch (ConfigurationException ex) {
-            assertEquals("METADATA_RESOURCE_EXC", ex.getCode());
+            assertEquals("UNKNOWN_NAMESPACE_EXC", ex.getCode());
         }
     }
-    
-    public void testGetConfiguration() {
-        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
-        ConfigurationMetadata model = EasyMock.createMock(ConfigurationMetadata.class);
-        model.getNamespaceURI();
-        EasyMock.expectLastCall().andReturn(BUS_CONFIGURATION_URI);
-        EasyMock.replay(model);
-        builder.addModel(model);
-        assertNull(builder.getConfiguration(BUS_CONFIGURATION_URI, "celtix"));        
-        EasyMock.verify(model);
-        
-        model = EasyMock.createMock(ConfigurationMetadata.class);
-        model.getNamespaceURI();
-        EasyMock.expectLastCall().andReturn(HTTP_LISTENER_CONFIGURATION_URI);
-        EasyMock.replay(model);
-        builder.addModel(model);
-        Configuration parent = EasyMock.createMock(Configuration.class);
-        assertNull(builder.getConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
-                                            HTTP_LISTENER_CONFIGURATION_ID, parent));        
-    }
-
-    public void testInvalidParentConfiguration() {
-        String id = "celtix";
-        ConfigurationBuilder builder = new ConfigurationBuilderImpl();
-        ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
-        model.setNamespaceURI(BUS_CONFIGURATION_URI);
-        model.setParentNamespaceURI(null);
-        builder.addModel(model);
-        model = new ConfigurationMetadataImpl();
-        model.setNamespaceURI(HTTP_LISTENER_CONFIGURATION_URI);
-        model.setParentNamespaceURI(BUS_CONFIGURATION_URI);
-        builder.addModel(model);
-        
-        Configuration parent = builder.buildConfiguration(BUS_CONFIGURATION_URI, id, null);
-        assertNotNull(parent);
-
-        try {
-            builder.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
-                                       HTTP_LISTENER_CONFIGURATION_ID, null);
-            fail("Did not throw expected exception");
-        } catch (ConfigurationException e) {
-            String expectedErrorMsg = "Configuration " + HTTP_LISTENER_CONFIGURATION_URI
-                + " is not a valid top configuration.";
-            assertEquals("Unexpected exception message", expectedErrorMsg, e.getMessage());
-        } catch (Exception e) {
-            fail("Caught unexpected exception");
-        }
-    }
-
    
     public void testBuildConfiguration() throws Exception {
         URL url = getClass().getResource(getClass().getName() + ".class");        
-        String id = "celtix";
-        ConfigurationBuilder builder = new ConfigurationBuilderImpl(url);
+        CompoundName id = new CompoundName("celtix");
+        ConfigurationBuilderImpl builder = new ConfigurationBuilderImpl(url);
         ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
         model.setNamespaceURI(BUS_CONFIGURATION_URI);
-        builder.addModel(model);
+        builder.addModel(BUS_CONFIGURATION_URI, model);
         model = new ConfigurationMetadataImpl();
-        model.setNamespaceURI(HTTP_LISTENER_CONFIGURATION_URI);
-        builder.addModel(model);
-        Configuration parent = builder.buildConfiguration(BUS_CONFIGURATION_URI, id);
-        assertNotNull(parent);
-        List<ConfigurationProvider> providers = parent.getProviders();
+        
+        Configuration c = builder.buildConfiguration(BUS_CONFIGURATION_URI, id);
+        assertNotNull(c);
+        List<ConfigurationProvider> providers = c.getProviders();
         assertEquals(1, providers.size());
         TestProvider tp = (TestProvider)providers.get(0);
         assertSame(url, tp.url);
-        assertSame(parent, tp.configuration);
+        assertSame(c, tp.configuration);
         assertNull(tp.name);
-        
-        Configuration child = builder.buildConfiguration(HTTP_LISTENER_CONFIGURATION_URI, 
-                                                         HTTP_LISTENER_CONFIGURATION_ID);
-        assertNotNull(child);
     }
     
-    
+    public void testGetConfiguration() throws Exception {
+        URL url = getClass().getResource(getClass().getName() + ".class");        
+        CompoundName id = new CompoundName("celtix");
+        ConfigurationBuilderImpl builder = new ConfigurationBuilderImpl(url);
+        ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
+        model.setNamespaceURI(BUS_CONFIGURATION_URI);
+        builder.addModel(BUS_CONFIGURATION_URI, model);
+        model = new ConfigurationMetadataImpl();
+        
+        Configuration c = builder.getConfiguration(BUS_CONFIGURATION_URI, id);
+        assertNotNull(c);
+        List<ConfigurationProvider> providers = c.getProviders();
+        assertEquals(1, providers.size());
+        TestProvider tp = (TestProvider)providers.get(0);
+        assertSame(url, tp.url);
+        assertSame(c, tp.configuration);
+        assertNull(tp.name);
+    }    
     
     public void testGetResourceName() {
         ConfigurationBuilder builder = new ConfigurationBuilderImpl();

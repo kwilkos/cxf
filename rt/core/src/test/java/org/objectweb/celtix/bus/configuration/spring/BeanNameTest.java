@@ -6,6 +6,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 
 public class BeanNameTest extends TestCase {
@@ -59,34 +60,19 @@ public class BeanNameTest extends TestCase {
         assertEquals(nn, bn.getNormalisedName());
     }
     
-    public void testConstruction() {         
-        Configuration bottom = EasyMock.createMock(Configuration.class);
-        Configuration middle = EasyMock.createMock(Configuration.class);
-        Configuration top = EasyMock.createMock(Configuration.class);
+    public void testConstruction() { 
         
-        bottom.getId();
-        EasyMock.expectLastCall().andReturn("a");
-        bottom.getParent();
-        EasyMock.expectLastCall().andReturn(middle);
-        middle.getId();
-        EasyMock.expectLastCall().andReturn("b");
-        middle.getParent();
-        EasyMock.expectLastCall().andReturn(top);
-        top.getId();
-        EasyMock.expectLastCall().andReturn("c");
-        top.getParent();
-        EasyMock.expectLastCall().andReturn(null);
+        Configuration c = EasyMock.createMock(Configuration.class);
+        CompoundName id = new CompoundName("a", "b", "c");
+        c.getId();
+        EasyMock.expectLastCall().andReturn(id);
        
-        EasyMock.replay(top);
-        EasyMock.replay(middle);
-        EasyMock.replay(bottom);
+        EasyMock.replay(c);
         
-        BeanName bn = new BeanName(bottom);
-        assertEquals(bn.getName(), "c.b.a", bn.getName());
+        BeanName bn = new BeanName(c);
+        assertEquals(bn.getName(), "a.b.c", bn.getName());
         
-        EasyMock.verify(bottom);
-        EasyMock.verify(middle);
-        EasyMock.verify(top);
+        EasyMock.verify(c);
     }
     
     public void testIterator() {

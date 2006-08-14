@@ -3,6 +3,7 @@ package org.objectweb.celtix.bus.configuration;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
@@ -10,8 +11,12 @@ import org.objectweb.celtix.configuration.impl.ConfigurationMetadataBuilder;
 import org.objectweb.celtix.resource.DefaultResourceManager;
 
 
-public class TopConfigurationBuilder {
-    public TopConfigurationBuilder() {        
+public class TestConfigurationBuilder {
+    
+    private static final String TOP_CONFIGURATION_URI = 
+        "http://celtix.objectweb.org/configuration/test/top";
+    
+    public TestConfigurationBuilder() {        
     }
     
     public Configuration build(String id) {
@@ -25,7 +30,7 @@ public class TopConfigurationBuilder {
         } catch (IOException ex) {
             // ignore
         }
-        cb.addModel(model);
-        return cb.buildConfiguration(model.getNamespaceURI(), id);
+        cb.addModel(TOP_CONFIGURATION_URI, model);
+        return cb.getConfiguration(model.getNamespaceURI(), new CompoundName(id));
     }
 }

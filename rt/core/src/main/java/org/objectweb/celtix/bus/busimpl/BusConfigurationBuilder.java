@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.CommandLineOption;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 
@@ -22,11 +23,7 @@ public class BusConfigurationBuilder  {
     
     Configuration build(ConfigurationBuilder builder, String[] args, Map<String, Object> properties) {
         String id = getBusId(args, properties);
-        Configuration c = builder.getConfiguration(BUS_CONFIGURATION_URI, id);
-        if (null == c) {
-            c = builder.buildConfiguration(BUS_CONFIGURATION_URI, id);
-        }
-        return c;  
+        return builder.getConfiguration(BUS_CONFIGURATION_URI, new CompoundName(id));
     }
 
     private static String getBusId(String[] args, Map<String, Object> properties) {

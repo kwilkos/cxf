@@ -21,10 +21,8 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingImpl;
 import org.objectweb.celtix.bindings.AbstractClientBinding;
 import org.objectweb.celtix.bindings.AbstractServerBinding;
-import org.objectweb.celtix.bus.busimpl.BusConfigurationBuilder;
 import org.objectweb.celtix.bus.configuration.wsrm.DeliveryAssuranceType;
-import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-import org.objectweb.celtix.bus.jaxws.ServiceImpl;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
@@ -408,26 +406,32 @@ public class PersistenceHandlerTest extends TestCase {
     private void setupConfigurationBuilder(boolean server) {
         Configuration configuration;
         ConfigurationBuilder builder = new ConfigurationBuilderImpl();
-        Configuration busCfg = builder.buildConfiguration(
-            BusConfigurationBuilder.BUS_CONFIGURATION_URI, "PersistenceHandlerTest");
-        Configuration parent = null;
+        CompoundName bcn = new CompoundName("celtix");
+        CompoundName id = null;
         if (server) {
-            parent = builder.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, 
-                                                SERVICE_NAME.toString(), busCfg);
+            id = new CompoundName(
+                "celtix", 
+                SERVICE_NAME.toString(),
+                ConfigurationHelper.RM_CONFIGURATION_ID
+            );
         } else {
-            String id = SERVICE_NAME.toString() + "/" + PORT_NAME;
-            parent = builder.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
+            id = new CompoundName(
+                "celtix", 
+                SERVICE_NAME.toString() + "/" + PORT_NAME,
+                ConfigurationHelper.RM_CONFIGURATION_ID
+            );
         }
-        configuration = builder.buildConfiguration(ConfigurationHelper.RM_CONFIGURATION_URI, 
-                                                   ConfigurationHelper.RM_CONFIGURATION_ID, parent);
+        configuration = builder.getConfiguration(ConfigurationHelper.RM_CONFIGURATION_URI, id);
         
         bus = control.createMock(Bus.class);
+        Configuration busCfg = control.createMock(Configuration.class);
         if (!server) {
             expect(clientBinding.getBus()).andReturn(bus).times(2);
         } else {
             expect(serverBinding.getBus()).andReturn(bus).times(2);
         }
         expect(bus.getConfiguration()).andReturn(busCfg);
+        expect(busCfg.getId()).andReturn(bcn);
         expect(bus.getConfigurationBuilder()).andReturn(builder);
         EndpointReferenceType epr = EndpointReferenceUtils.getEndpointReference(
             "http://localhost:9000/SoapContext/GreeterPort");

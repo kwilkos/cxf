@@ -37,12 +37,11 @@ public class GeronimoTransportFactoryTest extends TestCase {
         MockBusFactory busFactory = new MockBusFactory();
         Bus mockBus = busFactory.createMockBus();
 
-        Configuration child = 
-            busFactory.addChildConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null, null);
+        Configuration endpointCfg = 
+            busFactory.getConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null);
         Configuration httpServerCfg = 
-            busFactory.addChildConfig("http://celtix.objectweb.org/bus/transports/http/http-server-config",
-                null, null, child);
-        EasyMock.replay(child);
+            busFactory.getConfig("http://celtix.objectweb.org/bus/transports/http/http-server-config", null);
+        EasyMock.replay(endpointCfg);
         EasyMock.replay(httpServerCfg);
 
         busFactory.replay();

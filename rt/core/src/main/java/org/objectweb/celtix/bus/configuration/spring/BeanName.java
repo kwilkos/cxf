@@ -35,16 +35,7 @@ class BeanName {
     }   
     
     BeanName(Configuration conf) {
-        StringBuffer buf = new StringBuffer();
-        Configuration c = conf;
-        while (null != c) {
-            if (buf.length() > 0) {
-                buf.insert(0, TIGHT_BINDING);
-            }
-            buf.insert(0, c.getId().toString());
-            c = c.getParent();
-        }
-        name = buf.toString();
+        name = conf.getId().toString();
         normalisedName = name;
     }
     

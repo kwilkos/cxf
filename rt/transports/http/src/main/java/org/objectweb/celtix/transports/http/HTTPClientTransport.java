@@ -27,7 +27,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
@@ -43,9 +42,9 @@ import org.objectweb.celtix.bindings.ResponseCallback;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider;
-import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Utility;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -163,7 +162,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
         return new HTTPClientOutputStreamContext(url, policy, authPolicy, 
                                                  proxyAuthPolicy, sslClientPolicy, 
                                                  context,
-                                                 portConfiguration);
+                                                 configuration);
     }
 
     public void finalPrepareOutputStreamContext(OutputStreamMessageContext context) throws IOException {
@@ -305,44 +304,18 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
     }
 
     protected static Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
-        Configuration busConfiguration = bus.getConfiguration();
-        String id = EndpointReferenceUtils.getServiceName(ref).toString()
-            + "/" + EndpointReferenceUtils.getPortName(ref);
-        Configuration portConfiguration = busConfiguration
-            .getChild(PORT_CONFIGURATION_URI,
-                      id);
-       
-        // REVISIT: the following should never be necessary 
- 
-        if (portConfiguration == null) {
-            portConfiguration = bus.getConfiguration().getChild(PORT_CONFIGURATION_URI, id);
-            if (null == portConfiguration) {
-                ConfigurationBuilder cb = bus.getConfigurationBuilder();
-                portConfiguration = cb.buildConfiguration(PORT_CONFIGURATION_URI, id,
-                                                          bus.getConfiguration());
-            }
-
-            // add the additional provider
-            Port port = null;
-            try  {
-                port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
-            } catch (WSDLException ex) {
-                throw new WebServiceException("Could not get port from wsdl", ex);
-            }
-            portConfiguration.getProviders().add(new WsdlPortProvider(port));
-        }        
-        return portConfiguration;
+        CompoundName id = new CompoundName(bus.getConfiguration().getId(),
+            EndpointReferenceUtils.getServiceName(ref).toString()
+            + "/" + EndpointReferenceUtils.getPortName(ref));
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
+        return  cb.getConfiguration(PORT_CONFIGURATION_URI, id);
     }
 
     private Configuration createConfiguration(Configuration portCfg) {
-        Configuration cfg = portCfg.getChild(HTTP_CLIENT_CONFIGURATION_URI,
-                                                HTTP_CLIENT_CONFIGURATION_ID);
-        if (null == cfg) {
-            ConfigurationBuilder cb = bus.getConfigurationBuilder();
-            cfg = cb.buildConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
-                                        HTTP_CLIENT_CONFIGURATION_ID,
-                                        portCfg);
-        }
+        CompoundName id = new CompoundName(portCfg.getId(), HTTP_CLIENT_CONFIGURATION_ID);
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
+        Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI, id);
+
         // register the additional provider
         if (null != port) {
             cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, false));
@@ -381,7 +354,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
         AuthorizationPolicy authPolicy;
         AuthorizationPolicy proxyAuthPolicy;
         SSLClientPolicy sslClientPolicy;
-        Configuration portConfiguration;
+        Configuration httpClientConfiguration;
 
         @SuppressWarnings("unchecked")
         public HTTPClientOutputStreamContext(URL url,
@@ -390,7 +363,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
                                              AuthorizationPolicy pap,
                                              SSLClientPolicy sslcp,
                                              MessageContext ctx,
-                                             Configuration configParam)
+                                             Configuration cfg)
             throws IOException {
             super(ctx);
 
@@ -404,7 +377,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
             authPolicy = ap;
             proxyAuthPolicy = pap;
             sslClientPolicy = sslcp;
-            portConfiguration = configParam;
+            httpClientConfiguration = cfg;
             String value = (String)ctx.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
             if (value != null) {
                 url = new URL(value);
@@ -453,7 +426,7 @@ public class HTTPClientTransport implements ClientTransport, InstrumentationFact
         
         private void setSSLPolicies() {
             JettySslClientConfigurer sslClientConfigurer = 
-                new JettySslClientConfigurer(sslClientPolicy, connection, portConfiguration); 
+                new JettySslClientConfigurer(sslClientPolicy, connection, httpClientConfiguration); 
             sslClientConfigurer.configure();
         }
         

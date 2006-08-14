@@ -8,8 +8,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.bus.configuration.LeafConfigurationBuilder;
-import org.objectweb.celtix.bus.configuration.TopConfigurationBuilder;
+import org.objectweb.celtix.bus.configuration.TestConfigurationBuilder;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
@@ -37,14 +36,14 @@ public class ConfigurationProviderImplTest extends TestCase {
     public void testInvalidBeanDefinitionsResourceURL() {
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, "resources\top1.xml");
         try {
-            new TopConfigurationBuilder().build("top");
+            new TestConfigurationBuilder().build("top");
         } catch (ConfigurationException ex) {
             assertEquals("MALFORMED_URL_PROPERTY", ex.getCode());
         }
     }
 
     public void testNoBeanDefinitionsFile() {
-        Configuration top = new TopConfigurationBuilder().build("top");
+        Configuration top = new TestConfigurationBuilder().build("top");
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
         assertTrue(providers.get(0) instanceof ConfigurationProviderImpl);
@@ -55,7 +54,7 @@ public class ConfigurationProviderImplTest extends TestCase {
     public void testInvalidBeanDefinitionFile() {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top-invalid.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-        new TopConfigurationBuilder().build("top");
+        new TestConfigurationBuilder().build("top");
         assertNull(ConfigurationProviderImpl.getBeanFactories().get(url));
     }
 
@@ -67,7 +66,7 @@ public class ConfigurationProviderImplTest extends TestCase {
         // The non-existing class is detected when the bean factory is initialised - not
         // later when the bean is created.
 
-        new TopConfigurationBuilder().build("top");
+        new TestConfigurationBuilder().build("top");
         assertNull(ConfigurationProviderImpl.getBeanFactories().get(url));
     }
 
@@ -76,7 +75,7 @@ public class ConfigurationProviderImplTest extends TestCase {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top1.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
 
-        Configuration top = new TopConfigurationBuilder().build("top2");
+        Configuration top = new TestConfigurationBuilder().build("top2");
 
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
@@ -91,7 +90,7 @@ public class ConfigurationProviderImplTest extends TestCase {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top1.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
 
-        Configuration top = new TopConfigurationBuilder().build("top1");
+        Configuration top = new TestConfigurationBuilder().build("top1");
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
         assertTrue(providers.get(0) instanceof ConfigurationProviderImpl);
@@ -100,7 +99,7 @@ public class ConfigurationProviderImplTest extends TestCase {
     public void testBeanCreationUsingValueAsText() throws MalformedURLException {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-        Configuration top = new TopConfigurationBuilder().build("top2");
+        Configuration top = new TestConfigurationBuilder().build("top2");
 
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
@@ -138,7 +137,7 @@ public class ConfigurationProviderImplTest extends TestCase {
     public void testBeanCreationUsingValueAsElements() throws MalformedURLException {
         URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
         System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-        Configuration top = new TopConfigurationBuilder().build("top22");
+        Configuration top = new TestConfigurationBuilder().build("top22");
 
         List<ConfigurationProvider> providers = top.getProviders();
         assertEquals(1, providers.size());
@@ -176,25 +175,6 @@ public class ConfigurationProviderImplTest extends TestCase {
         assertEquals("something", l.get(0));
         assertEquals("else", l.get(1));
 
-    }
-
-    public void testBeanCreationSimpleHierarchy() {
-        URL url = ConfigurationProviderImplTest.class.getResource("resources/top2.xml");
-        System.setProperty(ConfigurationProviderImpl.CONFIG_FILE_PROPERTY_NAME, url.toExternalForm());
-
-        Configuration top = new TopConfigurationBuilder().build("top2");
-        Configuration leaf = new LeafConfigurationBuilder().build(top, "leaf");
-
-        List<ConfigurationProvider> providers = leaf.getProviders();
-        assertEquals(1, providers.size());
-
-
-        Object o = providers.get(0).getObject("stringLeafItem");
-        assertTrue(o instanceof String);
-        assertEquals("Don't fear the reaper", (String)o);
-
-        o = providers.get(0).getObject("longLeafItemNoDefault");
-        assertEquals(99, ((Long)o).longValue());
     }
 
 }

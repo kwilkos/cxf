@@ -9,16 +9,15 @@ import java.util.Map;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
 import org.objectweb.celtix.common.util.Base64Utility;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.wsdl.WsdlHttpConfigurationProvider;
-import org.objectweb.celtix.configuration.wsdl.WsdlPortProvider;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -50,7 +49,7 @@ public class HTTPConduitConfiguration {
         address = portConfiguration.getString("address");
         EndpointReferenceUtils.setAddress(ref, address);
     
-        configuration = createConfiguration(bus, portConfiguration);
+        configuration = createConfiguration(bus, ref);
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
@@ -201,44 +200,32 @@ public class HTTPConduitConfiguration {
     }
     
     private Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
-        Configuration busConfiguration = bus.getConfiguration();
-        String id = EndpointReferenceUtils.getServiceName(ref).toString()
-            + "/" + EndpointReferenceUtils.getPortName(ref);
-        Configuration portConfig = busConfiguration
-            .getChild(PORT_CONFIGURATION_URI,
-                      id);
-                
-        // REVISIT: the following should never be necessary 
- 
-        if (portConfig == null) {
-            portConfig = bus.getConfiguration().getChild(PORT_CONFIGURATION_URI, id);
-            if (null == portConfig) {
-                ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
-                portConfig = cb.buildConfiguration(PORT_CONFIGURATION_URI, id,
-                                                   bus.getConfiguration());
-            }
 
-            // add the additional provider
-            Port p = null;
-            try  {
-                p = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
-            } catch (WSDLException ex) {
-                throw new WebServiceException("Could not get port from wsdl", ex);
-            }
-            portConfig.getProviders().add(new WsdlPortProvider(p));
-        }        
-        return portConfig;
+        // REVISIT
+
+        CompoundName id = new CompoundName(
+            bus.getId(),
+            EndpointReferenceUtils.getServiceName(ref).toString()
+            + "/" + EndpointReferenceUtils.getPortName(ref)
+        );
+
+        ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
+        return cb.getConfiguration(PORT_CONFIGURATION_URI, id);
     }
 
-    private Configuration createConfiguration(Bus bus, Configuration portCfg) {
-        Configuration cfg = portCfg.getChild(HTTP_CLIENT_CONFIGURATION_URI,
-                                             HTTP_CLIENT_CONFIGURATION_ID);
-        if (null == cfg) {
-            ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
-            cfg = cb.buildConfiguration(HTTP_CLIENT_CONFIGURATION_URI,
-                                        HTTP_CLIENT_CONFIGURATION_ID,
-                                        portCfg);
-        }
+    private Configuration createConfiguration(Bus bus, EndpointReferenceType ref) {
+
+        // REVISIT 
+
+        CompoundName id = new CompoundName(
+            bus.getId(),
+            EndpointReferenceUtils.getServiceName(ref).toString()
+            + "/" + EndpointReferenceUtils.getPortName(ref),
+            HTTP_CLIENT_CONFIGURATION_ID
+        );
+        ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
+        Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI, id);
+        
         // register the additional provider
         if (null != port) {
             cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, false));

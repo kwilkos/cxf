@@ -16,7 +16,9 @@ import org.objectweb.celtix.bindings.BindingManager;
 import org.objectweb.celtix.bindings.ServerBinding;
 import org.objectweb.celtix.bindings.ServerBindingEndpointCallback;
 import org.objectweb.celtix.buslifecycle.BusLifeCycleManager;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
+import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.jaxws.EndpointRegistry;
 import org.objectweb.celtix.resource.ResourceManager;
 import org.objectweb.celtix.transports.TransportFactoryManager;
@@ -27,6 +29,7 @@ public final class MockBusFactory {
 
     private Bus mockBus; 
     private Configuration mockConfiguration; 
+    private ConfigurationBuilder mockConfigurationBuilder; 
     private BindingManager mockBindingMgr; 
     private ServerBinding mockServerBinding; 
     private BindingFactory mockBindingFactory; 
@@ -43,6 +46,7 @@ public final class MockBusFactory {
     public void replay() {
         EasyMock.replay(mockBus); 
         EasyMock.replay(mockConfiguration); 
+        EasyMock.replay(mockConfigurationBuilder); 
         EasyMock.replay(mockBindingMgr); 
         EasyMock.replay(mockServerBinding); 
         EasyMock.replay(mockBindingFactory);
@@ -63,6 +67,7 @@ public final class MockBusFactory {
 
         mockBus = createNiceMock(Bus.class);
         mockConfiguration = createNiceMock(Configuration.class);       
+        mockConfigurationBuilder = createNiceMock(ConfigurationBuilder.class);       
         mockBindingMgr = createNiceMock(BindingManager.class);
         mockBindingFactory = createNiceMock(BindingFactory.class);
         mockServerBinding = createNiceMock(ServerBinding.class);
@@ -78,11 +83,15 @@ public final class MockBusFactory {
             .andReturn(mockResourceManager).anyTimes();        
         EasyMock.expect(mockBus.getConfiguration())
             .andReturn(mockConfiguration).anyTimes();
+        EasyMock.expect(mockBus.getConfigurationBuilder())
+            .andReturn(mockConfigurationBuilder).anyTimes();
         EasyMock.expect(mockBus.getBindingManager())
             .andReturn(mockBindingMgr).anyTimes();
         
         EasyMock.expect(mockBus.getEndpointRegistry())
             .andReturn(mockEndpointRegistry).anyTimes();
+
+        EasyMock.expect(mockConfiguration.getId()).andReturn(new CompoundName("celtix")).anyTimes();
         
         EasyMock.expect(mockBindingMgr.getBindingFactory((String)EasyMock.anyObject()))        
                 .andReturn(mockBindingFactory).anyTimes();
@@ -103,25 +112,15 @@ public final class MockBusFactory {
         return mockBus;     
     }
 
-    public Configuration addChildConfig(String namespaceURI, Object id, Configuration childConfig) {
-        return addChildConfig(namespaceURI, id, childConfig, mockConfiguration);
-    }
-
-    public Configuration addChildConfig(String namespaceURI, Object id, Configuration childConfig,
-        Configuration parentConfig) {
-
-        if (childConfig == null) {
-            childConfig = EasyMock.createNiceMock(Configuration.class);
+    public Configuration getConfig(String configURI, Configuration cfg) {
+        if (cfg == null) {
+            cfg = EasyMock.createNiceMock(Configuration.class);
         }
-
-        EasyMock.expect(parentConfig.getChild(EasyMock.eq(namespaceURI), 
-                                            id != null
-                                            ? EasyMock.eq(id)
-                                            : EasyMock.anyObject()))
-                                            .andReturn(childConfig)
-                                            .anyTimes();
-        return childConfig;
+        EasyMock.expect(mockConfigurationBuilder.getConfiguration(EasyMock.eq(configURI),
+            EasyMock.isA(CompoundName.class))).andReturn(cfg).anyTimes();
+        return cfg;
     }
+
 
     public Bus getBus() {
         return mockBus;

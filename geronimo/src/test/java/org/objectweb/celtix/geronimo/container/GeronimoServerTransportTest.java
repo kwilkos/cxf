@@ -52,12 +52,11 @@ public class GeronimoServerTransportTest extends TestCase {
         QName serviceName = new QName("http://www.w3.org/2004/08/wsdl", "testServiceName");
         EndpointReferenceUtils.setServiceAndPortName(address, serviceName, "");
 
-        Configuration child = 
-            busFactory.addChildConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null, null);
+        Configuration endpointCfg = 
+            busFactory.getConfig("http://celtix.objectweb.org/bus/jaxws/endpoint-config", null);
         Configuration httpServerCfg = 
-            busFactory.addChildConfig("http://celtix.objectweb.org/bus/transports/http/http-server-config",
-                null, null, child);
-        EasyMock.replay(child);
+            busFactory.getConfig("http://celtix.objectweb.org/bus/transports/http/http-server-config", null);
+        EasyMock.replay(endpointCfg);
         EasyMock.replay(httpServerCfg);
         busFactory.replay(); 
         

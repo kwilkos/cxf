@@ -54,12 +54,12 @@ public final class JettySslClientConfigurer {
     
     public JettySslClientConfigurer(SSLClientPolicy sslPolicyParam,
                                        URLConnection connection,
-                                       Configuration configurationParam) {
+                                       Configuration httpClientConfiguration) {
         
         this.sslPolicy = sslPolicyParam;
         this.httpsConnection = (HttpsURLConnection)connection;
         
-        config = configurationParam;
+        config = httpClientConfiguration;
         
     }
     
@@ -463,8 +463,8 @@ public final class JettySslClientConfigurer {
     
     
     public void setupSecurityConfigurer() {
-        String systemProperty = "celtix.security.configurer.celtix."
-            + config.getId() + ".http-client";
+        String systemProperty = "celtix.security.configurer."
+            + config.getId().toString();
         String securityConfigurerName = 
             System.getProperty(systemProperty);
        

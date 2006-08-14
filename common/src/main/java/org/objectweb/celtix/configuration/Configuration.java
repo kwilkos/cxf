@@ -10,14 +10,7 @@ public interface Configuration {
      * 
      * @return the name for this configuration.
      */
-    Object getId();
-    
-    /** 
-     * Returns the <code>Configurator</code> associated with this <code>Configuration</code>.
-     *
-     * @return the configuration's configurator object.
-     */
-    // Configurator getConfigurator();
+    CompoundName getId();
     
     /**
      * Returns the configuration metadata model for this <code>Configuration</code>.
@@ -40,25 +33,6 @@ public interface Configuration {
      * @return the list of configuration providers for this configuration.
      */
     List<ConfigurationProvider> getProviders();
-    
-    /** 
-     * Returns the parent configuration of this configuration, or null if there is no 
-     * parent.
-     * 
-     * @return the parent configuration.
-     */
-    Configuration getParent();
-    
-    /**
-     * Returns the child configuration of the type specified in the namespaceURI and with the 
-     * specified identifier if there is one, otherwise null.
-     * 
-     * @param id the identifier of the child configuration.
-     * 
-     * @return the configuration metadata model.
-     * 
-     */
-    Configuration getChild(String  namespaceURI, Object id);
     
     /**
      * Returns the object holding the value for the configuration item with the specified name. 
@@ -236,12 +210,5 @@ public interface Configuration {
      * @return the value of the configuration item.
      */
     List<String> getStringList(String name);
-
-    /**
-     * Save the changes
-     * 
-     * @return true if the save was successful.
-     */
-    boolean save();
 
 }

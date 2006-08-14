@@ -23,9 +23,8 @@ import org.objectweb.celtix.bindings.AbstractBindingBase;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bindings.JAXWSConstants;
 import org.objectweb.celtix.bindings.ServerBinding;
-import org.objectweb.celtix.bus.jaxws.EndpointImpl;
-import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.transports.ClientTransport;
@@ -78,26 +77,25 @@ public class MAPAggregator implements LogicalHandler<LogicalMessageContext> {
         AbstractBindingBase binding = (AbstractBindingBase)
             (clientBinding == null ? serverBinding : clientBinding);
         Configuration busCfg = binding.getBus().getConfiguration();
-        ConfigurationBuilder builder = binding.getBus().getConfigurationBuilder();
-        Configuration parent;
         org.objectweb.celtix.ws.addressing.EndpointReferenceType ref = 
             binding.getEndpointReference();
-
+        CompoundName id = null;
         if (null != clientBinding) {
-            String id = EndpointReferenceUtils.getServiceName(ref).toString()
-                + "/" + EndpointReferenceUtils.getPortName(ref);
-            parent = builder.getConfiguration(ServiceImpl.PORT_CONFIGURATION_URI,
-                                                                id, busCfg);
+            id = new CompoundName(
+                busCfg.getId().toString(),
+                EndpointReferenceUtils.getServiceName(ref).toString()
+                + "/" + EndpointReferenceUtils.getPortName(ref),
+                WSA_CONFIGURATION_ID 
+            );
         } else {
-            parent = builder.getConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, EndpointReferenceUtils
-                .getServiceName(ref).toString(), busCfg);
+            id = new CompoundName(
+                busCfg.getId().toString(),
+                EndpointReferenceUtils.getServiceName(ref).toString(),
+                WSA_CONFIGURATION_ID 
+            );
         }
-
-        configuration = builder.getConfiguration(WSA_CONFIGURATION_URI, WSA_CONFIGURATION_ID, parent);
-        if (null == configuration) {
-            configuration = builder.buildConfiguration(WSA_CONFIGURATION_URI, WSA_CONFIGURATION_ID, parent);
-            
-        }
+        ConfigurationBuilder builder = binding.getBus().getConfigurationBuilder();
+        configuration = builder.getConfiguration(WSA_CONFIGURATION_URI, id);
     }
 
 

@@ -9,6 +9,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.event.EventProcessor;
 import org.objectweb.celtix.management.InstrumentationManager;
 import org.objectweb.celtix.messaging.ConduitInitiatorManager;
@@ -68,6 +69,13 @@ public class CeltixBusTest extends TestCase {
         String extension = "CXF";
         bus.setExtension(extension, String.class);
         assertSame(extension, bus.getExtension(String.class));
+    }
+    
+    public void testConfiguration() {
+        CeltixBus bus = new CeltixBus();
+        Configuration c = bus.getConfiguration();
+        assertTrue("Unexpected value for servicesMonitoring property.",
+                   !c.getBoolean("servicesMonitoring"));
     }
     
 

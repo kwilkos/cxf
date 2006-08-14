@@ -20,6 +20,7 @@ import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.ClientBinding;
 import org.objectweb.celtix.bus.workqueue.WorkQueueManagerImpl;
 
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 
@@ -260,10 +261,11 @@ public class JMSContextTest extends TestCase {
 
         String id = EndpointReferenceUtils.getServiceName(ref).toString();
         ConfigurationBuilder cb = bus.getConfigurationBuilder();
-        cb.buildConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, id, busCfg);
-        cb.buildConfiguration(JMSConstants.PORT_CONFIGURATION_URI,
-                              id + "/" + EndpointReferenceUtils.getPortName(ref).toString(),
-                              busCfg);
+        cb.getConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, 
+            new CompoundName("celtix", id));
+        cb.getConfiguration(JMSConstants.PORT_CONFIGURATION_URI,
+            new CompoundName("celtix",
+                id + "/" + EndpointReferenceUtils.getPortName(ref).toString()));
     }
     
     public class TestJMSClientTransport extends JMSClientTransport {

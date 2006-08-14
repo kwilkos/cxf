@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlPortProvider;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -43,7 +44,7 @@ public class XMLBindingTransportTest extends TestCase {
         Configuration portCfg = null;
         String id = portName.getLocalPart();
         ConfigurationBuilder cb = bus.getConfigurationBuilder();
-        portCfg = cb.buildConfiguration(PORT_CONFIGURATION_URI, id, bus.getConfiguration());
+        portCfg = cb.getConfiguration(PORT_CONFIGURATION_URI, new CompoundName(id));
         
         Port port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);
         assertNotNull(port);

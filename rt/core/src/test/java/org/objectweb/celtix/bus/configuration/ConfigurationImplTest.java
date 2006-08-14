@@ -4,7 +4,6 @@ package org.objectweb.celtix.bus.configuration;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -13,18 +12,17 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.configuration.Configurator;
-import org.objectweb.celtix.configuration.impl.ConfigurationImpl;
 import org.objectweb.celtix.configuration.impl.DefaultConfigurationProviderFactory;
 
 
-public class AbstractConfigurationImplTest extends TestCase {
+public class ConfigurationImplTest extends TestCase {
 
-    private final Configuration top;
+    private final Configuration cfg;
 
-    public AbstractConfigurationImplTest(String name) {
+    public ConfigurationImplTest(String name) {
         super(name);
-        top = new TopConfigurationBuilder().build("top");
+        
+        cfg = new TestConfigurationBuilder().build("top");
     }
     
     public void testDefaultConfigurationProviderFactory() throws NoSuchMethodException, IOException  {
@@ -47,57 +45,15 @@ public class AbstractConfigurationImplTest extends TestCase {
     }
     
     public void testConstruction() {
-        assertNotNull(top);        
-        ConfigurationMetadata model = top.getModel();
+        assertNotNull(cfg);        
+        ConfigurationMetadata model = cfg.getModel();
         assertNotNull(model);
         assertEquals(18, model.getDefinitions().size()); 
     }
     
-    public void testConfigurators() {
-        ConfigurationImpl topConfiguration = 
-            (ConfigurationImpl)new TopConfigurationBuilder().build("TOP");
-        Configurator topConfigurator = topConfiguration.getConfigurator();
-        assertNotNull(topConfigurator);
-        assertTrue(topConfiguration == topConfigurator.getConfiguration());
-        assertNull(topConfigurator.getHook());
-        Collection<Configurator> topClients = topConfigurator.getClients();
-        assertEquals(0, topClients.size());    
-        
-        ConfigurationImpl leafConfiguration = 
-            (ConfigurationImpl)new LeafConfigurationBuilder().build(topConfiguration, "LEAF");
-        assertEquals(1, topClients.size());   
-        Configurator leafConfigurator = leafConfiguration.getConfigurator();
-        assertNotNull(leafConfigurator);
-        assertTrue(leafConfiguration == leafConfigurator.getConfiguration());
-        Configurator hook = leafConfigurator.getHook();
-        assertNotNull(hook);
-        assertTrue(hook == topConfigurator);
-        Collection<Configurator> leafClients = leafConfigurator.getClients();
-        assertEquals(0, leafClients.size());   
-        
-        Object cidTop = topConfiguration.getId();
-        assertEquals("TOP", cidTop.toString());
-        
-        Object cidLeaf = leafConfiguration.getId();
-        assertEquals("LEAF", cidLeaf.toString());
-        
-        assertTrue(cidTop.equals(cidTop));
-        assertTrue(!cidTop.equals(cidLeaf));
-        assertTrue(!cidTop.equals(this));
-        
-        assertTrue(!cidTop.toString().equals(cidLeaf.toString()));
-        assertTrue(cidTop.hashCode() != cidLeaf.hashCode());
-     
-        
-        topConfigurator.unregisterClient(leafConfigurator);
-        assertEquals(0, topClients.size());
-        assertNotNull(leafConfigurator.getHook());
-        
-    }
-     
     public void testUndefined() {
         try {
-            top.getObject("undefinedStringItem");
+            cfg.getObject("undefinedStringItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NOT_DEFINED_EXC", ex.getCode());
         }
@@ -106,73 +62,73 @@ public class AbstractConfigurationImplTest extends TestCase {
     
     public void testNoDefaults() {
         
-        assertNull(top.getObject("booleanItemNoDefault"));
+        assertNull(cfg.getObject("booleanItemNoDefault"));
         try {
-            top.getBoolean("booleanItemNoDefault");
+            cfg.getBoolean("booleanItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("shortItemNoDefault"));
+        assertNull(cfg.getObject("shortItemNoDefault"));
         try {
-            top.getShort("shortItemNoDefault");
+            cfg.getShort("shortItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("intItemNoDefault"));
+        assertNull(cfg.getObject("intItemNoDefault"));
         try {
-            top.getInt("integerItemNoDefault");
+            cfg.getInt("integerItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("longItemNoDefault"));
+        assertNull(cfg.getObject("longItemNoDefault"));
         try {
-            top.getLong("longItemNoDefault");
+            cfg.getLong("longItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("floatItemNoDefault"));
+        assertNull(cfg.getObject("floatItemNoDefault"));
         try {
-            top.getFloat("floatItemNoDefault");
+            cfg.getFloat("floatItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("doubleItemNoDefault"));
+        assertNull(cfg.getObject("doubleItemNoDefault"));
         try {
-            top.getDouble("doubleItemNoDefault");
+            cfg.getDouble("doubleItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("stringItemNoDefault"));
+        assertNull(cfg.getObject("stringItemNoDefault"));
         try {
-            top.getObject("stringItemNoDefault");
+            cfg.getObject("stringItemNoDefault");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_NO_VALUE_EXC", ex.getCode());
         }
-        assertNull(top.getObject("stringListItemNoDefault"));
+        assertNull(cfg.getObject("stringListItemNoDefault"));
     }
     
     public void testDefaults() {
         Object value = null;
-        assertNotNull(top.getObject("booleanItem"));
-        assertTrue(top.getBoolean("booleanItem"));
-        assertNotNull(top.getObject("shortItem"));
-        assertEquals(3, top.getShort("shortItem"));
-        assertNotNull(top.getObject("intItem"));
-        assertEquals(44959, top.getInt("intItem"));
-        value = top.getObject("integerItem");
+        assertNotNull(cfg.getObject("booleanItem"));
+        assertTrue(cfg.getBoolean("booleanItem"));
+        assertNotNull(cfg.getObject("shortItem"));
+        assertEquals(3, cfg.getShort("shortItem"));
+        assertNotNull(cfg.getObject("intItem"));
+        assertEquals(44959, cfg.getInt("intItem"));
+        value = cfg.getObject("integerItem");
         assertNotNull(value);
         assertEquals(44959, ((BigInteger)value).intValue());
-        assertNotNull(top.getObject("longItem"));
-        assertEquals(-99, top.getLong("longItem"));
-        assertNotNull(top.getObject("floatItem"));
-        assertTrue(Math.abs(1234.5678 - top.getFloat("floatItem")) < 0.5E-3);
-        assertNotNull(top.getObject("doubleItem"));
-        assertTrue(Math.abs(1234.5678 - top.getDouble("doubleItem")) < 0.5E-5);
-        assertNotNull(top.getObject("stringItem"));
-        assertEquals("\"Hello World!\"", top.getString("stringItem"));
-        value = top.getObject("stringListItem");
+        assertNotNull(cfg.getObject("longItem"));
+        assertEquals(-99, cfg.getLong("longItem"));
+        assertNotNull(cfg.getObject("floatItem"));
+        assertTrue(Math.abs(1234.5678 - cfg.getFloat("floatItem")) < 0.5E-3);
+        assertNotNull(cfg.getObject("doubleItem"));
+        assertTrue(Math.abs(1234.5678 - cfg.getDouble("doubleItem")) < 0.5E-5);
+        assertNotNull(cfg.getObject("stringItem"));
+        assertEquals("\"Hello World!\"", cfg.getString("stringItem"));
+        value = cfg.getObject("stringListItem");
         assertNotNull(value);
-        List<String> l = top.getStringList("stringListItem");
+        List<String> l = cfg.getStringList("stringListItem");
         assertNotNull(l);
         assertEquals(3, l.size());
         assertEquals("a", l.get(0));
@@ -182,37 +138,37 @@ public class AbstractConfigurationImplTest extends TestCase {
     
     public void testTypeMismatch() {
         try {
-            top.getStringList("booleanItem");
+            cfg.getStringList("booleanItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getBoolean("shortItem");
+            cfg.getBoolean("shortItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getShort("intItem");
+            cfg.getShort("intItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getInt("integerItem");
+            cfg.getInt("integerItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getLong("doubleItem");
+            cfg.getLong("doubleItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getDouble("stringItem");
+            cfg.getDouble("stringItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.getString("stringListItem");
+            cfg.getString("stringListItem");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
@@ -220,32 +176,32 @@ public class AbstractConfigurationImplTest extends TestCase {
 
     public void testTypeMismatchWrite() {
         try {
-            top.setBoolean("shortItem", true);
+            cfg.setBoolean("shortItem", true);
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.setShort("intItem", (short)99);
+            cfg.setShort("intItem", (short)99);
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.setInt("integerItem", 99);
+            cfg.setInt("integerItem", 99);
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.setLong("doubleItem", 99);
+            cfg.setLong("doubleItem", 99);
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.setDouble("stringItem", 99.9);
+            cfg.setDouble("stringItem", 99.9);
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }
         try {
-            top.setString("stringListItem", "testString");
+            cfg.setString("stringListItem", "testString");
         } catch (ConfigurationException ex) {
             assertEquals("ITEM_TYPE_MISMATCH_EXC", ex.getCode());
         }

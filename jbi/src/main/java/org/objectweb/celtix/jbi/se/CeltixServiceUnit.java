@@ -24,11 +24,8 @@ import org.w3c.dom.NodeList;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.jaxws.EndpointImpl;
 import org.objectweb.celtix.bus.jaxws.EndpointUtils;
-import org.objectweb.celtix.bus.jaxws.ServiceImpl;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.jbi.ServiceConsumer;
 
 /**
@@ -146,7 +143,6 @@ public class CeltixServiceUnit {
                 Class<?> clz = classes.iterator().next();
                 serviceImplementation = clz.newInstance();
                 if (EndpointUtils.isValidImplementor(serviceImplementation)) {
-                    createProviderConfiguration();
                     ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
                     Thread.currentThread().setContextClassLoader(
                         serviceImplementation.getClass().getClassLoader());
@@ -157,7 +153,6 @@ public class CeltixServiceUnit {
                 }
                 
             } else {
-                createConsumerConfiguration();
                 classes = finder.findServiceConsumerClasses();
                 Class<?> clz = classes.iterator().next();
                 serviceConsumer = (ServiceConsumer)clz.newInstance();
@@ -252,58 +247,5 @@ public class CeltixServiceUnit {
         } 
         return null;
     } 
-    
-    private void createProviderConfiguration() {
-        String oldConfiguration = System.getProperty("celtix.config.file");
-        File metaInfDir = new File(rootPath, "META-INF");
-        File celtixConfig = new File(metaInfDir, "celtix-server.xml"); 
-        if (celtixConfig.exists()) { 
-            try {
-                System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            LOG.fine(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
-        } else { 
-            LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
-        } 
-        
-        Configuration busCfg = bus.getConfiguration();
-        if (null == busCfg) {
-            return;
-        }
-
-        String id = getServiceName().toString();
-        ConfigurationBuilder cb = bus.getConfigurationBuilder();
-        cb.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, id, busCfg);
-        System.setProperty("celtix.config.file", oldConfiguration);
-    }
-    
-    private void createConsumerConfiguration() {
-        String oldConfiguration = System.getProperty("celtix.config.file");
-        File metaInfDir = new File(rootPath, "META-INF");
-        File celtixConfig = new File(metaInfDir, "celtix-client.xml"); 
-        if (celtixConfig.exists()) { 
-            try {
-                System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            LOG.fine(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
-        } else { 
-            LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
-        } 
-        
-        Configuration busCfg = bus.getConfiguration();
-        if (null == busCfg) {
-            return;
-        }
-        String id = getServiceName().toString() + "/" + getEndpointName();
-        LOG.info("the client bean id is " + id);
-        ConfigurationBuilder cb = bus.getConfigurationBuilder();
-        cb.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
-        System.setProperty("celtix.config.file", oldConfiguration);
-    }
-
     
 }

@@ -7,9 +7,9 @@ import java.util.Map;
 
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.configuration.wsdl.WsdlHttpConfigurationProvider;
@@ -23,8 +23,6 @@ import org.objectweb.celtix.wsdl.WSDLManager;
  * to listening.
  */
 public class HTTPDestinationConfiguration {
-    private static final String ENDPOINT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
     private static final String HTTP_SERVER_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/transports/http/http-server-config";
     private static final String HTTP_SERVER_CONFIGURATION_ID = "http-server";
@@ -88,10 +86,18 @@ public class HTTPDestinationConfiguration {
     }
     
     private Configuration createConfiguration(Bus bus, EndpointReferenceType ref) {
-        Configuration busConfiguration = bus.getConfiguration();
-        QName serviceName = EndpointReferenceUtils.getServiceName(ref);
-        Configuration endpointConfiguration = busConfiguration
-            .getChild(ENDPOINT_CONFIGURATION_URI, serviceName.toString());
+        
+        CompoundName id = new CompoundName(
+            bus.getId(),
+            EndpointReferenceUtils.getServiceName(ref).toString(),
+            HTTP_SERVER_CONFIGURATION_ID
+        );
+
+        ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
+        Configuration cfg = cb.getConfiguration(HTTP_SERVER_CONFIGURATION_URI, id);
+
+        // create and register the additional provider
+
         Port port = null;
         try {
             port = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
@@ -99,15 +105,6 @@ public class HTTPDestinationConfiguration {
             // ignore
         }
   
-        Configuration cfg = endpointConfiguration.getChild(HTTP_SERVER_CONFIGURATION_URI, 
-                                                HTTP_SERVER_CONFIGURATION_ID);
-        if (null == cfg) {
-            ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
-            cfg = cb.buildConfiguration(HTTP_SERVER_CONFIGURATION_URI, 
-                                        HTTP_SERVER_CONFIGURATION_ID, 
-                                        endpointConfiguration);
-        }
-        // register the additional provider
         if (null != port) {
             cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, true));
         }

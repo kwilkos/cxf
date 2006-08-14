@@ -10,9 +10,8 @@ import junit.framework.TestSuite;
 
 import org.easymock.classextension.EasyMock;
 import org.mortbay.http.SslListener;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.configuration.security.SSLServerPolicy;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 
 public class JettySslListenerSystemPropertiesConfigurerTest extends TestCase {
@@ -20,11 +19,8 @@ public class JettySslListenerSystemPropertiesConfigurerTest extends TestCase {
     
     private static final String DROP_BACK_SRC_DIR = 
         "../../../../../../../src/test/java/org/objectweb/celtix/transports/https/";
-
-    Bus bus;
-
-    
-
+    private static final CompoundName HTTP_LISTENER_CONFIG_ID = 
+        new CompoundName("celtix", "http-listener.1234");
 
     public JettySslListenerSystemPropertiesConfigurerTest(String arg0) {
         super(arg0);
@@ -44,12 +40,7 @@ public class JettySslListenerSystemPropertiesConfigurerTest extends TestCase {
         junit.textui.TestRunner.run(JettySslListenerSystemPropertiesConfigurerTest.class);
     }
 
-    public void setUp() throws BusException {
-        bus = EasyMock.createMock(Bus.class);
-    }
-
     public void tearDown() throws Exception {
-        EasyMock.reset(bus);
         Properties props = System.getProperties();
         props.remove("javax.net.ssl.trustStore");
         props.remove("javax.net.ssl.keyStore");
@@ -124,10 +115,12 @@ public class JettySslListenerSystemPropertiesConfigurerTest extends TestCase {
                                              SSLServerPolicy sslServerPolicy,
                                              String urlStr, 
                                              TestHandler handler) {
+        Configuration configuration = EasyMock.createMock(Configuration.class);
+        EasyMock.expect(configuration.getId()).andReturn(HTTP_LISTENER_CONFIG_ID);
+        EasyMock.replay(configuration);
+        
         try {
-            Configuration configuration = EasyMock.createMock(Configuration.class);
-            
-            
+                        
             SslListener sslListener = new SslListener();
             JettySslListenerConfigurer jettySslListenerConfigurer = 
                 new JettySslListenerConfigurer(configuration,
@@ -140,6 +133,7 @@ public class JettySslListenerSystemPropertiesConfigurerTest extends TestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        EasyMock.verify(configuration);
         return null;
     }
     

@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
-import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
@@ -19,6 +18,7 @@ import org.objectweb.celtix.bus.configuration.wsdl.WsdlHttpConfigurationProvider
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Exception;
 import org.objectweb.celtix.common.util.Base64Utility;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.context.GenericMessageContext;
@@ -34,8 +34,6 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
     static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPServerTransport.class);
     
     private static final long serialVersionUID = 1L;
-    private static final String ENDPOINT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
     private static final String HTTP_SERVER_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/transports/http/http-server-config";
     private static final String HTTP_SERVER_CONFIGURATION_ID = "http-server";
@@ -90,10 +88,16 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
     }
     
     private Configuration createConfiguration(EndpointReferenceType ref) {
-        Configuration busConfiguration = bus.getConfiguration();
-        QName serviceName = EndpointReferenceUtils.getServiceName(ref);
-        Configuration endpointConfiguration = busConfiguration
-            .getChild(ENDPOINT_CONFIGURATION_URI, serviceName.toString());
+        CompoundName id = new CompoundName(
+            bus.getConfiguration().getId().toString(),
+            EndpointReferenceUtils.getServiceName(ref).toString(),
+            HTTP_SERVER_CONFIGURATION_ID
+        );
+
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
+        Configuration cfg = cb.getConfiguration(HTTP_SERVER_CONFIGURATION_URI, id);
+
+       
         Port port = null;
         try {
             port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), ref);            
@@ -101,14 +105,7 @@ public abstract class AbstractHTTPServerTransport implements ServerTransport {
             // ignore
         }
   
-        Configuration cfg = endpointConfiguration.getChild(HTTP_SERVER_CONFIGURATION_URI, 
-                                                HTTP_SERVER_CONFIGURATION_ID);
-        if (null == cfg) {
-            ConfigurationBuilder cb = bus.getConfigurationBuilder();
-            cfg = cb.buildConfiguration(HTTP_SERVER_CONFIGURATION_URI, 
-                                        HTTP_SERVER_CONFIGURATION_ID, 
-                                        endpointConfiguration);
-        }
+        
         // register the additional provider
         if (null != port) {
             cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, true));

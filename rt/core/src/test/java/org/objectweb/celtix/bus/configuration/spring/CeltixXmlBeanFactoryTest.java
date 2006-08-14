@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
-import org.objectweb.celtix.bus.configuration.TopConfigurationBuilder;
+import org.objectweb.celtix.bus.configuration.TestConfigurationBuilder;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.types.StringListType;
@@ -59,7 +59,8 @@ public class CeltixXmlBeanFactoryTest extends TestCase {
         URL url = CeltixXmlBeanFactoryTest.class.getResource("resources/top2.xml");
         UrlResource urlRes = new UrlResource(url);
         CeltixXmlBeanFactory bf = new CeltixXmlBeanFactory(urlRes);
-        Configuration top = new TopConfigurationBuilder().build("top22");
+        
+        Configuration top = new TestConfigurationBuilder().build("top22");
         
         Map map = bf.getCustomEditors();
         

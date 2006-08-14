@@ -14,6 +14,7 @@ import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 import org.objectweb.celtix.routing.configuration.UrlListPolicy;
@@ -46,18 +47,9 @@ public class RouterManager {
 
     private Configuration createConfiguration() {
         
-        Configuration busCfg = bus.getConfiguration();
-        assert null != busCfg;
-        Configuration cfg = null;
-        cfg = busCfg.getChild(ROUTING_CONFIGURATION_URI, 
-                                  ROUTING_CONFIGURATION_ID);
-        if (null == cfg) {
-            ConfigurationBuilder cb = bus.getConfigurationBuilder();
-            cfg = cb.buildConfiguration(ROUTING_CONFIGURATION_URI,
-                                        ROUTING_CONFIGURATION_ID,
-                                        busCfg);
-        }
-        return cfg;
+        ConfigurationBuilder cb = bus.getConfigurationBuilder();
+        return cb.getConfiguration(ROUTING_CONFIGURATION_URI, 
+            new CompoundName(bus.getConfiguration().getId(), ROUTING_CONFIGURATION_ID));
     }
     
     private URLClassLoader createSEIClassLoader(File classDir) {

@@ -17,6 +17,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.configuration.wsdl.WsdlJMSConfigurationProvider;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
 //import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
@@ -77,32 +78,28 @@ public class JMSTransportBase {
         ConfigurationBuilder cb = b.getConfigurationBuilder();
 
         Configuration busConfiguration = b.getConfiguration();
-        Configuration parent = null;
 
         String configURI;
-        String configID;
+        CompoundName configID;
 
         if (isServer) {
             configURI = JMSConstants.JMS_SERVER_CONFIGURATION_URI;
-            configID = JMSConstants.JMS_SERVER_CONFIG_ID;
-            parent = busConfiguration
-            .getChild(JMSConstants.ENDPOINT_CONFIGURATION_URI,
-                      EndpointReferenceUtils.getServiceName(ref).toString());
+            configID = new CompoundName(
+                busConfiguration.getId().toString(),
+                EndpointReferenceUtils.getServiceName(ref).toString(),
+                JMSConstants.JMS_SERVER_CONFIG_ID
+            );
         } else {
             configURI = JMSConstants.JMS_CLIENT_CONFIGURATION_URI;
-            configID = JMSConstants.JMS_CLIENT_CONFIG_ID;
-            String id = EndpointReferenceUtils.getServiceName(ref).toString()
-                + "/" + EndpointReferenceUtils.getPortName(ref);
-            parent   = busConfiguration
-            .getChild(JMSConstants.PORT_CONFIGURATION_URI, id);
+            configID = new CompoundName(
+                busConfiguration.getId().toString(),
+                EndpointReferenceUtils.getServiceName(ref).toString()
+                + "/" + EndpointReferenceUtils.getPortName(ref),
+                JMSConstants.JMS_CLIENT_CONFIG_ID
+            );
         }
 
-        assert null != parent;
-
-        Configuration cfg = cb.getConfiguration(configURI, configID, parent);
-        if (null == cfg) {
-            cfg = cb.buildConfiguration(configURI,  configID, parent);
-        }
+        Configuration cfg = cb.getConfiguration(configURI, configID);
         // register the additional provider
         if (null != port) {
             cfg.getProviders().add(new WsdlJMSConfigurationProvider(port, false));

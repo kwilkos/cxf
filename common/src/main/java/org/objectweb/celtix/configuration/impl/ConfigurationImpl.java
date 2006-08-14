@@ -1,68 +1,37 @@
 package org.objectweb.celtix.configuration.impl;
 
-
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationException;
 import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
 import org.objectweb.celtix.configuration.ConfigurationMetadata;
 import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.configuration.Configurator;
 
 public class ConfigurationImpl implements Configuration {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationImpl.class);
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConfigurationImpl.class);
-    private Configurator configurator;
     private ConfigurationMetadata model;
-    private String id;
+    private CompoundName id;
     private List<ConfigurationProvider> providers;
 
-    public ConfigurationImpl(ConfigurationMetadata m, String instanceId, Configuration parent) {
+    public ConfigurationImpl(ConfigurationMetadata m, CompoundName i) {
         model = m;
-        id = instanceId;
-        configurator = new ConfiguratorImpl(this, parent instanceof ConfigurationImpl
-                                            ? (ConfigurationImpl)parent
-                                            : null);
-
+        id = i;
         providers = new Vector<ConfigurationProvider>();
     }
 
-    public Object getId() {
+    public CompoundName getId() {
         return id;
-    }
-
-    public Configuration getParent() {
-        if (null != configurator.getHook()) {
-            return configurator.getHook().getConfiguration();
-        }
-        return null;
-    }
-
-    public Configuration getChild(String namespaceURI, Object childId) {
-        for (Configurator c : configurator.getClients()) {
-            if (namespaceURI.equals(c.getConfiguration().getModel().getNamespaceURI())
-                && childId.equals(c.getConfiguration().getId())) {
-                return c.getConfiguration();
-            }
-        }
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Could not find child configuration with id: " + childId);
-        }
-        return null;
     }
 
     public ConfigurationMetadata getModel() {
@@ -301,10 +270,6 @@ public class ConfigurationImpl implements Configuration {
             }
         }
         return null;
-    }
-
-    public final Configurator getConfigurator() {
-        return configurator;
     }
 
     public void propertyModified(String name) {

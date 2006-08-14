@@ -23,16 +23,16 @@ public final class JettySslListenerConfigurer {
     private static final boolean DEFAULT_WANT_CLIENT_AUTHENTICATION = true;
     
     
-    private Configuration config;
+    private Configuration httpListenerCfg;
     private SSLServerPolicy sslPolicy;
     private SslListener secureListener;
     
         
-    public JettySslListenerConfigurer(Configuration configParam, 
+    public JettySslListenerConfigurer(Configuration cfg, 
                                     SSLServerPolicy sslPolicyParam, 
                                     SslListener secureListenerParam) {
        
-        this.config = configParam;
+        this.httpListenerCfg = cfg;
         this.sslPolicy = sslPolicyParam;
         this.secureListener = secureListenerParam; 
     }
@@ -274,8 +274,8 @@ public final class JettySslListenerConfigurer {
     }  
     
     public void setupSecurityConfigurer() {
-        String systemProperty = "celtix.security.configurer.celtix."
-                                + config.getId();
+        String systemProperty = "celtix.security.configurer."
+                                + httpListenerCfg.getId().toString();
         String securityConfigurerName = System.getProperty(systemProperty);
         if ((securityConfigurerName == null) 
             || (securityConfigurerName.equals(""))) {

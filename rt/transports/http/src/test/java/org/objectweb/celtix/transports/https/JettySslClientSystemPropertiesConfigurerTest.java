@@ -15,6 +15,7 @@ import org.easymock.classextension.EasyMock;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
+import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 
 public class JettySslClientSystemPropertiesConfigurerTest extends TestCase {
@@ -22,7 +23,9 @@ public class JettySslClientSystemPropertiesConfigurerTest extends TestCase {
     
     private static final String DROP_BACK_SRC_DIR = 
         "../../../../../../../src/test/java/org/objectweb/celtix/transports/https/";
-
+    private static final CompoundName HTTP_CLIENT_CONFIG_ID = 
+        new CompoundName("celtix", "port", "http-client");
+    
     Bus bus;
 
     
@@ -148,10 +151,14 @@ public class JettySslClientSystemPropertiesConfigurerTest extends TestCase {
                                              SSLClientPolicy sslClientPolicy,
                                              String urlStr, 
                                              TestHandler handler) {
+        Configuration configuration = EasyMock.createMock(Configuration.class);
+        EasyMock.expect(configuration.getId()).andReturn(HTTP_CLIENT_CONFIG_ID);
+        EasyMock.replay(configuration);
+        
         try {
             URL url  = new URL(urlStr);
             URLConnection connection = new DummyHttpsConnection(url);
-            Configuration configuration = EasyMock.createMock(Configuration.class);
+            
             JettySslClientConfigurer jettySslClientConfigurer = 
                 new JettySslClientConfigurer(sslClientPolicy,
                                              connection,
@@ -163,6 +170,8 @@ public class JettySslClientSystemPropertiesConfigurerTest extends TestCase {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
+        EasyMock.verify(configuration);
         return null;
     }
     

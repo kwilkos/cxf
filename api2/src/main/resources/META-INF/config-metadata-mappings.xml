@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>mapping of configuration namespace - configuration metadata resource name</comment>
+<entry key="http://celtix.objectweb.org/configuration/bus">config-metadata/bus-config.xml</entry>
+</properties>

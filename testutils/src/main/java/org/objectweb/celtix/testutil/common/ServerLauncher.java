@@ -310,6 +310,7 @@ public class ServerLauncher {
         cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
         
         String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
+        loggingPropertiesFile = "c:/logging.properties";
         if (null != loggingPropertiesFile) {
             cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
         } 
