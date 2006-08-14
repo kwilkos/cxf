@@ -22,7 +22,7 @@ public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
             BindingOperationInfo operation = ServiceModelUtil.getOperation(message, opName);
             DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, operation.getOperationInfo());
 
-            List<?> objs = (List<?>) message.get(message.INVOCATION_OBJECTS);
+            List<?> objs = (List<?>) message.get(Message.INVOCATION_OBJECTS);
             
             if (objs != null && objs.size() > 0) {
                 dataWriter.write(objs.get(0),
