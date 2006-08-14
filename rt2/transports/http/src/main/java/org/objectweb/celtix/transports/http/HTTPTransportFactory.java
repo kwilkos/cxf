@@ -20,7 +20,6 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory {
     
-    @Resource
     Bus bus;
     
     @Resource
@@ -51,5 +50,13 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
     public Destination getDestination(EndpointInfo ei) throws WSDLException, IOException {
         throw new UnsupportedOperationException();
     }
-    
+
+    public Bus getBus() {
+        return bus;
+    }
+
+    @Resource
+    public void setBus(Bus bus) {
+        this.bus = bus;
+    }
 }
