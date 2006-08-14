@@ -95,8 +95,9 @@ public class ExtensionManagerImpl implements ExtensionManager {
     }
     
     final void loadAndRegister(Extension e) {
+        
         Class<?> cls = null;
-        if (null != e.getInterfaceName()) {
+        if (null != e.getInterfaceName() && !"".equals(e.getInterfaceName())) {
             cls = e.loadInterface(loader);
         }
 

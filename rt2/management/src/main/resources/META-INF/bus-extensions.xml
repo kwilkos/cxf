@@ -3,7 +3,7 @@
 
     <extension class="org.objectweb.celtix.management.InstrumentationManagerImpl"
            interface="org.objectweb.celtix.management.InstrumentationManager"/>
-    <extension class="org.objectweb.celtix.management.EventProcessorImpl"
+    <extension class="org.objectweb.celtix.event.EventProcessorImpl"
            interface="org.objectweb.celtix.event.EventProcessor"/>
     
 </extensions>

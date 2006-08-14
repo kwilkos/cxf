@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.objectweb.celtix.jaxws;
 
 import java.net.URL;
 
@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.CeltixBus;
 import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
+import org.objectweb.celtix.service.Service;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class GreeterTest extends TestCase {
@@ -18,16 +19,16 @@ public class GreeterTest extends TestCase {
         assertNotNull(resource);
         bean.setWsdlURL(resource);
 
-//        Bus bus = createBus();
-//        bean.setBus(bus);
-//
-        // Service service = bean.create();
-        //
-        // assertEquals("SOAPService", service.getName().getLocalPart());
-        // assertEquals("http://objectweb.org/hello_world_soap_http",
-        // service.getName().getNamespaceURI());
-        //        
-//        bean.activateEndpoints();
+        Bus bus = createBus();
+        bean.setBus(bus);
+
+        Service service = bean.create();
+        
+        assertEquals("SOAPService", service.getName().getLocalPart());
+        assertEquals("http://objectweb.org/hello_world_soap_http",
+            service.getName().getNamespaceURI());
+               
+        bean.activateEndpoints();
     }
 
     Bus createBus() {

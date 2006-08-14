@@ -1,0 +1,120 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-systests2</artifactId>
+    <packaging>jar</packaging>
+    <version>1.1-SNAPSHOT</version>
+    <name>CeltiXfire System Tests v2</name>
+    <url>http://celtix.objectweb.org/</url>
+
+    <parent>
+        <groupId>org.objectweb.celtixfire</groupId>
+        <artifactId>celtixfire</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <topDirectoryLocation>..</topDirectoryLocation>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-misctools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-validator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-java2wsdl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-api2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-management</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-databinding-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-frontend-jaxws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-bindings-soap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt2-transports-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+	<dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+
+        
+    </dependencies>
+
+
+</project>

@@ -1,11 +1,14 @@
 package org.objectweb.celtix.bindings.soap2;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -13,9 +16,11 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingFactory;
 import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.bindings.BindingFactory;
+import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapHeaderInfo;
@@ -33,6 +38,25 @@ import org.objectweb.celtix.wsdl11.WSDLBindingFactory;
 public class SoapBindingFactory extends AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
+    
+    @Resource
+    private Bus bus;
+    
+    @Resource
+    private Collection<String> activationNamespaces;
+    
+    @PostConstruct
+    void registerSelf() {
+        if (null == bus) { 
+            return;
+        }
+        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
+        if (null != bfm) {
+            for (String ns : activationNamespaces) {
+                bfm.registerBindingFactory(ns, this);
+            }
+        }
+    }
      
     public Binding createBinding(BindingInfo binding) {
         
