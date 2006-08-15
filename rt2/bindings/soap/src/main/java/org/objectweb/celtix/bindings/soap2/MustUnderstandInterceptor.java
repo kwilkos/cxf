@@ -28,10 +28,12 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         initServiceSideInfo(mustUnderstandQNames, soapMessage, serviceRoles);
         if (!checkUnderstand(mustUnderstandHeaders, mustUnderstandQNames, notUnderstandQNames)) {
             StringBuffer sb = new StringBuffer(300);
+            int pos = 0;
             for (QName qname : notUnderstandQNames) {
+                pos = pos + qname.toString().length() + 2;
                 sb.append(qname.toString() + ", ");
             }
-            
+            sb.delete(pos - 2, pos);
             throw new SoapFault(new Message("MUST_UNDERSTAND", BUNDLE, sb.toString()),
                                 SoapFault.MUST_UNDERSTAND);
         }

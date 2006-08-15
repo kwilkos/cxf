@@ -71,15 +71,10 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
         SoapFault ie = (SoapFault)soapMessage.getContent(Exception.class);
         if (ie == null) {
-            fail("InBound Exception Missing! Exception should be Can't understands QNames: " + PASSENGER
-                 + ", ");
+            fail("InBound Exception Missing! Exception should be Can't understands QNames: " + PASSENGER);
         } else {
             assertEquals(SoapFault.MUST_UNDERSTAND, ie.getFaultCode());
-
-            // Can someone suggest what might be going on here and why this
-            // isn't passing?
-            // assertEquals("Can't understands QNames: " + PASSENGER + ", ",
-            // ie.getMessage());
+            assertEquals("Can not understand QNames: " + PASSENGER, ie.getMessage().toString());
         }
     }
 
