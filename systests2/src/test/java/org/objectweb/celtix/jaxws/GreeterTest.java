@@ -10,6 +10,7 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
@@ -21,10 +22,13 @@ import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.DestinationFactoryManager;
 import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.transports.local.LocalTransportFactory;
-import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+//import org.objectweb.celtix.ws.addressing.AttributedURIType;
+//import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
+
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class GreeterTest extends TestCase {
     private static String basedirPath;
@@ -68,11 +72,19 @@ public class GreeterTest extends TestCase {
 
         bean.activateEndpoints();
 
+        /*
         EndpointReferenceType epr = new EndpointReferenceType();
         AttributedURIType uri = new AttributedURIType();
         uri.setValue("http://localhost:9000/SoapContext/SoapPort");
         epr.setAddress(uri);
-        Conduit conduit = localTransport.getConduit(epr);
+        */
+
+        EndpointInfo ei = new EndpointInfo(service.getServiceInfo(), "http://schemas.xmlsoap.org/soap/http");
+        AddressType a = new AddressType();
+        a.setLocation("http://localhost:9000/SoapContext/SoapPort");
+        ei.addExtensor(a);
+
+        Conduit conduit = localTransport.getConduit(ei);
 
         Message m = new MessageImpl();
         conduit.send(m);
