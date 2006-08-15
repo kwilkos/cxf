@@ -26,6 +26,7 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.Client;
 import org.objectweb.celtix.endpoint.ClientImpl;
 import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.endpoint.EndpointImpl;
 import org.objectweb.celtix.jaxws.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
 import org.objectweb.celtix.service.Service;
@@ -53,6 +54,7 @@ public class ServiceImpl extends ServiceDelegate {
         WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
         service = sf.create(); 
         handlerResolver = new HandlerResolverImpl(bus, name);
+
     }
     
 
@@ -134,6 +136,8 @@ public class ServiceImpl extends ServiceDelegate {
         if (null == pn) {
             throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));  
         }
+        
+        endpoint = new EndpointImpl(bus, service, ei);
         
         JaxwsEndpointImpl jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
         Client client = new ClientImpl(bus, endpoint);
