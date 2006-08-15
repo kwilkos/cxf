@@ -27,10 +27,11 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
 
 public class GreeterTest extends TestCase {
+    private static String basedirPath;
+    
     private LocalTransportFactory localTransport;
     private Bus bus;
 
-    private static String basedirPath;
 
     @Override
     protected void setUp() throws Exception {
@@ -115,9 +116,10 @@ public class GreeterTest extends TestCase {
         try {
             final byte[] buffer = new byte[bufferSize];
 
-            int n;
-            while (-1 != (n = input.read(buffer))) {
+            int n = input.read(buffer);
+            while (-1 != n) {
                 output.write(buffer, 0, n);
+                n = input.read(buffer);
             }
         } finally {
             input.close();

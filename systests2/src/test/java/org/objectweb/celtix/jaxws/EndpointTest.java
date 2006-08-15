@@ -11,6 +11,7 @@ public class EndpointTest extends TestCase {
         Object implementor = new GreeterImpl();
         String address = "http://localhost:9000/SoapContext/SoapPort";
         Endpoint e = Endpoint.publish(address, implementor);
+        assertNotNull(e);
     }
 
 }
