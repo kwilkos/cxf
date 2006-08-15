@@ -1,11 +1,11 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.InputStream;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.soap.SOAPException;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -14,54 +14,47 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.staxutils.StaxUtils;
+import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.phase.Phase;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReadHeadersInterceptor.class);
 
-    public void handleMessage(SoapMessage messageParam) {
-
-        SoapMessage message = (SoapMessage)messageParam;
-        try {
-            InputStream in = (InputStream)message.getContent(InputStream.class);
-            if (in == null) {
-                // TODO: Make an internal Fault exception class
-                throw new RuntimeException("Missing Soap part input stream in soap message");
-            }
-            XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(in);
-            message.setContent(XMLStreamReader.class, xmlReader);
-            process(xmlReader, message);
-        } catch (Exception e) {
-            message.setContent(Exception.class, e);
-            return;
-        }
+    public ReadHeadersInterceptor() {
+        super();
+        setPhase(Phase.READ);
     }
 
-    private void process(XMLStreamReader xmlReader, SoapMessage message) throws Exception {
+    public void handleMessage(SoapMessage message) {
+        XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
+
         boolean found = false;
         try {
-            while (xmlReader.hasNext()) {
-                xmlReader.nextTag();
+            if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
+                String ns = xmlReader.getNamespaceURI();
+                SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
+                message.setVersion(soapVersion);
+
                 if (xmlReader.getLocalName().equals(message.getVersion().getEnvelope().getLocalPart())) {
                     xmlReader.nextTag();
                     if (xmlReader.getLocalName().equals(message.getVersion().getHeader().getLocalPart())) {
                         found = true;
-                        break;
                     }
                 }
             }
+
             if (found) {
                 DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = null;
                 builder = builderFactory.newDocumentBuilder();
                 Document doc = builder.newDocument();
                 addHeaderElementIntoDoc(xmlReader, message, doc);
-            } else {
-                throw new SOAPException("Parsing soap message error, "
-                                        + "can't find <Soap:Header> in message part!");
             }
-        } catch (Exception e) {
-            e.printStackTrace(System.out);
-            throw e;
+        } catch (XMLStreamException e) {
+            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, SoapFault.SENDER);
+        } catch (ParserConfigurationException e) {
+            throw new SoapFault(new Message("PARSER_EXC", BUNDLE), e, SoapFault.SENDER);
         }
     }
 

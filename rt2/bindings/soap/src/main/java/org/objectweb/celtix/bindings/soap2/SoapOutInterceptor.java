@@ -1,10 +1,8 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
@@ -16,63 +14,63 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
-import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
-import org.objectweb.celtix.jaxb.attachments.AttachmentSerializer;
-import org.objectweb.celtix.message.Attachment;
+import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);
 
-    public void handleMessage(SoapMessage message) {
-        // Create XML Stream Writer from Output Stream setted by
-        // TransportOutInterceptor
-        long threshCount = 0;
-        SoapMessage soapMessage = (SoapMessage)message;
+    public void handleMessage(SoapMessage soapMessage) {
         OutputStream ops = (OutputStream)soapMessage.getContent(OutputStream.class);
         try {
-            threshCount++;
-            CachedOutputStream cos = new CachedOutputStream(threshCount, null);
-            XMLStreamWriter xtw = StaxUtils.createXMLStreamWriter(cos);
+            XMLStreamWriter xtw = StaxUtils.createXMLStreamWriter(ops);
             soapMessage.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = soapMessage.getVersion();
             xtw.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope().getLocalPart(),
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             Element eleHeaders = soapMessage.getHeaders(Element.class);
-            serializeDom2XmlStreamWriter(eleHeaders, xtw, new HashSet<String>());
+
+            if (eleHeaders != null) {
+                serializeDom2XmlStreamWriter(eleHeaders, xtw, new HashSet<String>());
+            }
             // Calling for Wrapped/Rpt/Doc/ Interceptor for writing SOAP body
             // message.getInterceptorChain().doIntercept(message);
 
+            // TODO: This should NOT happen here...
             // Write Envelop end element
             xtw.writeEndElement();
             xtw.flush();
+            
+            // TODO: Attachment processing should definitely not happen here
             // soapMessage.setContent(InputStream.class, cos.getInputStream());
-            Collection<Attachment> attachments = message.getAttachments();
-            if (attachments.size() > 0) {
-                AttachmentSerializer as = new AttachmentSerializer(soapMessage, cos.getInputStream(), ops);
-                as.serializeMultipartMessage();
-            } else {
-                streamCopy(cos.getInputStream(), ops);
-            }
-        } catch (Exception e) {
-            soapMessage.setContent(Exception.class, e);
-            return;
+            // Collection<Attachment> attachments = message.getAttachments();
+            // if (attachments.size() > 0) {
+            // AttachmentSerializer as = new AttachmentSerializer(soapMessage,
+            // cos.getInputStream(), ops);
+            // as.serializeMultipartMessage();
+            // } else {
+            //                streamCopy(ops.getInputStream(), ops);
+            //            }
+        } catch (XMLStreamException e) {
+            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), SoapFault.SENDER);
         }
     }
 
-    private static void streamCopy(InputStream input, OutputStream output) throws IOException {
-        try {
-            final byte[] buffer = new byte[8096];
-            int n = input.read(buffer);
-            while (n > 0) {
-                output.write(buffer, 0, n);
-                n = input.read(buffer);
-            }
-        } finally {
-            input.close();
-            output.close();
-        }
-    }
+//    private static void streamCopy(InputStream input, OutputStream output) throws IOException {
+//        try {
+//            final byte[] buffer = new byte[8096];
+//            int n = input.read(buffer);
+//            while (n > 0) {
+//                output.write(buffer, 0, n);
+//                n = input.read(buffer);
+//            }
+//        } finally {
+//            input.close();
+//            output.close();
+//        }
+//    }
 
     private static void serializeDom2XmlStreamWriter(Element element, XMLStreamWriter xtw,
                                                      Set<String> eleNsCache) throws XMLStreamException {

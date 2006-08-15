@@ -1,9 +1,10 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.InputStream;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.service.model.BindingInfo;
@@ -27,12 +28,12 @@ public class RPCInInterceptorTest extends TestBase {
 
     public void testInterceptorRPCLitInbound() throws Exception {
         RPCInInterceptor interceptor = new RPCInInterceptor();
-        soapMessage.setContent(InputStream.class, getTestStream(getClass(),
-                                                                "resources/greetMeRpcLitReq.xml"));
+
+        soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
+            .createXMLStreamReader(getTestStream(getClass(), "resources/greetMeRpcLitReq.xml")));
         soapMessage.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
 
         interceptor.handleMessage(soapMessage);
-        assertNull(soapMessage.getContent(Exception.class));
 
         List<?> parameters = (List<?>) soapMessage.get(Message.INVOCATION_OBJECTS);
         assertEquals(1, parameters.size());
@@ -48,10 +49,9 @@ public class RPCInInterceptorTest extends TestBase {
 
     public void testInterceptorRPCLitOutbound() throws Exception {
         RPCInInterceptor interceptor = new RPCInInterceptor();
-        soapMessage.setContent(InputStream.class, getTestStream(getClass(),
-                                                               "resources/greetMeRpcLitResp.xml"));
+        soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
+            .createXMLStreamReader(getTestStream(getClass(), "resources/greetMeRpcLitResp.xml")));
         interceptor.handleMessage(soapMessage);
-        assertNull(soapMessage.getContent(Exception.class));
 
         List<?> objs = (List<?>) soapMessage.get(Message.INVOCATION_OBJECTS);
         assertEquals(1, objs.size());

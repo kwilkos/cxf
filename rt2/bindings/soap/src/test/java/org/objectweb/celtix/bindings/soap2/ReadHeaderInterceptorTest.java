@@ -10,12 +10,14 @@ import org.w3c.dom.Element;
 
 import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
+import org.objectweb.celtix.interceptors.StaxInInterceptor;
 import org.objectweb.celtix.message.Attachment;
 
 public class ReadHeaderInterceptorTest extends TestBase {
 
     private ReadHeadersInterceptor rhi;
-
+    private StaxInInterceptor staxIntc = new StaxInInterceptor();
+    
     public void setUp() throws Exception {
         super.setUp();
         
@@ -24,12 +26,14 @@ public class ReadHeaderInterceptorTest extends TestBase {
         chain.add(rhi);
     }
 
-    public void testHandleMessage() {
+    public void testHandleHeader() {
         try {
-            prepareSoapMessage();
+            prepareSoapMessage("test-soap-header.xml");
         } catch (IOException ioe) {
             fail("Failed in creating soap message");
         }
+        
+        staxIntc.handleMessage(soapMessage);
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
         Element eleHeaders = soapMessage.getHeaders(Element.class);        
         assertEquals(2, eleHeaders.getChildNodes().getLength());
@@ -57,11 +61,11 @@ public class ReadHeaderInterceptorTest extends TestBase {
         }
     }
 
-    private void prepareSoapMessage() throws IOException {
+    private void prepareSoapMessage(String message) throws IOException {
 
         soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
-            .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
+            .getResourceAsStream(message), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
         soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
         soapMessage.setContent(InputStream.class, bads.getInputStream());

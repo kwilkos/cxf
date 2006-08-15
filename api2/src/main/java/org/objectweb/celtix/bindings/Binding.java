@@ -6,5 +6,7 @@ import org.objectweb.celtix.message.Message;
 public interface Binding extends InterceptorProvider {
     
     Message createMessage();
+
+    Message createMessage(Message m);
     
 }

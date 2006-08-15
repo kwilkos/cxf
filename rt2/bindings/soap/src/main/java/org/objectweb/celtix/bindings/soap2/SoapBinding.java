@@ -21,7 +21,11 @@ public class SoapBinding implements Binding {
     }
     
     public Message createMessage() {
-        return new SoapMessage(new MessageImpl());
+        return createMessage(new MessageImpl());
+    }
+
+    public Message createMessage(Message m) {
+        return new SoapMessage(m);
     }
 
     public List<Interceptor> getFaultInterceptors() {

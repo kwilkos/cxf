@@ -1,21 +1,17 @@
 package org.objectweb.celtix.bindings.soap2;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.activation.DataHandler;
-import javax.mail.util.ByteArrayDataSource;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.staxutils.StaxUtils;
+import org.w3c.dom.Element;
 
+import org.objectweb.celtix.interceptors.StaxInInterceptor;
+import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class SoapOutInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;
@@ -23,107 +19,60 @@ public class SoapOutInterceptorTest extends TestBase {
 
     public void setUp() throws Exception {
         super.setUp();
+        StaxInInterceptor sii = new StaxInInterceptor();
+        sii.setPhase("phase1");
+        chain.add(sii);
+
         rhi = new ReadHeadersInterceptor();
-        rhi.setPhase("phase1");
+        rhi.setPhase("phase2");
         chain.add(rhi);
 
         soi = new SoapOutInterceptor();
-        soi.setPhase("phase2");
+        soi.setPhase("phase3");
         chain.add(soi);
     }
 
-    public void testHandleMessage() {
-        try {
-            prepareSoapMessage();
-        } catch (IOException ioe) {
-            fail("Failed in creating soap message! " + ioe.getMessage());
-        }
+    public void testHandleMessage() throws Exception {
+        prepareSoapMessage();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        soapMessage.setContent(OutputStream.class, out);
+
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
+        assertNotNull(soapMessage.getHeaders(Element.class));
+
         Exception oe = (Exception)soapMessage.getContent(Exception.class);
         if (oe != null) {
-            fail("OutBound Exception found! e=" + oe.getMessage());
-        }
-        CachedOutputStream cos = (CachedOutputStream)soapMessage.getContent(OutputStream.class);
-
-        try {
-            XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(cos.getInputStream());
-            assertInputStream(xmlReader);
-        } catch (Exception e) {
-            fail(e.getMessage());
+            throw oe;
         }
 
+        InputStream bis = new ByteArrayInputStream(out.toByteArray());
+        XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(bis);
+        assertInputStream(xmlReader);
     }
 
     private void assertInputStream(XMLStreamReader xmlReader) throws Exception {
+        assertEquals(XMLStreamReader.START_ELEMENT, xmlReader.nextTag());
+        assertEquals(Soap12.getInstance().getEnvelope(), xmlReader.getName());
 
-        int eventType = -1;
-        boolean foundEnvelopeStart = false;
-        boolean foundHeaderStart = false;
-        boolean foundEnvelopeEnd = false;
-        boolean foundHeaderEnd = false;
-        
-        while (xmlReader.hasNext()) {
+        assertEquals(XMLStreamReader.START_ELEMENT, xmlReader.nextTag());
+        assertEquals(Soap12.getInstance().getHeader(), xmlReader.getName());
 
-            eventType = xmlReader.next();
-            if (eventType == XMLStreamConstants.START_ELEMENT) {
-                QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());                
-                assertEquals("Envelop Start Element: ", name, Soap12.getInstance().getEnvelope());
-                foundEnvelopeStart = true;
-                break;
-            }
-        }
-        while (xmlReader.hasNext()) {
-            eventType = xmlReader.next();
-            if (eventType == XMLStreamConstants.START_ELEMENT) {
-                QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
-                assertEquals("Header Start Element: ", name, Soap12.getInstance().getHeader());
-                foundHeaderStart = true;
-                break;
-            }
-        }
-        while (xmlReader.hasNext()) {
-            // Skip the contents of soap headers
-            eventType = xmlReader.next();
-            if (eventType == XMLStreamConstants.END_ELEMENT
-                && "passenger".equals(xmlReader.getLocalName())) {
-                break;
-            }
-        }
-        while (xmlReader.hasNext()) {
-            eventType = xmlReader.next();
-            if (eventType == XMLStreamConstants.END_ELEMENT) {
-                QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
-                assertEquals("Header End Element: ", name, Soap12.getInstance().getHeader());
-                foundHeaderEnd = true;
-                break;
-            }
-        }
-        while (xmlReader.hasNext()) {
-            eventType = xmlReader.next();
-            if (eventType == XMLStreamConstants.END_ELEMENT) {
-                QName name = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
-                assertEquals("Envelop End Element: ", name, Soap12.getInstance().getEnvelope());
-                foundEnvelopeEnd = true;
-                break;
-            }
-        }
-        assertEquals("Evenlop Start Element founded first!", foundEnvelopeStart, true);
-        assertEquals("Header Start Element founded first!", foundHeaderStart, true);
-        assertEquals("Header End Element founded first!", foundHeaderEnd, true);
-        assertEquals("Evenlop End Element founded first!", foundEnvelopeEnd, true);
+        assertEquals(XMLStreamReader.START_ELEMENT, xmlReader.nextTag());
+        assertEquals("reservation", xmlReader.getLocalName());
+
+        assertEquals(XMLStreamReader.START_ELEMENT, xmlReader.nextTag());
+        assertEquals("reference", xmlReader.getLocalName());
+        // I don't think we're writing the body yet...
+        //
+        // assertEquals(XMLStreamReader.START_ELEMENT, xmlReader.nextTag());
+        // assertEquals(Soap12.getInstance().getBody(), xmlReader.getName());
     }
 
     private void prepareSoapMessage() throws IOException {
-
         soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
 
-        ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
-            .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
-        String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
-        soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
-        soapMessage.setContent(InputStream.class, bads.getInputStream());
-
-        soapMessage.setContent(OutputStream.class, new CachedOutputStream(-1, null));
+        soapMessage.setContent(InputStream.class, getClass().getResourceAsStream("test-soap-header.xml"));
     }
 
 }

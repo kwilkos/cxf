@@ -1,0 +1,5 @@
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+ <env:Body>
+  <m:sayHi xmlns:m="http://objectweb.org/hello_world_soap_http/types"/>
+ </env:Body>
+</env:Envelope>

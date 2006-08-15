@@ -11,7 +11,7 @@ public interface Interceptor<T extends Message> {
      * 
      * @param message
      */
-    void handleMessage(T message);
+    void handleMessage(T message) throws Fault;
     
     /**
      * Called for all interceptors (in reverse order) on which handleMessage

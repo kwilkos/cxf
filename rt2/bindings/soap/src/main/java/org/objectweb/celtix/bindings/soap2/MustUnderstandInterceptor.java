@@ -2,35 +2,38 @@ package org.objectweb.celtix.bindings.soap2;
 
 import java.net.URI;
 import java.util.HashSet;
+import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
 
 import org.w3c.dom.Element;
 
+import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.interceptors.Interceptor;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(MustUnderstandInterceptor.class);
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();    
+    
     public void handleMessage(SoapMessage soapMessage) {
-
-
         Set<Element> mustUnderstandHeaders = new HashSet<Element>();
         Set<URI> serviceRoles = new HashSet<URI>();
         Set<QName> notUnderstandQNames = new HashSet<QName>();
         Set<QName> mustUnderstandQNames = new HashSet<QName>();
-        
+
         buildMustUnderstandHeaders(mustUnderstandHeaders, soapMessage, serviceRoles);
         initServiceSideInfo(mustUnderstandQNames, soapMessage, serviceRoles);
         if (!checkUnderstand(mustUnderstandHeaders, mustUnderstandQNames, notUnderstandQNames)) {
             StringBuffer sb = new StringBuffer(300);
-            sb.append("Can't understands QNames: ");
             for (QName qname : notUnderstandQNames) {
                 sb.append(qname.toString() + ", ");
             }
-            SOAPException mustUnderstandException = new SOAPException(sb.toString());
-            soapMessage.setContent(Exception.class, mustUnderstandException);
+            
+            throw new SoapFault(new Message("MUST_UNDERSTAND", BUNDLE, sb.toString()),
+                                SoapFault.MUST_UNDERSTAND);
         }
     }
 

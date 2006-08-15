@@ -1,8 +1,8 @@
 package org.objectweb.celtix.bindings.soap2;
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -133,7 +133,7 @@ public class RPCInInterceptor extends AbstractSoapInterceptor {
     
     private DepthXMLStreamReader getXMLStreamReader(SoapMessage message) {
         SoapVersion version = message.getVersion();
-        XMLStreamReader xr = StaxUtils.createXMLStreamReader(message.getContent(InputStream.class));
+        XMLStreamReader xr = message.getContent(XMLStreamReader.class);
         StaxStreamFilter filter = new StaxStreamFilter(new QName[]{version.getEnvelope(),
                                                                    version.getBody()});
         xr = StaxUtils.createFilteredReader(xr, filter);

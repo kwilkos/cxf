@@ -3,8 +3,8 @@ package org.objectweb.celtix.phase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -32,7 +32,7 @@ import org.objectweb.celtix.message.Message;
 public class PhaseInterceptorChain implements InterceptorChain {
 
     private static final Logger LOG = Logger.getLogger(PhaseInterceptorChain.class.getName());
-    private Map<String, List<Interceptor>> interceptors = new HashMap<String, List<Interceptor>>();
+    private Map<String, List<Interceptor>> interceptors = new LinkedHashMap<String, List<Interceptor>>();
     private List<Phase> phases;
     private Phase currentPhase;
     private List<Interceptor> currentPhaseInterceptors;
@@ -69,14 +69,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
         AbstractPhaseInterceptor pi = (AbstractPhaseInterceptor)i;
 
         if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("adding handler " + i + " to phase " + pi.getPhase());
+            LOG.fine("Adding interceptor " + i + " to phase " + pi.getPhase());
         }
 
         List<Interceptor> phase = interceptors.get(pi.getPhase());
 
         if (phase == null) {
-            LOG
-                .fine("Phase " + pi.getPhase() + " does not exist. Skipping handler "
+            LOG.fine("Phase " + pi.getPhase() + " does not exist. Skipping handler "
                       + i.getClass().getName());
         } else {
             insertInterceptor(phase, pi);
@@ -93,10 +92,16 @@ public class PhaseInterceptorChain implements InterceptorChain {
         try {
             while (lit.hasNext() && state != State.PAUSED) {
                 interceptor = lit.next();
+                
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Invoking interceptor " + interceptor);
+                }
+                
                 interceptor.handleMessage(message);
             }
             state = State.COMPLETE;
         } catch (Exception ex) {
+            message.setContent(Exception.class, ex);
             while (lit.hasPrevious()) {
                 interceptor = lit.previous();
                 interceptor.handleFault(message);
@@ -107,8 +112,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
 
     public void pause() {
-        // TODO Auto-generated method stub
-
+        state = State.PAUSED;
     }
 
     public void resume() {

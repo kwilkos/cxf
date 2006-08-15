@@ -182,7 +182,7 @@ lengths, if/try depths, etc...
         <module name="IllegalType">
             <property name="format" value="^xxx$"/>
         </module>
-        <module name="DeclarationOrder"/>
+        <!-- module name="DeclarationOrder"/ -->
         <!--<module name="ParameterAssignment"/>-->
         <module name="ExplicitInitialization"/>
         <module name="DefaultComesLast"/>

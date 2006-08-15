@@ -35,6 +35,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         throws BusException, WSDLException, IOException {
         JaxwsEndpointImpl ep = new JaxwsEndpointImpl(getBus(), service, ei);
         ChainInitiationObserver observer = new ChainInitiationObserver(ep, getBus());
+        
         ServerImpl server = new ServerImpl(getBus(), ep, observer);
         
         server.start();

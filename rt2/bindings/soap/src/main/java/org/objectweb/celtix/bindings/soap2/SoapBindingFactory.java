@@ -26,6 +26,7 @@ import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapHeaderInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapOperationInfo;
 import org.objectweb.celtix.interceptors.BareInInterceptor;
+import org.objectweb.celtix.interceptors.StaxInInterceptor;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
@@ -70,6 +71,7 @@ public class SoapBindingFactory extends AbstractBindingFactory implements Bindin
         sb.getInInterceptors().add(new MultipartMessageInterceptor());        
         sb.getInInterceptors().add(new ReadHeadersInterceptor());        
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
+        sb.getInInterceptors().add(new StaxInInterceptor());
         
         if (SoapConstants.STYLE_RPC.equalsIgnoreCase(sbi.getStyle())) {
             sb.getInInterceptors().add(new RPCInInterceptor());
