@@ -1,8 +1,10 @@
 package org.objectweb.celtix.jaxb;
 
-import java.io.InputStream;
 import java.util.List;
+
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
 import org.objectweb.celtix.message.Message;
@@ -28,8 +30,10 @@ public class WrappedInInterceptorTest extends TestBase {
 
     public void testInterceptorInbound() throws Exception {
         WrappedInInterceptor interceptor = new WrappedInInterceptor();
-        message.setContent(InputStream.class, getTestStream(getClass(),
-                                                               "resources/GreetMeDocLiteralReq.xml"));
+
+        message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
+            .createXMLStreamReader(getTestStream(getClass(), "resources/GreetMeDocLiteralReq.xml")));
+
         message.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
 
         interceptor.handleMessage(message);
@@ -49,9 +53,10 @@ public class WrappedInInterceptorTest extends TestBase {
 
     public void testInterceptorOutbound() throws Exception {
         WrappedInInterceptor interceptor = new WrappedInInterceptor();
-        message.setContent(InputStream.class, getTestStream(getClass(),
-                                                               "resources/GreetMeDocLiteralResp.xml"));
 
+        message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
+            .createXMLStreamReader(getTestStream(getClass(), "resources/GreetMeDocLiteralResp.xml")));
+        
         interceptor.handleMessage(message);
         assertNull(message.getContent(Exception.class));
 

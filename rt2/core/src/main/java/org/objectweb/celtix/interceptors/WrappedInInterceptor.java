@@ -1,6 +1,5 @@
 package org.objectweb.celtix.interceptors;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 import javax.xml.stream.XMLStreamReader;
@@ -82,7 +81,7 @@ public class WrappedInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
     
     private DepthXMLStreamReader getXMLStreamReader(Message message) {
-        XMLStreamReader xr = StaxUtils.createXMLStreamReader(message.getContent(InputStream.class));
+        XMLStreamReader xr = message.getContent(XMLStreamReader.class);
         return new DepthXMLStreamReader(xr);
     }
 }

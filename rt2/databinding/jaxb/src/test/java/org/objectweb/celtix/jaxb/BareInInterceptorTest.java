@@ -1,9 +1,10 @@
 package org.objectweb.celtix.jaxb;
 
-import java.io.*;
 import java.util.*;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 
 import org.objectweb.celtix.interceptors.BareInInterceptor;
 import org.objectweb.celtix.message.Message;
@@ -28,8 +29,9 @@ public class BareInInterceptorTest extends TestBase {
 
     public void testInterceptorInbound() throws Exception {
         BareInInterceptor interceptor = new BareInInterceptor();
-        message.setContent(InputStream.class,
-                           getClass().getResourceAsStream("resources/sayHiDocLitBareReq.xml"));
+        message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
+            .createXMLStreamReader(getTestStream(getClass(), "resources/sayHiDocLitBareReq.xml")));
+
         message.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
 
         interceptor.handleMessage(message);
@@ -49,9 +51,10 @@ public class BareInInterceptorTest extends TestBase {
 
     public void testInterceptorOutbound() throws Exception {
         BareInInterceptor interceptor = new BareInInterceptor();
-        message.setContent(InputStream.class,
-                           getClass().getResourceAsStream("resources/sayHiDocLitBareResp.xml"));
 
+        message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
+            .createXMLStreamReader(getTestStream(getClass(), "resources/sayHiDocLitBareResp.xml")));
+        
         interceptor.handleMessage(message);
 
         List<?> parameters = (List<?>) message.get(Message.INVOCATION_OBJECTS);

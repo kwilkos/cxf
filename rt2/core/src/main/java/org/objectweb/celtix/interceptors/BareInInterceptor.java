@@ -1,6 +1,5 @@
 package org.objectweb.celtix.interceptors;
 
-import java.io.*;
 import java.util.*;
 
 import javax.xml.namespace.QName;
@@ -89,7 +88,7 @@ public class BareInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     private DepthXMLStreamReader getXMLStreamReader(Message message) {
-        XMLStreamReader xr = StaxUtils.createXMLStreamReader(message.getContent(InputStream.class));
+        XMLStreamReader xr = message.getContent(XMLStreamReader.class);
         return new DepthXMLStreamReader(xr);
     }
 }

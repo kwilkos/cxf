@@ -41,7 +41,6 @@ public class RPCInInterceptorTest extends TestBase {
         assertEquals("sendReceiveData", (String) soapMessage.get(Message.INVOCATION_OPERATION));
         
         Object obj = parameters.get(0);
-        System.err.println(obj);
         assertTrue(obj instanceof MyComplexStruct);
         MyComplexStruct s = (MyComplexStruct) obj;
         assertEquals("this is element 2", s.getElem2());
