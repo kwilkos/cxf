@@ -64,6 +64,8 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
         if (null == factory) {
             extensionManager.activateViaNS(namespace);
             factory = conduitInitiators.get(namespace);
+        } 
+        if (null == factory) {
             throw new BusException(new Message("NO_CONDUIT_INITIATOR_EXC", BUNDLE, namespace));
         }
         return factory;

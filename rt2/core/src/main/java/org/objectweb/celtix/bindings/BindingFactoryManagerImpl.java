@@ -59,8 +59,10 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     public BindingFactory getBindingFactory(String namespace) throws BusException {
         BindingFactory factory = bindingFactories.get(namespace);
         if (null == factory) { 
-            extensionManager.activateViaNS(namespace);
+            extensionManager.activateViaNS(namespace);            
             factory = bindingFactories.get(namespace);
+        }
+        if (null == factory) {
             throw new BusException(new Message("NO_BINDING_FACTORY_EXC", BUNDLE, namespace));
         }
         return factory;

@@ -30,6 +30,7 @@ public class ProxyTest extends TestCase {
             String reply = greeter.sayHi();
             System.out.println("Response to sayHi() is: " + reply);
         } catch (Exception ex) {
+            ex.printStackTrace();
             // ecpect this as no server is up and running
         }
 

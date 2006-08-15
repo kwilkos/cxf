@@ -63,6 +63,8 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
         if (null == factory) {
             extensionManager.activateViaNS(namespace);
             factory = destinationFactories.get(namespace);
+        }
+        if (null == factory) {
             throw new BusException(new Message("NO_CONDUIT_INITIATOR_EXC", BUNDLE, namespace));
         }
         return factory;
