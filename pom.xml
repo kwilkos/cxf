@@ -165,7 +165,7 @@
         <module>router</module>
         <module>jca</module>
         <module>systests</module>
-        <module>systests2</module>
+        <!--<module>systests2</module>-->
         <!--<module>axisinterop</module>-->
     </modules>
 
