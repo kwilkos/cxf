@@ -25,12 +25,13 @@ import javax.xml.namespace.QName;
  * @version $Revision$
  */
 public class Soap12 implements SoapVersion {
-   
+    public static final String SOAP_NAMESPACE = "http://www.w3.org/2003/05/soap-envelope";
+    
     private static Soap12 instance = new Soap12();
 
     private final double version = 1.2;
 
-    private final String namespace = "http://www.w3.org/2003/05/soap-envelope";
+    private final String namespace = SOAP_NAMESPACE;
 
     private final String prefix = "soap";
 

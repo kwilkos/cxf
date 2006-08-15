@@ -9,18 +9,18 @@ import org.objectweb.celtix.interceptors.Fault;
 
 public class SoapFault extends Fault {
 
-    private static final String NS_12 = Soap12.getInstance().getNamespace();
-    private static final String NS_11 = Soap11.getInstance().getNamespace();
-
-    public static final QName VERSION_MISMATCH = new QName(NS_12, "VersionMismatch");
-    public static final QName MUST_UNDERSTAND = new QName(NS_12, "MustUnderstand");
-    public static final QName DATA_ENCODING_UNKNOWN = new QName(NS_12, "DataEncodingUnknown");
+    public static final QName VERSION_MISMATCH = new QName(Soap12.SOAP_NAMESPACE,
+                                                           "VersionMismatch");
+    public static final QName MUST_UNDERSTAND = new QName(Soap12.SOAP_NAMESPACE,
+                                                          "MustUnderstand");
+    public static final QName DATA_ENCODING_UNKNOWN = new QName(Soap12.SOAP_NAMESPACE,
+                                                                "DataEncodingUnknown");
 
     /**
      * "The message was incorrectly formed or did not contain the appropriate
      * information in order to succeed." -- SOAP 1.2 Spec
      */
-    public static final QName SENDER = new QName(NS_12, "Sender");
+    public static final QName SENDER = new QName(Soap12.SOAP_NAMESPACE, "Sender");
 
     /**
      * A SOAP 1.2 only fault code. <p/> "The message could not be processed for
@@ -29,12 +29,14 @@ public class SoapFault extends Fault {
      * used in a SOAP 1.1 Fault it will most likely (depending on the
      * FaultHandler) be mapped to "Sender" instead.
      */
-    public static final QName RECEIVER = new QName(NS_12, "Receiver");
+    public static final QName RECEIVER = new QName(Soap12.SOAP_NAMESPACE, "Receiver");
 
-    public static final QName SOAP11_SERVER = new QName(NS_11, "Server");
-    public static final QName SOAP11_CLIENT = new QName(NS_11, "Client");
-    public static final QName SOAP11_MUST_UNDERSTAND = new QName(NS_11, "MustUnderstand");
-    public static final QName SOAP11_VERSION_MISMATCH = new QName(NS_11, "VersionMismatch");
+    public static final QName SOAP11_SERVER = new QName(Soap11.SOAP_NAMESPACE, "Server");
+    public static final QName SOAP11_CLIENT = new QName(Soap11.SOAP_NAMESPACE, "Client");
+    public static final QName SOAP11_MUST_UNDERSTAND = new QName(Soap11.SOAP_NAMESPACE,
+                                                                 "MustUnderstand");
+    public static final QName SOAP11_VERSION_MISMATCH = new QName(Soap11.SOAP_NAMESPACE,
+                                                                  "VersionMismatch");
 
     private QName faultCode;
     private QName subCode;

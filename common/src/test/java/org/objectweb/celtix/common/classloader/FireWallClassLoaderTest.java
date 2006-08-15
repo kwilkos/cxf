@@ -56,7 +56,6 @@ public class FireWallClassLoaderTest extends TestCase {
         Object url = urlConstr.newInstance(new Object[] {urlString});
         Method meth = url.getClass().getMethod("openConnection", new Class[] {});
         Object urlConn = meth.invoke(url, new Object[] {});
-        System.out.println("Class urlConn: " + urlConn.getClass().getName());
 
         // Make sure that the internal (sun) class used by the URL connection
         // cannot be found directly through the firewall

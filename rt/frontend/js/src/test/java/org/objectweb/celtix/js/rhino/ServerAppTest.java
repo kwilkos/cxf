@@ -1,6 +1,8 @@
 package org.objectweb.celtix.js.rhino;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 
 import junit.framework.TestCase;
 
@@ -137,12 +139,22 @@ public class ServerAppTest extends TestCase {
     }
 
     public void testOptionAWithOptionV() throws Exception {
-        phMock.createAndPublish(new File(emptyFile), epAddr, false);
-        EasyMock.replay(phMock);
-        ServerApp app = createServerApp();
-        String[] args = {"-a", epAddr, "-v", emptyFile};
-        app.start(args);
-        EasyMock.verify(phMock);
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        PrintStream pout = new PrintStream(bout);
+        PrintStream orig = System.out;
+        try {
+            System.setOut(pout);
+            phMock.createAndPublish(new File(emptyFile), epAddr, false);
+            EasyMock.replay(phMock);
+            ServerApp app = createServerApp();
+            String[] args = {"-a", epAddr, "-v", emptyFile};
+            app.start(args);
+            EasyMock.verify(phMock);
+            pout.flush();
+            assertTrue(new String(bout.toByteArray()).contains("processing file"));
+        } finally {
+            System.setOut(orig);            
+        }
     }
 
     public void testOptionB() throws Exception {
@@ -155,12 +167,22 @@ public class ServerAppTest extends TestCase {
     }
 
     public void testOptionBWithOptionV() throws Exception {
-        phMock.createAndPublish(new File(emptyFile), epAddr, true);
-        EasyMock.replay(phMock);
-        ServerApp app = createServerApp();
-        String[] args = {"-b", epAddr, "-v", emptyFile};
-        app.start(args);
-        EasyMock.verify(phMock);
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        PrintStream pout = new PrintStream(bout);
+        PrintStream orig = System.out;
+        try {
+            System.setOut(pout);
+            
+            phMock.createAndPublish(new File(emptyFile), epAddr, true);
+            EasyMock.replay(phMock);
+            ServerApp app = createServerApp();
+            String[] args = {"-b", epAddr, "-v", emptyFile};
+            app.start(args);
+            EasyMock.verify(phMock);
+            assertTrue(new String(bout.toByteArray()).contains("processing file"));
+        } finally {
+            System.setOut(orig);            
+        }
     }
 
     public void testDirectory() throws Exception {

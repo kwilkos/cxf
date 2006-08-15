@@ -55,6 +55,7 @@ public class JMSConfigTest extends TestCase {
         EndpointReferenceType ref = EndpointReferenceUtils.getEndpointReference(wsdlUrl, serviceName,
                                                                              portName);
         Configuration busCfg = bus.getConfiguration();
+        assertNotNull(busCfg);
         Configuration endpointCfg = null;
         Configuration portCfg = null;
 
@@ -64,11 +65,13 @@ public class JMSConfigTest extends TestCase {
         // Server Endpoint Config
         CompoundName ecn = new CompoundName("celtix", id);
         endpointCfg = cb.getConfiguration(JMSConstants.ENDPOINT_CONFIGURATION_URI, ecn);
+        assertNotNull(endpointCfg);
 
         // Client Service Endpoint  Port config.
         CompoundName pcn = new CompoundName("celtix",
             id + "/" + EndpointReferenceUtils.getPortName(ref).toString());
         portCfg = cb.getConfiguration(JMSConstants.PORT_CONFIGURATION_URI, pcn);
+        assertNotNull(portCfg);
 
         CompoundName cn = new CompoundName(ecn, JMSConstants.JMS_SERVER_CONFIG_ID);
         // Server Transport Config.

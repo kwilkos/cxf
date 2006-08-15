@@ -60,8 +60,6 @@ public class HTTPTransportTest extends TestCase {
     private static final int DECOUPLED_PORT = 9999;
 
     private static final URL WSDL_URL = HTTPTransportTest.class.getResource("/wsdl/hello_world.wsdl");
-    private static final String HTTP_SERVER_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/transports/http/http-server-config";
 
     private static boolean first = true;
 
@@ -796,7 +794,6 @@ public class HTTPTransportTest extends TestCase {
                                                   String address)
         throws WSDLException, IOException {
 
-        URL url = new URL(address);
         
         EasyMock.reset(bus);
 

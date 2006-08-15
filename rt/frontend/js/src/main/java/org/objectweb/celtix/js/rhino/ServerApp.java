@@ -32,7 +32,9 @@ public class ServerApp {
                 i = checkOption(args, i);
                 if (verbose && !msgPrinted) {
                     msgPrinted = true;
-                    System.out.println("entering server");
+                    if (verbose) {
+                        System.out.println("entering server");
+                    }
                 }
             } else {
                 File f = new File(args[i]);
