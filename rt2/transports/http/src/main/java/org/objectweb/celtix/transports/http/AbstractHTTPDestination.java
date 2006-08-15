@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
@@ -20,6 +19,8 @@ import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.Destination;
+import org.objectweb.celtix.service.model.EndpointInfo;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 import static org.objectweb.celtix.message.Message.ONEWAY_MESSAGE;
@@ -35,8 +36,9 @@ public abstract class AbstractHTTPDestination  implements Destination {
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
-    protected final EndpointReferenceType reference;
     protected final HTTPDestinationConfiguration config;
+    protected final EndpointInfo endpointInfo;
+    protected final EndpointReferenceType reference;
     protected String name;
     protected URL nurl;
 
@@ -45,18 +47,17 @@ public abstract class AbstractHTTPDestination  implements Destination {
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
-     * @param ref the published endpoint
-     * @throws WSDLException
+     * @param endpointInfo the endpoint info of the destination 
      * @throws IOException
      */
     public AbstractHTTPDestination(Bus b,
                                    ConduitInitiator ci,
-                                   EndpointReferenceType ref)
-        throws WSDLException, IOException {
+                                   EndpointInfo endpointInfo)
+        throws IOException {
         this(b,
              ci,
-             ref,
-             new HTTPDestinationConfiguration(b, ref));
+             endpointInfo,
+             new HTTPDestinationConfiguration(b, endpointInfo));
     }
 
     /**
@@ -64,23 +65,27 @@ public abstract class AbstractHTTPDestination  implements Destination {
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
-     * @param ref the published endpoint
+     * @param ei the endpoint info of the destination 
      * @param cfg the configuration
-     * @throws WSDLException
      * @throws IOException
      */    
     public AbstractHTTPDestination(Bus b,
                                    ConduitInitiator ci,
-                                   EndpointReferenceType ref,
+                                   EndpointInfo ei,
                                    HTTPDestinationConfiguration cfg)
-        throws WSDLException, IOException {
+        throws IOException {
         bus = b;
         conduitInitiator = ci;
-        reference = ref;
+        endpointInfo = ei;
         config = cfg;
         
         nurl = new URL(config.getAddress());
         name = nurl.getPath();
+
+        reference = new EndpointReferenceType();
+        AttributedURIType address = new AttributedURIType();
+        address.setValue(config.getAddress());
+        reference.setAddress(address);
     }
 
     /**

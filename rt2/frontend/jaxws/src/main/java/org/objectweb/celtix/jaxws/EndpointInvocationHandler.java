@@ -61,7 +61,9 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             } else {
                 operationName = method.getName();
             }
+
             InterfaceInfo ii = endpoint.getService().getServiceInfo().getInterface();
+   
             oi = ii.getOperation(new QName(endpoint.getService().getName().getNamespaceURI(), operationName));
             if (null == oi) {
                 Message msg = new Message("NO_OPERATION_INFO", LOG, operationName);

@@ -1,6 +1,9 @@
 package org.objectweb.celtix.service.model;
 
+import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
+
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class EndpointInfo extends AbstractPropertiesHolder {
     final String endpointType;
@@ -34,5 +37,17 @@ public class EndpointInfo extends AbstractPropertiesHolder {
     }
     public void setBinding(BindingInfo b) {
         binding = b;
+    }
+    
+    public String getAddress() {
+        SOAPAddress sa = getExtensor(SOAPAddress.class);
+        if (null != sa) {
+            return sa.getLocationURI();
+        }
+        AddressType a = getExtensor(AddressType.class);
+        if (null != a) {
+            return a.getLocation();
+        }
+        return null;
     }
 }

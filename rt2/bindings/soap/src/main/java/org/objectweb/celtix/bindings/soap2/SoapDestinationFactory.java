@@ -22,7 +22,7 @@ public class SoapDestinationFactory implements DestinationFactory {
         this.destinationFactoryManager = destinationFactoyrManager;
     }
 
-    public Destination getDestination(EndpointInfo ei) throws WSDLException, IOException {
+    public Destination getDestination(EndpointInfo ei) throws IOException {
         EndpointReferenceType epr = new EndpointReferenceType();
         AttributedURIType uri = new AttributedURIType();
         
@@ -36,7 +36,7 @@ public class SoapDestinationFactory implements DestinationFactory {
         try {
             destinationFactory = destinationFactoryManager.getDestinationFactory(binding.getTransportURI());
             
-            return destinationFactory.getDestination(epr);
+            return destinationFactory.getDestination(ei);
         } catch (BusException e) {
             throw new RuntimeException("Could not find destination factory for transport "
                                        + binding.getTransportURI());

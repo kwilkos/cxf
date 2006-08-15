@@ -13,7 +13,6 @@ import org.objectweb.celtix.messaging.DestinationFactory;
 import org.objectweb.celtix.messaging.DestinationFactoryManager;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
@@ -40,7 +39,7 @@ public class SoapDestinationFactoryTest extends TestCase {
         Destination dest = control.createMock(Destination.class);
         
         expect(dfm.getDestinationFactory(transportURI)).andReturn(fooDF);
-        expect(fooDF.getDestination((EndpointReferenceType)null)).andStubReturn(dest);
+        expect(fooDF.getDestination(ei)).andStubReturn(dest);
         
         control.replay();
         

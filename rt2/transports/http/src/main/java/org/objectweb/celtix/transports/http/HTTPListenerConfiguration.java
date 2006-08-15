@@ -14,7 +14,7 @@ import org.objectweb.celtix.transports.http.configuration.HTTPListenerPolicy;
  */
 public class HTTPListenerConfiguration {
     private static final String HTTP_LISTENER_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/transports/http/http-listener-config";
+        "http://celtix.objectweb.org/configuration/transport/http-listener";
     
     private Configuration config;
     private HTTPListenerPolicy policy;

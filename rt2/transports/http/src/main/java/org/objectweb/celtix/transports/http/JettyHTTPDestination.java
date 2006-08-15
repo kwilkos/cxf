@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import javax.wsdl.Definition;
-import javax.wsdl.WSDLException;
 import javax.xml.ws.handler.MessageContext;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
@@ -31,9 +29,8 @@ import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.celtix.wsdl.WSDLManager;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
     
@@ -50,15 +47,14 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
-     * @param ref the published endpoint
-     * @throws WSDLException
+     * @param endpointInfo the endpoint info of the destination
      * @throws IOException
      */
     public JettyHTTPDestination(Bus b,
                                 ConduitInitiator ci,
-                                EndpointReferenceType ref)
-        throws WSDLException, IOException {
-        this(b, ci, ref, null, new HTTPDestinationConfiguration(b, ref));
+                                EndpointInfo endpointInfo)
+        throws IOException {
+        this(b, ci, endpointInfo, null, new HTTPDestinationConfiguration(b, endpointInfo));
     }
 
     /**
@@ -66,20 +62,19 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
-     * @param ref the published endpoint
+     * @param endpointInfo the endpoint info of the destination
      * @param eng the server engine
      * @param cfg the configuration
-     * @throws WSDLException
      * @throws IOException
      */
 
     public JettyHTTPDestination(Bus b,
                                 ConduitInitiator ci,
-                                EndpointReferenceType ref,
+                                EndpointInfo endpointInfo,
                                 ServerEngine eng,
                                 HTTPDestinationConfiguration cfg)
-        throws WSDLException, IOException {
-        super(b, ci, ref, cfg);
+        throws IOException {
+        super(b, ci, endpointInfo, cfg);
         engine = eng != null 
                  ? eng
                  : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
@@ -138,7 +133,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     public Conduit getBackChannel(Message inMessage,
                                   Message partialResponse,
                                   EndpointReferenceType address)
-        throws WSDLException, IOException {
+        throws IOException {
         HttpResponse response = (HttpResponse)inMessage.get(HTTP_RESPONSE);
         Conduit backChannel = null;
         if (address == null) {
@@ -150,7 +145,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                                     HttpURLConnection.HTTP_ACCEPTED);
                 backChannel = new BackChannelConduit(address, response);
             } else {
-                backChannel = conduitInitiator.getConduit(address);
+                backChannel = conduitInitiator.getConduit(endpointInfo, address);
                 // ensure decoupled back channel input stream is closed
                 backChannel.setMessageObserver(new MessageObserver() {
                     public void onMessage(Message m) {
@@ -227,7 +222,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             req.setHandled(true);
             return;
         }    
-        
+      
+        // REVISIT: expect service model to provide wsdl as a stream 
+        /* 
         if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
             try {
                 
@@ -245,6 +242,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 ex.printStackTrace();
             }
         }
+        */
         
         // REVISIT: service on executor if associated with endpoint
         serviceRequest(req, resp);

@@ -25,8 +25,6 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.Client;
 import org.objectweb.celtix.endpoint.ClientImpl;
-import org.objectweb.celtix.endpoint.Endpoint;
-import org.objectweb.celtix.endpoint.EndpointImpl;
 import org.objectweb.celtix.jaxws.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
 import org.objectweb.celtix.service.Service;
@@ -43,7 +41,6 @@ public class ServiceImpl extends ServiceDelegate {
     private URL wsdlURL;
     
     private Service service;
-    private Endpoint endpoint;
     private HandlerResolver handlerResolver;
     private final Collection<QName> ports = new HashSet<QName>();
     
@@ -137,12 +134,10 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));  
         }
         
-        endpoint = new EndpointImpl(bus, service, ei);
-        
         JaxwsEndpointImpl jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
-        Client client = new ClientImpl(bus, endpoint);
+        Client client = new ClientImpl(bus, jaxwsEndpoint);
         
-        InvocationHandler ih = new EndpointInvocationHandler(endpoint, client, 
+        InvocationHandler ih = new EndpointInvocationHandler(jaxwsEndpoint, client, 
                                                              jaxwsEndpoint.getJaxwsBinding());
         
         // configuration stuff 

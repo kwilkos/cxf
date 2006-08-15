@@ -2,8 +2,7 @@ package org.objectweb.celtix.messaging;
 
 import java.io.IOException;
 
-import javax.wsdl.WSDLException;
-
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 /**
@@ -11,10 +10,12 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
  */
 public interface ConduitInitiator {
     /**
-     * Initiate an oubound Conduit.
+     * Initiate an outbound Conduit.
      * 
-     * @param target the target endpoint
+     * @param targetInfo the endpoint info of the initiator 
      * @return a suitable new or pre-existing Conduit
      */
-    Conduit getConduit(EndpointReferenceType target) throws WSDLException, IOException;
+    Conduit getConduit(EndpointInfo endpointInfo) throws IOException;
+
+    Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException;
 }

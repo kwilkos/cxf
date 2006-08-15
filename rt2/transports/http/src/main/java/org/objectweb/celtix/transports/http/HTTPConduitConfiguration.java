@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.wsdl.Port;
-import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
 
 import org.objectweb.celtix.Bus;
@@ -17,39 +15,38 @@ import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.wsdl.WsdlHttpConfigurationProvider;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
  * Encapsulates all aspects of HTTP Conduit configuration.
  */
 public class HTTPConduitConfiguration {
+    /*
     private static final String PORT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/bus/jaxws/port-config";
+    */
     private static final String HTTP_CLIENT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/transports/http/http-client-config";
+        "http://celtix.objectweb.org/configuration/transport/http-client";
     private static final String HTTP_CLIENT_CONFIGURATION_ID = "http-client";
 
     final String address;
-    final Port port;
     final HTTPClientPolicy policy;
     final SSLClientPolicy sslClientPolicy;
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
     final Configuration configuration;
-    final Configuration portConfiguration;
+    // final Configuration portConfiguration;
 
-    HTTPConduitConfiguration(Bus bus, EndpointReferenceType ref) throws WSDLException {
-        port = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
-        portConfiguration = getPortConfiguration(bus, ref);
+    HTTPConduitConfiguration(Bus bus, EndpointInfo endpointInfo) {
+        /*
+        portConfiguration = getPortConfiguration(bus, endpointInfo);
         address = portConfiguration.getString("address");
-        EndpointReferenceUtils.setAddress(ref, address);
-    
-        configuration = createConfiguration(bus, ref);
+        */
+        address = endpointInfo.getAddress();
+
+        configuration = createConfiguration(bus, endpointInfo);
         policy = getClientPolicy(configuration);
         authPolicy = getAuthPolicy("authorization", configuration);
         proxyAuthPolicy = getAuthPolicy("proxyAuthorization", configuration);
@@ -198,38 +195,36 @@ public class HTTPConduitConfiguration {
         }
         return pol;
     }
-    
-    private Configuration getPortConfiguration(Bus bus, EndpointReferenceType ref) {
-
-        // REVISIT
+   
+    /* 
+    private Configuration getPortConfiguration(Bus bus, EndpointInfo endpointInfo) {
 
         CompoundName id = new CompoundName(
             bus.getId(),
-            EndpointReferenceUtils.getServiceName(ref).toString()
-            + "/" + EndpointReferenceUtils.getPortName(ref)
+            endpointInfo.getService().getName().toString()
+            + "/" + endpointInfo.getName().getLocalPart()
         );
 
         ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
         return cb.getConfiguration(PORT_CONFIGURATION_URI, id);
     }
+    */
 
-    private Configuration createConfiguration(Bus bus, EndpointReferenceType ref) {
-
-        // REVISIT 
+    private Configuration createConfiguration(Bus bus, EndpointInfo endpointInfo) {
 
         CompoundName id = new CompoundName(
             bus.getId(),
-            EndpointReferenceUtils.getServiceName(ref).toString()
-            + "/" + EndpointReferenceUtils.getPortName(ref),
+            endpointInfo.getService().getName().toString()
+            + "/" + endpointInfo.getName().getLocalPart(),
             HTTP_CLIENT_CONFIGURATION_ID
         );
         ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
         Configuration cfg = cb.getConfiguration(HTTP_CLIENT_CONFIGURATION_URI, id);
         
         // register the additional provider
-        if (null != port) {
-            cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, false));
-        }
+
+        cfg.getProviders().add(new ServiceModelHttpConfigurationProvider(endpointInfo, false));
+
         return cfg;
     }
 

@@ -5,18 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.wsdl.Port;
-import javax.wsdl.WSDLException;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.configuration.CompoundName;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.wsdl.WsdlHttpConfigurationProvider;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import org.objectweb.celtix.wsdl.WSDLManager;
 
 /**
  * Encapsulates aspects of HTTP Destination configuration not related
@@ -24,7 +18,7 @@ import org.objectweb.celtix.wsdl.WSDLManager;
  */
 public class HTTPDestinationConfiguration {
     private static final String HTTP_SERVER_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/transports/http/http-server-config";
+        "http://celtix.objectweb.org/configuration/transport/http-server";
     private static final String HTTP_SERVER_CONFIGURATION_ID = "http-server";
         
 
@@ -32,11 +26,10 @@ public class HTTPDestinationConfiguration {
     protected Configuration configuration;
     protected HTTPServerPolicy policy;
     
-    public HTTPDestinationConfiguration(Bus bus, EndpointReferenceType ref)
-        throws WSDLException, IOException {
-        // get url (publish address) from endpoint reference
-        address = EndpointReferenceUtils.getAddress(ref);  
-        configuration = createConfiguration(bus, ref);
+    public HTTPDestinationConfiguration(Bus bus, EndpointInfo endpointInfo) throws IOException {
+        // get url (publish address) from endpoint info
+        address = endpointInfo.getAddress();
+        configuration = createConfiguration(bus, endpointInfo);
         policy = getServerPolicy(configuration);
     }
     
@@ -85,11 +78,11 @@ public class HTTPDestinationConfiguration {
     */
     }
     
-    private Configuration createConfiguration(Bus bus, EndpointReferenceType ref) {
+    private Configuration createConfiguration(Bus bus, EndpointInfo endpointInfo) {
         
         CompoundName id = new CompoundName(
             bus.getId(),
-            EndpointReferenceUtils.getServiceName(ref).toString(),
+            endpointInfo.getName().toString(),
             HTTP_SERVER_CONFIGURATION_ID
         );
 
@@ -98,16 +91,8 @@ public class HTTPDestinationConfiguration {
 
         // create and register the additional provider
 
-        Port port = null;
-        try {
-            port = EndpointReferenceUtils.getPort(bus.getExtension(WSDLManager.class), ref);
-        } catch (WSDLException ex) {
-            // ignore
-        }
-  
-        if (null != port) {
-            cfg.getProviders().add(new WsdlHttpConfigurationProvider(port, true));
-        }
+        cfg.getProviders().add(new ServiceModelHttpConfigurationProvider(endpointInfo, true));
+
         return cfg;
     }
     
@@ -118,4 +103,5 @@ public class HTTPDestinationConfiguration {
         }
         return pol;
     }
+
 }

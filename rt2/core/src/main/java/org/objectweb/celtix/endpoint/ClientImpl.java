@@ -3,8 +3,6 @@ package org.objectweb.celtix.endpoint;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.wsdl.WSDLException;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.interceptors.AbstractBasicInterceptorProvider;
@@ -18,6 +16,7 @@ import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.ConduitInitiatorManager;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.phase.PhaseManager;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client {
@@ -40,7 +39,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         setOutMessageProperties(message, oi);
    
         Exchange exchange = new ExchangeImpl();
-        exchange.putAll(ctx);
+        if (null != ctx) {
+            exchange.putAll(ctx);
+        }
         exchange.setOutMessage(message);
         setExchangeProperties(exchange, ctx);
 
@@ -70,24 +71,23 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
         }
 
-        return exchange.getInMessage().getContent(Object[].class);
+        // return exchange.getInMessage().getContent(Object[].class);
+        return null;
     }
 
 
     private Conduit getConduit() {
-        String transportID = endpoint.getEndpointInfo().getTransportId();
+        EndpointInfo ei = endpoint.getEndpointInfo();
+        String transportID = ei.getTransportId();
         try {
             ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
                 .getConduitInitiator(transportID);
-            return ci.getConduit(null);
+            return ci.getConduit(ei);
         } catch (BusException ex) {
             // TODO: wrap in runtime exception
             ex.printStackTrace();
         } catch (IOException ex) {
             // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        } catch (WSDLException ex) {
-            // TODO: can getConduitInitiator really throw a WSDLException?
             ex.printStackTrace();
         }
         

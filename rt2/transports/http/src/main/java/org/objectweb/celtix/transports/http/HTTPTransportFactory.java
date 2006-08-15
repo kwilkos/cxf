@@ -5,7 +5,6 @@ import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.wsdl.WSDLException;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.messaging.Conduit;
@@ -37,18 +36,19 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
         }
     }
 
-    public Conduit getConduit(EndpointReferenceType target)
-        throws WSDLException, IOException {
-        return new HTTPConduit(bus, target);
+    public Conduit getConduit(EndpointInfo endpointInfo)
+        throws IOException {
+        return new HTTPConduit(bus, endpointInfo);
     }
 
-    public Destination getDestination(EndpointReferenceType reference)
-        throws WSDLException, IOException {
-        return new JettyHTTPDestination(bus, this, reference);
+    public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target)
+        throws IOException {
+        return new HTTPConduit(bus, endpointInfo, target);
     }
 
-    public Destination getDestination(EndpointInfo ei) throws WSDLException, IOException {
-        throw new UnsupportedOperationException();
+    public Destination getDestination(EndpointInfo endpointInfo)
+        throws IOException {
+        return new JettyHTTPDestination(bus, this, endpointInfo);
     }
 
     public Bus getBus() {

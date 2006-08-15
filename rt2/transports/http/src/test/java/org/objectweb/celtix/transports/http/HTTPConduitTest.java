@@ -26,6 +26,7 @@ import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.MessageObserver;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -35,6 +36,7 @@ public class HTTPConduitTest extends TestCase {
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
     private static final String PAYLOAD = "message payload";
     private EndpointReferenceType target;
+    private EndpointInfo endpointInfo;
     private HTTPConduitConfiguration config;
     private URLConnectionFactory connectionFactory;
     private URLConnection connection;
@@ -121,11 +123,13 @@ public class HTTPConduitTest extends TestCase {
     private HTTPConduit setUpConduit(boolean send,
                                      boolean httpConnection,
                                      boolean autoRedirect) throws Exception {
-        target = getEPR("foo/bar");
+
+        endpointInfo = control.createMock(EndpointInfo.class);
+        target = getEPR("bar/foo");
         connectionFactory = control.createMock(URLConnectionFactory.class);
         config = control.createMock(HTTPConduitConfiguration.class);
         config.getAddress();
-        EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo");
+        EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(2);
         if (send) {
             proxy = control.createMock(Proxy.class);
             config.getProxy();
@@ -169,7 +173,7 @@ public class HTTPConduitTest extends TestCase {
             }
         }
         control.replay();
-        HTTPConduit conduit = new HTTPConduit(target, connectionFactory, config);
+        HTTPConduit conduit = new HTTPConduit(endpointInfo, null, connectionFactory, config);
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;

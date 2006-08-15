@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
@@ -27,6 +26,8 @@ import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
+import org.objectweb.celtix.service.model.EndpointInfo;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 
@@ -38,46 +39,67 @@ public class HTTPConduit implements Conduit {
     static final String HTTP_CONNECTION = "http.connection";
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
 
-    private final EndpointReferenceType targetEndpoint;
     private final HTTPConduitConfiguration config;
     private final URLConnectionFactory connectionFactory;
     private URL url;
     private MessageObserver incomingObserver;
+    private EndpointReferenceType target;
 
     /**
      * Constructor, using real configuration.
      * 
-     * @param b the associated Bus
-     * @param ref the target endpoint
-     * @throws WSDLException
+     * @param bus the bus
+     * @param endpointInfo the endpoint info of the initiator
      * @throws IOException
      */
-    public HTTPConduit(Bus b, EndpointReferenceType ref)
-        throws WSDLException, IOException {
-        this(ref,
+    public HTTPConduit(Bus bus, EndpointInfo endpointInfo) throws IOException {
+        this(bus,
+             endpointInfo,
+             null);
+    }
+
+    /**
+     * Constructor, using real configuration.
+     * 
+     * @param bus the bus
+     * @param endpointInfo the endpoint info of the initiator
+     * @param target the endpoint reference of the target
+     * @throws IOException
+     */
+    public HTTPConduit(Bus bus, EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
+        this(endpointInfo,
+             target,
              null,
-             new HTTPConduitConfiguration(b, ref));
+             new HTTPConduitConfiguration(bus, endpointInfo));
     }
 
     /**
      * Constructor, allowing subsititution of configuration.
      * 
-     * @param ref the target endpoint
+     * @param endpointInfo the endpoint info of the initiator
+     * @param target the endpoint reference of the target
      * @param factory the URL connection factory
      * @param cfg the configuration
-     * @throws WSDLException
      * @throws IOException
      */
-    public HTTPConduit(EndpointReferenceType ref,
+    public HTTPConduit(EndpointInfo endpointInfo,
+                       EndpointReferenceType t,
                        URLConnectionFactory factory,
-                       HTTPConduitConfiguration cfg)
-        throws WSDLException, IOException {
+                       HTTPConduitConfiguration cfg) throws IOException {
         config = cfg;
-        targetEndpoint = ref;
         connectionFactory = factory != null
                             ? factory
                             : getDefaultConnectionFactory();
         url = new URL(config.getAddress());       
+
+        if (null == t) {
+            target = new EndpointReferenceType();
+            AttributedURIType address = new AttributedURIType();
+            address.setValue(config.getAddress());
+            target.setAddress(address);
+        } else {
+            target = t;
+        }
     }
     
     /**
@@ -138,7 +160,7 @@ public class HTTPConduit implements Conduit {
      * @return the reference associated with the target Destination
      */    
     public EndpointReferenceType getTarget() {
-        return targetEndpoint;
+        return target;
     }
     
     /**

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
+    xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    namespace="http://celtix.objectweb.org/configuration/transport/http-server"
+>
+
+    <cm:configImport namespace="http://celtix.objectweb.org/transports/http/configuration" location="schemas/wsdl/http-conf.xsd"/>
+    <cm:configImport namespace="http://celtix.objectweb.org/bus/configuration/security" location="schemas/configuration/security.xsd"/>
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    
+    <cm:configItem>
+        <cm:name>httpServer</cm:name>
+        <cm:type>http-conf:HTTPServerPolicy</cm:type>
+        <cm:description>HTTP server configuration properties.
+            Used for configuring a HTTP server port.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- attribute values are defaulted -->
+        <http-conf:server></http-conf:server>
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>authorization</cm:name>
+        <cm:type>sec:AuthorizationPolicy</cm:type>
+        <cm:description>Policies for controlling basic authentication</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>sslServer</cm:name>
+        <cm:type>sec:SSLServerPolicy</cm:type>
+        <cm:description>Policies for controlling SSL encryption</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- attribute values are defaulted -->
+        <sec:sslServer></sec:sslServer>
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>contextMatchStrategy</cm:name>
+        <cm:type>xs:string</cm:type>
+        <cm:description>Context matching strategy</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+	<std-types:stringValue xmlns:std-types="http://celtix.objectweb.org/configuration/types">exact</std-types:stringValue>
+    </cm:configItem>
+
+</cm:config>

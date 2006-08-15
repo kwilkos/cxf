@@ -35,6 +35,7 @@ import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.MessageObserver;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
@@ -57,6 +58,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     private Bus bus;
     private ConduitInitiator conduitInitiator;
     private Conduit decoupledBackChannel;
+    private EndpointInfo endpointInfo;
     private EndpointReferenceType address;
     private EndpointReferenceType replyTo;
     private ServerEngine engine;
@@ -212,13 +214,14 @@ public class JettyHTTPDestinationTest extends TestCase {
     
     private JettyHTTPDestination setUpDestination(boolean contextMatchOnStem)
         throws Exception {
-        address = getEPR("foo/bar");
+        address = getEPR("bar/foo");
         bus = control.createMock(Bus.class);
         conduitInitiator = control.createMock(ConduitInitiator.class);
+        endpointInfo = control.createMock(EndpointInfo.class);
         engine = control.createMock(ServerEngine.class);
         config = control.createMock(HTTPDestinationConfiguration.class);
         config.getAddress();
-        EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(2);
+        EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(3);
        
         config.contextMatchOnStem();
         EasyMock.expectLastCall().andReturn(contextMatchOnStem);
@@ -230,7 +233,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         JettyHTTPDestination dest = new JettyHTTPDestination(bus,
                                                              conduitInitiator,
-                                                             address,
+                                                             endpointInfo,
                                                              engine,
                                                              config);
         observer = new MessageObserver() {
@@ -316,7 +319,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         if (decoupled) {
             decoupledBackChannel = EasyMock.createMock(Conduit.class);
-            conduitInitiator.getConduit(EasyMock.eq(replyTo));
+            conduitInitiator.getConduit(EasyMock.isA(EndpointInfo.class), EasyMock.eq(replyTo));
             EasyMock.expectLastCall().andReturn(decoupledBackChannel);
             decoupledBackChannel.send(EasyMock.eq(outMessage));
             EasyMock.expectLastCall();
@@ -370,7 +373,8 @@ public class JettyHTTPDestinationTest extends TestCase {
                    exchange.getInMessage());
         
         assertEquals("unexpected getMethod calls",
-                     2,
+                     // asmyth: change from 2 to 1
+                     1,
                      request.getMethodCallCount());
         assertEquals("unexpected getInputStream calls",
                      1,
