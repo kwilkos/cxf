@@ -21,7 +21,9 @@ public class LocalDestination implements Destination {
         return epr;
     }
 
-    public Conduit getBackChannel(Message message, EndpointReferenceType address) {
+    public Conduit getBackChannel(Message inMessage,
+                                  Message partialResponse,
+                                  EndpointReferenceType address) {
         // TODO Auto-generated method stub
         return null;
     }

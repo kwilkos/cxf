@@ -1,5 +1,9 @@
 package org.objectweb.celtix.messaging;
 
+import java.io.IOException;
+
+import javax.wsdl.WSDLException;
+
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
@@ -20,12 +24,17 @@ public interface Destination extends Observable {
      * compatible Quality of Protection must be asserted on the back-channel.
      * This would generally only be an issue if the back-channel is decoupled.
      * 
-     * @param message the current message (null to indicate a disassociated
+     * @param inMessage the current message (null to indicate a disassociated
      * back-channel.
+     * @param partialResponse in the decoupled case, this is expected to be the
+     * outbound Message to be sent over the in-built back-channel. 
      * @param address the backchannel address (null to indicate anonymous)
      * @return a suitable Conduit
      */
-    Conduit getBackChannel(Message message, EndpointReferenceType address);
+    Conduit getBackChannel(Message inMessage,
+                           Message partialResponse,
+                           EndpointReferenceType address)
+        throws WSDLException, IOException;
 
     /**
      * Shutdown the Destination, i.e. stop accepting incoming messages.

@@ -19,6 +19,7 @@ public interface Message extends Map<String, Object> {
     String TRANSPORT = "org.objectweb.celtix.transport";    
     String BUS = "org.objectweb.celtix.bus";
     String REQUESTOR_ROLE = "org.objectweb.celtix.client";
+    String ONEWAY_MESSAGE = "org.objectweb.celtix.transport.isOneWayMessage";
 
     String DATAREADER_FACTORY_KEY = "org.objectweb.celtix.databinding.reader.factory.key";
     String DATAWRITER_FACTORY_KEY = "org.objectweb.celtix.databinding.writer.factory.key";

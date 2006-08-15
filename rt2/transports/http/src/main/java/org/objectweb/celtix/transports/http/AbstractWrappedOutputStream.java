@@ -32,6 +32,7 @@ public abstract class AbstractWrappedOutputStream extends FilterOutputStream {
 
     public void close() throws IOException {
         out.flush();
+        out.close();
         doClose();
     }
 

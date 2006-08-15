@@ -44,7 +44,7 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
 
     public Destination getDestination(EndpointReferenceType reference)
         throws WSDLException, IOException {
-        return new JettyHTTPDestination(bus, reference);
+        return new JettyHTTPDestination(bus, this, reference);
     }
 
     public Destination getDestination(EndpointInfo ei) throws WSDLException, IOException {

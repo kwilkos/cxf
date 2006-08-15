@@ -4,6 +4,7 @@ package org.objectweb.celtix.transports.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -27,6 +28,7 @@ import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
+import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -47,19 +49,23 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Constructor, using real configuration and Jetty server engine.
      * 
      * @param b the associated Bus
+     * @param ci the associated conduit initiator
      * @param ref the published endpoint
      * @throws WSDLException
      * @throws IOException
      */
-    public JettyHTTPDestination(Bus b, EndpointReferenceType ref)
+    public JettyHTTPDestination(Bus b,
+                                ConduitInitiator ci,
+                                EndpointReferenceType ref)
         throws WSDLException, IOException {
-        this(b, ref, null, new HTTPDestinationConfiguration(b, ref));
+        this(b, ci, ref, null, new HTTPDestinationConfiguration(b, ref));
     }
 
     /**
      * Constructor, allowing subsititution of configuration.
      * 
      * @param b the associated Bus
+     * @param ci the associated conduit initiator
      * @param ref the published endpoint
      * @param eng the server engine
      * @param cfg the configuration
@@ -67,12 +73,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @throws IOException
      */
 
-    public JettyHTTPDestination(Bus b, 
+    public JettyHTTPDestination(Bus b,
+                                ConduitInitiator ci,
                                 EndpointReferenceType ref,
                                 ServerEngine eng,
                                 HTTPDestinationConfiguration cfg)
         throws WSDLException, IOException {
-        super(b, ref, cfg);
+        super(b, ci, ref, cfg);
         engine = eng != null 
                  ? eng
                  : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
@@ -121,15 +128,45 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * compatible Quality of Protection must be asserted on the back-channel.
      * This would generally only be an issue if the back-channel is decoupled.
      * 
-     * @param message the current message (null to indicate a disassociated
-     * back-channel.
+     * @param inMessage the current inbound message (null to indicate a 
+     * disassociated back-channel)
+     * @param partialResponse in the decoupled case, this is expected to be the
+     * outbound Message to be sent over the in-built back-channel. 
      * @param address the backchannel address (null to indicate anonymous)
      * @return a suitable Conduit
      */
-    public Conduit getBackChannel(Message message,
-                                  EndpointReferenceType address) {
-        HttpResponse response = (HttpResponse)message.get(HTTP_RESPONSE);
-        return new BackChannelConduit(address, response);
+    public Conduit getBackChannel(Message inMessage,
+                                  Message partialResponse,
+                                  EndpointReferenceType address)
+        throws WSDLException, IOException {
+        HttpResponse response = (HttpResponse)inMessage.get(HTTP_RESPONSE);
+        Conduit backChannel = null;
+        if (address == null) {
+            backChannel = new BackChannelConduit(address, response);
+        } else {
+            if (partialResponse != null) {
+                // setup the outbound message to for 202 Accepted
+                partialResponse.put(HTTP_RESPONSE_CODE,
+                                    HttpURLConnection.HTTP_ACCEPTED);
+                backChannel = new BackChannelConduit(address, response);
+            } else {
+                backChannel = conduitInitiator.getConduit(address);
+                // ensure decoupled back channel input stream is closed
+                backChannel.setMessageObserver(new MessageObserver() {
+                    public void onMessage(Message m) {
+                        if (m.getContentFormats().contains(InputStream.class)) {
+                            InputStream is = m.getContent(InputStream.class);
+                            try {
+                                is.close();
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        return backChannel;
     }
 
     /**
@@ -250,18 +287,20 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         Object responseObj = outMessage.get(HTTP_RESPONSE);
         OutputStream responseStream = null;
         if (responseObj instanceof HttpResponse) {
-            // non-decoupled response
             HttpResponse response = (HttpResponse)responseObj;
                 
             Integer i = (Integer)outMessage.get(HTTP_RESPONSE_CODE);
             if (i != null) {
-                if (i.intValue() == 500) {
-                    response.setStatus(i.intValue(), "Fault Occurred");
+                int status = i.intValue();
+                if (status == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                    response.setStatus(status, "Fault Occurred");
+                } else if (status == HttpURLConnection.HTTP_ACCEPTED) {
+                    response.setStatus(status, "Accepted");
                 } else {
-                    response.setStatus(i.intValue());
+                    response.setStatus(status);
                 }
             } else {
-                response.setStatus(200);
+                response.setStatus(HttpURLConnection.HTTP_OK);
             }
             
             copyResponseHeaders(outMessage, response);
@@ -281,16 +320,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         return responseStream;
     }
     
-    protected boolean isOneWay(Message message) {
-        // REVISIT need a mechanism whereby higher level (binding, WS-A layer
-        // or frontend) marks message as oneway
-        return false;
-    }
-    
     /**
-     * Backchannel conduit, flushes headers on send.
+     * Backchannel conduit.
      */
-    private class BackChannelConduit implements Conduit {
+    protected class BackChannelConduit implements Conduit {
         
         protected HttpResponse response;
         protected EndpointReferenceType target;

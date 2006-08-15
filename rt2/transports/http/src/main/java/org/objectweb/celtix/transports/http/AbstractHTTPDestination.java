@@ -18,8 +18,11 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.common.util.Base64Exception;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+
+import static org.objectweb.celtix.message.Message.ONEWAY_MESSAGE;
 
 
 /**
@@ -31,6 +34,7 @@ public abstract class AbstractHTTPDestination  implements Destination {
     private static final long serialVersionUID = 1L;        
 
     protected final Bus bus;
+    protected final ConduitInitiator conduitInitiator;
     protected final EndpointReferenceType reference;
     protected final HTTPDestinationConfiguration config;
     protected String name;
@@ -40,13 +44,17 @@ public abstract class AbstractHTTPDestination  implements Destination {
      * Constructor, using real configuration.
      * 
      * @param b the associated Bus
+     * @param ci the associated conduit initiator
      * @param ref the published endpoint
      * @throws WSDLException
      * @throws IOException
      */
-    public AbstractHTTPDestination(Bus b, EndpointReferenceType ref)
+    public AbstractHTTPDestination(Bus b,
+                                   ConduitInitiator ci,
+                                   EndpointReferenceType ref)
         throws WSDLException, IOException {
         this(b,
+             ci,
              ref,
              new HTTPDestinationConfiguration(b, ref));
     }
@@ -55,16 +63,19 @@ public abstract class AbstractHTTPDestination  implements Destination {
      * Constructor, allowing subsititution of configuration.
      * 
      * @param b the associated Bus
+     * @param ci the associated conduit initiator
      * @param ref the published endpoint
      * @param cfg the configuration
      * @throws WSDLException
      * @throws IOException
      */    
     public AbstractHTTPDestination(Bus b,
+                                   ConduitInitiator ci,
                                    EndpointReferenceType ref,
                                    HTTPDestinationConfiguration cfg)
         throws WSDLException, IOException {
         bus = b;
+        conduitInitiator = ci;
         reference = ref;
         config = cfg;
         
@@ -113,6 +124,15 @@ public abstract class AbstractHTTPDestination  implements Destination {
         message.put(HTTP_RESPONSE_HEADERS, responseHeaders);         
     }
     
+    /** 
+     * @param message the message under consideration
+     * @return true iff the message has been marked as oneway
+     */    
+    protected boolean isOneWay(Message message) {
+        Boolean oneway = (Boolean)message.get(ONEWAY_MESSAGE);
+        return oneway != null && oneway.booleanValue();
+    }
+
     /**
      * Copy the request headers into the message.
      * 

@@ -33,18 +33,18 @@ import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
+import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import static org.objectweb.celtix.message.Message.ONEWAY_MESSAGE;
 
 
 public class JettyHTTPDestinationTest extends TestCase {
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
     private static final String PAYLOAD = "message payload";
     private static final String QUERY = "?name";
-    private static final String ANON_ADDR =
-        "http://www.w3.org/2005/08/addressing/anonymous";
     private static final String AUTH_HEADER = "Authorization";
     private static final String USER = "copernicus";
     private static final String PASSWD = "epicycles";
@@ -55,7 +55,10 @@ public class JettyHTTPDestinationTest extends TestCase {
     private static final String DIGEST_CHALLENGE = "Digest realm=luna";
     private static final String CUSTOM_CHALLENGE = "Custom realm=sol";
     private Bus bus;
+    private ConduitInitiator conduitInitiator;
+    private Conduit decoupledBackChannel;
     private EndpointReferenceType address;
+    private EndpointReferenceType replyTo;
     private ServerEngine engine;
     private HTTPDestinationConfiguration config;
     private HTTPServerPolicy policy;
@@ -63,6 +66,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     private TestHttpRequest request;
     private TestHttpResponse response;
     private Message inMessage;
+    private Message outMessage;
     private MessageObserver observer;
     private InputStream is;
     private OutputStream os;
@@ -77,12 +81,16 @@ public class JettyHTTPDestinationTest extends TestCase {
         control.verify();
         control = null;
         bus = null;
+        conduitInitiator = null;
+        decoupledBackChannel = null;
         address = null;
+        replyTo = null;
         engine = null;
         config = null;
         request = null;
         response = null;
         inMessage = null;
+        outMessage = null;
         is = null;
         os = null;
         destination = null;
@@ -130,8 +138,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         destination = setUpDestination(false);
         setUpDoService(false);
         destination.doService(request, response);
-        EndpointReferenceType replyTo = getEPR(ANON_ADDR);
-        Conduit backChannel = destination.getBackChannel(inMessage, replyTo);
+        Conduit backChannel = destination.getBackChannel(inMessage, null, null);
         
         assertNotNull("expected back channel", backChannel);
         assertNull("unexpected backchannel-backchannel",
@@ -145,22 +152,57 @@ public class JettyHTTPDestinationTest extends TestCase {
         destination = setUpDestination(false);
         setUpDoService(false, true);
         destination.doService(request, response);
-        EndpointReferenceType replyTo = getEPR(ANON_ADDR);
-        Conduit backChannel = destination.getBackChannel(inMessage, replyTo);
-        Message outMessage = setUpOutMessage();
+        Conduit backChannel =
+            destination.getBackChannel(inMessage, null, null);
+        outMessage = setUpOutMessage();
         backChannel.send(outMessage);
-        verifyBackChannelSend(outMessage, 200);
+        verifyBackChannelSend(backChannel, outMessage, 200);
     }
 
     public void testGetBackChannelSendFault() throws Exception {
         destination = setUpDestination(false);
         setUpDoService(false, true);
         destination.doService(request, response);
-        EndpointReferenceType replyTo = getEPR(ANON_ADDR);
-        Conduit backChannel = destination.getBackChannel(inMessage, replyTo);
-        Message outMessage = setUpOutMessage();
+        Conduit backChannel =
+            destination.getBackChannel(inMessage, null, null);
+        outMessage = setUpOutMessage();
         backChannel.send(outMessage);
-        verifyBackChannelSend(outMessage, 500);
+        verifyBackChannelSend(backChannel, outMessage, 500);
+    }
+    
+    public void testGetBackChannelSendOneway() throws Exception {
+        destination = setUpDestination(false);
+        setUpDoService(false, true);
+        destination.doService(request, response);
+        Conduit backChannel =
+            destination.getBackChannel(inMessage, null, null);
+        outMessage = setUpOutMessage();
+        backChannel.send(outMessage);
+        verifyBackChannelSend(backChannel, outMessage, 500, true);
+    }
+
+    public void testGetBackChannelSendDecoupled() throws Exception {
+        destination = setUpDestination(false);
+        replyTo = getEPR(NOWHERE + "response/foo");
+        setUpDoService(false, true, true);
+        destination.doService(request, response);
+        
+        Message partialResponse = setUpOutMessage();
+        Conduit partialBackChannel =
+            destination.getBackChannel(inMessage, partialResponse, replyTo);
+        assertEquals("unexpected response code",
+                     202,
+                     partialResponse.get(HTTP_RESPONSE_CODE));
+        partialBackChannel.send(partialResponse);
+        verifyBackChannelSend(partialBackChannel, partialResponse, 202);
+
+        outMessage = setUpOutMessage();
+        Conduit fullBackChannel =
+            destination.getBackChannel(inMessage, null, replyTo);
+        assertSame("unexpected back channel",
+                   fullBackChannel,
+                   decoupledBackChannel);
+        fullBackChannel.send(outMessage);
     }
 
     private JettyHTTPDestination setUpDestination()
@@ -172,6 +214,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         throws Exception {
         address = getEPR("foo/bar");
         bus = control.createMock(Bus.class);
+        conduitInitiator = control.createMock(ConduitInitiator.class);
         engine = control.createMock(ServerEngine.class);
         config = control.createMock(HTTPDestinationConfiguration.class);
         config.getAddress();
@@ -185,8 +228,11 @@ public class JettyHTTPDestinationTest extends TestCase {
         policy = new HTTPServerPolicy();   
         control.replay();
         
-        JettyHTTPDestination dest =
-            new JettyHTTPDestination(bus, address, engine, config);
+        JettyHTTPDestination dest = new JettyHTTPDestination(bus,
+                                                             conduitInitiator,
+                                                             address,
+                                                             engine,
+                                                             config);
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
@@ -210,6 +256,15 @@ public class JettyHTTPDestinationTest extends TestCase {
 
     private void setUpDoService(boolean setRedirectURL,
                                 boolean sendResponse) throws Exception {
+        setUpDoService(setRedirectURL,
+                       sendResponse,
+                       false);
+    }        
+    
+    private void setUpDoService(boolean setRedirectURL,
+                                boolean sendResponse,
+                                boolean decoupled) throws Exception {
+
         control.verify();
         control.reset();
 
@@ -258,18 +313,26 @@ public class JettyHTTPDestinationTest extends TestCase {
             //    EasyMock.expectLastCall();                
             //}
         }
+        
+        if (decoupled) {
+            decoupledBackChannel = EasyMock.createMock(Conduit.class);
+            conduitInitiator.getConduit(EasyMock.eq(replyTo));
+            EasyMock.expectLastCall().andReturn(decoupledBackChannel);
+            decoupledBackChannel.send(EasyMock.eq(outMessage));
+            EasyMock.expectLastCall();
+        }
         control.replay();
     }
     
     private Message setUpOutMessage() {
-        Message outMessage = new MessageImpl();
-        outMessage.putAll(inMessage);
-        return outMessage;
+        Message outMsg = new MessageImpl();
+        outMsg.putAll(inMessage);
+        return outMsg;
     }
     
-    private void setUpResponseHeaders(Message outMessage) {
+    private void setUpResponseHeaders(Message outMsg) {
         Map<String, List<String>> responseHeaders =
-            CastUtils.cast((Map<?, ?>)outMessage.get(HTTP_RESPONSE_HEADERS));
+            CastUtils.cast((Map<?, ?>)outMsg.get(HTTP_RESPONSE_HEADERS));
         assertNotNull("expected response headers", responseHeaders);
         List<String> challenges = new ArrayList<String>();
         challenges.add(BASIC_CHALLENGE);
@@ -348,9 +411,9 @@ public class JettyHTTPDestinationTest extends TestCase {
                      inMessage.get(BindingProvider.PASSWORD_PROPERTY));
     }
     
-    private void verifyResponseHeaders(Message outMessage) throws Exception {
+    private void verifyResponseHeaders(Message outMsg) throws Exception {
         Map<String, List<String>> responseHeaders =
-            CastUtils.cast((Map<?, ?>)outMessage.get(HTTP_RESPONSE_HEADERS));
+            CastUtils.cast((Map<?, ?>)outMsg.get(HTTP_RESPONSE_HEADERS));
         assertNotNull("expected response headers",
                       responseHeaders);
         assertEquals("expected addField",
@@ -369,10 +432,21 @@ public class JettyHTTPDestinationTest extends TestCase {
                    challenges.contains(CUSTOM_CHALLENGE));
     }
     
-    private void verifyBackChannelSend(Message outMessage, int status) throws Exception {
+    private void verifyBackChannelSend(Conduit backChannel,
+                                       Message outMsg,
+                                       int status) throws Exception {
+        verifyBackChannelSend(backChannel, outMsg, status, false);
+    }
+    
+    private void verifyBackChannelSend(Conduit backChannel,
+                                       Message outMsg,
+                                       int status,
+                                       boolean oneway) throws Exception {
+        assertTrue("unexpected back channel type",
+                   backChannel instanceof JettyHTTPDestination.BackChannelConduit);
         assertTrue("unexpected content formats",
-                   outMessage.getContentFormats().contains(OutputStream.class));
-        OutputStream responseOS = outMessage.getContent(OutputStream.class);
+                   outMsg.getContentFormats().contains(OutputStream.class));
+        OutputStream responseOS = outMsg.getContent(OutputStream.class);
         assertNotNull("expected output stream", responseOS);
         assertTrue("unexpected output stream type",
                    responseOS instanceof AbstractWrappedOutputStream);
@@ -380,10 +454,10 @@ public class JettyHTTPDestinationTest extends TestCase {
                      1,
                      response.getCommitCallCount());
         
-        outMessage.put(HTTP_RESPONSE_CODE, status);          
+        outMsg.put(HTTP_RESPONSE_CODE, status);          
         responseOS.write(PAYLOAD.getBytes());
         
-        setUpResponseHeaders(outMessage);
+        setUpResponseHeaders(outMsg);
         
         OutputStream underlyingOS =
             ((AbstractWrappedOutputStream)responseOS).getOut();
@@ -392,6 +466,9 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertEquals("expected getOutputStream",
                      0,
                      response.getOutputStreamCallCount());
+        if (oneway) {
+            outMsg.put(ONEWAY_MESSAGE, Boolean.TRUE);
+        }
         responseOS.flush();
         assertEquals("expected setStatus",
                      1,
@@ -404,19 +481,27 @@ public class JettyHTTPDestinationTest extends TestCase {
                          "Fault+Occurred",
                          response.getReason());
         }
-        verifyResponseHeaders(outMessage);
+        verifyResponseHeaders(outMsg);
         assertEquals("expected getOutputStream",
                      1,
                      response.getOutputStreamCallCount());
         underlyingOS = ((AbstractWrappedOutputStream)responseOS).getOut();
         assertFalse("unexpected underlying output stream type: " + underlyingOS.getClass(),
                     underlyingOS instanceof ByteArrayOutputStream);
-
-        responseOS.close();
         assertEquals("expected commit",
-                     2,
+                     oneway ? 2 : 1,
                      response.getCommitCallCount());
-
+        if (oneway) {
+            assertNull("unexpected HTTP response",
+                       outMsg.get(JettyHTTPDestination.HTTP_RESPONSE));
+        } else {
+            assertNotNull("expected HTTP response",
+                           outMsg.get(JettyHTTPDestination.HTTP_RESPONSE));
+            responseOS.close();
+            assertEquals("expected commit",
+                         2,
+                         response.getCommitCallCount());
+        }
     }
 
     /**

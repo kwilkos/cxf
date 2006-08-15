@@ -215,6 +215,11 @@ public class HTTPConduitTest extends TestCase {
         os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
         EasyMock.expectLastCall();
         
+        os.flush();
+        EasyMock.expectLastCall();
+        os.close();
+        EasyMock.expectLastCall();
+        
         connection.getHeaderFields();
         EasyMock.expectLastCall().andReturn(Collections.EMPTY_MAP);
         if (connection instanceof HttpURLConnection) {
