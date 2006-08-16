@@ -28,6 +28,7 @@ public class Phase {
     public static final String PROTOCOL = "protocol";
     public static final String UNMARSHAL = "unmarshal";
     public static final String PRE_INVOKE = "pre-invoke";
+    public static final String INVOKE = "invoke";
     
     
     private String name;

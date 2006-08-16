@@ -15,7 +15,8 @@ import org.w3c.dom.Element;
 import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class MustUnderstandInterceptorTest extends TestBase {
@@ -83,9 +84,12 @@ public class MustUnderstandInterceptorTest extends TestBase {
         dsi.getUnderstoodHeaders().add(RESERVATION);
         ServiceInfo serviceInfo = getMockedServiceModel(getClass().getResource("test-soap-header.wsdl")
             .toString());
-        soapMessage.put(Message.BINDING_INFO, serviceInfo
-            .getBinding(new QName("http://org.objectweb.celtix/headers", "headerTesterSOAPBinding")));
-        soapMessage.put(Message.OPERATION_INFO, "inHeader");
+
+        BindingInfo binding = serviceInfo.getBinding(new QName("http://org.objectweb.celtix/headers",
+                                                               "headerTesterSOAPBinding"));
+        BindingOperationInfo bop = binding.getOperation(new QName("http://org.objectweb.celtix/headers",
+                                                                  "inHeader"));
+        soapMessage.getExchange().put(BindingOperationInfo.class.getName(), bop);
 
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
         assertEquals("HeaderInterceptor run correctly!", 2, soapMessage.getHeaders(Element.class)

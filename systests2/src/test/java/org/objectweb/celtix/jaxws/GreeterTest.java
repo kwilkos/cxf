@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 import junit.framework.TestCase;
 
@@ -92,9 +94,6 @@ public class GreeterTest extends TestCase {
         OutputStream os = m.getContent(OutputStream.class);
         InputStream is = getResourceAsStream("GreeterMessage.xml");
         copy(is, os, 8096);
-        
-        Thread.sleep(1000);
-
     }
 
     protected InputStream getResourceAsStream(String resource) {

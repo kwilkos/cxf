@@ -7,6 +7,7 @@ import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.invoker.Invoker;
 
@@ -16,12 +17,12 @@ import org.objectweb.celtix.service.invoker.Invoker;
  * @author Dan Diephouse
  */
 public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message> {
+   
     
-    /** The property which contains the input for the Invoker in the Exchange. */
-    public static final String INVOCATION_INPUT = "cxf.invoker.in";
-    
-    /** The property which contains the output for the Invoker in the Exchange. */
-    public static final String INVOCATION_OUTPUT = "cxf.invoker.out";
+    public ServiceInvokerInterceptor() {
+        super();
+        setPhase(Phase.INVOKE);
+    }
 
     public void handleMessage(final Message message) {
         final Exchange exchange = message.getExchange();
@@ -32,9 +33,12 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
         getExecutor(endpoint).execute(new Runnable() {
 
             public void run() {
-                Object result = invoker.invoke(message.getExchange(), exchange.get(INVOCATION_INPUT));
+                Object result = invoker.invoke(message.getExchange(), exchange.getInMessage()
+                    .getContent(Object.class));
 
-                exchange.put(INVOCATION_OUTPUT, result);
+                if (result != null) {
+                    exchange.getOutMessage().setContent(Object.class, result);
+                }
             }
 
         });

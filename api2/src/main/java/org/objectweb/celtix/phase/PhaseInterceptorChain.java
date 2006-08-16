@@ -103,7 +103,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         } catch (Exception ex) {
             if (LOG.isLoggable(Level.FINE)) {
                 ex.printStackTrace();
-                LOG.fine("interceptor has thrown exception, unwinding now");
+                LOG.fine("Interceptor has thrown exception, unwinding now");
             }
             message.setContent(Exception.class, ex);
             while (lit.hasPrevious()) {

@@ -1,13 +1,9 @@
 package org.objectweb.celtix.jaxb;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.*;
 
-import javax.wsdl.Definition;
-import javax.wsdl.Service;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -15,29 +11,76 @@ import javax.xml.stream.XMLStreamWriter;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.Binding;
+import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.bus.CeltixBus;
+import org.objectweb.celtix.endpoint.EndpointImpl;
+import org.objectweb.celtix.interceptors.WrappedInInterceptor;
 import org.objectweb.celtix.message.Exchange;
+import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.MessageImpl;
-
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
+import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 import org.objectweb.celtix.staxutils.StaxUtils;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
+import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
+import org.objectweb.hello_world_soap_http.Greeter;
+
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createNiceControl;
 
 public class TestBase extends TestCase {
 
-    protected PhaseInterceptorChain chain;
-    protected MessageImpl message;
-    
+    PhaseInterceptorChain chain;
+    MessageImpl message;
+    Bus bus;
+    ServiceInfo serviceInfo;
+    BindingInfo bindingInfo;
+    Service service;
+    EndpointInfo endpointInfo;
+    EndpointImpl endpoint;
+    BindingOperationInfo operation;
+
     public void setUp() throws Exception {
+        bus = new CeltixBus();
+
+        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
+
+        IMocksControl control = createNiceControl();
+        BindingFactory bf = control.createMock(BindingFactory.class);
+        Binding binding = control.createMock(Binding.class);
+        expect(bf.createBinding(null)).andStubReturn(binding);
+
+        bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bf);
+
+        String ns = "http://objectweb.org/hello_world_soap_http";
+        WSDLServiceFactory factory = new WSDLServiceFactory(bus, getClass()
+            .getResource("/org/objectweb/celtix/jaxb/resources/wsdl/hello_world.wsdl"),
+                                                            new QName(ns, "SOAPService"));
+
+        service = factory.create();
+        endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "SoapPort"));
+        endpoint = new EndpointImpl(bus, service, endpointInfo);
+        service.setDataReaderFactory(getTestReaderFactory(Greeter.class));
+        service.setDataWriterFactory(getTestWriterFactory(Greeter.class));
+
+        operation = endpointInfo.getBinding().getOperation(new QName(ns, "greetMe"));
+        operation.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
+
         message = new MessageImpl();
         Exchange exchange = new ExchangeImpl();
         message.setExchange(exchange);
+
+        exchange.put(ExchangeConstants.SERVICE, service);
+        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
+        exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
     }
 
     public void tearDown() throws Exception {
@@ -63,45 +106,7 @@ public class TestBase extends TestCase {
             }
         }
         return null;
-    }    
-
-    protected BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
-        ServiceInfo service = getMockedServiceModel(getClass().getResource(wsdlUrl).toString());
-        assertNotNull(service);
-        BindingInfo binding = service.getEndpoint(new QName(service.getName().getNamespaceURI(), port))
-            .getBinding();
-        assertNotNull(binding);
-        return binding;
     }
-
-    protected ServiceInfo getMockedServiceModel(String wsdlUrl) throws Exception {
-        WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
-        wsdlReader.setFeature("javax.wsdl.verbose", false);
-        Definition def = wsdlReader.readWSDL(wsdlUrl);
-
-        IMocksControl control = EasyMock.createNiceControl();
-        Bus bus = control.createMock(Bus.class);
-        BindingFactoryManager bindingFactoryManager = control.createMock(BindingFactoryManager.class);
-        WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
-
-        Service service = null;
-        for (Iterator<?> it = def.getServices().values().iterator(); it.hasNext();) {
-            Object obj = it.next();
-            if (obj instanceof Service) {
-                service = (Service)obj;
-                break;
-            }
-        }
-
-        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
-        control.replay();
-
-        ServiceInfo serviceInfo = wsdlServiceBuilder.buildService(def, service);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
-        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        return serviceInfo;
-    }
-    
 
     protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);

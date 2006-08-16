@@ -1,7 +1,7 @@
 package org.objectweb.celtix.jaxb;
 
-import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
@@ -9,6 +9,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
+
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.jaxb.io.EventDataReader;
 import org.objectweb.celtix.jaxb.io.NodeDataReader;

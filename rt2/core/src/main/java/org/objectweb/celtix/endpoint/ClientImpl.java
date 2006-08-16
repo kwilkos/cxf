@@ -13,6 +13,7 @@ import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.interceptors.MessageSenderInterceptor;
 import org.objectweb.celtix.message.Exchange;
+import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.messaging.Conduit;
@@ -51,6 +52,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             exchange.putAll(ctx);
         }
         exchange.setOutMessage(message);        
+        // TODO: Set BindingOperationInfo here on exchange
         setExchangeProperties(exchange, ctx);
         message.setExchange(exchange);
 
@@ -135,13 +137,12 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     
     
     protected void setOutMessageProperties(Message message, OperationInfo oi) {
-        message.put(Message.OPERATION_INFO, oi);
-        message.put(Message.BINDING, endpoint.getBinding());
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
     }
     
     protected void setExchangeProperties(Exchange exchange, Map<String, Object> ctx) {
-        // no-op
+        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
+        exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
     }
     
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {

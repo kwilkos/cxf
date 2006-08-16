@@ -1,93 +1,103 @@
 package org.objectweb.celtix.interceptors;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
+import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.databinding.DataReaderFactory;
+import org.objectweb.celtix.jaxb.WrapperHelper;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.objectweb.celtix.service.model.MessageInfo;
+import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceModelUtil;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
-public class WrappedInInterceptor extends AbstractPhaseInterceptor<Message> {
-
+public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
+    public static final String SINGLE_WRAPPED_PART = "single.wrapped.part";
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
+    
     public WrappedInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
     }
 
     public void handleMessage(Message message) {
-        try {
-            DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
+        DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
 
-            // Trying to find the operation name.
-            // If it's empty, then, we should resolve it from the message.
-            String opName = (String) message.get(Message.INVOCATION_OPERATION);
-            if (opName == null) {
-                if (!StaxUtils.toNextElement(xmlReader)) {
-                    message.setContent(Exception.class,
-                                       new RuntimeException("There must be a method name element."));
-                }
-            
-                opName = xmlReader.getLocalName();
-                if (!isInboundMessage(message) && opName.endsWith("Response")) {
-                    opName = opName.substring(0, opName.length() - 8);
-                }
-            }
+        // Trying to find the operation name from the XML.
+        if (xmlReader.getEventType() != XMLStreamConstants.START_ELEMENT
+            && !StaxUtils.toNextElement(xmlReader)) {
+            throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
+        }
+    
+        boolean inbound = isInboundMessage(message);
+        String opName = xmlReader.getLocalName();
+        if (!inbound && opName.endsWith("Response")) {
+            opName = opName.substring(0, opName.length() - 8);
+        }
+
+        // TODO: Allow overridden methods.
+        BindingOperationInfo operation = ServiceModelUtil.getOperation(message.getExchange(), opName);
+        if (operation == null) {
+            throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
+        }
+        message.getExchange().put(BindingOperationInfo.class.getName(), operation);
         
-            // Store the operation name.
-            message.put(Message.INVOCATION_OPERATION, opName);
-
-            BindingOperationInfo operation = ServiceModelUtil.getOperation(message, opName);
-            if (operation == null) {
-                message.setContent(Exception.class,
-                                   new RuntimeException("Could not find operation:"
-                                                        + opName
-                                                        + " from the service model!"));
-            }
+        DataReader<XMLStreamReader> dr = getDataReader(message);
+        List<Object> objects;
         
-            DataReader<XMLStreamReader> dr = getDataReader(message, operation.getOperationInfo());
-
+        // Determine if there is a wrapper class
+        if (Boolean.TRUE.equals(operation.getProperty(SINGLE_WRAPPED_PART))) {
             Object wrappedObject = dr.read(xmlReader);
             
-            message.put(Message.INVOCATION_OBJECTS, Arrays.asList(wrappedObject));
+            // Find the appropriate message that we're processing
+            OperationInfo unwrappedOp = operation.getOperationInfo().getUnwrappedOperation();
+            MessageInfo messageInfo;
+            if (inbound) {
+                messageInfo = unwrappedOp.getInput();
+            } else {
+                messageInfo = unwrappedOp.getOutput();
+            }
             
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Read parameter failed");
-        }  
-    }
-
-    protected boolean isInboundMessage(Message message) {
-        return message.containsKey(Message.INBOUND_MESSAGE);
-    }
-
-    protected DataReader<XMLStreamReader> getDataReader(Message message, OperationInfo oi) {
-        String key = (String) message.getExchange().get(Message.DATAREADER_FACTORY_KEY);
-        DataReaderFactory factory = (DataReaderFactory) oi.getProperty(key);
-
-        DataReader<XMLStreamReader> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == XMLStreamReader.class) {
-                dataReader = factory.createReader(XMLStreamReader.class);
-                break;
+            objects = getWrappedParts(wrappedObject, messageInfo);
+        } else {
+            // Unwrap each part individually if we don't have a wrapper
+            objects = new ArrayList<Object>();
+            int depth = xmlReader.getDepth();
+            
+            try {
+                while (xmlReader.nextTag() == XMLStreamReader.START_ELEMENT && xmlReader.getDepth() > depth) {
+                    objects.add(dr.read(xmlReader));
+                }
+            } catch (XMLStreamException e) {
+                throw new Fault(new org.objectweb.celtix.common.i18n.Message("STAX_READ_EXC", BUNDLE), e);
             }
         }
-        if (dataReader == null) {
-            message.setContent(Exception.class,
-                               new RuntimeException("Could not figure out how to unmarshal data"));
-        }        
-        return dataReader;
+        
+        message.setContent(Object.class, objects);
     }
-    
-    private DepthXMLStreamReader getXMLStreamReader(Message message) {
-        XMLStreamReader xr = message.getContent(XMLStreamReader.class);
-        return new DepthXMLStreamReader(xr);
+
+    private List<Object> getWrappedParts(Object wrappedObject, MessageInfo message) {
+        List<Object> objects = new ArrayList<Object>();
+        
+        try {
+            for (MessagePartInfo part : message.getMessageParts()) {
+                objects.add(WrapperHelper.getWrappedPart(part.getName().getLocalPart(), wrappedObject));
+            }
+        } catch (Exception e) {
+            throw new Fault(new org.objectweb.celtix.common.i18n.Message("COULD_NOT_UNRWAP", BUNDLE), e);
+        }
+
+        return objects;
     }
 }
 

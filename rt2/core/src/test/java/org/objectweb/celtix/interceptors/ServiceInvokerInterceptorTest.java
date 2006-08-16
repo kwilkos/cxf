@@ -23,18 +23,21 @@ public class ServiceInvokerInterceptorTest extends TestCase {
         MessageImpl m = new MessageImpl();
         Exchange exchange = new ExchangeImpl();
         m.setExchange(exchange);
+        exchange.setInMessage(m);
+        
+        exchange.setOutMessage(new MessageImpl());
         
         TestInvoker i = new TestInvoker();
         Endpoint endpoint = createEndpoint(i);
         exchange.put(ExchangeConstants.ENDPOINT, endpoint);
         Object input = new Object();
-        exchange.put(ServiceInvokerInterceptor.INVOCATION_INPUT, input);
+        m.setContent(Object.class, input);
         
         intc.handleMessage(m);
         
         assertTrue(i.invoked);
         
-        Object object = exchange.get(ServiceInvokerInterceptor.INVOCATION_OUTPUT);
+        Object object = exchange.getOutMessage().getContent(Object.class);
         assertEquals(input, object);
     }
     

@@ -1,7 +1,7 @@
 package org.objectweb.celtix.jaxb;
 
-import java.io.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamWriter;
@@ -9,6 +9,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
+
 import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.jaxb.io.EventDataWriter;
 import org.objectweb.celtix.jaxb.io.NodeDataWriter;

@@ -3,6 +3,7 @@ package org.objectweb.celtix.messaging;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
+import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
@@ -23,6 +24,10 @@ public class ChainInitiationObserver implements MessageObserver {
         Exchange exchange = new ExchangeImpl();
         exchange.setInMessage(message);
         message.setExchange(exchange);
+        
+        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
+        exchange.put(ExchangeConstants.SERVICE, endpoint.getService());
+        exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
         
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)

@@ -46,13 +46,14 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private void initServiceSideInfo(Set<QName> mustUnderstandQNames, SoapMessage soapMessage,
+    private void initServiceSideInfo(Set<QName> mustUnderstandQNames, 
+                                     SoapMessage soapMessage,
                                      Set<URI> serviceRoles) {
-
-        Set<QName> paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
-        if (paramHeaders != null) {
-            mustUnderstandQNames.addAll(paramHeaders);
-        }
+// 
+//        Set<QName> paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
+//        if (paramHeaders != null) {
+//            mustUnderstandQNames.addAll(paramHeaders);
+//        }
         for (Interceptor interceptorInstance : soapMessage.getInterceptorChain()) {
             if (interceptorInstance instanceof SoapInterceptor) {
                 SoapInterceptor si = (SoapInterceptor)interceptorInstance;

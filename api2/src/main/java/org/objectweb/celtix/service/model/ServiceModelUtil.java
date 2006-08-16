@@ -2,24 +2,31 @@ package org.objectweb.celtix.service.model;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.message.Exchange;
+import org.objectweb.celtix.message.ExchangeConstants;
+import org.objectweb.celtix.service.Service;
 
 public final class ServiceModelUtil {
 
     private ServiceModelUtil() {
     }
 
-    public static String getTargetNamespace(Message message) {
-        return ((BindingInfo) message.get(Message.BINDING_INFO)).getService().getTargetNamespace();
+    public static Service getService(Exchange exchange) {
+        return (Service)exchange.get(ExchangeConstants.SERVICE);
     }
     
-    public static BindingOperationInfo getOperation(Message message, String opName) {
-        BindingInfo service = (BindingInfo)message.get(Message.BINDING_INFO);
-        return service.getOperation(new QName(getTargetNamespace(message), opName));
+    public static String getTargetNamespace(Exchange exchange) {
+        return getService(exchange).getServiceInfo().getTargetNamespace();
+    }
+    
+    public static BindingOperationInfo getOperation(Exchange exchange, String opName) {
+        return getOperation(exchange, new QName(getTargetNamespace(exchange), opName));
     }
 
-    public static BindingOperationInfo getOperation(Message message, QName opName) {
-        BindingInfo service = (BindingInfo)message.get(Message.BINDING_INFO);
+    public static BindingOperationInfo getOperation(Exchange exchange, QName opName) {
+        Endpoint ep = (Endpoint) exchange.get(ExchangeConstants.ENDPOINT);
+        BindingInfo service = ep.getEndpointInfo().getBinding();
         return service.getOperation(opName);
     }
 

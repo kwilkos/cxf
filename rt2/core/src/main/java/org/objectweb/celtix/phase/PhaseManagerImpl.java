@@ -43,6 +43,7 @@ public class PhaseManagerImpl implements PhaseManager {
         inPhases.add(new Phase(Phase.USER_LOGICAL, ++i * 1000));
         inPhases.add(new Phase(Phase.POST_LOGICAL, ++i * 1000));
         inPhases.add(new Phase(Phase.PRE_INVOKE, ++i * 1000));
+        inPhases.add(new Phase(Phase.INVOKE, ++i * 1000));
         // Collections.sort(inPhases);
     }
     

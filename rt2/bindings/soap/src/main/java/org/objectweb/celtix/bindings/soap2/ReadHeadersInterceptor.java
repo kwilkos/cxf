@@ -43,14 +43,16 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                     }
                 }
             }
-
+            
             if (found) {
                 DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder builder = null;
-                builder = builderFactory.newDocumentBuilder();
+                DocumentBuilder builder = builderFactory.newDocumentBuilder();
                 Document doc = builder.newDocument();
                 addHeaderElementIntoDoc(xmlReader, message, doc);
+                
             }
+
+            xmlReader.nextTag();
         } catch (XMLStreamException e) {
             throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, SoapFault.SENDER);
         } catch (ParserConfigurationException e) {

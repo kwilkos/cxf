@@ -102,4 +102,26 @@ public final class WrapperHelper {
         }
         return null;
     }
+
+
+    public static Object getWrappedPart(String partName, Object wrapperType)
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
+
+        // TODO: There must be a way to determine the class by inspecting wrapperType
+        // if (partClazz.equals(boolean.class) ||
+        // partClazz.equals(Boolean.class)) {
+        // //JAXB Exception to get the Boolean property
+        // accessor = accessor.replaceFirst("get", "is");
+        //        }
+        
+        for (Method method : wrapperType.getClass().getMethods()) {
+            if (method.getParameterTypes().length == 0
+                && accessor.equals(method.getName())) {
+
+                return method.invoke(wrapperType);
+            }
+        }
+        return null;
+    }
 }
