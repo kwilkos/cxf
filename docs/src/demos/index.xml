@@ -46,7 +46,16 @@
             CeltiXfire and the ActiveBPEL engine, which uses Axis as its underlying Web services toolkit.
           </td>
         </tr>
-    </table>
+        <tr>
+          <td>
+            <a href="#mashup">Enterprise Mashup</a>
+          </td>
+          <td>
+            This demo shows how Celtix can be used to build an enterprise quality mashup. It uses PHP, MySQL, and Celtix to 
+			consume data from a database and generate a series of XML documents that are consumable by AJAX client.
+          </td>
+        </tr>
+		</table>
 	</section>
     <section>
       <title>Detailed Descriptions</title>
@@ -117,6 +126,38 @@ Please read the readme.txt file for more information on running the demo.
     <ul>
       <li>Overview (<a href="./bepl/celtix_activeBPEL_integration.pdf">pdf</a>)</li>
       <li>Source (<a href="./bepl/celtix_activeBPEL_integration.zip">zip</a>)</li>
+    </ul>
+	</section>
+	<section id="mashup">
+    <title>Enterprise Mashup</title>
+    <p><strong>Prerequisites:</strong></p> 
+    <ul>
+      <li>Celtix 1.0 (<a href="http://celtix.objectweb.net">celtix.objectweb.net</a>)</li>
+      <li>Java JDK 1.5.0 (<a href="http://java.sun.com">java.sun.com</a>)</li> 
+      <li>MySQL Database Ver 14.7 Distrib 4.1.13 (<a href="http://www.mysql.com">www.mysql.com</a>)</li>
+      <li>MySQL Connector/J JDBC Driver 3.1.13 (<a href="http://www.mysql.com">www.mysql.com</a>)</li>
+      <li>Apache Webserver 2.0 (<a href="http://www.apache.org">www.apache.org</a>)</li>
+      <li>PHP 5.0 (Previous versions should work) (<a href="http://www.apache.org">www.php.net</a>)</li>
+      <li>NuSoap (<a href="http://sourceforge.net/projects/nusoap">sourceforge.net/projects/nusoap</a>)</li>
+      <li>Google Maps key for your server (<a href="http://www.google.com/apis/maps/signup.html">www.google.com/apis/maps/signup.html</a>)</li>
+    </ul>
+	<p>
+      <strong>Description:</strong> This demo is intended to model an applicaiton that could be used by a 
+	  call center employee. It takes phone numbers from a database and 
+	  displays a Google map containing a markers that show the zip codes for 
+	  the phone numbers. In addition, it displays the number of calls from each 
+	  zip code. To do this it makes calls to NetSleuth.com to find the zip 
+	  codes and to Google Maps for a lat/lon pair for each zip code.
+	  <br />For a more complete description see: <a href="http://www.hautetechno.net/2006/08/post.html">www.hautetechno.net</a>
+    </p>
+    <p><strong>Contributed by:</strong> Barry O'Mahony</p>
+    <p><strong>Created:</strong> 15 August 2006</p>
+    <p><strong>Last updated:</strong> 15 August 2006</p>
+    <p><strong>Tested with:</strong> Celtix 1.0</p>
+    <p><strong>Download:</strong></p>
+    <ul>
+      <li>Overview (<a href="./mashup/celtix_mashup.pdf">pdf</a>)</li>
+      <li>Source (<a href="./mashup/celtix_mashup_demo.tar.gz">gzip</a>)</li>
     </ul>
 	</section>
 	  </section>

@@ -9,7 +9,7 @@
     make a document more readable. Often, they also help clarify abstract
     concepts.</para>
 
-    <para>In the CeltiXfire documentation figures, diagrams, and screen shots
+    <para>In the CeltiXfire(CXF) documentation figures, diagrams, and screen shots
     contain images stored in external files. They are denoted using one of two
     elements: <sgmltag class="element">figure</sgmltag> or <sgmltag
     class="element">screenshot</sgmltag>. The <sgmltag
@@ -21,7 +21,7 @@
   <section>
     <title>Image Data</title>
 
-    <para>The prefered data format for images in CeltiXfire documentation is
+    <para>The prefered data format for images in CXF documentation is
     GIF. However, images can be accepted in the following formats:</para>
 
     <itemizedlist>
@@ -42,7 +42,7 @@
   <section>
     <title>Figures and Diagrams</title>
 
-    <para>Figures and diagrams are marked up the same way in the CeltiXfire
+    <para>Figures and diagrams are marked up the same way in the CXF
     documentation. They are both placed in a <sgmltag
     class="element">figure</sgmltag> element. The <sgmltag
     class="element">figure</sgmltag> element is a container for the caption
@@ -185,7 +185,7 @@
     <title>Adding Alternate Text</title>
 
     <para>Images on the Web should all have alternative text, so when using a
-    graphic in CeltiXfire documentation you will need to add mark-up to
+    graphic in CXF documentation you will need to add mark-up to
     specify the alternate text.</para>
 
     <para>To put alternative text with a graphic you add a <sgmltag

@@ -4,13 +4,13 @@
   <section>
     <title>Overview</title>
     <para>There are several instances when you will need to code in the
-    CeltiXfire documentation. You may need to use a class name, interface
+    CeltiXfire(CXF) documentation. You may need to use a class name, interface
     name, or element name as part of a sentence. You will also need to provide
     long code samples in many places. Docbook has a number of elements that
     are used for placing code in your documentation. </para>
     <note>
       <para>XML mark-up, such as WSDL and XMLSchema, are also considered code
-      for the purposes of CeltiXfire documentation.</para>
+      for the purposes of CXF documentation.</para>
     </note>
   </section>
   <section>
@@ -76,7 +76,7 @@
           <para>Use a <sgmltag class="element">programlisting</sgmltag> element</para>
         </listitem>
       </itemizedlist>
-      <para>In terms of the generated output, there is no difference between the two approaches. The real difference is in the complexity of the mark-up and the formality of the structure you wish to use. In the CeltiXfire documentation, the preferred method is to simply use the <sgmltag class="element">programlisting</sgmltag> element. However, if you feel that a code block needs to be wrapped in an <sgmltag class="element">informalexample</sgmltag> element, that is fine.</para>
+      <para>In terms of the generated output, there is no difference between the two approaches. The real difference is in the complexity of the mark-up and the formality of the structure you wish to use. In the CXF documentation, the preferred method is to simply use the <sgmltag class="element">programlisting</sgmltag> element. However, if you feel that a code block needs to be wrapped in an <sgmltag class="element">informalexample</sgmltag> element, that is fine.</para>
       <para><xref linkend="block_example"/> shows the mark-up for a standalone block of code.</para>
       <example id="block_example">
         <title>Example Code Block</title>
@@ -89,9 +89,9 @@
       </example>
     </section>
   </section>
-  <section>
+  <section id="prog_arts">
     <title>In-line Code</title>
-    <para>There are many instances where you need to place a code artifact in a block of text such as when you are referring to a Java class or an XML element. Docbook has a number of specialized elements for placing code artifacts in-line. The ones used in CeltiXfire include:</para>
+    <para>There are many instances where you need to place a code artifact in a block of text such as when you are referring to a Java class or an XML element. Docbook has a number of specialized elements for placing code artifacts in-line. The ones used in CXF include:</para>
     <itemizedlist>
       <listitem>
         <para><sgmltag class="element">sgmltag</sgmltag></para>
@@ -150,7 +150,7 @@
     </section>
     <section>
       <title>General Programming Language Artifacts</title>
-      <para>Docbook defines a number of in-line tags for specifying programming artifacts. The CeltiXfire documentation makes use of the tags listed in <xref linkend="progarti"/>.</para>
+      <para>Docbook defines a number of in-line tags for specifying programming artifacts. The CXF documentation makes use of the tags listed in <xref linkend="progarti"/>.</para>
       <table id="progarti" frame="all">
         <title>Elements for In-Line Programming Artifacts</title>
         <tgroup cols="2">
@@ -199,7 +199,40 @@
     </section>
     <section>
       <title>Object Oriented Programming Language Artifacts</title>
-      <para>This is all of the programing things like interface name and classname.</para>
+      <para>In addition to the elements listed in <xref linkend="prog_arts"/>, Docbook defines three elements that are used specifically for object-oriented programming artifacts. They are listed in <xref linkend="oo_arts"/>.</para>
+      <table frame="all" id="oo_arts">
+        <title>Elements for In-Line OO Programming Artifacts</title>
+        <tgroup cols="2">
+          <colspec colnum="1" colname="c1" colwidth="1.5in"/>
+          <colspec colnum="2" colname="c2"/>
+          <thead>
+            <row>
+              <entry>Element</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <sgmltag class="element">interfacename</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java interface the user must implement.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">classname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java class or an instantiated object.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">methodname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a method. Methods are different from functions in that methods are associated with classes and objects.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
     </section>
   </section>
   <section>

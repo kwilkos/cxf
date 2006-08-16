@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter>
+  <title>Admonitions</title>
+  <section>
+    <title>Overview</title>
+    <para>Admonitions are pieces of text that are offset from the main flow of text. They include 
+	      things like warnings, notes, and tips. They should be used sparingly because they 
+		  interupt the flow of the text. However, if you think one is needed, use one.</para>
+	<para>As a general rule, warnings and notes are the <emphasis role="strong">prefered</emphasis> 
+	      admonitions in CFX documentation. That does not mean the use of the other types are 
+		  prohibited. It only means that they should be used with caution.</para>
+  </section>
+  <section>
+    <title>Warnings</title>
+	<para>Warnings are used to callout instances where a serious loss of data could occur. The 
+	      text of the warning should make it clear what will cause the data loss and what data 
+		  is at risk. For example, if using a value greater than 1 million will cause a method 
+		  invocation to return garbage, you should use a warning to mention this.</para>
+	<para>Warnings are marked up using a <sgmltag class="element">warning</sgmltag> element. The 
+	      <sgmltag class="element">warning</sgmltag> element should contain a single 
+		  <sgmltag class="element">para</sgmltag> element that contains the text for the warning.</para>
+	<para>The <sgmltag class="element">warning</sgmltag> element can, however, contain more than one 
+	      paragraph, a code listing, or a table. These are exceptions that are to be used sparingly.</para>
+  </section>
+  <section>
+    <title>Notes</title>
+	<para>Notes are used to callout information that the reader should be aware of, but is 
+	      ancillary to the topic being discused in the main flow of the text. For example, if you 
+		  are discussing the mapping of a CORBA service from IDL to WSDL and want to reference the
+		  official IDL to WSDL mapping, you might put the reference in a note.</para>
+	<para>Notes are marked up using a <sgmltag class="element">note</sgmltag> element. Like the 
+	      <sgmltag class="element">warning</sgmltag> element, the <sgmltag class="element">note</sgmltag> 
+		  element should contain a single <sgmltag class="element">para</sgmltag> element that 
+		  contains the text for the warning. The <sgmltag class="element">note</sgmltag> element 
+		  can also contain more than one paragraph, a code listing, or a table.</para>
+  </section>
+</chapter>

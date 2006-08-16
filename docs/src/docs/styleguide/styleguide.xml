@@ -8,14 +8,16 @@
 <!ENTITY chap4 SYSTEM "tables.xml">
 <!ENTITY chap5 SYSTEM "figures.xml">
 <!ENTITY chap6 SYSTEM "programing.xml">
+<!ENTITY chap7 SYSTEM "admon.xml">
 ]>
 
 <book>
-  <title>CeltiXfire Style Guide</title>
+  <title>CeltixXfire(CXF) Style Guide</title>
 &chap1;
 &chap2;
 &chap3;
 &chap4;
 &chap5;
 &chap6;
+&chap7;
 </book>
