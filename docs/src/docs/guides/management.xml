@@ -298,7 +298,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
 
                 <entry>Specifies if the WorkQueue is empty.</entry>
 
-                <entry><type>Boolean<type></entry>
+                <entry><type>Boolean</type></entry>
 
                 <entry>R</entry>
               </row>
