@@ -230,12 +230,13 @@ public class HandlerChainInvoker {
         return continueProcessing;        
     }    
 
+    @SuppressWarnings("unchecked")
     private boolean invokeHandleFault(List<? extends Handler> handlerChain, MessageContext ctx) {
         
         boolean continueProcessing = true; 
 
         try {
-            for (Handler<MessageContext> h : handlerChain) {
+            for (Handler h : handlerChain) {
                 if (invokeThisHandler(h)) {
                     closeHandlers.add(h);
                     continueProcessing = h.handleFault(ctx);
