@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
@@ -21,6 +22,12 @@ import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class RPCInInterceptor extends AbstractSoapInterceptor {
         
+
+    public RPCInInterceptor() {
+        super();
+        setPhase(Phase.UNMARSHAL);
+    }
+
     private BindingOperationInfo getOperation(SoapMessage message, DepthXMLStreamReader xmlReader) {
         if (!StaxUtils.toNextElement(xmlReader)) {
             message.setContent(Exception.class,

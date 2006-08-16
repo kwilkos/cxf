@@ -3,11 +3,11 @@ package org.objectweb.celtix.interceptors;
 import java.util.Arrays;
 
 import javax.xml.stream.XMLStreamReader;
-
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceModelUtil;
@@ -15,7 +15,12 @@ import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class WrappedInInterceptor extends AbstractPhaseInterceptor<Message> {
-        
+
+    public WrappedInInterceptor() {
+        super();
+        setPhase(Phase.UNMARSHAL);
+    }
+
     public void handleMessage(Message message) {
         try {
             DepthXMLStreamReader xmlReader = getXMLStreamReader(message);

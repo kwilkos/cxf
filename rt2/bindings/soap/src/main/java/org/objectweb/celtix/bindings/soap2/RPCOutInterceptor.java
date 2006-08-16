@@ -10,6 +10,7 @@ import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.databinding.DataWriterFactory;
 import org.objectweb.celtix.helpers.NSStack;
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
@@ -20,6 +21,11 @@ public class RPCOutInterceptor extends AbstractSoapInterceptor {
     
     private NSStack nsStack;
     
+    public RPCOutInterceptor() {
+        super();
+        setPhase(Phase.MARSHAL);
+    }
+
     private void init() {
         nsStack = new NSStack();
         nsStack.push();

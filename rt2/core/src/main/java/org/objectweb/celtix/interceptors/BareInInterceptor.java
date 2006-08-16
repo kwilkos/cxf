@@ -9,6 +9,7 @@ import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
@@ -18,6 +19,11 @@ import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class BareInInterceptor extends AbstractPhaseInterceptor<Message> {
+
+    public BareInInterceptor() {
+        super();
+        setPhase(Phase.UNMARSHAL);
+    }
 
     protected boolean isOperationResolved(Message message) {
         return message.get(Message.INVOCATION_OPERATION) != null;

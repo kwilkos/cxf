@@ -8,6 +8,7 @@ import org.objectweb.celtix.databinding.DataWriter;
 import org.objectweb.celtix.databinding.DataWriterFactory;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceModelUtil;
@@ -15,6 +16,11 @@ import org.objectweb.celtix.service.model.ServiceModelUtil;
 
 public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
     
+    public WrappedOutInterceptor() {
+        super();
+        setPhase(Phase.MARSHAL);
+    }
+
     public void handleMessage(Message message) {
         try {
             String opName = (String) message.get(Message.INVOCATION_OPERATION);
