@@ -19,9 +19,10 @@ import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
 
 public class BareOutInterceptorTest extends TestBase {
 
+    BareOutInterceptor interceptor;
+    
     private ByteArrayOutputStream baos;
     private XMLStreamWriter writer;
-    BareOutInterceptor interceptor;
     
     public void setUp() throws Exception {
         super.setUp();

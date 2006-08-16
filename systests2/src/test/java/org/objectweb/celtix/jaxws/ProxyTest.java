@@ -15,9 +15,10 @@ public class ProxyTest extends TestCase {
                                                 "SOAPService");   
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
                                              "SoapPort");
-
+    
+        
     public void testCreatePort() throws Exception {
-
+        
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
