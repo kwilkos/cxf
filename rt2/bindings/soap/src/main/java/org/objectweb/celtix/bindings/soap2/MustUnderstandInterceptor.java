@@ -13,10 +13,17 @@ import org.w3c.dom.Element;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.interceptors.Interceptor;
+import org.objectweb.celtix.phase.Phase;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(MustUnderstandInterceptor.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();    
+    
+    public MustUnderstandInterceptor() {
+        super();
+        setPhase(Phase.PROTOCOL);
+    }
+    
     
     public void handleMessage(SoapMessage soapMessage) {
         Set<Element> mustUnderstandHeaders = new HashSet<Element>();

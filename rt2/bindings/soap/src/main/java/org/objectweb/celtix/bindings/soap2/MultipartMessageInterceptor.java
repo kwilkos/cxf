@@ -3,6 +3,7 @@ package org.objectweb.celtix.bindings.soap2;
 import org.objectweb.celtix.jaxb.attachments.AttachmentDeserializer;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.objectweb.celtix.phase.Phase;
 
 public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -15,6 +16,12 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
      * 
      * @param messageParam
      */
+    
+    public MultipartMessageInterceptor() {
+        super();
+        setPhase(Phase.RECEIVE);
+    }
+    
     public void handleMessage(Message message) {
         
         AttachmentDeserializer ad = new AttachmentDeserializer(message);

@@ -16,11 +16,17 @@ import org.w3c.dom.Text;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
+import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);
 
+    public SoapOutInterceptor() {
+        super();
+        setPhase(Phase.WRITE);
+    }
+    
     public void handleMessage(SoapMessage soapMessage) {
         OutputStream ops = (OutputStream)soapMessage.getContent(OutputStream.class);
         try {
