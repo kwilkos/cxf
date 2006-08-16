@@ -94,16 +94,23 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 interceptor = lit.next();
                 
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Invoking interceptor " + interceptor);
+                    LOG.fine("Invoking handleMessage on interceptor " + interceptor);
                 }
                 
                 interceptor.handleMessage(message);
             }
             state = State.COMPLETE;
         } catch (Exception ex) {
+            if (LOG.isLoggable(Level.FINE)) {
+                ex.printStackTrace();
+                LOG.fine("interceptor has thrown exception, unwinding now");
+            }
             message.setContent(Exception.class, ex);
             while (lit.hasPrevious()) {
                 interceptor = lit.previous();
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Invoking handleFault on interceptor " + interceptor);
+                }
                 interceptor.handleFault(message);
             }
             state = State.ABORTED;

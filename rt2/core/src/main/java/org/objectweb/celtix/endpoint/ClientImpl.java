@@ -1,11 +1,15 @@
 package org.objectweb.celtix.endpoint;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.interceptors.AbstractBasicInterceptorProvider;
+import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.interceptors.MessageSenderInterceptor;
 import org.objectweb.celtix.message.Exchange;
@@ -20,7 +24,9 @@ import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client {
-
+    
+    private static final Logger LOG = Logger.getLogger(ClientImpl.class.getName());
+    
     Bus bus;
     Endpoint endpoint;
     
@@ -33,7 +39,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     
 
     public Object[] invoke(OperationInfo oi, Object[] params, Map<String, Object> ctx) {
-
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
+        }
         Message message = endpoint.getBinding().createMessage();
         message.setContent(Object[].class, params);
         setOutMessageProperties(message, oi);
@@ -42,16 +50,47 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (null != ctx) {
             exchange.putAll(ctx);
         }
-        exchange.setOutMessage(message);
+        exchange.setOutMessage(message);        
         setExchangeProperties(exchange, ctx);
+        message.setExchange(exchange);
 
         // setup chain
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
+        
+        List<Interceptor> il = bus.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getService().getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by service: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + il);
+        }
+        chain.add(il);
+        il = getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by client: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getBinding().getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by binding: " + il);
+        }
+        chain.add(il);
+        
+        /*
         chain.add(bus.getOutInterceptors());
         chain.add(endpoint.getService().getOutInterceptors());
+        chain.add(endpoint.getOutInterceptors());
         chain.add(getOutInterceptors());
         chain.add(endpoint.getBinding().getOutInterceptors());
+        */
         
         modifyChain(chain, ctx);
         
