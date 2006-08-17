@@ -14,10 +14,14 @@ import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class LocalTransportFactory implements DestinationFactory, ConduitInitiator {
+   
+    public static final String TRANSPORT_ID = "http://cxf.apache.org/local-transport";
+    
     private static final Logger LOG = Logger.getLogger(LocalTransportFactory.class.getName());
     
     private Map<String, Destination> destinations = new HashMap<String, Destination>();
 
+    
     public Destination getDestination(EndpointInfo ei) throws IOException {
         return getDestination(createReference(ei));
     }

@@ -15,7 +15,10 @@ import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
 
 public class LocalConduit implements Conduit {
 
+    public static final String IN_CONDUIT = LocalConduit.class.getName() + ".inConduit";
+
     private LocalDestination destination;
+    private MessageObserver observer;
 
     public LocalConduit(LocalDestination destination) {
         this.destination = destination;
@@ -34,12 +37,13 @@ public class LocalConduit implements Conduit {
 
     public void send(Message message) throws IOException {
         final PipedInputStream stream = new PipedInputStream();
-
+        final LocalConduit conduit = this;
         final Runnable receiver = new Runnable() {
             public void run() {
-                Message m = new MessageImpl();
+                MessageImpl m = new MessageImpl();
                 m.setContent(InputStream.class, stream);
-
+                m.setDestination(destination);
+                m.put(IN_CONDUIT, conduit);
                 destination.getMessageObserver().onMessage(m);
             }
         };
@@ -66,6 +70,11 @@ public class LocalConduit implements Conduit {
         readThread.start();
     }
 
-    public void setMessageObserver(MessageObserver observer) {
+    public void setMessageObserver(MessageObserver o) {
+        this.observer = o;
+    }
+
+    public MessageObserver getMessageObserver() {
+        return observer;
     }
 }
