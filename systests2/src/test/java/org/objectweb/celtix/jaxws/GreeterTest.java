@@ -1,8 +1,5 @@
 package org.objectweb.celtix.jaxws;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 
 import org.w3c.dom.Node;
@@ -12,19 +9,13 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
 import org.objectweb.celtix.bindings.soap2.SoapDestinationFactory;
 import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.ConduitInitiatorManager;
 import org.objectweb.celtix.messaging.DestinationFactoryManager;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
-import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.test.AbstractCXFTest;
 import org.objectweb.celtix.transports.local.LocalTransportFactory;
 import org.objectweb.hello_world_soap_http.GreeterImpl;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class GreeterTest extends AbstractCXFTest {
 
