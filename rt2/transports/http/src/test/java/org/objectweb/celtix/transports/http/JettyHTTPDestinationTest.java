@@ -6,9 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +21,6 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.util.Base64Utility;
@@ -43,14 +39,15 @@ import static org.objectweb.celtix.message.Message.ONEWAY_MESSAGE;
 
 
 public class JettyHTTPDestinationTest extends TestCase {
+    protected static final String AUTH_HEADER = "Authorization";
+    protected static final String USER = "copernicus";
+    protected static final String PASSWD = "epicycles";
+    protected static final String BASIC_AUTH =
+        "Basic " + Base64Utility.encode((USER + ":" + PASSWD).getBytes());   
+
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
     private static final String PAYLOAD = "message payload";
     private static final String QUERY = "?name";
-    private static final String AUTH_HEADER = "Authorization";
-    private static final String USER = "copernicus";
-    private static final String PASSWD = "epicycles";
-    private static final String BASIC_AUTH =
-        "Basic " + Base64Utility.encode((USER + ":" + PASSWD).getBytes());   
     private static final String CHALLENGE_HEADER = "WWW-Authenticate";
     private static final String BASIC_CHALLENGE = "Basic realm=terra";
     private static final String DIGEST_CHALLENGE = "Digest realm=luna";
@@ -225,7 +222,7 @@ public class JettyHTTPDestinationTest extends TestCase {
        
         config.contextMatchOnStem();
         EasyMock.expectLastCall().andReturn(contextMatchOnStem);
-        engine.addServant(EasyMock.eq(NOWHERE + "bar/foo"),
+        engine.addServant(EasyMock.eq(new URL(NOWHERE + "bar/foo")),
                           EasyMock.isA(AbstractHttpHandler.class));
         
         policy = new HTTPServerPolicy();   
@@ -319,7 +316,8 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         if (decoupled) {
             decoupledBackChannel = EasyMock.createMock(Conduit.class);
-            conduitInitiator.getConduit(EasyMock.isA(EndpointInfo.class), EasyMock.eq(replyTo));
+            conduitInitiator.getConduit(EasyMock.isA(EndpointInfo.class),
+                                        EasyMock.eq(replyTo));
             EasyMock.expectLastCall().andReturn(decoupledBackChannel);
             decoupledBackChannel.send(EasyMock.eq(outMessage));
             EasyMock.expectLastCall();
@@ -373,7 +371,8 @@ public class JettyHTTPDestinationTest extends TestCase {
                    exchange.getInMessage());
         
         assertEquals("unexpected getMethod calls",
-                     // asmyth: change from 2 to 1
+                     // REVISIT: restore expected call count to 2 when
+                     // the GET ...?wsdl logic is restored
                      1,
                      request.getMethodCallCount());
         assertEquals("unexpected getInputStream calls",
@@ -505,149 +504,6 @@ public class JettyHTTPDestinationTest extends TestCase {
             assertEquals("expected commit",
                          2,
                          response.getCommitCallCount());
-        }
-    }
-
-    /**
-     * EasyMock does not seem able to properly mock calls to HttpRequest -
-     * expectations set seem to be ignored.
-     */
-    private static class TestHttpRequest extends HttpRequest {
-        private String method;
-        private InputStream is;
-        private String path;
-        private String query;
-        private int[] callCounts = {0, 0, 0, 0, 0, 0, 0};
-        private Map<String, List<String>> fields;
-        
-        TestHttpRequest(String m, InputStream i, String p, String q) {
-            method = m;
-            is = i;
-            path = p;
-            query = q;
-            fields = new HashMap<String, List<String>>();
-            List<String> contentTypes = new ArrayList<String>();
-            contentTypes.add("text/xml");
-            contentTypes.add("charset=utf8");
-            fields.put("content-type", contentTypes);
-            List<String> auth = new ArrayList<String>();
-            auth.add(BASIC_AUTH);
-            fields.put(AUTH_HEADER, auth);
-        }
-        
-        public String getMethod() {
-            callCounts[0]++;
-            return method;
-        }
-        
-        int getMethodCallCount() {
-            return callCounts[0];
-        }
-        
-        public InputStream getInputStream() {
-            callCounts[1]++;
-            return is;
-        }
-
-        int getInputStreamCallCount() {
-            return callCounts[1];
-        }
-
-        public String getPath() {
-            callCounts[2]++;
-            return path;
-        }
-        
-        int getPathCallCount() {
-            return callCounts[2];
-        }
-        
-        public String getQuery() {
-            callCounts[3]++;
-            return query;
-        }
-        
-        int getQueryCallCount() {
-            return callCounts[3];
-        }
-        
-        public void setHandled(boolean h) {
-            callCounts[4]++;
-        }
-        
-        int getHandledCallCount() {
-            return callCounts[4];
-        }
-        
-        public Enumeration getFieldNames() {
-            callCounts[5]++;
-            return Collections.enumeration(fields.keySet());
-        }
-        
-        int getFieldNamesCallCount() {
-            return callCounts[5];
-        }
-        
-        public Enumeration getFieldValues(String f) {
-            callCounts[6]++;
-            return Collections.enumeration(fields.get(f));            
-        }
-        
-        int getFieldValuesCallCount() {
-            return callCounts[6];
-        }
-
-    }
-
-    private static class TestHttpResponse extends HttpResponse {
-        private OutputStream os;
-        private int[] callCounts = {0, 0, 0, 0, 0};
-        
-        TestHttpResponse(OutputStream o) {
-            os = o;
-        }
-        
-        public void commit() {
-            callCounts[0]++;
-        }
-        
-        int getCommitCallCount() {
-            return callCounts[0];
-        }
-        
-        public OutputStream getOutputStream() {
-            callCounts[1]++;
-            return os;
-        }
-
-        int getOutputStreamCallCount() {
-            return callCounts[1];
-        }
-        
-        public void sendRedirect(String url) {
-            callCounts[2]++;
-        }
-        
-        int getSendRedirectCallCount() {
-            return callCounts[2];
-        }
-        
-        public void setStatus(int s) {
-            super.setStatus(s);
-            callCounts[3]++;
-        }
-        
-        int getStatusCallCount() {
-            return callCounts[3];
-        }
-        
-        public void addField(String name, String value) {
-            super.addField(name, value);
-            callCounts[4]++;
-        }
-        
-        int getAddFieldCallCount() {
-            return callCounts[4];
         }
     }
     

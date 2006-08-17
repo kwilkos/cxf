@@ -22,9 +22,14 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.mortbay.http.HttpHandler;
+import org.mortbay.http.handler.AbstractHttpHandler;
+import org.mortbay.util.MultiMap;
 import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
+import org.objectweb.celtix.messaging.Conduit;
+import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
@@ -38,6 +43,7 @@ public class HTTPConduitTest extends TestCase {
     private EndpointReferenceType target;
     private EndpointInfo endpointInfo;
     private HTTPConduitConfiguration config;
+    private HTTPClientPolicy policy;
     private URLConnectionFactory connectionFactory;
     private URLConnection connection;
     private Proxy proxy;
@@ -45,6 +51,8 @@ public class HTTPConduitTest extends TestCase {
     private MessageObserver observer;
     private OutputStream os;
     private InputStream is;
+    private TestServerEngine decoupledEngine;
+    private MultiMap parameters;
     private IMocksControl control;
     
     public void setUp() throws Exception {
@@ -52,11 +60,12 @@ public class HTTPConduitTest extends TestCase {
     }
 
     public void tearDown() {
-        // avoid intermittent spurious failures on EasyMock detecting finalize calls
-        // by mocking up only class data members (no local variables) and
-        // explicitly making available for GC post-verify
+        // avoid intermittent spurious failures on EasyMock detecting finalize
+        // calls by mocking up only class data members (no local variables)
+        // and explicitly making available for GC post-verify
         finalVerify();
         config = null;
+        policy = null;
         connectionFactory = null;
         connection = null;
         proxy = null;
@@ -64,6 +73,8 @@ public class HTTPConduitTest extends TestCase {
         observer = null;
         os = null;
         is = null;
+        parameters = null;
+        decoupledEngine = null;
     }
 
     public void testGetTarget() throws Exception {
@@ -82,7 +93,7 @@ public class HTTPConduitTest extends TestCase {
         HTTPConduit conduit = setUpConduit(true, false, false);
         Message message = new MessageImpl();
         conduit.send(message);
-        verifySentMessage(message);
+        verifySentMessage(conduit, message);
     }
     
     public void testSendWithHeaders() throws Exception {
@@ -90,21 +101,28 @@ public class HTTPConduitTest extends TestCase {
         Message message = new MessageImpl();
         setUpHeaders(message);
         conduit.send(message);
-        verifySentMessage(message, true);
+        verifySentMessage(conduit, message, true);
     }
     
     public void testSendHttpConnection() throws Exception {
         HTTPConduit conduit = setUpConduit(true, true, false);
         Message message = new MessageImpl();
         conduit.send(message);
-        verifySentMessage(message);
+        verifySentMessage(conduit, message);
     }
 
     public void testSendHttpConnectionAutoRedirect() throws Exception {
         HTTPConduit conduit = setUpConduit(true, true, false);
         Message message = new MessageImpl();
         conduit.send(message);
-        verifySentMessage(message);
+        verifySentMessage(conduit, message);
+    }
+    
+    public void testSendDecoupled() throws Exception {
+        HTTPConduit conduit = setUpConduit(true, false, false, true);
+        Message message = new MessageImpl();
+        conduit.send(message);
+        verifySentMessage(conduit, message, false, true);
     }
     
     private void setUpHeaders(Message message) {
@@ -123,7 +141,13 @@ public class HTTPConduitTest extends TestCase {
     private HTTPConduit setUpConduit(boolean send,
                                      boolean httpConnection,
                                      boolean autoRedirect) throws Exception {
-
+        return setUpConduit(send, httpConnection, autoRedirect, false);
+    }
+    
+    private HTTPConduit setUpConduit(boolean send,
+                                     boolean httpConnection,
+                                     boolean autoRedirect,
+                                     boolean decoupled) throws Exception {
         endpointInfo = control.createMock(EndpointInfo.class);
         target = getEPR("bar/foo");
         connectionFactory = control.createMock(URLConnectionFactory.class);
@@ -147,7 +171,7 @@ public class HTTPConduitTest extends TestCase {
                 ((HttpURLConnection)connection).setRequestMethod("POST");
             }
             
-            HTTPClientPolicy policy = new HTTPClientPolicy();
+            policy = new HTTPClientPolicy();
             config.getPolicy();
             EasyMock.expectLastCall().andReturn(policy).times(2);
             policy.setConnectionTimeout(303030);
@@ -171,9 +195,21 @@ public class HTTPConduitTest extends TestCase {
                     EasyMock.expectLastCall();
                 }
             }
+            
+            if (decoupled) {
+                decoupledEngine = new TestServerEngine();
+                parameters = control.createMock(MultiMap.class);
+            }
         }
+        
         control.replay();
-        HTTPConduit conduit = new HTTPConduit(endpointInfo, null, connectionFactory, config);
+        
+        HTTPConduit conduit = new HTTPConduit(null, 
+                                              endpointInfo,
+                                              null,
+                                              connectionFactory,
+                                              decoupledEngine,
+                                              config);
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
@@ -183,16 +219,102 @@ public class HTTPConduitTest extends TestCase {
         return conduit;
     }
     
-    private void verifySentMessage(Message message)
+    private void verifySentMessage(Conduit conduit, Message message)
         throws IOException {
-        verifySentMessage(message, false);
+        verifySentMessage(conduit, message, false);
+    }
+
+    private void verifySentMessage(Conduit conduit,
+                                   Message message,
+                                   boolean expectHeaders)
+        throws IOException {
+        verifySentMessage(conduit, message, expectHeaders, false);
     }
     
-    private void verifySentMessage(Message message, boolean expectHeaders)
+    private void verifySentMessage(Conduit conduit,
+                                   Message message,
+                                   boolean expectHeaders,
+                                   boolean decoupled)
         throws IOException {
         control.verify();
         control.reset();
+                
+        OutputStream wrappedOS = verifyRequestHeaders(message, expectHeaders);
         
+        os = EasyMock.createMock(OutputStream.class);
+        connection.getOutputStream();
+        EasyMock.expectLastCall().andReturn(os);
+        os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
+        EasyMock.expectLastCall();
+
+        config.getPolicy();
+        EasyMock.expectLastCall().andReturn(policy).times(decoupled ? 2 : 1);
+
+        URL decoupledURL = null;
+        if (decoupled) {
+            decoupledURL = new URL(NOWHERE + "response");
+            policy.setDecoupledEndpoint(decoupledURL.toString());
+        } 
+        
+        os.flush();
+        EasyMock.expectLastCall();
+        os.close();
+        EasyMock.expectLastCall();
+        
+        verifyHandleResponse(decoupled);
+        
+        control.replay();
+        
+        Destination backChannel = null;
+        AbstractHttpHandler decoupledHandler = null;
+        if (decoupled) {
+            decoupledEngine.verifyCallCounts(new int[]{0, 0, 0});
+            backChannel = conduit.getBackChannel();
+            assertNotNull("expected back channel", backChannel);
+            decoupledEngine.verifyCallCounts(new int[]{1, 0, 1});
+            decoupledHandler = decoupledEngine.servants.get(decoupledURL);
+            assertNotNull("expected servant registered", decoupledHandler);
+            MessageObserver decoupledObserver =
+                ((HTTPConduit.DecoupledDestination)backChannel).getMessageObserver();
+            assertSame("unexpected decoupled destination",
+                       observer,       
+                       decoupledObserver);
+        } else {
+            backChannel = conduit.getBackChannel();
+            assertNull("unexpected back channel", backChannel);
+        }
+        
+        wrappedOS.flush();
+        wrappedOS.close();
+        
+        assertNotNull("expected in message", inMessage);
+        assertSame("unexpected response headers",
+                   inMessage.get(HTTP_RESPONSE_HEADERS), 
+                   Collections.EMPTY_MAP);
+        Integer expectedResponseCode = decoupled 
+                                       ? HttpURLConnection.HTTP_ACCEPTED
+                                       : HttpURLConnection.HTTP_OK;
+        assertEquals("unexpected response code",
+                     expectedResponseCode,
+                     inMessage.get(HTTP_RESPONSE_CODE));
+        assertTrue("unexpected content formats",
+                   inMessage.getContentFormats().contains(InputStream.class));
+        assertSame("unexpected content", is, inMessage.getContent(InputStream.class));
+        
+        if (decoupled) {
+            verifyDecoupledResponse(decoupledHandler);
+        }
+        
+        conduit.close();
+        if (decoupled) {
+            decoupledEngine.verifyCallCounts(new int[]{1, 1, 2});
+        }
+        
+        finalVerify();
+    }
+
+    private OutputStream verifyRequestHeaders(Message message, boolean expectHeaders)
+        throws IOException {
         Map<String, List<String>> headers =
             CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
         assertNotNull("expected request headers set", headers);
@@ -212,60 +334,116 @@ public class HTTPConduitTest extends TestCase {
                                           EasyMock.eq("charset=utf8"));
             EasyMock.expectLastCall();
         }
-        
-        os = EasyMock.createMock(OutputStream.class);
-        connection.getOutputStream();
-        EasyMock.expectLastCall().andReturn(os);
-        os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
-        EasyMock.expectLastCall();
-        
-        os.flush();
-        EasyMock.expectLastCall();
-        os.close();
-        EasyMock.expectLastCall();
-        
+        return wrappedOS;
+    }
+    
+    private void verifyHandleResponse(boolean decoupled) throws IOException {
         connection.getHeaderFields();
         EasyMock.expectLastCall().andReturn(Collections.EMPTY_MAP);
+        int responseCode = decoupled 
+                           ? HttpURLConnection.HTTP_ACCEPTED
+                           : HttpURLConnection.HTTP_OK;
         if (connection instanceof HttpURLConnection) {
             ((HttpURLConnection)connection).getResponseCode();
-            EasyMock.expectLastCall().andReturn(HttpURLConnection.HTTP_ACCEPTED);
+            EasyMock.expectLastCall().andReturn(responseCode);
             ((HttpURLConnection)connection).getErrorStream();
             EasyMock.expectLastCall().andReturn(null);
         } else {
             connection.getHeaderField(HTTP_RESPONSE_CODE);
-            String response = Integer.toString(HttpURLConnection.HTTP_ACCEPTED);
-            EasyMock.expectLastCall().andReturn(response).times(2);
+            String responseString = Integer.toString(responseCode);
+            EasyMock.expectLastCall().andReturn(responseString).times(2);
         }
         is = EasyMock.createMock(InputStream.class);
         connection.getInputStream();
         EasyMock.expectLastCall().andReturn(is);
-        
-        control.replay();
-        wrappedOS.flush();
-        wrappedOS.close();
-        
-        assertNotNull("expected in message", inMessage);
-        assertSame("unexpected response headers",
-                   inMessage.get(HTTP_RESPONSE_HEADERS), 
-                   Collections.EMPTY_MAP);
-        assertEquals("unexpected response code",
-                     inMessage.get(HTTP_RESPONSE_CODE),
-                     new Integer(HttpURLConnection.HTTP_ACCEPTED));
-        assertTrue("unexpected content formats",
-                   inMessage.getContentFormats().contains(InputStream.class));
-        assertSame("unexpected content", is, inMessage.getContent(InputStream.class));
-        
-        finalVerify();
     }
     
+    private void verifyDecoupledResponse(AbstractHttpHandler decoupledHandler)
+        throws IOException {
+        inMessage = null;
+        is = EasyMock.createMock(InputStream.class);
+        os = EasyMock.createMock(OutputStream.class);
+        TestHttpRequest decoupledRequest = new TestHttpRequest(is, parameters);
+        TestHttpResponse decoupledResponse = new TestHttpResponse(os);
+        decoupledHandler.handle("pathInContext",
+                                "pathParams",
+                                decoupledRequest,
+                                decoupledResponse);
+        assertNotNull("expected decoupled in message", inMessage);
+        assertNotNull("expected response headers",
+                      inMessage.get(HTTP_RESPONSE_HEADERS));
+        assertEquals("unexpected response code",
+                     HttpURLConnection.HTTP_OK,
+                     inMessage.get(HTTP_RESPONSE_CODE));
+
+        assertEquals("unexpected getInputStream count",
+                     1,
+                     decoupledRequest.getInputStreamCallCount());
+        assertEquals("unexpected getParameters counts",
+                     1,
+                     decoupledRequest.getParametersCallCount());
+        assertTrue("unexpected content formats",
+                   inMessage.getContentFormats().contains(InputStream.class));
+        InputStream decoupledIS = inMessage.getContent(InputStream.class);
+        assertNotNull("unexpected content", decoupledIS);
+        
+        decoupledIS.close();
+        assertEquals("unexpected setHandled count",
+                     1,
+                     decoupledRequest.getHandledCallCount());
+        assertEquals("unexpected setHandled count",
+                     1,
+                     decoupledResponse.getCommitCallCount());
+        
+        inMessage.setContent(InputStream.class, is);
+
+    }
+
     private void finalVerify() {
         if (control != null) {
             control.verify();
             control = null;
         }
     }
-
+    
     static EndpointReferenceType getEPR(String s) {
         return EndpointReferenceUtils.getEndpointReference(NOWHERE + s);
+    }
+    
+    /**
+     * EasyMock does not seem able to properly mock calls to ServerEngine -
+     * expectations set seem to be ignored.
+     */
+    private class TestServerEngine implements ServerEngine {
+        private int callCounts[] = {0, 0, 0};
+        private Map<URL, AbstractHttpHandler> servants =
+            new HashMap<URL, AbstractHttpHandler>();
+        
+        public void addServant(URL url, AbstractHttpHandler handler) {
+            callCounts[0]++;
+            servants.put(url, handler);
+        }
+
+        public void removeServant(URL url) {
+            callCounts[1]++;
+            servants.remove(url);
+        }
+
+        public HttpHandler getServant(URL url) {
+            callCounts[2]++;
+            return servants.get(url);
+        }
+
+        void verifyCallCounts(int expectedCallCounts[]) {
+            assertEquals("unexpected addServant call count",
+                         expectedCallCounts[0],
+                         callCounts[0]);
+            assertEquals("unexpected removeServant call count",
+                         expectedCallCounts[1],
+                         callCounts[1]);
+            assertEquals("unexpected getServant call count",
+                         expectedCallCounts[2],
+                         callCounts[2]);
+        }
     }
 }

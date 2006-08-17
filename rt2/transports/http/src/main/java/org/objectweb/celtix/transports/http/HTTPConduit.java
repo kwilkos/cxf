@@ -1,5 +1,6 @@
 package org.objectweb.celtix.transports.http;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,14 +11,19 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.wsdl.WSDLException;
 import javax.xml.ws.BindingProvider;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.helpers.CastUtils;
@@ -29,6 +35,7 @@ import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
 
 
 /**
@@ -39,21 +46,26 @@ public class HTTPConduit implements Conduit {
     static final String HTTP_CONNECTION = "http.connection";
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
 
+    private final Bus bus;
     private final HTTPConduitConfiguration config;
     private final URLConnectionFactory connectionFactory;
     private URL url;
     private MessageObserver incomingObserver;
     private EndpointReferenceType target;
 
+    private ServerEngine decoupledEngine;
+    private URL decoupledURL;
+    private DecoupledDestination decoupledDestination;
+
     /**
      * Constructor, using real configuration.
      * 
-     * @param bus the bus
+     * @param b the associated Bus
      * @param endpointInfo the endpoint info of the initiator
      * @throws IOException
      */
-    public HTTPConduit(Bus bus, EndpointInfo endpointInfo) throws IOException {
-        this(bus,
+    public HTTPConduit(Bus b, EndpointInfo endpointInfo) throws IOException {
+        this(b,
              endpointInfo,
              null);
     }
@@ -61,45 +73,48 @@ public class HTTPConduit implements Conduit {
     /**
      * Constructor, using real configuration.
      * 
-     * @param bus the bus
+     * @param b the associated Bus
      * @param endpointInfo the endpoint info of the initiator
      * @param target the endpoint reference of the target
      * @throws IOException
      */
-    public HTTPConduit(Bus bus, EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
-        this(endpointInfo,
+    public HTTPConduit(Bus b,
+                       EndpointInfo endpointInfo,
+                       EndpointReferenceType target) throws IOException {
+        this(b,
+             endpointInfo,
              target,
              null,
-             new HTTPConduitConfiguration(bus, endpointInfo));
+             null,
+             new HTTPConduitConfiguration(b, endpointInfo));
     }
 
     /**
-     * Constructor, allowing subsititution of configuration.
+     * Constructor, allowing subsititution of configuration, 
+     * connnection factory ang decoupled engine.
      * 
+     * @param b the associated Bus
      * @param endpointInfo the endpoint info of the initiator
      * @param target the endpoint reference of the target
      * @param factory the URL connection factory
+     * @param eng the decoupled engine
      * @param cfg the configuration
      * @throws IOException
      */
-    public HTTPConduit(EndpointInfo endpointInfo,
+    public HTTPConduit(Bus b,
+                       EndpointInfo endpointInfo,
                        EndpointReferenceType t,
                        URLConnectionFactory factory,
+                       ServerEngine eng,
                        HTTPConduitConfiguration cfg) throws IOException {
+        bus = b;
         config = cfg;
         connectionFactory = factory != null
                             ? factory
                             : getDefaultConnectionFactory();
-        url = new URL(config.getAddress());       
-
-        if (null == t) {
-            target = new EndpointReferenceType();
-            AttributedURIType address = new AttributedURIType();
-            address.setValue(config.getAddress());
-            target.setAddress(address);
-        } else {
-            target = t;
-        }
+        decoupledEngine = eng;
+        url = new URL(config.getAddress());
+        target = getTargetReference(t);
     }
     
     /**
@@ -170,8 +185,11 @@ public class HTTPConduit implements Conduit {
      * built-in)
      */
     public synchronized Destination getBackChannel() {
-        // REVISIT if decoupled, return Destination for response endpoint
-        return null;
+        if (decoupledDestination == null
+            && config.getPolicy().getDecoupledEndpoint() != null) {
+            decoupledDestination = setUpDecoupledDestination(); 
+        }
+        return decoupledDestination;
     }
 
     /**
@@ -190,8 +208,16 @@ public class HTTPConduit implements Conduit {
             url = null;
         }
     
-        // REVISIT if decoupled, close response Destination if reference
-        // count hits zero
+        // in decoupled case, close response Destination if reference count
+        // hits zero
+        //
+        if (decoupledURL != null && decoupledEngine != null) {
+            DecoupledHandler decoupledHandler = 
+                (DecoupledHandler)decoupledEngine.getServant(decoupledURL);
+            if (decoupledHandler != null) {
+                decoupledHandler.release();
+            }
+        }
     }
 
     /**
@@ -213,6 +239,26 @@ public class HTTPConduit implements Conduit {
                         : u.openConnection();
             }
         };
+    }
+    
+    /**
+     * Get the target reference which may be constructor-provided or 
+     * configured.
+     * 
+     * @param t the constructor-provider target
+     * @return the actual target
+     */
+    private EndpointReferenceType getTargetReference(EndpointReferenceType t) {
+        EndpointReferenceType ref = null;
+        if (null == t) {
+            ref = new EndpointReferenceType();
+            AttributedURIType address = new AttributedURIType();
+            address.setValue(config.getAddress());
+            ref.setAddress(address);
+        } else {
+            ref = t;
+        }
+        return ref;
     }
 
     /**
@@ -271,10 +317,44 @@ public class HTTPConduit implements Conduit {
         }
         return responseCode;
     }
-        
+
     /**
-     * Wrapper stream responsible for flushing headers and handling incoming
-     * HTTP-level response (not necessarily the MEP response).
+     * Set up the decoupled Destination if necessary.
+     * 
+     * @return an appropriate decoupled Destination
+     */
+    private DecoupledDestination setUpDecoupledDestination() {        
+        EndpointReferenceType reference =
+            EndpointReferenceUtils.getEndpointReference(config.getPolicy().getDecoupledEndpoint());
+        if (reference != null) {
+            String decoupledAddress = reference.getAddress().getValue();
+            LOG.info("creating decoupled endpoint: " + decoupledAddress);
+            try {
+                decoupledURL = new URL(decoupledAddress);
+                if (decoupledEngine == null) {
+                    decoupledEngine = 
+                        JettyHTTPServerEngine.getForPort(bus, 
+                                                         decoupledURL.getProtocol(),
+                                                         decoupledURL.getPort());
+                }
+                DecoupledHandler decoupledHandler =
+                    (DecoupledHandler)decoupledEngine.getServant(decoupledURL);
+                if (decoupledHandler == null) {
+                    decoupledHandler = new DecoupledHandler();
+                    decoupledEngine.addServant(decoupledURL, decoupledHandler);
+                } 
+                decoupledHandler.duplicate();
+            } catch (Exception e) {
+                // REVISIT move message to localizable Messages.properties
+                LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
+            }
+        }
+        return new DecoupledDestination(reference, incomingObserver);
+    }
+
+    /**
+     * Wrapper output stream responsible for flushing headers and handling
+     * the incoming HTTP-level response (not necessarily the MEP response).
      */
     private class WrappedOutputStream extends AbstractWrappedOutputStream {
         protected URLConnection connection;
@@ -322,4 +402,94 @@ public class HTTPConduit implements Conduit {
         }
     }
 
+    /**
+     * Wrapper output stream responsible for commiting incoming request 
+     * containing a decoupled response.
+     */
+    private class WrapperInputStream extends FilterInputStream {
+        HttpRequest request;
+        HttpResponse response;
+        
+        WrapperInputStream(HttpRequest req,
+                           HttpResponse resp) {
+            super(req.getInputStream());
+            request = req;
+            response = resp;
+        }
+        
+        public void close() throws IOException {
+            super.close();            
+            response.commit();
+            request.setHandled(true);
+        }
+    }
+    
+    /**
+     * Represented decoupled response endpoint.
+     */
+    protected class DecoupledDestination implements Destination {
+        protected MessageObserver decoupledMessageObserver;
+        private EndpointReferenceType address;
+        
+        DecoupledDestination(EndpointReferenceType ref,
+                             MessageObserver incomingObserver) {
+            address = ref;
+            decoupledMessageObserver = incomingObserver;
+        }
+
+        public EndpointReferenceType getAddress() {
+            return address;
+        }
+
+        public Conduit getBackChannel(Message inMessage,
+                                      Message partialResponse,
+                                      EndpointReferenceType addr)
+            throws WSDLException, IOException {
+            // shouldn't be called on decoupled endpoint
+            return null;
+        }
+
+        public void shutdown() {
+            // TODO Auto-generated method stub            
+        }
+
+        public synchronized void setMessageObserver(MessageObserver observer) {
+            decoupledMessageObserver = observer;
+        }
+        
+        protected synchronized MessageObserver getMessageObserver() {
+            return decoupledMessageObserver;
+        }
+    }
+
+    /**
+     * Handles incoming decoupled responses.
+     */
+    private class DecoupledHandler extends AbstractHttpHandler {
+        private int refCount;
+                
+        synchronized void duplicate() {
+            refCount++;
+        }
+        
+        synchronized void release() {
+            if (--refCount == 0) {
+                decoupledEngine.removeServant(decoupledURL);
+                JettyHTTPServerEngine.destroyForPort(decoupledURL.getPort());
+            }
+        }
+        
+        public void handle(String pathInContext, 
+                           String pathParams,
+                           HttpRequest req,
+                           HttpResponse resp) throws IOException {
+            Message inMessage = new MessageImpl();
+            inMessage.put(HTTP_RESPONSE_HEADERS, req.getParameters());
+            inMessage.put(HTTP_RESPONSE_CODE, HttpURLConnection.HTTP_OK);
+            InputStream is = new WrapperInputStream(req, resp);
+            inMessage.setContent(InputStream.class, is);
+
+            decoupledDestination.getMessageObserver().onMessage(inMessage);
+        }
+    }
 }

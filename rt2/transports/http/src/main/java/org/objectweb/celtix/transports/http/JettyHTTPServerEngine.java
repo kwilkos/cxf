@@ -1,7 +1,6 @@
 package org.objectweb.celtix.transports.http;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,16 +64,9 @@ public final class JettyHTTPServerEngine implements ServerEngine {
      * @param url the URL associated with the servant
      * @param handler notified on incoming HTTP requests
      */
-    public synchronized void addServant(String url, AbstractHttpHandler handler) {
+    public synchronized void addServant(URL url, AbstractHttpHandler handler) {
 
-        URL nurl = null;
-        try {
-            nurl = new URL(url);
-        } catch (MalformedURLException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        String lpath = nurl.getPath();
+        String lpath = url.getPath();
 
         if (server == null) {
             server = new HttpServer();
@@ -193,10 +185,15 @@ public final class JettyHTTPServerEngine implements ServerEngine {
         }
         */
     }
-    
-    synchronized HttpHandler getServant(String url) throws IOException {
-        URL nurl = new URL(url);
-        String lpath = nurl.getPath();
+
+    /**
+     * Get a registered servant.
+     * 
+     * @param url the associated URL
+     * @return the HttpHandler if registered
+     */
+    public synchronized HttpHandler getServant(URL url)  {
+        String lpath = url.getPath();
         
         String contextName = "";
         String servletMap = lpath;

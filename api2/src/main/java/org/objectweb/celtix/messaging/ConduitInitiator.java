@@ -12,10 +12,19 @@ public interface ConduitInitiator {
     /**
      * Initiate an outbound Conduit.
      * 
-     * @param targetInfo the endpoint info of the initiator 
+     * @param targetInfo the endpoint info of the target 
      * @return a suitable new or pre-existing Conduit
      */
-    Conduit getConduit(EndpointInfo endpointInfo) throws IOException;
+    Conduit getConduit(EndpointInfo targetInfo) throws IOException;
 
-    Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException;
+    /**
+     * Initiate an outbound Conduit.
+     * 
+     * @param localInfo the endpoint info for a local endpoint on which the
+     * the configuration should be based
+     * @param target the target EPR
+     * @return a suitable new or pre-existing Conduit
+     */
+    Conduit getConduit(EndpointInfo localInfo,
+                       EndpointReferenceType target) throws IOException;
 }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -88,27 +89,31 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     public synchronized void setMessageObserver(MessageObserver observer) {
         if (null != observer) {
             LOG.info("registering incoming observer: " + observer);
-
-            if (config.contextMatchOnStem()) {
-                engine.addServant(config.getAddress(), new AbstractHttpHandler() {
-                        public void handle(String pathInContext, String pathParams,
-                                           HttpRequest req, HttpResponse resp)
-                            throws IOException {
-                            if (pathInContext.startsWith(getName())) {
-                                doService(req, resp);                    
+            try {
+                URL url = new URL(config.getAddress());
+                if (config.contextMatchOnStem()) {
+                    engine.addServant(url, new AbstractHttpHandler() {
+                            public void handle(String pathInContext, String pathParams,
+                                               HttpRequest req, HttpResponse resp)
+                                throws IOException {
+                                if (pathInContext.startsWith(getName())) {
+                                    doService(req, resp);                    
+                                }
                             }
-                        }
-                    });
-            } else {
-                engine.addServant(config.getAddress(), new AbstractHttpHandler() {
-                        public void handle(String pathInContext, String pathParams,
-                                           HttpRequest req, HttpResponse resp)
-                            throws IOException {
-                            if (pathInContext.equals(getName())) {
-                                doService(req, resp);
+                        });
+                } else {
+                    engine.addServant(url, new AbstractHttpHandler() {
+                            public void handle(String pathInContext, String pathParams,
+                                               HttpRequest req, HttpResponse resp)
+                                throws IOException {
+                                if (pathInContext.equals(getName())) {
+                                    doService(req, resp);
+                                }
                             }
-                        }
-                    });
+                        });
+                }
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, "URL creation failed: ", e);
             }
         } else {
             LOG.info("unregistering incoming observer: " + incomingObserver);
