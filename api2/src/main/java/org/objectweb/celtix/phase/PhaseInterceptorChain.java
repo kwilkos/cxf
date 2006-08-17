@@ -38,7 +38,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private List<Interceptor> currentPhaseInterceptors;
     private Interceptor currentInterceptor;
     private State state;
-
+    private List<Interceptor> invokedInterceptors = new ArrayList<Interceptor>();
+    
     public PhaseInterceptorChain(List<Phase> ps) {
 
         state = State.PAUSED;
@@ -128,6 +129,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
                 try {
+                    invokedInterceptors.add(0, currentInterceptor);
                     currentInterceptor.handleMessage(message);
                 } catch (Exception ex) {
                     if (LOG.isLoggable(Level.FINE)) {
@@ -150,27 +152,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
     
     @SuppressWarnings("unchecked")
     private void unwind(Message message) {
-        
-        while (null != currentInterceptor) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Invoking handleFault on interceptor " + currentInterceptor);
-            }
-            currentInterceptor.handleFault(message);
-            
-            int index = currentPhaseInterceptors.indexOf(currentInterceptor);
-            if (index == 0) {
-                // we're at the begin of this phase, go to the previous one
-                int phaseIndex = phases.indexOf(currentPhase);
-
-                if (setupPhase(--phaseIndex, true)) {
-                    currentInterceptor = null;
-                }
-            } else {
-                // Find the current position of this interceptor as it could
-                // have changed
-                currentInterceptor = currentPhaseInterceptors.get(index - 1);
-            }
-        } 
+        for (Interceptor i : invokedInterceptors) {
+            i.handleFault(message);
+        }
     }
 
     private boolean setupPhase(int phaseIndex) {
