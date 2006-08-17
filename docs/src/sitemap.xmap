@@ -21,8 +21,8 @@
      <map:actions>
        <map:action logger="sitemap.action.sourcetype" name="sourcetype" 
 src="org.apache.forrest.sourcetype.SourceTypeAction">
-         <sourcetype name="docbook-v4.1.2">
-           <document-declaration public-id="-//OASIS//DTD DocBook XML V4.1.2//EN" />
+         <sourcetype name="docbook-v4.2">
+           <document-declaration public-id="-//OASIS//DTD DocBook XML V4.2//EN" />
          </sourcetype>
        </map:action>
      </map:actions>
@@ -58,7 +58,7 @@ src="org.apache.cocoon.selection.ParameterSelector" />
        <map:act type="sourcetype" src="{project:content.xdocs}{1}.xml">
          <map:select type="parameter">
            <map:parameter name="parameter-selector-test" value="{sourcetype}" />
-         <map:when test="docbook-v4.1.2">
+         <map:when test="docbook-v4.2">
 		 <map:transform src="{project:resources.stylesheets}\docbook\html\docbook.xsl" />
 		 <map:transform src="{forrest:stylesheets}/html2htmlbody.xsl" />
 		 <map:serialize type="html" />

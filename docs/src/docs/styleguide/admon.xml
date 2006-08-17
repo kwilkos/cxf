@@ -34,4 +34,18 @@
 		  contains the text for the warning. The <sgmltag class="element">note</sgmltag> element 
 		  can also contain more than one paragraph, a code listing, or a table.</para>
   </section>
+  <section>
+    <title>Footnotes</title>
+	<para>In general, you should not need to use footnotes in CeltiXfire documentation. If you 
+	      find that a footnote is required, you can use one. However, most information that would 
+		  be put in a footnote is more appropriately placed in a note. For example, if there is a 
+		  related specification for a feature or some other ancilary piece of information, you might 
+		  put it in a footnote.</para>
+	<para>Footnotes are marked up using the <sgmltag class="element">footnote</sgmltag> element. 
+	      </para>
+  </section>
+  <section>
+    <title>Others</title>
+    <para></para>
+  </section>
 </chapter>

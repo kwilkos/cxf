@@ -108,7 +108,7 @@
   </section>
   <section id="the_rest">
     <title>Writing General Documentation</title>
-    <para>All other types of documentation are written using Docbook. Docbook
+    <para>All other types of documentation are written using Docbook 4.2. Docbook 4.2
     provides a structured, XML based grammar for writing complex technical
     documentation. It is also an OASIS standard. This makes it a natural fit
     for writing open source documentation.</para>
