@@ -44,6 +44,7 @@ public class PhaseManagerImpl implements PhaseManager {
         inPhases.add(new Phase(Phase.POST_LOGICAL, ++i * 1000));
         inPhases.add(new Phase(Phase.PRE_INVOKE, ++i * 1000));
         inPhases.add(new Phase(Phase.INVOKE, ++i * 1000));
+        inPhases.add(new Phase(Phase.POST_INVOKE, ++i * 1000));
         // Collections.sort(inPhases);
     }
     
@@ -55,7 +56,6 @@ public class PhaseManagerImpl implements PhaseManager {
         outPhases = new ArrayList<Phase>();
         int i = 0;
         
-        outPhases.add(new Phase(Phase.POST_INVOKE, ++i * 1000));
         outPhases.add(new Phase(Phase.PRE_LOGICAL, ++i * 1000));
         outPhases.add(new Phase(Phase.USER_LOGICAL, ++i * 1000));
         outPhases.add(new Phase(Phase.MARSHAL, ++i * 1000));

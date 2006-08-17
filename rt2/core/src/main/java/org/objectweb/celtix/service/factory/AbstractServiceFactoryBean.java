@@ -18,7 +18,7 @@ public abstract class AbstractServiceFactoryBean {
 
     protected void initializeDefaultInterceptors() {
         service.getInInterceptors().add(new ServiceInvokerInterceptor());
-        service.getOutInterceptors().add(new OutgoingChainInterceptor());
+        service.getInInterceptors().add(new OutgoingChainInterceptor());
         service.getOutInterceptors().add(new MessageSenderInterceptor());
     }
     

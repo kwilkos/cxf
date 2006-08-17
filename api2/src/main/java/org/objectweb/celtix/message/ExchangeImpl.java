@@ -36,6 +36,7 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     public void setInMessage(Message m) {
         inMessage = m;
+        m.setExchange(this);
     }
 
     public void setConduit(Conduit c) {
@@ -44,6 +45,7 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     public void setOutMessage(Message m) {
         outMessage = m;
+        m.setExchange(this);
     }
 
 }
