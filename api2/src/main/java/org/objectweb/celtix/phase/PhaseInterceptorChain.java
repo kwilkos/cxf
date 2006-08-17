@@ -65,6 +65,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void add(Interceptor i) {
         AbstractPhaseInterceptor pi = (AbstractPhaseInterceptor)i;
 
@@ -72,50 +73,16 @@ public class PhaseInterceptorChain implements InterceptorChain {
             LOG.fine("Adding interceptor " + i + " to phase " + pi.getPhase());
         }
 
-        List<Interceptor> phase = interceptors.get(pi.getPhase());
-
+        String phaseName = pi.getPhase();
+        
+        List<Interceptor> phase = interceptors.get(phaseName);
+        
         if (phase == null) {
-            LOG.fine("Phase " + pi.getPhase() + " does not exist. Skipping handler "
+            LOG.fine("Phase " + phaseName + " does not exist. Skipping handler "
                       + i.getClass().getName());
         } else {
             insertInterceptor(phase, pi);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public boolean doIntercept(Message message) {
-        state = State.EXECUTING;
-
-        ListIterator<Interceptor> lit = getIterator();
-        Interceptor interceptor = null;
-
-        try {
-            while (lit.hasNext() && state != State.PAUSED) {
-                interceptor = lit.next();
-                
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Invoking handleMessage on interceptor " + interceptor);
-                }
-                
-                interceptor.handleMessage(message);
-            }
-            state = State.COMPLETE;
-        } catch (Exception ex) {
-            if (LOG.isLoggable(Level.FINE)) {
-                ex.printStackTrace();
-                LOG.fine("Interceptor has thrown exception, unwinding now");
-            }
-            message.setContent(Exception.class, ex);
-            while (lit.hasPrevious()) {
-                interceptor = lit.previous();
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Invoking handleFault on interceptor " + interceptor);
-                }
-                interceptor.handleFault(message);
-            }
-            state = State.ABORTED;
-        }
-        return state == State.COMPLETE;
     }
 
     public void pause() {
@@ -126,6 +93,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         // TODO Auto-generated method stub
 
     }
+    
 
     /**
      * Invokes each phase's handler in turn.
@@ -134,41 +102,96 @@ public class PhaseInterceptorChain implements InterceptorChain {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public void doInterceptOld(Message message) {
-        if (currentInterceptor == null) {
-            currentInterceptor = currentPhaseInterceptors.get(0);
-        } else {
+    public boolean doIntercept(Message message) {
+        state = State.EXECUTING;
+        do {
+            if (currentInterceptor == null && currentPhaseInterceptors.size() > 0) {
+                currentInterceptor = currentPhaseInterceptors.get(0);                
+            } else {
+                int index = currentPhaseInterceptors.indexOf(currentInterceptor);
+                if (index == currentPhaseInterceptors.size() - 1) {
+                    // we're at the end of this phase, go to the next one
+                    int phaseIndex = phases.indexOf(currentPhase);
+
+                    if (setupPhase(++phaseIndex)) {
+                        currentInterceptor = null;
+                    }
+                } else {
+                    // Find the current position of this interceptor as it could
+                    // have changed
+                    currentInterceptor = currentPhaseInterceptors.get(index + 1);
+                }
+            }
+
+            if (null != currentInterceptor) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
+                }
+                try {
+                    currentInterceptor.handleMessage(message);
+                } catch (Exception ex) {
+                    if (LOG.isLoggable(Level.FINE)) {
+                        ex.printStackTrace();
+                        LOG.fine("Interceptor has thrown exception, unwinding now");
+                    }
+                    message.setContent(Exception.class, ex);
+                    unwind(message);
+                    state = State.ABORTED;
+                }                
+            } else {
+                state = State.COMPLETE;
+            }
+            
+
+        } while (null != currentInterceptor && state != State.PAUSED);        
+        
+        return state == State.COMPLETE;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void unwind(Message message) {
+        
+        while (null != currentInterceptor) {
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Invoking handleFault on interceptor " + currentInterceptor);
+            }
+            currentInterceptor.handleFault(message);
+            
             int index = currentPhaseInterceptors.indexOf(currentInterceptor);
-            if (index == currentPhaseInterceptors.size() - 1) {
-                // we're at the end of this phase, go to the next one
+            if (index == 0) {
+                // we're at the begin of this phase, go to the previous one
                 int phaseIndex = phases.indexOf(currentPhase);
 
-                if (setupPhase(++phaseIndex)) {
-                    return;
+                if (setupPhase(--phaseIndex, true)) {
+                    currentInterceptor = null;
                 }
             } else {
                 // Find the current position of this interceptor as it could
                 // have changed
-                currentInterceptor = currentPhaseInterceptors.get(index + 1);
+                currentInterceptor = currentPhaseInterceptors.get(index - 1);
             }
-        }
-
-        currentInterceptor.handleMessage(message);
+        } 
     }
 
     private boolean setupPhase(int phaseIndex) {
+        return setupPhase(phaseIndex, false);
+    }
+    
+    private boolean setupPhase(int phaseIndex, boolean reverse) {
         // Have we reached the end of the chain??
-        if (phaseIndex == phases.size()) {
+        if ((!reverse && phaseIndex == phases.size()) 
+            || (reverse && phaseIndex == -1)) {
             return true;
         }
 
         currentPhase = phases.get(phaseIndex);
         currentPhaseInterceptors = interceptors.get(currentPhase.getName());
         if (currentPhaseInterceptors.size() == 0) {
-            return setupPhase(++phaseIndex);
+            return setupPhase(reverse ? --phaseIndex : ++phaseIndex);
         }
 
-        currentInterceptor = currentPhaseInterceptors.get(0);
+        currentInterceptor = currentPhaseInterceptors.get(
+            reverse ? currentPhaseInterceptors.size() - 1 : 0);
         return false;
     }
 
