@@ -19,7 +19,7 @@ public class JAXBDataReaderFactoryTest extends TestCase {
     JAXBDataReaderFactory factory;
 
     public void setUp() {
-        factory = new JAXBDataReaderFactory();
+        factory = JAXBDataReaderFactory.getInstance();
     }
 
     public void testSupportedFormats() {
@@ -43,6 +43,10 @@ public class JAXBDataReaderFactoryTest extends TestCase {
 
         reader = factory.createReader(null);
         assertNull(reader);
+    }
+    
+    public void testSingleton() {
+        assertTrue(factory == JAXBDataReaderFactory.getInstance());
     }
 }
 

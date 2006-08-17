@@ -110,7 +110,7 @@ public class XMLStreamDataReaderTest extends TestCase {
 
     private JAXBDataReaderFactory getTestReaderFactory(Class clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
+        JAXBDataReaderFactory readerFacotry = JAXBDataReaderFactory.getInstance();
         readerFacotry.setJAXBContext(ctx);
         return readerFacotry;
     }

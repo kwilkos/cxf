@@ -12,13 +12,24 @@ import org.objectweb.celtix.jaxb.io.NodeDataReader;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataReader;
 
 
-public class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {
+public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
                                                                         XMLEventReader.class,
                                                                         XMLStreamReader.class};
     
+    private static JAXBDataReaderFactory dataReaderFactory;
     
+    private JAXBDataReaderFactory() {
+        
+    }
 
+    public static synchronized JAXBDataReaderFactory getInstance() {
+        if (dataReaderFactory == null) {
+            dataReaderFactory = new JAXBDataReaderFactory();
+        }
+        return dataReaderFactory;
+    }
+    
     @SuppressWarnings("unchecked")
     public <T> DataReader<T> createReader(Class<T> cls) {
         if (cls == XMLStreamReader.class) {

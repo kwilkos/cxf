@@ -67,7 +67,13 @@
             <groupId>javax.xml.soap</groupId>
             <artifactId>saaj-api</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+ 
 
     </dependencies>
 

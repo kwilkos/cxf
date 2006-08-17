@@ -110,14 +110,14 @@ public class TestBase extends TestCase {
 
     protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
+        JAXBDataReaderFactory readerFacotry = JAXBDataReaderFactory.getInstance();
         readerFacotry.setJAXBContext(ctx);
         return readerFacotry;
     }
 
     protected JAXBDataWriterFactory getTestWriterFactory(Class<?> clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFacotry = new JAXBDataWriterFactory();
+        JAXBDataWriterFactory writerFacotry = JAXBDataWriterFactory.getInstance();
         writerFacotry.setJAXBContext(ctx);
         return writerFacotry;
     }

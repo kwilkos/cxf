@@ -19,8 +19,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         super();
 
         getServiceConfigurations().add(new JaxWsServiceConfiguration());
-        setDataReaderFactory(new JAXBDataReaderFactory());
-        setDataWriterFactory(new JAXBDataWriterFactory());
+        setDataReaderFactory(JAXBDataReaderFactory.getInstance());
+        setDataWriterFactory(JAXBDataWriterFactory.getInstance());
     }
 
     public void activateEndpoints() throws IOException, WSDLException, BusException {

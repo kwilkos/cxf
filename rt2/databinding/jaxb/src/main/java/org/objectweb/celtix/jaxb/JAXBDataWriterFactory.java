@@ -11,11 +11,23 @@ import org.objectweb.celtix.jaxb.io.EventDataWriter;
 import org.objectweb.celtix.jaxb.io.NodeDataWriter;
 import org.objectweb.celtix.jaxb.io.XMLStreamDataWriter;
 
-public class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWriterFactory {
+public final class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWriterFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
                                                                         XMLEventWriter.class,
                                                                         XMLStreamWriter.class};
-
+    private static JAXBDataWriterFactory dataWriterFactory;
+    
+    private JAXBDataWriterFactory() {
+        
+    }
+    
+    public static synchronized JAXBDataWriterFactory getInstance() {
+        if (dataWriterFactory == null) {
+            dataWriterFactory = new JAXBDataWriterFactory();
+        }
+        return dataWriterFactory;
+    }
+    
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> cls) {
         
