@@ -1,6 +1,9 @@
 package org.objectweb.celtix.jaxws.support;
 
+import java.lang.reflect.Method;
 import java.net.URL;
+
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
@@ -10,9 +13,12 @@ import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
 import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
 import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
+import org.objectweb.celtix.service.model.InterfaceInfo;
+import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.wsdl.WSDLManager;
 import org.objectweb.celtix.wsdl11.WSDLManagerImpl;
-import org.objectweb.hello_world_soap_http.AnnotatedGreeterImpl;
+import org.objectweb.hello_world_soap_http.GreeterImpl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
@@ -20,7 +26,7 @@ import static org.easymock.classextension.EasyMock.createNiceControl;
 public class JaxWsServiceFactoryBeanTest extends TestCase {
     public void testEndpoint() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
-        bean.setServiceClass(AnnotatedGreeterImpl.class);
+        bean.setServiceClass(GreeterImpl.class);
 
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
@@ -29,12 +35,24 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
         Bus bus = createBus();
         bean.setBus(bus);
 
+        SimpleMethodInvoker invoker = new SimpleMethodInvoker(new GreeterImpl());
+        bean.setInvoker(invoker);
+        
         Service service = bean.create();
 
         assertEquals("SOAPService", service.getName().getLocalPart());
         assertEquals("http://objectweb.org/hello_world_soap_http", service.getName().getNamespaceURI());
         
+        InterfaceInfo intf = service.getServiceInfo().getInterface();
         
+        OperationInfo op = intf.getOperation(
+            new QName("http://objectweb.org/hello_world_soap_http", "sayHi"));
+        
+        Method m = (Method) op.getProperty(Method.class.getName());
+        assertNotNull(m);
+        assertEquals("sayHi", m.getName());
+        
+        assertEquals(invoker, service.getInvoker());
     }
 
     Bus createBus() throws Exception {

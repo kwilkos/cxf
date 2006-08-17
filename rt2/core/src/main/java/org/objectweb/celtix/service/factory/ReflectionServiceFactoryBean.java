@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.helpers.MethodComparator;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.ServiceImpl;
+import org.objectweb.celtix.service.invoker.Invoker;
 import org.objectweb.celtix.service.model.FaultInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
@@ -21,25 +26,40 @@ import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
 
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
 
     private Class<?> serviceClass;
     private URL wsdlURL;
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
     private QName serviceName;
+    private Invoker invoker;
+    private Executor executor;
 
     public ReflectionServiceFactoryBean() {
+        getServiceConfigurations().add(new DefaultServiceConfiguration());
     }
 
     @Override
     public Service create() {
         initializeServiceConfigurations();
-        
+
         initializeServiceModel();
 
         initializeDataBindings();
 
         initializeDefaultInterceptors();
+
+        getService().setInvoker(getInvoker());
+        if (getExecutor() != null) {
+            getService().setExecutor(getExecutor());
+        } else {
+            getService().setExecutor(new Executor() {
+                public void execute(Runnable r) {
+                    r.run();
+                }
+            });
+        }
 
         return getService();
     }
@@ -51,11 +71,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void initializeServiceModel() {
-        if (wsdlURL != null) {
+        URL url = getWsdlURL();
+
+        if (url != null) {
             LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
-            WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), wsdlURL, getServiceQName());
+            WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
 
             setService(factory.create());
+
+            initializeWSDLOperations();
         } else {
             ServiceInfo serviceInfo = new ServiceInfo();
             serviceInfo.setName(getServiceQName());
@@ -67,6 +91,39 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             // TODO Add hooks to create default bindings
         }
+    }
+
+    protected void initializeWSDLOperations() {
+        Method[] methods = serviceClass.getMethods();
+        Arrays.sort(methods, new MethodComparator());
+
+        InterfaceInfo intf = getService().getServiceInfo().getInterface();
+
+        for (OperationInfo o : intf.getOperations()) {
+            Method selected = null;
+            for (Method m : methods) {
+                if (isValidMethod(m)) {
+                    QName opName = getOperationName(intf, m);
+
+                    if (o.getName().equals(opName)) {
+                        selected = m;
+                        o.setProperty(Method.class.getName(), m);
+                        break;
+                    }
+                }
+            }
+
+            if (selected == null) {
+                throw new ServiceConstructionException(new Message("NO_METHOD_FOR_OP", BUNDLE, o.getName()));
+            }
+
+            initializeWSDLOperation(intf, o, selected);
+        }
+    }
+
+    protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method selected) {
+        // TODO Auto-generated method stub
+
     }
 
     protected ServiceInfo createServiceInfo(InterfaceInfo intf) {
@@ -391,6 +448,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     public URL getWsdlURL() {
+        if (wsdlURL == null) {
+            for (AbstractServiceConfiguration c : serviceConfigurations) {
+                wsdlURL = c.getWsdlURL();
+                if (wsdlURL != null) {
+                    break;
+                }
+            }
+        }
         return wsdlURL;
     }
 
@@ -408,5 +473,21 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public void setServiceName(QName serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public Invoker getInvoker() {
+        return invoker;
+    }
+
+    public void setInvoker(Invoker invoker) {
+        this.invoker = invoker;
+    }
+
+    public Executor getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(Executor executor) {
+        this.executor = executor;
     }
 }

@@ -1,6 +1,7 @@
 package org.objectweb.celtix.service.factory;
 
 import java.lang.reflect.Method;
+import java.net.URL;
 
 import javax.xml.namespace.QName;
 
@@ -19,6 +20,10 @@ public abstract class AbstractServiceConfiguration {
         this.serviceFactory = serviceFactory;
     }
 
+    public URL getWsdlURL() {
+        return null;
+    }
+    
     public String getServiceName() {
         return null;
     }

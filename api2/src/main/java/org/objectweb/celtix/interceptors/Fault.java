@@ -15,4 +15,8 @@ public class Fault extends UncheckedException {
     public Fault(Message message) {
         super(message);
     }
+
+    public Fault(Throwable t) {
+        super(t);
+    }
 }

@@ -72,7 +72,7 @@ public class TestBase extends TestCase {
         service.setDataWriterFactory(getTestWriterFactory(Greeter.class));
 
         operation = endpointInfo.getBinding().getOperation(new QName(ns, "greetMe"));
-        operation.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
+        operation.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
 
         message = new MessageImpl();
         Exchange exchange = new ExchangeImpl();

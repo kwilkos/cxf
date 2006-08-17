@@ -30,4 +30,6 @@ public interface Service extends Map<String, Object>, InterceptorProvider {
     void setExecutor(Executor executor);
     
     Invoker getInvoker();
+    
+    void setInvoker(Invoker invoker);
 }

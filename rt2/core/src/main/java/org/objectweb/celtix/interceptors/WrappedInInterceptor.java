@@ -39,9 +39,9 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
     
-        boolean inbound = isInboundMessage(message);
+        boolean requestor = isRequestor(message);
         String opName = xmlReader.getLocalName();
-        if (!inbound && opName.endsWith("Response")) {
+        if (requestor && opName.endsWith("Response")) {
             opName = opName.substring(0, opName.length() - 8);
         }
 
@@ -56,19 +56,23 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         List<Object> objects;
         
         // Determine if there is a wrapper class
-        if (Boolean.TRUE.equals(operation.getProperty(SINGLE_WRAPPED_PART))) {
-            Object wrappedObject = dr.read(xmlReader);
-            
+        if (Boolean.TRUE.equals(operation.getOperationInfo().getProperty(SINGLE_WRAPPED_PART))) {
             // Find the appropriate message that we're processing
             OperationInfo unwrappedOp = operation.getOperationInfo().getUnwrappedOperation();
             MessageInfo messageInfo;
-            if (inbound) {
+            if (!requestor) {
                 messageInfo = unwrappedOp.getInput();
             } else {
                 messageInfo = unwrappedOp.getOutput();
             }
             
-            objects = getWrappedParts(wrappedObject, messageInfo);
+            if (messageInfo.getMessageParts().size() > 0) {
+                Object wrappedObject = dr.read(xmlReader);
+                
+                objects = getWrappedParts(wrappedObject, messageInfo);
+            } else {
+                objects = new ArrayList<Object>();
+            }
         } else {
             // Unwrap each part individually if we don't have a wrapper
             objects = new ArrayList<Object>();

@@ -16,10 +16,10 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     private static final ResourceBundle BUNDLE = BundleUtils
         .getBundle(AbstractOutDatabindingInterceptor.class);
 
-    protected boolean isOutboundMessage(Message message) {
-        return message.containsKey(Message.INBOUND_MESSAGE);
+    protected boolean isRequestor(Message message) {
+        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
-
+    
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriterFactory factory = service.getDataWriterFactory();

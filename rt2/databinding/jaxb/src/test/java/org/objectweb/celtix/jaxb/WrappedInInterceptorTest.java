@@ -17,13 +17,10 @@ public class WrappedInInterceptorTest extends TestBase {
         message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
             .createXMLStreamReader(getTestStream(getClass(), "resources/GreetMeDocLiteralReq.xml")));
 
-        message.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
-
         interceptor.handleMessage(message);
 
         assertNull(message.getContent(Exception.class));
-        BindingOperationInfo op = (BindingOperationInfo)message.getExchange().get(
-                                                                                  BindingOperationInfo.class
+        BindingOperationInfo op = (BindingOperationInfo)message.getExchange().get(BindingOperationInfo.class
                                                                                       .getName());
         assertNotNull(op);
 
@@ -40,6 +37,7 @@ public class WrappedInInterceptorTest extends TestBase {
 
         message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
             .createXMLStreamReader(getTestStream(getClass(), "resources/GreetMeDocLiteralResp.xml")));
+        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
 
         interceptor.handleMessage(message);
         assertNull(message.getContent(Exception.class));

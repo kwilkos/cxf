@@ -69,7 +69,7 @@ public class BareOutInterceptorTest extends TestBase {
         greetMe.setRequestType("requestType");
         
         message.setContent(Object.class, Arrays.asList(greetMe));
-        message.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
+        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         
         interceptor.handleMessage(message);
         

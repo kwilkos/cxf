@@ -30,7 +30,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         int countParts = 0;
         List<MessagePartInfo> parts = null;
-        if (isOutboundMessage(message)) {
+        if (!isRequestor(message)) {
             parts = operation.getOutput().getMessageInfo().getMessageParts();
         } else {
             parts = operation.getInput().getMessageInfo().getMessageParts();

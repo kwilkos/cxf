@@ -114,11 +114,9 @@ public final class WrapperHelper {
         // //JAXB Exception to get the Boolean property
         // accessor = accessor.replaceFirst("get", "is");
         //        }
-        
         for (Method method : wrapperType.getClass().getMethods()) {
             if (method.getParameterTypes().length == 0
                 && accessor.equals(method.getName())) {
-
                 return method.invoke(wrapperType);
             }
         }

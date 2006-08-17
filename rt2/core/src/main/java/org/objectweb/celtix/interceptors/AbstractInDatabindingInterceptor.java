@@ -20,8 +20,8 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     private static final ResourceBundle BUNDLE = BundleUtils
         .getBundle(AbstractInDatabindingInterceptor.class);
 
-    protected boolean isInboundMessage(Message message) {
-        return message.containsKey(Message.INBOUND_MESSAGE);
+    protected boolean isRequestor(Message message) {
+        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
 
     protected DataReader<XMLStreamReader> getDataReader(Message message) {
