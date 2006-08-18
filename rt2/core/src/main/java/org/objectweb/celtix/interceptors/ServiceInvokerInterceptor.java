@@ -1,12 +1,14 @@
 package org.objectweb.celtix.interceptors;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.Service;
@@ -40,9 +42,19 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
                 if (result != null) {
                     // TODO: The outgoing logic should be consolidated somewhere.
                     if (exchange.getOutMessage() == null) {
-                        exchange.setOutMessage(new MessageImpl());
+                        Message outmessage = endpoint.getBinding().createMessage();
+                        exchange.setOutMessage(outmessage);
                     }
-                    exchange.getOutMessage().setContent(Object.class, result);
+                    if (!(result instanceof List)) {
+                        if (result.getClass().isArray()) {
+                            result = Arrays.asList((Object[])result);
+                        } else {
+                            List<Object> o = new ArrayList<Object>();
+                            o.add(result);
+                            result = o;
+                        }
+                    }
+                    exchange.getOutMessage().setContent(List.class, result);
                 }
             }
 

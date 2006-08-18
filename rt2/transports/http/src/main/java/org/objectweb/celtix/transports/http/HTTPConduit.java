@@ -191,6 +191,10 @@ public class HTTPConduit implements Conduit {
         }
         return decoupledDestination;
     }
+    
+    public void close(Message msg) throws IOException {
+        msg.getContent(OutputStream.class).close();        
+    }
 
     /**
      * Close the conduit

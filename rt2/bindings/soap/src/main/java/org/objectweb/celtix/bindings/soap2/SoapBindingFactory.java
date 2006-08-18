@@ -26,8 +26,11 @@ import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapHeaderInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapOperationInfo;
 import org.objectweb.celtix.interceptors.BareInInterceptor;
+import org.objectweb.celtix.interceptors.BareOutInterceptor;
 import org.objectweb.celtix.interceptors.StaxInInterceptor;
+import org.objectweb.celtix.interceptors.StaxOutInterceptor;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
+import org.objectweb.celtix.interceptors.WrappedOutInterceptor;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
@@ -72,14 +75,21 @@ public class SoapBindingFactory extends AbstractBindingFactory implements Bindin
         sb.getInInterceptors().add(new ReadHeadersInterceptor());        
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());
-        
+
+        sb.getOutInterceptors().add(new StaxOutInterceptor());
+        //sb.getOutInterceptors().add(new SoapOutInterceptor());
+
         if (SoapConstants.STYLE_RPC.equalsIgnoreCase(sbi.getStyle())) {
             sb.getInInterceptors().add(new RPCInInterceptor());
+            sb.getOutInterceptors().add(new RPCOutInterceptor());
         } else if (SoapConstants.STYLE_BARE.equalsIgnoreCase(sbi.getStyle())) {
             sb.getInInterceptors().add(new BareInInterceptor());
+            sb.getOutInterceptors().add(new BareOutInterceptor());
         } else {
             sb.getInInterceptors().add(new WrappedInInterceptor());
+            sb.getOutInterceptors().add(new WrappedOutInterceptor());
         }        
+        
                 
         return sb;
     }

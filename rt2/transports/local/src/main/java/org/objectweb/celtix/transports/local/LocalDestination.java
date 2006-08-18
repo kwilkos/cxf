@@ -55,6 +55,9 @@ public class LocalDestination implements Destination {
             super();
             this.conduit = conduit;
         }
+        public void close(Message msg) throws IOException {
+            msg.getContent(OutputStream.class).close();        
+        }
 
         public void close() {
         }

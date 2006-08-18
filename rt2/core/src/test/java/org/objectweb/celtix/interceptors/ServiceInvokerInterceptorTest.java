@@ -1,5 +1,6 @@
 package org.objectweb.celtix.interceptors;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import junit.framework.TestCase;
@@ -37,8 +38,8 @@ public class ServiceInvokerInterceptorTest extends TestCase {
         
         assertTrue(i.invoked);
         
-        Object object = exchange.getOutMessage().getContent(Object.class);
-        assertEquals(input, object);
+        List<?> list = exchange.getOutMessage().getContent(List.class);
+        assertEquals(input, list.get(0));
     }
     
     Endpoint createEndpoint(Invoker i) throws Exception {

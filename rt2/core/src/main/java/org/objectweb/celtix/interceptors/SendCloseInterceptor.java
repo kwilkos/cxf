@@ -11,11 +11,11 @@ import org.objectweb.celtix.phase.Phase;
  * Takes the Conduit from the exchange and sends the message through it.
  *
  */
-public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> {
+public class SendCloseInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public MessageSenderInterceptor() {
+    public SendCloseInterceptor() {
         super();
-        setPhase(Phase.PREPARE_SEND);
+        setPhase(Phase.SEND);
     }
 
     public void handleMessage(Message message) {
@@ -25,7 +25,7 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
         }
         
         try {
-            conduit.send(message);
+            conduit.close(message);
         } catch (IOException ex) {
             // TODO: wrap in runtime exception
             ex.printStackTrace();

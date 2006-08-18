@@ -58,15 +58,20 @@ public class PhaseManagerImpl implements PhaseManager {
         
         outPhases.add(new Phase(Phase.PRE_LOGICAL, ++i * 1000));
         outPhases.add(new Phase(Phase.USER_LOGICAL, ++i * 1000));
-        outPhases.add(new Phase(Phase.MARSHAL, ++i * 1000));
+        outPhases.add(new Phase(Phase.POST_LOGICAL, ++i * 1000));
+        outPhases.add(new Phase(Phase.PREPARE_SEND, ++i * 1000));
+
+        outPhases.add(new Phase(Phase.PRE_STREAM, ++i * 1000));
         outPhases.add(new Phase(Phase.PRE_PROTOCOL, ++i * 1000));
+        outPhases.add(new Phase(Phase.MARSHAL, ++i * 1000));
+        
         outPhases.add(new Phase(Phase.USER_PROTOCOL, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_PROTOCOL, ++i * 1000));
-        outPhases.add(new Phase(Phase.CREATE_STREAM, ++i * 1000));
-        outPhases.add(new Phase(Phase.PRE_STREAM, ++i * 1000));
+        
+        outPhases.add(new Phase(Phase.WRITE, ++i * 1000));
         outPhases.add(new Phase(Phase.USER_STREAM, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_STREAM, ++i * 1000));
-        outPhases.add(new Phase(Phase.WRITE, ++i * 1000));
+        
         outPhases.add(new Phase(Phase.SEND, ++i * 1000));
         
         // Collections.sort(outPhases);

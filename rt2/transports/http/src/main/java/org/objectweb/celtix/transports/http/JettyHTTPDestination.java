@@ -335,7 +335,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             response = resp;
             target = ref;
         }
-        
+        public void close(Message msg) throws IOException {
+            msg.getContent(OutputStream.class).close();        
+        }
+
         /**
          * Register a message observer for incoming messages.
          * 

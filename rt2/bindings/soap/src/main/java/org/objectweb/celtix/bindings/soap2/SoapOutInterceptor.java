@@ -33,6 +33,13 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             XMLStreamWriter xtw = StaxUtils.createXMLStreamWriter(ops);
             soapMessage.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = soapMessage.getVersion();
+            if (soapVersion == null
+                && soapMessage.getExchange().getInMessage() instanceof SoapMessage) {
+                soapVersion = ((SoapMessage)soapMessage.getExchange().getInMessage()).getVersion();
+            }
+            if (soapVersion == null) {
+                soapVersion = Soap11.getInstance();
+            }
             xtw.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope().getLocalPart(),
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());

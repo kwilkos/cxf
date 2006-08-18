@@ -24,6 +24,9 @@ public class LocalConduit implements Conduit {
         this.destination = destination;
     }
 
+    public void close(Message msg) throws IOException {
+        msg.getContent(OutputStream.class).close();        
+    }
     public void close() {
     }
 

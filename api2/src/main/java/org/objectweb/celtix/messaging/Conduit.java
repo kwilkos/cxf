@@ -35,6 +35,11 @@ public interface Conduit extends Observable {
     void send(Message message) throws IOException;
     
     /**
+     * Close the connections associated with the message
+     */
+    void close(Message message) throws IOException;
+    
+    /**
      * @return the reference associated with the target Destination
      */    
     EndpointReferenceType getTarget();

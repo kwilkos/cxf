@@ -30,6 +30,9 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
         Endpoint ep = (Endpoint)ex.get(ExchangeConstants.ENDPOINT);
         chain.add(ep.getOutInterceptors());
         chain.add(ep.getService().getOutInterceptors());
+        if (ep.getBinding() != null) {
+            chain.add(ep.getBinding().getOutInterceptors());
+        }
         chain.add(bus.getOutInterceptors());        
         
         Message outMessage = message.getExchange().getOutMessage();

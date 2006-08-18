@@ -2,6 +2,7 @@ package org.objectweb.celtix.interceptors;
 
 import java.util.List;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.objectweb.celtix.databinding.DataWriter;
@@ -24,6 +25,12 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         if (objs != null && objs.size() > 0) {
             dataWriter.write(objs.get(0), xmlWriter);
+        }
+        try {
+            xmlWriter.flush();
+        } catch (XMLStreamException e) {
+            // TODO excpetion stuff
+            e.printStackTrace();
         }
     }
 

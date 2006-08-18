@@ -14,7 +14,7 @@ public class Phase {
     public static final String PRE_PROTOCOL = "pre-protocol";
     public static final String USER_PROTOCOL = "user-protocol";
     public static final String POST_PROTOCOL = "post-protocol";
-    public static final String CREATE_STREAM = "create-stream";
+    public static final String PREPARE_SEND = "prepare-send";
     public static final String PRE_STREAM = "pre-stream";
     public static final String USER_STREAM = "user-stream";
     public static final String POST_STREAM = "port-stream";
