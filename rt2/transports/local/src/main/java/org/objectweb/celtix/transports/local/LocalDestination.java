@@ -79,25 +79,11 @@ public class LocalDestination implements Destination {
                     conduit.getMessageObserver().onMessage(m);
                 }
             };
-            final Thread readThread = new Thread(receiver);
 
-            final PipedOutputStream outStream = new PipedOutputStream(stream) {
-
-                @Override
-                public void close() throws IOException {
-                    super.close();
-
-                    try {
-                        readThread.join();
-                    } catch (InterruptedException e) {
-                        // IGNORE
-                    }
-                }
-
-            };
+            PipedOutputStream outStream = new PipedOutputStream(stream);
             message.setContent(OutputStream.class, outStream);
 
-            readThread.start();
+            new Thread(receiver).start();
         }
 
         public void setMessageObserver(MessageObserver observer) {

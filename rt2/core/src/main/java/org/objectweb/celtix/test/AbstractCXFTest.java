@@ -66,19 +66,8 @@ public class AbstractCXFTest extends TestCase {
         ConduitInitiator conduitInit = conduitMgr.getConduitInitiator(transport);
         Conduit conduit = conduitInit.getConduit(ei);
 
-        final ByteArrayOutputStream response = new ByteArrayOutputStream();
-        conduit.setMessageObserver(new MessageObserver() {
-
-            public void onMessage(Message message) {
-                try {
-                    copy(message.getContent(InputStream.class), response, 1024);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    fail();
-                }
-            }
-            
-        });
+        TestMessageObserver obs = new TestMessageObserver();
+        conduit.setMessageObserver(obs);
         
         Message m = new MessageImpl();
         conduit.send(m);
@@ -87,7 +76,7 @@ public class AbstractCXFTest extends TestCase {
         InputStream is = getResourceAsStream(message);
         copy(is, os, 8096);
 
-        byte[] bs = response.toByteArray();
+        byte[] bs = obs.getResponseStream().toByteArray();
         if (bs.length == 0) {
             throw new RuntimeException("No response was received!");
         }
@@ -182,5 +171,29 @@ public class AbstractCXFTest extends TestCase {
 
         return basedirPath;
     }
+    
+    class TestMessageObserver implements MessageObserver {
+        ByteArrayOutputStream response = new ByteArrayOutputStream();
+        boolean written;
+        
+        public synchronized ByteArrayOutputStream getResponseStream() throws Exception {
+            if (!written) {
+                wait();
+            }
+            return response;
+        }
+        
 
+        public synchronized void onMessage(Message message) {
+            try {
+                copy(message.getContent(InputStream.class), response, 1024);
+            } catch (IOException e) {
+                e.printStackTrace();
+                fail();
+            } finally {
+                written = true;
+                notifyAll();
+            }
+        }
+    }
 }

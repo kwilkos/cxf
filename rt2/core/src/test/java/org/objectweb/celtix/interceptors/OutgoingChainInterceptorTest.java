@@ -28,6 +28,7 @@ public class OutgoingChainInterceptorTest extends TestCase {
         MessageImpl m = new MessageImpl();
         Exchange exchange = new ExchangeImpl();
         m.setExchange(exchange);
+        exchange.setOutMessage(m);
         exchange.put(Message.BUS, getBus());
         exchange.put(ExchangeConstants.ENDPOINT, createEndpoint());
 

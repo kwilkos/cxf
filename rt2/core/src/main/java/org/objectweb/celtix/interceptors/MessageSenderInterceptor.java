@@ -19,7 +19,10 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
     }
 
     public void handleMessage(Message message) {
-        Conduit conduit = message.getExchange().getConduit();
+        Conduit conduit = message.getConduit();
+        if (conduit == null) {
+            conduit = message.getExchange().getConduit();
+        }
         
         try {
             conduit.send(message);

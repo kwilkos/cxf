@@ -1,7 +1,12 @@
 package org.objectweb.celtix.interceptors;
 
+import java.io.IOException;
+
+import javax.wsdl.WSDLException;
+
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
@@ -17,15 +22,31 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
     }
 
     public void handleMessage(Message message) {
-        Bus bus = (Bus) message.getExchange().get(Message.BUS);
+        Exchange ex = message.getExchange();
+        Bus bus = (Bus)ex.get(Message.BUS);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
-        Endpoint ep = (Endpoint) message.getExchange().get(ExchangeConstants.ENDPOINT);
+        Endpoint ep = (Endpoint)ex.get(ExchangeConstants.ENDPOINT);
         chain.add(ep.getOutInterceptors());
         chain.add(ep.getService().getOutInterceptors());
-        chain.add(bus.getOutInterceptors());
+        chain.add(bus.getOutInterceptors());        
         
-        chain.doIntercept(message);
+        Message outMessage = message.getExchange().getOutMessage();
+        if (outMessage.getConduit() == null
+            && ex.getConduit() == null
+            && ex.getDestination() != null) {
+            try {
+                ex.setConduit(ex.getDestination().getBackChannel(message, null, null));
+            } catch (WSDLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
+        chain.doIntercept(outMessage);
     }
 }

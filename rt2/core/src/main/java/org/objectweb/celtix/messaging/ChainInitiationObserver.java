@@ -29,6 +29,7 @@ public class ChainInitiationObserver implements MessageObserver {
         exchange.put(ExchangeConstants.SERVICE, endpoint.getService());
         exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
         exchange.put(Message.BUS, bus);
+        exchange.setDestination(m.getDestination());
         
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
