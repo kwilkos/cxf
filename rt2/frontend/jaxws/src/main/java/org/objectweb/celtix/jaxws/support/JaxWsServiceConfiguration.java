@@ -138,7 +138,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
         if (!method.getDeclaringClass().equals(endpointClass)) {
             try {
-                method = endpointClass.getMethod(method.getName(), method.getParameterTypes());
+                method = endpointClass.getMethod(method.getName(), (Class[])method.getParameterTypes());
             } catch (SecurityException e) {
                 throw new ServiceConstructionException(e);
             } catch (NoSuchMethodException e) {
