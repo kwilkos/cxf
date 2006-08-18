@@ -47,27 +47,13 @@ public class LocalConduit implements Conduit {
                 destination.getMessageObserver().onMessage(m);
             }
         };
-        final Thread readThread = new Thread(receiver);
 
-        final PipedOutputStream outStream = new PipedOutputStream(stream) {
-
-            @Override
-            public void close() throws IOException {
-                super.close();
-
-                try {
-                    readThread.join();
-                } catch (InterruptedException e) {
-                    // IGNORE
-                }
-            }
-
-        };
+        final PipedOutputStream outStream = new PipedOutputStream(stream);
 
         message.setContent(OutputStream.class, outStream);
 
         // TODO: put on executor
-        readThread.start();
+        new Thread(receiver).start();
     }
 
     public void setMessageObserver(MessageObserver o) {
