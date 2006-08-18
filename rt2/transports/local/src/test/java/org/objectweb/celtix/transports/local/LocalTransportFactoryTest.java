@@ -27,21 +27,10 @@ public class LocalTransportFactoryTest extends TestCase {
         Destination d = factory.getDestination(ei);
         d.setMessageObserver(new Listener());
         
-        final ByteArrayOutputStream response = new ByteArrayOutputStream();
         
         Conduit conduit = factory.getConduit(ei);
-        conduit.setMessageObserver(new MessageObserver() {
-
-            public void onMessage(Message message) {
-                try {
-                    copy(message.getContent(InputStream.class), response, 1024);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    fail();
-                }
-            }
-            
-        });
+        TestMessageObserver obs = new TestMessageObserver();
+        conduit.setMessageObserver(obs);
         
         Message m = new MessageImpl();
         conduit.send(m);
@@ -50,7 +39,8 @@ public class LocalTransportFactoryTest extends TestCase {
         out.write("hello".getBytes());
         out.close();
 
-        assertEquals("hello", response.toString());
+        
+        assertEquals("hello", obs.getResponseStream().toString());
     }
 
     static class Listener implements MessageObserver {
@@ -89,6 +79,32 @@ public class LocalTransportFactoryTest extends TestCase {
         } finally {
             input.close();
             output.close();
+        }
+    }
+    
+    
+    class TestMessageObserver implements MessageObserver {
+        ByteArrayOutputStream response = new ByteArrayOutputStream();
+        boolean written;
+        
+        public synchronized ByteArrayOutputStream getResponseStream() throws Exception {
+            if (!written) {
+                wait();
+            }
+            return response;
+        }
+        
+
+        public synchronized void onMessage(Message message) {
+            try {
+                copy(message.getContent(InputStream.class), response, 1024);
+            } catch (IOException e) {
+                e.printStackTrace();
+                fail();
+            } finally {
+                written = true;
+                notifyAll();
+            }
         }
     }
 }
