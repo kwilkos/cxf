@@ -148,7 +148,7 @@
         </tgroup>
       </table>
     </section>
-    <section>
+    <section id="gen_prog_arts">
       <title>General Programming Language Artifacts</title>
       <para>Docbook defines a number of in-line tags for specifying programming artifacts. The CXF documentation makes use of the tags listed in <xref linkend="progarti"/>.</para>
       <table id="progarti" frame="all">
@@ -199,7 +199,7 @@
     </section>
     <section>
       <title>Object Oriented Programming Language Artifacts</title>
-      <para>In addition to the elements listed in <xref linkend="prog_arts"/>, Docbook defines three elements that are used specifically for object-oriented programming artifacts. They are listed in <xref linkend="oo_arts"/>.</para>
+      <para>In addition to the elements listed in <xref linkend="gen_prog_arts"/>, Docbook defines three elements that are used specifically for object-oriented programming artifacts. They are listed in <xref linkend="oo_arts"/>.</para>
       <table frame="all" id="oo_arts">
         <title>Elements for In-Line OO Programming Artifacts</title>
         <tgroup cols="2">

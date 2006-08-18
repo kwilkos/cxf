@@ -9,6 +9,7 @@
 <!ENTITY chap5 SYSTEM "figures.xml">
 <!ENTITY chap6 SYSTEM "programing.xml">
 <!ENTITY chap7 SYSTEM "admon.xml">
+<!ENTITY chap8 SYSTEM "links.xml">
 ]>
 
 <book>
@@ -20,4 +21,5 @@
 &chap5;
 &chap6;
 &chap7;
+&chap8;
 </book>
