@@ -172,6 +172,24 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(0, p1.faultInvoked);
     }
     
+    public void testWrappedInvokation() throws Exception {
+        CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1", "p1");
+        WrapperingPhaseInterceptor p2 = new WrapperingPhaseInterceptor("phase2", "p2");
+        CountingPhaseInterceptor p3 = new CountingPhaseInterceptor("phase3", "p3");
+        
+        message.getInterceptorChain();
+        EasyMock.expectLastCall().andReturn(chain).anyTimes();
+        
+        control.replay();   
+        chain.add(p1);
+        chain.add(p2);
+        chain.add(p3);
+        chain.doIntercept(message);
+        assertEquals(1, p1.invoked);
+        assertEquals(1, p2.invoked);
+        assertEquals(1, p3.invoked);
+    }
+    
     AbstractPhaseInterceptor setUpPhaseInterceptor(String phase, 
                                                    String id) {
         return setUpPhaseInterceptor(phase, id, null);     
@@ -236,5 +254,25 @@ public class PhaseInterceptorChainTest extends TestCase {
             faultInvoked++;
         }
     }
-    
+    public class CountingPhaseInterceptor extends AbstractPhaseInterceptor<Message> {
+        int invoked;
+        public CountingPhaseInterceptor(String phase, 
+                                         String id) {
+            setPhase(phase);
+            setId(id);
+        }
+        public void handleMessage(Message m) {
+            invoked++;
+        }
+    }
+    public class WrapperingPhaseInterceptor extends CountingPhaseInterceptor {
+        public WrapperingPhaseInterceptor(String phase, 
+                                         String id) {
+            super(phase, id);
+        }
+        public void handleMessage(Message m) {
+            super.handleMessage(m);
+            m.getInterceptorChain().doIntercept(m);
+        }
+    }
 }

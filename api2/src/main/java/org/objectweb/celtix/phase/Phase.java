@@ -1,6 +1,6 @@
 package org.objectweb.celtix.phase;
 
-public class Phase {
+public class Phase implements Comparable {
     
     // can be removed from once defined as default value in configuration metadata for bus
     
@@ -53,5 +53,24 @@ public class Phase {
     }
     public void setPriority(int p) {
         this.priority = p;
+    }
+    
+    public int hashCode() {
+        return priority;
+    }
+    public boolean equals(Object o) {
+        Phase p = (Phase)o;
+        
+        return p.priority == priority
+            && p.name.equals(name);
+    }
+
+    public int compareTo(Object o) {
+        Phase p = (Phase)o;
+        
+        if (priority == p.priority) {
+            return name.compareTo(p.name); 
+        }
+        return priority - p.priority;
     }
 }

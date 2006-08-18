@@ -2,12 +2,13 @@ package org.objectweb.celtix.phase;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,28 +33,24 @@ import org.objectweb.celtix.message.Message;
 public class PhaseInterceptorChain implements InterceptorChain {
 
     private static final Logger LOG = Logger.getLogger(PhaseInterceptorChain.class.getName());
-    private Map<String, List<Interceptor>> interceptors = new LinkedHashMap<String, List<Interceptor>>();
-    private List<Phase> phases;
-    private Phase currentPhase;
-    private List<Interceptor> currentPhaseInterceptors;
-    private Interceptor currentInterceptor;
+    
+    private final Map<Phase, List<Interceptor>> interceptors = new TreeMap<Phase, List<Interceptor>>();
+    private final Map<String, List<Interceptor>> nameMap = new HashMap<String, List<Interceptor>>();
+
     private State state;
-    private List<Interceptor> invokedInterceptors = new ArrayList<Interceptor>();
+    private ListIterator<Interceptor<? extends Message>> iterator;
+    private Message pausedMessage;
+    
     
     public PhaseInterceptorChain(List<Phase> ps) {
-
-        state = State.PAUSED;
-
-        // Order the phases correctly based on priority
-        Collections.sort(ps, new PhaseComparator());
-        this.phases = ps;
+        state = State.EXECUTING;
 
         for (Phase phase : ps) {
-            interceptors.put(phase.getName(), new ArrayList<Interceptor>());
+            List<Interceptor> ints = new ArrayList<Interceptor>();
+            interceptors.put(phase, ints);
+            nameMap.put(phase.getName(), ints);
         }
-
-        currentPhase = ps.get(0);
-        currentPhaseInterceptors = interceptors.get(currentPhase.getName());
+        iterator = new PhaseInterceptorIterator();
     }
 
     public void add(List<Interceptor> newhandlers) {
@@ -76,8 +73,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
 
         String phaseName = pi.getPhase();
         
-        List<Interceptor> phase = interceptors.get(phaseName);
-        
+        List<Interceptor> phase = nameMap.get(phaseName);
         if (phase == null) {
             LOG.fine("Phase " + phaseName + " does not exist. Skipping handler "
                       + i.getClass().getName());
@@ -91,8 +87,10 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
 
     public void resume() {
-        // TODO Auto-generated method stub
-
+        if (state == State.PAUSED) {
+            state = State.EXECUTING;
+            doIntercept(pausedMessage);
+        }
     }
     
 
@@ -104,91 +102,46 @@ public class PhaseInterceptorChain implements InterceptorChain {
      */
     @SuppressWarnings("unchecked")
     public boolean doIntercept(Message message) {
-        state = State.EXECUTING;
-        do {
-            if (currentInterceptor == null && currentPhaseInterceptors.size() > 0) {
-                currentInterceptor = currentPhaseInterceptors.get(0);                
-            } else {
-                int index = currentPhaseInterceptors.indexOf(currentInterceptor);
-                if (index == currentPhaseInterceptors.size() - 1) {
-                    // we're at the end of this phase, go to the next one
-                    int phaseIndex = phases.indexOf(currentPhase);
-
-                    if (setupPhase(++phaseIndex)) {
-                        currentInterceptor = null;
-                    }
-                } else {
-                    // Find the current position of this interceptor as it could
-                    // have changed
-                    currentInterceptor = currentPhaseInterceptors.get(index + 1);
-                }
-            }
-
-            if (null != currentInterceptor) {
+        while (state == State.EXECUTING && iterator.hasNext()) {
+            try {
+                Interceptor currentInterceptor = iterator.next();
+                currentInterceptor.handleMessage(message);
+            } catch (Exception ex) {
                 if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
+                    ex.printStackTrace();
+                    LOG.fine("Interceptor has thrown exception, unwinding now");
                 }
-                try {
-                    invokedInterceptors.add(0, currentInterceptor);
-                    currentInterceptor.handleMessage(message);
-                } catch (Exception ex) {
-                    if (LOG.isLoggable(Level.FINE)) {
-                        ex.printStackTrace();
-                        LOG.fine("Interceptor has thrown exception, unwinding now");
-                    }
-                    message.setContent(Exception.class, ex);
-                    unwind(message);
-                    state = State.ABORTED;
-                }                
-            } else {
-                state = State.COMPLETE;
-            }
-            
-
-        } while (null != currentInterceptor && state != State.PAUSED);        
-        
+                message.setContent(Exception.class, ex);
+                unwind(message);
+                state = State.ABORTED;
+            } 
+        }
+        if (state == State.EXECUTING) {
+            state = State.COMPLETE;
+        } else if (state == State.PAUSED) {
+            pausedMessage = message;
+        }
         return state == State.COMPLETE;
     }
     
     @SuppressWarnings("unchecked")
     private void unwind(Message message) {
-        for (Interceptor i : invokedInterceptors) {
-            i.handleFault(message);
+        while (iterator.hasPrevious()) {
+            Interceptor currentInterceptor = iterator.previous();
+            currentInterceptor.handleFault(message);
         }
     }
 
-    private boolean setupPhase(int phaseIndex) {
-        return setupPhase(phaseIndex, false);
-    }
-    
-    private boolean setupPhase(int phaseIndex, boolean reverse) {
-        // Have we reached the end of the chain??
-        if ((!reverse && phaseIndex == phases.size()) 
-            || (reverse && phaseIndex == -1)) {
-            return true;
-        }
-
-        currentPhase = phases.get(phaseIndex);
-        currentPhaseInterceptors = interceptors.get(currentPhase.getName());
-        if (currentPhaseInterceptors.size() == 0) {
-            return setupPhase(reverse ? --phaseIndex : ++phaseIndex);
-        }
-
-        currentInterceptor = currentPhaseInterceptors.get(
-            reverse ? currentPhaseInterceptors.size() - 1 : 0);
-        return false;
-    }
 
     public void remove(Interceptor i) {
         // TODO
     }
 
-    public ListIterator<Interceptor> getIterator() {
-        List<Interceptor> allInterceptors = new ArrayList<Interceptor>();
-        for (List<Interceptor> interceptorList : interceptors.values()) {
-            allInterceptors.addAll(interceptorList);
-        }
-        return Collections.unmodifiableList(allInterceptors).listIterator();
+    public Iterator<Interceptor<? extends Message>> iterator() {
+        return getIterator();
+    }
+    public ListIterator<Interceptor<? extends Message>> getIterator() {
+        return new PhaseInterceptorIterator();
     }
     
 
@@ -235,14 +188,99 @@ public class PhaseInterceptorChain implements InterceptorChain {
         intercs.add(begin + 1, interc);
     }
 
-    public Iterator<Interceptor<? extends Message>> iterator() {
-        List<Interceptor<? extends Message>> allInterceptors 
+    
+    class PhaseInterceptorIterator implements ListIterator<Interceptor<? extends Message>> {
+        List<Interceptor<? extends Message>> called
             = new ArrayList<Interceptor<? extends Message>>();
-        for (List<Interceptor> interceptorList : interceptors.values()) {
-            for (Interceptor i : interceptorList) {
-                allInterceptors.add((Interceptor<? extends Message>)i);
+        
+        Iterator<List<Interceptor>> phases;
+        List<Interceptor> currentPhase;
+        Iterator<Interceptor> currentPhaseIterator;
+        Interceptor<? extends Message> last;
+        
+        PhaseInterceptorIterator() {
+            phases = interceptors.values().iterator();
+            if (phases.hasNext()) {
+                currentPhase = phases.next();
+                currentPhaseIterator = currentPhase.iterator();
+                last = null;
             }
         }
-        return allInterceptors.iterator();
+        public boolean hasNext() {
+            if (currentPhaseIterator != null) {
+                try {
+                    if (currentPhaseIterator.hasNext()) {
+                        return true; 
+                    }
+                    nextPhase();
+                } catch (ConcurrentModificationException cme) {
+                    refreshIterator();
+                }
+                return hasNext();
+            }
+            return false;
+        }
+        private void refreshIterator() {
+            currentPhaseIterator = currentPhase.iterator();
+            if (last != null) {
+                while (currentPhaseIterator.hasNext()
+                    && last != currentPhaseIterator.next()) {
+                    //nothing
+                }
+            }
+        }
+        private void nextPhase() {
+            if (phases.hasNext()) {
+                currentPhase = phases.next();
+                currentPhaseIterator = currentPhase.iterator();
+                last = null;
+            } else {
+                currentPhase = null;
+                currentPhaseIterator = null;
+                last = null;
+            }
+        }
+        
+        @SuppressWarnings("unchecked")
+        public Interceptor<? extends Message> next() {
+            if (currentPhaseIterator != null) {
+                try {
+                    last = currentPhaseIterator.next();
+                    called.add(last);
+                    return last;
+                } catch (ConcurrentModificationException cme) {
+                    refreshIterator();
+                    return next();
+                }                
+            }
+            return null;
+        }
+
+        public boolean hasPrevious() {
+            return !called.isEmpty();
+        }
+        public Interceptor<? extends Message> previous() {
+            return called.remove(called.size() - 1);
+        }
+
+        public int nextIndex() {
+            throw new UnsupportedOperationException();
+        }
+        public int previousIndex() {
+            throw new UnsupportedOperationException();
+        }
+        public void add(Interceptor o) {
+            throw new UnsupportedOperationException();
+        }
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+        public void set(Interceptor o) {
+            throw new UnsupportedOperationException();
+        }
+        
     }
+
+
+
 }

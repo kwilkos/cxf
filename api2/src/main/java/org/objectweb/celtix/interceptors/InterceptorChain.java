@@ -23,6 +23,6 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     
     void resume();
     
-    ListIterator<Interceptor> getIterator();
+    ListIterator<Interceptor<? extends Message>> getIterator();
 
 }
