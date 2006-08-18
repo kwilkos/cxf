@@ -176,23 +176,27 @@ public class AbstractCXFTest extends TestCase {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         boolean written;
         
-        public synchronized ByteArrayOutputStream getResponseStream() throws Exception {
-            if (!written) {
-                wait();
+        public ByteArrayOutputStream getResponseStream() throws Exception {
+            synchronized (this) {
+                if (!written) {
+                    wait(10000);
+                }
             }
             return response;
         }
         
 
-        public synchronized void onMessage(Message message) {
+        public void onMessage(Message message) {
             try {
                 copy(message.getContent(InputStream.class), response, 1024);
             } catch (IOException e) {
                 e.printStackTrace();
                 fail();
             } finally {
-                written = true;
-                notifyAll();
+                synchronized (this) {
+                    written = true;
+                    notifyAll();
+                }
             }
         }
     }
