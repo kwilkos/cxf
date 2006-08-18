@@ -26,6 +26,8 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
         
         try {
             conduit.send(message);
+            message.getInterceptorChain().doIntercept(message);
+            conduit.close(message);
         } catch (IOException ex) {
             // TODO: wrap in runtime exception
             ex.printStackTrace();

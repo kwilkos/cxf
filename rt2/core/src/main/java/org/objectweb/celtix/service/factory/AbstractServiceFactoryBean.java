@@ -5,7 +5,6 @@ import org.objectweb.celtix.databinding.DataReaderFactory;
 import org.objectweb.celtix.databinding.DataWriterFactory;
 import org.objectweb.celtix.interceptors.MessageSenderInterceptor;
 import org.objectweb.celtix.interceptors.OutgoingChainInterceptor;
-import org.objectweb.celtix.interceptors.SendCloseInterceptor;
 import org.objectweb.celtix.interceptors.ServiceInvokerInterceptor;
 import org.objectweb.celtix.service.Service;
 
@@ -21,7 +20,6 @@ public abstract class AbstractServiceFactoryBean {
         service.getInInterceptors().add(new ServiceInvokerInterceptor());
         service.getInInterceptors().add(new OutgoingChainInterceptor());
         service.getOutInterceptors().add(new MessageSenderInterceptor());
-        service.getOutInterceptors().add(new SendCloseInterceptor());
     }
     
     protected void initializeDataBindings() {

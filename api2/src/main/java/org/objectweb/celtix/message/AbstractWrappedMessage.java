@@ -76,6 +76,9 @@ public abstract class AbstractWrappedMessage implements Message {
     public InterceptorChain getInterceptorChain() {
         return message.getInterceptorChain();
     }
+    public void setInterceptorChain(InterceptorChain chain) {
+        message.setInterceptorChain(chain);
+    }
 
     public <T> T getContent(Class<T> format) {
         return message.getContent(format);

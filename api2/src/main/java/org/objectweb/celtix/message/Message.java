@@ -24,6 +24,7 @@ public interface Message extends Map<String, Object> {
     String getId();
     
     InterceptorChain getInterceptorChain();
+    void setInterceptorChain(InterceptorChain chain);
     
     /**
      * @return the associated Conduit if message is outbound, null otherwise

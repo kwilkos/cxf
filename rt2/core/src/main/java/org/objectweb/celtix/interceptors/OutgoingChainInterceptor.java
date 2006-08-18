@@ -49,7 +49,7 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
                 e.printStackTrace();
             }
         }
-        
+        outMessage.setInterceptorChain(chain);
         chain.doIntercept(outMessage);
     }
 }
