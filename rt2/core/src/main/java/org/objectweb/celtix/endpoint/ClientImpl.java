@@ -37,7 +37,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         
         getOutInterceptors().add(new MessageSenderInterceptor());
     }
-    
+
+    public Endpoint getEndpoint() {
+        return this.endpoint;
+    }
 
     public Object[] invoke(OperationInfo oi, Object[] params, Map<String, Object> ctx) {
         if (LOG.isLoggable(Level.FINE)) {

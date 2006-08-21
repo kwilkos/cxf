@@ -137,7 +137,7 @@ public class ServiceImpl extends ServiceDelegate {
         JaxwsEndpointImpl jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
         Client client = new ClientImpl(bus, jaxwsEndpoint);
         
-        InvocationHandler ih = new EndpointInvocationHandler(jaxwsEndpoint, client, 
+        InvocationHandler ih = new EndpointInvocationHandler(client, 
                                                              jaxwsEndpoint.getJaxwsBinding());
         
         // configuration stuff 

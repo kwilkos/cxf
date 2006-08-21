@@ -16,5 +16,7 @@ public interface Client {
     Object[] invoke(OperationInfo oi,
                     Object[] params,
                     Map<String, Object> context);
+
+    Endpoint getEndpoint();
    
 }
