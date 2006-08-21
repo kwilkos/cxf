@@ -1,5 +1,6 @@
 package org.objectweb.celtix.wsdl;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.wsdl.WSDLException;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -37,6 +39,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.helpers.DOMUtils;
 import org.objectweb.celtix.jaxb.JAXBUtils;
 import org.objectweb.celtix.ws.addressing.AttributedURIType;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
@@ -56,7 +59,7 @@ public final class EndpointReferenceUtils {
 
     private static final QName WSDL_LOCATION = new QName("http://www.w3.org/2006/01/wsdl-instance",
                                                          "wsdlLocation");
-    private static final Transformer XML_TRANSFORMER;
+    private static final TransformerFactory XML_TRANSFORMER_FACTORY;
     static {
         
         //To Support IBM JDK 
@@ -69,18 +72,15 @@ public final class EndpointReferenceUtils {
                                "org.apache.xalan.xsltc.trax.TransformerFactoryImpl");
         }
         
-        Transformer transformer = null;
-        try {
-            TransformerFactory tf = TransformerFactory.newInstance();
-            transformer = tf.newTransformer();            
-        } catch (TransformerConfigurationException tce) {
-            throw new WebServiceException("Could not create transformer", tce);
-        }
-        XML_TRANSFORMER = transformer;
+        XML_TRANSFORMER_FACTORY = TransformerFactory.newInstance();
     }
     
     private EndpointReferenceUtils() {
         // Utility class - never constructed
+    }
+    
+    private static Transformer createTransformer() throws TransformerConfigurationException {
+        return XML_TRANSFORMER_FACTORY.newTransformer();
     }
     
     /**
@@ -294,6 +294,9 @@ public final class EndpointReferenceUtils {
                             && null == ss.getReader()) {
                             setWSDLLocation(ref, ss.getSystemId());
                             doTransform = false;
+                        } else {
+                            node = DOMUtils.readXml(ss);
+                            doTransform = false;
                         }
                     } else if (source instanceof DOMSource) {
                         node = ((DOMSource)node).getNode();
@@ -304,7 +307,7 @@ public final class EndpointReferenceUtils {
                         DOMResult domResult = new DOMResult();
                         domResult.setSystemId(source.getSystemId());
                         
-                        XML_TRANSFORMER.transform(source, domResult);
+                        createTransformer().transform(source, domResult);
     
                         node = domResult.getNode();
                     }
@@ -324,6 +327,12 @@ public final class EndpointReferenceUtils {
                 }
             } catch (TransformerException te) {
                 throw new WebServiceException("Populating metadata in EPR failed", te);
+            } catch (SAXException e) {
+                throw new WebServiceException("Populating metadata in EPR failed", e);
+            } catch (IOException e) {
+                throw new WebServiceException("Populating metadata in EPR failed", e);
+            } catch (ParserConfigurationException e) {
+                throw new WebServiceException("Populating metadata in EPR failed", e);
             }
         }
     }

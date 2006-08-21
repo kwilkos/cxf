@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -254,6 +255,30 @@ public final class DOMUtils {
         // db.setErrorHandler( new MyErrorHandler());
 
         return db.parse(is);
+    }
+    public static Document readXml(StreamSource is) throws SAXException, IOException,
+        ParserConfigurationException {
+        
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    
+        dbf.setValidating(false);
+        dbf.setIgnoringComments(false);
+        dbf.setIgnoringElementContentWhitespace(true);
+        dbf.setNamespaceAware(true);
+        // dbf.setCoalescing(true);
+        // dbf.setExpandEntityReferences(true);
+    
+        DocumentBuilder db = null;
+        db = dbf.newDocumentBuilder();
+        db.setEntityResolver(new NullResolver());
+    
+        // db.setErrorHandler( new MyErrorHandler());
+        InputSource is2 = new InputSource();
+        is2.setSystemId(is.getSystemId());
+        is2.setByteStream(is.getInputStream());
+        is2.setCharacterStream(is.getReader());
+        
+        return db.parse(is2);
     }
 
     public static void writeXml(Node n, OutputStream os) throws TransformerException {
