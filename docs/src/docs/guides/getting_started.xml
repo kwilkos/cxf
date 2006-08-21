@@ -104,11 +104,11 @@ title Celtix Shell</programlisting>
 
     <itemizedlist>
       <listitem>
-        <para><ulink url="#using_eclipse">Eclipse</ulink></para>
+        <para><link linkend="using_eclipse">Eclipse</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#using_ant">Apache Ant</ulink></para>
+        <para><link linkend="using_ant">Apache Ant</link></para>
       </listitem>
     </itemizedlist>
 

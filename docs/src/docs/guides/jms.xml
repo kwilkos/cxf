@@ -60,11 +60,11 @@
 
     <itemizedlist>
       <listitem>
-        <para><ulink url="#BasicWSDL">WSDL</ulink></para>
+        <para><link linkend="BasicWSDL">WSDL</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#BasicConfig">Configuratoin</ulink></para>
+        <para><link linkend="BasicConfig">Configuratoin</link></para>
       </listitem>
     </itemizedlist>
 
@@ -389,11 +389,11 @@
 
     <itemizedlist>
       <listitem>
-        <para><ulink url="#ConsumerConfig">Configuration</ulink></para>
+        <para><link linkend="ConsumerConfig">Configuration</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#ConsumerWSDL">WSDL</ulink></para>
+        <para><link linkend="ConsumerWSDL">WSDL</link></para>
       </listitem>
     </itemizedlist>
 
@@ -531,11 +531,11 @@
 
     <itemizedlist>
       <listitem>
-        <para><ulink url="#ServiceConfig">Configuration</ulink></para>
+        <para><link linkend="ServiceConfig">Configuration</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#ServiceWSDL">WSDL</ulink></para>
+        <para><link linkend="ServiceWSDL">WSDL</link></para>
       </listitem>
     </itemizedlist>
 

@@ -44,27 +44,27 @@
 
     <itemizedlist>
       <listitem>
-        <para><ulink url="#bus">CeltixBus</ulink></para>
+        <para><link linkend="bus">CeltixBus</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#workqueue">WorkQueue</ulink></para>
+        <para><link linkend="workqueue">WorkQueue</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#wsdlmgr">WSDLManager</ulink></para>
+        <para><link linkend="wsdlmgr">WSDLManager</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#endpt">Endpoint</ulink></para>
+        <para><link linkend="endpt">Endpoint</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#http">HTTPServerTransport</ulink></para>
+        <para><link linkend="http">HTTPServerTransport</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#jms">JMSServerTransort</ulink></para>
+        <para><link linkend="jms">JMSServerTransort</link></para>
       </listitem>
     </itemizedlist>
 
@@ -454,7 +454,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       </section>
     </section>
 
-    <section>
+    <section id="endpt">
       <title>Endpoint</title>
 
       <para>The Endpoint component represents an endpoint running inside of
@@ -810,13 +810,13 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
 
     <itemizedlist>
       <listitem>
-        <para><ulink url="#jmx">implement one of the JMX MBean interfaces and
-        register it with the CeltiXfire MBeanServer</ulink></para>
+        <para><link linkend="jmx">implement one of the JMX MBean interfaces and
+        register it with the CeltiXfire MBeanServer</link></para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#celtix">implement the CeltiXfire
-        <classname>Instrumentation</classname> interface</ulink></para>
+        <para><link linkend="celtix">implement the CeltiXfire
+        <classname>Instrumentation</classname> interface</link></para>
       </listitem>
     </itemizedlist>
 
@@ -1006,21 +1006,21 @@ mbserver.registerMBean(sName, name);
 
       <procedure>
         <step>
-          <para><ulink url="#writeclass">Write</ulink> an instrumentation
+          <para><link linkend="writeclass">Write</link> an instrumentation
           class that implements the
           <interfacename>org.objectweb.celtix.Instrumentation</interfacename>
           interface.</para>
         </step>
 
         <step>
-          <para>When your service is starting up, <ulink
-          url="#activate">activate</ulink> your instrumentation object by
+          <para>When your service is starting up, <link
+          linkend="activate">activate</link> your instrumentation object by
           instantiating it and registering it with the bus.</para>
         </step>
 
         <step>
-          <para>When your service is shutting down, <ulink
-          url="#deactivate">deactivate</ulink> your instrumentation by
+          <para>When your service is shutting down, <link
+          linkend="deactivate">deactivate</link> your instrumentation by
           unregistering it and cleaning it up.</para>
         </step>
       </procedure>
@@ -1402,14 +1402,12 @@ im.unregister(in);</programlisting>
 
     <itemizedlist>
       <listitem>
-        <para><ulink
-        url="#instrumentcontrol">im:instrumentationControl</ulink> configures
-        the instrumentation event listener that collects the JMX provided
-        data.</para>
+        <para><link linkend="instrumentcontrol">im:instrumentationControl</link> configures the 
+		instrumentation event listener that collects the JMX provided data.</para>
       </listitem>
 
       <listitem>
-        <para><ulink url="#mbserver">im:MBServer</ulink> configures the
+        <para><link linkend="mbserver">im:MBServer</link> configures the
         JMXConnectorServer that runs the CeltiXfire MBean server.</para>
       </listitem>
     </itemizedlist>

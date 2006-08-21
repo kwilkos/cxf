@@ -67,7 +67,7 @@
 			<sgmltag class="attribute">xreflable</sgmltag> attribute will be used as the link 
 			text.</para>
 	  <note>
-	    <para>The if the referenced element has both a <sgmltag class="element">title</sgmltag> 
+	    <para>If the referenced element has both a <sgmltag class="element">title</sgmltag> 
 		      element and a value specified in its <sgmltag class="attribute">xreflable</sgmltag> 
 			  attribute, the value of the <sgmltag class="attribute">xreflable</sgmltag> attribute 
 			  is used.</para>
@@ -79,11 +79,11 @@
 	  <example id="xrefexample1">
 	    <title>Cross Reference to a Titled Element</title>
 		<programlisting>&lt;para&gt;&lt;xref linkend="topsect" /&gt; shows ...&lt;/para&gt;
-		...
-		&lt;section id="topsect"&gt;
-		  &lt;title&gt;Coco Crisps&lt;/title&gt;
-		  ...
-		&lt;/section&gt;</programlisting>
+...
+&lt;section id="topsect"&gt;
+  &lt;title&gt;Coco Crisps&lt;/title&gt;
+...
+&lt;/section&gt;</programlisting>
 	  </example>
 	  <para><xref linkend="xrefexample2" /> shows an example of a cross reference whose text is 
 	        derived from the <sgmltag class="attribute">xreflable</sgmltag> attribute of the 
@@ -92,16 +92,31 @@
 	  <example id="xrefexample2">
 	    <title>Cross Reference to an Element with an Xreflable</title>
 		<programlisting>&lt;para&gt;&lt;xref linkend="example1" /&gt; shows ...&lt;/para&gt;
-		...
-		&lt;example id="example1" xlableref="short stop"&gt;
-		  &lt;title&gt;Catching Coco Crisp&lt;/title&gt;
-		  ...
-		&lt;/example&gt;</programlisting>
+...
+&lt;example id="example1" xlableref="short stop"&gt;
+  &lt;title&gt;Catching Coco Crisp&lt;/title&gt;
+  ...
+&lt;/example&gt;</programlisting>
 	  </example>
 	</section>
   </section>
   <section id="ulink">
     <title>External Links</title>
-	<para>External links are </para>
+	<para>External links are links to resources that are not contianed in the same XML source 
+	      document. They do not have to be links to other documents. They can be links to Web pages 
+		  or any other resource that can be reached using a URL. Generally, they are transformed 
+		  into HTML links when the document is published.</para>
+	<para>External links are created using the <sgmltag class="element">ulink</sgmltag> element. 
+	      You identify the linked resource using the required <sgmltag class="attribute">url</sgmltag> 
+		  attribute. The value must be a valid URL.</para>
+    <note>
+	  <para>Because the CeltiXfire documentation is built with Forrest, you can use the 
+	        <filename>site:<replaceable>siteId</replaceable></filename> resource identifier to 
+			refer to pages that are listed in <filename>site.xml</filename>.</para>
+	</note>
+	<para>The link text can be specified in one of two ways. You can specified the desired link 
+	      text as the value of the <sgmltag class="element">ulink</sgmltag> element. If you leave 
+		  the <sgmltag class="element">ulink</sgmltag> element empty, the value of the 
+		  <sgmltag class="attribute">url</sgmltag> attribute will be used as the link text.</para>
   </section>
 </chapter>

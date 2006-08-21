@@ -27,12 +27,12 @@
 
     <procedure>
       <step>
-        <para><ulink url="#metadata">Define</ulink> the JAX-WS style
+        <para><link linkend="metadata">Define</link> the JAX-WS style
         metadata.</para>
       </step>
 
       <step>
-        <para><ulink url="#impl">Implement</ulink> the service's business
+        <para><link linkend="impl">Implement</link> the service's business
         logic.</para>
       </step>
     </procedure>
