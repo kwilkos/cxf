@@ -19,7 +19,6 @@ import javax.xml.namespace.QName;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.AbstractBindingFactory;
 import org.objectweb.celtix.bindings.Binding;
-import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
 import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
@@ -37,9 +36,8 @@ import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.wsdl11.WSDLBindingFactory;
 
-public class SoapBindingFactory extends AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
+public class SoapBindingFactory extends AbstractBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
     
