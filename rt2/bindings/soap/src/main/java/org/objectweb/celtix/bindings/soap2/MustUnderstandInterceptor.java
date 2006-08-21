@@ -17,14 +17,13 @@ import org.objectweb.celtix.phase.Phase;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(MustUnderstandInterceptor.class);
-    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();    
-    
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+
     public MustUnderstandInterceptor() {
         super();
         setPhase(Phase.PROTOCOL);
     }
-    
-    
+
     public void handleMessage(SoapMessage soapMessage) {
         Set<Element> mustUnderstandHeaders = new HashSet<Element>();
         Set<URI> serviceRoles = new HashSet<URI>();
@@ -46,14 +45,14 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    private void initServiceSideInfo(Set<QName> mustUnderstandQNames, 
-                                     SoapMessage soapMessage,
+    private void initServiceSideInfo(Set<QName> mustUnderstandQNames, SoapMessage soapMessage,
                                      Set<URI> serviceRoles) {
-// 
-//        Set<QName> paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
-//        if (paramHeaders != null) {
-//            mustUnderstandQNames.addAll(paramHeaders);
-//        }
+        // 
+        // Set<QName> paramHeaders =
+        // HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
+        // if (paramHeaders != null) {
+        // mustUnderstandQNames.addAll(paramHeaders);
+        // }
         for (Interceptor interceptorInstance : soapMessage.getInterceptorChain()) {
             if (interceptorInstance instanceof SoapInterceptor) {
                 SoapInterceptor si = (SoapInterceptor)interceptorInstance;
@@ -67,30 +66,32 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
                                             Set<URI> serviceRoles) {
         Element headers = (Element)soapMessage.getHeaders(Element.class);
         for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
-            Element header = (Element)headers.getChildNodes().item(i);
-            String mustUnderstand = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
-                                                          soapMessage.getVersion()
-                                                              .getAttrNameMustUnderstand());
+            if (headers.getChildNodes().item(i) instanceof Element) {
+                Element header = (Element)headers.getChildNodes().item(i);
+                String mustUnderstand = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
+                                                              soapMessage.getVersion()
+                                                                  .getAttrNameMustUnderstand());
 
-            if (Boolean.valueOf(mustUnderstand) || "1".equals(mustUnderstand.trim())) {
-                String role = header.getAttributeNS(soapMessage.getVersion().getNamespace(), soapMessage
-                    .getVersion().getAttrNameRole());
-                if (role != null) {
-                    role = role.trim();
-                    if (role.equals(soapMessage.getVersion().getNextRole())
-                        || role.equals(soapMessage.getVersion().getUltimateReceiverRole())) {
-                        mustUnderstandHeaders.add(header);
-                    } else {
-                        for (URI roleFromBinding : serviceRoles) {
-                            if (role.equals(roleFromBinding)) {
-                                mustUnderstandHeaders.add(header);
+                if (Boolean.valueOf(mustUnderstand) || "1".equals(mustUnderstand.trim())) {
+                    String role = header.getAttributeNS(soapMessage.getVersion().getNamespace(), soapMessage
+                        .getVersion().getAttrNameRole());
+                    if (role != null) {
+                        role = role.trim();
+                        if (role.equals(soapMessage.getVersion().getNextRole())
+                            || role.equals(soapMessage.getVersion().getUltimateReceiverRole())) {
+                            mustUnderstandHeaders.add(header);
+                        } else {
+                            for (URI roleFromBinding : serviceRoles) {
+                                if (role.equals(roleFromBinding)) {
+                                    mustUnderstandHeaders.add(header);
+                                }
                             }
                         }
+                    } else {
+                        // if role omitted, the soap node is ultimate receiver,
+                        // needs to understand
+                        mustUnderstandHeaders.add(header);
                     }
-                } else {
-                    // if role omitted, the soap node is ultimate receiver,
-                    // needs to understand
-                    mustUnderstandHeaders.add(header);
                 }
             }
         }

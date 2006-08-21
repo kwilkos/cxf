@@ -3,6 +3,7 @@ package org.objectweb.celtix.staxutils;
 import java.io.*;
 import java.util.*;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.stream.StreamFilter;
 import javax.xml.stream.XMLInputFactory;
@@ -381,11 +382,11 @@ public final class StaxUtils {
         }
     }
 
-    public static Document read(DocumentBuilder builder, XMLStreamReader reader, boolean repairing)
-        throws XMLStreamException {
+    public static Document read(DocumentBuilder builder, XMLStreamReader reader, boolean repairing,
+                                QName stopAt) throws XMLStreamException {
         Document doc = builder.newDocument();
 
-        readDocElements(doc, reader, repairing);
+        readDocElements(doc, reader, repairing, stopAt);
 
         return doc;
     }
@@ -404,9 +405,14 @@ public final class StaxUtils {
      * @return
      * @throws XMLStreamException
      */
-    private static Element startElement(Node parent, XMLStreamReader reader, boolean repairing)
+    private static Element startElement(Node parent, XMLStreamReader reader, boolean repairing, QName stopAt)
         throws XMLStreamException {
         Document doc = getDocument(parent);
+
+        if (stopAt != null && stopAt.getNamespaceURI().equals(reader.getNamespaceURI())
+            && stopAt.getLocalPart().equals(reader.getLocalName())) {
+            return null;
+        }
 
         Element e = doc.createElementNS(reader.getNamespaceURI(), reader.getLocalName());
 
@@ -437,7 +443,7 @@ public final class StaxUtils {
 
         reader.next();
 
-        readDocElements(e, reader, repairing);
+        readDocElements(e, reader, repairing, stopAt);
 
         if (repairing && !isDeclared(e, reader.getNamespaceURI(), reader.getPrefix())) {
             declare(e, reader.getNamespaceURI(), reader.getPrefix());
@@ -470,7 +476,7 @@ public final class StaxUtils {
      * @param reader
      * @throws XMLStreamException
      */
-    public static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing)
+    public static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing, QName stopAt)
         throws XMLStreamException {
         Document doc = getDocument(parent);
 
@@ -479,15 +485,15 @@ public final class StaxUtils {
         while (reader.hasNext()) {
             switch (event) {
             case XMLStreamConstants.START_ELEMENT:
-                startElement(parent, reader, repairing);
-
-                if (parent instanceof Document) {
+                if (startElement(parent, reader, repairing, stopAt) == null) {
+                    return;
+                }
+                if (parent instanceof Document && stopAt != null) {
                     if (reader.hasNext()) {
                         reader.next();
                     }
                     return;
                 }
-
                 break;
             case XMLStreamConstants.END_ELEMENT:
                 return;
@@ -569,6 +575,7 @@ public final class StaxUtils {
             throw new RuntimeException("Couldn't parse stream.", e);
         }
     }
+
     /**
      * @param reader
      * @return
