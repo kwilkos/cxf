@@ -1,6 +1,8 @@
 package org.objectweb.celtix.endpoint;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -8,12 +10,12 @@ import java.util.logging.Logger;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
+import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.interceptors.AbstractBasicInterceptorProvider;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.interceptors.MessageSenderInterceptor;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.messaging.Conduit;
@@ -21,8 +23,13 @@ import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.ConduitInitiatorManager;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.phase.PhaseManager;
+import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.EndpointInfo;
+import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
+import org.objectweb.celtix.service.model.ServiceInfo;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client {
     
@@ -42,26 +49,38 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return this.endpoint;
     }
 
-    public Object[] invoke(OperationInfo oi, Object[] params, Map<String, Object> ctx) {
+    public Object[] invoke(BindingOperationInfo oi, Object[] params, Map<String, Object> ctx) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
         }
         Message message = endpoint.getBinding().createMessage();
-        message.setContent(Object[].class, params);
-        setOutMessageProperties(message, oi);
+        if (params == null) {
+            message.setContent(List.class, Collections.emptyList());
+        } else {
+            message.setContent(List.class, Arrays.asList(params));
+        }
+        setOutMessageProperties(message, oi.getOperationInfo());
    
         Exchange exchange = new ExchangeImpl();
         if (null != ctx) {
             exchange.putAll(ctx);
         }
+
+        
+        
         exchange.setOutMessage(message);        
-        // TODO: Set BindingOperationInfo here on exchange
         setExchangeProperties(exchange, ctx);
+        
+        // TODO: Set BindingOperationInfo here on exchange
+        exchange.put(OperationInfo.class, oi.getOperationInfo());
+        exchange.put(BindingOperationInfo.class, oi);
+
         message.setExchange(exchange);
 
         // setup chain
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
+        message.setInterceptorChain(chain);
         
         List<Interceptor> il = bus.getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
@@ -144,8 +163,13 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
     
     protected void setExchangeProperties(Exchange exchange, Map<String, Object> ctx) {
-        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
-        exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
+       
+        exchange.put(Service.class, endpoint.getService());
+        exchange.put(Endpoint.class, endpoint);
+        exchange.put(ServiceInfo.class, endpoint.getService().getServiceInfo());
+        exchange.put(InterfaceInfo.class, endpoint.getService().getServiceInfo().getInterface());
+        exchange.put(Binding.class, endpoint.getBinding());
+        exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
     }
     
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {

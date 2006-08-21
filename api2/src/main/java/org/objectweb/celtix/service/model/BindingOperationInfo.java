@@ -19,6 +19,9 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
     final BindingMessageInfo inputMessage;
     final BindingMessageInfo outputMessage;
     Map<QName, BindingFaultInfo> faults;
+
+    BindingOperationInfo unwrappedOperation;
+
     
     BindingOperationInfo(BindingInfo bi, OperationInfo opinfo) { 
         bindingInfo = bi;
@@ -41,7 +44,11 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
             for (FaultInfo fault : of) {
                 faults.put(fault.getFaultName(), new BindingFaultInfo(fault, this));
             }
-        }        
+        }  
+        
+        if (opinfo.isUnwrappedCapable()) {
+            unwrappedOperation = new BindingOperationInfo(bi, opinfo.getUnwrappedOperation());
+        }
     }
     
     public BindingInfo getBinding() {
@@ -76,5 +83,19 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         }
         return Collections.unmodifiableCollection(faults.values());
     }
+    
+    public boolean isUnwrappedCapable() {
+        return unwrappedOperation != null;
+    }
+    public BindingOperationInfo getUnwrappedOperation() {
+        return unwrappedOperation;
+    }
+    public void setUnwrappedOperation(BindingOperationInfo op) {
+        unwrappedOperation = op;
+    }
+    public boolean isUnwrapped() {
+        return opInfo.isUnwrapped();
+    }
+
 
 }

@@ -44,8 +44,8 @@ public final class HeaderUtil {
 
     public static Set<QName> getHeaderQNameInOperationParam(SoapMessage soapMessage) {
         Set<QName> headers = new HashSet<QName>();
-        BindingOperationInfo bop = (BindingOperationInfo)soapMessage.getExchange()
-            .get(BindingOperationInfo.class.getName());
+        BindingOperationInfo bop = soapMessage.getExchange()
+            .get(BindingOperationInfo.class);
         if (bop != null) {
             headers.addAll(getHeaderParts(bop.getInput()));
             headers.addAll(getHeaderParts(bop.getOutput()));

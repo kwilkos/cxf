@@ -31,7 +31,7 @@ public class BareOutInterceptorTest extends TestBase {
         baos =  new ByteArrayOutputStream();
         writer = getXMLStreamWriter(baos);
         message.setContent(XMLStreamWriter.class, writer);
-        message.getExchange().put(BindingOperationInfo.class.getName(), operation);
+        message.getExchange().put(BindingOperationInfo.class, operation);
     }
 
     public void tearDown() throws Exception {

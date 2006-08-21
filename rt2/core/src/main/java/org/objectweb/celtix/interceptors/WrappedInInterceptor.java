@@ -22,7 +22,7 @@ import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
 import org.objectweb.celtix.staxutils.StaxUtils;
 
 public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
-    public static final String SINGLE_WRAPPED_PART = "single.wrapped.part";
+    public static final String SINGLE_WRAPPED_PART = "single.wrapped.in.part";
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
     
     public WrappedInInterceptor() {
@@ -50,7 +50,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         if (operation == null) {
             throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
         }
-        message.getExchange().put(BindingOperationInfo.class.getName(), operation);
+        message.getExchange().put(BindingOperationInfo.class, operation);
         
         DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> objects;

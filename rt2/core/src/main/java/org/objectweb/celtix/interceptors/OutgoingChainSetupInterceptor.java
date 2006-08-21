@@ -7,7 +7,6 @@ import javax.wsdl.WSDLException;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.phase.Phase;
@@ -28,17 +27,17 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
 
     public void handleMessage(Message message) {
         Exchange ex = message.getExchange();
-        BindingOperationInfo bop = (BindingOperationInfo)ex.get(BindingOperationInfo.class.getName());
+        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
         
         if (bop.getOperationInfo().isOneWay()) {
             return;
         }
             
-        Bus bus = (Bus)ex.get(Message.BUS);
+        Bus bus = ex.get(Bus.class);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
-        Endpoint ep = (Endpoint)ex.get(ExchangeConstants.ENDPOINT);
+        Endpoint ep = ex.get(Endpoint.class);
         chain.add(ep.getOutInterceptors());
         chain.add(ep.getService().getOutInterceptors());
         chain.add(bus.getOutInterceptors());        

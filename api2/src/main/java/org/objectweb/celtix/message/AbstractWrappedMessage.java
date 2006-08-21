@@ -124,4 +124,11 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.values();
     }
     
+    public <T> T get(Class<T> key) {
+        return message.get(key);
+    }
+    public <T> void put(Class<T> key, T value) {
+        message.put(key, value);
+    }
+    
 }

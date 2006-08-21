@@ -7,7 +7,6 @@ import java.util.concurrent.Executor;
 
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
 import org.objectweb.celtix.phase.Phase;
@@ -29,7 +28,7 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
 
     public void handleMessage(final Message message) {
         final Exchange exchange = message.getExchange();
-        final Endpoint endpoint = (Endpoint)exchange.get(ExchangeConstants.ENDPOINT);
+        final Endpoint endpoint = exchange.get(Endpoint.class);
         final Service service = endpoint.getService();
         final Invoker invoker = service.getInvoker();        
 

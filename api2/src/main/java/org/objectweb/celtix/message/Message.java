@@ -11,7 +11,6 @@ import org.objectweb.celtix.messaging.Destination;
 public interface Message extends Map<String, Object> {
     
     String TRANSPORT = "org.objectweb.celtix.transport";    
-    String BUS = "org.objectweb.celtix.bus";
     String REQUESTOR_ROLE = "org.objectweb.celtix.client";
     String ONEWAY_MESSAGE = "org.objectweb.celtix.transport.isOneWayMessage";
 
@@ -68,5 +67,22 @@ public interface Message extends Map<String, Object> {
     /**
      * @return the set of currently encapsulated content formats
      */
-    Set<Class<?>> getContentFormats();      
+    Set<Class<?>> getContentFormats();   
+    
+    
+    
+    /**
+     * Convienience method for storing/retrieving typed objects from the map.
+     * equivilent to:  (T)get(key.getName());
+     * @param <T> key
+     * @return
+     */
+    <T> T get(Class<T> key);
+    /**
+     * Convienience method for storing/retrieving typed objects from the map.
+     * equivilent to:  put(key.getName(), value);
+     * @param <T> key
+     * @return
+     */
+    <T> void put(Class<T> key, T value);    
 }

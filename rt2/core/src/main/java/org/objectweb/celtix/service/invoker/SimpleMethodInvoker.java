@@ -20,9 +20,9 @@ public class SimpleMethodInvoker implements Invoker {
     }
 
     public Object invoke(Exchange exchange, Object o) {
-        BindingOperationInfo bop = (BindingOperationInfo) exchange.get(BindingOperationInfo.class.getName());
+        BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
         
-        Method m = (Method) bop.getOperationInfo().getProperty(Method.class.getName());
+        Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
         List<?> params = (List<?>) o;
         
         Object res;

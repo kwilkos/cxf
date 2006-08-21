@@ -81,4 +81,11 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
         this.interceptorChain = ic;
     }
     
+    public <T> T get(Class<T> key) {
+        return key.cast(get(key.getName()));
+    }
+
+    public <T> void put(Class<T> key, T value) {
+        put(key.getName(), value);
+    }
 }

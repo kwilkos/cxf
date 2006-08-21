@@ -1,13 +1,14 @@
 package org.objectweb.celtix.messaging;
 
 import org.objectweb.celtix.Bus;
+import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.phase.PhaseManager;
+import org.objectweb.celtix.service.Service;
 
 public class ChainInitiationObserver implements MessageObserver {
     Endpoint endpoint;
@@ -25,10 +26,10 @@ public class ChainInitiationObserver implements MessageObserver {
         exchange.setInMessage(message);
         message.setExchange(exchange);
         
-        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
-        exchange.put(ExchangeConstants.SERVICE, endpoint.getService());
-        exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
-        exchange.put(Message.BUS, bus);
+        exchange.put(Endpoint.class, endpoint);
+        exchange.put(Service.class, endpoint.getService());
+        exchange.put(Binding.class, endpoint.getBinding());
+        exchange.put(Bus.class, bus);
         exchange.setDestination(m.getDestination());
         
         // setup chain

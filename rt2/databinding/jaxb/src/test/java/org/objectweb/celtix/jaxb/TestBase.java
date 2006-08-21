@@ -17,10 +17,10 @@ import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.bus.CeltixBus;
+import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.endpoint.EndpointImpl;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
@@ -78,9 +78,9 @@ public class TestBase extends TestCase {
         Exchange exchange = new ExchangeImpl();
         message.setExchange(exchange);
 
-        exchange.put(ExchangeConstants.SERVICE, service);
-        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
-        exchange.put(ExchangeConstants.BINDING, endpoint.getBinding());
+        exchange.put(Service.class, service);
+        exchange.put(Endpoint.class, endpoint);
+        exchange.put(Binding.class, endpoint.getBinding());
     }
 
     public void tearDown() throws Exception {

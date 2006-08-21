@@ -33,8 +33,7 @@ public class BareInInterceptorTest extends TestBase {
         GreetMe greet = (GreetMe)obj;
         assertEquals("TestSOAPInputPMessage", greet.getRequestType());
         
-        BindingOperationInfo bop = (BindingOperationInfo)message.getExchange().get(BindingOperationInfo.class
-                                                                                   .getName());
+        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
         assertNotNull(bop);
         // this doesn't pass yet as we can't introspect the message part type classes to find
         // the correct operation. One possibility is to try to match QNames instead.
@@ -58,8 +57,7 @@ public class BareInInterceptorTest extends TestBase {
         GreetMeResponse greet = (GreetMeResponse)obj;
         assertEquals("TestSOAPOutputPMessage", greet.getResponseType());
 
-        BindingOperationInfo bop = (BindingOperationInfo)message.getExchange().get(BindingOperationInfo.class
-                                                                                       .getName());
+        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
         assertNotNull(bop);
     }
 }

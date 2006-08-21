@@ -47,5 +47,13 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
         outMessage = m;
         m.setExchange(this);
     }
+    
+    public <T> T get(Class<T> key) {
+        return key.cast(get(key.getName()));
+    }
+
+    public <T> void put(Class<T> key, T value) {
+        put(key.getName(), value);
+    }
 
 }

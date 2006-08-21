@@ -14,7 +14,7 @@ import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 
 public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
-    public static final String SINGLE_WRAPPED_PART = "single.wrapped.part";
+    public static final String SINGLE_WRAPPED_PART = "single.wrapped.out.part";
 
     public WrappedOutInterceptor() {
         super();
@@ -31,8 +31,7 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         List<?> objs = message.getContent(List.class);
 
-        BindingOperationInfo bop = 
-            (BindingOperationInfo)message.getExchange().get(BindingOperationInfo.class.getName());
+        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
         OperationInfo op = bop.getOperationInfo();
 
         Class wrapped = (Class)op.getProperty(SINGLE_WRAPPED_PART);

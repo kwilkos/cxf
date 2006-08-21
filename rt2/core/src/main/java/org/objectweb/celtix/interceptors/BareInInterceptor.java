@@ -8,7 +8,6 @@ import javax.xml.stream.XMLStreamReader;
 import org.objectweb.celtix.databinding.DataReader;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.service.Service;
@@ -28,8 +27,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         Exchange exchange = message.getExchange();
 
-        BindingOperationInfo operation = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
-            .getName());
+        BindingOperationInfo operation = exchange.get(BindingOperationInfo.class);
 
         DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
@@ -42,7 +40,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         // If we didn't know the operation going into this, lets try to figure
         // it out
         if (operation == null) {
-            Endpoint ep = (Endpoint)exchange.get(ExchangeConstants.ENDPOINT);
+            Endpoint ep = exchange.get(Endpoint.class);
             Service service = ep.getService();
 
             OperationInfo op = findOperation(service.getServiceInfo().getInterface().getOperations(),
@@ -50,7 +48,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
 
             for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
                 if (bop.getOperationInfo().equals(op)) {
-                    exchange.put(BindingOperationInfo.class.getName(), bop);
+                    exchange.put(BindingOperationInfo.class, bop);
                     break;
                 }
             }

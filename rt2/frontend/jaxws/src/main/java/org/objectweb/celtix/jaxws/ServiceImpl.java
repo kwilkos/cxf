@@ -25,6 +25,8 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.Client;
 import org.objectweb.celtix.endpoint.ClientImpl;
+import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
+import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.jaxws.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
 import org.objectweb.celtix.service.Service;
@@ -51,7 +53,9 @@ public class ServiceImpl extends ServiceDelegate {
         WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
         service = sf.create(); 
         handlerResolver = new HandlerResolverImpl(bus, name);
-
+        
+        service.setDataReaderFactory(JAXBDataReaderFactory.getInstance());
+        service.setDataWriterFactory(JAXBDataWriterFactory.getInstance());
     }
     
 

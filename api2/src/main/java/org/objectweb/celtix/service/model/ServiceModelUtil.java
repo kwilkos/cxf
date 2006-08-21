@@ -4,7 +4,6 @@ import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.service.Service;
 
 public final class ServiceModelUtil {
@@ -13,7 +12,7 @@ public final class ServiceModelUtil {
     }
 
     public static Service getService(Exchange exchange) {
-        return (Service)exchange.get(ExchangeConstants.SERVICE);
+        return exchange.get(Service.class);
     }
     
     public static String getTargetNamespace(Exchange exchange) {
@@ -25,7 +24,7 @@ public final class ServiceModelUtil {
     }
 
     public static BindingOperationInfo getOperation(Exchange exchange, QName opName) {
-        Endpoint ep = (Endpoint) exchange.get(ExchangeConstants.ENDPOINT);
+        Endpoint ep = exchange.get(Endpoint.class);
         BindingInfo service = ep.getEndpointInfo().getBinding();
         return service.getOperation(opName);
     }

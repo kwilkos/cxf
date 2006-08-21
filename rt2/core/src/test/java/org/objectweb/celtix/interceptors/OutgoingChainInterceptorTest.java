@@ -12,9 +12,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bus.CeltixBus;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
-import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.phase.Phase;
 import org.objectweb.celtix.phase.PhaseManager;
@@ -71,9 +69,9 @@ public class OutgoingChainInterceptorTest extends TestCase {
         Exchange exchange = new ExchangeImpl();
         m.setExchange(exchange);
         exchange.setOutMessage(m);
-        exchange.put(Message.BUS, bus);
-        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
-        exchange.put(BindingOperationInfo.class.getName(), op);
+        exchange.put(Bus.class, bus);
+        exchange.put(Endpoint.class, endpoint);
+        exchange.put(BindingOperationInfo.class, op);
         setupIntc.handleMessage(m);
         intc.handleMessage(m);
     }

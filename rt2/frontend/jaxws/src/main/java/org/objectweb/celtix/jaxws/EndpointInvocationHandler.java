@@ -9,12 +9,18 @@ import java.util.logging.Logger;
 import javax.jws.WebMethod;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
+import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
 
+import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.Client;
 import org.objectweb.celtix.endpoint.Endpoint;
+import org.objectweb.celtix.interceptors.WrappedInInterceptor;
+import org.objectweb.celtix.interceptors.WrappedOutInterceptor;
+import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 
@@ -26,7 +32,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     private Endpoint endpoint;
     private Client client;
 
-    private Map<Method, OperationInfo> infoMap = new ConcurrentHashMap<Method, OperationInfo>();
+    private Map<Method, BindingOperationInfo> infoMap
+        = new ConcurrentHashMap<Method, BindingOperationInfo>();
 
     EndpointInvocationHandler(Client c, Binding b) {
         super(b);
@@ -36,7 +43,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        OperationInfo oi = getOperationInfo(proxy, method);
+        BindingOperationInfo oi = getOperationInfo(proxy, method);
 
         // REVISIT - Holder objects, etc...
         Object obj[] = client.invoke(oi, args, null);
@@ -44,16 +51,16 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         return obj.length == 0 ? null : obj[0];
     }
 
-    OperationInfo getOperationInfo(Object proxy, Method method) {
+    BindingOperationInfo getOperationInfo(Object proxy, Method method) {
         // TODO: We can't really just associate a method with the operationInfo
         // by its name. The operation name in the wsdl might be something
         // different.
         // For instance, if we have two methods named Foo, there might bee Foo1
         // and Foo2 since the WS-I BP disallows operations with the same name.
 
-        OperationInfo oi = infoMap.get(method);
+        BindingOperationInfo boi = infoMap.get(method);
 
-        if (null == oi) {
+        if (null == boi) {
             WebMethod wma = method.getAnnotation(WebMethod.class);
             String operationName = null;
             if (null != wma && !"".equals(wma.operationName())) {
@@ -64,14 +71,57 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
             InterfaceInfo ii = endpoint.getService().getServiceInfo().getInterface();
    
-            oi = ii.getOperation(new QName(endpoint.getService().getName().getNamespaceURI(), operationName));
+            OperationInfo oi = ii.getOperation(new QName(endpoint.getService().getName().getNamespaceURI(),
+                                                         operationName));
             if (null == oi) {
                 Message msg = new Message("NO_OPERATION_INFO", LOG, operationName);
                 throw new WebServiceException(msg.toString());
             }
-            infoMap.put(method, oi);
+            //found the OI in the Interface, now find it in the binding
+            for (BindingOperationInfo boi2 : endpoint.getEndpointInfo().getBinding().getOperations()) {
+                if (boi2.getOperationInfo() == oi) {
+                    if (boi2.isUnwrappedCapable()) {
+                        try {
+                            Class requestWrapper = getRequestWrapper(method);
+                            Class responseWrapper = getResponseWrapper(method);
+                            
+                            if (requestWrapper != null || responseWrapper != null) {
+                                //BindingOperationInfo boi3 = boi2.getUnwrappedOperation();
+                                //oi = boi3.getOperationInfo();
+                                oi.setProperty(WrappedOutInterceptor.SINGLE_WRAPPED_PART, requestWrapper);
+                                oi.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
+                                //infoMap.put(method, boi3);
+                                //return boi3;
+                            }
+                        } catch (ClassNotFoundException cnfe) {
+                            cnfe.printStackTrace();
+                            //TODO - exception
+                        }
+                    }
+                    infoMap.put(method, boi2);
+                    return boi2;
+                }
+            }
         }
-        return oi;
+        return boi;
     }
+    
+    protected Class getResponseWrapper(Method selected) throws ClassNotFoundException {
+        ResponseWrapper rw = selected.getAnnotation(ResponseWrapper.class);
+        if (rw == null) {
+            return null;
+        }
+        String cn = rw.className();
+        return ClassLoaderUtils.loadClass(cn, selected.getDeclaringClass());
+    }
+    protected Class getRequestWrapper(Method selected) throws ClassNotFoundException {
+        RequestWrapper rw = selected.getAnnotation(RequestWrapper.class);
+        if (rw == null) {
+            return null;
+        }
+        String cn = rw.className();
+        return ClassLoaderUtils.loadClass(cn, selected.getDeclaringClass());
+    }
+
 
 }

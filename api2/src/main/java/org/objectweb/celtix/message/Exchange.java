@@ -31,4 +31,20 @@ public interface Exchange extends Map<String, Object> {
      * @param conduit the associated outgoing Conduit 
      */
     void setConduit(Conduit conduit);
+    
+    
+    /**
+     * Convienience method for storing/retrieving typed objects from the map.
+     * equivilent to:  (T)get(key.getName());
+     * @param <T> key
+     * @return
+     */
+    <T> T get(Class<T> key);
+    /**
+     * Convienience method for storing/retrieving typed objects from the map.
+     * equivilent to:  put(key.getName(), value);
+     * @param <T> key
+     * @return
+     */
+    <T> void put(Class<T> key, T value);
 }

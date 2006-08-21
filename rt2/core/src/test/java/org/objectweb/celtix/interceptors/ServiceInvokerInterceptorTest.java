@@ -8,7 +8,6 @@ import junit.framework.TestCase;
 import org.easymock.IMocksControl;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeConstants;
 import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.service.ServiceImpl;
@@ -30,7 +29,7 @@ public class ServiceInvokerInterceptorTest extends TestCase {
         
         TestInvoker i = new TestInvoker();
         Endpoint endpoint = createEndpoint(i);
-        exchange.put(ExchangeConstants.ENDPOINT, endpoint);
+        exchange.put(Endpoint.class, endpoint);
         Object input = new Object();
         m.setContent(Object.class, input);
         

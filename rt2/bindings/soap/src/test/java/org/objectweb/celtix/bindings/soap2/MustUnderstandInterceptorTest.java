@@ -85,7 +85,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
                                                                "headerTesterSOAPBinding"));
         BindingOperationInfo bop = binding.getOperation(new QName("http://org.objectweb.celtix/headers",
                                                                   "inHeader"));
-        soapMessage.getExchange().put(BindingOperationInfo.class.getName(), bop);
+        soapMessage.getExchange().put(BindingOperationInfo.class, bop);
 
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
         assertEquals("DummaySoapInterceptor getRoles has been called!", true, dsi.isCalledGetRoles());
