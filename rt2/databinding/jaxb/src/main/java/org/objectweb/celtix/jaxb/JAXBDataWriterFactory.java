@@ -15,18 +15,11 @@ public final class JAXBDataWriterFactory extends JAXBDataFactoryBase implements 
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
                                                                         XMLEventWriter.class,
                                                                         XMLStreamWriter.class};
-    private static JAXBDataWriterFactory dataWriterFactory;
     
-    private JAXBDataWriterFactory() {
+    public JAXBDataWriterFactory() {
         
     }
-    
-    public static synchronized JAXBDataWriterFactory getInstance() {
-        if (dataWriterFactory == null) {
-            dataWriterFactory = new JAXBDataWriterFactory();
-        }
-        return dataWriterFactory;
-    }
+
     
     @SuppressWarnings("unchecked")
     public <T> DataWriter<T> createWriter(Class<T> cls) {

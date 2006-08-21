@@ -32,6 +32,7 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.WebEndpoint;
 
 import org.w3c.dom.Node;
 
@@ -138,6 +139,11 @@ public final class JAXBEncoderDecoder {
                                              ClassLoader loader) {
         Method methods[] = theClass.getMethods();
         for (Method meth : methods) {
+            WebEndpoint webEndpoint = meth.getAnnotation(WebEndpoint.class);
+            if (webEndpoint != null) {
+                getClassesForContext(meth.getReturnType(), classes, loader);
+            }
+
             //only methods marked as WebMethods are interesting to us
             WebMethod webMethod = meth.getAnnotation(WebMethod.class);
             if (webMethod == null) {

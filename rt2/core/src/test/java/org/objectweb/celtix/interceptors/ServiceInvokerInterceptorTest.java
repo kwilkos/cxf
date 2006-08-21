@@ -1,5 +1,6 @@
 package org.objectweb.celtix.interceptors;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -31,7 +32,9 @@ public class ServiceInvokerInterceptorTest extends TestCase {
         Endpoint endpoint = createEndpoint(i);
         exchange.put(Endpoint.class, endpoint);
         Object input = new Object();
-        m.setContent(Object.class, input);
+        List<Object> lst = new ArrayList<Object>();
+        lst.add(input);
+        m.setContent(List.class, lst);
         
         intc.handleMessage(m);
         

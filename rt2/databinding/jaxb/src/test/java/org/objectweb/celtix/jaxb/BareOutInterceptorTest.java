@@ -3,6 +3,7 @@ package org.objectweb.celtix.jaxb;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -42,7 +43,7 @@ public class BareOutInterceptorTest extends TestBase {
         GreetMeResponse greetMe = new GreetMeResponse();
         greetMe.setResponseType("responseType");
         
-        message.setContent(Object.class, Arrays.asList(greetMe));
+        message.setContent(List.class, Arrays.asList(greetMe));
 
         interceptor.handleMessage(message);
 
@@ -68,7 +69,7 @@ public class BareOutInterceptorTest extends TestBase {
         GreetMe greetMe = new GreetMe();
         greetMe.setRequestType("requestType");
         
-        message.setContent(Object.class, Arrays.asList(greetMe));
+        message.setContent(List.class, Arrays.asList(greetMe));
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         
         interceptor.handleMessage(message);

@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -35,28 +37,35 @@ import org.objectweb.celtix.service.model.ServiceInfo;
 public final class JAXBDataBinding implements DataBinding {
 
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
-    
     private static final Logger LOG = Logger.getLogger(JAXBDataBinding.class.getName());
     
-    private static JAXBDataBinding jaxbDataBinding;
+    JAXBDataReaderFactory reader;
+    JAXBDataWriterFactory writer;
+    JAXBContext context;
     
-    private JAXBDataBinding() {
-        
+    public JAXBDataBinding() throws JAXBException {
+        reader = new JAXBDataReaderFactory();
+        writer = new JAXBDataWriterFactory();
+    }
+    public JAXBDataBinding(Class<?> cls) throws JAXBException {
+        this();
+        context = JAXBEncoderDecoder.createJAXBContextForClass(cls);
+        reader.setJAXBContext(context);
+        writer.setJAXBContext(context);
     }
     
-    public static synchronized JAXBDataBinding getInstance() {
-        if (jaxbDataBinding == null) {
-            jaxbDataBinding = new JAXBDataBinding();
-        }
-        return jaxbDataBinding;
+    public void setContext(JAXBContext ctx) {
+        context = ctx;
+        reader.setJAXBContext(context);
+        writer.setJAXBContext(context);        
     }
     
     public DataReaderFactory getDataReaderFactory() {
-        return JAXBDataReaderFactory.getInstance();
+        return reader;
     }
 
     public DataWriterFactory getDataWriterFactory() {
-        return JAXBDataWriterFactory.getInstance();
+        return writer;
     }
 
     public Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo) {

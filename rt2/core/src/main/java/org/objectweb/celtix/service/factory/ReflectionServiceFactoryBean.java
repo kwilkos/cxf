@@ -441,6 +441,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         return null;
     }
+    protected Class getRequestWrapper(Method selected) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Class cls = c.getRequestWrapper(selected);
+            if (cls != null) {
+                return cls;
+            }
+        }
+        return null;
+    }
 
     
     

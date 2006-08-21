@@ -25,9 +25,11 @@ import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.phase.PhaseManager;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.model.BindingInfo;
+import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
+import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
@@ -59,7 +61,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         } else {
             message.setContent(List.class, Arrays.asList(params));
         }
-        setOutMessageProperties(message, oi.getOperationInfo());
    
         Exchange exchange = new ExchangeImpl();
         if (null != ctx) {
@@ -67,15 +68,12 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
 
         
-        
-        exchange.setOutMessage(message);        
-        setExchangeProperties(exchange, ctx);
-        
-        // TODO: Set BindingOperationInfo here on exchange
-        exchange.put(OperationInfo.class, oi.getOperationInfo());
-        exchange.put(BindingOperationInfo.class, oi);
-
+        exchange.setOutMessage(message);
         message.setExchange(exchange);
+        
+        setOutMessageProperties(message, oi);
+        setExchangeProperties(exchange, ctx, oi);
+        
 
         // setup chain
         PhaseManager pm = bus.getExtension(PhaseManager.class);
@@ -108,13 +106,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
         chain.add(il);
         
-        /*
-        chain.add(bus.getOutInterceptors());
-        chain.add(endpoint.getService().getOutInterceptors());
-        chain.add(endpoint.getOutInterceptors());
-        chain.add(getOutInterceptors());
-        chain.add(endpoint.getBinding().getOutInterceptors());
-        */
         
         modifyChain(chain, ctx);
         
@@ -157,12 +148,15 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return null;
     }
     
-    
-    protected void setOutMessageProperties(Message message, OperationInfo oi) {
+    protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+        message.put(BindingMessageInfo.class, boi.getInput());
+        message.put(MessageInfo.class, boi.getOperationInfo().getInput());
     }
     
-    protected void setExchangeProperties(Exchange exchange, Map<String, Object> ctx) {
+    protected void setExchangeProperties(Exchange exchange,
+                                         Map<String, Object> ctx,
+                                         BindingOperationInfo boi) {
        
         exchange.put(Service.class, endpoint.getService());
         exchange.put(Endpoint.class, endpoint);
@@ -170,6 +164,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         exchange.put(InterfaceInfo.class, endpoint.getService().getServiceInfo().getInterface());
         exchange.put(Binding.class, endpoint.getBinding());
         exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
+        
+        exchange.put(OperationInfo.class, boi.getOperationInfo());
+        exchange.put(BindingOperationInfo.class, boi);
+        
     }
     
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {

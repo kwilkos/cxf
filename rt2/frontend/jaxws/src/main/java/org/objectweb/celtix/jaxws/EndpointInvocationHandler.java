@@ -19,7 +19,8 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.Client;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
-import org.objectweb.celtix.interceptors.WrappedOutInterceptor;
+import org.objectweb.celtix.jaxws.interceptors.WrapperClassInInterceptor;
+import org.objectweb.celtix.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
@@ -39,6 +40,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         super(b);
         endpoint = c.getEndpoint();
         client = c;
+        client.getOutInterceptors().add(new WrapperClassOutInterceptor());
+        client.getInInterceptors().add(new WrapperClassInInterceptor());
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -86,12 +89,14 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                             Class responseWrapper = getResponseWrapper(method);
                             
                             if (requestWrapper != null || responseWrapper != null) {
-                                //BindingOperationInfo boi3 = boi2.getUnwrappedOperation();
-                                //oi = boi3.getOperationInfo();
-                                oi.setProperty(WrappedOutInterceptor.SINGLE_WRAPPED_PART, requestWrapper);
-                                oi.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
-                                //infoMap.put(method, boi3);
-                                //return boi3;
+                                BindingOperationInfo boi3 = boi2.getUnwrappedOperation();
+                                oi = boi3.getOperationInfo();
+                                oi.setProperty(WrapperClassOutInterceptor.SINGLE_WRAPPED_PART,
+                                               requestWrapper);
+                                boi2.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
+                                                                    Boolean.TRUE);
+                                infoMap.put(method, boi3);
+                                return boi3;
                             }
                         } catch (ClassNotFoundException cnfe) {
                             cnfe.printStackTrace();

@@ -24,7 +24,7 @@ public class BareInInterceptorTest extends TestBase {
 
         assertNull(message.getContent(Exception.class));
 
-        List<?> parameters = (List<?>)message.getContent(Object.class);
+        List<?> parameters = message.getContent(List.class);
         assertEquals(1, parameters.size());
 
         Object obj = parameters.get(0);
@@ -48,7 +48,7 @@ public class BareInInterceptorTest extends TestBase {
 
         interceptor.handleMessage(message);
 
-        List<?> parameters = (List<?>)message.getContent(Object.class);
+        List<?> parameters = message.getContent(List.class);
         assertEquals(1, parameters.size());
 
         Object obj = parameters.get(0);

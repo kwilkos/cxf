@@ -38,7 +38,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         countParts = parts.size();
 
         if (countParts > 0) {
-            List<?> objs = (List<?>)message.getContent(Object.class);
+            List<?> objs = message.getContent(List.class);
             Object[] args = objs.toArray();
             Object[] els = parts.toArray();
 

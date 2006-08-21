@@ -24,12 +24,14 @@ public class WrappedInInterceptorTest extends TestBase {
                                                                                       .getName());
         assertNotNull(op);
 
-        List<?> objs = (List<?>)message.getContent(Object.class);
+        List<?> objs = message.getContent(List.class);
         assertTrue(objs != null && objs.size() > 0);
         Object obj = objs.get(0);
-        assertTrue(obj instanceof String);
+        assertTrue(obj instanceof org.objectweb.hello_world_soap_http.types.GreetMe);
+        org.objectweb.hello_world_soap_http.types.GreetMe gm
+            = (org.objectweb.hello_world_soap_http.types.GreetMe)obj;
 
-        assertEquals("TestSOAPInputPMessage", obj);
+        assertEquals("TestSOAPInputPMessage", gm.getRequestType());
     }
 
     public void testInterceptorOutbound() throws Exception {
@@ -42,14 +44,16 @@ public class WrappedInInterceptorTest extends TestBase {
         interceptor.handleMessage(message);
         assertNull(message.getContent(Exception.class));
 
-        List<?> objs = (List<?>)message.getContent(Object.class);
+        List<?> objs = message.getContent(List.class);
         assertTrue(objs != null && objs.size() > 0);
 
         Object retValue = objs.get(0);
         assertNotNull(retValue);
 
-        assertTrue(retValue instanceof String);
+        assertTrue(retValue instanceof org.objectweb.hello_world_soap_http.types.GreetMeResponse);
 
-        assertEquals("TestSOAPOutputPMessage", retValue);
+        org.objectweb.hello_world_soap_http.types.GreetMeResponse gm
+            = (org.objectweb.hello_world_soap_http.types.GreetMeResponse)retValue;
+        assertEquals("TestSOAPOutputPMessage", gm.getResponseType());
     }
 }

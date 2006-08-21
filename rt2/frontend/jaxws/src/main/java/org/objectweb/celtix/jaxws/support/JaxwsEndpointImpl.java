@@ -14,6 +14,8 @@ import org.objectweb.celtix.jaxws.bindings.soap.SOAPBindingImpl;
 import org.objectweb.celtix.jaxws.handlers.LogicalHandlerInterceptor;
 import org.objectweb.celtix.jaxws.handlers.StreamHandlerInterceptor;
 import org.objectweb.celtix.jaxws.handlers.soap.SOAPHandlerInterceptor;
+import org.objectweb.celtix.jaxws.interceptors.WrapperClassInInterceptor;
+import org.objectweb.celtix.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.model.EndpointInfo;
 
@@ -49,8 +51,11 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         fault.addAll(handlerInterceptors);
         List<Interceptor> in = super.getInInterceptors();
         in.addAll(handlerInterceptors);
+        in.add(new WrapperClassInInterceptor());
+        
         List<Interceptor> out = super.getOutInterceptors();
-        out.addAll(handlerInterceptors);    
+        out.addAll(handlerInterceptors);
+        out.add(new WrapperClassOutInterceptor());
     }
     
     public Binding getJaxwsBinding() {

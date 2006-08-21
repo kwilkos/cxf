@@ -10,12 +10,11 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.jaxb.WrapperHelper;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.phase.Phase;
+import org.objectweb.celtix.service.model.BindingMessageInfo;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 import org.objectweb.celtix.service.model.MessageInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceModelUtil;
 import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
@@ -51,28 +50,23 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
         }
         message.getExchange().put(BindingOperationInfo.class, operation);
+        message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
+        if (requestor) {
+            message.put(MessageInfo.class, operation.getOperationInfo().getOutput());
+            message.put(BindingMessageInfo.class, operation.getOutput());            
+        } else {
+            message.put(MessageInfo.class, operation.getOperationInfo().getInput());
+            message.put(BindingMessageInfo.class, operation.getInput());
+        }
         
         DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> objects;
         
         // Determine if there is a wrapper class
         if (Boolean.TRUE.equals(operation.getOperationInfo().getProperty(SINGLE_WRAPPED_PART))) {
-            // Find the appropriate message that we're processing
-            OperationInfo unwrappedOp = operation.getOperationInfo().getUnwrappedOperation();
-            MessageInfo messageInfo;
-            if (!requestor) {
-                messageInfo = unwrappedOp.getInput();
-            } else {
-                messageInfo = unwrappedOp.getOutput();
-            }
-            
-            if (messageInfo.getMessageParts().size() > 0) {
-                Object wrappedObject = dr.read(xmlReader);
-                
-                objects = getWrappedParts(wrappedObject, messageInfo);
-            } else {
-                objects = new ArrayList<Object>();
-            }
+            objects = new ArrayList<Object>();
+            Object wrappedObject = dr.read(xmlReader);
+            objects.add(wrappedObject);
         } else {
             // Unwrap each part individually if we don't have a wrapper
             objects = new ArrayList<Object>();
@@ -87,21 +81,8 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             }
         }
         
-        message.setContent(Object.class, objects);
+        message.setContent(List.class, objects);
     }
 
-    private List<Object> getWrappedParts(Object wrappedObject, MessageInfo message) {
-        List<Object> objects = new ArrayList<Object>();
-        
-        try {
-            for (MessagePartInfo part : message.getMessageParts()) {
-                objects.add(WrapperHelper.getWrappedPart(part.getName().getLocalPart(), wrappedObject));
-            }
-        } catch (Exception e) {
-            throw new Fault(new org.objectweb.celtix.common.i18n.Message("COULD_NOT_UNRWAP", BUNDLE), e);
-        }
-
-        return objects;
-    }
 }
 

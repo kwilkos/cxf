@@ -180,7 +180,7 @@ public class AbstractCXFTest extends TestCase {
         public ByteArrayOutputStream getResponseStream() throws Exception {
             synchronized (this) {
                 if (!written) {
-                    wait(10000);
+                    wait(1000000000);
                 }
             }
             return response;

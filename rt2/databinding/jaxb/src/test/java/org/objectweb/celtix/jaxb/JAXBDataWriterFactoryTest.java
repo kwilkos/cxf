@@ -19,7 +19,7 @@ public class JAXBDataWriterFactoryTest extends TestCase {
     JAXBDataWriterFactory factory;
 
     public void setUp() {
-        factory = JAXBDataWriterFactory.getInstance();
+        factory = new JAXBDataWriterFactory();
     }
 
     public void testSupportedFormats() {
@@ -45,8 +45,5 @@ public class JAXBDataWriterFactoryTest extends TestCase {
         assertNull(writer);
     }
     
-    public void testSingleton() {
-        assertTrue(factory == JAXBDataWriterFactory.getInstance());
-    }
 }
 

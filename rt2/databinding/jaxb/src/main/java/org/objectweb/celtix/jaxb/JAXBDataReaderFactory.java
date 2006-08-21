@@ -17,18 +17,10 @@ public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements 
                                                                         XMLEventReader.class,
                                                                         XMLStreamReader.class};
     
-    private static JAXBDataReaderFactory dataReaderFactory;
-    
-    private JAXBDataReaderFactory() {
+    public JAXBDataReaderFactory() {
         
     }
 
-    public static synchronized JAXBDataReaderFactory getInstance() {
-        if (dataReaderFactory == null) {
-            dataReaderFactory = new JAXBDataReaderFactory();
-        }
-        return dataReaderFactory;
-    }
     
     @SuppressWarnings("unchecked")
     public <T> DataReader<T> createReader(Class<T> cls) {

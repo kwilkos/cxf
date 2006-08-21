@@ -39,7 +39,7 @@ public class JAXBDataBindingTest extends TestCase {
     private Map<String, SchemaInfo> schemaMap;
     
     public void setUp() throws Exception {
-        jaxbDataBinding = JAXBDataBinding.getInstance();
+        jaxbDataBinding = new JAXBDataBinding();
         String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
@@ -76,10 +76,6 @@ public class JAXBDataBindingTest extends TestCase {
     
     public void tearDown() throws Exception {
         
-    }
-    
-    public void testSingleton() throws Exception {
-        assertTrue(jaxbDataBinding == JAXBDataBinding.getInstance());
     }
     
     public void testGetSchemas() throws Exception {

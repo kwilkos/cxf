@@ -194,7 +194,7 @@ public class XMLStreamDataWriterTest extends TestCase {
 
     private JAXBDataWriterFactory getTestWriterFactory(Class clz) throws Exception {
         JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFactory = JAXBDataWriterFactory.getInstance();
+        JAXBDataWriterFactory writerFactory = new JAXBDataWriterFactory();
         writerFactory.setJAXBContext(ctx);
         return writerFactory;
     }

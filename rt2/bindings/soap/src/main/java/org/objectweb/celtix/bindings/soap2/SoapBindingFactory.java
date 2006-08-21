@@ -86,6 +86,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else {
             sb.getInInterceptors().add(new WrappedInInterceptor());
             sb.getOutInterceptors().add(new WrappedOutInterceptor());
+            sb.getOutInterceptors().add(new BareOutInterceptor());
         }        
         
                 

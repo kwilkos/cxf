@@ -2,9 +2,10 @@ package org.objectweb.celtix.endpoint;
 
 import java.util.Map;
 
+import org.objectweb.celtix.interceptors.InterceptorProvider;
 import org.objectweb.celtix.service.model.BindingOperationInfo;
 
-public interface Client {
+public interface Client extends InterceptorProvider {
     
     /**
      * Invokes an operation syncronously

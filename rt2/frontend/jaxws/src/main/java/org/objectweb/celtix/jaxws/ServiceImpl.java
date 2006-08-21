@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
@@ -25,8 +26,7 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.Client;
 import org.objectweb.celtix.endpoint.ClientImpl;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
+import org.objectweb.celtix.jaxb.JAXBDataBinding;
 import org.objectweb.celtix.jaxws.handlers.HandlerResolverImpl;
 import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
 import org.objectweb.celtix.service.Service;
@@ -54,8 +54,14 @@ public class ServiceImpl extends ServiceDelegate {
         service = sf.create(); 
         handlerResolver = new HandlerResolverImpl(bus, name);
         
-        service.setDataReaderFactory(JAXBDataReaderFactory.getInstance());
-        service.setDataWriterFactory(JAXBDataWriterFactory.getInstance());
+        try {
+            JAXBDataBinding dataBinding = new JAXBDataBinding(cls);
+            service.setDataReaderFactory(dataBinding.getDataReaderFactory());
+            service.setDataWriterFactory(dataBinding.getDataWriterFactory());
+        } catch (JAXBException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
 
@@ -122,7 +128,9 @@ public class ServiceImpl extends ServiceDelegate {
 
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
-        
+
+
+
         QName pn = portName;
         ServiceInfo si = service.getServiceInfo();
         EndpointInfo ei = null;

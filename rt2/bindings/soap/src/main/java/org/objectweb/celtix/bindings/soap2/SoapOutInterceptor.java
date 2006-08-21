@@ -59,7 +59,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             xtw.writeEndElement();
             xtw.flush();
         } catch (XMLStreamException e) {
-            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), SoapFault.SENDER);
+            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, SoapFault.SENDER);
         }
     }
     

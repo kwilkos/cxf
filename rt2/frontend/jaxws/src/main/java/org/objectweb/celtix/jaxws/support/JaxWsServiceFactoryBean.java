@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.wsdl.WSDLException;
+import javax.xml.bind.JAXBException;
 import javax.xml.ws.WebServiceException;
 
 import org.objectweb.celtix.BusException;
@@ -18,9 +19,8 @@ import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.endpoint.ServerImpl;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
-import org.objectweb.celtix.interceptors.WrappedOutInterceptor;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
+import org.objectweb.celtix.jaxb.JAXBDataBinding;
+import org.objectweb.celtix.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.objectweb.celtix.messaging.ChainInitiationObserver;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.factory.ReflectionServiceFactoryBean;
@@ -33,12 +33,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
     
+    Class<?> seiClass;
+    JAXBDataBinding dataBinding;
+    
     public JaxWsServiceFactoryBean() {
         super();
 
         getServiceConfigurations().add(new JaxWsServiceConfiguration());
-        setDataReaderFactory(JAXBDataReaderFactory.getInstance());
-        setDataWriterFactory(JAXBDataWriterFactory.getInstance());
     }
 
     public void activateEndpoints() throws IOException, WSDLException, BusException {
@@ -66,14 +67,26 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         // TODO: Check for request/responsewrapper annotations
         Class responseWrapper = getResponseWrapper(selected);
         if (responseWrapper != null) {
-            o.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
-            o.setProperty(WrappedOutInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
+            o.setProperty(WrapperClassOutInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
+        }
+        Class<?> requestWrapper = getRequestWrapper(selected);
+        if (requestWrapper != null) {
+            o.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
         }
     }
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         super.setServiceClass(serviceClass);
+        
+        try {
+            dataBinding = new JAXBDataBinding(serviceClass);
+        } catch (JAXBException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        setDataReaderFactory(dataBinding.getDataReaderFactory());
+        setDataWriterFactory(dataBinding.getDataWriterFactory());
         
         // update wsdl location
         
@@ -88,7 +101,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         
         String sei = ws.endpointInterface();
         if (null != sei && !"".equals(sei)) {
-            Class<?> seiClass = null;
             try {
                 seiClass = ClassLoaderUtils.loadClass(sei, serviceClass);
             } catch (ClassNotFoundException ex) {
