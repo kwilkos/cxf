@@ -77,7 +77,7 @@ public class SoapBindingFactory extends AbstractBindingFactory implements Bindin
         sb.getInInterceptors().add(new StaxInInterceptor());
 
         sb.getOutInterceptors().add(new StaxOutInterceptor());
-        //sb.getOutInterceptors().add(new SoapOutInterceptor());
+        sb.getOutInterceptors().add(new SoapOutInterceptor());
 
         if (SoapConstants.STYLE_RPC.equalsIgnoreCase(sbi.getStyle())) {
             sb.getInInterceptors().add(new RPCInInterceptor());

@@ -8,6 +8,7 @@ import javax.wsdl.WSDLException;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.endpoint.ServerImpl;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
+import org.objectweb.celtix.interceptors.WrappedOutInterceptor;
 import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
 import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
 import org.objectweb.celtix.messaging.ChainInitiationObserver;
@@ -50,9 +51,11 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         super.initializeWSDLOperation(intf, o, selected);
 
         // TODO: Check for request/responsewrapper annotations
-        o.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
+        Class responseWrapper = getResponseWrapper(selected);
+        if (responseWrapper != null) {
+            o.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
+            o.setProperty(WrappedOutInterceptor.SINGLE_WRAPPED_PART, responseWrapper);
+        }
     }
-
-    
     
 }

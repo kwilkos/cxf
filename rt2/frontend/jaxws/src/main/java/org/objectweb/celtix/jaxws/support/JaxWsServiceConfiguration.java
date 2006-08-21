@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.ResponseWrapper;
 
 import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
 import org.objectweb.celtix.common.i18n.BundleUtils;
@@ -148,4 +149,47 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         return method;
     }
 
+    @Override
+    public Class getResponseWrapper(Method selected) {
+        Method m = getDeclaredMethod(selected);
+        
+        ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
+        if (rw == null) {
+            return null;
+        }
+        
+        String clsName = rw.className();
+        if (clsName.length() > 0) {
+            try {
+                return ClassLoaderUtils.loadClass(clsName, getClass());
+            } catch (ClassNotFoundException e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        return null;
+    }
+
+    @Override
+    public Class getRequestWrapper(Method selected) {
+        Method m = getDeclaredMethod(selected);
+        
+        ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
+        if (rw == null) {
+            return null;
+        }
+        
+        String clsName = rw.className();
+        
+        if (clsName.length() > 0) {
+            try {
+                return ClassLoaderUtils.loadClass(clsName, getClass());
+            } catch (ClassNotFoundException e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        return null;
+    }
+    
 }

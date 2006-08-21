@@ -72,7 +72,7 @@ public class GreeterTest extends AbstractCXFTest {
         
         assertNotNull(response);
         
-        addNamespace("h", "http://objectweb.org/hello_world_soap_http");
+        addNamespace("h", "http://objectweb.org/hello_world_soap_http/types");
         
         assertValid("/s:Envelope/s:Body", response);
         assertValid("//h:sayHiResponse", response);

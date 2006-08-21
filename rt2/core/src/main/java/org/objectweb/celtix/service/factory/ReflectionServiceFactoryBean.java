@@ -431,6 +431,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
+
+    protected Class getResponseWrapper(Method selected) {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Class cls = c.getResponseWrapper(selected);
+            if (cls != null) {
+                return cls;
+            }
+        }
+        return null;
+    }
+
+    
+    
     public List<AbstractServiceConfiguration> getConfigurations() {
         return serviceConfigurations;
     }

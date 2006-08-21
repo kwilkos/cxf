@@ -44,6 +44,8 @@ public class AbstractCXFTest extends TestCase {
     
     public void setUp() throws Exception {
         bus = createBus();
+        
+        namespaces.put("s", "http://schemas.xmlsoap.org/soap/envelope/");
     }
     
     public Bus getBus() {
@@ -80,7 +82,6 @@ public class AbstractCXFTest extends TestCase {
         if (bs.length == 0) {
             throw new RuntimeException("No response was received!");
         }
-        
         ByteArrayInputStream input = new ByteArrayInputStream(bs);
         return DOMUtils.readXml(input);
     }

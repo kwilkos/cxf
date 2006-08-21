@@ -11,6 +11,12 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
     private Set<String> before = new HashSet<String>();
     private Set<String> after = new HashSet<String>();
 
+    
+    public AbstractPhaseInterceptor() {
+        super();
+        id = getClass().getName();
+    }
+
     public void addBefore(String i) {
         before.add(i);
     }

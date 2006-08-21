@@ -62,7 +62,8 @@ public final class WrapperHelper {
             }
             
             if (!setInvoked) {
-                throw new IllegalArgumentException("Could not find a modifier method on Wrapper Type");
+                throw new IllegalArgumentException("Could not find a modifier method on Wrapper Type for " 
+                                                   + partName);
             }
         }
     }

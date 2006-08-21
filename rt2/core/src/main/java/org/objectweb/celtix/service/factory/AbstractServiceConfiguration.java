@@ -103,4 +103,12 @@ public abstract class AbstractServiceConfiguration {
     public QName getPortType(Class clazz) {
         return null;
     }
+
+    public Class getResponseWrapper(Method selected) {
+        return null;
+    }
+    
+    public Class getRequestWrapper(Method selected) {
+        return null;
+    }
 }

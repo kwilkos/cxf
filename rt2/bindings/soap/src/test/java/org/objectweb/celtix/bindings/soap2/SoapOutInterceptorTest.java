@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
@@ -37,8 +38,10 @@ public class SoapOutInterceptorTest extends TestBase {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         soapMessage.setContent(OutputStream.class, out);
-
+        soapMessage.setContent(XMLStreamWriter.class, StaxUtils.createXMLStreamWriter(out));
+        
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
+        
         assertNotNull(soapMessage.getHeaders(Element.class));
 
         Exception oe = (Exception)soapMessage.getContent(Exception.class);

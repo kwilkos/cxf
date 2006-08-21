@@ -40,11 +40,6 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
                     exchange.getInMessage().getContent(Object.class));
 
                 if (result != null) {
-                    // TODO: The outgoing logic should be consolidated somewhere.
-                    if (exchange.getOutMessage() == null) {
-                        Message outmessage = endpoint.getBinding().createMessage();
-                        exchange.setOutMessage(outmessage);
-                    }
                     if (!(result instanceof List)) {
                         if (result.getClass().isArray()) {
                             result = Arrays.asList((Object[])result);
