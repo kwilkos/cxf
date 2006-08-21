@@ -38,7 +38,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
         staxIntc.handleMessage(soapMessage);
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
         Element eleHeaders = soapMessage.getHeaders(Element.class);
-        List headerChilds = new ArrayList<Element>();
+        List<Element> headerChilds = new ArrayList<Element>();
         for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
             if (eleHeaders.getChildNodes().item(i) instanceof Element) {
                 Element element = (Element)eleHeaders.getChildNodes().item(i);
@@ -47,10 +47,10 @@ public class ReadHeaderInterceptorTest extends TestBase {
         }
         assertEquals(2, headerChilds.size());
         for (int i = 0; i < headerChilds.size(); i++) {
-            Element ele = (Element)headerChilds.get(i);
+            Element ele = headerChilds.get(i);
             if (ele.getLocalName().equals("reservation")) {
                 Element reservation = ele;
-                List reservationChilds = new ArrayList<Element>();
+                List<Element> reservationChilds = new ArrayList<Element>();
                 for (int j = 0; j < reservation.getChildNodes().getLength(); j++) {
                     if (reservation.getChildNodes().item(j) instanceof Element) {
                         Element element = (Element)reservation.getChildNodes().item(j);
@@ -58,7 +58,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
                     }
                 }
                 assertEquals(2, reservationChilds.size());
-                assertEquals("reference", ((Element)reservationChilds.get(0)).getLocalName());
+                assertEquals("reference", reservationChilds.get(0).getLocalName());
                 assertEquals("uuid:093a2da1-q345-739r-ba5d-pqff98fe8j7d", ((Element)reservationChilds.get(0))
                     .getTextContent());
                 assertEquals("dateAndTime", ((Element)reservationChilds.get(1)).getLocalName());

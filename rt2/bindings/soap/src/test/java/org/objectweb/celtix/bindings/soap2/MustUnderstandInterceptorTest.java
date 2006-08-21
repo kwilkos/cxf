@@ -10,8 +10,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.w3c.dom.Element;
-
 import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
 import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
 import org.objectweb.celtix.message.Attachment;
@@ -52,8 +50,6 @@ public class MustUnderstandInterceptorTest extends TestBase {
         dsi.getUnderstoodHeaders().add(PASSENGER);
 
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        assertEquals("HeaderInterceptor run correctly!", 2, soapMessage.getHeaders(Element.class)
-            .getChildNodes().getLength());
         assertEquals("DummaySoapInterceptor getRoles has been called!", true, dsi.isCalledGetRoles());
         assertEquals("DummaySoapInterceptor getUnderstood has been called!", true, dsi
             .isCalledGetUnderstood());
@@ -92,8 +88,6 @@ public class MustUnderstandInterceptorTest extends TestBase {
         soapMessage.getExchange().put(BindingOperationInfo.class.getName(), bop);
 
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
-        assertEquals("HeaderInterceptor run correctly!", 2, soapMessage.getHeaders(Element.class)
-            .getChildNodes().getLength());
         assertEquals("DummaySoapInterceptor getRoles has been called!", true, dsi.isCalledGetRoles());
         assertEquals("DummaySoapInterceptor getUnderstood has been called!", true, dsi
             .isCalledGetUnderstood());
