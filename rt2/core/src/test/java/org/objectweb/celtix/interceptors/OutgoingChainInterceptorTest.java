@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.easymock.IMocksControl;
 import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.CeltixBus;
+import org.objectweb.celtix.bus.CeltixBusFactory;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.ExchangeImpl;
@@ -37,7 +37,7 @@ public class OutgoingChainInterceptorTest extends TestCase {
         super.setUp();
         
         IMocksControl control = createNiceControl();
-        bus = new CeltixBus();
+        bus = new CeltixBusFactory().createBus();
         PhaseManager pm = control.createMock(PhaseManager.class);
         
         List<Phase> phases = new ArrayList<Phase>();

@@ -16,7 +16,7 @@ import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.Binding;
 import org.objectweb.celtix.bindings.BindingFactory;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.bus.CeltixBus;
+import org.objectweb.celtix.bus.CeltixBusFactory;
 import org.objectweb.celtix.endpoint.Endpoint;
 import org.objectweb.celtix.endpoint.EndpointImpl;
 import org.objectweb.celtix.interceptors.WrappedInInterceptor;
@@ -49,7 +49,7 @@ public class TestBase extends TestCase {
     BindingOperationInfo operation;
 
     public void setUp() throws Exception {
-        bus = new CeltixBus();
+        bus = new CeltixBusFactory().createBus();
 
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
 

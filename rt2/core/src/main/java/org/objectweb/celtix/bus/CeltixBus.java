@@ -30,15 +30,15 @@ public class CeltixBus implements Bus {
     private Configuration configuration;
     private String id;
     
-    public CeltixBus() {
+    protected CeltixBus() {
         this(new HashMap<Class, Object>());
     }
 
-    public CeltixBus(Map<Class, Object> e) {
+    protected CeltixBus(Map<Class, Object> e) {
         this(e, null);
     }
     
-    public CeltixBus(Map<Class, Object> e, Map<String, Object> properties) {
+    protected CeltixBus(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
      
