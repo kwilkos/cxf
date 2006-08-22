@@ -9,6 +9,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
+import org.objectweb.celtix.bus.CeltixBus.State;
 import org.objectweb.celtix.configuration.Configuration;
 import org.objectweb.celtix.event.EventProcessor;
 import org.objectweb.celtix.management.InstrumentationManager;
@@ -77,6 +78,51 @@ public class CeltixBusTest extends TestCase {
         assertTrue("Unexpected value for servicesMonitoring property.",
                    !c.getBoolean("servicesMonitoring"));
     }
+    
+    public void testRun() {
+        final CeltixBus bus = new CeltixBus();
+        Thread t = new Thread() {
+            public void run() {
+                bus.run();
+            }
+        };
+        t.start();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            // ignore;
+        }
+        try {
+            t.join(400);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+        assertEquals(State.RUNNING, bus.getState());
+    }
+    
+    public void testShutdown() {
+        final CeltixBus bus = new CeltixBus();
+        Thread t = new Thread() {
+            public void run() {
+                bus.run();
+            }
+        };
+        t.start();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            // ignore;
+        }
+        bus.shutdown(true);
+        try {
+            t.join();
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+        assertEquals(State.SHUTDOWN, bus.getState());
+        
+    }
+    
     
 
 }

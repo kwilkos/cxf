@@ -23,12 +23,21 @@ public class CeltixBus implements Bus {
     
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
     
+    enum State { INITIAL, RUNNING, SHUTDOWN };
+    
+    
+    
+    
+    
     private List<Interceptor> inInterceptors;
     private List<Interceptor> outInterceptors;
     private List<Interceptor> faultInterceptors;
     private Map<Class, Object> extensions;
     private Configuration configuration;
     private String id;
+    private State state;
+    
+    
     
     protected CeltixBus() {
         this(new HashMap<Class, Object>());
@@ -73,7 +82,7 @@ public class CeltixBus implements Bus {
                                                     extensions,
                                                     resourceManager);
         
-        
+        state = State.INITIAL;
 
     }
     
@@ -108,5 +117,38 @@ public class CeltixBus implements Bus {
     public String getId() {
         return id;
     }
+
+    public void run() {
+        synchronized (this) {
+            if (state == State.RUNNING) {
+                // REVISIT
+                return;
+            }
+            state = State.RUNNING;
+
+            while (state == State.RUNNING) {
+
+                try {
+                    wait();
+                } catch (InterruptedException ex) {
+                    // ignore;
+                }
+            }
+        }
+    }
+
+    public void shutdown(boolean wait) {
+        // TODO: invoke PreDestroy on all resources
+        synchronized (this) {
+            state = State.SHUTDOWN;
+            notifyAll();
+        }
+    }
+    
+    protected State getState() {
+        return state;
+    }
+    
+    
     
 }

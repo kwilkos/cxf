@@ -2,6 +2,7 @@ package org.objectweb.hello_world_soap_http;
 
 
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
@@ -20,20 +21,25 @@ import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
             endpointInterface = "org.objectweb.hello_world_soap_http.Greeter",
             targetNamespace = "http://objectweb.org/hello_world_soap_http")
 public class GreeterImpl implements Greeter {
+    
+    private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
 
     private int invocationCount;
     
     public String greetMe(String me) {
+        LOG.info("Invoking greetMe");
         invocationCount++;
         return "Hello " + me;
     }
 
     public String sayHi() {
-        invocationCount++;
+        LOG.info("Invoking sayHi");
+        invocationCount++;        
         return "Bonjour";
     }
 
     public void testDocLitFault(String faultType) throws BadRecordLitFault, NoSuchCodeLitFault {
+        LOG.info("Invoking testDocLitFault");
         invocationCount++;
         if (faultType.equals(BadRecordLitFault.class.getSimpleName())) {
             throw new BadRecordLitFault("TestBadRecordLit", "BadRecordLitFault");

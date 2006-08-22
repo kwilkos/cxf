@@ -12,5 +12,9 @@ public interface Bus extends InterceptorProvider {
     Configuration getConfiguration();
     
     String getId();
+    
+    void shutdown(boolean wait);
+    
+    void run();
 
 }
