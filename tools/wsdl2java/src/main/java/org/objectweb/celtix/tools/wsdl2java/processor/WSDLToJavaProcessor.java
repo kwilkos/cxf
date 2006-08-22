@@ -146,17 +146,24 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             return;
         }
         try {
-            if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
-                S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-                JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
-                String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
+            String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
 
-                TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), excludePkgList);
+            TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), excludePkgList);
+             
+            if (rawJaxbModelGenCode instanceof S2JJAXBModel  && !nestedJaxbBinding) {
+                S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
+            
+                JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
                 jcodeModel.build(fileCodeWriter);
                 excludeGenFiles = fileCodeWriter.getExcludeFileList();
-            } else {
-                return;
             }
+            
+            if (rawJaxbModelGenCode instanceof S2JJAXBModel  && nestedJaxbBinding) {
+                model.codeModel.build(fileCodeWriter);
+                excludeGenFiles = fileCodeWriter.getExcludeFileList();
+            }
+            
+            return;
         } catch (IOException e) {
             Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
             throw new ToolException(msg);

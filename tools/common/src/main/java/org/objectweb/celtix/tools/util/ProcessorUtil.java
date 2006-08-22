@@ -16,6 +16,12 @@ import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+
 import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.TypeAndAnnotation;
@@ -370,4 +376,49 @@ public final class ProcessorUtil {
 
         return true;
     }
+    public static Node cloneNode(Document document, Node node, boolean deep) throws DOMException {
+        if (document == null || node == null) {
+            return null;
+        }
+        int type = node.getNodeType();
+        
+        if (node.getOwnerDocument() == document) {
+            return node.cloneNode(deep);
+        }
+        Node clone;
+        switch (type) {
+        case Node.CDATA_SECTION_NODE:
+            clone = document.createCDATASection(node.getNodeValue());
+            break;
+        case Node.COMMENT_NODE:
+            clone = document.createComment(node.getNodeValue());
+            break;
+        case Node.ENTITY_REFERENCE_NODE:
+            clone = document.createEntityReference(node.getNodeName());
+            break;
+        case Node.ELEMENT_NODE:
+            clone = document.createElement(node.getNodeName());
+            NamedNodeMap attributes = node.getAttributes();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                ((Element)clone).setAttribute(attributes.item(i).getNodeName(), attributes.item(i)
+                    .getNodeValue());
+            }
+            break;
+       
+        case Node.TEXT_NODE:
+            clone = document.createTextNode(node.getNodeValue());
+            break;
+        default:
+            return null;
+        }
+        if (deep && type == Node.ELEMENT_NODE) {
+            Node child = node.getFirstChild();
+            while (child != null) {
+                clone.appendChild(cloneNode(document, child, true));
+                child = child.getNextSibling();
+            }
+        }
+        return clone;
+    }
+
 }

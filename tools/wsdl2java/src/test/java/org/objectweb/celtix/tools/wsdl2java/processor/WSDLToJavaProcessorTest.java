@@ -951,11 +951,54 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     public void testHangingBug() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bughanging/wsdl/wsrf.wsdl"));
         processor.setEnvironment(env);
-        processor.process();
-
-       
+        processor.process();       
     }
     
+    public void testBug305924ForNestedBinding() {
+        try {
+            String[] args = new String[] {"-all", "-compile", "-classdir", 
+                                          output.getCanonicalPath() + "/classes", 
+                                          "-d",
+                                          output.getCanonicalPath(),
+                                          "-b",
+                                          getLocation("/wsdl/bug305924/binding2.xml"),
+                                          getLocation("/wsdl/bug305924/hello_world.wsdl")};
+            WSDLToJava.main(args);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+
+        try {
+            Class clz = 
+                classLoader.loadClass("org.objectweb.hello_world_soap_http.types.CreateProcess$MyProcess");
+            assertNotNull("Customization binding code should be generated", clz);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void testBug305924ForExternalBinding() {
+        try {
+            String[] args = new String[] {"-all", "-compile", "-classdir", 
+                                          output.getCanonicalPath() + "/classes", 
+                                          "-d",
+                                          output.getCanonicalPath(),
+                                          "-b",
+                                          getLocation("/wsdl/bug305924/binding1.xml"),
+                                          getLocation("/wsdl/bug305924/hello_world.wsdl")};
+            WSDLToJava.main(args);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+
+        try {
+            Class clz = 
+                classLoader.loadClass("org.objectweb.hello_world_soap_http.types.CreateProcess$MyProcess");
+            assertNotNull("Customization binding code should be generated", clz);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
     
 
     private String getLocation(String wsdlFile) {
