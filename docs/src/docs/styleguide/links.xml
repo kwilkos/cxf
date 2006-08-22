@@ -118,5 +118,17 @@
 	      text as the value of the <sgmltag class="element">ulink</sgmltag> element. If you leave 
 		  the <sgmltag class="element">ulink</sgmltag> element empty, the value of the 
 		  <sgmltag class="attribute">url</sgmltag> attribute will be used as the link text.</para>
+	<para><xref linkend="ulinkexample1"/> shows an example of an external link with supplied link 
+	      text.</para>
+	<example id="ulinkexample1">
+	  <title>External Link with Link Text</title>
+	  <programlisting>&lt;ulink url="http://celtixfire.org"&gt;CeltiXfire Home&lt;/ulink&gt;</programlisting>
+	</example>
+	<para><xref linkend="ulinkexample2"/> shows an example of an external link that uses the default 
+	      link text.</para>
+	<example id="ulinkexample2">
+	  <title>External Link Using Default Link Text</title>
+	  <programlisting>&lt;ulink url="http://celtixfire.org" /&gt;</programlisting>
+	</example>
   </section>
 </chapter>

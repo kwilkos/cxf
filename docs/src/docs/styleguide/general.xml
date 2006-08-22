@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter>
+  <title>Genral Elements and Other Elements not Discussed Elsewhere</title>
+  <section>
+    <title>Overview</title>
+	<para>The CeliXfire documentation uses a subset of the linking elements defined by Docbook. The 
+	      elements include:</para>
+  </section>
+</chapter>

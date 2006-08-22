@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter>
+  <title>Elements Excluded from CeltiXfire Documentation</title>
+  <para>The CeliXfire documentation uses a subset of elements defined by Docbook. For 
+        simplification, the following elements are excluded from the set used:</para>
+	<itemizedlist>
+	  <listitem><para><sgmltag class="element">ackno</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">acronym</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">address</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">affiliation</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">appendixinfo</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">artpagenums</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">audiodata</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">audioobject</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">authorblurb</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">beginpage</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliocoverage</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliodiv</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">biblioentry</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliography</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliographyinfo</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">biblioid</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliolist</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliomisc</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliomixed</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliomset</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">biblioref</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliorelation</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">biblioset</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bibliosource</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">blockinfo</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">blockquote</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">book</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bookinfo</sgmltag></para></listitem>
+	  <listitem><para><sgmltag class="element">bridgehead</sgmltag></para></listitem>
+	  </itemizedlist>
+</chapter>
