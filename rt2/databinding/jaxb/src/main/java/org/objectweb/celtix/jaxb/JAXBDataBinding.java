@@ -1,8 +1,6 @@
 package org.objectweb.celtix.jaxb;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,14 +11,12 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 
 import org.xml.sax.SAXException;
 
-import org.apache.ws.commons.schema.ValidationEventHandler;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.objectweb.celtix.common.i18n.BundleUtils;
