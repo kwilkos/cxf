@@ -3,9 +3,11 @@ package org.objectweb.celtix.bindings.soap2.attachments;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
@@ -179,10 +181,10 @@ public class AttachmentTest extends TestBase {
             assertTrue(cos.getInputStream() != null);
             soapMessage.setContent(InputStream.class, cos.getInputStream());
 
-            Map<String, String> mimeHttpHeaders = new HashMap<String, String>();
+            Map<String, List<String>> mimeHttpHeaders = new HashMap<String, List<String>>();
             soapMessage.put(MessageContext.HTTP_REQUEST_HEADERS, mimeHttpHeaders);
-            mimeHttpHeaders.put("Content-Type", contentType);
-            mimeHttpHeaders.put("Content-Description", "XML document Multi-Media attachment");
+            mimeHttpHeaders.put("Content-Type", Arrays.asList(contentType));
+            mimeHttpHeaders.put("Content-Description", Arrays.asList("XML document Multi-Media attachment"));
 
             soapMessage.getInterceptorChain().doIntercept(soapMessage);
 
