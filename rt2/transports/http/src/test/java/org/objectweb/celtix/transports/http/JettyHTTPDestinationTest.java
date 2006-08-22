@@ -25,7 +25,6 @@ import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
@@ -361,14 +360,6 @@ public class JettyHTTPDestinationTest extends TestCase {
                      QUERY);
         verifyRequestHeaders();
         
-        Exchange exchange = inMessage.getExchange();
-        assertNotNull("expected exchange", exchange);
-        assertSame("unexpected destination", 
-                   destination,
-                   exchange.getDestination());
-        assertSame("unexpected message",
-                   inMessage,
-                   exchange.getInMessage());
         
         assertEquals("unexpected getMethod calls",
                      // REVISIT: restore expected call count to 2 when
