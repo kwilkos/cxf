@@ -68,6 +68,7 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
                                     <dependencies>
+                                    	<dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
                                         <dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
                                     </dependencies>
                                 </xsdOption>
@@ -78,6 +79,12 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
                                     <packagename>org.objectweb.celtix.ws.addressing.wsdl</packagename>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
@@ -91,6 +98,8 @@
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-listener-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>                                
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
                             </beanfiles>
                         </configuration>
                         <goals>
