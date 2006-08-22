@@ -139,7 +139,7 @@ public class AttachmentTest extends TestBase {
 
             Object mObj = detailObj;
 
-            CachedOutputStream cosXml = new CachedOutputStream(8 * 1024, null);
+            CachedOutputStream cosXml = new CachedOutputStream();
             XMLOutputFactory output = XMLOutputFactory.newInstance();
             XMLStreamWriter writer = output.createXMLStreamWriter(cosXml);
 
@@ -171,7 +171,7 @@ public class AttachmentTest extends TestBase {
 
     private static void testHandleMessage(SoapMessage soapMessage, InputStream is, boolean testXmlConent) {
         try {
-            CachedOutputStream cos = new CachedOutputStream(64 * 1024, null);
+            CachedOutputStream cos = new CachedOutputStream();
             AttachmentSerializer as = new AttachmentSerializer(soapMessage, is, cos);
             String contentType = as.serializeMultipartMessage();
             soapMessage.getAttachments().clear();

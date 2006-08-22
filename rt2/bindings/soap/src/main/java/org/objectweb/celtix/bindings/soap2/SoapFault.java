@@ -9,12 +9,10 @@ import org.objectweb.celtix.interceptors.Fault;
 
 public class SoapFault extends Fault {
 
-    public static final QName VERSION_MISMATCH = new QName(Soap12.SOAP_NAMESPACE,
-                                                           "VersionMismatch");
-    public static final QName MUST_UNDERSTAND = new QName(Soap12.SOAP_NAMESPACE,
-                                                          "MustUnderstand");
-    public static final QName DATA_ENCODING_UNKNOWN = new QName(Soap12.SOAP_NAMESPACE,
-                                                                "DataEncodingUnknown");
+    public static final QName VERSION_MISMATCH = new QName(Soap12.SOAP_NAMESPACE, "VersionMismatch");
+    public static final QName MUST_UNDERSTAND = new QName(Soap12.SOAP_NAMESPACE, "MustUnderstand");
+    public static final QName DATA_ENCODING_UNKNOWN = new QName(Soap12.SOAP_NAMESPACE, "DataEncodingUnknown");
+    public static final QName ATTACHMENT_IO = new QName(Soap12.SOAP_NAMESPACE, "AttachmentIOError");
 
     /**
      * "The message was incorrectly formed or did not contain the appropriate
@@ -33,10 +31,8 @@ public class SoapFault extends Fault {
 
     public static final QName SOAP11_SERVER = new QName(Soap11.SOAP_NAMESPACE, "Server");
     public static final QName SOAP11_CLIENT = new QName(Soap11.SOAP_NAMESPACE, "Client");
-    public static final QName SOAP11_MUST_UNDERSTAND = new QName(Soap11.SOAP_NAMESPACE,
-                                                                 "MustUnderstand");
-    public static final QName SOAP11_VERSION_MISMATCH = new QName(Soap11.SOAP_NAMESPACE,
-                                                                  "VersionMismatch");
+    public static final QName SOAP11_MUST_UNDERSTAND = new QName(Soap11.SOAP_NAMESPACE, "MustUnderstand");
+    public static final QName SOAP11_VERSION_MISMATCH = new QName(Soap11.SOAP_NAMESPACE, "VersionMismatch");
 
     private QName faultCode;
     private QName subCode;

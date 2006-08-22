@@ -1,6 +1,5 @@
 package org.objectweb.celtix.jaxb.attachments;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,6 +23,7 @@ import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
 import org.objectweb.celtix.message.Attachment;
 import org.objectweb.celtix.message.Message;
 
+
 public class AttachmentDeserializer {
 
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
@@ -31,8 +31,7 @@ public class AttachmentDeserializer {
     public static final int THRESHHOLD = 1024 * 100;
 
     private PushbackInputStream stream;
-    private String boundary;
-    private File tempDirectory;
+    private String boundary;    
     private String contentType;
     private List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
     private Message message;
@@ -194,7 +193,8 @@ public class AttachmentDeserializer {
         InternetHeaders headers;
         headers = new InternetHeaders(stream);
         MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary.getBytes());
-        final CachedOutputStream cos = new CachedOutputStream(THRESHHOLD, tempDirectory);
+        final CachedOutputStream cos = new CachedOutputStream();
+        cos.setThreshold(THRESHHOLD);
         copy(partStream, cos);
         final String ct = headers.getHeader("Content-Type", null);
         cache.add(cos);

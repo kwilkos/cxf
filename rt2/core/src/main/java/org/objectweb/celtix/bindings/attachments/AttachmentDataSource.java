@@ -6,8 +6,6 @@ import java.io.OutputStream;
 
 import javax.activation.DataSource;
 
-
-
 public class AttachmentDataSource implements DataSource {
 
     private final String ct;
