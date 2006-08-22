@@ -37,20 +37,23 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             && !StaxUtils.toNextElement(xmlReader)) {
             throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
-    
+        BindingOperationInfo operation = message.getExchange().get(BindingOperationInfo.class);
         boolean requestor = isRequestor(message);
-        String opName = xmlReader.getLocalName();
-        if (requestor && opName.endsWith("Response")) {
-            opName = opName.substring(0, opName.length() - 8);
-        }
-
-        // TODO: Allow overridden methods.
-        BindingOperationInfo operation = ServiceModelUtil.getOperation(message.getExchange(), opName);
+        
         if (operation == null) {
-            throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
+            String opName = xmlReader.getLocalName();
+            if (requestor && opName.endsWith("Response")) {
+                opName = opName.substring(0, opName.length() - 8);
+            }
+    
+            // TODO: Allow overridden methods.
+            operation = ServiceModelUtil.getOperation(message.getExchange(), opName);
+            if (operation == null) {
+                throw new Fault(new org.objectweb.celtix.common.i18n.Message("NO_OPERATION", BUNDLE, opName));
+            }
+            message.getExchange().put(BindingOperationInfo.class, operation);
+            message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
         }
-        message.getExchange().put(BindingOperationInfo.class, operation);
-        message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
         if (requestor) {
             message.put(MessageInfo.class, operation.getOperationInfo().getOutput());
             message.put(BindingMessageInfo.class, operation.getOutput());            

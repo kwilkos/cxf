@@ -73,10 +73,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         
         message.setContent(List.class, Arrays.asList(params));
         
-        if (oi.isUnwrappedCapable()) {
-            oi = oi.getUnwrappedOperation();
-        }
-        
         setOutMessageProperties(message, oi);
         setExchangeProperties(exchange, ctx, oi);
         
@@ -119,6 +115,11 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         
         chain.doIntercept(message);
 
+        if (message.getContent(Exception.class) != null) {
+            //exception trying to send the message
+            throw new RuntimeException(message.get(Exception.class));
+        }
+        
         // correlate response        
         if (conduit.getBackChannel() != null) {
             // process partial response and wait for decoupled response
@@ -127,13 +128,67 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
         }
 
-        // return exchange.getInMessage().getContent(Object[].class);
+        if (oi.getOutput() != null) {
+            synchronized (exchange) {
+                Message inMsg = exchange.getInMessage();
+                if (inMsg == null) {
+                    try {
+                        exchange.wait();
+                    } catch (InterruptedException e) {
+                        //TODO - timeout
+                    }
+                    inMsg = exchange.getInMessage();
+                }
+                if (inMsg.getContent(Exception.class) != null) {
+                    //TODO - exceptions 
+                    throw new RuntimeException(inMsg.getContent(Exception.class));
+                }
+                    
+                return inMsg.getContent(List.class).toArray();
+            }
+        } 
         return null;
     }
 
 
     public void onMessage(Message message) {
-        // TODO: implement response chain 
+        message = endpoint.getBinding().createMessage(message);
+        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+        
+        PhaseManager pm = bus.getExtension(PhaseManager.class);
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getInPhases());
+        message.setInterceptorChain(chain);
+        
+        List<Interceptor> il = bus.getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + il);
+        }
+        chain.add(il);
+        il = getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by client: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getBinding().getInInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by binding: " + il);
+        }
+        chain.add(il);
+        
+        // execute chain
+        try {
+            chain.doIntercept(message);
+        } finally {
+            synchronized (message.getExchange()) {
+                message.getExchange().setInMessage(message);
+                message.getExchange().notifyAll();
+            }
+        }
     }
 
     private Conduit getConduit() {

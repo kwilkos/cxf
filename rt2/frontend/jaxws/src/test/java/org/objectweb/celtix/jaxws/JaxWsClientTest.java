@@ -88,7 +88,14 @@ public class JaxWsClientTest extends AbstractCXFTest {
         ClientImpl client = new ClientImpl(bus, endpoint);
         
         BindingOperationInfo bop = ei.getBinding().getOperation(new QName(namespace, "sayHi"));
-        client.invoke(bop, new Object[0], null);
+        assertNotNull(bop);
+        bop = bop.getUnwrappedOperation();
+        assertNotNull(bop);
+        Object ret[] = client.invoke(bop, new Object[0], null);
+        assertNotNull(ret);
+        assertEquals("Wrong number of return objects", 1, ret.length);
+        //right now, no message string is returned by the echoer
+        assertNull(ret[0]);
     }
 
     static class EchoObserver implements MessageObserver {
@@ -104,7 +111,7 @@ public class JaxWsClientTest extends AbstractCXFTest {
                 InputStream in = message.getContent(InputStream.class);
                 assertNotNull(in);
                 
-                copy(in, out, 1024);
+                copy(in, out, 2045);
 
                 out.close();
                 in.close();

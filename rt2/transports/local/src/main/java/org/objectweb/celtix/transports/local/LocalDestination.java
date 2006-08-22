@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import org.objectweb.celtix.message.Exchange;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
@@ -73,12 +74,13 @@ public class LocalDestination implements Destination {
         public void send(Message message) throws IOException {
 
             final PipedInputStream stream = new PipedInputStream();
+            final Exchange exchange = (Exchange)message.get(LocalConduit.IN_EXCHANGE);
 
             final Runnable receiver = new Runnable() {
                 public void run() {
                     MessageImpl m = new MessageImpl();
+                    m.setExchange(exchange);
                     m.setContent(InputStream.class, stream);
-
                     conduit.getMessageObserver().onMessage(m);
                 }
             };
