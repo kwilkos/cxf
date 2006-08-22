@@ -33,7 +33,7 @@ public class ClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
                                              "SoapPort");
 
-    static class Server extends TestServerBase {
+    public static class Server extends TestServerBase {
 
         protected void run()  {
             Object implementor = new GreeterImpl();

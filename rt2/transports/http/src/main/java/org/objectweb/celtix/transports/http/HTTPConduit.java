@@ -387,6 +387,7 @@ public class HTTPConduit implements Conduit {
         private void handleResponse() throws IOException {
             // REVISIT distinguish decoupled case
             Message inMessage = new MessageImpl();
+            inMessage.setExchange(outMessage.getExchange());
             InputStream in = null;
             inMessage.put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());
             inMessage.put(HTTP_RESPONSE_CODE, getResponseCode(connection));

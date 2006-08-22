@@ -21,6 +21,7 @@ import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
 import org.objectweb.celtix.jaxws.support.JaxwsImplementorInfo;
 import org.objectweb.celtix.messaging.ChainInitiationObserver;
 import org.objectweb.celtix.service.Service;
+import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
 import org.objectweb.celtix.service.model.EndpointInfo;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
@@ -50,6 +51,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         JaxwsImplementorInfo implInfo = new JaxwsImplementorInfo(implementor.getClass());
         QName endpointName = implInfo.getEndpointName();
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
+        //TODO - need a jaxws specific invoker for holders and such
+        service.setInvoker(new SimpleMethodInvoker(i));
         // TODO: use bindigURI
         endpoint = new JaxwsEndpointImpl(bus, service, ei);                
     }

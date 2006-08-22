@@ -49,7 +49,16 @@ public class AttachmentDeserializer {
             if (httpHeaders == null) {
                 return false;
             } else {
-                contentType = (String)httpHeaders.get("Content-Type");
+                List ctList = (List)httpHeaders.get("Content-Type");
+                if (ctList != null) {
+                    for (int x = 0; x < ctList.size(); x++) {
+                        if (x == 0) {
+                            contentType = (String)ctList.get(x);
+                        } else {
+                            contentType += "; " + (String)ctList.get(x);
+                        }
+                    }
+                }
                 input = message.getContent(InputStream.class);
                 if (contentType == null || input == null) {
                     return false;

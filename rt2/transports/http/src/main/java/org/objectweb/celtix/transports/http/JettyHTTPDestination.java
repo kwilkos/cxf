@@ -22,8 +22,6 @@ import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 
-import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeImpl;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
@@ -270,10 +268,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
 
             setHeaders(inMessage);
             
-            Exchange exchange = new ExchangeImpl();
-            exchange.setDestination(this);
-            exchange.setInMessage(inMessage);
-            inMessage.setExchange(exchange);
+            inMessage.setDestination(this);            
             
             incomingObserver.onMessage(inMessage);
             
