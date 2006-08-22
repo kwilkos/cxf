@@ -106,6 +106,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
         while (state == State.EXECUTING && iterator.hasNext()) {
             try {
                 Interceptor currentInterceptor = iterator.next();
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
+                }
                 currentInterceptor.handleMessage(message);
             } catch (Exception ex) {
                 if (LOG.isLoggable(Level.INFO)) {
@@ -128,6 +131,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private void unwind(Message message) {
         while (iterator.hasPrevious()) {
             Interceptor currentInterceptor = iterator.previous();
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Invoking handleFault on interceptor " + currentInterceptor);
+            }
             currentInterceptor.handleFault(message);
         }
     }
