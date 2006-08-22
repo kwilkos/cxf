@@ -38,7 +38,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     
     public JaxWsServiceFactoryBean() {
         super();
-
         getServiceConfigurations().add(new JaxWsServiceConfiguration());
     }
 

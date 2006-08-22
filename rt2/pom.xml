@@ -21,10 +21,10 @@
     <modules>
         <module>management</module>
         <module>core</module>
+        <module>transports/local</module>
         <module>databinding/jaxb</module>
         <module>frontend/jaxws</module>
         <module>bindings</module>
         <module>transports/http</module>
-        <module>transports/local</module>
     </modules>
 </project>

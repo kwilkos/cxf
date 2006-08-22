@@ -12,6 +12,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.interceptors.Interceptor;
 import org.objectweb.celtix.interceptors.InterceptorChain;
 import org.objectweb.celtix.message.Message;
@@ -108,8 +109,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 currentInterceptor.handleMessage(message);
             } catch (Exception ex) {
                 if (LOG.isLoggable(Level.INFO)) {
-                    ex.printStackTrace();
-                    LOG.info("Interceptor has thrown exception, unwinding now");
+                    LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
                 }
                 message.setContent(Exception.class, ex);
                 unwind(message);

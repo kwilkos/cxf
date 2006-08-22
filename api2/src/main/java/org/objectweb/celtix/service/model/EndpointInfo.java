@@ -10,6 +10,7 @@ public class EndpointInfo extends AbstractPropertiesHolder {
     ServiceInfo service;
     BindingInfo binding;
     QName name;
+    String address;
     
     public EndpointInfo(ServiceInfo serv, String ns) {
         endpointType = ns;
@@ -37,9 +38,12 @@ public class EndpointInfo extends AbstractPropertiesHolder {
     }
     public void setBinding(BindingInfo b) {
         binding = b;
-    }
+    }    
     
     public String getAddress() {
+        if (null != address) {
+            return address;
+        }
         SOAPAddress sa = getExtensor(SOAPAddress.class);
         if (null != sa) {
             return sa.getLocationURI();
@@ -49,5 +53,8 @@ public class EndpointInfo extends AbstractPropertiesHolder {
             return a.getLocation();
         }
         return null;
+    }
+    public void setAddress(String a) {
+        address = a;
     }
 }

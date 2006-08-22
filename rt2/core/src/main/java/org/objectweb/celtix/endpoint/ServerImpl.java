@@ -2,8 +2,6 @@ package org.objectweb.celtix.endpoint;
 
 import java.io.IOException;
 
-import javax.wsdl.WSDLException;
-
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.BusException;
 import org.objectweb.celtix.messaging.ChainInitiationObserver;
@@ -20,8 +18,7 @@ public class ServerImpl implements Server {
     private Endpoint endpoint;
 
     public ServerImpl(Bus bus, Endpoint endpoint, ChainInitiationObserver observer) 
-        throws BusException,
-        WSDLException, IOException {
+        throws BusException, IOException {
         this.endpoint = endpoint;
         this.messageObserver = observer;
 

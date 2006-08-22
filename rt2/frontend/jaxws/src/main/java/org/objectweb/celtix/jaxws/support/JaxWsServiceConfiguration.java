@@ -15,13 +15,21 @@ import org.objectweb.celtix.common.i18n.BundleUtils;
 import org.objectweb.celtix.common.i18n.Message;
 import org.objectweb.celtix.resource.URIResolver;
 import org.objectweb.celtix.service.factory.AbstractServiceConfiguration;
+import org.objectweb.celtix.service.factory.ReflectionServiceFactoryBean;
 import org.objectweb.celtix.service.factory.ServiceConstructionException;
 import org.objectweb.celtix.service.model.InterfaceInfo;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
-    private Class endpointInterface;
+    private JaxwsImplementorInfo implInfo;
+     
+
+    @Override
+    public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
+        super.setServiceFactory(serviceFactory);
+        implInfo = new JaxwsImplementorInfo(serviceFactory.getServiceClass());        
+    }
 
     WebService getConcreteWebServiceAttribute() {
         return getServiceFactory().getServiceClass().getAnnotation(WebService.class);
@@ -40,27 +48,10 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     Class getEndpointClass() {
-        if (endpointInterface == null) {
-            String wsClassName = getConcreteWebServiceAttribute().endpointInterface();
-
-            if (wsClassName.length() == 0) {
-                return getServiceFactory().getServiceClass();
-            }
-
-            try {
-                endpointInterface = ClassLoaderUtils.loadClass(wsClassName, getClass());
-            } catch (ClassNotFoundException e) {
-                throw new ServiceConstructionException(new Message("INTERFACE_LOAD_EXC", 
-                                                                   BUNDLE, 
-                                                                   wsClassName),
-                                                       e);
-            }
+        Class endpointInterface = implInfo.getSEIClass();
+        if (null == endpointInterface) {
+            endpointInterface = implInfo.getImplementorClass();
         }
-
-        if (endpointInterface == null) {
-            return getServiceFactory().getServiceClass();
-        }
-
         return endpointInterface;
     }
 

@@ -37,7 +37,7 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         createJaxwsBinding();
         
         List<Interceptor> handlerInterceptors;
-        
+                
         handlerInterceptors = new ArrayList<Interceptor>();
         handlerInterceptors.add(new LogicalHandlerInterceptor(binding));
         if (getBinding() instanceof SoapBinding) {
