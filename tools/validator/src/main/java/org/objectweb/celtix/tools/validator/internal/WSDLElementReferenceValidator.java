@@ -139,7 +139,7 @@ public class WSDLElementReferenceValidator {
                     if (!valid) {
                         Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_MESSAGE, msg.getQName()
                             .getLocalPart(), part.getName());
-                        schemaWSDLValidator.addError(loc, "reference can not find");
+                        schemaWSDLValidator.addError(loc, "reference cannot be found");
                         isValid = false;
                     }
 
