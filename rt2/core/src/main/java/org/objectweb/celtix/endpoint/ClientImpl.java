@@ -21,6 +21,7 @@ import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.ConduitInitiatorManager;
+import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.phase.PhaseInterceptorChain;
 import org.objectweb.celtix.phase.PhaseManager;
 import org.objectweb.celtix.service.Service;
@@ -33,7 +34,7 @@ import org.objectweb.celtix.service.model.MessageInfo;
 import org.objectweb.celtix.service.model.OperationInfo;
 import org.objectweb.celtix.service.model.ServiceInfo;
 
-public class ClientImpl extends AbstractBasicInterceptorProvider implements Client {
+public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
     
     private static final Logger LOG = Logger.getLogger(ClientImpl.class.getName());
     
@@ -67,9 +68,14 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             exchange.putAll(ctx);
         }
 
-        
         exchange.setOutMessage(message);
         message.setExchange(exchange);
+        
+        message.setContent(List.class, Arrays.asList(params));
+        
+        if (oi.isUnwrappedCapable()) {
+            oi = oi.getUnwrappedOperation();
+        }
         
         setOutMessageProperties(message, oi);
         setExchangeProperties(exchange, ctx, oi);
@@ -83,11 +89,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         List<Interceptor> il = bus.getOutInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Interceptors contributed by bus: " + il);
-        }
-        chain.add(il);
-        il = endpoint.getService().getOutInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by service: " + il);
         }
         chain.add(il);
         il = endpoint.getOutInterceptors();
@@ -112,7 +113,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         // setup conduit
         Conduit conduit = getConduit();
         exchange.setConduit(conduit);
-
+        conduit.setMessageObserver(this);
+        
         // execute chain
         
         chain.doIntercept(message);
@@ -129,6 +131,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return null;
     }
 
+
+    public void onMessage(Message message) {
+        // TODO: implement response chain 
+    }
 
     private Conduit getConduit() {
         EndpointInfo ei = endpoint.getEndpointInfo();
@@ -164,10 +170,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         exchange.put(InterfaceInfo.class, endpoint.getService().getServiceInfo().getInterface());
         exchange.put(Binding.class, endpoint.getBinding());
         exchange.put(BindingInfo.class, endpoint.getEndpointInfo().getBinding());
-        
-        exchange.put(OperationInfo.class, boi.getOperationInfo());
         exchange.put(BindingOperationInfo.class, boi);
-        
+        exchange.put(OperationInfo.class, boi.getOperationInfo());
     }
     
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {

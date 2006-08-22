@@ -29,10 +29,14 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     WebService getPortTypeWebServiceAttribute() {
         Class<?> epi = getEndpointClass();
+        WebService ws = null;
         if (epi != null) {
-            epi.getAnnotation(WebService.class);
+            ws = epi.getAnnotation(WebService.class);
         }
-        return getServiceFactory().getServiceClass().getAnnotation(WebService.class);
+        if (ws == null) {
+            ws = getConcreteWebServiceAttribute();
+        }
+        return ws;
     }
 
     Class getEndpointClass() {
@@ -87,7 +91,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             try {
                 URIResolver resolver = new URIResolver(ws.wsdlLocation());
                 if (resolver.isResolved()) {
-                    resolver.getURI().toURL();
+                    return resolver.getURI().toURL();
                 }
             } catch (IOException e) {
                 throw new ServiceConstructionException(new Message("LOAD_WSDL_EXC", 

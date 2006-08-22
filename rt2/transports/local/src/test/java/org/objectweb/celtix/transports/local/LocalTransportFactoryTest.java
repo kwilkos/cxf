@@ -25,7 +25,7 @@ public class LocalTransportFactoryTest extends TestCase {
         ei.addExtensor(a);
 
         Destination d = factory.getDestination(ei);
-        d.setMessageObserver(new Listener());
+        d.setMessageObserver(new EchoObserver());
         
         
         Conduit conduit = factory.getConduit(ei);
@@ -43,7 +43,7 @@ public class LocalTransportFactoryTest extends TestCase {
         assertEquals("hello", obs.getResponseStream().toString());
     }
 
-    static class Listener implements MessageObserver {
+    static class EchoObserver implements MessageObserver {
 
         public void onMessage(Message message) {
             try {
