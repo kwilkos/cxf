@@ -15,6 +15,7 @@ import java.util.logging.Level;
 
 import javax.xml.ws.handler.MessageContext;
 
+
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 
 import org.mortbay.http.HttpRequest;
@@ -22,6 +23,7 @@ import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 
+import org.objectweb.celtix.helpers.IOUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
@@ -30,6 +32,7 @@ import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
     
@@ -226,26 +229,26 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             return;
         }    
       
-        // REVISIT: expect service model to provide wsdl as a stream 
-        /* 
+         
         if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
             try {
                 
-                Definition def = EndpointReferenceUtils.getWSDLDefinition(
-                    bus.getExtension(WSDLManager.class), reference);
+                
                 resp.addField("Content-Type", "text/xml");
+                
                 OutputStream os = resp.getOutputStream();
-                bus.getExtension(WSDLManager.class).getWSDLFactory().newWSDLWriter().writeWSDL(def, os);
+                IOUtils.copy(endpointInfo.getService().getProperty(
+                    WSDLServiceBuilder.WSDL_STREAM, InputStream.class), os);
                 resp.getOutputStream().flush();
                 resp.commit();
                 req.setHandled(true);
                 return;
-            } catch (WSDLException ex) {
-                // TODO Auto-generated catch block
+            } catch (Exception ex) {
+                
                 ex.printStackTrace();
             }
         }
-        */
+        
         
         // REVISIT: service on executor if associated with endpoint
         serviceRequest(req, resp);

@@ -77,7 +77,16 @@ public final class JAXBDataBinding implements DataBinding {
     private Map<String, SchemaInfo> loadSchemas(Collection<String> schemaResources) {
         Map<String, SchemaInfo> schemas = new HashMap<String, SchemaInfo>();
         for (String schema : schemaResources) {
-            if (schema.startsWith("file:")) {
+            URIResolver resolver = null;
+            try {
+                resolver = new URIResolver(schema);
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, e.getMessage());
+            }
+            if (!resolver.isResolved()) {
+                throw new UncheckedException(new Message("SCHEMA_NOT_RESOLVED", BUNDLE, schema));
+            }
+            if (resolver.isFile()) {
                 //load schemas from file system
                 loadSchemaFromFile(schema, schemas);
             } else {
@@ -96,14 +105,8 @@ public final class JAXBDataBinding implements DataBinding {
         try {
             XmlSchemaCollection schemaCol = new XmlSchemaCollection();
             URIResolver resolver = new URIResolver(schema);
-            if (!resolver.isResolved()) {
-                throw new UncheckedException(new Message("SCHEMA_NOT_RESOLVED", BUNDLE, schema));
-            }
-            
-            if (resolver.isFile()) {
-                schemaCol.setBaseUri(resolver.getFile().getParent());
-            }
-            
+            schemaCol.setBaseUri(resolver.getFile().getParent());
+                        
             Document schemaDoc = DOMUtils.readXml(resolver.getInputStream());
 
             XmlSchema xmlSchema = schemaCol.read(schemaDoc.getDocumentElement());

@@ -362,9 +362,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         
         assertEquals("unexpected getMethod calls",
-                     // REVISIT: restore expected call count to 2 when
-                     // the GET ...?wsdl logic is restored
-                     1,
+                      2,
                      request.getMethodCallCount());
         assertEquals("unexpected getInputStream calls",
                      1,

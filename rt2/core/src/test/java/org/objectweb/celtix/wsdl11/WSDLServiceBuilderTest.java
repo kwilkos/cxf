@@ -1,6 +1,9 @@
 package org.objectweb.celtix.wsdl11;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -17,6 +20,7 @@ import org.easymock.classextension.IMocksControl;
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.bindings.BindingFactoryManager;
 import org.objectweb.celtix.helpers.CastUtils;
+import org.objectweb.celtix.resource.URIResolver;
 import org.objectweb.celtix.service.model.BindingFaultInfo;
 import org.objectweb.celtix.service.model.BindingInfo;
 import org.objectweb.celtix.service.model.BindingMessageInfo;
@@ -65,6 +69,14 @@ public class WSDLServiceBuilderTest extends TestCase {
 
         control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
+        URIResolver resolver = null;
+        try {
+            resolver = new URIResolver(wsdlUrl.toString());
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "SERVICE_CREATION_MSG", e);
+        }
+        InputStream is = resolver.getInputStream();
+        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_STREAM, is);
     }
 
     public void tearDown() throws Exception {
@@ -258,4 +270,15 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(schemas.read(schemaInfo.getElement()).getTargetNamespace(),
                      "http://objectweb.org/hello_world_soap_http/types");
     }
+    
+    public void testWSDLStream() throws Exception {
+        InputStream is = serviceInfo.getProperty(WSDLServiceBuilder.WSDL_STREAM, InputStream.class);
+        byte[] header = new byte[10];
+        is.read(header, 0, 10);
+        LOG.info("the string is" + new String(header));
+        assertTrue(new String(header).equals("<?xml vers"));
+        assertNotNull(is);
+    }
 }
+
+
