@@ -43,8 +43,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      */
     protected abstract void doClose() throws IOException;
 
-    public void close() throws IOException {
-        flush();
+    public void close() throws IOException {        
         currentStream.close();
         doClose();
     }

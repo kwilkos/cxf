@@ -32,7 +32,8 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
                 AttachmentSerializer as = new AttachmentSerializer(message, ops.getInputStream(), cos);
                 as.serializeMultipartMessage();
                 ops.resetOut(cos, false);
-            }            
+            }           
+            ops.flush();
             ops.close();
         } catch (IOException ioe) {
             throw new SoapFault(new Message("ATTACHMENT_IO", BUNDLE, ioe.toString()), 
