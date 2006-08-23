@@ -4,7 +4,7 @@ xmlns:msg="http://schemas.iona.com/port/messaging"
 	<types>
 	<xsd:schema>
         <xsd:import namespace="http://schemas.iona.com/references" 
-            schemaLocation="http://schemas.iona.com/references/references.xsd"/>
+            schemaLocation="../../schemas/references.xsd"/>
         </xsd:schema>
 	</types>
 	<message name="get_account">

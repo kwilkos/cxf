@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     Copyright 2001-2004 IONA Technologies, PLC. All rights reserved.
+
+     This document and the information contained herein is provided on an
+     "AS IS" basis and to the maximum extent permitted by applicable law,
+     IONA provides the document AS IS AND WITH ALL FAULTS, and hereby
+     disclaims all other warranties and conditions, either express, implied
+     or statutory, including, but not limited to, any (if any) implied
+     warranties, duties or conditions of merchantability, of fitness for a
+     particular purpose, of accuracy or completeness of responses, of
+     results, of workmanlike effort, of lack of viruses, and of lack of
+     negligence, all with regard to the document. ALSO, THERE IS NO
+     WARRANTY OR CONDITION OF TITLE, QUIET ENJOYMENT, QUIET POSSESSION,
+     CORRESPONDENCE TO DESCRIPTION OR NON-INFRINGEMENT WITH REGARD TO THE
+     DOCUMENT.
+
+     IN NO EVENT WILL IONA BE LIABLE TO ANY OTHER PARTY FOR THE COST OF
+     PROCURING SUBSTITUTE GOODS OR SERVICES, LOST PROFITS, LOSS OF USE,
+     LOSS OF DATA, OR ANY INCIDENTAL, CONSEQUENTIAL, DIRECT, INDIRECT, OR
+     SPECIAL DAMAGES WHETHER UNDER CONTRACT, TORT, WARRANTY, OR OTHERWISE,
+     ARISING IN ANY WAY OUT OF THIS OR ANY OTHER AGREEMENT RELATING TO THIS
+     DOCUMENT, WHETHER OR NOT SUCH PARTY HAD ADVANCE NOTICE OF THE
+     POSSIBILITY OF SUCH DAMAGES.  
+-->
+<xs:schema targetNamespace="http://schemas.iona.com/references"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ref="http://schemas.iona.com/references"
+    elementFormDefault="unqualified" attributeFormDefault="unqualified">
+
+    <xs:complexType name="ReferencePort">
+        <xs:annotation>
+            <xs:documentation>A port definition for a Service.
+                              Note that this type is equivalent to the wsdl:tPort
+                              type and strictly speaking, it should be used.
+                              wsdl:tPort is not used to prevent having to import the
+                              wsdl schema which many processors will have problems
+                              parsing due to its complexity.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:any namespace="##other" minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:NCName" use="required" />
+        <xs:attribute name="binding" type="xs:QName" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Reference">
+        <xs:sequence>
+            <xs:element name="port" minOccurs="0" maxOccurs="unbounded" type="ref:ReferencePort"/>
+        </xs:sequence>
+        <xs:attribute name="service" type="xs:QName" use="required">
+            <xs:annotation>
+                <xs:documentation>The service indicates the QName of the Service.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="wsdlLocation" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>This element specifies the uri that the wsdl document
+					                  for the services can be retrieved from.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>
