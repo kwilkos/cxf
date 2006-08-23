@@ -26,5 +26,6 @@
         <module>frontend/jaxws</module>
         <module>bindings</module>
         <module>transports/http</module>
+        <module>transports/jms</module>
     </modules>
 </project>
