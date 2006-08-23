@@ -185,16 +185,16 @@
     <title>Adding Alternate Text</title>
 
     <para>Images on the Web should all have alternative text, so when using a
-    graphic in CXF documentation you will need to add mark-up to
+    graphic in CeltiXfire documentation you will need to add mark-up to
     specify the alternate text.</para>
 
     <para>To put alternative text with a graphic you add a <sgmltag
     class="element">textobject</sgmltag> element after the <sgmltag
     class="element">imageobject</sgmltag> element as shown in <xref
-    linkend="alttext_example" />. The textobject element has a single phrase
-    child element. The value of the <sgmltag class="element">phrase</sgmltag>
-    element is the alternative text used when the documentation is generated
-    to HTML.</para>
+    linkend="alttext_example" />. The <sgmltag class="element">textobject</sgmltag> element has a 
+	single <sgmltag class="element">phrase</sgmltag> child element. The value of the 
+	<sgmltag class="element">phrase</sgmltag> element is the alternative text used when the 
+	documentation is generated to HTML.</para>
 
     <example id="alttext_example">
       <title>Mark-up for an In-Line Graphic</title>

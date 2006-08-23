@@ -165,15 +165,23 @@
           <tbody>
             <row>
               <entry>
+                <sgmltag class="element">type</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a data type such as <type>int</type>.</entry>
+            </row>
+            <row>
+              <entry>
                 <sgmltag class="element">constant</sgmltag>
               </entry>
-              <entry>Specifies that the artifact is a constant such as <constant>NULL</constant> or <constant>9</constant>.</entry>
+              <entry>Specifies that the artifact is a constant such as <constant>NULL</constant> 
+			         or <constant>9</constant>.</entry>
             </row>
             <row>
               <entry>
                 <sgmltag class="element">exceptionname</sgmltag>
               </entry>
-              <entry>Specifies that the artifact is an exception. It could be the name of the exception or the name of the class that implements the exception.</entry>
+              <entry>Specifies that the artifact is an exception. It could be the name of the 
+			         exception or the name of the class that implements the exception.</entry>
             </row>
             <row>
               <entry>
@@ -220,15 +228,40 @@
             </row>
             <row>
               <entry>
+                <sgmltag class="element">oointerface</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java interface the user must implement. 
+			         Requires the use of an <sgmltag class="element">modifier</sgmltag> element 
+					 that contains details about if the interface is public or private.</entry>
+            </row>
+            <row>
+              <entry>
                 <sgmltag class="element">classname</sgmltag>
               </entry>
               <entry>Specifies that the artifact is a Java class or an instantiated object.</entry>
             </row>
             <row>
               <entry>
+                <sgmltag class="element">ooclass</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java class. Requires the use of an 
+			         <sgmltag class="element">modifier</sgmltag> element that contains details 
+					 about if the class is public/private or static/final.</entry>
+            </row>
+            <row>
+              <entry>
                 <sgmltag class="element">methodname</sgmltag>
               </entry>
-              <entry>Specifies that the artifact is a method. Methods are different from functions in that methods are associated with classes and objects.</entry>
+              <entry>Specifies that the artifact is a method. Methods are different from functions 
+			         in that methods are associated with classes and objects.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">ooexception</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java exception. Requires the use of an 
+			         <sgmltag class="element">modifier</sgmltag> element that contains details 
+					 about if the exception is public or private.</entry>
             </row>
           </tbody>
         </tgroup>

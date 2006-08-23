@@ -3,7 +3,28 @@
   <title>Genral Elements and Other Elements not Discussed Elsewhere</title>
   <section>
     <title>Overview</title>
-	<para>The CeliXfire documentation uses a subset of the linking elements defined by Docbook. The 
-	      elements include:</para>
+	<para>Since Docbook was defined to describe a wide range of publishable content, it includes 
+	      a number of elements that are used to perform common tasks. These elements include ones 
+		  that specify superscripts and emphasis.</para>
+	<para>It also includes a number of elements that you are unlikely to need when documenting 
+	      CeltiXfire. Among these elements are a large set used to define GUI elements. These 
+		  elements are legal in the CeltiXfire documentation. However, they are not used enough to 
+		  mertit a full discussion.</para>
   </section>
+  <section>
+    <title>Formating Elements</title>
+	<para>The following are common formating elements used in Docbook:</para>
+	<segmentedlist>
+	  <segtitle>Element</segtitle>
+	  <segtitle>Description</segtitle>
+	  <seglistitem>
+	    <seg><sgmltag class="element">emphasis</sgmltag></seg>
+		<seg>Specifies that the content of the element is to be empasized by either 
+		     <emphasis>itallics</emphasis> or <emphasis role="strong">boldface</emphasis>. The 
+			 default is to use itallics. You specify boldface by setting the 
+			 <sgmltag class="attribute">role</sgmltag> attribute to 
+			 <sgmltag class="attrvalue">strong</sgmltag>.</seg>
+	  </seglistitem>
+    </segmentedlist>
+  </section>	
 </chapter>
