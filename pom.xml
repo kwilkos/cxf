@@ -27,23 +27,51 @@
     </prerequisites>
 
     <distributionManagement>
-         <snapshotRepository>
-             <id>apache-snapshot-repository</id>
-             <name>Apache SNAPSHOT Repository</name>
-             <url>scpexe://people.apache.org/www/people.apache.org/repo/m2-snapshot-repository</url>
-         </snapshotRepository>
+        <snapshotRepository>
+            <id>apache-snapshot-repository</id>
+            <name>Apache SNAPSHOT Repository</name>
+            <url>scpexe://people.apache.org/www/people.apache.org/repo/m2-snapshot-repository</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <inceptionYear>2006</inceptionYear>
     <mailingLists>
         <mailingList>
-            <name>Mailing list to relay Build related information</name>
-            <subscribe>celtix-build-subscribe@objectweb.org</subscribe>
-            <unsubscribe>celtix-build-unsubscribe@objectweb.org</unsubscribe>
-            <post>celtix-build@objectweb.org</post>
-            <archive>http://mail-archive.objectweb.org/celtix-build/index.html</archive>
+            <name>CXF User List</name>
+            <subscribe>cxf-user-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-user-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-user@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-user</archive>
         </mailingList>
-    </mailingLists>
+        <mailingList>
+            <name>CXF Developer List</name>
+            <subscribe>cxf-dev-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-dev-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-dev@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-dev</archive>
+        </mailingList>
+        <mailingList>
+            <name>CXF Commits List</name>
+            <subscribe>cxf-commits-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-commits-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-commits@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-commits</archive>
+        </mailingList>
+        <mailingList>
+            <name>CXF Issues List</name>
+            <subscribe>cxf-issues-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-issues-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-issues@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-issues</archive>
+        </mailingList>
+        <mailingList>
+            <name>CXF Build Notifications List</name>
+            <subscribe>cxf-notifications-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-notifications-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-notifications@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-notifications</archive>
+        </mailingList>
+            </mailingLists>
     <ciManagement>
         <system>CruiseControl</system>
         <url>http://pdceltix.boston.amer.iona.com:8080/cruisecontrol</url>
@@ -51,7 +79,7 @@
             <notifier>
                 <type>mail</type>
                 <configuration>
-                    <address>cxf-build@</address>
+                    <address>cxf-notifications@incubator.apache.org</address>
                 </configuration>
             </notifier>
         </notifiers>
@@ -96,9 +124,6 @@
         <site.version>2.0-beta-5</site.version>
         <surefire-report.version>2.0</surefire-report.version>
         <surefire.version>2.1.3</surefire.version>
-
-
-
 
         <jsr250.version>2.0-JAXWS-2.0-EA3</jsr250.version>
         <jsr181.version>2.0-JAXWS-2.0-EA3</jsr181.version>
@@ -637,15 +662,10 @@
                                     <tasks>
                                         <path id="ecp.ws.path" location="${eclipse.workspace.dir}"/>
                                         <property name="full.eclipse.workspace" refid="ecp.ws.path"/>
-        
-
 
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/net.sourceforge.pmd.eclipse"/>
-        
-
-
                                         <copy file="${basedir}/${topDirectoryLocation}/checkstyle.xml" tofile="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
         
                                         <!-- Add checkstyle config -->
@@ -656,8 +676,6 @@
                                                 <filter token="CHECKSTYLE_CONFIG_FILE" value="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
                                             </filterset>
                                         </copy>
-        
-
 
                                         <xslt style="${basedir}/${topDirectoryLocation}/etc/eclipse/addcheckstyle.xsl"
                                               in="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
