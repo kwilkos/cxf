@@ -10,10 +10,10 @@
     <jws:handler-chains>
       <jws:handler-chain>
 	<jws:handler>
-	  <jws:handler-class>org.objectweb.celtix.bus.ws.addressing.MAPAggregator</jws:handler-class>
+	  <jws:handler-class>org.apache.cxf.bus.ws.addressing.MAPAggregator</jws:handler-class>
 	</jws:handler>
 	<jws:handler>
-          <jws:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jws:handler-class>
+          <jws:handler-class>org.apache.cxf.bus.ws.addressing.soap.MAPCodec</jws:handler-class>
 	</jws:handler>
 	<jws:handler>
           <jws:handler-class>demo.ws_addressing.common.HeaderSnooper</jws:handler-class>
