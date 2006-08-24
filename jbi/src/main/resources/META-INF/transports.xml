@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ct:classNamespaceMappingListValue xmlns:ct="http://celtix.objectweb.org/configuration/types">
-    <ct:map>
-        <ct:classname>org.objectweb.celtix.jbi.transport.JBITransportFactory</ct:classname>
-        <ct:namespace>http://celtix.object.org/transport/jbi</ct:namespace>
-    </ct:map>
-</ct:classNamespaceMappingListValue>
