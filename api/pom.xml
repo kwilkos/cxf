@@ -4,7 +4,7 @@
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtixfire</groupId>
-    <artifactId>cxf-api2</artifactId>
+    <artifactId>cxf-api</artifactId>
     <packaging>jar</packaging>
     <name>CeltiXfire API</name>
     <version>1.1-SNAPSHOT</version>
