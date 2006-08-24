@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-bindings-soap</artifactId>
     <packaging>jar</packaging>
-    <name>CXF SOAP Binding</name>
+    <name>CXF Runtime SOAP Binding</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>
