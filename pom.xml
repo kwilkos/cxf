@@ -158,8 +158,7 @@
         <module>testutils</module>
         <module>api</module>
         <module>rt</module>
-        <!--<module>systests2</module>-->
-        <!--<module>axisinterop</module>-->
+        <module>systests</module>
     </modules>
 
     <build>
