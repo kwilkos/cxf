@@ -27,5 +27,6 @@
         <module>bindings</module>
         <module>transports/http</module>
         <module>transports/jms</module>
+        <module>ws/addr</module>
     </modules>
 </project>

@@ -23,10 +23,6 @@ import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
  * Encapsulates all aspects of HTTP Conduit configuration.
  */
 public class HTTPConduitConfiguration {
-    /*
-    private static final String PORT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/port-config";
-    */
     private static final String HTTP_CLIENT_CONFIGURATION_URI =
         "http://celtix.objectweb.org/configuration/transport/http-client";
     private static final String HTTP_CLIENT_CONFIGURATION_ID = "http-client";
@@ -37,13 +33,8 @@ public class HTTPConduitConfiguration {
     final AuthorizationPolicy authPolicy;
     final AuthorizationPolicy proxyAuthPolicy;
     final Configuration configuration;
-    // final Configuration portConfiguration;
 
     HTTPConduitConfiguration(Bus bus, EndpointInfo endpointInfo) {
-        /*
-        portConfiguration = getPortConfiguration(bus, endpointInfo);
-        address = portConfiguration.getString("address");
-        */
         address = endpointInfo.getAddress();
 
         configuration = createConfiguration(bus, endpointInfo);
@@ -196,20 +187,6 @@ public class HTTPConduitConfiguration {
         return pol;
     }
    
-    /* 
-    private Configuration getPortConfiguration(Bus bus, EndpointInfo endpointInfo) {
-
-        CompoundName id = new CompoundName(
-            bus.getId(),
-            endpointInfo.getService().getName().toString()
-            + "/" + endpointInfo.getName().getLocalPart()
-        );
-
-        ConfigurationBuilder cb = bus.getExtension(ConfigurationBuilder.class);
-        return cb.getConfiguration(PORT_CONFIGURATION_URI, id);
-    }
-    */
-
     private Configuration createConfiguration(Bus bus, EndpointInfo endpointInfo) {
 
         CompoundName id = new CompoundName(

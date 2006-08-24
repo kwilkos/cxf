@@ -29,7 +29,6 @@ import org.objectweb.celtix.common.logging.LogUtils;
 import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
@@ -361,12 +360,11 @@ public class HTTPConduit implements Conduit {
      * Wrapper output stream responsible for flushing headers and handling
      * the incoming HTTP-level response (not necessarily the MEP response).
      */
-    private class WrappedOutputStream extends AbstractCachedOutputStream {
+    private class WrappedOutputStream extends AbstractWrappedOutputStream {
         protected URLConnection connection;
-        private Message outMessage;
+        
         WrappedOutputStream(Message m, URLConnection c) {
-            super();
-            outMessage = m;
+            super(m);
             connection = c;
         }
 
@@ -375,8 +373,10 @@ public class HTTPConduit implements Conduit {
          * reset output stream ... etc.)
          */
         protected void doFlush() throws IOException {
-            flushHeaders(outMessage);
-            resetOut(connection.getOutputStream(), true);
+            if (!alreadyFlushed()) {
+                flushHeaders(outMessage);
+                resetOut(connection.getOutputStream(), true);
+            }
         }
 
         /**

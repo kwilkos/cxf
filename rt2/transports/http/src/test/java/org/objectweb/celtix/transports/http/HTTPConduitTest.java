@@ -258,6 +258,8 @@ public class HTTPConduitTest extends TestCase {
         
         os.flush();
         EasyMock.expectLastCall();
+        os.flush();
+        EasyMock.expectLastCall();
         os.close();
         EasyMock.expectLastCall();
         
@@ -284,6 +286,7 @@ public class HTTPConduitTest extends TestCase {
             assertNull("unexpected back channel", backChannel);
         }
         
+        wrappedOS.flush();
         wrappedOS.flush();
         wrappedOS.close();
         

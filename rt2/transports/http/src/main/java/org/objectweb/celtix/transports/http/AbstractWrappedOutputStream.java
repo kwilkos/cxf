@@ -1,11 +1,8 @@
 package org.objectweb.celtix.transports.http;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import org.objectweb.celtix.message.Message;
+import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
 
 
 /**
@@ -16,56 +13,22 @@ import org.objectweb.celtix.message.Message;
  * </ol>
  */
 
-public abstract class AbstractWrappedOutputStream extends FilterOutputStream {
+public abstract class AbstractWrappedOutputStream extends AbstractCachedOutputStream {
 
     protected Message outMessage;
-        
-    AbstractWrappedOutputStream(Message m) {
-        super(new ByteArrayOutputStream());
-        outMessage = m;
-    } 
-
-    public void flush() throws IOException {
-        out.flush();
-        doFlush();
-    }
-
-    public void close() throws IOException {
-        out.flush();
-        out.close();
-        doClose();
-    }
-
-    /**
-     * Perform any actions required on stream flush (freeze headers,
-     * reset output stream ... etc.)
-     */
-    protected abstract void doFlush() throws IOException;
-
-    /**
-     * Perform any actions required on stream closure (handle response etc.)
-     */
-    protected abstract void doClose() throws IOException;
+    private boolean flushed;
     
-    /**
-     * @return the underlying output stream
-     */
-    protected OutputStream getOut() {
-        return out;
+    AbstractWrappedOutputStream(Message m) {
+        super();
+        outMessage = m;
     }
 
     /**
-     * Copy the cached output stream to the "real" output stream, 
-     * i.e. onto the wire.
-     * 
-     * @param realOS the real output stream
-     * @throws IOException
+     * @return true if already flushed
      */
-    protected void resetOut(OutputStream realOS) throws IOException {
-        ByteArrayOutputStream bout = (ByteArrayOutputStream)out;
-        if (bout.size() > 0) {
-            bout.writeTo(realOS);
-        }
-        out = realOS;
+    protected boolean alreadyFlushed() {
+        boolean ret = flushed;
+        flushed = true;
+        return ret;
     }
 }
