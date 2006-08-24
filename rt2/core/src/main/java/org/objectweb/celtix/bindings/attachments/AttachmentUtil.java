@@ -9,11 +9,14 @@ import java.util.UUID;
 
 import javax.xml.ws.WebServiceException;
 
+import org.objectweb.celtix.message.Message;
+
 public final class AttachmentUtil {
 
     private AttachmentUtil() {
-        
+
     }
+
     /**
      * @param ns
      * @return
@@ -41,4 +44,42 @@ public final class AttachmentUtil {
         return name + cid;
     }
 
+    public static String getUniqueBoundaryValue(int part) {
+        StringBuffer s = new StringBuffer();
+        // Unique string is ----=_Part_<part>_<hashcode>.<currentTime>
+        s.append("----=_Part_").append(part++).append("_").append(s.hashCode()).append('.')
+            .append(System.currentTimeMillis());
+        return s.toString();
+    }
+
+    public static String getMimePartHeader(Message message, String soapPartId, String action) {
+        StringBuffer buffer = new StringBuffer(200);
+        buffer.append("Content-Type: application/xop+xml; charset=utf-8; ");
+        buffer.append("type=\"" + message.getAttachmentMimeType());
+        if (action != null) {
+            buffer.append("; action=" + action + "\"\n");
+        } else {
+            buffer.append("\"\n");
+        }
+        buffer.append("Content-Transfer-Encoding: binary");
+        buffer.append("Content-ID: <" + soapPartId + ">");
+        return buffer.toString();
+    }
+
+    public static String getMimeRequestHeader(Message message, String soapPartId, String contentDesc) {
+        StringBuffer buffer = new StringBuffer(200);
+        buffer.append("MIME-Version: 1.0\n");
+        buffer.append("Content-Type: Multipart/" + getMimeSubType(message, soapPartId) + "\n");
+        buffer.append("Content-Description: " + contentDesc + "\n");
+        return buffer.toString();
+    }
+
+    public static String getMimeSubType(Message message, String soapPartId) {
+        StringBuffer ct = new StringBuffer();
+        ct.append("related; ");
+        ct.append("type=\"application/xop+xml\"; ");
+        ct.append("start=\"<" + soapPartId + ">\"; ");
+        ct.append("start-info=\"" + message.getAttachmentMimeType() + "\"");
+        return ct.toString();
+    }
 }

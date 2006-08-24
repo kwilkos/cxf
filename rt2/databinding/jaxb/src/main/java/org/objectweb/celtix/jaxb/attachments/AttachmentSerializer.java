@@ -46,7 +46,7 @@ public class AttachmentSerializer {
         Session session = Session.getDefaultInstance(new Properties(), null);
         MimeMessage mimeMessage = new MimeMessage(session);
         String soapPartId = AttachmentUtil.createContentID(null);
-        String subType = getMimeSubType(message, soapPartId);
+        String subType = AttachmentUtil.getMimeSubType(message, soapPartId);
         MimeMultipart mimeMP = new MimeMultipart(subType);
 
         // InputStream in = soapMessage.getContent(InputStream.class);
@@ -80,19 +80,6 @@ public class AttachmentSerializer {
         return mimeMP.getContentType();
     }
 
-    /**
-     * create MimeMultipart to represent the soap message
-     * 
-     * @param message
-     * @return
-     */
-    public static String getMimeSubType(Message message, String soapPartId) {
-        StringBuffer ct = new StringBuffer();
-        ct.append("related; ");
-        ct.append("type=\"application/xop+xml\"; ");
-        ct.append("start=\"<" + soapPartId + ">\"; ");
-        ct.append("start-info=\"" + message.getAttachmentMimeType() + "\"");
-        return ct.toString();
-    }
+
 
 }
