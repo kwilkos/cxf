@@ -3,15 +3,15 @@
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtixfire</groupId>
+    <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-api</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire API</name>
+    <name>CXF API</name>
     <version>1.1-SNAPSHOT</version>
 
     <parent>
-	<groupId>org.objectweb.celtixfire</groupId>
-	<artifactId>celtixfire</artifactId>
+	<groupId>org.apache.cxf</groupId>
+	<artifactId>cxf</artifactId>
 	<version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -36,14 +36,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -53,7 +53,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.objectweb.celtixfire</groupId>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>

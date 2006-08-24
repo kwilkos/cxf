@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-databinding-jaxb</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire JAXB DataBinding</name>
-    <url>http://celtix.objectweb.org/</url>
+    <name>CXF JAXB DataBinding</name>
+    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>
-        <groupId>org.objectweb.celtixfire</groupId>
+        <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
@@ -31,19 +31,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -68,7 +68,7 @@
             <artifactId>saaj-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

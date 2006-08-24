@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtixfire</groupId>
+    <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-tools-common</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltiXfire Command Line Tools Common</name>
-    <url>http://celtix.objectweb.org/</url>
+    <name>CXF Command Line Tools Common</name>
+    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>
-        <groupId>org.objectweb.celtixfire</groupId>
+        <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-tools</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
@@ -63,7 +63,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.objectweb.celtixfire</groupId>
+                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-common</artifactId>
                 <version>${project.version}</version>
             </dependency>

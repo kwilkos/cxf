@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtixfire</groupId>
+    <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-systests</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltiXfire System Tests</name>
-    <url>http://celtix.objectweb.org/</url>
+    <name>CXF System Tests</name>
+    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>
-        <groupId>org.objectweb.celtixfire</groupId>
-        <artifactId>celtixfire</artifactId>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -21,81 +21,81 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-misctools</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-validator</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-java2wsdl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-management</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-databinding-jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-local</artifactId>
             <version>${project.version}</version>
         </dependency>
 
 	<dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -131,10 +131,6 @@
                             <property>
                                 <name>java.util.logging.config.file</name>
                                 <value>${basedir}/target/test-classes/logging.properties</value>
-                            </property>
-                            <property>
-                                <name>javax.xml.ws.spi.Provider</name>
-                                <value>org.objectweb.celtix.jaxws.spi.ProviderImpl</value>
                             </property>
                         </systemProperties>
                     </configuration>
