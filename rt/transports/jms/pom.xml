@@ -22,13 +22,11 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
-            <version>.</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -61,13 +59,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jee-jacc_1.0_spec</artifactId>
+            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
             <version>1.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jee-management_1.0_spec</artifactId>
+            <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
             <version>1.0</version>
             <scope>runtime</scope>
         </dependency>

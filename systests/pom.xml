@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtixfire</groupId>
-    <artifactId>cxf-systests2</artifactId>
+    <artifactId>cxf-systests</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
-    <name>CeltiXfire System Tests v2</name>
+    <name>CeltiXfire System Tests</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
@@ -54,43 +54,43 @@
 
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-api2</artifactId>
+            <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-management</artifactId>
+            <artifactId>cxf-rt-management</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-core</artifactId>
+            <artifactId>cxf-rt-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-databinding-jaxb</artifactId>
+            <artifactId>cxf-rt-databinding-jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-frontend-jaxws</artifactId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-bindings-soap</artifactId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-transports-http</artifactId>
+            <artifactId>cxf-rt-transports-http</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-transports-local</artifactId>
+            <artifactId>cxf-rt-transports-local</artifactId>
             <version>${project.version}</version>
         </dependency>
 
