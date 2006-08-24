@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions xmlns="http://cxf.apache.org/bus/extension">
+
+    <extension interface="org.apache.cxf.foo.Foo" class="org.apache.cxf.foo.FooImpl">
+       <namespace>http://cxf.apache.org/a/b/c</namespace>
+       <namespace>http://cxf.apache.org/d/e/f</namespace>
+    </extension>
+    
+    <extension class="java.lang.Boolean" deferred="true">
+        <namespace>http://cxf.apache.org/x/y/z</namespace>
+    </extension>
+    
+    <extension class="java.lang.Long" deferred="true">
+        <namespace>http://cxf.apache.org/x/y/z</namespace>
+    </extension>
+    
+</extensions>

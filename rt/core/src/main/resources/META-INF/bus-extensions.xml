@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extensions xmlns="http://celtix.objectweb.org/bus/extension">
+<extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.objectweb.celtix.bindings.BindingFactoryManagerImpl"
-           interface="org.objectweb.celtix.bindings.BindingFactoryManager"/>
-    <extension class="org.objectweb.celtix.messaging.DestinationFactoryManagerImpl"
-           interface="org.objectweb.celtix.messaging.DestinationFactoryManager"/>
-    <extension class="org.objectweb.celtix.messaging.ConduitInitiatorManagerImpl"
-           interface="org.objectweb.celtix.messaging.ConduitInitiatorManager"/>
-    <extension class="org.objectweb.celtix.wsdl11.WSDLManagerImpl"
-           interface="org.objectweb.celtix.wsdl.WSDLManager"/>
-    <extension class="org.objectweb.celtix.phase.PhaseManagerImpl"
-           interface="org.objectweb.celtix.phase.PhaseManager"/>
+    <extension class="org.apache.cxf.bindings.BindingFactoryManagerImpl"
+           interface="org.apache.cxf.bindings.BindingFactoryManager"/>
+    <extension class="org.apache.cxf.messaging.DestinationFactoryManagerImpl"
+           interface="org.apache.cxf.messaging.DestinationFactoryManager"/>
+    <extension class="org.apache.cxf.messaging.ConduitInitiatorManagerImpl"
+           interface="org.apache.cxf.messaging.ConduitInitiatorManager"/>
+    <extension class="org.apache.cxf.wsdl11.WSDLManagerImpl"
+           interface="org.apache.cxf.wsdl.WSDLManager"/>
+    <extension class="org.apache.cxf.phase.PhaseManagerImpl"
+           interface="org.apache.cxf.phase.PhaseManager"/>
     
 </extensions>

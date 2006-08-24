@@ -28,7 +28,7 @@
 
         <dependency>
 	    <groupId>org.objectweb.celtixfire</groupId>
-	    <artifactId>cxf-tools-javawsdl</artifactId>
+	    <artifactId>cxf-tools-java2wsdl</artifactId>
 	    <version>${project.version}</version>
         </dependency>
 
