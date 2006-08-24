@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:tns="http://celtix.objectweb.org/greeter_control"
-    xmlns:x1="http://celtix.objectweb.org/greeter_control/types"
+    xmlns:tns="http://cxf.apache.org/greeter_control"
+    xmlns:x1="http://cxf.apache.org/greeter_control/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://celtix.objectweb.org/greeter_control" name="HelloWorld">
+    targetNamespace="http://cxf.apache.org/greeter_control" name="HelloWorld">
     <wsdl:types>
-        <schema targetNamespace="http://celtix.objectweb.org/greeter_control/types" 
+        <schema targetNamespace="http://cxf.apache.org/greeter_control/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <element name="sayHi">
                 <complexType/>

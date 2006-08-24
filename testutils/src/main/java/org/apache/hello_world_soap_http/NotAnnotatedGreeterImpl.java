@@ -1,4 +1,4 @@
-package org.objectweb.hello_world_soap_http;
+package org.apache.hello_world_soap_http;
 
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
@@ -6,13 +6,13 @@ import java.util.logging.Logger;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
-import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
-import org.objectweb.hello_world_soap_http.types.ErrorCode;
-import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
-import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
-import org.objectweb.hello_world_soap_http.types.NoSuchCodeLit;
-import org.objectweb.hello_world_soap_http.types.SayHiResponse;
-import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.BareDocumentResponse;
+import org.apache.hello_world_soap_http.types.ErrorCode;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
+import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
+import org.apache.hello_world_soap_http.types.SayHiResponse;
+import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
 
 
 

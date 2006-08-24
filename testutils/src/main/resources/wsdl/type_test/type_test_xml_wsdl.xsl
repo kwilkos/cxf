@@ -4,13 +4,13 @@
     xmlns:xalan="http://xml.apache.org/xslt"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-    xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
+    xmlns:xformat="http://cxf.apache.org/bindings/xmlformat"
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
-    xmlns:x1="http://objectweb.org/type_test/types1"
-    xmlns:x2="http://objectweb.org/type_test/types2"
-    xmlns:x3="http://objectweb.org/type_test/types3"
+    xmlns:x1="http://apache.org/type_test/types1"
+    xmlns:x2="http://apache.org/type_test/types2"
+    xmlns:x3="http://apache.org/type_test/types3"
     xmlns:itst="http://tests.iona.com/ittests"
-    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration">
 
     <xsl:output method="xml" indent="yes" xalan:indent-amount="4"/>
     <xsl:strip-space elements="*"/>
@@ -32,8 +32,8 @@
     <xsl:template match="/xsd:schema">
 	<wsdl:definitions
 	    xmlns="http://schemas.xmlsoap.org/wsdl/"
-	    xmlns:tns="http://objectweb.org/type_test/doc"
-	    targetNamespace="http://objectweb.org/type_test/doc"
+	    xmlns:tns="http://apache.org/type_test/doc"
+	    targetNamespace="http://apache.org/type_test/doc"
 	    name="type_test_xml">
 	    <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
 	    <xsl:apply-templates select="." mode="test_binding"/>
@@ -43,7 +43,7 @@
     <!-- 1 - test binding and service -->
     <xsl:template match="/xsd:schema" mode="test_binding"
 		  xmlns="http://schemas.xmlsoap.org/wsdl/">
-	<wsdl:import namespace="http://objectweb.org/type_test/doc" location="type_test_doclit.wsdl"/>
+	<wsdl:import namespace="http://apache.org/type_test/doc" location="type_test_doclit.wsdl"/>
 
 	<wsdl:binding type="tns:TypeTestPortType" name="TypeTestXML">
 	    <xformat:binding/>

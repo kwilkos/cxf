@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://objectweb.org/header_test" xmlns:x1="http://objectweb.org/header_test/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://objectweb.org/header_test" name="TestHeaderWSDL">
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://apache.org/header_test" xmlns:x1="http://apache.org/header_test/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/header_test" name="TestHeaderWSDL">
 	<wsdl:types>
-		<schema targetNamespace="http://objectweb.org/header_test/types" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://objectweb.org/header_test/types" elementFormDefault="qualified">
+		<schema targetNamespace="http://apache.org/header_test/types" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://apache.org/header_test/types" elementFormDefault="qualified">
 			<element name="testHeader1">
 				<complexType/>
 			</element>

@@ -9,7 +9,7 @@
     <annotation>
 Examples :
 
-wsdl2soap -i GreetPortType -n http://objectweb.org/hello_world_doc_lit -o Greeting.wsdl -style rpc -use literal TestGreeting.wsdl
+wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.wsdl -style rpc -use literal TestGreeting.wsdl
     </annotation>
 
 	<usage>

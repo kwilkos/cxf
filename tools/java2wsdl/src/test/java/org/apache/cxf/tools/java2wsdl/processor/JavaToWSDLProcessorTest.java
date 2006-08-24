@@ -16,8 +16,8 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
     private JavaToWSDLProcessor j2wProcessor;
     private WSDLToJavaProcessor wj2Processor;
-    private String tns = "org.objectweb.asyn_lit";
-    private String serviceName = "celtixService";
+    private String tns = "org.apache.asyn_lit";
+    private String serviceName = "cxfService";
     private WSDLHelper wsdlHelper = new WSDLHelper();
     private File classFile;
     
@@ -51,7 +51,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
 
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/asyn.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.objectweb.hello_world_async_soap_http.GreeterAsync");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_async_soap_http.GreeterAsync");
         env.put(ToolConstants.CFG_TNS, tns);
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
         j2wProcessor.setEnvironment(env);
@@ -79,7 +79,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
 
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_wrapped_bare.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.objectweb.hello_world_doc_wrapped_bare.Greeter");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_doc_wrapped_bare.Greeter");
         env.put(ToolConstants.CFG_TNS, tns);
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
         j2wProcessor.setEnvironment(env);
@@ -108,7 +108,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
  
         System.setProperty("java.class.path", "");
         env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.objectweb.hello_world_doc_lit.Greeter");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_doc_lit.Greeter");
         env.put(ToolConstants.CFG_TNS, tns);
         env.put(ToolConstants.CFG_CLASSPATH, classFile.getCanonicalPath());
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
@@ -136,7 +136,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
    
         env.put(ToolConstants.CFG_OUTPUTFILE,
                 output.getPath() + "/rpc_lit.wsdl");
-        env.put(ToolConstants.CFG_CLASSNAME, "org.objectweb.hello_world_rpclit.GreeterRPCLit");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.hello_world_rpclit.GreeterRPCLit");
         env.put(ToolConstants.CFG_TNS, tns);
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
         

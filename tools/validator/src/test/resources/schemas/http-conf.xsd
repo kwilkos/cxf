@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema targetNamespace="http://celtix.objectweb.org/transports/http/configuration" 
+<xs:schema targetNamespace="http://cxf.apache.org/transports/http/configuration" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration" 
+           xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"

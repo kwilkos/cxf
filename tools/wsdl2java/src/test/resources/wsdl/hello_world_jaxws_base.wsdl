@@ -3,18 +3,18 @@
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://objectweb.org/hello_world_async_soap_http" 
-    xmlns:x1="http://objectweb.org/hello_world_async_soap_http/types" 
+    xmlns:tns="http://apache.org/hello_world_async_soap_http" 
+    xmlns:x1="http://apache.org/hello_world_async_soap_http/types" 
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    targetNamespace="http://objectweb.org/hello_world_async_soap_http" 
+    targetNamespace="http://apache.org/hello_world_async_soap_http" 
     name="HelloWorld">
 
     <wsdl:types>
 	<schema 
-	    targetNamespace="http://objectweb.org/hello_world_async_soap_http/types" 
+	    targetNamespace="http://apache.org/hello_world_async_soap_http/types" 
 	    xmlns="http://www.w3.org/2001/XMLSchema" 
-	    xmlns:x1="http://objectweb.org/hello_world_async_soap_http/types" 
+	    xmlns:x1="http://apache.org/hello_world_async_soap_http/types" 
 	    elementFormDefault="qualified">
 	    <element name="greetMeSometime">
 		<complexType>

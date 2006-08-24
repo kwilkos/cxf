@@ -39,7 +39,7 @@ public final class SchemaValidatingSAXParser {
     }
 
     private InputStream getSchemaLocation() {
-        String toolspec = "/org/objectweb/celtix/tools/common/toolspec/tool-specification.xsd";
+        String toolspec = "/org/apache/cxf/tools/common/toolspec/tool-specification.xsd";
         return getClass().getResourceAsStream(toolspec);
     }
     

@@ -15,7 +15,7 @@ public class XSDToWSDLProcessorTest
     }
 
     public void testNewTypes() throws Exception {
-        String[] args = new String[] {"-t", "http://org.objectweb/invoice", "-n", "Invoice", "-d",
+        String[] args = new String[] {"-t", "http://org.apache/invoice", "-n", "Invoice", "-d",
                                       output.getCanonicalPath(), "-o", "Invoice_xsd.wsdl",
                                       getLocation("/wsdl/Invoice.xsd")};
         XSDToWSDL.main(args);
@@ -34,17 +34,17 @@ public class XSDToWSDLProcessorTest
         String serviceString = new String(sb);
         assertTrue(serviceString.indexOf("<wsdl:types>") >= 0);
         assertTrue(serviceString.indexOf("<schema targetNamespace=\"http:/"
-                                         + "/objectweb.org/Invoice\" xmlns=\"http:/"
+                                         + "/apache.org/Invoice\" xmlns=\"http:/"
                                          + "/www.w3.org/2001/XMLSchema\" xmlns:soap=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/soap/\" xmlns:tns=\"http:/"
-                                         + "/objectweb.org/Invoice\" xmlns:wsdl=\"http:/"
+                                         + "/apache.org/Invoice\" xmlns:wsdl=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/\">") >= 0);
         assertTrue(serviceString.indexOf("<complexType name=\"InvoiceHeader\">") >= 0);
         
     }
 
     public void testDefaultFileName() throws Exception {
-        String[] args = new String[] {"-t", "http://org.objectweb/invoice", "-n", "Invoice", "-d",
+        String[] args = new String[] {"-t", "http://org.apache/invoice", "-n", "Invoice", "-d",
                                       output.getCanonicalPath(), getLocation("/wsdl/Invoice.xsd")};
         XSDToWSDL.main(args);
 
@@ -62,10 +62,10 @@ public class XSDToWSDLProcessorTest
         String serviceString = new String(sb);
         assertTrue(serviceString.indexOf("<wsdl:types>") >= 0);
         assertTrue(serviceString.indexOf("<schema targetNamespace=\"http:/"
-                                         + "/objectweb.org/Invoice\" xmlns=\"http:/"
+                                         + "/apache.org/Invoice\" xmlns=\"http:/"
                                          + "/www.w3.org/2001/XMLSchema\" xmlns:soap=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/soap/\" xmlns:tns=\"http:/"
-                                         + "/objectweb.org/Invoice\" xmlns:wsdl=\"http:/"
+                                         + "/apache.org/Invoice\" xmlns:wsdl=\"http:/"
                                          + "/schemas.xmlsoap.org/wsdl/\">") >= 0);
         assertTrue(serviceString.indexOf("<complexType name=\"InvoiceHeader\">") >= 0);        
     }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="soap_header" targetNamespace="http://objectweb.org/headers" 
+<definitions name="soap_header" targetNamespace="http://apache.org/headers" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://objectweb.org/headers" 
+    xmlns:tns="http://apache.org/headers" 
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
-        <schema targetNamespace="http://objectweb.org/headers" 
+        <schema targetNamespace="http://apache.org/headers" 
             xmlns="http://www.w3.org/2001/XMLSchema" 
             xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
 

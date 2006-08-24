@@ -98,7 +98,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     public void testRpcLitWithoutFault() throws Exception {
         String[] args = new String[] {"-i", "GreeterRPCLit", "-n",
-                                      "http://objectweb.org/hello_world_rpclit_test", "-b",
+                                      "http://apache.org/hello_world_rpclit_test", "-b",
                                       "Greeter_SOAPBinding_NewBinding", "-style", "rpc", "-use", "literal",
                                       "-d", output.getCanonicalPath(), "-o",
                                       "hello_world_rpc_lit_newbinding.wsdl",

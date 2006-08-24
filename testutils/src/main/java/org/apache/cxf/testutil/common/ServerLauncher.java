@@ -1,4 +1,4 @@
-package org.objectweb.celtix.testutil.common;
+package org.apache.cxf.testutil.common;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -307,7 +307,7 @@ public class ServerLauncher {
         }
         cmd.add(classpath.toString());
         
-        cmd.add("-Djavax.xml.ws.spi.Provider=org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
+        cmd.add("-Djavax.xml.ws.spi.Provider=org.apache.cxf.bus.jaxws.spi.ProviderImpl");
         
         String loggingPropertiesFile = System.getProperty("java.util.logging.config.file");
         loggingPropertiesFile = "c:/logging.properties";

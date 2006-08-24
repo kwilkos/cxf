@@ -17,7 +17,7 @@ public class WSDLToJavaXMLFormatTest
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/xml_format_fail.wsdl"));
         env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
-        System.setProperty(ToolConstants.CELTIX_SCHEMA_DIR, getLocation("/schemas"));
+        System.setProperty(ToolConstants.CXF_SCHEMA_DIR, getLocation("/schemas"));
         processor.setEnvironment(env);
         try {
             processor.process();

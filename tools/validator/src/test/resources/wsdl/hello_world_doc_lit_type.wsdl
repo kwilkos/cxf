@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://objectweb.org/hello_world_doc_lit" xmlns:x1="http://objectweb.org/hello_world_doc_lit/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://objectweb.org/hello_world_doc_lit" name="HelloWorld">
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://apache.org/hello_world_doc_lit" xmlns:x1="http://apache.org/hello_world_doc_lit/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
 
 	<wsdl:message name="sayHiRequest">
 		<wsdl:part name="in" type="xsd:string"/>

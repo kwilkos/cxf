@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions name="HelloWorld"
-    targetNamespace="http://objectweb.org/hello_world" 
+    targetNamespace="http://apache.org/hello_world" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:tns="http://objectweb.org/hello_world"
-    xmlns:x1="http://objectweb.org/hello_world/types"
+    xmlns:tns="http://apache.org/hello_world"
+    xmlns:x1="http://apache.org/hello_world/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
     <wsdl:types>
         <schema
-            targetNamespace="http://objectweb.org/hello_world/types" 
+            targetNamespace="http://apache.org/hello_world/types" 
             xmlns="http://www.w3.org/2001/XMLSchema"
             xmlns:wsa="http://www.w3.org/2005/08/addressing"
             elementFormDefault="qualified">

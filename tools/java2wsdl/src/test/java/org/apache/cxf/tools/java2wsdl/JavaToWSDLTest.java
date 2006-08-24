@@ -17,7 +17,7 @@ public class JavaToWSDLTest extends ToolTestBase {
     }
 
     public void testNormalArgs() {
-        String[] args = new String[] {"-o", "./test.wsdl", "org.objectweb.hello_world_soap_http.Greeter"};
+        String[] args = new String[] {"-o", "./test.wsdl", "org.apache.hello_world_soap_http.Greeter"};
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }
@@ -37,7 +37,7 @@ public class JavaToWSDLTest extends ToolTestBase {
     }
 
     public void testNoOutPutFile() {
-        String[] args = new String[] {"org.objectweb.hello_world_soap_http.Greeter"};
+        String[] args = new String[] {"org.apache.hello_world_soap_http.Greeter"};
         JavaToWSDL.main(args);
         assertNotNull(getStdOut());
     }

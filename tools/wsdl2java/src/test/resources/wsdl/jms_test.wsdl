@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/hello_world_jms" 
+<definitions name="HelloWorldService" targetNamespace="http://cxf.apache.org/hello_world_jms" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:jms="http://celtix.objectweb.org/transports/jms" 
+    xmlns:jms="http://cxf.apache.org/transports/jms" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://celtix.objectweb.org/hello_world_jms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    xmlns:xsd1="http://celtix.objectweb.org/hello_world_jms/xsd">
+    xmlns:tns="http://cxf.apache.org/hello_world_jms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://cxf.apache.org/hello_world_jms/xsd">
     <message name="greetMe">
         <part name="stringParam0" type="xsd:string"/>
     </message>
@@ -51,29 +51,29 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -84,29 +84,29 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -118,7 +118,7 @@
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
@@ -129,7 +129,7 @@
                 <soap:operation style="rpc"/>
                 <input name="greetMeOneWay">
                     <soap:body 
-                        namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                        namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
                 </input>
             </operation>
     </binding>
@@ -146,7 +146,7 @@
                useMessageIDAsCorrelationID="true"
                durableSubscriberName="Celtix_subscriber"
             />
-            <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+            <soap:address location="http://cxf.apache.org/transports/jms"/>
         </port>
     </service>
     
@@ -163,7 +163,7 @@
                    useMessageIDAsCorrelationID="true"   
                    durableSubscriberName="Celtix_subscriber"
                    />
-               <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+               <soap:address location="http://cxf.apache.org/transports/jms"/>
            </port>
     </service>
     
@@ -179,7 +179,7 @@
                 useMessageIDAsCorrelationID="true"   
                 durableSubscriberName="Celtix_Queue_subscriber"
             />
-            <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+            <soap:address location="http://cxf.apache.org/transports/jms"/>
         </port>
     </service>
     
@@ -194,7 +194,7 @@
                     messageType="text"
                     useMessageIDAsCorrelationID="true"   
                 />
-                <soap:address location="http://celtix.objectweb.org/transports/jms"/>
+                <soap:address location="http://cxf.apache.org/transports/jms"/>
             </port>
     </service>
     

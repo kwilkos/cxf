@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:tns="http://objectweb.org/hello_world_soap_http"
-    xmlns:x1="http://objectweb.org/test/types"
+    xmlns:tns="http://apache.org/hello_world_soap_http"
+    xmlns:x1="http://apache.org/test/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://objectweb.org/hello_world_soap_http" name="HelloWorld">
+    targetNamespace="http://apache.org/hello_world_soap_http" name="HelloWorld">
     <wsdl:types>
-        <schema targetNamespace="http://objectweb.org/test/types" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://objectweb.org/test/types" elementFormDefault="qualified">
-        	<import namespace="http://objectweb.org/Invoice" schemaLocation="Invoice.xsd"/>
+        <schema targetNamespace="http://apache.org/test/types" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://apache.org/test/types" elementFormDefault="qualified">
+        	<import namespace="http://apache.org/Invoice" schemaLocation="Invoice.xsd"/>
             <element name="sayHi">
                 <complexType/>
             </element>
@@ -228,7 +228,7 @@
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="testDocLitBare">
-            <soap:operation style="document" soapAction="http://objectweb.org/hello_world_soap_http/testDocLitBare"/>
+            <soap:operation style="document" soapAction="http://apache.org/hello_world_soap_http/testDocLitBare"/>
             <wsdl:input name="testDocLitBareRequest">
                 <soap:body use="literal"/>
             </wsdl:input>

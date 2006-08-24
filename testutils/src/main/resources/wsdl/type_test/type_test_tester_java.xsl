@@ -12,10 +12,10 @@
 
     <xsl:template match="/xsd:schema">
 <![CDATA[
-package org.objectweb.celtix.systest.type_test;
+package org.apache.cxf.systest.type_test;
 
 /**
- * org.objectweb.type_test.TypeTestTester
+ * org.apache.type_test.TypeTestTester
  */
 public interface TypeTestTester {
 

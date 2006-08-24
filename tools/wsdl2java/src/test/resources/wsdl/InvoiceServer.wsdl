@@ -2,18 +2,18 @@
 <!--WSDL file template-->
 <!--(c) 2005, IONA Technologies, Inc.-->
 <definitions name="InvoiceServer.wsdl" 
-	     targetNamespace="http://objectweb.org/InvoiceServer" 
+	     targetNamespace="http://apache.org/InvoiceServer" 
 	     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-	     xmlns:inv="http://objectweb.org/Invoice" 
+	     xmlns:inv="http://apache.org/Invoice" 
 	     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-	     xmlns:tns="http://objectweb.org/InvoiceServer" 
+	     xmlns:tns="http://apache.org/InvoiceServer" 
 	     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
-	<schema targetNamespace="http://objectweb.org/InvoiceServer" 
+	<schema targetNamespace="http://apache.org/InvoiceServer" 
 		xmlns="http://www.w3.org/2001/XMLSchema" 
 		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-	    <import namespace="http://objectweb.org/Invoice" 
+	    <import namespace="http://apache.org/Invoice" 
 		    schemaLocation="Invoice.xsd"/>
 	    <element name="sendInvoice">
 		<complexType>

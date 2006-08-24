@@ -13,12 +13,12 @@
     <xsl:strip-space elements="*"/>
     
     <xsl:template match="/xsd:schema">
-      <xsl:text>package org.objectweb.celtix.systest.type_test;&#10;&#10;</xsl:text>
+      <xsl:text>package org.apache.cxf.systest.type_test;&#10;&#10;</xsl:text>
       <xsl:text>import java.util.List;&#10;</xsl:text>
       <xsl:text>import javax.xml.ws.Holder;&#10;&#10;</xsl:text>
       <xsl:apply-templates select="itst:it_test_group[@ID]" mode="imports"/>
 <![CDATA[/**
- * org.objectweb.celtix.systest.type_test.TypeTestImpl
+ * org.apache.cxf.systest.type_test.TypeTestImpl
  */
 public class TypeTestImpl {
 
@@ -28,10 +28,10 @@ public class TypeTestImpl {
     public void testOneway(String x, String y) {
     }
 
-    public org.objectweb.type_test.types1.AnonTypeElement testAnonTypeElement(
-            org.objectweb.type_test.types1.AnonTypeElement x, 
-            Holder<org.objectweb.type_test.types1.AnonTypeElement> y, 
-            Holder<org.objectweb.type_test.types1.AnonTypeElement> z) {
+    public org.apache.type_test.types1.AnonTypeElement testAnonTypeElement(
+            org.apache.type_test.types1.AnonTypeElement x, 
+            Holder<org.apache.type_test.types1.AnonTypeElement> y, 
+            Holder<org.apache.type_test.types1.AnonTypeElement> z) {
         z.value.setVarFloat(y.value.getVarFloat());
         z.value.setVarInt(y.value.getVarInt());
         z.value.setVarString(y.value.getVarString());
@@ -40,8 +40,8 @@ public class TypeTestImpl {
         y.value.setVarInt(x.getVarInt());
         y.value.setVarString(x.getVarString());
 
-        org.objectweb.type_test.types1.AnonTypeElement varReturn =
-            new org.objectweb.type_test.types1.AnonTypeElement();
+        org.apache.type_test.types1.AnonTypeElement varReturn =
+            new org.apache.type_test.types1.AnonTypeElement();
         varReturn.setVarFloat(x.getVarFloat());
         varReturn.setVarInt(x.getVarInt());
         varReturn.setVarString(x.getVarString());
@@ -359,7 +359,7 @@ public class TypeTestImpl {
 
     <xsl:template match="itst:it_test_group/*" mode="import">
         <xsl:param name="id"/>
-        <xsl:value-of select="concat('import org.objectweb.type_test.types',
+        <xsl:value-of select="concat('import org.apache.type_test.types',
             $id, '.', @name, ';&#10;')"/>
     </xsl:template>
 

@@ -3,7 +3,7 @@
     <handler-chain-name>TestHandlerChain</handler-chain-name> 
     <handler> 
       <handler-name>DummyHandler</handler-name> 
-      <handler-class>org.objectweb.celtix.bus.handlers.DummyHandler</handler-class> 
+      <handler-class>org.apache.cxf.bus.handlers.DummyHandler</handler-class> 
       <init-param> 
 	<param-name>foo</param-name> 
 	<param-value>1</param-value> 
@@ -29,7 +29,7 @@
     <handler-chain-name>HandlerChainNoInitParam</handler-chain-name> 
     <handler> 
       <handler-name>DummyHandler</handler-name> 
-      <handler-class>org.objectweb.celtix.bus.handlers.DummyHandler</handler-class> 
+      <handler-class>org.apache.cxf.bus.handlers.DummyHandler</handler-class> 
     </handler> 
   </handler-chain> 
 </handler-config> 

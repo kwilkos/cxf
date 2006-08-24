@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://objectweb.org/xml_http_bare" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://objectweb.org/xml_http_bare" name="XMLOverHttp">
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://apache.org/xml_http_bare" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xformat="http://cxf.apache.org/bindings/xmlformat" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/xml_http_bare" name="XMLOverHttp">
 	<wsdl:types>
-		<schema targetNamespace="http://objectweb.org/xml_http_bare" xmlns="http://www.w3.org/2001/XMLSchema">
+		<schema targetNamespace="http://apache.org/xml_http_bare" xmlns="http://www.w3.org/2001/XMLSchema">
 			<element name="sayHiRequest" type="string"/>
 			<element name="sayHiResponse" type="string"/>
 		</schema>

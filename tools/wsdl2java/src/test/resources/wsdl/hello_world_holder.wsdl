@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://objectweb.org/hello_world_holder" xmlns:x1="http://objectweb.org/hello_world_holder/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://objectweb.org/hello_world_holder" name="HelloWorld">
+<wsdl:definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://apache.org/hello_world_holder" xmlns:x1="http://apache.org/hello_world_holder/types" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://apache.org/hello_world_holder" name="HelloWorld">
 	<wsdl:types>
-		<schema targetNamespace="http://objectweb.org/hello_world_holder/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+		<schema targetNamespace="http://apache.org/hello_world_holder/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 			<element name="sayHi">
 				<complexType>
 					<sequence>

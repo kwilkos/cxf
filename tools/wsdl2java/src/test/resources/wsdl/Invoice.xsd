@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--XSD file template-->
 <!--Created by IONA Artix Designer-->
-<schema targetNamespace="http://objectweb.org/Invoice" 
+<schema targetNamespace="http://apache.org/Invoice" 
 	xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-	xmlns:tns="http://objectweb.org/Invoice" 
+	xmlns:tns="http://apache.org/Invoice" 
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
     <complexType name="InvoiceHeader">
 	<sequence>

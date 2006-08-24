@@ -34,7 +34,7 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_GEN_CLIENT, ToolConstants.CFG_GEN_CLIENT);
         processor.setEnvironment(env);
         processor.process();
-        File file = new File(output.getCanonicalPath() + "/org/objectweb/hello_world_soap_http/");
+        File file = new File(output.getCanonicalPath() + "/org/apache/hello_world_soap_http/");
         File[] files = file.listFiles(new java.io.FileFilter() {
             public boolean accept(File pathname) {
                 if (pathname.getName().endsWith(".java")) {
@@ -54,7 +54,7 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
         processor.setEnvironment(env);
         processor.process();
-        File file = new File(output.getCanonicalPath() + "/org/objectweb/hello_world_soap_http/");
+        File file = new File(output.getCanonicalPath() + "/org/apache/hello_world_soap_http/");
         File[] files = file.listFiles(new java.io.FileFilter() {
             public boolean accept(File pathname) {
                 if (pathname.getName().endsWith(".java")) {

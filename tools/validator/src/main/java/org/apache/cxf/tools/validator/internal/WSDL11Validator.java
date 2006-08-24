@@ -63,7 +63,7 @@ public class WSDL11Validator extends AbstractValidator {
     public String getSchemaDir() {
         String dir = "";
         if (env.get(ToolConstants.CFG_SCHEMA_DIR) == null) {
-            dir = System.getProperty(ToolConstants.CELTIX_SCHEMA_DIR);
+            dir = System.getProperty(ToolConstants.CXF_SCHEMA_DIR);
         } else {
             dir = (String)env.get(ToolConstants.CFG_SCHEMA_DIR);
         }

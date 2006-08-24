@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="HelloWorldService" 
-    targetNamespace="http://celtix.objectweb.org/hello_world_jms" 
+    targetNamespace="http://cxf.apache.org/hello_world_jms" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:jms="http://celtix.objectweb.org/transports/jms" 
-    xmlns:x1="http://celtix.objectweb.org/hello_world_jms/types"
+    xmlns:jms="http://cxf.apache.org/transports/jms" 
+    xmlns:x1="http://cxf.apache.org/hello_world_jms/types"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://celtix.objectweb.org/hello_world_jms" 
+    xmlns:tns="http://cxf.apache.org/hello_world_jms" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
-        <schema targetNamespace="http://celtix.objectweb.org/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://celtix.objectweb.org/hello_world_jms/types" elementFormDefault="qualified">
+        <schema targetNamespace="http://cxf.apache.org/hello_world_jms/types"      xmlns="http://www.w3.org/2001/XMLSchema" xmlns:x1="http://cxf.apache.org/hello_world_jms/types" elementFormDefault="qualified">
             <complexType name="ErrorCode">
                  <sequence>
                     <element name="minor" type="short"/>
@@ -98,205 +98,205 @@
     </portType>
     
     <binding name="HelloWorldPortBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
 
          <operation name="testRpcLitFault">
             <soap:operation style="rpc"/>
             <input>
-                <soap:body namespace="http://celtix.objectweb.org/hello_world_jms"  use="literal"/>
+                <soap:body namespace="http://cxf.apache.org/hello_world_jms"  use="literal"/>
             </input>
             <output>
-                <soap:body namespace="http://celtix.objectweb.org/hello_world_jms"  use="literal"/>
+                <soap:body namespace="http://cxf.apache.org/hello_world_jms"  use="literal"/>
             </output>
             <fault name="NoSuchCodeLitFault">
-                <soap:fault name="NoSuchCodeLitFault" namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                <soap:fault name="NoSuchCodeLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </fault>
             <fault name="BadRecordLitFault">
-                <soap:fault name="BadRecordLitFault" namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                <soap:fault name="BadRecordLitFault" namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </fault>
         </operation>
     </binding>
 
     <binding name="HelloWorldQueueBinMsgBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
     
     <binding name="HWStaticReplyQTextPortBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
 
     <binding name="HWStaticReplyQBinMsgBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
     
     <binding name="HWJMSAddressingBinding" type="tns:HelloWorldPortType">
-    <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+    <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
     
     
     <binding name="HelloWorldOneWayBinding" type="tns:HelloWorldOneWayPort">
-        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                    namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
             </input>
         </operation>
     </binding>
     
      <binding name="HelloWorldPubSubBinding" type="tns:HelloWorldPubSubPort">
-            <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+            <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
             <operation name="greetMeOneWay">
                 <soap:operation style="rpc"/>
                 <input name="greetMeOneWay">
                     <soap:body 
-                        namespace="http://celtix.objectweb.org/hello_world_jms" use="literal"/>
+                        namespace="http://cxf.apache.org/hello_world_jms" use="literal"/>
                 </input>
             </operation>
     </binding>

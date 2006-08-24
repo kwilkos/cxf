@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/schema_import" 
+<wsdl:definitions name="HelloWorld" targetNamespace="http://apache.org/schema_import" 
 		  xmlns="http://schemas.xmlsoap.org/wsdl/" 
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-		  xmlns:tns="http://objectweb.org/schema_import"
-		  xmlns:x1="http://objectweb.org/hello_world_soap_http/types"
+		  xmlns:tns="http://apache.org/schema_import"
+		  xmlns:x1="http://apache.org/hello_world_soap_http/types"
 		  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
 	<xsd:schema>
-	    <xsd:import namespace="http://objectweb.org/hello_world_soap_http/types" schemaLocation="schema1.xsd"/>
+	    <xsd:import namespace="http://apache.org/hello_world_soap_http/types" schemaLocation="schema1.xsd"/>
 	</xsd:schema>
     </wsdl:types>
     <wsdl:message name="sayHiRequest">

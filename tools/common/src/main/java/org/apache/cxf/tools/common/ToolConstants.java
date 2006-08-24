@@ -4,8 +4,8 @@ import javax.xml.namespace.QName;
 
 public final class ToolConstants {
 
-    //public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/common/toolspec/toolspecs/";
-    public static final String TOOLSPECS_BASE = "/org/objectweb/celtix/tools/";
+    //public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/common/toolspec/toolspecs/";
+    public static final String TOOLSPECS_BASE = "/org/apache/cxf/tools/";
     public static final String SCHEMA_URI = "http://www.w3.org/2001/XMLSchema";
     public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
     public static final String WSDL_NAMESPACE_URI = "http://schemas.xmlsoap.org/wsdl/";
@@ -80,7 +80,7 @@ public final class ToolConstants {
     public static final String CFG_DEEP = "deep";
     public static final String CFG_SCHEMA_DIR = "schemaDir";
     public static final String CFG_SCHEMA_URL = "schemaURL";
-    public static final String CELTIX_SCHEMA_DIR = "celtix_schema_dir";
+    public static final String CXF_SCHEMA_DIR = "cxf_schema_dir";
 
 
 
@@ -114,7 +114,7 @@ public final class ToolConstants {
     public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
 
     // JMS adress
-    public static final String NS_JMS_ADDRESS = "http://celtix.objectweb.org/transports/jms";
+    public static final String NS_JMS_ADDRESS = "http://cxf.apache.org/transports/jms";
     public static final QName  JMS_ADDRESS = new QName(NS_JMS_ADDRESS, "address");
 
     public static final String JMS_ADDR_DEST_STYLE = "destinationStyle";
@@ -129,7 +129,7 @@ public final class ToolConstants {
     // XML Binding
     public static final String XMLBINDING_ROOTNODE = "rootNode";
     public static final String XMLBINDING_HTTP_LOCATION = "location";
-    public static final String NS_XML_FORMAT = "http://celtix.objectweb.org/bindings/xmlformat";
+    public static final String NS_XML_FORMAT = "http://cxf.apache.org/bindings/xmlformat";
     public static final String XML_FORMAT_PREFIX = "xformat";
     public static final String NS_XML_HTTP = "http://schemas.xmlsoap.org/wsdl/http/";
     public static final String XML_HTTP_PREFIX = "http";

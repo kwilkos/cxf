@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions
     name="AddNumbers"
-    targetNamespace="http://www.objectweb.org/handlers"
-    xmlns:tns="http://www.objectweb.org/handlers"
+    targetNamespace="http://www.apache.org/handlers"
+    xmlns:tns="http://www.apache.org/handlers"
     xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:x1="http://www.objectweb.org/handlers/types">
+    xmlns:x1="http://www.apache.org/handlers/types">
     <types>
         <xsd:schema
             xmlns="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="http://www.objectweb.org/handlers/types"
+            targetNamespace="http://www.apache.org/handlers/types"
             elementFormDefault="qualified">
 
             <complexType name="addNumbersResponse">

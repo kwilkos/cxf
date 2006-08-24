@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="HandlerTest" targetNamespace="http://objectweb.org/handler_test" 
+<wsdl:definitions name="HandlerTest" targetNamespace="http://apache.org/handler_test" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://objectweb.org/handler_test"
-    xmlns:x1="http://objectweb.org/handler_test/types"
+    xmlns:tns="http://apache.org/handler_test"
+    xmlns:x1="http://apache.org/handler_test/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
-        <schema targetNamespace="http://objectweb.org/handler_test/types" 
+        <schema targetNamespace="http://apache.org/handler_test/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" 
-            xmlns:x1="http://objectweb.org/handler_test/types" elementFormDefault="qualified">
+            xmlns:x1="http://apache.org/handler_test/types" elementFormDefault="qualified">
             <element name="ping">
           <complexType/>
             </element>

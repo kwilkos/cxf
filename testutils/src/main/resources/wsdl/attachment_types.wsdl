@@ -1,13 +1,13 @@
 <wsdl:definitions name="SOAPBuilders-mtom-cr-test"
-		  xmlns:types="http://celtix.objectweb.org/bindings/soap2/attachments/types"
+		  xmlns:types="http://cxf.apache.org/bindings/soap2/attachments/types"
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 		  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-		  xmlns:tns="http://celtix.objectweb.org/bindings/soap2/attachments"
-		  targetNamespace="http://celtix.objectweb.org/bindings/soap2/attachments">
+		  xmlns:tns="http://cxf.apache.org/bindings/soap2/attachments"
+		  targetNamespace="http://cxf.apache.org/bindings/soap2/attachments">
     <wsdl:types>
 	<schema xmlns="http://www.w3.org/2001/XMLSchema"
-		targetNamespace="http://celtix.objectweb.org/bindings/soap2/attachments/types"
+		targetNamespace="http://cxf.apache.org/bindings/soap2/attachments/types"
 		xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
 		elementFormDefault="qualified"
 		xmlns:ref="http://ws-i.org/profiles/basic/1.1/xsd">

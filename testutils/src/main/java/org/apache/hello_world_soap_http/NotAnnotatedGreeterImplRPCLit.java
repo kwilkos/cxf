@@ -1,7 +1,7 @@
-package org.objectweb.hello_world_soap_http;
+package org.apache.hello_world_soap_http;
 
-import org.objectweb.hello_world_rpclit.GreeterRPCLit;
-import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
+import org.apache.hello_world_rpclit.GreeterRPCLit;
+import org.apache.hello_world_rpclit.types.MyComplexStruct;
 
 
 public class NotAnnotatedGreeterImplRPCLit implements GreeterRPCLit {

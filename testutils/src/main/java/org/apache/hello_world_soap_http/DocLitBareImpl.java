@@ -1,9 +1,9 @@
-package org.objectweb.hello_world_soap_http;
+package org.apache.hello_world_soap_http;
 
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
-import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
-import org.objectweb.hello_world_doc_lit_bare.types.TradePriceData;
+import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
+import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
 
 @WebService
 public class DocLitBareImpl implements PutLastTradedPricePortType {

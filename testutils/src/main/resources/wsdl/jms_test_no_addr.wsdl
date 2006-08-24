@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/jms_conf_test" 
+<definitions name="HelloWorldService" targetNamespace="http://cxf.apache.org/jms_conf_test" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:jms="http://celtix.objectweb.org/transports/jms" 
+    xmlns:jms="http://cxf.apache.org/transports/jms" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://celtix.objectweb.org/jms_conf_test" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    xmlns:xsd1="http://celtix.objectweb.org/jms_conf_test/xsd">
+    xmlns:tns="http://cxf.apache.org/jms_conf_test" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://cxf.apache.org/jms_conf_test/xsd">
     <message name="greetMe">
         <part name="stringParam0" type="xsd:string"/>
     </message>
@@ -34,34 +34,34 @@
     </portType>
 
     <binding name="HelloWorldQueueBinMsgBinding" type="tns:HelloWorldPortType">
-        <soap:binding style="rpc" transport="http://celtix.objectweb.org/transports/jms"/>
+        <soap:binding style="rpc" transport="http://cxf.apache.org/transports/jms"/>
         <operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/jms_conf_test" use="literal"/>
+                    namespace="http://cxf.apache.org/jms_conf_test" use="literal"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body  
-                    namespace="http://celtix.objectweb.org/jms_conf_test" use="literal"/>
+                    namespace="http://cxf.apache.org/jms_conf_test" use="literal"/>
             </output>
         </operation>
         <operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <input name="sayHi">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/jms_conf_test" use="literal"/>
+                    namespace="http://cxf.apache.org/jms_conf_test" use="literal"/>
             </input>
             <output name="sayHiResponse">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/jms_conf_test" use="literal"/>
+                    namespace="http://cxf.apache.org/jms_conf_test" use="literal"/>
             </output>
         </operation>
         <operation name="greetMeOneWay">
             <soap:operation style="rpc"/>
             <input name="greetMeOneWay">
                 <soap:body 
-                    namespace="http://celtix.objectweb.org/jms_conf_test" use="literal"/>
+                    namespace="http://cxf.apache.org/jms_conf_test" use="literal"/>
             </input>
         </operation>
     </binding>

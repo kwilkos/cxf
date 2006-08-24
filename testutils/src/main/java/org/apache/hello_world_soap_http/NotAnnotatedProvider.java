@@ -1,4 +1,4 @@
-package org.objectweb.hello_world_soap_http;
+package org.apache.hello_world_soap_http;
 
 
 import javax.xml.transform.Source;

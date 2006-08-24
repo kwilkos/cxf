@@ -55,9 +55,9 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File helloworldsoaphttp = new File(objectweb, "hello_world_rpclit");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File helloworldsoaphttp = new File(apache, "hello_world_rpclit");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -68,7 +68,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         
         
         
-        Class clz = classLoader.loadClass("org.objectweb.hello_world_rpclit.GreeterRPCLit");
+        Class clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
         
         javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
         assertTrue("Webservice annotation wsdlLocation should begin with file", 
@@ -80,7 +80,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         assertEquals("Generate operation error", 3, clz.getMethods().length);
 
-        Class paraClass = classLoader.loadClass("org.objectweb.hello_world_rpclit.types.MyComplexStruct");
+        Class paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
         Method method = clz.getMethod("sendReceiveData", new Class[] {paraClass});
         assertEquals("MyComplexStruct", method.getReturnType().getSimpleName());
     }
@@ -94,15 +94,15 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File async = new File(objectweb, "hello_world_async_soap_http");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File async = new File(apache, "hello_world_async_soap_http");
         assertTrue(async.exists());
 
         File[] files = async.listFiles();
         assertEquals(3, files.length);
 
-        Class clz = classLoader.loadClass("org.objectweb.hello_world_async_soap_http.GreeterAsync");
+        Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
         
         
         Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
@@ -130,9 +130,9 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File helloworldsoaphttp = new File(objectweb, "hello_world_soap_http");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -141,7 +141,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.objectweb.hello_world_soap_http.Greeter");
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
             .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface", Modifier.isInterface(clz
@@ -158,7 +158,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         RequestWrapper requestWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                   RequestWrapper.class);
 
-        assertEquals("org.objectweb.hello_world_soap_http.types.SayHi", requestWrapperAnn.className());
+        assertEquals("org.apache.hello_world_soap_http.types.SayHi", requestWrapperAnn.className());
 
         ResponseWrapper resposneWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
                                                                                     ResponseWrapper.class);
@@ -172,7 +172,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         method = clz.getMethod("greetMe", new Class[] {String.class});
         assertEquals("String", method.getReturnType().getSimpleName());
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "requestType");
-        assertEquals("http://objectweb.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
+        assertEquals("http://apache.org/hello_world_soap_http/types", webParamAnn.targetNamespace());
 
         method = clz.getMethod("greetMeOneWay", new Class[] {String.class});
         Oneway oneWayAnn = AnnotationUtil.getPrivMethodAnnotation(method, Oneway.class);
@@ -204,14 +204,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File mapping = new File(objectweb, "mapping");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File mapping = new File(apache, "mapping");
         assertTrue(mapping.exists());
         File[] files = mapping.listFiles();
         assertEquals(6, files.length);
 
-        Class clz = classLoader.loadClass("org.objectweb.mapping.SomethingServer");
+        Class clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
         Method method = clz.getMethod("doSomething", new Class[] {int.class, javax.xml.ws.Holder.class,
                                                                   javax.xml.ws.Holder.class});
         assertEquals("boolean", method.getReturnType().getSimpleName());
@@ -231,11 +231,11 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File[] files = objectweb.listFiles();
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File[] files = apache.listFiles();
         assertEquals(2, files.length);
-        File helloworldsoaphttp = new File(objectweb, "hello_world_soap_http");
+        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
@@ -243,12 +243,12 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals(1, files.length);
         files = types.listFiles();
         assertEquals(files.length, 10);
-        File schemaImport = new File(objectweb, "schema_import");
+        File schemaImport = new File(apache, "schema_import");
         assertTrue(schemaImport.exists());
         files = schemaImport.listFiles();
         assertEquals(3, files.length);
 
-        Class clz = classLoader.loadClass("org.objectweb.schema_import.Greeter");
+        Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
         assertEquals(4, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
@@ -267,11 +267,11 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File[] files = objectweb.listFiles();
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File[] files = apache.listFiles();
         assertEquals(11, files.length);
-        File schemaImport = new File(objectweb, "schema_import");
+        File schemaImport = new File(apache, "schema_import");
         assertTrue(schemaImport.exists());
         files = schemaImport.listFiles();
         assertEquals(3, files.length);
@@ -286,11 +286,11 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File invoiceserver = new File(objectweb, "invoiceserver");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File invoiceserver = new File(apache, "invoiceserver");
         assertTrue(invoiceserver.exists());
-        File invoice = new File(objectweb, "invoice");
+        File invoice = new File(apache, "invoice");
         assertTrue(invoice.exists());
 
         File exceptionCollision = new File(invoiceserver, "NoSuchCustomerFault_Exception.java");
@@ -301,7 +301,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = invoice.listFiles();
         assertEquals(files.length, 9);
 
-        Class clz = classLoader.loadClass("org.objectweb.invoiceserver.InvoiceServer");
+        Class clz = classLoader.loadClass("org.apache.invoiceserver.InvoiceServer");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("getInvoicesForCustomer", new Class[] {String.class, String.class});
@@ -311,7 +311,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testAllNameCollision() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_collision.wsdl"));
-        env.setPackageName("org.objectweb");
+        env.setPackageName("org.apache");
         processor.setEnvironment(env);
         processor.process();
 
@@ -319,29 +319,29 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
 
-        File[] files = objectweb.listFiles();
+        File[] files = apache.listFiles();
         assertEquals(13, files.length);
 
-        File typeCollision = new File(objectweb, "Greeter_Type.java");
+        File typeCollision = new File(apache, "Greeter_Type.java");
         assertTrue(typeCollision.exists());
-        File exceptionCollision = new File(objectweb, "Greeter_Exception.java");
+        File exceptionCollision = new File(apache, "Greeter_Exception.java");
         assertTrue(exceptionCollision.exists());
-        File serviceCollision = new File(objectweb, "Greeter_Service.java");
+        File serviceCollision = new File(apache, "Greeter_Service.java");
         assertTrue(serviceCollision.exists());
 
-        Class clz = classLoader.loadClass("org.objectweb.Greeter");
+        Class clz = classLoader.loadClass("org.apache.Greeter");
         assertTrue("SEI class Greeter modifier should be interface", clz.isInterface());
 
-        clz = classLoader.loadClass("org.objectweb.Greeter_Exception");
-        clz = classLoader.loadClass("org.objectweb.Greeter_Service");
+        clz = classLoader.loadClass("org.apache.Greeter_Exception");
+        clz = classLoader.loadClass("org.apache.Greeter_Service");
     }
  
     public void testImportNameCollision() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-portname_servicename.wsdl"));
-        env.setPackageName("org.objectweb");
+        env.setPackageName("org.apache");
         processor.setEnvironment(env);
         processor.process();
 
@@ -349,19 +349,19 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
 
-        File[] files = objectweb.listFiles();
+        File[] files = apache.listFiles();
         assertEquals(3, files.length);
 
-        File serviceCollision = new File(objectweb, "HelloWorldServiceImpl_Service.java");
+        File serviceCollision = new File(apache, "HelloWorldServiceImpl_Service.java");
         assertTrue(serviceCollision.exists());
 
-        Class clz = classLoader.loadClass("org.objectweb.HelloWorldServiceImpl");
+        Class clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl");
         assertTrue("SEI class HelloWorldServiceImpl modifier should be interface", clz.isInterface());
 
-        clz = classLoader.loadClass("org.objectweb.HelloWorldServiceImpl_Service");
+        clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl_Service");
     }
  
     public void testHelloWorldExternalBindingFile() throws Exception {
@@ -374,20 +374,20 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
 
-        // File[] files = objectweb.listFiles();
+        // File[] files = apache.listFiles();
         // assertEquals(6, files.length);
 
-        Class clz = classLoader.loadClass("org.objectweb.hello_world_async_soap_http.GreeterAsync");
+        Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
         assertEquals(3, clz.getMethods().length);
 
     }
 
     public void testSoapHeader() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/soap_header.wsdl"));
-        env.setPackageName("org.objectweb");
+        env.setPackageName("org.apache");
         processor.setEnvironment(env);
         processor.process();
 
@@ -395,13 +395,13 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
 
-        File[] files = objectweb.listFiles();
+        File[] files = apache.listFiles();
         assertEquals(11, files.length);
 
-        Class clz = classLoader.loadClass("org.objectweb.HeaderTester");
+        Class clz = classLoader.loadClass("org.apache.HeaderTester");
         assertEquals(3, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -409,7 +409,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals("LITERAL", soapBindingAnno.use().name());
         assertEquals("DOCUMENT", soapBindingAnno.style().name());
 
-        Class para = classLoader.loadClass("org.objectweb.InoutHeader");
+        Class para = classLoader.loadClass("org.apache.InoutHeader");
 
         Method method = clz.getMethod("inoutHeader", new Class[] {para, Holder.class});
 
@@ -427,7 +427,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
 
-        Class clz = classLoader.loadClass("org.objectweb.hello_world_holder.Greeter");
+        Class clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
         assertEquals(1, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -435,7 +435,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals("LITERAL", soapBindingAnno.use().name());
         assertEquals("DOCUMENT", soapBindingAnno.style().name());
 
-        Class para = classLoader.loadClass("org.objectweb.hello_world_holder.types.GreetMe");
+        Class para = classLoader.loadClass("org.apache.hello_world_holder.types.GreetMe");
         Method method = clz.getMethod("sayHi", new Class[] {para, Holder.class});
         assertEquals("GreetMeResponse", method.getReturnType().getSimpleName());
 
@@ -448,8 +448,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testNamespacePackageMapping1() throws Exception {
-        env.setPackageName("org.celtix");
-        env.addNamespacePackageMap("http://objectweb.org/hello_world_soap_http/types", "org.objectweb.types");
+        env.setPackageName("org.cxf");
+        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
@@ -458,24 +458,24 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File types = new File(objectweb, "types");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File types = new File(apache, "types");
         assertTrue(types.exists());
 
-        File[] files = objectweb.listFiles();
+        File[] files = apache.listFiles();
         assertEquals(1, files.length);
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.celtix.Greeter");
+        Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
-        clz = classLoader.loadClass("org.objectweb.types.GreetMe");
+        clz = classLoader.loadClass("org.apache.types.GreetMe");
     }
 
     public void testNamespacePackageMapping2() throws Exception {
-        env.setPackageName("org.celtix");
-        env.addNamespacePackageMap("http://objectweb.org/hello_world_soap_http", "org.objectweb");
+        env.setPackageName("org.cxf");
+        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "org.apache");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
@@ -484,23 +484,23 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File celtix = new File(org, "celtix");
-        assertTrue(celtix.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File cxf = new File(org, "cxf");
+        assertTrue(cxf.exists());
 
-        File[] files = objectweb.listFiles();
+        File[] files = apache.listFiles();
         assertEquals(5, files.length);
-        files = celtix.listFiles();
+        files = cxf.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.celtix.GreetMe");
+        Class clz = classLoader.loadClass("org.cxf.GreetMe");
         assertTrue("Generate " + clz.getName() + "error", Modifier.isPublic(clz.getModifiers()));
-        clz = classLoader.loadClass("org.objectweb.Greeter");
+        clz = classLoader.loadClass("org.apache.Greeter");
     }
 
     public void testNamespacePackageMapping3() throws Exception {
-        env.addNamespacePackageMap("http://objectweb.org/hello_world_soap_http", "org.celtix");
+        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "org.cxf");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
@@ -509,25 +509,25 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File helloworldsoaphttp = new File(objectweb, "hello_world_soap_http");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
         assertTrue(helloworldsoaphttp.exists());
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = types.listFiles();
         assertEquals(files.length, 17);
 
-        File celtix = new File(org, "celtix");
-        files = celtix.listFiles();
+        File cxf = new File(org, "cxf");
+        files = cxf.listFiles();
         assertEquals(5, files.length);
 
-        Class clz = classLoader.loadClass("org.celtix.Greeter");
+        Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
 
     public void testWSAddress() throws Exception {
-        env.addNamespacePackageMap("http://objectweb.org/hello_world_soap_http", "ws.address");
+        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "ws.address");
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/ws_address_binding.wsdl"));
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_addr.wsdl"));
         processor.setEnvironment(env);
@@ -574,8 +574,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     public void testExcludeNSWithPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
-                                      "http://objectweb.org/test/types=com.iona", "-nexclude",
-                                      "http://objectweb.org/Invoice",
+                                      "http://apache.org/test/types=com.iona", "-nexclude",
+                                      "http://apache.org/Invoice",
                                       getLocation("/wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
 
@@ -586,8 +586,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", iona.exists());
         
         File org = new File(output, "org");
-        File objectweb = new File(org, "objectweb");
-        File invoice = new File(objectweb, "Invoice");
+        File apache = new File(org, "apache");
+        File invoice = new File(apache, "Invoice");
         assertFalse("Generated file has been excluded", invoice.exists());
 
     }
@@ -595,7 +595,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     public void testExcludeNSWithoutPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
-                                      "http://objectweb.org/test/types",
+                                      "http://apache.org/test/types",
                                       getLocation("/wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
 
@@ -607,14 +607,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testCommandLine() throws Exception {
         String[] args = new String[] {"-compile", "-d", output.getCanonicalPath(), "-classdir",
-                                      output.getCanonicalPath() + "/classes", "-p", "org.celtix", "-p",
-                                      "http://objectweb.org/hello_world_soap_http/types=org.objectweb.types",
+                                      output.getCanonicalPath() + "/classes", "-p", "org.cxf", "-p",
+                                      "http://apache.org/hello_world_soap_http/types=org.apache.types",
                                       "-client", "-server", "-impl", getLocation("/wsdl/hello_world.wsdl")};
         WSDLToJava.main(args);
 
-        Class clz = classLoader.loadClass("org.celtix.Greeter");
+        Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
-        clz = classLoader.loadClass("org.objectweb.types.GreetMe");
+        clz = classLoader.loadClass("org.apache.types.GreetMe");
     }
 
     public void testDefaultLoadNSMappingOFF() throws Exception {
@@ -648,11 +648,11 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertNotNull(output);
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File celtix = new File(objectweb, "celtix");
-        assertTrue(celtix.exists());
-        File ws = new File(celtix, "ws");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File cxf = new File(apache, "cxf");
+        assertTrue(cxf.exists());
+        File ws = new File(cxf, "ws");
         assertTrue(ws.exists());
         File address = new File(ws, "addressing");
         assertTrue(address.exists());
@@ -738,20 +738,20 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File org = new File(output, "org");
         assertTrue(org.exists());
 
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
 
-        File helloWorld = new File(objectweb, "hello_world");
+        File helloWorld = new File(apache, "hello_world");
         assertTrue(helloWorld.exists());
 
 
-        Class clz = classLoader.loadClass("org.objectweb.hello_world.Greeter");
+        Class clz = classLoader.loadClass("org.apache.hello_world.Greeter");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
         assertEquals("void", method.getReturnType().getSimpleName());
         assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
-        assertEquals("org.objectweb.hello_world.messages.PingMeFault", method.getExceptionTypes()[0]
+        assertEquals("org.apache.hello_world.messages.PingMeFault", method.getExceptionTypes()[0]
             .getCanonicalName());
     }
     
@@ -765,14 +765,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File org = new File(output, "org");
         assertTrue(org.exists());
-        File objectweb = new File(org, "objectweb");
-        assertTrue(objectweb.exists());
-        File invoiceserver = new File(objectweb, "invoiceserver");
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File invoiceserver = new File(apache, "invoiceserver");
         assertTrue(invoiceserver.exists());
-        File invoice = new File(objectweb, "invoice");
+        File invoice = new File(apache, "invoice");
         assertTrue(invoice.exists());
 
-        Class clz = classLoader.loadClass("org.objectweb.invoiceserver.NoSuchCustomerFault");
+        Class clz = classLoader.loadClass("org.apache.invoiceserver.NoSuchCustomerFault");
         WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
         assertEquals("WebFault annotaion name attribute error", "NoSuchCustomer", webFault.name());
 
@@ -814,13 +814,13 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         
         try {
             File file = new File(output.getCanonicalPath(), 
-                                 "org/objectweb/celtix/ws/addressing/EndpointReferenceType.java");
+                                 "org/apache/cxf/ws/addressing/EndpointReferenceType.java");
             
             assertFalse("Exclude java file should not be generated : " + file.getCanonicalPath(), 
                         file.exists());
             
             file = new File(output.getCanonicalPath() + File.separator + "classes",
-                            "org/objectweb/celtix/ws/addressing/EndpointReferenceType.class");
+                            "org/apache/cxf/ws/addressing/EndpointReferenceType.class");
             assertFalse("Exclude class should not be generated : " + file.getCanonicalPath(), file.exists());
             
         
@@ -843,7 +843,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
                                           "-d",
                                           output.getCanonicalPath(),
                                           "-nexclude",
-                                          "http://objectweb.org/hello_world/types",
+                                          "http://apache.org/hello_world/types",
                                           getLocation("/wsdl/bug305728/hello_world2.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
@@ -851,11 +851,11 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         }
         
         try {
-            File file = new File(output.getCanonicalPath() , "org/objectweb/hello_world/types");
+            File file = new File(output.getCanonicalPath() , "org/apache/hello_world/types");
             assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
            
             file = new File(output.getCanonicalPath() + File.separator + "classes", 
-                            "org/objectweb/hello_world/types");
+                            "org/apache/hello_world/types");
             
             assertFalse("Exclude file should not be generated : " + file.getCanonicalPath(), file.exists());
             
@@ -895,7 +895,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305773/hello_world.wsdl"));
             processor.setEnvironment(env);
             processor.process();
-            Class clz = classLoader.loadClass("org.objectweb.hello_world_soap_http.GreeterImpl");
+            Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
            
 
             WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
@@ -970,7 +970,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         try {
             Class clz = 
-                classLoader.loadClass("org.objectweb.hello_world_soap_http.types.CreateProcess$MyProcess");
+                classLoader.loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -993,7 +993,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         try {
             Class clz = 
-                classLoader.loadClass("org.objectweb.hello_world_soap_http.types.CreateProcess$MyProcess");
+                classLoader.loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

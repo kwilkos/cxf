@@ -24,9 +24,9 @@ public class WSDLToJavaMIMETest
 //        assertNotNull(output);
 //        File org = new File(output, "org");
 //        assertTrue(org.exists());
-//        File objectweb = new File(org, "objectweb");
-//        assertTrue(objectweb.exists());
-//        File helloworldsoaphttp = new File(objectweb, "binary_attachment");
+//        File apache = new File(org, "apache");
+//        assertTrue(apache.exists());
+//        File helloworldsoaphttp = new File(apache, "binary_attachment");
 //        assertTrue(helloworldsoaphttp.exists());
 //        File outputFile = new File(helloworldsoaphttp, "BinaryAttachmentPortType.java");
 //        assertTrue("PortType file is not generated", outputFile.exists());
@@ -57,9 +57,9 @@ public class WSDLToJavaMIMETest
 //        assertNotNull(output);
 //        File org = new File(output, "org");
 //        assertTrue(org.exists());
-//        File objectweb = new File(org, "objectweb");
-//        assertTrue(objectweb.exists());
-//        File helloworldsoaphttp = new File(objectweb, "binary_attachment");
+//        File apache = new File(org, "apache");
+//        assertTrue(apache.exists());
+//        File helloworldsoaphttp = new File(apache, "binary_attachment");
 //        assertTrue(helloworldsoaphttp.exists());
 //        File outputFile = new File(helloworldsoaphttp, "BinaryAttachmentPortType.java");
 //        assertTrue("PortType file is not generated", outputFile.exists());

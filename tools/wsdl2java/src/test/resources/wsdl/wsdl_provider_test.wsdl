@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/HelloWorld" 
+<definitions name="HelloWorldService" targetNamespace="http://cxf.apache.org/HelloWorld" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration" 
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://celtix.objectweb.org/HelloWorld" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-    xmlns:xsd1="http://celtix.objectweb.org/HelloWorld/xsd">
+    xmlns:tns="http://cxf.apache.org/HelloWorld" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://cxf.apache.org/HelloWorld/xsd">
     <message name="greetMe">
         <part name="stringParam0" type="xsd:string"/>
     </message>
@@ -25,11 +25,11 @@
             <soap:operation soapAction="" style="rpc"/>
             <input name="greetMe">
                 <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
-                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+                    namespace="http://cxf.apache.org/HelloWorld" use="encoded"/>
             </input>
             <output name="greetMeResponse">
                 <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
-                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+                    namespace="http://cxf.apache.org/HelloWorld" use="encoded"/>
             </output>
         </operation>       
     </binding>

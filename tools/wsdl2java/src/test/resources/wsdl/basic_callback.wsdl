@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="basic_callback" targetNamespace="http://objectweb.org/callback"
+<wsdl:definitions name="basic_callback" targetNamespace="http://apache.org/callback"
 		  xmlns="http://schemas.xmlsoap.org/wsdl/" 
 		  xmlns:references="http://www.w3.org/2005/08/addressing" 
 		  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-		  xmlns:tns="http://objectweb.org/callback" 
+		  xmlns:tns="http://apache.org/callback" 
 		  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 		  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0">
@@ -12,7 +12,7 @@
 
     <wsdl:types> 
 
-	<schema targetNamespace="http://objectweb.org/callback" 
+	<schema targetNamespace="http://apache.org/callback" 
 		xmlns="http://www.w3.org/2001/XMLSchema" 
 		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 		xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 

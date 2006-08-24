@@ -16,7 +16,7 @@ public class CommandLineParserTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        String tsSource = "/org/objectweb/celtix/tools/common/toolspec/parser/resources/testtool.xml";
+        String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool.xml";
         ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), true);
 
         parser = new CommandLineParser(toolspec);
@@ -232,7 +232,7 @@ public class CommandLineParserTest extends TestCase {
     }
 
     public void testOtherMethods() throws Exception {
-        String tsSource = "/org/objectweb/celtix/tools/common/toolspec/parser/resources/testtool.xml";
+        String tsSource = "/org/apache/cxf/tools/common/toolspec/parser/resources/testtool.xml";
         ToolSpec toolspec = new ToolSpec(getClass().getResourceAsStream(tsSource), false);
         CommandLineParser commandLineParser = new CommandLineParser(null);
         commandLineParser.setToolSpec(toolspec);

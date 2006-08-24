@@ -116,8 +116,8 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
                                       "HelloWorldPortBinding", "-jpu", "tcp://localhost:61616", "-jcf",
                                       "org.activemq.jndi.ActiveMQInitialContextFactory", "-jfn",
                                       "ConnectionFactory", "-jdn",
-                                      "dynamicQueues/test.celtix.jmstransport.queue", "-jmt", "text", "-jmc",
-                                      "false", "-jsn", "Celtix_Queue_subscriber", "-d",
+                                      "dynamicQueues/test.cxf.jmstransport.queue", "-jmt", "text", "-jmc",
+                                      "false", "-jsn", "cxf_Queue_subscriber", "-d",
                                       output.getCanonicalPath(), getLocation("/wsdl/jms_test.wsdl")};
         WSDLToService.main(args);
         File outputFile = new File(output, "jms_test-service.wsdl");
@@ -148,7 +148,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
                         break;
                     }
                     if (!(jmsAddress.getDurableSubscriberName() != null && jmsAddress
-                        .getDurableSubscriberName().equals("Celtix_Queue_subscriber"))) {
+                        .getDurableSubscriberName().equals("cxf_Queue_subscriber"))) {
                         break;
                     }
                     if (!(jmsAddress.getInitialContextFactory() != null && jmsAddress
@@ -157,7 +157,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
                         break;
                     }
                     if (!(jmsAddress.getJndiDestinationName() != null && jmsAddress.getJndiDestinationName()
-                        .equals("dynamicQueues/test.celtix.jmstransport.queue"))) {
+                        .equals("dynamicQueues/test.cxf.jmstransport.queue"))) {
                         break;
                     }
                     if (!(jmsAddress.getJndiProviderURL() != null && jmsAddress.getJndiProviderURL()

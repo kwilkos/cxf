@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions name="XMLOverHttp" 
-	     targetNamespace="http://objectweb.org/xml_http_wrapped" 
+	     targetNamespace="http://apache.org/xml_http_wrapped" 
 	     xmlns="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
-	     xmlns:tns="http://objectweb.org/xml_http_wrapped"
+	     xmlns:tns="http://apache.org/xml_http_wrapped"
 	     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
-	     xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat" 
+	     xmlns:xformat="http://cxf.apache.org/bindings/xmlformat" 
 	     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <types>
-    <schema targetNamespace="http://objectweb.org/xml_http_wrapped"
+    <schema targetNamespace="http://apache.org/xml_http_wrapped"
 	    xmlns="http://www.w3.org/2001/XMLSchema">
       <element name="sayHello">
 	<complexType>

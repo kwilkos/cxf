@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_rpclit" 
+<wsdl:definitions name="HelloWorld" targetNamespace="http://apache.org/hello_world_rpclit" 
     xmlns="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:http-conf="http://schemas.iona.com/transports/http/configuration"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-    xmlns:tns="http://objectweb.org/hello_world_rpclit"
-    xmlns:x1="http://objectweb.org/hello_world_rpclit/types"
+    xmlns:tns="http://apache.org/hello_world_rpclit"
+    xmlns:x1="http://apache.org/hello_world_rpclit/types"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     
     <wsdl:types>
-        <schema targetNamespace="http://objectweb.org/hello_world_rpclit/types" 
+        <schema targetNamespace="http://apache.org/hello_world_rpclit/types" 
             xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <complexType name="myComplexStruct">
 	        <sequence>
@@ -65,30 +65,30 @@
         <wsdl:operation name="sayHi">
             <soap:operation soapAction="" style="rpc"/>
             <wsdl:input>
-                <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+                <soap:body namespace="http://apache.org/hello_world_rpclit" use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+                <soap:body namespace="http://apache.org/hello_world_rpclit" use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         
         <wsdl:operation name="greetMe">
             <soap:operation soapAction="" style="rpc"/>
             <wsdl:input>
-                <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+                <soap:body namespace="http://apache.org/hello_world_rpclit" use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+                <soap:body namespace="http://apache.org/hello_world_rpclit" use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         
         <wsdl:operation name="sendReceiveData">
             <soap:operation soapAction="" style="rpc"/>
                <wsdl:input>
-                   <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+                   <soap:body namespace="http://apache.org/hello_world_rpclit" use="literal"/>
                </wsdl:input>
                <wsdl:output>
-                   <soap:body namespace="http://objectweb.org/hello_world_rpclit" use="literal"/>
+                   <soap:body namespace="http://apache.org/hello_world_rpclit" use="literal"/>
                </wsdl:output>   
         </wsdl:operation>
 

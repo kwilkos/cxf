@@ -25,7 +25,7 @@ public class WSDLTOJavaEOLStyleTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
         File seiFile = new File(output.getCanonicalPath()
-                                + "/org/objectweb/hello_world_soap_http/Greeter.java");
+                                + "/org/apache/hello_world_soap_http/Greeter.java");
         assertTrue("PortType file is not generated", seiFile.exists());
         FileReader fileReader = new FileReader(seiFile);
         char[] chars = new char[100];

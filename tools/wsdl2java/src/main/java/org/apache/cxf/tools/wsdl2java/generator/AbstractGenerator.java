@@ -24,7 +24,7 @@ import org.apache.velocity.app.Velocity;
 
 public abstract class AbstractGenerator {
    
-    public static final String TEMPLATE_BASE = "org/objectweb/celtix/tools/wsdl2java/generator/template";
+    public static final String TEMPLATE_BASE = "org/apache/cxf/tools/wsdl2java/generator/template";
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     protected ProcessorEnvironment env;
     protected JavaModel javaModel;

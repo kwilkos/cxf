@@ -10,10 +10,10 @@
     <annotation> 
 Examples :
 
-java2wsdl org.objectweb.hello_world_soap_http.Greeter
-java2wsdl -cp ./tmp org.objectweb.hello_world_soap_http.Greeter
-java2wsdl -o hello.wsdl org.objectweb.hello_world_soap_http.Greeter
-java2wsdl -o hello.wsdl -t http://celtix.objectweb.org org.objectweb.hello_world_soap_http.Greeter
+java2wsdl org.apache.hello_world_soap_http.Greeter
+java2wsdl -cp ./tmp org.apache.hello_world_soap_http.Greeter
+java2wsdl -o hello.wsdl org.apache.hello_world_soap_http.Greeter
+java2wsdl -o hello.wsdl -t http://cxf.apache.org org.apache.hello_world_soap_http.Greeter
     </annotation>
     <usage>
 

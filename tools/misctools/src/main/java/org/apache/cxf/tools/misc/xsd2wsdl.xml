@@ -9,7 +9,7 @@
     <annotation>
 Examples :
 
-xsd2wsdl -t http://org.objectweb/invoice -n Invoice Invoice.xsd
+xsd2wsdl -t http://org.apache/invoice -n Invoice Invoice.xsd
     </annotation>
 
 	<usage>

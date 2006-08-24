@@ -27,8 +27,8 @@
     <xsl:if test="$use_style='document'">
       <definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
-          xmlns:tns="http://objectweb.org/type_test/doc"
-          targetNamespace="http://objectweb.org/type_test/doc"
+          xmlns:tns="http://apache.org/type_test/doc"
+          targetNamespace="http://apache.org/type_test/doc"
           name="type_test">
         <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="schema"/>
@@ -39,11 +39,11 @@
     <xsl:if test="$use_style='rpc'">
       <definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
-          xmlns:x1="http://objectweb.org/type_test/types1"
-          xmlns:x2="http://objectweb.org/type_test/types2"
-          xmlns:x3="http://objectweb.org/type_test/types3"
-          xmlns:tns="http://objectweb.org/type_test/rpc"
-          targetNamespace="http://objectweb.org/type_test/rpc"
+          xmlns:x1="http://apache.org/type_test/types1"
+          xmlns:x2="http://apache.org/type_test/types2"
+          xmlns:x3="http://apache.org/type_test/types3"
+          xmlns:tns="http://apache.org/type_test/rpc"
+          targetNamespace="http://apache.org/type_test/rpc"
           name="type_test">
         <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="schema"/>
@@ -58,17 +58,17 @@
         xmlns="http://schemas.xmlsoap.org/wsdl/">
     <types>
       <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
-                  xmlns:x1="http://objectweb.org/type_test/types1"
-                  xmlns:x2="http://objectweb.org/type_test/types2"
-                  xmlns:x3="http://objectweb.org/type_test/types3"
+                  xmlns:x1="http://apache.org/type_test/types1"
+                  xmlns:x2="http://apache.org/type_test/types2"
+                  xmlns:x3="http://apache.org/type_test/types3"
                   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
                   jaxb:version="2.0">
         <xsl:attribute name="targetNamespace">
           <xsl:if test="$use_style='document'">
-            <xsl:value-of select="'http://objectweb.org/type_test/doc'"/>
+            <xsl:value-of select="'http://apache.org/type_test/doc'"/>
           </xsl:if>
           <xsl:if test="$use_style='rpc'">
-            <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
+            <xsl:value-of select="'http://apache.org/type_test/rpc'"/>
           </xsl:if>
         </xsl:attribute>
         <!-- 
@@ -98,7 +98,7 @@
   <xsl:template match="itst:it_test_group[@ID]" mode="schema_import">
     <xsd:import>
       <xsl:attribute name="namespace">
-        <xsl:value-of select="concat('http://objectweb.org/type_test/types', @ID)"/>
+        <xsl:value-of select="concat('http://apache.org/type_test/types', @ID)"/>
       </xsl:attribute>
       <xsl:attribute name="schemaLocation">
         <xsl:value-of select="concat($inc_xsd_path, '/type_test_', @ID, '.xsd')"/> 

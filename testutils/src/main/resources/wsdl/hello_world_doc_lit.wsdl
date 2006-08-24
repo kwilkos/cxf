@@ -4,14 +4,14 @@ xmlns="http://schemas.xmlsoap.org/wsdl/"
 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
+xmlns:xformat="http://cxf.apache.org/bindings/xmlformat"
 xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
-xmlns:jms="http://celtix.objectweb.org/transports/jms"
-xmlns:tns="http://objectweb.org/hello_world_doc_lit"
-xmlns:x1="http://objectweb.org/hello_world_doc_lit/types"
-targetNamespace="http://objectweb.org/hello_world_doc_lit" name="HelloWorld">
+xmlns:jms="http://cxf.apache.org/transports/jms"
+xmlns:tns="http://apache.org/hello_world_doc_lit"
+xmlns:x1="http://apache.org/hello_world_doc_lit/types"
+targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
     <wsdl:types>
-        <schema targetNamespace="http://objectweb.org/hello_world_doc_lit/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+        <schema targetNamespace="http://apache.org/hello_world_doc_lit/types" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
             <element name="sayHi">
                 <complexType/>
             </element>

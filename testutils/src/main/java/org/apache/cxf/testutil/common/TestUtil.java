@@ -1,4 +1,4 @@
-package org.objectweb.celtix.testutil.common;
+package org.apache.cxf.testutil.common;
 
 import java.io.File;
 import java.lang.reflect.Method;

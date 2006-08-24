@@ -223,9 +223,9 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         List<String> fileList = new ArrayList<String>();
 
         String javaClasspath = System.getProperty("java.class.path");
-        // hard code celtix.jar
+        // hard code cxf.jar
         boolean classpathSetted = javaClasspath != null ? true : false;
-        // && (javaClasspath.indexOf("celtix.jar") >= 0);
+        // && (javaClasspath.indexOf("cxf.jar") >= 0);
         if (env.isVerbose()) {
             argList.add("-verbose");
         }

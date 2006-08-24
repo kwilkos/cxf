@@ -10,7 +10,7 @@
 Examples :
 
 wsdlvalidator HelloWorld.wsdl
-wsdlvalidator -s http://celtix.objectweb.org/schemas -s http://mycompany/schemas Greeting.wsdl
+wsdlvalidator -s http://cxf.apache.org/schemas -s http://mycompany/schemas Greeting.wsdl
     </annotation>
 
 	<usage>

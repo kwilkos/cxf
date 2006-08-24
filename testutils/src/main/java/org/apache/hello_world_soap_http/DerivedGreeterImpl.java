@@ -1,4 +1,4 @@
-package org.objectweb.hello_world_soap_http;
+package org.apache.hello_world_soap_http;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -9,15 +9,15 @@ import java.util.logging.Logger;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
-import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
-import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
-import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
-import org.objectweb.hello_world_soap_http.types.SayHiResponse;
-import org.objectweb.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.BareDocumentResponse;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
+import org.apache.hello_world_soap_http.types.SayHiResponse;
+import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
 
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService",
-                      targetNamespace = "http://objectweb.org/hello_world_soap_http")
+                      targetNamespace = "http://apache.org/hello_world_soap_http")
 public class DerivedGreeterImpl implements Greeter {
 
     private static final Logger LOG =
@@ -51,7 +51,7 @@ public class DerivedGreeterImpl implements Greeter {
     @javax.jws.WebMethod(operationName = "sayHi")
     /*
      * @javax.jws.WebResult(name="responseType",
-     * targetNamespace="http://objectweb.org/hello_world_soap_http")
+     * targetNamespace="http://apache.org/hello_world_soap_http")
      */
     public String sayHi() {
         incrementInvocationCount("sayHi");
