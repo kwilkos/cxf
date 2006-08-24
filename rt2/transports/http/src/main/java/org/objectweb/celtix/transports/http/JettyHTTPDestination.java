@@ -13,17 +13,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.wsdl.Definition;
+import javax.wsdl.xml.WSDLWriter;
 import javax.xml.ws.handler.MessageContext;
 
-
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
+import com.ibm.wsdl.xml.WSDLWriterImpl;
+
+
+
 
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.objectweb.celtix.Bus;
 
-import org.objectweb.celtix.helpers.IOUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
 import org.objectweb.celtix.messaging.Conduit;
@@ -32,7 +36,8 @@ import org.objectweb.celtix.messaging.Destination;
 import org.objectweb.celtix.messaging.MessageObserver;
 import org.objectweb.celtix.service.model.EndpointInfo;
 import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
+import org.objectweb.celtix.wsdl11.ServiceWSDLBuilder;
+
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
     
@@ -237,8 +242,11 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 resp.addField("Content-Type", "text/xml");
                 
                 OutputStream os = resp.getOutputStream();
-                IOUtils.copy(endpointInfo.getService().getProperty(
-                    WSDLServiceBuilder.WSDL_STREAM, InputStream.class), os);
+                
+                WSDLWriter wsdlWriter = new WSDLWriterImpl();
+                Definition def = 
+                    ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(endpointInfo.getService());
+                wsdlWriter.writeWSDL(def, os);
                 resp.getOutputStream().flush();
                 resp.commit();
                 req.setHandled(true);

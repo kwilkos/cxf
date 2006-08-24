@@ -1,7 +1,5 @@
 package org.objectweb.celtix.wsdl11;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,7 +10,6 @@ import javax.xml.namespace.QName;
 
 import org.objectweb.celtix.Bus;
 import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.resource.URIResolver;
 import org.objectweb.celtix.service.Service;
 import org.objectweb.celtix.service.ServiceImpl;
 import org.objectweb.celtix.service.factory.AbstractServiceFactoryBean;
@@ -44,14 +41,7 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         
         javax.wsdl.Service wsdlService = definition.getService(serviceName);
         ServiceInfo si = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
-        URIResolver resolver = null;
-        try {
-            resolver = new URIResolver(wsdlUrl.toString());
-        } catch (IOException e) {
-            LOG.log(Level.SEVERE, "WSDL_URL_RESOLVE_ERROR", wsdlUrl.toString());
-        }
-        InputStream is = resolver.getInputStream();
-        si.setProperty(WSDLServiceBuilder.WSDL_STREAM, is);
+        
         ServiceImpl service = new ServiceImpl(si);
         
         return service;

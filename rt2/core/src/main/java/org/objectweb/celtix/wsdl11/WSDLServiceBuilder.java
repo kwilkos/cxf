@@ -63,8 +63,7 @@ public class WSDLServiceBuilder {
     public static final String WSDL_PORT = WSDLServiceBuilder.class.getName() + ".PORT";
     public static final String WSDL_BINDING = WSDLServiceBuilder.class.getName() + ".BINDING";
     
-    public static final String WSDL_STREAM = "WSDL.STREAM";
-
+    
     public static final String WSDL_OPERATION = WSDLServiceBuilder.class.getName() + ".OPERATION";
     public static final String WSDL_BINDING_OPERATION = WSDLServiceBuilder.class.getName()
                                                         + ".BINDING_OPERATION";
