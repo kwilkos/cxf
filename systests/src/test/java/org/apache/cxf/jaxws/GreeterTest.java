@@ -6,8 +6,8 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
-import org.apache.cxf.bindings.soap2.SoapBindingFactory;
-import org.apache.cxf.bindings.soap2.SoapDestinationFactory;
+import org.apache.cxf.bindings.soap.SoapBindingFactory;
+import org.apache.cxf.bindings.soap.SoapDestinationFactory;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.messaging.ConduitInitiatorManager;
 import org.apache.cxf.messaging.DestinationFactoryManager;
