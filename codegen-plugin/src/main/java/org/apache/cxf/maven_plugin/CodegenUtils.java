@@ -1,4 +1,4 @@
-package org.objectweb.celtix.maven_plugin;
+package org.apache.cxf.maven_plugin;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.objectweb.celtix.tools.wsdl2java.WSDLToJava;
+import org.apache.cxf.tools.wsdl2java.WSDLToJava;
 
 
 public final class CodegenUtils {

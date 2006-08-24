@@ -1,16 +1,16 @@
-package org.objectweb.celtix.maven_plugin;
+package org.apache.cxf.maven_plugin;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.cxf.tools.wsdl2java.WSDLToJava;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.ExitException;
 import org.apache.tools.ant.util.optional.NoExitSecurityManager;
-import org.objectweb.celtix.tools.wsdl2java.WSDLToJava;
 /**
  * @goal wsdl2java
  * @description Celtix WSDL To Java Tool

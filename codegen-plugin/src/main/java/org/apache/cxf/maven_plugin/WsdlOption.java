@@ -1,4 +1,4 @@
-package org.objectweb.celtix.maven_plugin;
+package org.apache.cxf.maven_plugin;
 
 import java.io.File;
 import java.util.List;

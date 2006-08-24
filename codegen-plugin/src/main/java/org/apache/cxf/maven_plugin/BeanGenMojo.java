@@ -1,4 +1,4 @@
-package org.objectweb.celtix.maven_plugin;
+package org.apache.cxf.maven_plugin;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.cxf.resource.ClassLoaderResolver;
+import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.tools.generators.spring.BeanGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.ExitException;
 import org.apache.tools.ant.util.optional.NoExitSecurityManager;
-import org.objectweb.celtix.resource.ClassLoaderResolver;
-import org.objectweb.celtix.resource.DefaultResourceManager;
-import org.objectweb.celtix.tools.generators.spring.BeanGenerator;
 
 /**
  * @goal beangen
