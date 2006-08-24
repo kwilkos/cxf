@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 
 import java.io.IOException;
@@ -25,16 +25,16 @@ import org.easymock.classextension.IMocksControl;
 import org.mortbay.http.HttpHandler;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mortbay.util.MultiMap;
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 
 public class HTTPConduitTest extends TestCase {

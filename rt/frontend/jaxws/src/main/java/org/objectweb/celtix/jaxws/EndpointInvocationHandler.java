@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -13,17 +13,17 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.endpoint.Client;
-import org.objectweb.celtix.endpoint.Endpoint;
-import org.objectweb.celtix.interceptors.WrappedInInterceptor;
-import org.objectweb.celtix.jaxws.interceptors.WrapperClassInInterceptor;
-import org.objectweb.celtix.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.InterfaceInfo;
-import org.objectweb.celtix.service.model.OperationInfo;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 public final class EndpointInvocationHandler extends BindingProviderImpl implements InvocationHandler {
 

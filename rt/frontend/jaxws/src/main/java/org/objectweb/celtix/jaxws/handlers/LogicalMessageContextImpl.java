@@ -1,10 +1,10 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.handler.LogicalMessageContext;
 
-import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Message;
 
 
 public class LogicalMessageContextImpl extends WrappedMessageContext implements LogicalMessageContext {

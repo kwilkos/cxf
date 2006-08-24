@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 import javax.jms.JMSException;
 import javax.naming.NamingException;

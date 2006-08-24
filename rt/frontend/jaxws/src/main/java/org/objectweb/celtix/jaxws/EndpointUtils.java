@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.util.logging.Logger;
 
@@ -6,7 +6,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 public final class EndpointUtils {
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
@@ -36,8 +36,8 @@ import javax.xml.ws.WebEndpoint;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.common.util.PackageUtils;
-import org.objectweb.celtix.common.util.StringUtils;
+import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.common.util.StringUtils;
 
 
 /**
@@ -58,9 +58,9 @@ public final class JAXBEncoderDecoder {
             getClassesForContext(cls, classes, cls.getClassLoader());
             
             try {
-                classes.add(Class.forName("org.objectweb.celtix.ws.addressing.wsdl.AttributedQNameType"));
-                classes.add(Class.forName("org.objectweb.celtix.ws.addressing.wsdl.ObjectFactory"));
-                classes.add(Class.forName("org.objectweb.celtix.ws.addressing.wsdl.ServiceNameType"));
+                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
+                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
+                classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
             } catch (ClassNotFoundException e) {
                 //REVISIT - ignorable if WS-ADDRESSING not available?
                 //maybe add a way to allow interceptors to add stuff to the context?

@@ -1,7 +1,7 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 import org.mortbay.http.HttpContext;
-import org.objectweb.celtix.endpoint.ContextInspector;
+import org.apache.cxf.endpoint.ContextInspector;
 
 public class JettyContextInspector implements ContextInspector {
     

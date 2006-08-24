@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.attachments;
+package org.apache.cxf.bindings.soap2.attachments;
 
 import java.awt.Image;
 import java.io.IOException;
@@ -26,20 +26,20 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
-import org.objectweb.celtix.bindings.soap2.MultipartMessageInterceptor;
-import org.objectweb.celtix.bindings.soap2.Soap11;
-import org.objectweb.celtix.bindings.soap2.Soap12;
-import org.objectweb.celtix.bindings.soap2.SoapMessage;
-import org.objectweb.celtix.bindings.soap2.TestBase;
-import org.objectweb.celtix.bindings.soap2.TestUtil;
-import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
-import org.objectweb.celtix.jaxb.attachments.AttachmentDeserializer;
-import org.objectweb.celtix.jaxb.attachments.AttachmentSerializer;
-import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentMarshaller;
-import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentUnmarshaller;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.bindings.attachments.CachedOutputStream;
+import org.apache.cxf.bindings.soap2.MultipartMessageInterceptor;
+import org.apache.cxf.bindings.soap2.Soap11;
+import org.apache.cxf.bindings.soap2.Soap12;
+import org.apache.cxf.bindings.soap2.SoapMessage;
+import org.apache.cxf.bindings.soap2.TestBase;
+import org.apache.cxf.bindings.soap2.TestUtil;
+import org.apache.cxf.bindings.soap2.attachments.types.DetailType;
+import org.apache.cxf.jaxb.attachments.AttachmentDeserializer;
+import org.apache.cxf.jaxb.attachments.AttachmentSerializer;
+import org.apache.cxf.jaxb.attachments.JAXBAttachmentMarshaller;
+import org.apache.cxf.jaxb.attachments.JAXBAttachmentUnmarshaller;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Message;
 
 public class AttachmentTest extends TestBase {
 
@@ -83,7 +83,7 @@ public class AttachmentTest extends TestBase {
             testHandleMessage(soapMessage, is, false);
 
             JAXBContext context = JAXBContext
-                .newInstance("org.objectweb.celtix.bindings.soap2.attachments.types");
+                .newInstance("org.apache.cxf.bindings.soap2.attachments.types");
             Unmarshaller u = context.createUnmarshaller();
 
             JAXBAttachmentUnmarshaller jau = new JAXBAttachmentUnmarshaller(soapMessage);
@@ -132,7 +132,7 @@ public class AttachmentTest extends TestBase {
             DetailType detailObj = TestUtil.createDetailObject(this.getClass());
             Class<?> cls = DetailType.class;
             JAXBContext context = JAXBContext
-                .newInstance("org.objectweb.celtix.bindings.soap2.attachments.types");
+                .newInstance("org.apache.cxf.bindings.soap2.attachments.types");
             Marshaller m = context.createMarshaller();
 
             JAXBAttachmentMarshaller jam = new JAXBAttachmentMarshaller(soapMessage);

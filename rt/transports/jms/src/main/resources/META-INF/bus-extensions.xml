@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extensions xmlns="http://celtix.objectweb.org/bus/extension">
 
-    <extension class="org.objectweb.celtix.transports.jms.JMSTransportFactory" deferred="true">
+    <extension class="org.apache.cxf.transports.jms.JMSTransportFactory" deferred="true">
         <namespace>http://celtix.objectweb.org/transports/jms</namespace>
         <namespace>http://celtix.objectweb.org/transports/jms/configuration</namespace>
     </extension>

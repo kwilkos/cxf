@@ -1,9 +1,9 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 import javax.xml.ws.Binding;
 
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.Phase;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 
 public class StreamHandlerInterceptor extends AbstractJAXWSHandlerInterceptor<Message> {
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.net.URI;
 import java.util.Collections;
@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
 public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<SoapMessage> 
     implements SoapInterceptor {

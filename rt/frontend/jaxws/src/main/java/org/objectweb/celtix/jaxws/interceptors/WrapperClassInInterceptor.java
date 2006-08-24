@@ -1,18 +1,18 @@
-package org.objectweb.celtix.jaxws.interceptors;
+package org.apache.cxf.jaxws.interceptors;
 
 import java.util.List;
 
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.interceptors.Fault;
-import org.objectweb.celtix.jaxb.WrapperHelper;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
-import org.objectweb.celtix.phase.Phase;
-import org.objectweb.celtix.service.model.BindingMessageInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.MessageInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
-import org.objectweb.celtix.service.model.OperationInfo;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptors.Fault;
+import org.apache.cxf.jaxb.WrapperHelper;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 
 

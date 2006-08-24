@@ -1,10 +1,10 @@
-package org.objectweb.celtix.bindings.soap2.model;
+package org.apache.cxf.bindings.soap2.model;
 
-import org.objectweb.celtix.bindings.soap2.SoapVersion;
-import org.objectweb.celtix.service.model.BindingInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.OperationInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
+import org.apache.cxf.bindings.soap2.SoapVersion;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class SoapBindingInfo extends BindingInfo {
     private SoapVersion soapVersion;

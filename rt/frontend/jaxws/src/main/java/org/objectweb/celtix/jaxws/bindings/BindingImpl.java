@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.bindings;
+package org.apache.cxf.jaxws.bindings;
 
 import java.util.ArrayList;
 import java.util.List;

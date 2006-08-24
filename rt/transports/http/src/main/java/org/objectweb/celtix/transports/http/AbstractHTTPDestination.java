@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 import java.io.IOException;
 import java.net.URL;
@@ -12,18 +12,18 @@ import javax.xml.ws.BindingProvider;
 import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.common.util.Base64Exception;
-import org.objectweb.celtix.common.util.Base64Utility;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.messaging.ConduitInitiator;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.Base64Exception;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.messaging.ConduitInitiator;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.AttributedURIType;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
-import static org.objectweb.celtix.message.Message.ONEWAY_MESSAGE;
+import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
 
 
 /**

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,17 +19,17 @@ import org.xml.sax.SAXException;
 
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.i18n.UncheckedException;
-import org.objectweb.celtix.databinding.DataBinding;
-import org.objectweb.celtix.databinding.DataReaderFactory;
-import org.objectweb.celtix.databinding.DataWriterFactory;
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.helpers.DOMUtils;
-import org.objectweb.celtix.resource.URIResolver;
-import org.objectweb.celtix.service.model.SchemaInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.i18n.UncheckedException;
+import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.databinding.DataReaderFactory;
+import org.apache.cxf.databinding.DataWriterFactory;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public final class JAXBDataBinding implements DataBinding {
 

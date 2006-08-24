@@ -15,7 +15,7 @@
  * limitations under the License. 
  * 
  **/
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import javax.xml.namespace.QName;
 

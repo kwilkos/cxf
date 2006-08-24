@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.support;
+package org.apache.cxf.jaxws.support;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -10,14 +10,14 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.ResponseWrapper;
 
-import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.resource.URIResolver;
-import org.objectweb.celtix.service.factory.AbstractServiceConfiguration;
-import org.objectweb.celtix.service.factory.ReflectionServiceFactoryBean;
-import org.objectweb.celtix.service.factory.ServiceConstructionException;
-import org.objectweb.celtix.service.model.InterfaceInfo;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.service.factory.AbstractServiceConfiguration;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.service.model.InterfaceInfo;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);

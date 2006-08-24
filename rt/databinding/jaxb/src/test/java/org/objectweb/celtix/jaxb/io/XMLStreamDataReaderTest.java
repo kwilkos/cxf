@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.io;
+package org.apache.cxf.jaxb.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,10 +10,10 @@ import javax.xml.stream.XMLStreamReader;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.staxutils.StaxStreamFilter;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.staxutils.StaxStreamFilter;
 import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.objectweb.hello_world_doc_lit_bare.types.TradePriceData;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;

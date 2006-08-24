@@ -1,8 +1,8 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.jms.jms_conf.JMSClientConfig;
+import org.apache.cxf.Bus;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.jms.jms_conf.JMSClientConfig;
 
 
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 
 import javax.xml.bind.JAXBContext;

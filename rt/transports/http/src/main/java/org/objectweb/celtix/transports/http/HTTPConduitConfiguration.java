@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -8,16 +8,16 @@ import java.util.Map;
 
 import javax.xml.ws.BindingProvider;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.configuration.security.AuthorizationPolicy;
-import org.objectweb.celtix.bus.configuration.security.SSLClientPolicy;
-import org.objectweb.celtix.common.util.Base64Utility;
-import org.objectweb.celtix.configuration.CompoundName;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.bus.configuration.security.SSLClientPolicy;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.CompoundName;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationBuilder;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 /**
  * Encapsulates all aspects of HTTP Conduit configuration.

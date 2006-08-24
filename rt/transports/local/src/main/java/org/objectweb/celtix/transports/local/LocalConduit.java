@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.local;
+package org.apache.cxf.transports.local;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,13 +6,13 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class LocalConduit implements Conduit {
 

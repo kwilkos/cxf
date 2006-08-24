@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -6,15 +6,15 @@ import java.util.Collection;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.ConduitInitiator;
-import org.objectweb.celtix.messaging.ConduitInitiatorManager;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.DestinationFactory;
-import org.objectweb.celtix.messaging.DestinationFactoryManager;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.Bus;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.ConduitInitiator;
+import org.apache.cxf.messaging.ConduitInitiatorManager;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.DestinationFactory;
+import org.apache.cxf.messaging.DestinationFactoryManager;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
 public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory {

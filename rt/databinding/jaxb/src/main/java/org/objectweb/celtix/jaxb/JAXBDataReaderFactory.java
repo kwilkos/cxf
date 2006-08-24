@@ -1,15 +1,15 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.databinding.DataReaderFactory;
-import org.objectweb.celtix.jaxb.io.EventDataReader;
-import org.objectweb.celtix.jaxb.io.NodeDataReader;
-import org.objectweb.celtix.jaxb.io.XMLStreamDataReader;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.databinding.DataReaderFactory;
+import org.apache.cxf.jaxb.io.EventDataReader;
+import org.apache.cxf.jaxb.io.NodeDataReader;
+import org.apache.cxf.jaxb.io.XMLStreamDataReader;
 
 
 public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {

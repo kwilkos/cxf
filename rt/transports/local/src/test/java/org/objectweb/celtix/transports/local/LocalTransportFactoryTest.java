@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.local;
+package org.apache.cxf.transports.local;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -7,12 +7,12 @@ import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.model.EndpointInfo;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class LocalTransportFactoryTest extends TestCase {

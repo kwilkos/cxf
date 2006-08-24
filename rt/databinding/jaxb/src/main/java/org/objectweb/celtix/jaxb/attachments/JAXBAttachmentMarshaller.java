@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.attachments;
+package org.apache.cxf.jaxb.attachments;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -6,11 +6,11 @@ import java.util.UUID;
 import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 
-import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.bindings.attachments.ByteDataSource;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.bindings.attachments.AttachmentImpl;
+import org.apache.cxf.bindings.attachments.AttachmentUtil;
+import org.apache.cxf.bindings.attachments.ByteDataSource;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 

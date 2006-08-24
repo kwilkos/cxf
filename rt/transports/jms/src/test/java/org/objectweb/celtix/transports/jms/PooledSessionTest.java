@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 import javax.jms.Destination;
 import javax.jms.MessageConsumer;

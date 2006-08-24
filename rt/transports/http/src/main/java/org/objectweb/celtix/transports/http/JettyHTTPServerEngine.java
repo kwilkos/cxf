@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 import java.io.IOException;
 import java.net.URL;
@@ -11,7 +11,7 @@ import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mortbay.util.InetAddrPort;
-import org.objectweb.celtix.Bus;
+import org.apache.cxf.Bus;
 
 
 public final class JettyHTTPServerEngine implements ServerEngine {

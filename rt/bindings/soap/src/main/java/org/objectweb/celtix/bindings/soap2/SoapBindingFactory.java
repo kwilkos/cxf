@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,26 +16,26 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.AbstractBindingFactory;
-import org.objectweb.celtix.bindings.Binding;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
-import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
-import org.objectweb.celtix.bindings.soap2.model.SoapHeaderInfo;
-import org.objectweb.celtix.bindings.soap2.model.SoapOperationInfo;
-import org.objectweb.celtix.interceptors.BareInInterceptor;
-import org.objectweb.celtix.interceptors.BareOutInterceptor;
-import org.objectweb.celtix.interceptors.StaxInInterceptor;
-import org.objectweb.celtix.interceptors.StaxOutInterceptor;
-import org.objectweb.celtix.interceptors.WrappedInInterceptor;
-import org.objectweb.celtix.interceptors.WrappedOutInterceptor;
-import org.objectweb.celtix.service.model.BindingInfo;
-import org.objectweb.celtix.service.model.BindingMessageInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.MessageInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.AbstractBindingFactory;
+import org.apache.cxf.bindings.Binding;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.bindings.soap2.model.SoapBindingInfo;
+import org.apache.cxf.bindings.soap2.model.SoapBodyInfo;
+import org.apache.cxf.bindings.soap2.model.SoapHeaderInfo;
+import org.apache.cxf.bindings.soap2.model.SoapOperationInfo;
+import org.apache.cxf.interceptors.BareInInterceptor;
+import org.apache.cxf.interceptors.BareOutInterceptor;
+import org.apache.cxf.interceptors.StaxInInterceptor;
+import org.apache.cxf.interceptors.StaxOutInterceptor;
+import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.interceptors.WrappedOutInterceptor;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class SoapBindingFactory extends AbstractBindingFactory {
 

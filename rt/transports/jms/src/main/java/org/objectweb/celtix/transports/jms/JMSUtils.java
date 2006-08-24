@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 
 import java.util.Enumeration;
@@ -9,7 +9,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 
 public final class JMSUtils {

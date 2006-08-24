@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.util.HashMap;
 import java.util.Iterator;

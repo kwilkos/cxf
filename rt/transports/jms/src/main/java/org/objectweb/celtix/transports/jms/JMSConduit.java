@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -13,19 +13,19 @@ import javax.jms.TextMessage;
 
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 
 
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.jms.context.JMSMessageHeadersType;
-import org.objectweb.celtix.transports.jms.context.JMSPropertyType;
-import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
+import org.apache.cxf.transports.jms.context.JMSPropertyType;
+import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class JMSConduit implements Conduit {
     static final String JMS_CONNECTION = "jms.connection";

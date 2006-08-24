@@ -1,11 +1,11 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.interceptors.Fault;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.interceptors.Fault;
 
 public class SoapFault extends Fault {
 

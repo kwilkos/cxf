@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.spi;
+package org.apache.cxf.jaxws.spi;
 
 import java.net.URL;
 import java.util.logging.Logger;
@@ -8,13 +8,13 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.ServiceDelegate;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.CeltixBusFactory;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.jaxws.EndpointImpl;
-import org.objectweb.celtix.jaxws.EndpointUtils;
-import org.objectweb.celtix.jaxws.ServiceImpl;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.CeltixBusFactory;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.jaxws.EndpointUtils;
+import org.apache.cxf.jaxws.ServiceImpl;
 
 public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public static final String JAXWS_PROVIDER = ProviderImpl.class.getName();

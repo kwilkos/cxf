@@ -1,11 +1,11 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.configuration.CompoundName;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
+import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.CompoundName;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationBuilder;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 public class JMSConfiguration {
     protected String address;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 
 import java.io.ByteArrayOutputStream;
@@ -22,20 +22,20 @@ import junit.framework.TestCase;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.mortbay.http.handler.AbstractHttpHandler;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.util.Base64Utility;
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.ConduitInitiator;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
-import static org.objectweb.celtix.message.Message.ONEWAY_MESSAGE;
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.messaging.AbstractCachedOutputStream;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.ConduitInitiator;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
 
 
 public class JettyHTTPDestinationTest extends TestCase {

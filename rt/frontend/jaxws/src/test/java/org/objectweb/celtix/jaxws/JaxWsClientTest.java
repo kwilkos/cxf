@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,25 +7,25 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
-import org.objectweb.celtix.bindings.soap2.SoapDestinationFactory;
-import org.objectweb.celtix.endpoint.ClientImpl;
-import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
-import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.ConduitInitiatorManager;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.DestinationFactoryManager;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.test.AbstractCXFTest;
-import org.objectweb.celtix.transports.local.LocalTransportFactory;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.bindings.soap2.SoapBindingFactory;
+import org.apache.cxf.bindings.soap2.SoapDestinationFactory;
+import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.ConduitInitiatorManager;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.DestinationFactoryManager;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.invoker.SimpleMethodInvoker;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.test.AbstractCXFTest;
+import org.apache.cxf.transports.local.LocalTransportFactory;
 import org.objectweb.hello_world_soap_http.GreeterImpl;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 

@@ -1,9 +1,9 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
-import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.transports.http.configuration.HTTPClientPolicy;
-import org.objectweb.celtix.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 
 public class ServiceModelHttpConfigurationProvider implements ConfigurationProvider {
 

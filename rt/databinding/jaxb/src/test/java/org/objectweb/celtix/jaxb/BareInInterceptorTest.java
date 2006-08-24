@@ -1,13 +1,13 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.objectweb.celtix.interceptors.BareInInterceptor;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.apache.cxf.interceptors.BareInInterceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 
 import java.util.ArrayList;
@@ -15,12 +15,12 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.service.model.SchemaInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class JAXBDataBindingTest extends TestCase {
 

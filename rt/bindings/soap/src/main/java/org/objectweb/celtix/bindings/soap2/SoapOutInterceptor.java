@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.util.ResourceBundle;
 
@@ -7,10 +7,10 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.phase.Phase;
-import org.objectweb.celtix.staxutils.StaxUtils;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);

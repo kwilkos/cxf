@@ -1,10 +1,10 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.celtix.message.AbstractWrappedMessage;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.message.AbstractWrappedMessage;
+import org.apache.cxf.message.Message;
 
 public class SoapMessage extends AbstractWrappedMessage {
     

@@ -1,12 +1,12 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.objectweb.celtix.bindings.Binding;
-import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
+import org.apache.cxf.bindings.Binding;
+import org.apache.cxf.interceptors.Interceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 
 public class SoapBinding implements Binding {
 

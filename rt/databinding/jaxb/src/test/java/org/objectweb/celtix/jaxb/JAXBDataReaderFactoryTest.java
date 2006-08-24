@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,10 +10,10 @@ import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.jaxb.io.EventDataReader;
-import org.objectweb.celtix.jaxb.io.NodeDataReader;
-import org.objectweb.celtix.jaxb.io.XMLStreamDataReader;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.jaxb.io.EventDataReader;
+import org.apache.cxf.jaxb.io.NodeDataReader;
+import org.apache.cxf.jaxb.io.XMLStreamDataReader;
 
 public class JAXBDataReaderFactoryTest extends TestCase {
     JAXBDataReaderFactory factory;

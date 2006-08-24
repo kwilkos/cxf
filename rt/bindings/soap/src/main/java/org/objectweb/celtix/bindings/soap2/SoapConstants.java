@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 public class SoapConstants {
     public static final String STYLE_RPC = "rpc";

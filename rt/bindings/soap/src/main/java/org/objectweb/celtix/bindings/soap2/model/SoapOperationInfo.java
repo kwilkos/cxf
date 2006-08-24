@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2.model;
+package org.apache.cxf.bindings.soap2.model;
 
 
 public class SoapOperationInfo {

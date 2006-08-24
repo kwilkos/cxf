@@ -1,18 +1,18 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
-import org.objectweb.celtix.bindings.attachments.CachedOutputStream;
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.interceptors.Fault;
-import org.objectweb.celtix.jaxb.attachments.AttachmentSerializer;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
-import org.objectweb.celtix.phase.Phase;
+import org.apache.cxf.bindings.attachments.CachedOutputStream;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.interceptors.Fault;
+import org.apache.cxf.jaxb.attachments.AttachmentSerializer;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.messaging.AbstractCachedOutputStream;
+import org.apache.cxf.phase.Phase;
 
 public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
 

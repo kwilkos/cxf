@@ -1,30 +1,30 @@
-package org.objectweb.celtix.jaxws.support;
+package org.apache.cxf.jaxws.support;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.Binding;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.soap2.SoapBinding;
-import org.objectweb.celtix.endpoint.EndpointImpl;
-import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.jaxws.bindings.BindingImpl;
-import org.objectweb.celtix.jaxws.bindings.soap.SOAPBindingImpl;
-import org.objectweb.celtix.jaxws.handlers.LogicalHandlerInterceptor;
-import org.objectweb.celtix.jaxws.handlers.StreamHandlerInterceptor;
-import org.objectweb.celtix.jaxws.handlers.soap.SOAPHandlerInterceptor;
-import org.objectweb.celtix.jaxws.interceptors.WrapperClassInInterceptor;
-import org.objectweb.celtix.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.model.EndpointInfo;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.soap2.SoapBinding;
+import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.interceptors.Interceptor;
+import org.apache.cxf.jaxws.bindings.BindingImpl;
+import org.apache.cxf.jaxws.bindings.soap.SOAPBindingImpl;
+import org.apache.cxf.jaxws.handlers.LogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handlers.StreamHandlerInterceptor;
+import org.apache.cxf.jaxws.handlers.soap.SOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.EndpointInfo;
 
 /**
  * A JAX-WS specific implementation of the Celtix {@link Endpoint} interface.
  * Extends the interceptor provider functionality of its base class by adding 
  * interceptors in which to execute the JAX-WS handlers.
  * Creates and owns an implementation of {@link Binding} in addition to the
- * Celtix {@link org.objectweb.celtix.bindings.Binding}. 
+ * Celtix {@link org.apache.cxf.bindings.Binding}. 
  *
  */
 public class JaxwsEndpointImpl extends EndpointImpl {

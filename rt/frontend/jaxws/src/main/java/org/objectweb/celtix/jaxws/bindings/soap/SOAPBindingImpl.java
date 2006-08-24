@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.bindings.soap;
+package org.apache.cxf.jaxws.bindings.soap;
 
 
 import java.util.Set;
@@ -8,8 +8,8 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.objectweb.celtix.bindings.soap2.SoapBinding;
-import org.objectweb.celtix.jaxws.bindings.BindingImpl;
+import org.apache.cxf.bindings.soap2.SoapBinding;
+import org.apache.cxf.jaxws.bindings.BindingImpl;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
 

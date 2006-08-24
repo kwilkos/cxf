@@ -1,18 +1,18 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.io.IOException;
 
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.soap.SOAPAddress;
 
-import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.DestinationFactory;
-import org.objectweb.celtix.messaging.DestinationFactoryManager;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.BusException;
+import org.apache.cxf.bindings.soap2.model.SoapBindingInfo;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.DestinationFactory;
+import org.apache.cxf.messaging.DestinationFactoryManager;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.AttributedURIType;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class SoapDestinationFactory implements DestinationFactory {
     private DestinationFactoryManager destinationFactoryManager;

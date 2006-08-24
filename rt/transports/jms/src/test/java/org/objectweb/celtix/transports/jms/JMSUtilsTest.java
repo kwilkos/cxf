@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 import java.util.Properties;
 
@@ -6,8 +6,8 @@ import javax.naming.Context;
 
 import junit.framework.TestCase;
 
-//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-//import org.objectweb.celtix.transports.jms.JMSNamingPropertyType;
+//import org.apache.cxf.transports.jms.JMSAddressPolicyType;
+//import org.apache.cxf.transports.jms.JMSNamingPropertyType;
 
 public class JMSUtilsTest extends TestCase {
 

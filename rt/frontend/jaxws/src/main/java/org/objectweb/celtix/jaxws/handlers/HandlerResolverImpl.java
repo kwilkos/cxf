@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +10,8 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.PortInfo;
 
-import org.objectweb.celtix.Bus;
-//import org.objectweb.celtix.handlers.HandlerChainBuilder;
+import org.apache.cxf.Bus;
+//import org.apache.cxf.handlers.HandlerChainBuilder;
 
 public class HandlerResolverImpl implements HandlerResolver {
     public static final String PORT_CONFIGURATION_URI =

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,10 +10,10 @@ import javax.mail.util.ByteArrayDataSource;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.interceptors.StaxInInterceptor;
-import org.objectweb.celtix.message.Attachment;
+import org.apache.cxf.bindings.attachments.AttachmentImpl;
+import org.apache.cxf.bindings.attachments.AttachmentUtil;
+import org.apache.cxf.interceptors.StaxInInterceptor;
+import org.apache.cxf.message.Attachment;
 
 public class ReadHeaderInterceptorTest extends TestBase {
 

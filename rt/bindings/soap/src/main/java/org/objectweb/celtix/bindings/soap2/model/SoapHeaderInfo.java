@@ -1,6 +1,6 @@
-package org.objectweb.celtix.bindings.soap2.model;
+package org.apache.cxf.bindings.soap2.model;
 
-import org.objectweb.celtix.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class SoapHeaderInfo {
     private MessagePartInfo part;

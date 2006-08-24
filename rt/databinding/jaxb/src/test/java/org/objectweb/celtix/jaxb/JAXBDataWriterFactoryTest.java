@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,10 +10,10 @@ import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.databinding.DataWriter;
-import org.objectweb.celtix.jaxb.io.EventDataWriter;
-import org.objectweb.celtix.jaxb.io.NodeDataWriter;
-import org.objectweb.celtix.jaxb.io.XMLStreamDataWriter;
+import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.jaxb.io.EventDataWriter;
+import org.apache.cxf.jaxb.io.NodeDataWriter;
+import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
 
 public class JAXBDataWriterFactoryTest extends TestCase {
     JAXBDataWriterFactory factory;

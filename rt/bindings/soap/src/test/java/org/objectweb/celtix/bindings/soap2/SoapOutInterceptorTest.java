@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,8 +11,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.interceptors.StaxInInterceptor;
-import org.objectweb.celtix.staxutils.StaxUtils;
+import org.apache.cxf.interceptors.StaxInInterceptor;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class SoapOutInterceptorTest extends TestBase {
     private ReadHeadersInterceptor rhi;

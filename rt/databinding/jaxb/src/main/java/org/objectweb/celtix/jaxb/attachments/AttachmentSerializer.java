@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.attachments;
+package org.apache.cxf.jaxb.attachments;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,10 +13,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.bindings.attachments.AttachmentDataSource;
-import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.bindings.attachments.AttachmentDataSource;
+import org.apache.cxf.bindings.attachments.AttachmentUtil;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Message;
 
 public class AttachmentSerializer {
 

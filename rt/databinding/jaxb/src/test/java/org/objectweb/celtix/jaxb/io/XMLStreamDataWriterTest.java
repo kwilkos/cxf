@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.io;
+package org.apache.cxf.jaxb.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,11 +12,11 @@ import javax.xml.stream.XMLStreamWriter;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.databinding.DataWriter;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
-import org.objectweb.celtix.staxutils.StaxUtils;
+import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.staxutils.DepthXMLStreamReader;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.objectweb.hello_world_doc_lit_bare.types.TradePriceData;
 import org.objectweb.hello_world_rpclit.GreeterRPCLit;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.attachments;
+package org.apache.cxf.jaxb.attachments;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,8 +10,8 @@ import javax.mail.MessagingException;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 

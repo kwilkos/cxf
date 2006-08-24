@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions name="soap_header" targetNamespace="http://org.objectweb.celtix/headers"
+<definitions name="soap_header" targetNamespace="http://org.apache.cxf/headers"
 	     xmlns:m="http://travelcompany.example.org/reservation"
 	     xmlns:n="http://mycompany.example.com/employees"
 	     xmlns="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" 
 	     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-	     xmlns:tns="http://org.objectweb.celtix/headers"
+	     xmlns:tns="http://org.apache.cxf/headers"
 	     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<types>
-		<schema targetNamespace="http://org.objectweb.celtix/headers"
+		<schema targetNamespace="http://org.apache.cxf/headers"
 			xmlns="http://www.w3.org/2001/XMLSchema"
 			xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
 			<element name="inHeader">
@@ -67,7 +67,7 @@
 
     <service name="HeaderService">
 	<port binding="tns:headerTesterSOAPBinding" name="SoapPort">
-	    <soap:address location="http://org.objectweb.celtix/headers"/>
+	    <soap:address location="http://org.apache.cxf/headers"/>
 	</port>
     </service>
 </definitions>

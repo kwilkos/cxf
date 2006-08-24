@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.support;
+package org.apache.cxf.jaxws.support;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -13,20 +13,20 @@ import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.endpoint.ServerImpl;
-import org.objectweb.celtix.interceptors.WrappedInInterceptor;
-import org.objectweb.celtix.jaxb.JAXBDataBinding;
-import org.objectweb.celtix.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.objectweb.celtix.messaging.ChainInitiationObserver;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.factory.ReflectionServiceFactoryBean;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.service.model.InterfaceInfo;
-import org.objectweb.celtix.service.model.OperationInfo;
+import org.apache.cxf.BusException;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
+import org.apache.cxf.messaging.ChainInitiationObserver;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 

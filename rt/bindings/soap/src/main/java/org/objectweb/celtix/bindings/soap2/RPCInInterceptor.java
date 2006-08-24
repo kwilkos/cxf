@@ -1,6 +1,6 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
-import org.objectweb.celtix.interceptors.WrappedInInterceptor;
+import org.apache.cxf.interceptors.WrappedInInterceptor;
 
 public class RPCInInterceptor extends WrappedInInterceptor {
 //        

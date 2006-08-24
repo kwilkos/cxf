@@ -1,13 +1,13 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Message;
 
 
 

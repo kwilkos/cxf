@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,10 +12,10 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.interceptors.Interceptor;
-import org.objectweb.celtix.phase.Phase;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptors.Interceptor;
+import org.apache.cxf.phase.Phase;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(MustUnderstandInterceptor.class);

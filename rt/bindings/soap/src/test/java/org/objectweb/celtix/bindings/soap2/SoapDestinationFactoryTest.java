@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import javax.wsdl.extensions.soap.SOAPAddress;
 
@@ -7,12 +7,12 @@ import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.IMocksControl;
-import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.DestinationFactory;
-import org.objectweb.celtix.messaging.DestinationFactoryManager;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
+import org.apache.cxf.bindings.soap2.model.SoapBindingInfo;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.DestinationFactory;
+import org.apache.cxf.messaging.DestinationFactoryManager;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,11 +9,11 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.objectweb.celtix.interceptors.BareOutInterceptor;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.staxutils.DepthXMLStreamReader;
-import org.objectweb.celtix.staxutils.StaxUtils;
+import org.apache.cxf.interceptors.BareOutInterceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.staxutils.DepthXMLStreamReader;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
 

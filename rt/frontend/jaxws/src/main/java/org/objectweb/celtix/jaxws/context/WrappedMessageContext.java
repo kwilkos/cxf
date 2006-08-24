@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.context;
+package org.apache.cxf.jaxws.context;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.Set;
 
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.message.Message;
 
 public class WrappedMessageContext implements MessageContext {
 

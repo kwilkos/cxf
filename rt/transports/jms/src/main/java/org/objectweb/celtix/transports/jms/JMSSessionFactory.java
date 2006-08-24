@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -21,11 +21,11 @@ import javax.jms.TopicSubscriber;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.common.util.AbstractTwoStageCache;
-//import org.objectweb.celtix.transports.jms.JMSAddressPolicyType;
-//import org.objectweb.celtix.transports.jms.JMSServerBehaviorPolicyType;
-import org.objectweb.celtix.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.AbstractTwoStageCache;
+//import org.apache.cxf.transports.jms.JMSAddressPolicyType;
+//import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
+import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 
 /**

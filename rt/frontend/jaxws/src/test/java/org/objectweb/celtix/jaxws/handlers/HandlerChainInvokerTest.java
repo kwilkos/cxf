@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 
 
@@ -15,9 +15,9 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 
 public class HandlerChainInvokerTest extends TestCase {
     

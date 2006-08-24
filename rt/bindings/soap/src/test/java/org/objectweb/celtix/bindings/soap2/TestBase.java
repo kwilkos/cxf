@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,17 +20,17 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.phase.Phase;
-import org.objectweb.celtix.phase.PhaseInterceptorChain;
-import org.objectweb.celtix.service.model.BindingInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.staxutils.StaxUtils;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class TestBase extends TestCase {
 

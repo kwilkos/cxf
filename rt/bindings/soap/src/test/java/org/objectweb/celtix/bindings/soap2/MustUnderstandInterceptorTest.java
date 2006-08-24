@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -10,12 +10,12 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.service.model.BindingInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
+import org.apache.cxf.bindings.attachments.AttachmentImpl;
+import org.apache.cxf.bindings.attachments.AttachmentUtil;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 
 public class MustUnderstandInterceptorTest extends TestBase {
 
@@ -81,9 +81,9 @@ public class MustUnderstandInterceptorTest extends TestBase {
         ServiceInfo serviceInfo = getMockedServiceModel(getClass().getResource("test-soap-header.wsdl")
             .toString());
 
-        BindingInfo binding = serviceInfo.getBinding(new QName("http://org.objectweb.celtix/headers",
+        BindingInfo binding = serviceInfo.getBinding(new QName("http://org.apache.cxf/headers",
                                                                "headerTesterSOAPBinding"));
-        BindingOperationInfo bop = binding.getOperation(new QName("http://org.objectweb.celtix/headers",
+        BindingOperationInfo bop = binding.getOperation(new QName("http://org.apache.cxf/headers",
                                                                   "inHeader"));
         soapMessage.getExchange().put(BindingOperationInfo.class, bop);
 

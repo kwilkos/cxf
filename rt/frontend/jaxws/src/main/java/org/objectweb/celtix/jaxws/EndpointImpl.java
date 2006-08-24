@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,17 +12,17 @@ import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.endpoint.ServerImpl;
-import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
-import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
-import org.objectweb.celtix.jaxws.support.JaxwsImplementorInfo;
-import org.objectweb.celtix.messaging.ChainInitiationObserver;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
-import org.objectweb.celtix.service.model.EndpointInfo;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
+import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
+import org.apache.cxf.messaging.ChainInitiationObserver;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.invoker.SimpleMethodInvoker;
+import org.apache.cxf.service.model.EndpointInfo;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
     

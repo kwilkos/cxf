@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.util.HashSet;
 import java.util.List;
@@ -7,10 +7,10 @@ import java.util.Set;
 import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.service.model.BindingMessageInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public final class HeaderUtil {
     private static final String HEADERS_PROPERTY = HeaderUtil.class.getName() + ".HEADERS";

@@ -1,20 +1,20 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 import java.io.IOException;
 import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.ConduitInitiator;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.ws.addressing.AttributedURIType;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.ConduitInitiator;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.AttributedURIType;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class JMSDestination implements Destination {
     static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,7 +28,7 @@ import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.testutil.common.TestUtil;
+import org.apache.cxf.testutil.common.TestUtil;
 import org.objectweb.hello_world_soap_http.Greeter;
 import org.objectweb.hello_world_soap_http.types.GreetMe;
 import org.objectweb.hello_world_soap_http.types.StringStruct;

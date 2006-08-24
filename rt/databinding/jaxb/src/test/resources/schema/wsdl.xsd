@@ -9,7 +9,7 @@
     <xs:annotation>
         <xs:appinfo>
             <jaxb:schemaBindings>
-                <jaxb:package name="org.objectweb.celtix.wsdl"/>
+                <jaxb:package name="org.apache.cxf.wsdl"/>
             </jaxb:schemaBindings>
             <jaxb:globalBindings generateIsSetMethod="true"/>
         </xs:appinfo>
@@ -313,7 +313,7 @@
     <xs:complexType name="tExtensibilityElement" abstract="true" >
         <xs:annotation>
             <xs:appinfo>
-                <jaxb:class implClass="org.objectweb.celtix.wsdl.TExtensibilityElementImpl"/>
+                <jaxb:class implClass="org.apache.cxf.wsdl.TExtensibilityElementImpl"/>
             </xs:appinfo>
         </xs:annotation>
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.EventFilter;

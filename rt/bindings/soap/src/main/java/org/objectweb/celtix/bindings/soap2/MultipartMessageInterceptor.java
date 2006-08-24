@@ -1,9 +1,9 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
-import org.objectweb.celtix.jaxb.attachments.AttachmentDeserializer;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
-import org.objectweb.celtix.phase.Phase;
+import org.apache.cxf.jaxb.attachments.AttachmentDeserializer;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
 
 public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
 

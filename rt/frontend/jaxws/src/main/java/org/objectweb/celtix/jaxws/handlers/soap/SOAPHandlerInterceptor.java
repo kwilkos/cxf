@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers.soap;
+package org.apache.cxf.jaxws.handlers.soap;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -10,10 +10,10 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 
-import org.objectweb.celtix.bindings.soap2.SoapInterceptor;
-import org.objectweb.celtix.bindings.soap2.SoapMessage;
-import org.objectweb.celtix.jaxws.handlers.AbstractProtocolHandlerInterceptor;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.bindings.soap2.SoapInterceptor;
+import org.apache.cxf.bindings.soap2.SoapMessage;
+import org.apache.cxf.jaxws.handlers.AbstractProtocolHandlerInterceptor;
+import org.apache.cxf.message.Message;
 
 public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<SoapMessage>
     implements SoapInterceptor {

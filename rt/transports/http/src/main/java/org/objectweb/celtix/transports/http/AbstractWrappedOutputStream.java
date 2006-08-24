@@ -1,8 +1,8 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.messaging.AbstractCachedOutputStream;
 
 
 /**

@@ -1,12 +1,12 @@
-package org.objectweb.celtix.jaxb.io;
+package org.apache.cxf.jaxb.io;
 
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.databinding.DataWriter;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 
 public class NodeDataWriter implements DataWriter<Node> {
     final JAXBDataWriterFactory factory;

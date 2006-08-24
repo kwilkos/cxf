@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb.io;
+package org.apache.cxf.jaxb.io;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -6,11 +6,11 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
-import org.objectweb.celtix.jaxb.attachments.JAXBAttachmentUnmarshaller;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.jaxb.attachments.JAXBAttachmentUnmarshaller;
+import org.apache.cxf.message.Message;
 
 public class MessageDataReader implements DataReader<Message> {
     

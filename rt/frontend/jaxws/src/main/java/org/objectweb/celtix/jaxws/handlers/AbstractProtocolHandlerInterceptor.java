@@ -1,11 +1,11 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.MessageContext;
 
-import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.Phase;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 
 public abstract class AbstractProtocolHandlerInterceptor<T extends Message> 
     extends AbstractJAXWSHandlerInterceptor<T> {

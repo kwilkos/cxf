@@ -1,4 +1,4 @@
-package org.objectweb.celtix.transports.http;
+package org.apache.cxf.transports.http;
 
 
 import java.io.IOException;
@@ -27,17 +27,17 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
-import org.objectweb.celtix.Bus;
+import org.apache.cxf.Bus;
 
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.message.MessageImpl;
-import org.objectweb.celtix.messaging.Conduit;
-import org.objectweb.celtix.messaging.ConduitInitiator;
-import org.objectweb.celtix.messaging.Destination;
-import org.objectweb.celtix.messaging.MessageObserver;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.ws.addressing.EndpointReferenceType;
-import org.objectweb.celtix.wsdl11.ServiceWSDLBuilder;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.messaging.Conduit;
+import org.apache.cxf.messaging.ConduitInitiator;
+import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.messaging.MessageObserver;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 
 import javax.wsdl.Definition;
@@ -11,17 +11,17 @@ import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.helpers.CastUtils;
-import org.objectweb.celtix.service.model.BindingInfo;
-import org.objectweb.celtix.service.model.BindingMessageInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
-import org.objectweb.celtix.service.model.SchemaInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.service.model.ServiceModelUtil;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class ServiceModelUtilTest extends TestCase {
     private static final String WSDL_PATH = "test-soap-header.wsdl";
@@ -72,13 +72,13 @@ public class ServiceModelUtilTest extends TestCase {
         assertNotNull(input);
         assertEquals(input.getMessageInfo().getName().getLocalPart(), "inHeaderRequest");
         assertEquals(input.getMessageInfo().getName().getNamespaceURI(),
-                     "http://org.objectweb.celtix/headers");
+                     "http://org.apache.cxf/headers");
         assertEquals(input.getMessageInfo().getMessageParts().size(), 2);
         assertTrue(input.getMessageInfo().getMessageParts().get(0).isElement());
         assertEquals(
             input.getMessageInfo().getMessageParts().get(0).getElementQName().getLocalPart(), "inHeader");
         assertEquals(input.getMessageInfo().getMessageParts().get(0).getElementQName().getNamespaceURI(),
-                     "http://org.objectweb.celtix/headers");
+                     "http://org.apache.cxf/headers");
         
         assertTrue(input.getMessageInfo().getMessageParts().get(0).isElement());
         assertEquals(
@@ -89,7 +89,7 @@ public class ServiceModelUtilTest extends TestCase {
         
         MessagePartInfo messagePartInfo = input.getMessageInfo().getMessageParts().get(0);
         SchemaInfo schemaInfo = ServiceModelUtil.getSchema(serviceInfo, messagePartInfo);
-        assertEquals(schemaInfo.getNamespaceURI(), "http://org.objectweb.celtix/headers");
+        assertEquals(schemaInfo.getNamespaceURI(), "http://org.apache.cxf/headers");
         
         messagePartInfo = input.getMessageInfo().getMessageParts().get(1);
         schemaInfo = ServiceModelUtil.getSchema(serviceInfo, messagePartInfo);

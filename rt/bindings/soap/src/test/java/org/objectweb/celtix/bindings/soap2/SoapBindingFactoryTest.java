@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.net.URL;
 import java.util.List;
@@ -12,18 +12,18 @@ import org.xml.sax.InputSource;
 import junit.framework.TestCase;
 
 import org.easymock.IMocksControl;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
-import org.objectweb.celtix.bindings.soap2.model.SoapBindingInfo;
-import org.objectweb.celtix.bindings.soap2.model.SoapBodyInfo;
-import org.objectweb.celtix.bindings.soap2.model.SoapOperationInfo;
-import org.objectweb.celtix.service.model.BindingInfo;
-import org.objectweb.celtix.service.model.BindingMessageInfo;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
-import org.objectweb.celtix.service.model.MessagePartInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.wsdl11.WSDLServiceBuilder;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.bindings.BindingFactoryManagerImpl;
+import org.apache.cxf.bindings.soap2.model.SoapBindingInfo;
+import org.apache.cxf.bindings.soap2.model.SoapBodyInfo;
+import org.apache.cxf.bindings.soap2.model.SoapOperationInfo;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;

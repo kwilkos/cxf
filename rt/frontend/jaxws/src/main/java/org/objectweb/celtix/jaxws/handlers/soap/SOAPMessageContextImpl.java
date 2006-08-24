@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.handlers.soap;
+package org.apache.cxf.jaxws.handlers.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +17,9 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.w3c.dom.Element;
 
-import org.objectweb.celtix.bindings.soap2.SoapMessage;
-import org.objectweb.celtix.jaxws.context.WrappedMessageContext;
-import org.objectweb.celtix.message.Message;
+import org.apache.cxf.bindings.soap2.SoapMessage;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Message;
 
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
 

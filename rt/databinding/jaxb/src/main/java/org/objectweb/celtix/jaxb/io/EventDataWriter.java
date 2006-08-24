@@ -1,11 +1,11 @@
-package org.objectweb.celtix.jaxb.io;
+package org.apache.cxf.jaxb.io;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventWriter;
 
-import org.objectweb.celtix.databinding.DataWriter;
-import org.objectweb.celtix.jaxb.JAXBDataWriterFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 
 public class EventDataWriter implements DataWriter<XMLEventWriter> {
     final JAXBDataWriterFactory factory;

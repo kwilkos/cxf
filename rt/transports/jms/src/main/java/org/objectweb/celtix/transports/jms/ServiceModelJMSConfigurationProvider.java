@@ -1,8 +1,8 @@
-package org.objectweb.celtix.transports.jms;
+package org.apache.cxf.transports.jms;
 
 
-import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.service.model.EndpointInfo;
+import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.service.model.EndpointInfo;
 
 
 public class ServiceModelJMSConfigurationProvider implements ConfigurationProvider {

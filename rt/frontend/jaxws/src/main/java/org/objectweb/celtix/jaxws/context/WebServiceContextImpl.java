@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.context;
+package org.apache.cxf.jaxws.context;
 
 import java.security.Principal;
 

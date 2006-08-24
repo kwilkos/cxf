@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.support;
+package org.apache.cxf.jaxws.support;
 
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
@@ -7,8 +7,8 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 
-import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 public class JaxwsImplementorInfo {
 

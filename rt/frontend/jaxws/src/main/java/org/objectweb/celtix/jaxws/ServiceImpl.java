@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -21,18 +21,18 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.endpoint.Client;
-import org.objectweb.celtix.endpoint.ClientImpl;
-import org.objectweb.celtix.jaxb.JAXBDataBinding;
-import org.objectweb.celtix.jaxws.handlers.HandlerResolverImpl;
-import org.objectweb.celtix.jaxws.support.JaxwsEndpointImpl;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.model.EndpointInfo;
-import org.objectweb.celtix.service.model.ServiceInfo;
-import org.objectweb.celtix.wsdl11.WSDLServiceFactory;
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.handlers.HandlerResolverImpl;
+import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 public class ServiceImpl extends ServiceDelegate {
     

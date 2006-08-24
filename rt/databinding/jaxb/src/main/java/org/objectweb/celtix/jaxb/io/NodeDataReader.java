@@ -1,13 +1,13 @@
-package org.objectweb.celtix.jaxb.io;
+package org.apache.cxf.jaxb.io;
 
 
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.databinding.DataReader;
-import org.objectweb.celtix.jaxb.JAXBDataReaderFactory;
-import org.objectweb.celtix.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 
 public class NodeDataReader implements DataReader<Node> {
     final JAXBDataReaderFactory factory;

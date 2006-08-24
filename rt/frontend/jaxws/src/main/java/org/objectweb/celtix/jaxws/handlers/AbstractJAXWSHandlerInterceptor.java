@@ -1,13 +1,13 @@
-package org.objectweb.celtix.jaxws.handlers;
+package org.apache.cxf.jaxws.handlers;
 
 import javax.xml.ws.Binding;
 
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
 public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
 
-    public static final String HANDLER_CHAIN_INVOKER = "org.objectweb.celtix.jaxws.handlers.invoker";
+    public static final String HANDLER_CHAIN_INVOKER = "org.apache.cxf.jaxws.handlers.invoker";
     
     private Binding binding;
     

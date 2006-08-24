@@ -1,13 +1,13 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.util.List;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.objectweb.celtix.interceptors.WrappedInInterceptor;
-import org.objectweb.celtix.message.Message;
-import org.objectweb.celtix.service.model.BindingOperationInfo;
+import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingOperationInfo;
 
 public class WrappedInInterceptorTest extends TestBase {
 

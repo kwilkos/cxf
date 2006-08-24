@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws.support;
+package org.apache.cxf.jaxws.support;
 
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -8,16 +8,16 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.easymock.IMocksControl;
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.bindings.BindingFactoryManagerImpl;
-import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
-import org.objectweb.celtix.service.model.InterfaceInfo;
-import org.objectweb.celtix.service.model.OperationInfo;
-import org.objectweb.celtix.wsdl.WSDLManager;
-import org.objectweb.celtix.wsdl11.WSDLManagerImpl;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.bindings.BindingFactoryManagerImpl;
+import org.apache.cxf.bindings.soap2.SoapBindingFactory;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.invoker.SimpleMethodInvoker;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.objectweb.hello_world_soap_http.GreeterImpl;
 
 import static org.easymock.EasyMock.expect;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.bindings.soap2;
+package org.apache.cxf.bindings.soap2;
 
 import java.awt.Image;
 import java.io.File;
@@ -11,14 +11,14 @@ import javax.activation.DataHandler;
 import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.objectweb.celtix.bindings.attachments.AttachmentImpl;
-import org.objectweb.celtix.bindings.attachments.AttachmentUtil;
-import org.objectweb.celtix.bindings.soap2.attachments.types.DetailType;
-import org.objectweb.celtix.interceptors.InterceptorChain;
-import org.objectweb.celtix.message.Attachment;
-import org.objectweb.celtix.message.Exchange;
-import org.objectweb.celtix.message.ExchangeImpl;
-import org.objectweb.celtix.message.MessageImpl;
+import org.apache.cxf.bindings.attachments.AttachmentImpl;
+import org.apache.cxf.bindings.attachments.AttachmentUtil;
+import org.apache.cxf.bindings.soap2.attachments.types.DetailType;
+import org.apache.cxf.interceptors.InterceptorChain;
+import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.message.MessageImpl;
 
 public final class TestUtil {
 
