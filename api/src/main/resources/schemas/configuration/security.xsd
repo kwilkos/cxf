@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema targetNamespace="http://celtix.objectweb.org/bus/configuration/security"
+<xs:schema targetNamespace="http://cxf.apache.org/bus/configuration/security"
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           xmlns:tns="http://celtix.objectweb.org/bus/configuration/security"
+           xmlns:tns="http://cxf.apache.org/bus/configuration/security"
            jaxb:version="2.0">
 
     <xs:annotation>

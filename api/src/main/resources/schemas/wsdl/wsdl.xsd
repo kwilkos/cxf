@@ -6,14 +6,14 @@
    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
    jaxb:version="2.0">
 
-    <xs:import namespace="http://celtix.objectweb.org/transports/http/configuration" schemaLocation="http-conf.xsd"/>
-    <xs:import namespace="http://celtix.objectweb.org/transports/jms" schemaLocation="jms.xsd"/>
+    <xs:import namespace="http://cxf.apache.org/transports/http/configuration" schemaLocation="http-conf.xsd"/>
+    <xs:import namespace="http://cxf.apache.org/transports/jms" schemaLocation="jms.xsd"/>
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/http/" schemaLocation="http.xsd"/>
-    <!-- <xs:import namespace="http://celtix.objectweb.org/bindings/xmlformat" schemaLocation="xml-binding.xsd"/> -->
+    <!-- <xs:import namespace="http://cxf.apache.org/bindings/xmlformat" schemaLocation="xml-binding.xsd"/> -->
     <xs:annotation>
         <xs:appinfo>
             <jaxb:schemaBindings>
-                <jaxb:package name="org.objectweb.celtix.wsdl"/>
+                <jaxb:package name="org.apache.cxf.wsdl"/>
             </jaxb:schemaBindings>
             <jaxb:globalBindings generateIsSetMethod="true"/>
         </xs:appinfo>
@@ -316,7 +316,7 @@
     <xs:complexType name="tExtensibilityElement" abstract="true" >
         <xs:annotation>
             <xs:appinfo>
-                <jaxb:class implClass="org.objectweb.celtix.wsdl.TExtensibilityElementImpl"/>
+                <jaxb:class implClass="org.apache.cxf.wsdl.TExtensibilityElementImpl"/>
             </xs:appinfo>
         </xs:annotation>
 

@@ -74,11 +74,11 @@
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
-                                    <packagename>org.objectweb.celtix.ws.addressing</packagename>
+                                    <packagename>org.apache.cxf.ws.addressing</packagename>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
-                                    <packagename>org.objectweb.celtix.ws.addressing.wsdl</packagename>
+                                    <packagename>org.apache.cxf.ws.addressing.wsdl</packagename>
                                 </xsdOption>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>

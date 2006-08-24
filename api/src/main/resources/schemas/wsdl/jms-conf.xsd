@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-           xmlns:jms-conf="http://celtix.objectweb.org/transports/jms/jms-conf" 
+           xmlns:jms-conf="http://cxf.apache.org/transports/jms/jms-conf" 
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
-           targetNamespace="http://celtix.objectweb.org/transports/jms/jms-conf" 
+           targetNamespace="http://cxf.apache.org/transports/jms/jms-conf" 
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified" 
            jaxb:version="2.0">
