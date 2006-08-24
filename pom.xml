@@ -13,12 +13,13 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:svn://svn.forge.objectweb.org/svnroot/celtix/trunk</connection>
-        <developerConnection>scm:svn:svn+ssh://svn.forge.objectweb.org/svnroot/celtix/trunk</developerConnection>
-        <url>http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/celtix/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/trunk/</url>
     </scm>
     <issueManagement>
-        <url>http://forge.objectweb.org/tracker/?group_id=192</url>
+        <system>jira</system>
+        <url>https://issues.apache.org/jira/browse/CXF</url>
     </issueManagement>
 
     <prerequisites>
@@ -26,53 +27,15 @@
     </prerequisites>
 
     <distributionManagement>
-        <!-- After deploy, you need to go to http://forge.objectweb.org/projects/maven/ and hit the Push button -->
-        <!--
-        <repository>
-            <id>objectweb</id>
-            <name>ObjectWeb Maven Repository</name>
-            <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>objectweb-snapshot</id>
-            <name>ObjectWeb Maven Snapshot Repository</name>
-            <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2-snapshot</url>
-        </snapshotRepository>
-        <site>
-            <id>celtix.website</id>
-            <url>file:/tmp/site</url>
-        </site>
-        -->
-        <repository>
-            <id>iona</id>
-            <name>IONA Maven Repository</name>
-            <url>scp://maven-repo.boston.amer.iona.com/x1/iona-repository/release</url>
-        </repository>
-        <snapshotRepository>
-            <id>iona-snapshot</id>
-            <name>IONA Maven Snapshot Repository</name>
-            <url>scp://maven-repo.boston.amer.iona.com/x1/iona-repository/snapshot</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-
+         <snapshotRepository>
+             <id>apache-snapshot-repository</id>
+             <name>Apache SNAPSHOT Repository</name>
+             <url>scpexe://people.apache.org/www/people.apache.org/repo/m2-snapshot-repository</url>
+         </snapshotRepository>
     </distributionManagement>
 
-    <inceptionYear>2005</inceptionYear>
+    <inceptionYear>2006</inceptionYear>
     <mailingLists>
-        <mailingList>
-            <name>CXF Open Source Java ESB Mailing List</name>
-            <subscribe>celtix-subscribe@objectweb.org</subscribe>
-            <unsubscribe>celtix-unsubscribe@objectweb.org</unsubscribe>
-            <post>celtix@objectweb.org</post>
-            <archive>http://mail-archive.objectweb.org/celtix/index.html</archive>
-        </mailingList>
-        <mailingList>
-            <name>Mailing List for Celtix Developers</name>
-            <subscribe>celtix-dev-subscribe@objectweb.org</subscribe>
-            <unsubscribe>celtix-dev-unsubscribe@objectweb.org</unsubscribe>
-            <post>celtix-dev@objectweb.org</post>
-            <archive>http://mail-archive.objectweb.org/celtix-dev/index.html</archive>
-        </mailingList>
         <mailingList>
             <name>Mailing list to relay Build related information</name>
             <subscribe>celtix-build-subscribe@objectweb.org</subscribe>
@@ -88,21 +51,22 @@
             <notifier>
                 <type>mail</type>
                 <configuration>
-                    <address>celtix-build@objectweb.org</address>
+                    <address>cxf-build@</address>
                 </configuration>
             </notifier>
         </notifiers>
     </ciManagement>
     <licenses>
         <license>
-            <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1</name>
-            <url>http://www.gnu.org/copyleft/lesser.html</url>
-        </license>
-        <license>
-            <name>Eclipse Public License - v 1.0</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+    </organization>
     <properties>
         <topDirectoryLocation>.</topDirectoryLocation>
 
@@ -298,10 +262,6 @@
                             <property>
                                 <name>java.util.logging.config.file</name>
                                 <value>${basedir}/target/test-classes/logging.properties</value>
-                            </property>
-                            <property>
-                                <name>javax.xml.ws.spi.Provider</name>
-                                <value>org.objectweb.celtix.bus.jaxws.spi.ProviderImpl</value>
                             </property>
                             <property>
                                 <name>activemq.store.dir</name>
