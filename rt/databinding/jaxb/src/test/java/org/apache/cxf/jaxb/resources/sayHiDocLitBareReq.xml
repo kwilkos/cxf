@@ -1,5 +1,5 @@
 <ns4:inout xmlns:ns4="http://apache.org/hello_world_doc_lit_bare/types" 
 	   xmlns:ns5="http://www.w3.org/2005/08/addressing/wsdl">
-    <ns4:tickerSymbol>CELTIX</ns4:tickerSymbol>
+    <ns4:tickerSymbol>CXF</ns4:tickerSymbol>
     <ns4:tickerPrice>1.0</ns4:tickerPrice>
 </ns4:inout>

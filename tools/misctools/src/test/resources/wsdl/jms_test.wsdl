@@ -144,7 +144,7 @@
                jndiDestinationName="dynamicQueues/test.jmstransport"
                messageType="binary"
                useMessageIDAsCorrelationID="true"
-               durableSubscriberName="Celtix_subscriber"
+               durableSubscriberName="CXF_subscriber"
             />
             <soap:address location="http://cxf.apache.org/transports/jms"/>
         </port>
@@ -161,7 +161,7 @@
                    jndiDestinationName="dynamicQueues/test.jmstransport"
                    messageType="text"
                    useMessageIDAsCorrelationID="true"   
-                   durableSubscriberName="Celtix_subscriber"
+                   durableSubscriberName="CXF_subscriber"
                    />
                <soap:address location="http://cxf.apache.org/transports/jms"/>
            </port>
@@ -177,7 +177,7 @@
                 jndiDestinationName="dynamicQueues/test.jmstransport.oneway"
                 messageType="text"
                 useMessageIDAsCorrelationID="true"   
-                durableSubscriberName="Celtix_Queue_subscriber"
+                durableSubscriberName="CXF_Queue_subscriber"
             />
             <soap:address location="http://cxf.apache.org/transports/jms"/>
         </port>

@@ -6,13 +6,13 @@ import java.util.Map;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 
-public class CeltixBusFactory implements BusFactory {
+public class CXFBusFactory implements BusFactory {
     
     private static Bus defaultBus;
 
     public synchronized Bus getDefaultBus() {
         if (null == defaultBus) {
-            defaultBus = new CeltixBus();
+            defaultBus = new CXFBus();
         }
         return defaultBus;
     }
@@ -31,7 +31,7 @@ public class CeltixBusFactory implements BusFactory {
     }
     
     public Bus createBus(Map<Class, Object> e, Map<String, Object> properties) {
-        return new CeltixBus(e, properties);
+        return new CXFBus(e, properties);
     }
     
 }

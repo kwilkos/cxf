@@ -20,9 +20,9 @@ import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.version.Version;
 
-public abstract class AbstractCeltixToolContainer extends AbstractToolContainer {
-    protected static final Logger LOG = LogUtils.getL7dLogger(AbstractCeltixToolContainer.class);
-    private static AbstractCeltixToolContainer instance;
+public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
+    protected static final Logger LOG = LogUtils.getL7dLogger(AbstractCXFToolContainer.class);
+    private static AbstractCXFToolContainer instance;
     
     private final String name;
     private CommandDocument commandDocument;
@@ -31,13 +31,13 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
     private final ErrorVisitor errors = new ErrorVisitor();
 
 
-    public AbstractCeltixToolContainer(String nm, ToolSpec toolspec) throws Exception {
+    public AbstractCXFToolContainer(String nm, ToolSpec toolspec) throws Exception {
         super(toolspec);
         name = nm;
         instance = this;
     }
 
-    public static AbstractCeltixToolContainer getInstance() {
+    public static AbstractCXFToolContainer getInstance() {
         return instance;
     }
     public boolean hasInfoOption() throws ToolException {
@@ -186,7 +186,7 @@ public abstract class AbstractCeltixToolContainer extends AbstractToolContainer 
     }
 
     private InputStream getResourceAsStream(String resource) {
-        ClassLoader cl = AbstractCeltixToolContainer.class.getClassLoader();
+        ClassLoader cl = AbstractCXFToolContainer.class.getClassLoader();
         InputStream ins = cl.getResourceAsStream(resource);
         if (ins == null && resource.startsWith("/")) {
             ins = cl.getResourceAsStream(resource.substring(1));

@@ -97,7 +97,7 @@
         <wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit" name="SoapPortRPCLit">
             <soap:address location="http://localhost:9002/SOAPServiceRPCLit/SoapPort"/>
         </wsdl:port>
-        <!-- Bug in Celtix runtime the below port is not recognised-->
+        <!-- Bug in CXF runtime the below port is not recognised-->
         <!--
         <wsdl:port binding="tns:Greeter_SOAPBinding_RPCLit" name="SoapPortRPCLit1">
             <soap:address location="http://localhost:9002/SOAPServiceRPCLit/SoapPort1"/>

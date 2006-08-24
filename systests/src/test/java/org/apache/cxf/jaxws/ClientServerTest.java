@@ -108,7 +108,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 
                 BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
                 assertNotNull("no response for operation testDocLitBare", bareres);
-                assertEquals("Celtix", bareres.getCompany());
+                assertEquals("CXF", bareres.getCompany());
                 assertTrue(bareres.getId() == 1);  
                 
             }            
@@ -145,7 +145,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 
                 BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
                 assertNotNull("no response for operation testDocLitBare", bareres);
-                assertEquals("Celtix", bareres.getCompany());
+                assertEquals("CXF", bareres.getCompany());
                 assertTrue(bareres.getId() == 1);  
                 
             }            

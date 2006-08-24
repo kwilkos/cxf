@@ -3,11 +3,11 @@ package org.apache.cxf.buslifecycle;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CeltixBusLifeCycleManager implements BusLifeCycleManager {
+public class CXFBusLifeCycleManager implements BusLifeCycleManager {
 
     private final List<BusLifeCycleListener> listeners;
     
-    public CeltixBusLifeCycleManager() {
+    public CXFBusLifeCycleManager() {
         listeners = new ArrayList<BusLifeCycleListener>();
     }
     

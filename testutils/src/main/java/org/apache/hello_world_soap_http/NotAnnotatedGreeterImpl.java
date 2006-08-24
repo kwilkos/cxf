@@ -107,7 +107,7 @@ public class NotAnnotatedGreeterImpl implements Greeter {
     public BareDocumentResponse testDocLitBare(String in) {
         LOG.info("Executin operation testDocLitBare");
         BareDocumentResponse res = new BareDocumentResponse();
-        res.setCompany("Celtix");
+        res.setCompany("CXF");
         res.setId(1);
         return res;
     }    

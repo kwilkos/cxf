@@ -17,7 +17,7 @@ import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;
 
-public class CeltixBus implements Bus {
+public class CXFBus implements Bus {
     
     public static final String BUS_PROPERTY_NAME = "bus";
     
@@ -39,15 +39,15 @@ public class CeltixBus implements Bus {
     
     
     
-    protected CeltixBus() {
+    protected CXFBus() {
         this(new HashMap<Class, Object>());
     }
 
-    protected CeltixBus(Map<Class, Object> e) {
+    protected CXFBus(Map<Class, Object> e) {
         this(e, null);
     }
     
-    protected CeltixBus(Map<Class, Object> e, Map<String, Object> properties) {
+    protected CXFBus(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
      

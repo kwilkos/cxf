@@ -68,7 +68,7 @@ public class GreeterImpl implements Greeter {
     public BareDocumentResponse testDocLitBare(String in) {
         invocationCount++;
         BareDocumentResponse res = new BareDocumentResponse();
-        res.setCompany("Celtix");
+        res.setCompany("CXF");
         res.setId(1);
         return res;
     }

@@ -13,7 +13,7 @@ import org.apache.tools.ant.ExitException;
 import org.apache.tools.ant.util.optional.NoExitSecurityManager;
 /**
  * @goal wsdl2java
- * @description Celtix WSDL To Java Tool
+ * @description CXF WSDL To Java Tool
  */
 public class WSDL2JavaMojo extends AbstractMojo {
     /**

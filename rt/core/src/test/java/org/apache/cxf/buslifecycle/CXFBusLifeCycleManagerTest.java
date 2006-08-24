@@ -5,12 +5,12 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 
-public class CeltixBusLifeCycleManagerTest extends TestCase {
+public class CXFBusLifeCycleManagerTest extends TestCase {
 
     public void testListenerNotRegistered() {
 
         BusLifeCycleListener listener1 = EasyMock.createMock(BusLifeCycleListener.class);
-        CeltixBusLifeCycleManager mgr = new CeltixBusLifeCycleManager();
+        CXFBusLifeCycleManager mgr = new CXFBusLifeCycleManager();
 
         EasyMock.reset(listener1);
         EasyMock.replay(listener1);
@@ -31,7 +31,7 @@ public class CeltixBusLifeCycleManagerTest extends TestCase {
     public void testSingleListenerRegistration() {
 
         BusLifeCycleListener listener1 = EasyMock.createMock(BusLifeCycleListener.class);
-        CeltixBusLifeCycleManager mgr = new CeltixBusLifeCycleManager();
+        CXFBusLifeCycleManager mgr = new CXFBusLifeCycleManager();
         
         mgr.registerLifeCycleListener(listener1);
 
@@ -57,7 +57,7 @@ public class CeltixBusLifeCycleManagerTest extends TestCase {
     public void testDuplicateRegistration() {
         
         BusLifeCycleListener listener1 = EasyMock.createMock(BusLifeCycleListener.class);
-        CeltixBusLifeCycleManager mgr = new CeltixBusLifeCycleManager();
+        CXFBusLifeCycleManager mgr = new CXFBusLifeCycleManager();
 
         mgr.registerLifeCycleListener(listener1);
         mgr.registerLifeCycleListener(listener1);
@@ -90,7 +90,7 @@ public class CeltixBusLifeCycleManagerTest extends TestCase {
         
         BusLifeCycleListener listener1 = ctrl.createMock(BusLifeCycleListener.class);
         BusLifeCycleListener listener2 = ctrl.createMock(BusLifeCycleListener.class);
-        CeltixBusLifeCycleManager mgr = new CeltixBusLifeCycleManager();
+        CXFBusLifeCycleManager mgr = new CXFBusLifeCycleManager();
 
         mgr.registerLifeCycleListener(listener1);
         mgr.registerLifeCycleListener(listener2);
@@ -123,7 +123,7 @@ public class CeltixBusLifeCycleManagerTest extends TestCase {
         
         BusLifeCycleListener listener1 = ctrl.createMock(BusLifeCycleListener.class);
         BusLifeCycleListener listener2 = ctrl.createMock(BusLifeCycleListener.class);
-        CeltixBusLifeCycleManager mgr = new CeltixBusLifeCycleManager();
+        CXFBusLifeCycleManager mgr = new CXFBusLifeCycleManager();
 
         mgr.registerLifeCycleListener(listener2);
         mgr.registerLifeCycleListener(listener1);

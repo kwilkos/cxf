@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans SYSTEM 
-     "http://cxf.apache.org/configuration/spring/celtix-spring-beans.dtd">
+     "http://cxf.apache.org/configuration/spring/cxf-spring-beans.dtd">
 
 <beans 
     xmlns:ct="http://cxf.apache.org/configuration/types"
     xmlns:jms="http://cxf.apache.org/transports/jms"
     xmlns:jms-conf="http://cxf.apache.org/transports/jms/jms-conf">
 
-  <bean id="celtix.{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client"
+  <bean id="cxf.{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client"
         class="org.apache.cxf.bus.transports.jms.jms_client_config.spring.JmsClientConfigBean">
       
       <property name="jmsClient">
@@ -51,7 +51,7 @@
       
   </bean>
   
-  <bean id="celtix.{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgService.jms-server"
+  <bean id="cxf.{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgService.jms-server"
         class="org.apache.cxf.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean">
         
         <property name="jmsAddress">
@@ -72,10 +72,10 @@
       <property name="jmsServer">
           <value>
              <jms:server                   
-                 messageSelector="Celtix_message_selector"
+                 messageSelector="cxf_message_selector"
                  useMessageIDAsCorrelationID="true"
                  transactional="true"
-                 durableSubscriberName="Celtix_subscriber"
+                 durableSubscriberName="cxf_subscriber"
              />
           </value>
       </property>

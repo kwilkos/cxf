@@ -19,8 +19,8 @@
 
 
             <xsl:choose>
-                <xsl:when test="not(check-configuration/@name='Celtix Checks')">
-                    <check-configuration name="Celtix Checks" type="external" description="">
+                <xsl:when test="not(check-configuration/@name='CXF Checks')">
+                    <check-configuration name="CXF Checks" type="external" description="">
                         <xsl:attribute name="location"><xsl:value-of select="$checkstyleconfig"/></xsl:attribute>
                     </check-configuration>
                 </xsl:when>

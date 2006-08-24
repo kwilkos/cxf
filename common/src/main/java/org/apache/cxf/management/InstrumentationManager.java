@@ -32,7 +32,7 @@ public interface InstrumentationManager {
     void shutdown();
     
     /**
-     * get the MBeanServer which will host the celtix runtime component MBeans
+     * get the MBeanServer which will host the cxf runtime component MBeans
      * NOTE: if the configuration is not set the JMXEnabled to be true, this method
      * will return null
      * @return the MBeanServer 

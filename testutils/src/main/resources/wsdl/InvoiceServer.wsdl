@@ -2,18 +2,18 @@
 <!--WSDL file template-->
 <!--(c) 2005, IONA Technologies, Inc.-->
 <definitions name="InvoiceServer.wsdl" 
-	     targetNamespace="http://www.celtix.org/courseware/InvoiceServer" 
+	     targetNamespace="http://www.cxf.apache.org/courseware/InvoiceServer" 
 	     xmlns="http://schemas.xmlsoap.org/wsdl/" 
-	     xmlns:inv="http://celtix.org/courseware/Invoice" 
+	     xmlns:inv="http://cxf.apache.org/courseware/Invoice" 
 	     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
-	     xmlns:tns="http://www.celtix.org/courseware/InvoiceServer" 
+	     xmlns:tns="http://www.cxf.apache.org/courseware/InvoiceServer" 
 	     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
 	     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <types>
-	<schema targetNamespace="http://www.celtix.org/courseware/InvoiceServer" 
+	<schema targetNamespace="http://www.cxf.apache.org/courseware/InvoiceServer" 
 		xmlns="http://www.w3.org/2001/XMLSchema" 
 		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-	    <import namespace="http://celtix.org/courseware/Invoice" 
+	    <import namespace="http://cxf.apache.org/courseware/Invoice" 
 		    schemaLocation="Invoice.xsd"/>
 	    <element name="sendInvoice">
 		<complexType>

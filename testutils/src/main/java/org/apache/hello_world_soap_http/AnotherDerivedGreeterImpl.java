@@ -130,7 +130,7 @@ public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface {
     public BareDocumentResponse testDocLitBare(String in) {
         incrementInvocationCount("testDocLitBare");
         BareDocumentResponse res = new BareDocumentResponse();
-        res.setCompany("Celtix");
+        res.setCompany("CXF");
         res.setId(1);
         return res;
     }

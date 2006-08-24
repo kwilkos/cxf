@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.tools.common.AbstractCeltixToolContainer;
+import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
@@ -17,7 +17,7 @@ import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.misc.processor.XSDToWSDLProcessor;
 
 
-public class XSDToWSDL extends AbstractCeltixToolContainer {
+public class XSDToWSDL extends AbstractCXFToolContainer {
 
     static final String TOOL_NAME = "xsd2wsdl";
 

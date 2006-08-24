@@ -4,7 +4,7 @@
     "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <!--
-Checks to make sure the code meets the Celtix coding guidelines
+Checks to make sure the code meets the CXF coding guidelines
 http://java.sun.com/docs/codeconv/index.html
 
 It also enforces aa bunch of other "BestPractices like method

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
 
-import org.apache.cxf.tools.common.AbstractCeltixToolContainer;
+import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 
 import org.apache.cxf.tools.common.ToolConstants;
@@ -22,7 +22,7 @@ import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 
 import org.apache.cxf.tools.wsdl2java.processor.WSDLToJavaProcessor;
 
-public class WSDLToJava extends AbstractCeltixToolContainer {
+public class WSDLToJava extends AbstractCXFToolContainer {
     
     private static final String TOOL_NAME = "wsdl2java";
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";

@@ -1,4 +1,4 @@
-<project name="Celtix">
+<project name="CXF">
 
     <!-- Targets for cruisecontrol to use -->
     <target name="cruisecontrol.build">
@@ -99,10 +99,10 @@
             append="true" fixlastline="true">
             <filelist dir="${basedir}/etc/eclipse" files="org.eclipse.jdt.core.prefs"/>
         </concat>
-        <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CeltixCodeFormatter.xml"/>
+        <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CXFCodeFormatter.xml"/>
         <loadfile property="eclipse.code.templates" srcFile="${basedir}/etc/eclipse/codetemplates.xml"/>
         <propertyfile file="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
-            <entry key="formatter_profile" value="_Celtix Java Conventions"/>
+            <entry key="formatter_profile" value="_CXF Java Conventions"/>
             <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}"/>
             <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}"/>
 

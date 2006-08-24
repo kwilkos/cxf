@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.bindings.BindingFactoryManager;
-import org.apache.cxf.bus.CeltixBus.State;
+import org.apache.cxf.bus.CXFBus.State;
 import org.apache.cxf.configuration.Configuration;
 import org.apache.cxf.event.EventProcessor;
 import org.apache.cxf.management.InstrumentationManager;
@@ -19,12 +19,12 @@ import org.apache.cxf.wsdl.WSDLManager;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
-public class CeltixBusTest extends TestCase {
+public class CXFBusTest extends TestCase {
 
     
     public void testConstructionWithoutExtensions() throws BusException {
         
-        CeltixBus bus = new CeltixBus();
+        CXFBus bus = new CXFBus();
         assertNotNull(bus.getExtension(BindingFactoryManager.class));
         assertNotNull(bus.getExtension(ConduitInitiatorManager.class));   
         assertNotNull(bus.getExtension(DestinationFactoryManager.class));
@@ -56,7 +56,7 @@ public class CeltixBusTest extends TestCase {
         properties.put(InstrumentationManager.class, instrumentationManager);
         properties.put(PhaseManager.class, phaseManager);
         
-        CeltixBus bus = new CeltixBus(properties);
+        CXFBus bus = new CXFBus(properties);
         
         assertSame(bindingFactoryManager, bus.getExtension(BindingFactoryManager.class));
         assertSame(wsdlManager, bus.getExtension(WSDLManager.class));
@@ -67,21 +67,21 @@ public class CeltixBusTest extends TestCase {
     }
 
     public void testExtensions() {
-        CeltixBus bus = new CeltixBus();
+        CXFBus bus = new CXFBus();
         String extension = "CXF";
         bus.setExtension(extension, String.class);
         assertSame(extension, bus.getExtension(String.class));
     }
     
     public void testConfiguration() {
-        CeltixBus bus = new CeltixBus();
+        CXFBus bus = new CXFBus();
         Configuration c = bus.getConfiguration();
         assertTrue("Unexpected value for servicesMonitoring property.",
                    !c.getBoolean("servicesMonitoring"));
     }
     
     public void testRun() {
-        final CeltixBus bus = new CeltixBus();
+        final CXFBus bus = new CXFBus();
         Thread t = new Thread() {
             public void run() {
                 bus.run();
@@ -102,7 +102,7 @@ public class CeltixBusTest extends TestCase {
     }
     
     public void testShutdown() {
-        final CeltixBus bus = new CeltixBus();
+        final CXFBus bus = new CXFBus();
         Thread t = new Thread() {
             public void run() {
                 bus.run();

@@ -61,7 +61,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
     
     public void testGetConfigurationUnknownNamespace() {
         ConfigurationBuilder builder = new ConfigurationBuilderImpl();
-        CompoundName id = new CompoundName("celtix");
+        CompoundName id = new CompoundName("cxf");
         try {
             builder.getConfiguration(UNKNOWN_CONFIGURATION_URI, id);            
         } catch (ConfigurationException ex) {
@@ -71,7 +71,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
    
     public void testBuildConfiguration() throws Exception {
         URL url = getClass().getResource(getClass().getName() + ".class");        
-        CompoundName id = new CompoundName("celtix");
+        CompoundName id = new CompoundName("cxf");
         ConfigurationBuilderImpl builder = new ConfigurationBuilderImpl(url);
         ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
         model.setNamespaceURI(BUS_CONFIGURATION_URI);
@@ -90,7 +90,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
     
     public void testGetConfiguration() throws Exception {
         URL url = getClass().getResource(getClass().getName() + ".class");        
-        CompoundName id = new CompoundName("celtix");
+        CompoundName id = new CompoundName("cxf");
         ConfigurationBuilderImpl builder = new ConfigurationBuilderImpl(url);
         ConfigurationMetadataImpl model = new ConfigurationMetadataImpl();
         model.setNamespaceURI(BUS_CONFIGURATION_URI);

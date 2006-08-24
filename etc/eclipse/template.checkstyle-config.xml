@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <checkstyle-configurations file-format-version="5.0.0">
-    <check-configuration name="Celtix Checks" location="@CHECKSTYLE_CONFIG_FILE@" type="external" description=""/>
+    <check-configuration name="CXF Checks" location="@CHECKSTYLE_CONFIG_FILE@" type="external" description=""/>
 </checkstyle-configurations>

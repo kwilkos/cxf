@@ -19,7 +19,7 @@ import org.apache.tools.ant.util.optional.NoExitSecurityManager;
 
 /**
  * @goal beangen
- * @description Celtix BeanGen Tool
+ * @description CXF BeanGen Tool
  */
 public class BeanGenMojo extends AbstractMojo {
     /**

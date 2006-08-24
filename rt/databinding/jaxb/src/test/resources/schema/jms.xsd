@@ -104,8 +104,8 @@
     
     <xs:complexType name="JMSServerBehaviorPolicyType">
         <xs:annotation>
-            <xs:documentation>JMS configuration policy for Celtix Server.
-            These are used for configuring JMS port on Celtix server side.
+            <xs:documentation>JMS configuration policy for CXF Server.
+            These are used for configuring JMS port on CXF server side.
             </xs:documentation>
         </xs:annotation>
         <xs:complexContent>

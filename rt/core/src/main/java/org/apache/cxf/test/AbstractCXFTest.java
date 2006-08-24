@@ -17,7 +17,7 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CeltixBusFactory;
+import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -53,7 +53,7 @@ public class AbstractCXFTest extends TestCase {
     }
 
     protected Bus createBus() {
-        return new CeltixBusFactory().createBus();
+        return new CXFBusFactory().createBus();
     }
 
     protected Node invoke(String address, 

@@ -12,7 +12,7 @@ import org.apache.tools.ant.util.optional.NoExitSecurityManager;
 
 /**
  * @goal xsdtojava
- * @description Celtix XSD To Java Tool
+ * @description CXF XSD To Java Tool
  */
 public class XSDToJavaMojo extends AbstractMojo {
     /**

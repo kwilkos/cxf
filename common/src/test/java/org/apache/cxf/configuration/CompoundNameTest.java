@@ -11,7 +11,7 @@ public class CompoundNameTest extends TestCase {
             assertEquals("Unexpected exception code.", "INVALID_PART_EXC", ex.getCode()); 
         }
         
-        assertNotNull(new CompoundName("celtix"));
+        assertNotNull(new CompoundName("cxf"));
         
         try {
             new CompoundName((String[])null);
@@ -24,7 +24,7 @@ public class CompoundNameTest extends TestCase {
             assertEquals("Unexpected exception code.", "NO_PARTS_EXC", ex.getCode()); 
         } 
         
-        CompoundName parent = new CompoundName(new String[] {"celtix"});
+        CompoundName parent = new CompoundName(new String[] {"cxf"});
         assertNotNull(parent);
         
         try {
@@ -37,15 +37,15 @@ public class CompoundNameTest extends TestCase {
     }
     
     public void testGetParentName() {
-        CompoundName cn1 = new CompoundName("celtix");
+        CompoundName cn1 = new CompoundName("cxf");
         CompoundName cn2 = new CompoundName(cn1, "abc");
         assertNull(cn1.getParentName());
         assertEquals("Unexpected parent name.", cn1, cn2.getParentName());
     }
     
     public void testEquals() {
-        CompoundName cn1 = new CompoundName("celtix");
-        CompoundName cn2 = new CompoundName("celtix");
+        CompoundName cn1 = new CompoundName("cxf");
+        CompoundName cn2 = new CompoundName("cxf");
         CompoundName cn3 = new CompoundName(cn1, "abc");
         
         assertTrue(cn1.equals(cn1));
@@ -57,8 +57,8 @@ public class CompoundNameTest extends TestCase {
     }
     
     public void testHashCode() {
-        CompoundName cn1 = new CompoundName("celtix");
-        CompoundName cn2 = new CompoundName("celtix");
+        CompoundName cn1 = new CompoundName("cxf");
+        CompoundName cn2 = new CompoundName("cxf");
         CompoundName cn3 = new CompoundName(cn1, "abc");
         
         assertEquals(cn1.hashCode(), cn1.hashCode());

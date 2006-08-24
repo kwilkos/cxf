@@ -1,134 +1,134 @@
 <cruisecontrol>
-    <project name="celtix">
+    <project name="CXF">
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
+            <svnbootstrapper localWorkingCopy="/x1/CXF_cruisecontrol/CXF"/>
         </bootstrappers>
         <modificationset quietperiod="120">
-            <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/trunk"/>
+            <svn localWorkingCopy="/x1/CXF_cruisecontrol/CXF/trunk"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/CXF_cruisecontrol/logs/CXF/currentbuild.txt"/>
         </listeners>
         <schedule interval="120">
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/CXF_cruisecontrol/CXF/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build"
-                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true" timeout="1800">
+                 antWorkingDir="/x1/CXF_cruisecontrol/CXF/trunk" uselogger="true" timeout="1800">
             </ant>
-            <!--maven2 mvnscript="/x1/celtix_cruisecontrol/celtix/trunk/maven/bin/mvn"
-                 pomfile="/x1/celtix_cruisecontrol/celtix/trunk/pom.xml" goal="clean|install"  timeout="1800">
+            <!--maven2 mvnscript="/x1/CXF_cruisecontrol/CXF/trunk/maven/bin/mvn"
+                 pomfile="/x1/CXF_cruisecontrol/CXF/trunk/pom.xml" goal="clean|install"  timeout="1800">
             </maven2-->
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/celtix">
-            <merge dir="/x1/celtix_cruisecontrol/celtix/trunk/target/surefire-reports"/>
+        <log dir="/x1/CXF_cruisecontrol/logs/CXF">
+            <merge dir="/x1/CXF_cruisecontrol/CXF/trunk/target/surefire-reports"/>
         </log>
         <publishers>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix"/>
-            <artifactspublisher dir="/x1/celtix_cruisecontrol/celtix/trunk/target/surefire-reports"
+            <artifactspublisher file="/x1/CXF_cruisecontrol/CXF/trunk/build.out" dest="/x1/CXF_cruisecontrol/logs/CXF"/>
+            <artifactspublisher file="/x1/CXF_cruisecontrol/CXF/trunk/build.out.clean" dest="/x1/CXF_cruisecontrol/logs/CXF"/>
+            <artifactspublisher dir="/x1/CXF_cruisecontrol/CXF/trunk/target/surefire-reports"
                 subdirectory="test-reports"
-                dest="/x1/celtix_cruisecontrol/logs/celtix"/>
+                dest="/x1/CXF_cruisecontrol/logs/CXF"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="eng-celtix-dev@iona.com"
-                returnname="Celtix Build Machine"
+                returnaddress="eng-CXF-dev@iona.com"
+                returnname="CXF Build Machine"
                 defaultsuffix="@iona.com"
-                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix"
+                buildresultsurl="http://pdCXF.boston.amer.iona.com:8080/cruisecontrol/buildresults/CXF"
                 skipusers="false"
-                subjectprefix="Celtix Cruisecontrol Build Result: "
-                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
-                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/celtix"
+                subjectprefix="CXF Cruisecontrol Build Result: "
+                css="/x1/CXF_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
+                xsldir="/x1/CXF_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
+                logdir="/x1/CXF_cruisecontrol/logs/CXF"
                 >
-                <always address="eng-celtix-dev@iona.com" />
-                <failure address="eng-celtix-dev@iona.com" />
+                <always address="eng-CXF-dev@iona.com" />
+                <failure address="eng-CXF-dev@iona.com" />
             </htmlemail>
         </publishers>
     </project>
-    <project name="celtix-distribution">
+    <project name="CXF-distribution">
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
+            <svnbootstrapper localWorkingCopy="/x1/CXF_cruisecontrol/CXF"/>
         </bootstrappers>
         <modificationset quietperiod="120">
-            <svn localWorkingCopy="/x1/celtix_cruisecontrol/celtix/trunk"/>
+            <svn localWorkingCopy="/x1/CXF_cruisecontrol/CXF/trunk"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-distribution/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/CXF_cruisecontrol/logs/CXF-distribution/currentbuild.txt"/>
         </listeners>
         <schedule>
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/CXF_cruisecontrol/CXF/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build.distribution"
-                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
+                 antWorkingDir="/x1/CXF_cruisecontrol/CXF/trunk" uselogger="true"
                  time="0900" timeout="3600">
             </ant>
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
+            <ant antscript="/x1/CXF_cruisecontrol/CXF/trunk/distribution/tools/ant/1.6.5/bin/ant"
                  buildfile="build.xml" target="cruisecontrol.build.distribution"
-                 antWorkingDir="/x1/celtix_cruisecontrol/celtix/trunk" uselogger="true"
+                 antWorkingDir="/x1/CXF_cruisecontrol/CXF/trunk" uselogger="true"
                  time="2100" timeout="3600">
             </ant>
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+        <log dir="/x1/CXF_cruisecontrol/logs/CXF-distribution"/>
         <publishers>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
-            <artifactspublisher file="/x1/celtix_cruisecontrol/celtix/trunk/distribution/build.out.clean" dest="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+            <artifactspublisher file="/x1/CXF_cruisecontrol/CXF/trunk/distribution/build.out" dest="/x1/CXF_cruisecontrol/logs/CXF-distribution"/>
+            <artifactspublisher file="/x1/CXF_cruisecontrol/CXF/trunk/distribution/build.out.clean" dest="/x1/CXF_cruisecontrol/logs/CXF-distribution"/>
 
             <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="eng-celtix-dev@iona.com"
-                returnname="Celtix Build Machine"
+                returnaddress="eng-CXF-dev@iona.com"
+                returnname="CXF Build Machine"
                 defaultsuffix="@iona.com"
-                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-distribution"
+                buildresultsurl="http://pdCXF.boston.amer.iona.com:8080/cruisecontrol/buildresults/CXF-distribution"
                 skipusers="false"
-                subjectprefix="Celtix Distribution Cruisecontrol Build Result: "
-                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
-                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"
+                subjectprefix="CXF Distribution Cruisecontrol Build Result: "
+                css="/x1/CXF_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
+                xsldir="/x1/CXF_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
+                logdir="/x1/CXF_cruisecontrol/logs/CXF-distribution"
                 >
-                <always address="eng-celtix-dev@iona.com" />
-                <failure address="eng-celtix-dev@iona.com" />
+                <always address="eng-CXF-dev@iona.com" />
+                <failure address="eng-CXF-dev@iona.com" />
             </htmlemail>
         </publishers>
     </project>    
-    <project name="celtix-cpitest">
+    <project name="CXF-cpitest">
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/celtix"/>
-            <svnbootstrapper localWorkingCopy="/x1/celtix_cruisecontrol/sandbox/celtix-cpi"/>
+            <svnbootstrapper localWorkingCopy="/x1/CXF_cruisecontrol/CXF"/>
+            <svnbootstrapper localWorkingCopy="/x1/CXF_cruisecontrol/sandbox/CXF-cpi"/>
         </bootstrappers>
         <modificationset quietperiod="60">
-            <buildstatus logdir="/x1/celtix_cruisecontrol/logs/celtix-distribution"/>
+            <buildstatus logdir="/x1/CXF_cruisecontrol/logs/CXF-distribution"/>
         </modificationset>
         <listeners>
-            <currentbuildstatuslistener file="/x1/celtix_cruisecontrol/logs/celtix-cpitest/currentbuild.txt"/>
+            <currentbuildstatuslistener file="/x1/CXF_cruisecontrol/logs/CXF-cpitest/currentbuild.txt"/>
         </listeners>
         <schedule interval="120">
-            <ant antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
-                 buildfile="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/build.xml" target="cpitest"
-                 antWorkingDir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source" 
+            <ant antscript="/x1/CXF_cruisecontrol/CXF/trunk/distribution/tools/ant/1.6.5/bin/ant"
+                 buildfile="/x1/CXF_cruisecontrol/sandbox/CXF-cpi/cpi-source/build.xml" target="cpitest"
+                 antWorkingDir="/x1/CXF_cruisecontrol/sandbox/CXF-cpi/cpi-source" 
                  uselogger="true" timeout="1800">
-                    <property name="BINARY_KIT_DIR" value="/x1/celtix_cruisecontrol/celtix/trunk/distribution/target"/>
+                    <property name="BINARY_KIT_DIR" value="/x1/CXF_cruisecontrol/CXF/trunk/distribution/target"/>
             </ant>
         </schedule>
-        <log dir="/x1/celtix_cruisecontrol/logs/celtix-cpitest">
-            <merge dir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source/xsyte_result"/>
+        <log dir="/x1/CXF_cruisecontrol/logs/CXF-cpitest">
+            <merge dir="/x1/CXF_cruisecontrol/sandbox/CXF-cpi/cpi-source/xsyte_result"/>
         </log>
         <publishers>
-            <antpublisher antscript="/x1/celtix_cruisecontrol/celtix/trunk/distribution/tools/ant/1.6.5/bin/ant"
-                 antworkingdir="/x1/celtix_cruisecontrol/sandbox/celtix-cpi/cpi-source"
+            <antpublisher antscript="/x1/CXF_cruisecontrol/CXF/trunk/distribution/tools/ant/1.6.5/bin/ant"
+                 antworkingdir="/x1/CXF_cruisecontrol/sandbox/CXF-cpi/cpi-source"
                  buildfile="cpi-report.xml"
                  target="publish">
-                <property name="LOG_DIR" value="/x1/celtix_cruisecontrol/logs/celtix-cpitest"/>
+                <property name="LOG_DIR" value="/x1/CXF_cruisecontrol/logs/CXF-cpitest"/>
             </antpublisher>
             <htmlemail mailhost="amereast-ems2.iona.com"
-                returnaddress="eng-celtix-dev@iona.com"
-                returnname="Celtix Build Machine"
+                returnaddress="eng-CXF-dev@iona.com"
+                returnname="CXF Build Machine"
                 defaultsuffix="@iona.com"
-                buildresultsurl="http://pdceltix.boston.amer.iona.com:8080/cruisecontrol/buildresults/celtix-cpitest"
+                buildresultsurl="http://pdCXF.boston.amer.iona.com:8080/cruisecontrol/buildresults/CXF-cpitest"
                 skipusers="true"
-                subjectprefix="Celtix CPI-Test Cruisecontrol Build Result: "
-                css="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
-                xsldir="/x1/celtix_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
-                logdir="/x1/celtix_cruisecontrol/logs/celtix-cpitest"
+                subjectprefix="CXF CPI-Test Cruisecontrol Build Result: "
+                css="/x1/CXF_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/css/cruisecontrol.css"
+                xsldir="/x1/CXF_cruisecontrol/cruisecontrol/reporting/jsp/webcontent/xsl"
+                logdir="/x1/CXF_cruisecontrol/logs/CXF-cpitest"
                 >
-                <always address="eng-celtix-dev@iona.com" />
-                <failure address="eng-celtix-dev@iona.com" />
+                <always address="eng-CXF-dev@iona.com" />
+                <failure address="eng-CXF-dev@iona.com" />
             </htmlemail>
         </publishers>
     </project>

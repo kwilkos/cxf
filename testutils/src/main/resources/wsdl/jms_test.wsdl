@@ -311,7 +311,7 @@
             </jms:address>
             
             <jms:client messageType="binary"/>
-            <jms:server durableSubscriberName="Celtix_subscriber"/>
+            <jms:server durableSubscriberName="CXF_subscriber"/>
         </port>
     </service>
     
@@ -324,7 +324,7 @@
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
                </jms:address>
             
-               <jms:server durableSubscriberName="Celtix_subscriber"/>
+               <jms:server durableSubscriberName="CXF_subscriber"/>
            </port>
     </service>
     
@@ -339,7 +339,7 @@
             </jms:address>
             
             <jms:client messageType="binary"/>
-            <jms:server durableSubscriberName="Celtix_subscriber"/>
+            <jms:server durableSubscriberName="CXF_subscriber"/>
         </port>
     </service>
 
@@ -354,7 +354,7 @@
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
-            <jms:server durableSubscriberName="Celtix_subscriber"/>
+            <jms:server durableSubscriberName="CXF_subscriber"/>
            </port>
     </service>
     
@@ -367,7 +367,7 @@
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
-            <jms:server durableSubscriberName="Celtix_subscriber"/>
+            <jms:server durableSubscriberName="CXF_subscriber"/>
         </port>
     </service>
     

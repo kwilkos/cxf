@@ -6,7 +6,7 @@ import javax.xml.namespace.QName;
 
 
 /**
- * Base class for all the Celtix Events.
+ * Base class for all the CXF Events.
  */
 public class Event extends EventObject {
 

@@ -9,7 +9,7 @@ To setup an IntelliJ project: (tested with version 5.1.2)
    and sellect the settings.jar file.  Let it import everything.  Restart.
 
 4) From IntelliJ, select "File -> Settings", select "Project Code Style", 
-   "Use per-project code style","Import", and select the "CeltixStyle" option.
+   "Use per-project code style","Import", and select the "CXFStyle" option.
 
 Optional:
 5) If you have the "JetStyle" plugin installed, select "File -> Settings", 

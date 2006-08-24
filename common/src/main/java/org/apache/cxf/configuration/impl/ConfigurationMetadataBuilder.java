@@ -215,7 +215,7 @@ public class ConfigurationMetadataBuilder  {
      * The configuration metadata schema is obtained system resource
      * "schemas/configuration/metadata.xsd".
      * It requires that either the resources directory is on the classpath or that
-     * the resources is listed in the classpath specified in the manifest of celtix.jar.
+     * the resources is listed in the classpath specified in the manifest of cxf.jar.
      *
      * @return the metadata schema
      */

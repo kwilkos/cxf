@@ -15,7 +15,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.Binding;
 import org.apache.cxf.bindings.BindingFactory;
 import org.apache.cxf.bindings.BindingFactoryManager;
-import org.apache.cxf.bus.CeltixBusFactory;
+import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptors.WrappedInInterceptor;
@@ -50,7 +50,7 @@ public class TestBase extends TestCase {
     BindingOperationInfo operation;
 
     public void setUp() throws Exception {
-        bus = new CeltixBusFactory().createBus();
+        bus = new CXFBusFactory().createBus();
 
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
 

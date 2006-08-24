@@ -104,7 +104,7 @@ public class XMLStreamDataReaderTest extends TestCase {
 
         assertNotNull(val);
         assertTrue(val instanceof TradePriceData);
-        assertEquals("CELTIX", ((TradePriceData)val).getTickerSymbol());
+        assertEquals("CXF", ((TradePriceData)val).getTickerSymbol());
         assertEquals(1.0f, ((TradePriceData)val).getTickerPrice());
     }
 
