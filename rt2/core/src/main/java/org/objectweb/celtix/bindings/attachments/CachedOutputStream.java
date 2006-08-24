@@ -10,6 +10,9 @@ public class CachedOutputStream extends AbstractCachedOutputStream {
         super();
     }
 
+    public void onWrite() throws IOException {
+    }
+
     public void doClose() {
     }
 

@@ -14,7 +14,7 @@ import java.io.OutputStream;
 
 public abstract class AbstractCachedOutputStream extends OutputStream {
 
-    private OutputStream currentStream;
+    protected OutputStream currentStream;
     private long threshold = 8 * 1024;
     private int totalLength;
     private boolean inmem;
@@ -72,7 +72,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     /**
      * @return the underlying output stream
      */
-    protected OutputStream getOut() {
+    public OutputStream getOut() {
         return currentStream;
     }
 
@@ -82,9 +82,13 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     public String toString() {
         return currentStream.toString();
-    }
-
+    }    
+    
+    protected abstract void onWrite() throws IOException;
+        
+    
     public void write(byte[] b, int off, int len) throws IOException {
+        onWrite();
         this.totalLength += len;
         if (inmem && totalLength > threshold) {
             createFileOutputStream();
@@ -92,6 +96,25 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
         currentStream.write(b, off, len);
     }
 
+    public void write(byte[] b) throws IOException {
+        onWrite();
+        this.totalLength += b.length;
+        if (inmem && totalLength > threshold) {
+            createFileOutputStream();
+        }
+        currentStream.write(b);
+    }
+
+    public void write(int b) throws IOException {
+        onWrite();
+        this.totalLength++;
+        if (inmem && totalLength > threshold) {
+            createFileOutputStream();
+        }
+        currentStream.write(b);
+    }
+
+    
     private void createFileOutputStream() throws IOException {
         byte[] bytes = ((ByteArrayOutputStream)currentStream).toByteArray();
         if (outputDir == null) {
@@ -102,22 +125,6 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
         currentStream = new BufferedOutputStream(new FileOutputStream(tempFile));
         currentStream.write(bytes);
         inmem = false;
-    }
-
-    public void write(byte[] b) throws IOException {
-        this.totalLength += b.length;
-        if (inmem && totalLength > threshold) {
-            createFileOutputStream();
-        }
-        currentStream.write(b);
-    }
-
-    public void write(int b) throws IOException {
-        this.totalLength++;
-        if (inmem && totalLength > threshold) {
-            createFileOutputStream();
-        }
-        currentStream.write(b);
     }
 
     public File getTempFile() {

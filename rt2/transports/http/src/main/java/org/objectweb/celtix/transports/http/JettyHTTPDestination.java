@@ -31,6 +31,7 @@ import org.objectweb.celtix.Bus;
 
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
+import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.Destination;
@@ -395,12 +396,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Wrapper stream responsible for flushing headers and committing outgoing
      * HTTP-level response.
      */
-    private class WrappedOutputStream extends AbstractWrappedOutputStream {
+    private class WrappedOutputStream extends AbstractCachedOutputStream {
         
         protected HttpResponse response;
-        
+        protected Message outMessage;
         WrappedOutputStream(Message m, HttpResponse resp) {
-            super(m);
+            super();
+            outMessage = m;
             response = resp;
         }
 
@@ -411,7 +413,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         protected void doFlush() throws IOException {
             OutputStream responseStream = flushHeaders(outMessage);
             if (null != responseStream) {
-                resetOut(responseStream);
+                resetOut(responseStream, true);
             }
         }
 
@@ -422,6 +424,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             commitResponse();
         }
 
+        protected void onWrite() throws IOException {            
+        }
+        
         private void commitResponse() {
             try {
                 response.commit();

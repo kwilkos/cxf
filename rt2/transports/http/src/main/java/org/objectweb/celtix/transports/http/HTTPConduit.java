@@ -44,9 +44,9 @@ import org.objectweb.celtix.wsdl.EndpointReferenceUtils;
  */
 public class HTTPConduit implements Conduit {
 
-    static final String HTTP_CONNECTION = "http.connection";
+    public static final String HTTP_CONNECTION = "http.connection";
+    
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
-
     private final Bus bus;
     private final HTTPConduitConfiguration config;
     private final URLConnectionFactory connectionFactory;
@@ -365,6 +365,7 @@ public class HTTPConduit implements Conduit {
         protected URLConnection connection;
         private Message outMessage;
         WrappedOutputStream(Message m, URLConnection c) {
+            super();
             outMessage = m;
             connection = c;
         }
@@ -383,6 +384,10 @@ public class HTTPConduit implements Conduit {
          */
         protected void doClose() throws IOException {
             handleResponse();
+        }
+        
+        protected void onWrite() throws IOException {
+            
         }
 
         private void handleResponse() throws IOException {
@@ -497,5 +502,5 @@ public class HTTPConduit implements Conduit {
 
             decoupledDestination.getMessageObserver().onMessage(inMessage);
         }
-    }
+    }    
 }

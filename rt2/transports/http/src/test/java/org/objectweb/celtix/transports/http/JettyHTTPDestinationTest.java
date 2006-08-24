@@ -27,6 +27,7 @@ import org.objectweb.celtix.common.util.Base64Utility;
 import org.objectweb.celtix.helpers.CastUtils;
 import org.objectweb.celtix.message.Message;
 import org.objectweb.celtix.message.MessageImpl;
+import org.objectweb.celtix.messaging.AbstractCachedOutputStream;
 import org.objectweb.celtix.messaging.Conduit;
 import org.objectweb.celtix.messaging.ConduitInitiator;
 import org.objectweb.celtix.messaging.MessageObserver;
@@ -441,7 +442,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         OutputStream responseOS = outMsg.getContent(OutputStream.class);
         assertNotNull("expected output stream", responseOS);
         assertTrue("unexpected output stream type",
-                   responseOS instanceof AbstractWrappedOutputStream);
+                   responseOS instanceof AbstractCachedOutputStream);
         assertEquals("expected commit",
                      1,
                      response.getCommitCallCount());
@@ -452,7 +453,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         setUpResponseHeaders(outMsg);
         
         OutputStream underlyingOS =
-            ((AbstractWrappedOutputStream)responseOS).getOut();
+            ((AbstractCachedOutputStream)responseOS).getOut();
         assertTrue("unexpected underlying output stream type",
                    underlyingOS instanceof ByteArrayOutputStream);
         assertEquals("expected getOutputStream",
@@ -477,7 +478,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertEquals("expected getOutputStream",
                      1,
                      response.getOutputStreamCallCount());
-        underlyingOS = ((AbstractWrappedOutputStream)responseOS).getOut();
+        underlyingOS = ((AbstractCachedOutputStream)responseOS).getOut();
         assertFalse("unexpected underlying output stream type: " + underlyingOS.getClass(),
                     underlyingOS instanceof ByteArrayOutputStream);
         assertEquals("expected commit",
