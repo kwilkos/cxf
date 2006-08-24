@@ -8,7 +8,7 @@ import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.cxf.bindings.soap2.SoapBinding;
+import org.apache.cxf.bindings.soap.SoapBinding;
 import org.apache.cxf.jaxws.bindings.BindingImpl;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {

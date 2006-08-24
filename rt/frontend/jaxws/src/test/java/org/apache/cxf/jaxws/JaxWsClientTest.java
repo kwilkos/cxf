@@ -9,8 +9,8 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
-import org.apache.cxf.bindings.soap2.SoapBindingFactory;
-import org.apache.cxf.bindings.soap2.SoapDestinationFactory;
+import org.apache.cxf.bindings.soap.SoapBindingFactory;
+import org.apache.cxf.bindings.soap.SoapDestinationFactory;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;

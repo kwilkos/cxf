@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
 import org.apache.cxf.bindings.BindingFactoryManagerImpl;
-import org.apache.cxf.bindings.soap2.SoapBindingFactory;
+import org.apache.cxf.bindings.soap.SoapBindingFactory;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.service.model.InterfaceInfo;

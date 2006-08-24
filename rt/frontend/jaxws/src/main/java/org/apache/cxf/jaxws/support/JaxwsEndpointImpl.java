@@ -6,7 +6,7 @@ import java.util.List;
 import javax.xml.ws.Binding;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bindings.soap2.SoapBinding;
+import org.apache.cxf.bindings.soap.SoapBinding;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptors.Interceptor;
 import org.apache.cxf.jaxws.bindings.BindingImpl;

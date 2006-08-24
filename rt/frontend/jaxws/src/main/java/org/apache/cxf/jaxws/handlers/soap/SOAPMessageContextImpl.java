@@ -17,7 +17,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.w3c.dom.Element;
 
-import org.apache.cxf.bindings.soap2.SoapMessage;
+import org.apache.cxf.bindings.soap.SoapMessage;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 

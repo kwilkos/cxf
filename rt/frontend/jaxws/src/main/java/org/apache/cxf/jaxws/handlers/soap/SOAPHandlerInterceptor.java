@@ -10,8 +10,8 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 
-import org.apache.cxf.bindings.soap2.SoapInterceptor;
-import org.apache.cxf.bindings.soap2.SoapMessage;
+import org.apache.cxf.bindings.soap.SoapInterceptor;
+import org.apache.cxf.bindings.soap.SoapMessage;
 import org.apache.cxf.jaxws.handlers.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.message.Message;
 
