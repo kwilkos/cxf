@@ -14,11 +14,12 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.ws.handler.MessageContext;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
-import com.ibm.wsdl.xml.WSDLWriterImpl;
+
 
 
 
@@ -243,7 +244,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 
                 OutputStream os = resp.getOutputStream();
                 
-                WSDLWriter wsdlWriter = new WSDLWriterImpl();
+                WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
                 Definition def = 
                     ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(endpointInfo.getService());
                 wsdlWriter.writeWSDL(def, os);
