@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ct:classNamespaceMappingListValue xmlns:ct="http://celtix.objectweb.org/configuration/types">
-    <ct:map>
-        <ct:classname>org.objectweb.celtix.bindings.xml.XMLBindingFactory</ct:classname>
-        <ct:namespace>http://celtix.objectweb.org/bindings/xmlformat</ct:namespace>
-        <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
-    </ct:map>
-</ct:classNamespaceMappingListValue>
