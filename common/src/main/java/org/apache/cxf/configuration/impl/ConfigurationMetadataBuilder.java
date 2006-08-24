@@ -52,7 +52,7 @@ public class ConfigurationMetadataBuilder  {
     }
     private static final Logger LOG = LogUtils.getL7dLogger(ConfigurationMetadataBuilder.class);
     private static final String MEATADATA_NAMESPACE_URI =
-        "http://celtix.objectweb.org/configuration/metadata";
+        "http://cxf.apache.org/configuration/metadata";
     private static Schema metadataSchema;
     private static Validator metadataValidator;
 

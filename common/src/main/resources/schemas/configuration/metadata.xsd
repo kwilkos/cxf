@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://celtix.objectweb.org/configuration/metadata" targetNamespace="http://celtix.objectweb.org/configuration/metadata" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://cxf.apache.org/configuration/metadata" targetNamespace="http://cxf.apache.org/configuration/metadata" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:element name="config" type="tns:configType">
 		<xs:annotation>
 			<xs:documentation>Describes the complete set of configuration items in a component</xs:documentation>

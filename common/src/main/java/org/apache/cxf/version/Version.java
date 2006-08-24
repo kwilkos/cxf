@@ -7,7 +7,7 @@ public final class Version {
 
     private static String version;
     
-    private static final String VERSION_BASE = "/org/objectweb/celtix/version/";
+    private static final String VERSION_BASE = "/org/apache/cxf/version/";
 
     private Version() {
         // utility class - never constructed
