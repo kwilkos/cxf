@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.logging;
+package org.apache.cxf.common.logging;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -7,10 +7,11 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.common.i18n.BundleUtils;
+
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
 
-import org.objectweb.celtix.common.i18n.BundleUtils;
 
 
 public class LogUtilsTest extends TestCase {

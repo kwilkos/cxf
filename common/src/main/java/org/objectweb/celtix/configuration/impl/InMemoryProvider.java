@@ -1,11 +1,11 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationProvider;
 
 /**
  * Temporay class to accept changes to configuration. Should be obsoleted once other providers 

@@ -1,8 +1,8 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
+import org.apache.cxf.configuration.ConfigurationItemMetadata;
 
 public class ConfigurationItemMetadataImpl implements ConfigurationItemMetadata {
     

@@ -1,11 +1,11 @@
-package org.objectweb.celtix.common.commands;
+package org.apache.cxf.common.commands;
 
 import java.io.*;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.i18n.Message;
+import org.apache.cxf.common.i18n.Message;
 
 
 public class ForkedCommand extends Thread {

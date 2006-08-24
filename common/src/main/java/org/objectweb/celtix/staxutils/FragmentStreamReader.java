@@ -1,4 +1,4 @@
-package org.objectweb.celtix.staxutils;
+package org.apache.cxf.staxutils;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;

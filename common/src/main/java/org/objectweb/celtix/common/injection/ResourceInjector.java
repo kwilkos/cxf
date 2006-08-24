@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.injection;
+package org.apache.cxf.common.injection;
 
 
 import java.lang.annotation.Annotation;
@@ -13,11 +13,11 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
-import org.objectweb.celtix.common.annotation.AnnotationProcessor;
-import org.objectweb.celtix.common.annotation.AnnotationVisitor;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.resource.ResourceManager;
-import org.objectweb.celtix.resource.ResourceResolver;
+import org.apache.cxf.common.annotation.AnnotationProcessor;
+import org.apache.cxf.common.annotation.AnnotationVisitor;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
 
 
 /**
@@ -52,7 +52,7 @@ public class ResourceInjector implements AnnotationVisitor {
 
 
 
-    // Implementation of org.objectweb.celtix.common.annotation.AnnotationVisitor
+    // Implementation of org.apache.cxf.common.annotation.AnnotationVisitor
 
     public final void visitClass(final Class<?> clz, final Annotation annotation) {
         

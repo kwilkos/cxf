@@ -1,4 +1,4 @@
-package org.objectweb.celtix.staxutils;
+package org.apache.cxf.staxutils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.StreamFilter;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.commands;
+package org.apache.cxf.common.commands;
 
 import java.io.File;
 

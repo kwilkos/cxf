@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.annotation;
+package org.apache.cxf.common.annotation;
 
 public class Base {
 

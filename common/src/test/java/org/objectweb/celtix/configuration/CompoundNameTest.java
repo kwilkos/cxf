@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration;
+package org.apache.cxf.configuration;
 
 import junit.framework.TestCase;
 

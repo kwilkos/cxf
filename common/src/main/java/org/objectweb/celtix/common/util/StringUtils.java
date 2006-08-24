@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.util;
+package org.apache.cxf.common.util;
 
 import java.io.*;
 import java.net.*;

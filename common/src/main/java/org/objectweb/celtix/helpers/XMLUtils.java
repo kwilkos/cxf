@@ -1,4 +1,4 @@
-package org.objectweb.celtix.helpers;
+package org.apache.cxf.helpers;
 
 import java.io.*;
 import java.util.*;
@@ -20,7 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 
 public class XMLUtils {

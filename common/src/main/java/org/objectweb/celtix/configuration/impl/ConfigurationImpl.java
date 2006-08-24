@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,14 +8,14 @@ import java.util.Vector;
 
 import javax.xml.namespace.QName;
 
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.configuration.CompoundName;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
-import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.configuration.CompoundName;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationException;
+import org.apache.cxf.configuration.ConfigurationItemMetadata;
+import org.apache.cxf.configuration.ConfigurationMetadata;
+import org.apache.cxf.configuration.ConfigurationProvider;
 
 public class ConfigurationImpl implements Configuration {
 

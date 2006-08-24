@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.i18n;
+package org.apache.cxf.common.i18n;
 
 import java.util.ResourceBundle;
 
@@ -8,10 +8,10 @@ import junit.framework.TestCase;
 public class BundleUtilsTest extends TestCase {
     public void testGetBundleName() throws Exception {
         assertEquals("unexpected resource bundle name",
-                     "org.objectweb.celtix.common.i18n.Messages",
+                     "org.apache.cxf.common.i18n.Messages",
                      BundleUtils.getBundleName(getClass()));
         assertEquals("unexpected resource bundle name",
-                     "org.objectweb.celtix.common.i18n.Messages",
+                     "org.apache.cxf.common.i18n.Messages",
                      BundleUtils.getBundleName(getClass(), "Messages"));
     }
 

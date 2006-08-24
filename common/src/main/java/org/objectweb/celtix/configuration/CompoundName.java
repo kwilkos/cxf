@@ -1,9 +1,9 @@
-package org.objectweb.celtix.configuration;
+package org.apache.cxf.configuration;
 
 import java.util.ResourceBundle;
 
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 
 
 public class CompoundName {

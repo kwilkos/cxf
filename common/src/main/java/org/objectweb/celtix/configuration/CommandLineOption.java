@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration;
+package org.apache.cxf.configuration;
 
 /**
  * Represents a command line option, similar to <code>ConfigurationItem</code>.

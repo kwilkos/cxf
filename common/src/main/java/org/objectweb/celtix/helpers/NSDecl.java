@@ -1,4 +1,4 @@
-package  org.objectweb.celtix.helpers;
+package  org.apache.cxf.helpers;
 
 public final class NSDecl {
     private final String prefix;

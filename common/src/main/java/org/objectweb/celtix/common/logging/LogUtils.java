@@ -1,11 +1,11 @@
-package org.objectweb.celtix.common.logging;
+package org.apache.cxf.common.logging;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.BundleUtils;
 
 
 /**

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.version;
+package org.apache.cxf.version;
 
 import java.io.*;
 import java.util.*;

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.commands;
+package org.apache.cxf.common.commands;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.common.i18n.Message;
+import org.apache.cxf.common.i18n.Message;
 
 public class ForkedCommandTest extends TestCase {
 
@@ -106,7 +106,7 @@ public class ForkedCommandTest extends TestCase {
             JavaHelper.getJavaCommand(),
             "-classpath",
             file.getCanonicalPath(),
-            "org.objectweb.celtix.common.commands.TestCommand",
+            "org.apache.cxf.common.commands.TestCommand",
             "-duration",
             "60000",
         };

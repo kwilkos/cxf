@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.commands;
+package org.apache.cxf.common.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,7 +23,7 @@ public class ResultBufferedCommandTest extends TestCase {
             JavaHelper.getJavaCommand(),
             "-classpath",
             file.getCanonicalPath(),
-            "org.objectweb.celtix.common.commands.TestCommand",
+            "org.apache.cxf.common.commands.TestCommand",
         };
         ResultBufferedCommand rbc = new ResultBufferedCommand(cmd);
         assertEquals(0, rbc.execute());
@@ -52,7 +52,7 @@ public class ResultBufferedCommandTest extends TestCase {
             JavaHelper.getJavaCommand(),
             "-classpath",
             file.getCanonicalPath(),
-            "org.objectweb.celtix.common.commands.TestCommand",
+            "org.apache.cxf.common.commands.TestCommand",
             "-out",
             OUT,
             "-err",

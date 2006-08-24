@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +26,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationItemMetadata.LifecyclePolicy;
-import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.ConfigurationException;
+import org.apache.cxf.configuration.ConfigurationItemMetadata.LifecyclePolicy;
+import org.apache.cxf.configuration.ConfigurationMetadata;
+import org.apache.cxf.resource.DefaultResourceManager;
 
 
 public class ConfigurationMetadataBuilder  {

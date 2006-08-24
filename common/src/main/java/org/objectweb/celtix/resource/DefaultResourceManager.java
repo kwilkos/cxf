@@ -1,4 +1,4 @@
-package org.objectweb.celtix.resource;
+package org.apache.cxf.resource;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 public class DefaultResourceManager implements ResourceManager {
     

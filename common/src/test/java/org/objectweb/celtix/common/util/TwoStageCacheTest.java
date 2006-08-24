@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.util;
+package org.apache.cxf.common.util;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class TwoStageCacheTest extends TestCase {
     }
     
     /*
-     * Test method for 'org.objectweb.celtix.common.util.AbstractTwoStageCache.get()'
+     * Test method for 'org.apache.cxf.common.util.AbstractTwoStageCache.get()'
      */
     public void testGet() throws Throwable {
         TestTwoStageCache cache = new TestTwoStageCache(3, 5, 0);
@@ -36,7 +36,7 @@ public class TwoStageCacheTest extends TestCase {
     }
 
     /*
-     * Test method for 'org.objectweb.celtix.common.util.AbstractTwoStageCache.poll()'
+     * Test method for 'org.apache.cxf.common.util.AbstractTwoStageCache.poll()'
      */
     public void testPoll() throws Throwable {
         TestTwoStageCache cache = new TestTwoStageCache(3, 5, 0);
@@ -76,7 +76,7 @@ public class TwoStageCacheTest extends TestCase {
     }
 
     /*
-     * Test method for 'org.objectweb.celtix.common.util.AbstractTwoStageCache.recycle(E)'
+     * Test method for 'org.apache.cxf.common.util.AbstractTwoStageCache.recycle(E)'
      */
     public void testRecycle() throws Throwable {
         TestTwoStageCache cache = new TestTwoStageCache(3, 8, 5, new Object());

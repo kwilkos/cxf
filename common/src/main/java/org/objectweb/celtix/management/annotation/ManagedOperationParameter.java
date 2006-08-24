@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.annotation;
+package org.apache.cxf.management.annotation;
 
 
 public @interface ManagedOperationParameter {

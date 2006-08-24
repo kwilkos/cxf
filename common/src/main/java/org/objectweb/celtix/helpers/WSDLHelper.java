@@ -1,4 +1,4 @@
-package org.objectweb.celtix.helpers;
+package org.apache.cxf.helpers;
 
 import java.io.File;
 import java.lang.annotation.Annotation;

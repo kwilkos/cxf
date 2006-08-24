@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.util;
+package org.apache.cxf.common.util;
 
 /**
  * Base64Utility - this static class provides useful base64 
@@ -14,8 +14,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 
 
 /**

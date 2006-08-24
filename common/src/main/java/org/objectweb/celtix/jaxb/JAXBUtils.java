@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -14,7 +14,7 @@ import java.util.concurrent.Future;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
-import org.objectweb.celtix.helpers.JavaUtils;
+import org.apache.cxf.helpers.JavaUtils;
 
 public final class JAXBUtils {
     

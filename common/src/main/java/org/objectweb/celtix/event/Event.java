@@ -1,4 +1,4 @@
-package org.objectweb.celtix.event;
+package org.apache.cxf.event;
 
 import java.util.EventObject;
 
@@ -11,7 +11,7 @@ import javax.xml.namespace.QName;
 public class Event extends EventObject {
 
     /*
-    public static final String BUS_EVENT = "org.objectweb.celtix.bus.event";
+    public static final String BUS_EVENT = "org.apache.cxf.bus.event";
     public static final String COMPONENT_CREATED_EVENT = "COMPONENT_CREATED_EVENT";
     public static final String COMPONENT_REMOVED_EVENT = "COMPONENT_REMOVED_EVENT";
     */

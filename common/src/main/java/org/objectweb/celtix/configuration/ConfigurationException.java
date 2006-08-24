@@ -1,7 +1,7 @@
-package org.objectweb.celtix.configuration;
+package org.apache.cxf.configuration;
 
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.i18n.UncheckedException;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.i18n.UncheckedException;
 
 public class ConfigurationException extends UncheckedException {
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.classloader;
+package org.apache.cxf.common.classloader;
 
 import java.io.IOException;
 import java.io.InputStream;

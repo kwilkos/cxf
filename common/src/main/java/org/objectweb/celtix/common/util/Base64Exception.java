@@ -1,7 +1,7 @@
-package org.objectweb.celtix.common.util;
+package org.apache.cxf.common.util;
 
-import org.objectweb.celtix.common.i18n.Exception;
-import org.objectweb.celtix.common.i18n.Message;
+import org.apache.cxf.common.i18n.Exception;
+import org.apache.cxf.common.i18n.Message;
 
 public class Base64Exception extends Exception {
 

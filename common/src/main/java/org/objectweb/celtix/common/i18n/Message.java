@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.i18n;
+package org.apache.cxf.common.i18n;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;

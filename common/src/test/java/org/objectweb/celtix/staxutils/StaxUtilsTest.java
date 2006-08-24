@@ -1,4 +1,4 @@
-package org.objectweb.celtix.staxutils;
+package org.apache.cxf.staxutils;
 
 import java.io.*;
 

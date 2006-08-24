@@ -1,5 +1,5 @@
 
-package org.objectweb.celtix.management.annotation;
+package org.apache.cxf.management.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

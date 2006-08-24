@@ -1,4 +1,4 @@
-package org.objectweb.celtix.resource;
+package org.apache.cxf.resource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.objectweb.celtix.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 
 /**
  * Resolves a File, classpath resource, or URL according to the follow rules:

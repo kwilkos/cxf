@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration;
+package org.apache.cxf.configuration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,7 @@ public abstract class AbstractCommandLineConfiguration implements CommandlineCon
     }
         
     /* (non-Javadoc)
-     * @see org.objectweb.celtix.configuration.Configuration#getObject(java.lang.String)
+     * @see org.apache.cxf.configuration.Configuration#getObject(java.lang.String)
      */
     public Object getObject(String name) {
         return getOption(name).getValue();

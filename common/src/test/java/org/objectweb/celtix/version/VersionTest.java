@@ -1,4 +1,4 @@
-package org.objectweb.celtix.version;
+package org.apache.cxf.version;
 
 import junit.framework.TestCase;
 

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.util.Collection;
 import java.util.HashMap;

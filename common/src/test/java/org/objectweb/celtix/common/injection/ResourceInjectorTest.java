@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.injection;
+package org.apache.cxf.common.injection;
 
 
 
@@ -10,9 +10,10 @@ import javax.annotation.Resource;
 import javax.annotation.Resources;
 import junit.framework.TestCase;
 
+import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
+
 import org.easymock.classextension.EasyMock;
-import org.objectweb.celtix.resource.ResourceManager;
-import org.objectweb.celtix.resource.ResourceResolver;
 
 public class ResourceInjectorTest extends TestCase {
     private static final String RESOURCE_ONE = "resource one";

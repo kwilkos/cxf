@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,19 +12,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-import org.objectweb.celtix.common.i18n.BundleUtils;
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.injection.ResourceInjector;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.CompoundName;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.resource.DefaultResourceManager;
-import org.objectweb.celtix.resource.PropertiesResolver;
-import org.objectweb.celtix.resource.ResourceManager;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.CompoundName;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationBuilder;
+import org.apache.cxf.configuration.ConfigurationException;
+import org.apache.cxf.configuration.ConfigurationMetadata;
+import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.resource.PropertiesResolver;
+import org.apache.cxf.resource.ResourceManager;
 import org.springframework.core.io.UrlResource;
 
 public class ConfigurationBuilderImpl implements ConfigurationBuilder {

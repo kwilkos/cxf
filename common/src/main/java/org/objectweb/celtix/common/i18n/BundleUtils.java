@@ -1,8 +1,8 @@
-package org.objectweb.celtix.common.i18n;
+package org.apache.cxf.common.i18n;
 
 import java.util.ResourceBundle;
 
-import org.objectweb.celtix.common.util.PackageUtils;
+import org.apache.cxf.common.util.PackageUtils;
 
 
 /**

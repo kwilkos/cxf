@@ -1,4 +1,4 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 
 import java.io.BufferedReader;
@@ -8,11 +8,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
 
-import org.objectweb.celtix.common.i18n.Message;
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
-import org.objectweb.celtix.resource.DefaultResourceManager;
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.ConfigurationException;
+import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.resource.DefaultResourceManager;
 
 
 public class DefaultConfigurationProviderFactory {
@@ -20,9 +20,9 @@ public class DefaultConfigurationProviderFactory {
     private static final Logger LOG = LogUtils.getL7dLogger(DefaultConfigurationProviderFactory.class);
     
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME = 
-        "org.objectweb.celtix.configuration.impl.InMemoryProvider";
+        "org.apache.cxf.configuration.impl.InMemoryProvider";
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY = 
-        "org.objectweb.celtix.configuration.ConfigurationProviderClass";
+        "org.apache.cxf.configuration.ConfigurationProviderClass";
     
     private static DefaultConfigurationProviderFactory theInstance;
     

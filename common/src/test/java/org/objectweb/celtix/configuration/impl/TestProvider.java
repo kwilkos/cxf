@@ -1,11 +1,11 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.net.URL;
 
 import javax.annotation.Resource;
 
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationProvider;
 
 public class TestProvider implements ConfigurationProvider {
 

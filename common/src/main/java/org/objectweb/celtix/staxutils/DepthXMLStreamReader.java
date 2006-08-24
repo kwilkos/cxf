@@ -1,4 +1,4 @@
-package org.objectweb.celtix.staxutils;
+package org.apache.cxf.staxutils;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;

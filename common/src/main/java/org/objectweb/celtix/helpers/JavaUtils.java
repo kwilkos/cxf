@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.objectweb.celtix.helpers;
+package org.apache.cxf.helpers;
 
 import java.util.Arrays;
 import java.util.HashSet;

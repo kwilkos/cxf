@@ -1,11 +1,11 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.objectweb.celtix.configuration.ConfigurationItemMetadata;
-import org.objectweb.celtix.configuration.ConfigurationMetadata;
+import org.apache.cxf.configuration.ConfigurationItemMetadata;
+import org.apache.cxf.configuration.ConfigurationMetadata;
 
 public class ConfigurationMetadataImpl implements ConfigurationMetadata {
 

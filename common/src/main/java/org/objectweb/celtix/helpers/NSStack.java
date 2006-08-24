@@ -1,4 +1,4 @@
-package org.objectweb.celtix.helpers;
+package org.apache.cxf.helpers;
 
 import java.util.ArrayList;
 import java.util.List;

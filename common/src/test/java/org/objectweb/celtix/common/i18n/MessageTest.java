@@ -1,11 +1,11 @@
-package org.objectweb.celtix.common.i18n;
+package org.apache.cxf.common.i18n;
 
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 
 public class MessageTest extends TestCase {

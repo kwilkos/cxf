@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxb;
+package org.apache.cxf.jaxb;
 
 
 import junit.framework.TestCase;
@@ -12,19 +12,19 @@ public class JAXBUtilsTest extends TestCase {
     }
 
     public void testPackageNames() {
-        assertEquals("org.objectweb.celtix.configuration.types",
+        assertEquals("org.apache.cxf.configuration.types",
                      JAXBUtils.namespaceURIToPackage("http://celtix.objectweb.org/configuration/types"));
-        assertEquals("org.objectweb.celtix.configuration.types",
+        assertEquals("org.apache.cxf.configuration.types",
                      JAXBUtils.namespaceURIToPackage("http://celtix.objectweb.org/configuration/types.xsd"));
-        assertEquals("org.objectweb.celtix.config_types",
+        assertEquals("org.apache.cxf.config_types",
                      JAXBUtils.namespaceURIToPackage("http://celtix.objectweb.org/config-types"));
-        assertEquals("org.objectweb.celtix._default.types",
+        assertEquals("org.apache.cxf._default.types",
                      JAXBUtils.namespaceURIToPackage("http://celtix.objectweb.org/default/types"));
-        assertEquals("org.objectweb.celtix.config._4types",
+        assertEquals("org.apache.cxf.config._4types",
                      JAXBUtils.namespaceURIToPackage("http://celtix.objectweb.org/config/4types."));
         assertEquals("com.iona.configuration.types",
                      JAXBUtils.namespaceURIToPackage("http://www.iona.com/configuration/types"));
-        assertEquals("org.objectweb.celtix.config.types",
+        assertEquals("org.apache.cxf.config.types",
                      JAXBUtils.namespaceURIToPackage("urn://celtix-objectweb-org/config/types"));
         assertEquals("types", JAXBUtils.namespaceURIToPackage("types"));
     } 

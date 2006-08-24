@@ -1,4 +1,4 @@
-package org.objectweb.celtix.common.util;
+package org.apache.cxf.common.util;
 
 import java.util.*;
 
@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 public class PropertiesLoaderUtilsTest extends TestCase {
 
     Properties properties;
-    String soapBindingFactory = "org.objectweb.celtix.bindings.soap.SOAPBindingFactory";
+    String soapBindingFactory = "org.apache.cxf.bindings.soap.SOAPBindingFactory";
     
     public void setUp() throws Exception {
         properties = PropertiesLoaderUtils.

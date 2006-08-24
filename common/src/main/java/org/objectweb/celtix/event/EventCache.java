@@ -1,4 +1,4 @@
-package org.objectweb.celtix.event;
+package org.apache.cxf.event;
 
 import java.util.List;
 

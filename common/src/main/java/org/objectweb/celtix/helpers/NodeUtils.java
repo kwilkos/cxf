@@ -1,4 +1,4 @@
-package org.objectweb.celtix.helpers;
+package org.apache.cxf.helpers;
 
 import org.w3c.dom.Node;
 

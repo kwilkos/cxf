@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management;
+package org.apache.cxf.management;
 
 import java.util.List;
 

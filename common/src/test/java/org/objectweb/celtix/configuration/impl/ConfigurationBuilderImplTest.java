@@ -1,17 +1,18 @@
-package org.objectweb.celtix.configuration.impl;
+package org.apache.cxf.configuration.impl;
 
 import java.net.URL;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.configuration.CompoundName;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationBuilder;
+import org.apache.cxf.configuration.ConfigurationException;
+import org.apache.cxf.configuration.ConfigurationMetadata;
+import org.apache.cxf.configuration.ConfigurationProvider;
+
 import org.easymock.EasyMock;
-import org.objectweb.celtix.configuration.CompoundName;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.ConfigurationException;
-import org.objectweb.celtix.configuration.ConfigurationMetadata;
-import org.objectweb.celtix.configuration.ConfigurationProvider;
 
 public class ConfigurationBuilderImplTest extends TestCase {
     
@@ -24,7 +25,7 @@ public class ConfigurationBuilderImplTest extends TestCase {
         TestProvider.class.getName();
     
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME_PROPERTY = 
-        "org.objectweb.celtix.configuration.ConfigurationProviderClass";
+        "org.apache.cxf.configuration.ConfigurationProviderClass";
     
     
     private String orgProviderClassname;

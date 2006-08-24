@@ -1,4 +1,4 @@
-package org.objectweb.celtix.resource;
+package org.apache.cxf.resource;
 
 import java.io.InputStream;
 import java.net.URL;
