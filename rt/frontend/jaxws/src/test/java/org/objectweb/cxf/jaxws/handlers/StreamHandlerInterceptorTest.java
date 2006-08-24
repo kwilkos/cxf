@@ -4,9 +4,10 @@ import javax.xml.ws.Binding;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+
+import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;

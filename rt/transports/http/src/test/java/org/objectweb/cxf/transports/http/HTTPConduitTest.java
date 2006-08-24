@@ -20,11 +20,6 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
-import org.mortbay.http.HttpHandler;
-import org.mortbay.http.handler.AbstractHttpHandler;
-import org.mortbay.util.MultiMap;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -36,6 +31,11 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
+import org.mortbay.http.HttpHandler;
+import org.mortbay.http.handler.AbstractHttpHandler;
+import org.mortbay.util.MultiMap;
 
 public class HTTPConduitTest extends TestCase {
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";

@@ -11,7 +11,6 @@ import org.xml.sax.InputSource;
 
 import junit.framework.TestCase;
 
-import org.easymock.IMocksControl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
 import org.apache.cxf.bindings.BindingFactoryManagerImpl;
@@ -24,6 +23,8 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+
+import org.easymock.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;

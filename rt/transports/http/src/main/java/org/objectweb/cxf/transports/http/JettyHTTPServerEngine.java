@@ -5,13 +5,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.cxf.Bus;
+
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mortbay.util.InetAddrPort;
-import org.apache.cxf.Bus;
 
 
 public final class JettyHTTPServerEngine implements ServerEngine {

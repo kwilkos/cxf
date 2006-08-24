@@ -1,7 +1,7 @@
 package org.apache.cxf.transports.http;
 
-import org.mortbay.http.HttpContext;
 import org.apache.cxf.endpoint.ContextInspector;
+import org.mortbay.http.HttpContext;
 
 public class JettyContextInspector implements ContextInspector {
     

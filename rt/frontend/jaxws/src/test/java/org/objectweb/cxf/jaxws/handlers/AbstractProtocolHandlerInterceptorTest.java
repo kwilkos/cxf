@@ -6,10 +6,11 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.message.AbstractWrappedMessage;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+
+import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;

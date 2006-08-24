@@ -18,8 +18,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
@@ -31,6 +29,9 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class TestBase extends TestCase {
 

@@ -9,8 +9,6 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
@@ -22,6 +20,9 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class ServiceModelUtilTest extends TestCase {
     private static final String WSDL_PATH = "test-soap-header.wsdl";

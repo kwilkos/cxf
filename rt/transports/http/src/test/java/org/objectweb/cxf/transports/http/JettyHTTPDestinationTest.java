@@ -19,9 +19,6 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
-import org.mortbay.http.handler.AbstractHttpHandler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.CastUtils;
@@ -35,6 +32,12 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
+
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
+import org.mortbay.http.handler.AbstractHttpHandler;
+
+
 import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
 
 

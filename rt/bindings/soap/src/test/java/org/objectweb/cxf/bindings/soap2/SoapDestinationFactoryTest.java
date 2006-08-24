@@ -6,13 +6,14 @@ import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.bindings.soap2.model.SoapBindingInfo;
 import org.apache.cxf.messaging.Destination;
 import org.apache.cxf.messaging.DestinationFactory;
 import org.apache.cxf.messaging.DestinationFactoryManager;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+
+import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;

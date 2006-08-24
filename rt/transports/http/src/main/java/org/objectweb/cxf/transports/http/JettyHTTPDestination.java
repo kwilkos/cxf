@@ -22,11 +22,6 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 
 
 
-
-
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.handler.AbstractHttpHandler;
 import org.apache.cxf.Bus;
 
 import org.apache.cxf.message.Message;
@@ -38,6 +33,11 @@ import org.apache.cxf.messaging.MessageObserver;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+
+
+import org.mortbay.http.HttpRequest;
+import org.mortbay.http.HttpResponse;
+import org.mortbay.http.handler.AbstractHttpHandler;
 
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
