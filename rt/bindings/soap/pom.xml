@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>cxf-rt2-bindings-soap</artifactId>
+    <artifactId>cxf-rt-bindings-soap</artifactId>
     <packaging>jar</packaging>
     <name>Interceptor Based SOAP Bindings Prototype</name>
     <url>http://celtix.objectweb.org/</url>
 
     <parent>
         <groupId>org.objectweb.celtixfire</groupId>
-        <artifactId>cxf-rt2-bindings</artifactId>
+        <artifactId>cxf-rt-bindings</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -20,12 +20,12 @@
 
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-api2</artifactId>
+            <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-databinding-jaxb</artifactId>
+            <artifactId>cxf-rt-databinding-jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

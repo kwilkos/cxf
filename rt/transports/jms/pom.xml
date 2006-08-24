@@ -1,8 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.objectweb.celtixfire</groupId>
-    <artifactId>cxf-rt2-transports-jms</artifactId>
+    <artifactId>cxf-rt-transports-jms</artifactId>
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
     <name>CeltiXfire Runtime JMS Transport</name>
@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>org.objectweb.celtixfire</groupId>
-        <artifactId>cxf-rt2</artifactId>
+        <artifactId>cxf-rt</artifactId>
         <version>1.1-SNAPSHOT</version>
     </parent>
 
@@ -28,22 +28,22 @@
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
-            <version>2.2</version>
+            <version>.</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-api2</artifactId>
+            <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-core</artifactId>
+            <artifactId>cxf-rt-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt2-management</artifactId>
+            <artifactId>cxf-rt-management</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -61,13 +61,13 @@
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
+            <artifactId>geronimo-jee-jacc_1.0_spec</artifactId>
             <version>1.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+            <artifactId>geronimo-jee-management_1.0_spec</artifactId>
             <version>1.0</version>
             <scope>runtime</scope>
         </dependency>
