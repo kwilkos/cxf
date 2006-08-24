@@ -17,10 +17,10 @@ import org.easymock.EasyMock;
 public class ConfigurationBuilderImplTest extends TestCase {
     
     private static final String TEST_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/configuration/test/meta1";
-    private static final String BUS_CONFIGURATION_URI = "http://celtix.objectweb.org/bus/bus-config";
+        "http://cxf.apache.org/configuration/test/meta1";
+    private static final String BUS_CONFIGURATION_URI = "http://cxf.apache.org/bus/bus-config";
     private static final String UNKNOWN_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/unknown/unknown-config";  
+        "http://cxf.apache.org/unknown/unknown-config";  
     private static final String DEFAULT_CONFIGURATION_PROVIDER_CLASSNAME = 
         TestProvider.class.getName();
     

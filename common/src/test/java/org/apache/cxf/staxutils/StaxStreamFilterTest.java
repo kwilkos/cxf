@@ -23,7 +23,7 @@ public class StaxStreamFilterTest extends TestCase {
         DepthXMLStreamReader dr = new DepthXMLStreamReader(reader);
 
         StaxUtils.toNextElement(dr);
-        QName sayHi = new QName("http://objectweb.org/hello_world_rpclit", "sayHi");
+        QName sayHi = new QName("http://apache.org/hello_world_rpclit", "sayHi");
         
         assertEquals(sayHi, dr.getName());
     }
@@ -37,7 +37,7 @@ public class StaxStreamFilterTest extends TestCase {
         DepthXMLStreamReader dr = new DepthXMLStreamReader(reader);
 
         StaxUtils.toNextElement(dr);
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit", "sendReceiveData"), dr.getName());
+        assertEquals(new QName("http://apache.org/hello_world_rpclit", "sendReceiveData"), dr.getName());
 
         StaxUtils.nextEvent(dr);
         StaxUtils.toNextElement(dr);
@@ -45,20 +45,20 @@ public class StaxStreamFilterTest extends TestCase {
 
         StaxUtils.nextEvent(dr);
         StaxUtils.toNextElement(dr);
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "elem1"), dr.getName());
+        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "elem1"), dr.getName());
 
         StaxUtils.nextEvent(dr);
         StaxUtils.toNextText(dr);
         assertEquals("this is element 1", dr.getText());
         
         StaxUtils.toNextElement(dr);
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "elem1"), dr.getName());
+        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "elem1"), dr.getName());
         assertEquals(XMLStreamConstants.END_ELEMENT, dr.getEventType());
 
         StaxUtils.nextEvent(dr);
         StaxUtils.toNextElement(dr);
         
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "elem2"), dr.getName());
+        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "elem2"), dr.getName());
     } 
 
     private InputStream getTestStream(String file) {

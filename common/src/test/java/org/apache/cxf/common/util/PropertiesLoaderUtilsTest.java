@@ -11,7 +11,7 @@ public class PropertiesLoaderUtilsTest extends TestCase {
     
     public void setUp() throws Exception {
         properties = PropertiesLoaderUtils.
-            loadAllProperties("org/objectweb/celtix/common/util/resources/bindings.properties.xml",
+            loadAllProperties("org/apache/cxf/common/util/resources/bindings.properties.xml",
                               Thread.currentThread().getContextClassLoader());
         assertNotNull(properties);        
         
@@ -25,7 +25,7 @@ public class PropertiesLoaderUtilsTest extends TestCase {
                      properties.getProperty("http://schemas.xmlsoap.org/wsdl/soap/http"));
 
         assertEquals(soapBindingFactory,
-                     properties.getProperty("http://celtix.objectweb.org/transports/jms"));
+                     properties.getProperty("http://cxf.apache.org/transports/jms"));
         
 
     }
@@ -36,6 +36,6 @@ public class PropertiesLoaderUtilsTest extends TestCase {
         assertEquals(3, names.size());
         assertTrue(names.contains("http://schemas.xmlsoap.org/wsdl/soap/"));
         assertTrue(names.contains("http://schemas.xmlsoap.org/wsdl/soap/http"));
-        assertTrue(names.contains("http://celtix.objectweb.org/transports/jms"));
+        assertTrue(names.contains("http://cxf.apache.org/transports/jms"));
     }
 }

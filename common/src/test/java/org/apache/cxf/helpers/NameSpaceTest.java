@@ -4,9 +4,9 @@ import junit.framework.TestCase;
 
 public class NameSpaceTest extends TestCase {
     
-    private final String myURL1 = "http://test.objectweb.com/testurl1";
-    private final String myURL2 = "http://test.objectweb.com/testurl2";
-    private final String myCustomURL = "http://test.objectweb.com/custom-prefix-url";
+    private final String myURL1 = "http://test.apache.org/testurl1";
+    private final String myURL2 = "http://test.apache.org/testurl2";
+    private final String myCustomURL = "http://test.apache.org/custom-prefix-url";
     private final String myOwnPrefix = "myown-prefix";
     
 

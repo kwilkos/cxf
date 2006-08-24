@@ -3,7 +3,7 @@
     xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
     xmlns:xs="http://www.w3.org/2001/XMLSchema" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:m1="http://objectweb.org/hello_world_rpclit">
+    xmlns:m1="http://apache.org/hello_world_rpclit">
     <SOAP-ENV:Body>
 	<m1:sayHi> </m1:sayHi>
     </SOAP-ENV:Body>

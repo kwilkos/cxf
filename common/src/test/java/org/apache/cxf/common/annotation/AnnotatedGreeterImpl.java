@@ -13,7 +13,7 @@ import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceContext;
 
 @javax.jws.WebService(name = "Greeter", serviceName = "SOAPService", 
-                      targetNamespace = "http://objectweb.org/hello_world_soap_http")
+                      targetNamespace = "http://apache.org/hello_world_soap_http")
 @HandlerChain(name = "TestHandlerChain", file = "handlers.xml")
 public class AnnotatedGreeterImpl {
 
@@ -46,13 +46,13 @@ public class AnnotatedGreeterImpl {
      * overloaded method - present for test purposes
      */
     @WebMethod(operationName = "sayHiOverloaded")
-    @WebResult(name = "responseType2", targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
-    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHi2",
+    @WebResult(name = "responseType2", targetNamespace = "http://apache.org/hello_world_soap_http/types")
+    @RequestWrapper(className = "org.apache.hello_world_soap_http.types.SayHi2",
                     localName = "sayHi2",
-                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
-    @ResponseWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHiResponse2",
+                    targetNamespace = "http://apache.org/hello_world_soap_http/types")
+    @ResponseWrapper(className = "org.apache.hello_world_soap_http.types.SayHiResponse2",
                      localName = "sayHiResponse2",
-                     targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+                     targetNamespace = "http://apache.org/hello_world_soap_http/types")
     public String sayHi(String me) {
         incrementInvocationCount("overloadedSayHi");
         return "Hi " + me + "!";
@@ -60,13 +60,13 @@ public class AnnotatedGreeterImpl {
 
     @WebMethod
     @WebResult(name = "responseType",
-               targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
-    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHi",
+               targetNamespace = "http://apache.org/hello_world_soap_http/types")
+    @RequestWrapper(className = "org.apache.hello_world_soap_http.types.SayHi",
                     localName = "sayHi",
-                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
-    @ResponseWrapper(className = "org.objectweb.hello_world_soap_http.types.SayHiResponse",
+                    targetNamespace = "http://apache.org/hello_world_soap_http/types")
+    @ResponseWrapper(className = "org.apache.hello_world_soap_http.types.SayHiResponse",
                      localName = "sayHiResponse",
-                     targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+                     targetNamespace = "http://apache.org/hello_world_soap_http/types")
     public String sayHi() {
         incrementInvocationCount("sayHi");
         return "Hi";
@@ -74,22 +74,22 @@ public class AnnotatedGreeterImpl {
 
     @WebMethod
     @WebResult(name = "responseType",
-               targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
-    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.GreetMe",
+               targetNamespace = "http://apache.org/hello_world_soap_http/types")
+    @RequestWrapper(className = "org.apache.hello_world_soap_http.types.GreetMe",
                     localName = "greetMe",
-                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
-    @ResponseWrapper(className = "org.objectweb.hello_world_soap_http.types.GreetMeResponse",
+                    targetNamespace = "http://apache.org/hello_world_soap_http/types")
+    @ResponseWrapper(className = "org.apache.hello_world_soap_http.types.GreetMeResponse",
                      localName = "greetMeResponse",
-                     targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+                     targetNamespace = "http://apache.org/hello_world_soap_http/types")
     public String greetMe(String me) {
         incrementInvocationCount("greetMe");
         return "Bonjour " + me + "!";
     }
     
     @WebMethod
-    @RequestWrapper(className = "org.objectweb.hello_world_soap_http.types.GreetMeOneWay",
+    @RequestWrapper(className = "org.apache.hello_world_soap_http.types.GreetMeOneWay",
                     localName = "greetMeOneWay",
-                    targetNamespace = "http://objectweb.org/hello_world_soap_http/types")
+                    targetNamespace = "http://apache.org/hello_world_soap_http/types")
     public void greetMeOneWay(String me) {
         incrementInvocationCount("greetMeOneWay");
         System.out.println("Hello there " + me);

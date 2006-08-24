@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <version>1.1-SNAPSHOT</version>
     <name>CeltiXfire Common Utilities</name>
-    <url>http://celtix.objectweb.org/</url>
+    <url>http://cxf.apache.org/</url>
 
     <parent>
         <groupId>org.objectweb.celtixfire</groupId>
