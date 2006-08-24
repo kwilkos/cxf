@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.counters;
+package org.apache.cxf.management.counters;
 
 /** class for the performance couter */
 public class Counter {

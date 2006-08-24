@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<xs:schema targetNamespace="http://celtix.objectweb.org/configuration/instrumentation/types"
-           xmlns:tns="http://celtix.objectweb.org/configuration/instrumentation/types"
+<xs:schema targetNamespace="http://cxf.apache.org/configuration/instrumentation/types"
+           xmlns:tns="http://cxf.apache.org/configuration/instrumentation/types"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified" >
     

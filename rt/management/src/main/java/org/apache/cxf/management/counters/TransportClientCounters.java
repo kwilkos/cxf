@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.counters;
+package org.apache.cxf.management.counters;
 
 public class TransportClientCounters {
     private static final String[] COUNTER_NAMES = {"Invoke",

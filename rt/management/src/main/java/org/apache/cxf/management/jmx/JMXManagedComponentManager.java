@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.jmx;
+package org.apache.cxf.management.jmx;
 
 
 
@@ -22,10 +22,10 @@ import javax.management.modelmbean.InvalidTargetObjectTypeException;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.instrumentation.types.MBServerPolicyType;
-import org.objectweb.celtix.management.Instrumentation;
-import org.objectweb.celtix.management.jmx.export.runtime.ModelMBeanAssembler;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
+import org.apache.cxf.management.Instrumentation;
+import org.apache.cxf.management.jmx.export.runtime.ModelMBeanAssembler;
 
 
 /**

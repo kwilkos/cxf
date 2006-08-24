@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extensions xmlns="http://celtix.objectweb.org/bus/extension">
+<extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.objectweb.celtix.management.InstrumentationManagerImpl"
-           interface="org.objectweb.celtix.management.InstrumentationManager"/>
-    <extension class="org.objectweb.celtix.event.EventProcessorImpl"
-           interface="org.objectweb.celtix.event.EventProcessor"/>
+    <extension class="org.apache.cxf.management.InstrumentationManagerImpl"
+           interface="org.apache.cxf.management.InstrumentationManager"/>
+    <extension class="org.apache.cxf.event.EventProcessorImpl"
+           interface="org.apache.cxf.event.EventProcessor"/>
     
 </extensions>

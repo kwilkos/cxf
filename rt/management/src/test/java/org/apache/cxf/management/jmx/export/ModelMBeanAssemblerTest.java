@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.jmx.export;
+package org.apache.cxf.management.jmx.export;
 
 
 import javax.management.Attribute;
@@ -15,7 +15,7 @@ import javax.management.modelmbean.RequiredModelMBean;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.management.jmx.export.runtime.ModelMBeanAssembler;
+import org.apache.cxf.management.jmx.export.runtime.ModelMBeanAssembler;
 
 
 
@@ -58,7 +58,7 @@ public class ModelMBeanAssemblerTest extends  TestCase {
     protected void onSetUp() throws Exception {
         
         try {
-            ton = new ObjectName("org.objectweb.celtix:Type=testInstrumentation");
+            ton = new ObjectName("org.apache.cxf:Type=testInstrumentation");
         } catch (MalformedObjectNameException e) {            
             e.printStackTrace();
         } catch (NullPointerException e) {            

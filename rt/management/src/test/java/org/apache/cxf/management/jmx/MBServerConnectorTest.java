@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.jmx;
+package org.apache.cxf.management.jmx;
 
 
 

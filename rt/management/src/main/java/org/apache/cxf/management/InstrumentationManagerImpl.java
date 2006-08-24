@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management;
+package org.apache.cxf.management;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -8,14 +8,14 @@ import java.util.logging.Logger;
 
 import javax.management.MBeanServer;
 
-import org.objectweb.celtix.common.logging.LogUtils;
-import org.objectweb.celtix.configuration.CompoundName;
-import org.objectweb.celtix.configuration.Configuration;
-import org.objectweb.celtix.configuration.ConfigurationBuilder;
-import org.objectweb.celtix.configuration.impl.ConfigurationBuilderImpl;
-import org.objectweb.celtix.configuration.instrumentation.types.InstrumentationPolicyType;
-import org.objectweb.celtix.configuration.instrumentation.types.MBServerPolicyType;
-import org.objectweb.celtix.management.jmx.JMXManagedComponentManager;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.CompoundName;
+import org.apache.cxf.configuration.Configuration;
+import org.apache.cxf.configuration.ConfigurationBuilder;
+import org.apache.cxf.configuration.impl.ConfigurationBuilderImpl;
+import org.apache.cxf.configuration.instrumentation.types.InstrumentationPolicyType;
+import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
+import org.apache.cxf.management.jmx.JMXManagedComponentManager;
 
 
 
@@ -23,7 +23,7 @@ import org.objectweb.celtix.management.jmx.JMXManagedComponentManager;
 public class InstrumentationManagerImpl implements InstrumentationManager {    
     static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
     static final String INSTRUMENTATION_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/configuration/instrumentation";
+        "http://cxf.apache.org/configuration/instrumentation";
 
     // TODO: avoid clashes with bus id
 

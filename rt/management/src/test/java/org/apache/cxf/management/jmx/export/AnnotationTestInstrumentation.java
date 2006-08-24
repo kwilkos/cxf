@@ -1,15 +1,15 @@
 
-package org.objectweb.celtix.management.jmx.export;
+package org.apache.cxf.management.jmx.export;
 
-import org.objectweb.celtix.management.Instrumentation;
-import org.objectweb.celtix.management.InstrumentationFactory;
-import org.objectweb.celtix.management.annotation.ManagedAttribute;
-import org.objectweb.celtix.management.annotation.ManagedNotification;
-import org.objectweb.celtix.management.annotation.ManagedNotifications;
-import org.objectweb.celtix.management.annotation.ManagedOperation;
-import org.objectweb.celtix.management.annotation.ManagedOperationParameter;
-import org.objectweb.celtix.management.annotation.ManagedOperationParameters;
-import org.objectweb.celtix.management.annotation.ManagedResource;
+import org.apache.cxf.management.Instrumentation;
+import org.apache.cxf.management.InstrumentationFactory;
+import org.apache.cxf.management.annotation.ManagedAttribute;
+import org.apache.cxf.management.annotation.ManagedNotification;
+import org.apache.cxf.management.annotation.ManagedNotifications;
+import org.apache.cxf.management.annotation.ManagedOperation;
+import org.apache.cxf.management.annotation.ManagedOperationParameter;
+import org.apache.cxf.management.annotation.ManagedOperationParameters;
+import org.apache.cxf.management.annotation.ManagedResource;
 
 @ManagedResource(componentName = "AnnotationTest", description = "My Managed Bean",
                  persistPolicy = "OnUpdate", currencyTimeLimit = 15 , 

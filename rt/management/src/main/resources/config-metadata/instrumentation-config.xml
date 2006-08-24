@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cm:config
-    xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
-    xmlns:im="http://celtix.objectweb.org/configuration/instrumentation/types"
+    xmlns:cm="http://cxf.apache.org/configuration/metadata"
+    xmlns:im="http://cxf.apache.org/configuration/instrumentation/types"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    namespace="http://celtix.objectweb.org/configuration/instrumentation"
+    namespace="http://cxf.apache.org/configuration/instrumentation"
 >
 
-    <cm:configImport namespace="http://celtix.objectweb.org/configuration/instrumentation/types" location="schemas/configuration/instrumentation.xsd"/>
+    <cm:configImport namespace="http://cxf.apache.org/configuration/instrumentation/types" location="schemas/configuration/instrumentation.xsd"/>
 
     <cm:configItem>
         <cm:name>InstrumentationControl</cm:name>

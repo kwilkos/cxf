@@ -1,10 +1,10 @@
-package org.objectweb.celtix.management.jmx;
+package org.apache.cxf.management.jmx;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.BusException;
-import org.objectweb.celtix.configuration.instrumentation.types.JMXConnectorPolicyType;
-import org.objectweb.celtix.configuration.instrumentation.types.MBServerPolicyType;
+import org.apache.cxf.BusException;
+import org.apache.cxf.configuration.instrumentation.types.JMXConnectorPolicyType;
+import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
 
 
 public class JMXManagedComponentManagerTest extends TestCase {

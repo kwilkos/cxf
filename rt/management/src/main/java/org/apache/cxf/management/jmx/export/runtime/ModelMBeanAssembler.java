@@ -1,17 +1,17 @@
-package org.objectweb.celtix.management.jmx.export.runtime;
+package org.apache.cxf.management.jmx.export.runtime;
 
 import java.lang.reflect.Method;
 
 import javax.management.Descriptor;
 import javax.management.modelmbean.ModelMBeanInfo;
 
-import org.objectweb.celtix.management.annotation.ManagedAttribute;
-import org.objectweb.celtix.management.annotation.ManagedNotification;
-import org.objectweb.celtix.management.annotation.ManagedNotifications;
-import org.objectweb.celtix.management.annotation.ManagedOperation;
-import org.objectweb.celtix.management.annotation.ManagedOperationParameter;
-import org.objectweb.celtix.management.annotation.ManagedOperationParameters;
-import org.objectweb.celtix.management.annotation.ManagedResource;
+import org.apache.cxf.management.annotation.ManagedAttribute;
+import org.apache.cxf.management.annotation.ManagedNotification;
+import org.apache.cxf.management.annotation.ManagedNotifications;
+import org.apache.cxf.management.annotation.ManagedOperation;
+import org.apache.cxf.management.annotation.ManagedOperationParameter;
+import org.apache.cxf.management.annotation.ManagedOperationParameters;
+import org.apache.cxf.management.annotation.ManagedResource;
 
 
 public class ModelMBeanAssembler {

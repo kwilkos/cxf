@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.jmx.export.runtime;
+package org.apache.cxf.management.jmx.export.runtime;
 
 import java.lang.reflect.Constructor;
 
@@ -17,9 +17,9 @@ import javax.management.modelmbean.ModelMBeanInfoSupport;
 import javax.management.modelmbean.ModelMBeanNotificationInfo;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 
-import org.objectweb.celtix.management.annotation.ManagedAttribute;
-import org.objectweb.celtix.management.annotation.ManagedOperation;
-import org.objectweb.celtix.management.annotation.ManagedResource;
+import org.apache.cxf.management.annotation.ManagedAttribute;
+import org.apache.cxf.management.annotation.ManagedOperation;
+import org.apache.cxf.management.annotation.ManagedResource;
 
 public class ModelMBeanInfoSupporter {
     protected Map<String, ModelMBeanAttributeInfo> attributes

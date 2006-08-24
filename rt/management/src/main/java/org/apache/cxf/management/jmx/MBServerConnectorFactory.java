@@ -1,4 +1,4 @@
-package org.objectweb.celtix.management.jmx;
+package org.apache.cxf.management.jmx;
 
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
@@ -12,7 +12,7 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.objectweb.celtix.common.logging.LogUtils;
+import org.apache.cxf.common.logging.LogUtils;
 
 
 
