@@ -1,7 +1,7 @@
-package org.objectweb.celtix.systest.common;
+package org.apache.cxf.systest.common;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.testutil.common.AbstractTestServerBase;
+import org.apache.cxf.Bus;
+import org.apache.cxf.testutil.common.AbstractTestServerBase;
 
 public abstract class TestServerBase extends AbstractTestServerBase {
     

@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.net.URL;
 
@@ -6,14 +6,14 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.SOAPService;
+import org.apache.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.SOAPService;
 
 public class ProxyTest extends TestCase {
     
-    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
+    private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");   
-    private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
+    private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                                              "SoapPort");
     
         

@@ -1,10 +1,10 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import javax.xml.ws.Endpoint;
 
 import junit.framework.TestCase;
 
-import org.objectweb.hello_world_soap_http.GreeterImpl;
+import org.apache.hello_world_soap_http.GreeterImpl;
 
 
 public class EndpointTest extends TestCase {

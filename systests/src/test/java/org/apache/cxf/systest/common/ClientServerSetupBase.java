@@ -1,10 +1,10 @@
-package org.objectweb.celtix.systest.common;
+package org.apache.cxf.systest.common;
 
 import junit.framework.Test;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bus.CeltixBusFactory;
-import org.objectweb.celtix.testutil.common.AbstractClientServerSetupBase;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.CeltixBusFactory;
+import org.apache.cxf.testutil.common.AbstractClientServerSetupBase;
 
 public abstract class ClientServerSetupBase extends AbstractClientServerSetupBase {
     protected String configFileName;
@@ -16,7 +16,7 @@ public abstract class ClientServerSetupBase extends AbstractClientServerSetupBas
 
     public void setUp() throws Exception {
         if (configFileName != null) {
-            System.setProperty("celtix.config.file", configFileName);
+            System.setProperty("cxf.config.file", configFileName);
         }
         CeltixBusFactory bf = new CeltixBusFactory();
         bus = new CeltixBusFactory().createBus();
@@ -29,7 +29,7 @@ public abstract class ClientServerSetupBase extends AbstractClientServerSetupBas
         bus.shutdown(true);
         bus = null;
         if (configFileName != null) {
-            System.clearProperty("celtix.config.file");
+            System.clearProperty("cxf.config.file");
         }
     } 
     

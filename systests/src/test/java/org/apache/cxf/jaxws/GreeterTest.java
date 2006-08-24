@@ -1,21 +1,21 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.net.URL;
 
 import org.w3c.dom.Node;
 
-import org.objectweb.celtix.Bus;
-import org.objectweb.celtix.bindings.BindingFactoryManager;
-import org.objectweb.celtix.bindings.soap2.SoapBindingFactory;
-import org.objectweb.celtix.bindings.soap2.SoapDestinationFactory;
-import org.objectweb.celtix.jaxws.support.JaxWsServiceFactoryBean;
-import org.objectweb.celtix.messaging.ConduitInitiatorManager;
-import org.objectweb.celtix.messaging.DestinationFactoryManager;
-import org.objectweb.celtix.service.Service;
-import org.objectweb.celtix.service.invoker.SimpleMethodInvoker;
-import org.objectweb.celtix.test.AbstractCXFTest;
-import org.objectweb.celtix.transports.local.LocalTransportFactory;
-import org.objectweb.hello_world_soap_http.GreeterImpl;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.bindings.soap2.SoapBindingFactory;
+import org.apache.cxf.bindings.soap2.SoapDestinationFactory;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.messaging.ConduitInitiatorManager;
+import org.apache.cxf.messaging.DestinationFactoryManager;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.invoker.SimpleMethodInvoker;
+import org.apache.cxf.test.AbstractCXFTest;
+import org.apache.cxf.transports.local.LocalTransportFactory;
+import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class GreeterTest extends AbstractCXFTest {
 
@@ -60,7 +60,7 @@ public class GreeterTest extends AbstractCXFTest {
         Service service = bean.create();
 
         assertEquals("SOAPService", service.getName().getLocalPart());
-        assertEquals("http://objectweb.org/hello_world_soap_http", service.getName().getNamespaceURI());
+        assertEquals("http://apache.org/hello_world_soap_http", service.getName().getNamespaceURI());
 
         bean.activateEndpoints();
 
@@ -72,7 +72,7 @@ public class GreeterTest extends AbstractCXFTest {
         
         assertNotNull(response);
         
-        addNamespace("h", "http://objectweb.org/hello_world_soap_http/types");
+        addNamespace("h", "http://apache.org/hello_world_soap_http/types");
         
         assertValid("/s:Envelope/s:Body", response);
         assertValid("//h:sayHiResponse", response);

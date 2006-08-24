@@ -1,8 +1,8 @@
-package org.objectweb.celtix.systest.common;
+package org.apache.cxf.systest.common;
 
 import junit.framework.TestCase;
 
-import org.objectweb.celtix.jaxws.spi.ProviderImpl;
+import org.apache.cxf.jaxws.spi.ProviderImpl;
 
 
 public abstract class ClientServerTestBase extends TestCase {

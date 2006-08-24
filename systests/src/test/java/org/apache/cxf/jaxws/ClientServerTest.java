@@ -1,4 +1,4 @@
-package org.objectweb.celtix.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
@@ -15,22 +15,22 @@ import javax.xml.ws.Response;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.objectweb.celtix.systest.common.ClientServerSetupBase;
-import org.objectweb.celtix.systest.common.ClientServerTestBase;
-import org.objectweb.celtix.systest.common.TestServerBase;
-import org.objectweb.hello_world_soap_http.BadRecordLitFault;
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.GreeterImpl;
-import org.objectweb.hello_world_soap_http.NoSuchCodeLitFault;
-import org.objectweb.hello_world_soap_http.SOAPService;
-import org.objectweb.hello_world_soap_http.types.BareDocumentResponse;
-import org.objectweb.hello_world_soap_http.types.GreetMeSometimeResponse;
+import org.apache.cxf.systest.common.ClientServerSetupBase;
+import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.hello_world_soap_http.BadRecordLitFault;
+import org.apache.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.GreeterImpl;
+import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
+import org.apache.hello_world_soap_http.SOAPService;
+import org.apache.hello_world_soap_http.types.BareDocumentResponse;
+import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 
 public class ClientServerTest extends ClientServerTestBase {
 
-    private final QName serviceName = new QName("http://objectweb.org/hello_world_soap_http",
+    private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");    
-    private final QName portName = new QName("http://objectweb.org/hello_world_soap_http",
+    private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                                              "SoapPort");
 
     public static class Server extends TestServerBase {
