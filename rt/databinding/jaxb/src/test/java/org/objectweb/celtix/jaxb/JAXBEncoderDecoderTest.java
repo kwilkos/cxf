@@ -29,10 +29,10 @@ import org.w3c.dom.Node;
 import junit.framework.TestCase;
 
 import org.apache.cxf.testutil.common.TestUtil;
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.types.GreetMe;
-import org.objectweb.hello_world_soap_http.types.StringStruct;
-import org.objectweb.type_test.doc.TypeTestPortType;
+import org.apache.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.types.GreetMe;
+import org.apache.hello_world_soap_http.types.StringStruct;
+import org.apache.type_test.doc.TypeTestPortType;
 
 /**
  * JAXBEncoderDecoderTest
@@ -234,14 +234,14 @@ public class JAXBEncoderDecoderTest extends TestCase {
         elNode.addChildElement("arg1").setValue(str);
         // Should unmarshal without problems when no schema used.
         obj = JAXBEncoderDecoder.unmarshall(context, null, elNode,  elName,
-            Class.forName("org.objectweb.hello_world_soap_http.types.StringStruct"));
+            Class.forName("org.apache.hello_world_soap_http.types.StringStruct"));
         assertNotNull(obj);
         assertEquals(StringStruct.class,  obj.getClass());
         assertEquals(str, ((StringStruct)obj).getArg1());
         try {
             // unmarshal with schema should raise exception.
             obj = JAXBEncoderDecoder.unmarshall(context, schema, elNode,  elName,
-                Class.forName("org.objectweb.hello_world_soap_http.types.StringStruct"));
+                Class.forName("org.apache.hello_world_soap_http.types.StringStruct"));
             fail("Should have thrown a ProtocolException");
         } catch (ProtocolException ex) {
             // expected - schema validation should fail.

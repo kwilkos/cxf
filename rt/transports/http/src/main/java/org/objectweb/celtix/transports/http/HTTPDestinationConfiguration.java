@@ -18,7 +18,7 @@ import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
  */
 public class HTTPDestinationConfiguration {
     private static final String HTTP_SERVER_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/configuration/transport/http-server";
+        "http://cxf.apache.org/configuration/transport/http-server";
     private static final String HTTP_SERVER_CONFIGURATION_ID = "http-server";
         
 

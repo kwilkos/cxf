@@ -13,14 +13,15 @@ import javax.wsdl.xml.WSDLReader;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class JAXBDataBindingTest extends TestCase {
 
@@ -81,13 +82,13 @@ public class JAXBDataBindingTest extends TestCase {
     public void testGetSchemas() throws Exception {
         assertEquals(schemaMap.size(), 2);
         assertTrue(schemaMap.containsKey("http://schemas.xmlsoap.org/wsdl/"));
-        assertTrue(schemaMap.containsKey("http://celtix.objectweb.org/transports/jms"));
+        assertTrue(schemaMap.containsKey("http://cxf.apache.org/transports/jms"));
         SchemaInfo wsdlSchema = schemaMap.get("http://schemas.xmlsoap.org/wsdl/");
-        SchemaInfo jmsSchema = schemaMap.get("http://celtix.objectweb.org/transports/jms");
+        SchemaInfo jmsSchema = schemaMap.get("http://cxf.apache.org/transports/jms");
         assertNotNull(wsdlSchema.getElement());
         assertNotNull(jmsSchema.getElement());
         assertEquals(wsdlSchema.getNamespaceURI(), "http://schemas.xmlsoap.org/wsdl/");
-        assertEquals(jmsSchema.getNamespaceURI(), "http://celtix.objectweb.org/transports/jms");
+        assertEquals(jmsSchema.getNamespaceURI(), "http://cxf.apache.org/transports/jms");
     }
     
     

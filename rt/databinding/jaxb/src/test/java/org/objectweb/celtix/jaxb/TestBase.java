@@ -11,7 +11,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import junit.framework.TestCase;
 
-import org.easymock.classextension.IMocksControl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.bindings.Binding;
 import org.apache.cxf.bindings.BindingFactory;
@@ -31,7 +30,9 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
-import org.objectweb.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.Greeter;
+
+import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
@@ -60,9 +61,9 @@ public class TestBase extends TestCase {
 
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bf);
 
-        String ns = "http://objectweb.org/hello_world_soap_http";
+        String ns = "http://apache.org/hello_world_soap_http";
         WSDLServiceFactory factory = new WSDLServiceFactory(bus, getClass()
-            .getResource("/org/objectweb/celtix/jaxb/resources/wsdl/hello_world.wsdl"),
+            .getResource("/org/apache/cxf/jaxb/resources/wsdl/hello_world.wsdl"),
                                                             new QName(ns, "SOAPService"));
 
         service = factory.create();

@@ -26,7 +26,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transports.local.LocalTransportFactory;
-import org.objectweb.hello_world_soap_http.GreeterImpl;
+import org.apache.hello_world_soap_http.GreeterImpl;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class JaxWsClientTest extends AbstractCXFTest {
@@ -81,7 +81,7 @@ public class JaxWsClientTest extends AbstractCXFTest {
         
         Service service = bean.create();
 
-        String namespace = "http://objectweb.org/hello_world_soap_http";
+        String namespace = "http://apache.org/hello_world_soap_http";
         EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName(namespace, "SoapPort"));
         JaxwsEndpointImpl endpoint = new JaxwsEndpointImpl(bus, service, ei);
         

@@ -1,5 +1,5 @@
-<ns1:sendReceiveData xmlns:ns1="http://objectweb.org/hello_world_rpclit">
-    <in xmlns:ns5="http://objectweb.org/hello_world_rpclit/types">
+<ns1:sendReceiveData xmlns:ns1="http://apache.org/hello_world_rpclit">
+    <in xmlns:ns5="http://apache.org/hello_world_rpclit/types">
 	<ns5:elem1>this is element 1</ns5:elem1>
 	<ns5:elem2>this is element 2</ns5:elem2>
 	<ns5:elem3>42</ns5:elem3>

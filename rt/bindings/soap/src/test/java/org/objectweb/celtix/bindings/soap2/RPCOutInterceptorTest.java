@@ -34,12 +34,12 @@ public class RPCOutInterceptorTest extends TestBase {
 //        XMLStreamReader xr = StaxUtils.createXMLStreamReader(bais);
 //        DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
 //        StaxUtils.toNextElement(reader);
-//        assertEquals(new QName("http://objectweb.org/hello_world_rpclit", "sendReceiveData"),
+//        assertEquals(new QName("http://apache.org/hello_world_rpclit", "sendReceiveData"),
 //                     reader.getName());
 //        
 //        StaxUtils.nextEvent(reader);
 //        StaxUtils.toNextElement(reader);
-//        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "in"),
+//        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "in"),
 //                     reader.getName());
 //
 //        StaxUtils.toNextText(reader);
@@ -58,17 +58,17 @@ public class RPCOutInterceptorTest extends TestBase {
 //        XMLStreamReader xr = StaxUtils.createXMLStreamReader(bais);
 //        DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
 //        StaxUtils.toNextElement(reader);
-//        assertEquals(new QName("http://objectweb.org/hello_world_rpclit", "sendReceiveDataResponse"),
+//        assertEquals(new QName("http://apache.org/hello_world_rpclit", "sendReceiveDataResponse"),
 //                     reader.getName());
 //        
 //        StaxUtils.nextEvent(reader);
 //        StaxUtils.toNextElement(reader);
-//        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "out"), reader.getName());
+//        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "out"), reader.getName());
 //
 //        StaxUtils.nextEvent(reader);
 //        StaxUtils.toNextElement(reader);
 //
-//        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "elem1"), reader.getName());
+//        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "elem1"), reader.getName());
 //
 //        StaxUtils.nextEvent(reader);
 //        StaxUtils.toNextText(reader);
@@ -78,7 +78,7 @@ public class RPCOutInterceptorTest extends TestBase {
 //
 //    public BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
 //        BindingInfo binding = super.getTestService(wsdlUrl, port);
-//        BindingOperationInfo op = binding.getOperation(new QName("http://objectweb.org/hello_world_rpclit",
+//        BindingOperationInfo op = binding.getOperation(new QName("http://apache.org/hello_world_rpclit",
 //                                                                 "sendReceiveData"));
 //        OperationInfo oi = op.getOperationInfo();
 //        oi.setProperty("test.writer.factory", getTestWriterFactory(GreeterRPCLit.class));

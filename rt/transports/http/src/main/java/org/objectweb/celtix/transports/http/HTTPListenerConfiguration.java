@@ -14,7 +14,7 @@ import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
  */
 public class HTTPListenerConfiguration {
     private static final String HTTP_LISTENER_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/configuration/transport/http-listener";
+        "http://cxf.apache.org/configuration/transport/http-listener";
     
     private Configuration config;
     private HTTPListenerPolicy policy;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extensions xmlns="http://celtix.objectweb.org/bus/extension">
+<extensions xmlns="http://cxf.apache.org/bus/extension">
 
     <extension class="org.apache.cxf.bindings.soap2.SoapBindingFactory" deferred="true">
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
-        <namespace>http://celtix.objectweb.org/transports/jms</namespace>
+        <namespace>http://cxf.apache.org/transports/jms</namespace>
     </extension>
     
 </extensions>

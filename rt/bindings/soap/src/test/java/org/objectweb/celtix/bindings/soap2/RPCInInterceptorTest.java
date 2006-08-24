@@ -54,7 +54,7 @@ public class RPCInInterceptorTest extends TestBase {
 //
 //        assertEquals(3, binding.getOperations().size());
 //
-//        BindingOperationInfo op = binding.getOperation(new QName("http://objectweb.org/hello_world_rpclit",
+//        BindingOperationInfo op = binding.getOperation(new QName("http://apache.org/hello_world_rpclit",
 //                                                                 "sendReceiveData"));
 //        assertNotNull(op);
 //        assertEquals(1, op.getInput().getMessageInfo().size());
@@ -62,7 +62,7 @@ public class RPCInInterceptorTest extends TestBase {
 //        MessageInfo msg = op.getInput().getMessageInfo();
 //        assertEquals(1, msg.getMessageParts().size());
 //        MessagePartInfo part = msg.getMessageParts().get(0);
-//        assertEquals(new QName("http://objectweb.org/hello_world_rpclit", "in"), part.getName());
+//        assertEquals(new QName("http://apache.org/hello_world_rpclit", "in"), part.getName());
 //
 //        OperationInfo oi = op.getOperationInfo();
 //        oi.setProperty("test.reader.factory", getTestReaderFactory(GreeterRPCLit.class));

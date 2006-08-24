@@ -14,13 +14,13 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.staxutils.StaxStreamFilter;
-import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
-import org.objectweb.hello_world_doc_lit_bare.types.TradePriceData;
-import org.objectweb.hello_world_rpclit.GreeterRPCLit;
-import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.types.GreetMe;
-import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
+import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
+import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
+import org.apache.hello_world_rpclit.GreeterRPCLit;
+import org.apache.hello_world_rpclit.types.MyComplexStruct;
+import org.apache.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
  
 public class XMLStreamDataReaderTest extends TestCase {
 
@@ -69,7 +69,7 @@ public class XMLStreamDataReaderTest extends TestCase {
     public void testReadRPC() throws Exception {
         JAXBDataReaderFactory rf = getTestReaderFactory(GreeterRPCLit.class);
 
-        QName[] tags = {new QName("http://objectweb.org/hello_world_rpclit", "sendReceiveData")};
+        QName[] tags = {new QName("http://apache.org/hello_world_rpclit", "sendReceiveData")};
 
         reader = getTestReader("../resources/greetMeRpcLitReq.xml");
         assertNotNull(reader);
@@ -78,7 +78,7 @@ public class XMLStreamDataReaderTest extends TestCase {
 
         DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
         assertNotNull(dr);
-        Object val = dr.read(new QName("http://objectweb.org/hello_world_rpclit", "in"),
+        Object val = dr.read(new QName("http://apache.org/hello_world_rpclit", "in"),
                              localReader,
                              MyComplexStruct.class);
         assertNotNull(val);
@@ -98,7 +98,7 @@ public class XMLStreamDataReaderTest extends TestCase {
         
         DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
         assertNotNull(dr);
-        Object val = dr.read(new QName("http://objectweb.org/hello_world_doc_lit_bare/types", "inout"),
+        Object val = dr.read(new QName("http://apache.org/hello_world_doc_lit_bare/types", "inout"),
                              reader,
                              null);
 

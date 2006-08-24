@@ -1,1 +1,1 @@
-<ns4:greetMe xmlns:ns4="http://objectweb.org/hello_world_soap_http/types"><ns4:requestType>TestSOAPInputPMessage</ns4:requestType></ns4:greetMe>
+<ns4:greetMe xmlns:ns4="http://apache.org/hello_world_soap_http/types"><ns4:requestType>TestSOAPInputPMessage</ns4:requestType></ns4:greetMe>

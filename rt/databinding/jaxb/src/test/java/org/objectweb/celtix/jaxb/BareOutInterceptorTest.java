@@ -14,8 +14,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.objectweb.hello_world_soap_http.types.GreetMe;
-import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
+import org.apache.hello_world_soap_http.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
 
 
 public class BareOutInterceptorTest extends TestBase {
@@ -56,12 +56,12 @@ public class BareOutInterceptorTest extends TestBase {
         XMLStreamReader xr = StaxUtils.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeResponse"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "greetMeResponse"),
                      reader.getName());
         
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "responseType"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "responseType"),
                      reader.getName());
     }
 
@@ -82,12 +82,12 @@ public class BareOutInterceptorTest extends TestBase {
         XMLStreamReader xr = StaxUtils.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "greetMe"),
                      reader.getName());
         
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "requestType"),
                      reader.getName());
     }
 }

@@ -27,9 +27,9 @@ public class WrappedInInterceptorTest extends TestBase {
         List<?> objs = message.getContent(List.class);
         assertTrue(objs != null && objs.size() > 0);
         Object obj = objs.get(0);
-        assertTrue(obj instanceof org.objectweb.hello_world_soap_http.types.GreetMe);
-        org.objectweb.hello_world_soap_http.types.GreetMe gm
-            = (org.objectweb.hello_world_soap_http.types.GreetMe)obj;
+        assertTrue(obj instanceof org.apache.hello_world_soap_http.types.GreetMe);
+        org.apache.hello_world_soap_http.types.GreetMe gm
+            = (org.apache.hello_world_soap_http.types.GreetMe)obj;
 
         assertEquals("TestSOAPInputPMessage", gm.getRequestType());
     }
@@ -50,10 +50,10 @@ public class WrappedInInterceptorTest extends TestBase {
         Object retValue = objs.get(0);
         assertNotNull(retValue);
 
-        assertTrue(retValue instanceof org.objectweb.hello_world_soap_http.types.GreetMeResponse);
+        assertTrue(retValue instanceof org.apache.hello_world_soap_http.types.GreetMeResponse);
 
-        org.objectweb.hello_world_soap_http.types.GreetMeResponse gm
-            = (org.objectweb.hello_world_soap_http.types.GreetMeResponse)retValue;
+        org.apache.hello_world_soap_http.types.GreetMeResponse gm
+            = (org.apache.hello_world_soap_http.types.GreetMeResponse)retValue;
         assertEquals("TestSOAPOutputPMessage", gm.getResponseType());
     }
 }

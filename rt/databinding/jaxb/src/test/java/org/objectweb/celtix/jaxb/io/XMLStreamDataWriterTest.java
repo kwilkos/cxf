@@ -17,13 +17,13 @@ import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.objectweb.hello_world_doc_lit_bare.PutLastTradedPricePortType;
-import org.objectweb.hello_world_doc_lit_bare.types.TradePriceData;
-import org.objectweb.hello_world_rpclit.GreeterRPCLit;
-import org.objectweb.hello_world_rpclit.types.MyComplexStruct;
-import org.objectweb.hello_world_soap_http.Greeter;
-import org.objectweb.hello_world_soap_http.types.GreetMe;
-import org.objectweb.hello_world_soap_http.types.GreetMeResponse;
+import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
+import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
+import org.apache.hello_world_rpclit.GreeterRPCLit;
+import org.apache.hello_world_rpclit.types.MyComplexStruct;
+import org.apache.hello_world_soap_http.Greeter;
+import org.apache.hello_world_soap_http.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
 
 public class XMLStreamDataWriterTest extends TestCase {
 
@@ -50,7 +50,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertNotNull(dw);
         
         String val = new String("TESTOUTPUTMESSAGE");
-        QName elName = new QName("http://objectweb.org/hello_world_rpclit/types", 
+        QName elName = new QName("http://apache.org/hello_world_rpclit/types", 
                                  "in");
         
         dw.write(val, elName, streamWriter);
@@ -60,7 +60,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "in"),
+        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "in"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
@@ -79,7 +79,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         val.setElem2("This is element 2");
         val.setElem3(1);
         
-        QName elName = new QName("http://objectweb.org/hello_world_rpclit/types", 
+        QName elName = new QName("http://apache.org/hello_world_rpclit/types", 
                                  "in");
         
         dw.write(val, elName, streamWriter);
@@ -89,12 +89,12 @@ public class XMLStreamDataWriterTest extends TestCase {
         XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "in"),
+        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "in"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_rpclit/types", "elem1"),
+        assertEquals(new QName("http://apache.org/hello_world_rpclit/types", "elem1"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
@@ -113,7 +113,7 @@ public class XMLStreamDataWriterTest extends TestCase {
         val.setTickerPrice(1.0f);
         
         dw.write(val,
-                 new QName("http://objectweb.org/hello_world_doc_lit_bare/types", "inout"),
+                 new QName("http://apache.org/hello_world_doc_lit_bare/types", "inout"),
                  streamWriter);
         streamWriter.flush();
 
@@ -121,12 +121,12 @@ public class XMLStreamDataWriterTest extends TestCase {
         XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_doc_lit_bare/types", "inout"),
+        assertEquals(new QName("http://apache.org/hello_world_doc_lit_bare/types", "inout"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_doc_lit_bare/types", "tickerSymbol"),
+        assertEquals(new QName("http://apache.org/hello_world_doc_lit_bare/types", "tickerSymbol"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
@@ -150,12 +150,12 @@ public class XMLStreamDataWriterTest extends TestCase {
         XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "greetMe"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "greetMe"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "requestType"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "requestType"),
                      reader.getName());
         
         StaxUtils.nextEvent(reader);
@@ -179,12 +179,12 @@ public class XMLStreamDataWriterTest extends TestCase {
         XMLStreamReader xr = inFactory.createXMLStreamReader(bais);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xr);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "greetMeResponse"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "greetMeResponse"),
                      reader.getName());
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://objectweb.org/hello_world_soap_http/types", "responseType"),
+        assertEquals(new QName("http://apache.org/hello_world_soap_http/types", "responseType"),
                      reader.getName());
         
         StaxUtils.nextEvent(reader);

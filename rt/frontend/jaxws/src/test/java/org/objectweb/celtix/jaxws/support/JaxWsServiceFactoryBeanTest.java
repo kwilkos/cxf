@@ -18,7 +18,7 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
-import org.objectweb.hello_world_soap_http.GreeterImpl;
+import org.apache.hello_world_soap_http.GreeterImpl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
@@ -41,12 +41,12 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
         Service service = bean.create();
 
         assertEquals("SOAPService", service.getName().getLocalPart());
-        assertEquals("http://objectweb.org/hello_world_soap_http", service.getName().getNamespaceURI());
+        assertEquals("http://apache.org/hello_world_soap_http", service.getName().getNamespaceURI());
         
         InterfaceInfo intf = service.getServiceInfo().getInterface();
         
         OperationInfo op = intf.getOperation(
-            new QName("http://objectweb.org/hello_world_soap_http", "sayHi"));
+            new QName("http://apache.org/hello_world_soap_http", "sayHi"));
         
         Method m = (Method) op.getProperty(Method.class.getName());
         assertNotNull(m);

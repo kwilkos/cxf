@@ -17,15 +17,15 @@ public final class JMSConstants {
     public static final String JMS_CLIENT_RECEIVE_TIMEOUT = "org.apache.cxf.jms.client.timeout";
     
     public static final String JMS_SERVER_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/transports/jms/jms-server-config";
+        "http://cxf.apache.org/bus/transports/jms/jms-server-config";
     public static final String JMS_CLIENT_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/transports/jms/jms-client-config";
+        "http://cxf.apache.org/bus/transports/jms/jms-client-config";
     public static final String ENDPOINT_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/jaxws/endpoint-config";
+        "http://cxf.apache.org/bus/jaxws/endpoint-config";
     public static final String SERVICE_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/jaxws/service-config";
+        "http://cxf.apache.org/bus/jaxws/service-config";
     public static final String PORT_CONFIGURATION_URI = 
-        "http://celtix.objectweb.org/bus/jaxws/port-config";
+        "http://cxf.apache.org/bus/jaxws/port-config";
     
     public static final String JMS_CLIENT_CONFIG_ID = "jms-client";
     public static final String JMS_SERVER_CONFIG_ID = "jms-server";

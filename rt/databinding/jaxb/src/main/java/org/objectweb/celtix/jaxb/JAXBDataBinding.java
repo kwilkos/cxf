@@ -17,8 +17,6 @@ import org.w3c.dom.Document;
 
 import org.xml.sax.SAXException;
 
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
@@ -30,6 +28,9 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public final class JAXBDataBinding implements DataBinding {
 

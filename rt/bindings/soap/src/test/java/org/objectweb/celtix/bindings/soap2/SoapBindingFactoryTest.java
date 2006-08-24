@@ -45,7 +45,7 @@ public class SoapBindingFactoryTest extends TestCase {
 
         WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);
         ServiceInfo serviceInfo = builder
-            .buildService(d, new QName("http://objectweb.org/hello_world_soap_http", "SOAPService"));
+            .buildService(d, new QName("http://apache.org/hello_world_soap_http", "SOAPService"));
 
         BindingInfo bi = serviceInfo.getBindings().iterator().next();
 
@@ -55,7 +55,7 @@ public class SoapBindingFactoryTest extends TestCase {
         assertEquals("document", sbi.getStyle());
         assertEquals("http://schemas.xmlsoap.org/soap/http", sbi.getTransportURI());
 
-        BindingOperationInfo boi = sbi.getOperation(new QName("http://objectweb.org/hello_world_soap_http",
+        BindingOperationInfo boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap_http",
                                                               "sayHi"));
         SoapOperationInfo sboi = boi.getExtensor(SoapOperationInfo.class);
         assertNotNull(sboi);

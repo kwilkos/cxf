@@ -24,7 +24,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
  */
 public class HTTPConduitConfiguration {
     private static final String HTTP_CLIENT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/configuration/transport/http-client";
+        "http://cxf.apache.org/configuration/transport/http-client";
     private static final String HTTP_CLIENT_CONFIGURATION_ID = "http-client";
 
     final String address;

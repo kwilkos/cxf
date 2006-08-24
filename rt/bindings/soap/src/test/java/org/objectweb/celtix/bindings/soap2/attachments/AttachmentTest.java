@@ -126,7 +126,7 @@ public class AttachmentTest extends TestBase {
 
     public void testDoMarshallXopEnabled() throws Exception {
         // mashalling data object
-        QName elName = new QName("http://celtix.objectweb.org/bindings/soap2/attachments/types", "Detail");
+        QName elName = new QName("http://cxf.apache.org/bindings/soap2/attachments/types", "Detail");
         soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
         try {
             DetailType detailObj = TestUtil.createDetailObject(this.getClass());

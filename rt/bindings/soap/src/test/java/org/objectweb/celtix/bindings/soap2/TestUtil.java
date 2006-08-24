@@ -52,17 +52,17 @@ public final class TestUtil {
         // setup the message result with attachment.class
         ByteArrayDataSource bads = new ByteArrayDataSource(clazz.getResourceAsStream("primarySoapPart.xml"),
                                                            "Application/xop+xml");
-        String cid = AttachmentUtil.createContentID("http://celtix.objectweb.org");
+        String cid = AttachmentUtil.createContentID("http://cxf.apache.org");
         soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
 
         // setup the message attachments
         Collection<Attachment> attachments = soapMessage.getAttachments();
-        String cidAtt1 = "cid:http://celtix.objectweb.org/me.jpg";
+        String cidAtt1 = "cid:http://cxf.apache.org/me.jpg";
         bads = new ByteArrayDataSource(clazz.getResourceAsStream("me.jpg"), "image/jpg");
         AttachmentImpl att1 = new AttachmentImpl(cidAtt1, new DataHandler(bads));
         att1.setXOP(true);
         attachments.add(att1);
-        String cidAtt2 = "cid:http://celtix.objectweb.org/my.wav";
+        String cidAtt2 = "cid:http://cxf.apache.org/my.wav";
         bads = new ByteArrayDataSource(clazz.getResourceAsStream("my.wav"),
                                        "Application/octet-stream");
         AttachmentImpl att2 = new AttachmentImpl(cidAtt2, new DataHandler(bads));

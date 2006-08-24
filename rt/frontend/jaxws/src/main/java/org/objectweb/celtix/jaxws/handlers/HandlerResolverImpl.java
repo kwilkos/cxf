@@ -15,7 +15,7 @@ import org.apache.cxf.Bus;
 
 public class HandlerResolverImpl implements HandlerResolver {
     public static final String PORT_CONFIGURATION_URI =
-        "http://celtix.objectweb.org/bus/jaxws/port-config";
+        "http://cxf.apache.org/bus/jaxws/port-config";
 
     private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();
     //private Configuration busConfiguration;
