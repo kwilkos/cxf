@@ -49,13 +49,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import org.apache.ws.commons.schema.XmlSchema;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
+
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public class SchemaValidator extends AbstractValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);

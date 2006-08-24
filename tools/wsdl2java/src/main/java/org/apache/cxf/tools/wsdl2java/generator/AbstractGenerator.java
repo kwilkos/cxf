@@ -8,9 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
@@ -20,6 +17,10 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.cxf.version.Version;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 
 public abstract class AbstractGenerator {
    

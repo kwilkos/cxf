@@ -52,7 +52,6 @@ import com.sun.tools.xjc.api.XJC;
 import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import com.sun.tools.xjc.model.Model;
 
-import org.apache.velocity.app.Velocity;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.WSDLHelper;
@@ -70,6 +69,8 @@ import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdl2java.generator.AbstractGenerator;
 import org.apache.cxf.tools.wsdl2java.processor.internal.ClassNameAllocatorImpl;
 import org.apache.cxf.tools.wsdl2java.processor.internal.JAXBBindingMerger;
+
+import org.apache.velocity.app.Velocity;
 
 public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);

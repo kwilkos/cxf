@@ -27,11 +27,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.tools.common.WSDLConstants;
+
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
-import org.apache.cxf.tools.common.WSDLConstants;
 
 public class WSDLElementReferenceValidator {
     private Map<String, XmlSchema> schemas;
