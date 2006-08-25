@@ -14,14 +14,14 @@ public class ProxyTest extends TestCase {
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");   
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
-                                             "SoapPort");
+                                             "SoapPort1");
     
         
     public void testCreatePort() throws Exception {
         
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
-
+        
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
 
