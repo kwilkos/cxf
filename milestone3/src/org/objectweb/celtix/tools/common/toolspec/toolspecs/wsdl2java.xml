@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<toolspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xmlns:xhtml="http://www.w3.org/TR/xhtml1/strict"
+	  xsi:schemaLocation="http://www.xsume.com/Xutil/ToolSpecification http://www.xsume.com/schema/xutil/tool-specification.xsd"
+	  xmlns="http://www.xsume.com/Xutil/ToolSpecification"
+	  xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
+
+    <annotation> Examples :
+    wsdltojava HelloWorld.wsdl
+    wsdltojava -e GreetService -p com.iona.greeting Greeting.wsdl
+    wsdltojava -interface -types -i PortType1 -i PortType2 multi_porttypes.wsdl
+    </annotation>
+
+    <usage>
+	<optionGroup id="options">
+	    <option id="packagename" maxOccurs="unbounded">
+		<annotation>The java package name to use for the generated code.
+		Also, optionally specify the wsdl namespace mapping to a particular java packagename.</annotation>
+		<switch>p</switch>
+		<associatedArgument placement="afterSpace">
+		    <valuetype>IdentifyString</valuetype>
+		    <annotation>[wsdl namespace =]Package Name</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="webservice" maxOccurs="unbounded">
+		<annotation>The name of the Web service in the WSDL file being processed.
+		Also, optionally specify the port name to use.</annotation>
+		<switch>e</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>web-service-name[:port-name(s) delimited by commas]</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="binding" maxOccurs="1">
+		<annotation>Specify the binding to use if the service and port are not
+		specified and there is more than one binding.</annotation>
+		<switch>b</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>binding-name</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="porttype" maxOccurs="unbounded">
+		<annotation>Specify the portType to use.
+		This option can be specified multiple times.</annotation>
+		<switch>i</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>port-type-name</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="outputdir" maxOccurs="1">
+		<annotation>The directory in which the code is placed</annotation>
+		<switch>d</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>output-directory</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="interface" maxOccurs="1">
+		<annotation>Generates only the interface.</annotation>
+		<switch>interface</switch>
+	    </option>
+
+	    <option id="types" maxOccurs="1">
+		<annotation>Generates code for only the types.</annotation>
+		<switch>types</switch>
+	    </option>
+
+	    <option id="impl" maxOccurs="1">
+		<annotation>Generate the dummy service implementation.</annotation>
+		<switch>impl</switch>
+	    </option>
+
+	    <option id="server" maxOccurs="1">
+		<annotation>Generates only the server code.</annotation>
+		<switch>server</switch>
+	    </option>
+
+	    <option id="client" maxOccurs="1">
+		<annotation>Generates only the client code.</annotation>
+		<switch>client</switch>
+	    </option>
+
+	    <option id="all" maxOccurs="1">
+		<annotation>Generates code for all interfaces and types.</annotation>
+		<switch>all</switch>
+	    </option>
+	    <!--
+		<option id="sample" maxOccurs="1">
+		<annotation>Generate Sample Demo Client.</annotation>
+		<switch>sample</switch>
+		</option>
+	    --> 		
+	    <option id="ant" maxOccurs="1">
+		<annotation>ant script generation.</annotation>
+		<switch>ant</switch>
+	    </option>
+
+	</optionGroup>
+	<optionGroup id="common_options">
+	    <option id="help" maxOccurs="1">
+		<annotation>Display detailed information for options.</annotation>
+		<switch>h</switch>
+		<switch>?</switch>
+		<switch>help</switch>
+	    </option>
+	    
+	    <option id="version">
+		<annotation>Display the version of the tool.</annotation>
+		<switch>v</switch>
+	    </option>
+
+	    <option id="verbose">
+		<annotation>Verbose mode</annotation>
+		<switch>verbose</switch>
+		<switch>V</switch>
+	    </option>
+
+	    <option id="quiet">
+		<annotation>Quiet mode</annotation>
+		<switch>quiet</switch>
+		<switch>q</switch>
+	    </option>
+
+	    <!-- TODO: After the JAX-WS wsdl2java tool deprecated, this option should be removed -->
+	    <option id="celtix">
+		<annotation>Indicate it's a celtix wsdl2java tool</annotation>
+		<switch>celtix</switch>
+	    </option>
+
+	</optionGroup>
+	<argument id="wsdlurl" minOccurs="1" maxOccurs="1">
+	    <annotation>WSDL/SCHEMA URL</annotation>
+	</argument>
+    </usage>
+</toolspec>

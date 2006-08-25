@@ -1,0 +1,78 @@
+<wsa:EndpointReference
+     xmlns:wsa="http://www.w3.org/2005/08/addressing"
+     xmlns:fabrikam="http://example.com/fabrikam"
+     xmlns:wsdli="http://www.w3.org/2004/08/wsdl-instance"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:wsaw="http://www.w3.org/2005/08/addressing/wsdl"
+     xmlns:target="http://objectweb.org/hello_world_soap_http">
+   <wsa:Address>http://example.com/fabrikam/acct</wsa:Address>
+   <wsa:Metadata>
+<wsdl:definitions name="HelloWorld" targetNamespace="http://objectweb.org/hello_world_soap_http" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:tns="http://objectweb.org/hello_world_soap_http" 
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <wsdl:types>
+        <schema targetNamespace="http://objectweb.org/hello_world_soap_http" 
+            xmlns="http://www.w3.org/2001/XMLSchema">
+            <element name="responseType" type="xsd:string"/>
+            <element name="requestType" type="xsd:string"/>
+        </schema>
+    </wsdl:types>
+    <wsdl:message name="sayHiRequest"/>
+    <wsdl:message name="sayHiResponse">
+        <wsdl:part element="tns:responseType" name="theResponse"/>
+    </wsdl:message>
+    <wsdl:message name="greetMeRequest">
+        <wsdl:part element="tns:requestType" name="me"/>
+    </wsdl:message>
+    <wsdl:message name="greetMeResponse">
+        <wsdl:part element="tns:responseType" name="theResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="Greeter">
+        <wsdl:operation name="sayHi">
+            <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
+            <wsdl:output message="tns:sayHiResponse" name="sayHiResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="greetMe">
+            <wsdl:input message="tns:greetMeRequest" name="greetMeRequest"/>
+            <wsdl:output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="Greeter_SOAPBinding" type="tns:Greeter">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="sayHi">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="sayHiRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="sayHiResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="greetMe">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="greetMeRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="greetMeResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="SOAPService">
+        <wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort">
+            <soap:address location="http://localhost:9000"/>
+            <http-conf:client/>
+            <http-conf:server/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
+   </wsa:Metadata>
+   <wsa:ReferenceParameters>
+       <fabrikam:CustomerKey>123456789</fabrikam:CustomerKey>
+       <fabrikam:ShoppingCart>ABCDEFG</fabrikam:ShoppingCart>
+   </wsa:ReferenceParameters>
+</wsa:EndpointReference>

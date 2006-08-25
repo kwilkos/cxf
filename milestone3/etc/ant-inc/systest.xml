@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project name="celtix-systests" basedir="../..">
+
+	<import file="./common_test.xml"/>
+	<import file="./compile.xml"/>
+  
+	<target name="system.test" description="Run the system tests" depends="src.compile,systest.compile,system.test.nodeps"/>
+    
+	<target name="system.test.resources">
+        <mkdir dir="${basedir}/build/classes-tests/system"/>
+        <copy todir="${basedir}/build/classes-tests/system">
+            <fileset dir="${basedir}/test/system" includes="**/resource/**/*"/>
+        </copy>
+        <copy todir="${basedir}/build/classes-tests/system">
+            <fileset dir="${basedir}/etc/test">
+                <include name="logging.properties"/>
+                <include name="log4j.properties"/>
+            </fileset>
+        </copy>
+    </target>
+    
+  	<target name="system.test.nodeps" depends="system.test.resources">
+    	<runjunittest type="system"/>
+    </target>
+</project>

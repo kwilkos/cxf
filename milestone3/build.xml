@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project name="celtix" default="build" basedir=".">
+    <property file="build.properties"/>
+    <property file="etc/celtix.version"/>
+
+    <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,system.test,release" description="Main build target"/>
+	<target name="test" depends="unit.test,system.test" description="Run unit and system tests"/>
+	
+    <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
+	
+
+    <!-- Load the path definitions -->
+    <import file="etc/ant-inc/paths.xml"/>
+
+    <!-- Load the codegen targets -->
+    <import file="etc/ant-inc/codegen.xml"/>
+
+    <!-- Load the compile targets -->
+    <import file="etc/ant-inc/compile.xml"/>
+
+    <!-- Load the unit test targets -->
+    <import file="etc/ant-inc/unittest.xml"/>
+
+    <!-- Load the system test targets -->
+    <import file="etc/ant-inc/systest.xml"/>
+
+    <!-- Load the coverage targets -->
+    <import file="etc/ant-inc/coverage.xml"/>
+
+    <!-- Load the javadoc targets -->
+    <import file="etc/ant-inc/javadoc.xml"/>
+
+    <!-- Load the eclipse targets -->
+    <import file="etc/ant-inc/eclipse.xml"/>
+
+    <!-- Load the release targets -->
+    <import file="etc/ant-inc/release.xml"/>
+	
+    <!-- Target to clean the build dir -->
+    <import file="etc/ant-inc/clean.xml"/>
+
+
+</project>
