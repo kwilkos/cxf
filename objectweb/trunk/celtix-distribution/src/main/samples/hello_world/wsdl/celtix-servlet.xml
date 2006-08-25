@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<endpoints>
+
+    <endpoint
+        name="hello_world"
+        interface="org.objectweb.hello_world_soap_http.Greeter"
+        implementation="demo.hw.server.GreeterImpl"
+        wsdl="WEB-INF/wsdl/hello_world.wsdl"
+        service="{http://objectweb.org/hello_world_soap_http}SOAPService"
+        port="{http://objectweb.org/hello_world_soap_http}SOAPPort"
+        url-pattern="/hello_world" />
+
+</endpoints>

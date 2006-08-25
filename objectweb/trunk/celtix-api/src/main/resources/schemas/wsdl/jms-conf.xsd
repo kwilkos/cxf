@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:jms-conf="http://celtix.objectweb.org/transports/jms/jms-conf" 
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
+           targetNamespace="http://celtix.objectweb.org/transports/jms/jms-conf" 
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified" 
+           jaxb:version="2.0">
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+    
+    <xs:complexType name="JMSSessionPoolConfigPolicy">
+        <xs:annotation>
+            <xs:documentation>JMS Session pool configuration policy</xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="lowWaterMark" type="xs:int" default="20"/>
+        <xs:attribute name="highWaterMark" type="xs:int" default="500" />
+    </xs:complexType>
+    
+    <xs:complexType name="JMSClientConfig">
+        <xs:attribute name="clientReceiveTimeout" type="xs:long" default="0"/>
+        <xs:attribute name="messageTimeToLive" type="xs:long" default="0" />
+    </xs:complexType>
+    
+    <xs:complexType name="JMSServerConfig">
+        <xs:attribute name="messageTimeToLive" type="xs:long" default="0" />
+        <xs:attribute name="durableSubscriptionClientId" type="xs:string" />
+    </xs:complexType>
+    
+    <xs:element name="sessionPoolConfig" type="jms-conf:JMSSessionPoolConfigPolicy"/>
+    <xs:element name="clientConfig" type="jms-conf:JMSClientConfig"/>
+    <xs:element name="serverConfig" type="jms-conf:JMSServerConfig"/>
+    
+</xs:schema>

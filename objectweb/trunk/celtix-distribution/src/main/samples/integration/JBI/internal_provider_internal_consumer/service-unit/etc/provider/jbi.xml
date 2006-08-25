@@ -1,0 +1,16 @@
+<?xml version='1.0' ?>
+<jbi version="1.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/jbi"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/jbi jbi.xsd">
+  <services binding-component = "false" 
+            xmlns:sns1="http://objectweb.org/hello_world">
+    
+    <provides interface-name = "sns1:Greeter" 
+              service-name = "sns1:HelloWorldService" 
+              endpoint-name = "SE_Endpoint">
+      
+    </provides>
+
+  </services>
+</jbi>

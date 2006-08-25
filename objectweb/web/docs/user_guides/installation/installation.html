@@ -1,0 +1,556 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20051212;13312000">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060516;15013259">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Celtix
+Installation Guide</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.Downloading Celtix|outline">Downloading
+		Celtix	1</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.Installation Prerequisites|outline">Installation
+		Prerequisites	1</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.1.Java 5 Developer&rsquo;s Kit|outline">Java
+		5 Developer&rsquo;s Kit	1</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.2.Apache Ant 1.6|outline">Apache Ant
+		1.6	2</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.Installation Instructions|outline">Installation
+		Instructions	2</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#3.1.Installing the Celtix Binary Distribution|outline">Installing
+		the Celtix Binary Distribution	2</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#3.2.Installing and Building the Celtix Source Distribution|outline">Installing
+		and Building the Celtix Source Distribution	3</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.Testing the Installation|outline">Testing
+		the Installation	4</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.1.Setting the Environment for the Binary Distribution|outline">Setting
+		the Environment for the Binary Distribution	4</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.2.Setting the Environment for the Source Distribution|outline">Setting
+		the Environment for the Source Distribution	5</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.3.Running a Sample Application|outline">Running
+		a Sample Application	6</A></I></FONT></DL>
+</DIV>
+<H1><A NAME="1.Downloading Celtix|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Downloading
+Celtix</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>You can download a Celtix distribution from the
+Celtix project page on the ObjectWeb site:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://forge.objectweb.org/projects/celtix">http://forge.objectweb.org/projects/celtix</A></B></FONT></FONT></FONT><A HREF="http://forge.objectweb.org/projects/celtix">.</A></FONT></P>
+<P><FONT SIZE=2>Celtix is provided as an extractable JAR file.  You
+can select either a source or binary distribution.  Each distribution
+is also provided under two licensing agreements: </FONT>
+</P>
+<UL>
+	<LI><P><FONT SIZE=2>Eclipse Public License (EPL) </FONT>
+	</P>
+	<LI><P><FONT SIZE=2>Lesser General Public License (LGPL)</FONT></P>
+</UL>
+<P><FONT SIZE=2>The available JAR files are as follows:</FONT></P>
+<TABLE WIDTH=543 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=122>
+	<COL WIDTH=200>
+	<COL WIDTH=195>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=122 BGCOLOR="#e6e6e6">
+				<P><I>Distribution</I></TH>
+			<TH WIDTH=200 BGCOLOR="#e6e6e6">
+				<P><I>EPL</I></TH>
+			<TH WIDTH=195 BGCOLOR="#e6e6e6">
+				<P><I>LGPL</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=122>
+				<P>Source</TD>
+			<TD WIDTH=200>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-1.0-src-epl.jar</B></FONT></FONT></FONT></TD>
+			<TD WIDTH=195>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-1.0-src-lgpl.jar</B></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=122>
+				<P>Binary</TD>
+			<TD WIDTH=200>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-1.0-bin-epl.jar</B></FONT></FONT></FONT></TD>
+			<TD WIDTH=195>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-1.0-bin-lgpl.jar</B></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2>Download the version that best suits your needs. 
+Users interested in running the product samples and/or writing Celtix
+applications should select the binary distribution.  Users interested
+in reviewing the source code, and perhaps contributing to the Celtix
+project, might choose to use the source distribution.</FONT></P>
+<H1><A NAME="2.Installation Prerequisites|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Installation
+Prerequisites</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Before installing Celtix 1.0, you must ensure that
+you have the following product versions installed:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2>JDK 1.5.0_06 (JDK 5.0 update 6) and
+	above.  Celtix requires this version of the JDK for compilation and
+	execution.</FONT></P>
+	<LI><P><FONT SIZE=2>Apache Ant 1.6.5 and above. Ant is optionally
+	used to compile and execute Celtix applications.  It is also
+	possible to compile and run Celtix applications using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>javac</B></FONT></FONT></FONT>
+	and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	directly.  For further information on this alternative approach, see
+	the discussion in each sample application's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>README</B></FONT></FONT></FONT>
+	file.</FONT></P>
+</UL>
+<H2><A NAME="2.1.Java 5 Developer&rsquo;s Kit|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Java
+5 Developer&rsquo;s Kit</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>You must install the J2SE Development Kit (JDK) 5.0,
+which can be downloaded from the following location:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://java.sun.com/j2se/1.5.0/download.jsp">http://java.sun.com/j2se/1.5.0/download.jsp</A></B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>After installing the JDK, set or modify the following
+environment variables:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>JAVA_HOME</B></FONT></FONT></FONT>
+	&mdash; set this to point at the root directory of the JDK 5.0
+	installation.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>
+	&mdash; ensure that your <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>
+	includes the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%JAVA_HOME%\bin</B></FONT></FONT></FONT>
+	directory (<B>Windows</B>) or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$JAVA_HOME/bin</B></FONT></FONT></FONT>
+	directory (<B>UNIX</B>). </FONT>
+	</P>
+</UL>
+<H2><A NAME="2.2.Apache Ant 1.6|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Apache
+Ant 1.6</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Each Celtix sample application includes a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Courier New">build.xml</FONT></FONT></B></FONT></FONT></FONT><FONT FACE="Arial">
+f</FONT>ile that enables you to use Apache Ant to compile and run the
+application.  If you wish to use this feature, you must install the
+Apache Ant 1.6 build utility, which can be downloaded from the
+following location:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</A></B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>After installing Apache Ant, add the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>AntInstallDir</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/bin</B></FONT></FONT></FONT>
+(<B>Windows</B>) or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>AntInstallDir</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/bin</B></FONT></FONT></FONT>
+(<B>UNIX</B>) directory to your <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>.
+Place this at the start of your <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH<FONT FACE="Arial">
+</FONT></B></FONT></FONT></FONT>if p<FONT SIZE=2>revi</FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">ous
+versions of Ant may be configured by other products on your </FONT></FONT></FONT><B><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">PATH</FONT></FONT></FONT></FONT></FONT></FONT></B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">.</FONT></FONT></FONT></FONT></FONT></FONT></FONT></P>
+<P><FONT SIZE=2>In addition, the source distribution of Celtix uses
+Apache Maven to build the Celtix binaries.  A Maven installation is
+provided with the source distribution.  For more details, see Installing and Building the Celtix Source Distribution.</FONT></P>
+<H1><A NAME="3.Installation Instructions|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Installation
+Instructions</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>You can install Celtix on any operating system that
+supports the Java 5 platform. </FONT>
+</P>
+<H2><A NAME="3.1.Installing the Celtix Binary Distribution|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Installing
+the Celtix Binary Distribution</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>To install either of the binary distributions (EPL or
+LGPL), perform the following steps:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Download the distribution file to a
+	local directory.</FONT></P>
+	<LI><P><FONT SIZE=2>Create an installation directory, (for example,
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Celtix-install</B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">)</FONT></FONT></FONT></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2>Open a command window and move to the
+	installation directory.  Confirm that the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%JAVA_HOME%\bin</B></FONT></FONT></FONT>
+	(<B>Windows</B>) or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$JAVA_HOME/bin</B></FONT></FONT></FONT>
+	(<B>UNIX</B>) directory is on the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Use the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	executable to extract the archive, for example:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java
+	-jar </B><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>path_to_Celtix_binary_distribution_file</I></FONT></FONT></FONT></FONT></FONT></FONT></DL>
+<OL START=5>
+	<LI><P>
+	<FONT SIZE=2>The extraction process will create the following
+	directory structure:</FONT></P>
+</OL>
+<P><IMG SRC="installation_html_75163ede.jpg" NAME="graphics3" ALIGN=LEFT WIDTH=148 HEIGHT=137 BORDER=0><BR CLEAR=LEFT><BR><BR>
+</P>
+<H2><A NAME="3.2.Installing and Building the Celtix Source Distribution|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Installing
+and Building the Celtix Source Distribution</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>To build Celtix from the source distribution, you
+must have an active Internet connection. This is because Apache Maven
+will attempt to download various artifacts from a public repository
+at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://www.ibiblio.org/">http://www.ibiblio.org/</A></B></FONT></FONT></FONT>.
+ If you wish to become an active contributor to the Celtix project
+and need to frequently rebuild your Celtix installation, you may find
+it convenient to either use a public mirror repository, or to set up
+your own local repository.</FONT></P>
+<P><FONT SIZE=2>For more information, see:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://maven.apache.org/guides/mini/guide-mirror-settings.html">http://maven.apache.org/guides/mini/guide-mirror-settings.html</A>
+</B></FONT></FONT></FONT>and
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="https://wiki.objectweb.org/celtix/Wiki.jsp?page=Maven2Information">https://wiki.objectweb.org/celtix/Wiki.jsp?page=Maven2Information</A></B></FONT></FONT></FONT>.
+ </FONT>
+</P>
+<P><FONT SIZE=2>To install and build either of the source
+distributions (EPL or LGPL), perform the following steps:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Download the distribution file to a
+	local directory.</FONT></P>
+	<LI><P><FONT SIZE=2>Create an installation directory, (for example,
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Celtix-install</B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">)</FONT></FONT></FONT></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2>Open a command window and move to the
+	installation directory.  Confirm that the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%JAVA_HOME%\bin</B></FONT></FONT></FONT>
+	(<FONT SIZE=2><B>Windows</B></FONT>) or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$JAVA_HOME/bin</B></FONT></FONT></FONT>
+	(<FONT SIZE=2><B>UNIX</B></FONT>) directory is on the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Use the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	executable to extract the archive, for example:</FONT></P>
+	<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java
+	-jar </B><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>path_to_Celtix_source_distribution</I></FONT></FONT></FONT></FONT></FONT></FONT><LI><P>
+	<FONT SIZE=2>The extraction process creates the following directory
+	structure:</FONT></P>
+	<LI><P><IMG SRC="installation_html_34f04e76.jpg" NAME="graphics1" ALIGN=LEFT WIDTH=200 HEIGHT=341 BORDER=0><BR CLEAR=LEFT><FONT SIZE=2>To
+	build Celtix, you must set your environment for Apache Maven. 
+	Ensure that the following environment variables are set:</FONT></P>
+</OL>
+<TABLE WIDTH=665 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=242>
+	<COL WIDTH=405>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=242 BGCOLOR="#e6e6e6">
+				<P><I>Environment Variable</I></TH>
+			<TH WIDTH=405 BGCOLOR="#e6e6e6">
+				<P><I>Value</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>JAVA_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>JDK installation directory (for example, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>C:\jdk1.5</B></FONT></FONT></FONT>)
+				
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CELTIX_INSTALL</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>Celtix installation directory (for example, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>C:\Celtix-install</B></FONT></FONT></FONT>)
+				
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CLASSPATH</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>&lt;empty&gt;</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>MAVEN_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%CELTIX_INSTALL%\celtix-src\maven</B></FONT></FONT></FONT>
+					
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$CELTIX_INSTALL/celtix-src/maven</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>MAVEN_OPTS</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>-ea
+					-Djava.util.logging.config.file=</B></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>%CELTIX_INSTALL%\celtix-src\celtix-common\src\test</B></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>\resources\logging.properties</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>-ea
+					-Djava.util.logging.config.file=</B></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>$CELTIX_INSTALL/celtix-src/celtix-common/src/test</B></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>/resources/logging.properties</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%MAVEN_HOME%\bin;%JAVA_HOME%\bin;%PATH%</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$MAVEN_HOME/bin:$JAVA_HOME/bin;$PATH</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><BR><BR>
+</P>
+<OL START=7>
+	<LI><P><FONT SIZE=2>Move to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-src</B></FONT></FONT></FONT>
+	directory under your Celtix installation directory.</FONT></P>
+	<LI><P><FONT SIZE=2>To build Celtix, enter the following command:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>mvn
+	install</FONT></FONT></FONT></B></FONT></FONT></FONT></DL>
+<OL START=9>
+	<LI><P>
+	<FONT SIZE=2>This command builds the product and runs all of the
+	system and unit tests.  To avoid running the tests, use the
+	following command:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>mvn
+	-Dmaven.test.skip install</B></FONT></FONT></FONT></DL>
+<OL START=10>
+	<LI><P>
+	 <FONT SIZE=2>Move to the subdirectory
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-src\celtix-distribution</B></FONT></FONT></FONT>
+	(<B>Windows</B>) or<BR><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-src/celtix-distribution</B></FONT></FONT></FONT>
+	(<B>UNIX</B>), and enter the following command:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>mvn
+	compile</B></FONT></FONT></FONT></DL>
+<OL START=10>
+	<P>
+	<FONT SIZE=2>Alternatively, you can build JAR files suitable for
+	distribution using the following command:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>mvn
+	install</B></FONT></FONT></FONT></DL>
+<OL START=10>
+	<P>
+	<FONT SIZE=2>The JAR files are located in the following directory:
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-src\celtix-distribution\target</B></FONT></FONT></FONT>
+	(<B>Windows</B>) or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-src\celtix-distribution\target</B></FONT></FONT></FONT>
+	(<B>UNIX</B>).</FONT></P>
+</OL>
+<H1><A NAME="4.Testing the Installation|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Testing
+the Installation</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>To test the installation of Celtix, try running the
+basic Hello World sample application, or any of the other samples.</FONT></P>
+<H2><A NAME="4.1.Setting the Environment for the Binary Distribution|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Setting the
+Environment for the Binary Distribution</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Before you can compile and run the sample
+applications, you must set the environment so that the directories
+holding the Celtix, Java, and Ant utility applications are on the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>.</FONT></P>
+<P><FONT SIZE=2>Open a command window, and move to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>samples</B></FONT></FONT></FONT>
+subdirectory under your Celtix installation.  Ensure that the
+following environment variables are set.  If you will be using the
+Ant build system exclusively, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.jar</B></FONT></FONT></FONT>
+file does not need to be included in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CLASSPATH</B></FONT></FONT></FONT>
+variable.  You may find it convenient to write a script or batch file
+that sets these environment variables.</FONT></P>
+<TABLE WIDTH=665 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=242>
+	<COL WIDTH=405>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=242 BGCOLOR="#e6e6e6">
+				<P><I>Environment Variable</I></TH>
+			<TH WIDTH=405 BGCOLOR="#e6e6e6">
+				<P><I>Value</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>JAVA_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>JDK installation directory (for example, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>C:\jdk1.5</B></FONT></FONT></FONT>)
+				
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CELTIX_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>Celtix installation directory (for example,
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>C:\Celtix-install\celtix</B></FONT></FONT></FONT>)</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CLASSPATH</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.;%CELTIX_HOME%\lib\celtix.jar;.\build\classes</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT>
+					
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.:$CELTIX_HOME/lib/celtix.jar:./build/classes</B></FONT></FONT></FONT>
+					
+				</DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ANT_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>Ant-install-dir</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>\apache-ant-1.6.5</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT>
+					
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>Ant-install-dir</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/apache-ant-1.6.5</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT>
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:
+					</FONT></FONT></FONT></FONT></FONT></FONT> 
+					<DT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$MAVEN_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2><A NAME="4.2.Setting the Environment for the Source Distribution|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Setting the
+Environment for the Source Distribution</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Before you can compile and run the sample
+applications, you must set the environment so that the directories
+holding the Celtix, Java, and Ant utility applications are on the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT>.</FONT></P>
+<P><FONT SIZE=2>Open a command window and move to the samples
+subdirectory under your Celtix installation.  Ensure that the
+following environment variables are set (note the different value for
+the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CELTIX_HOME</B></FONT></FONT></FONT>
+variable).  When using the source distribution, you should use the
+Ant build system; with this version of the product the Celtix product
+JAR files are distributed throughout the product directories, and
+providing an accurate <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CLASSPATH</B></FONT></FONT></FONT>
+would be challenging.  </FONT>
+</P>
+<P><FONT SIZE=2>You may find it convenient to write a script or batch
+file that sets these environment variables.</FONT></P>
+<TABLE WIDTH=665 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=242>
+	<COL WIDTH=405>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=242 BGCOLOR="#e6e6e6">
+				<P><I>Environment Variable</I></TH>
+			<TH WIDTH=405 BGCOLOR="#e6e6e6">
+				<P><I>Value</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>JAVA_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>JDK installation directory (for example, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>C:\jdk1.5</B></FONT></FONT></FONT>)
+				
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CELTIX_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<P>Celtix installation directory (for example,
+				<BR><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>C:\Celtix-install\celtix-src\celtix-distribution\src\main</B></FONT></FONT></FONT><FONT FACE="Arial">)</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CLASSPATH</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.;.\build\classes</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.:./build/classes</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ANT_HOME</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>Ant-install-dir</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>\apache-ant-1.6.5</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>Ant-install-dir</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/apache-ant-1.6.5</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ANT_ARGS</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B>UNIX</B></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Dmaven.repo.local=</B><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>maven_repository_path</I></FONT></FONT></FONT></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=242>
+				<P><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PATH</B></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=405>
+				<DL>
+					<DT><FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">Windows</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%ANT_HOME%\bin;%CELTIX_HOME%\bin;%JAVA_HOME%\bin;%PATH%</B></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><B><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">UNIX</FONT></FONT></FONT></B></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Arial"><FONT COLOR="#000000">:</FONT></FONT></FONT></FONT></FONT></FONT><DT>
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$ANT_HOME/bin:$CELTIX_HOME/bin:$JAVA_HOME/bin;$PATH</B></FONT></FONT></FONT></DL>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2><A NAME="4.3.Running a Sample Application|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Running
+a Sample Application</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>To build and run the Hello World application, perform
+the following steps:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Open a command window, and ensure that
+	your environment is set.</FONT></P>
+	<LI><P><FONT SIZE=2>Change directory to
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%CELTIX_HOME%\samples\hello_world</B></FONT></FONT></FONT>
+	(<FONT SIZE=2><B>Windows</B></FONT>) or
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$CELTIX_HOME/samples/hello_world</B></FONT></FONT></FONT>
+	(<FONT SIZE=2><B>UNIX</B></FONT>).</FONT></P>
+	<LI><P><FONT SIZE=2>Enter the <KBD><FONT COLOR="#800000"><FONT SIZE=2><B>ant
+	build</B></FONT></FONT></KBD> command to build both the client and
+	server applications.</FONT></P>
+	<LI><P><FONT SIZE=2>Open a new command window and set the
+	environment.</FONT></P>
+	<LI><P><FONT SIZE=2>Change directory to
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>%CELTIX_HOME%\samples\hello_world</B></FONT></FONT></FONT>
+	(<FONT SIZE=2><B>Windows</B></FONT>) or
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>$CELTIX_HOME/samples/hello_world</B></FONT></FONT></FONT>
+	(<FONT SIZE=2><B>UNIX</B></FONT>).</FONT></P>
+	<LI><P><FONT SIZE=2>Enter the <KBD><FONT COLOR="#800000"><FONT SIZE=2><B>ant
+	server</B></FONT></FONT></KBD> command.</FONT></P>
+	<LI><P><FONT SIZE=2>In the first command window, enter the <KBD><FONT COLOR="#800000"><FONT SIZE=2><B>ant
+	client</B></FONT></FONT></KBD> command.</FONT></P>
+</OL>
+</BODY>
+</HTML>

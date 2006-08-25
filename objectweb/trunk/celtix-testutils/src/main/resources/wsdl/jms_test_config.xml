@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jms="http://celtix.objectweb.org/transports/jms"
+    xmlns:jms-conf="http://celtix.objectweb.org/transports/jms/jms-conf">
+
+  <bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client"
+        class="org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsClientConfigBean">
+      
+      <property name="jmsClient">
+          <value>
+              <jms:client messageType="binary"/>
+          </value>
+      </property>
+      
+      <property name="jmsAddress">
+          <value>
+              <jms:address
+                  destinationStyle="queue"
+                  jndiConnectionFactoryName="MockConnectionFactory"
+                  jndiDestinationName="myOwnDestination"
+                  jndiReplyDestinationName="myOwnReplyDestination"
+                  connectionUserName="testUser"
+                  connectionPassword="testPassword">
+                  <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.objectweb.celtix.transport.jms.MockInitialContextFactory"/>
+                  <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
+              </jms:address>
+          </value>
+      </property>
+      
+      <property name="jmsSessionPool">
+          <value>
+              <jms-conf:sessionPoolConfig 
+                  lowWaterMark="10"
+                  highWaterMark="5000"
+              />
+          </value>
+      </property>
+      
+      <property name="jmsClientConfig">
+          <value>
+              <jms-conf:clientConfig
+                  clientReceiveTimeout="500"
+                  messageTimeToLive="500"
+              />
+          </value>
+      </property>
+      
+  </bean>
+  
+  <bean id="celtix.{http://celtix.objectweb.org/jms_conf_test}HelloWorldQueueBinMsgService.jms-server"
+        class="org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean">
+        
+        <property name="jmsAddress">
+          <value>
+              <jms:address
+                  destinationStyle="queue"
+                  jndiConnectionFactoryName="MockConnectionFactory"
+                  jndiDestinationName="myOwnDestination"
+                  jndiReplyDestinationName="myOwnReplyDestination"
+                  connectionUserName="testUser"
+                  connectionPassword="testPassword">
+                  <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.objectweb.celtix.transport.jms.MockInitialContextFactory"/>
+                  <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
+              </jms:address>
+          </value>
+      </property>
+
+      <property name="jmsServer">
+          <value>
+             <jms:server                   
+                 messageSelector="Celtix_message_selector"
+                 useMessageIDAsCorrelationID="true"
+                 transactional="true"
+                 durableSubscriberName="Celtix_subscriber"
+             />
+          </value>
+      </property>
+      
+      <property name="jmsSessionPool">
+        <value>
+            <jms-conf:sessionPoolConfig 
+                lowWaterMark="10"
+                highWaterMark="5000"
+            />
+        </value>
+    </property>
+
+    <property name="jmsServerConfig">
+        <value>
+            <jms-conf:serverConfig
+                messageTimeToLive="500"
+                durableSubscriptionClientId="test-server-id"
+            />
+        </value>
+      </property>
+  </bean>
+
+</beans>

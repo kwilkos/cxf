@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20060508;11271300">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060516;14301325">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<p><font size=-1><a href="tech.pdf">Download as PDF</a></font></p>
+<P ALIGN=LEFT><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Celtix
+Technology FAQ</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT FACE="Arial"><A HREF="#0.Prerequisites|outline">Prerequisites</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What are the prerequisites for using Celtix_|outline">What
+		are the prerequisites for using Celtix?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Does the Celtix runtime require a J2EE container_|outline">Does
+		the Celtix runtime require a J2EE container?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.Standards|outline">Standards</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What Web service standards does Celtix support_|outline">What
+		Web service standards does Celtix support?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.JAX-WS|outline">JAX-WS</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.How does Celtix allow you to service-enable your applications_|outline">How
+		does Celtix allow you to service-enable your applications?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Has Celtix extended JAX-WS in any way_|outline">Has
+		Celtix extended JAX-WS in any way?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.Messaging|outline">Messaging</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Does Celtix provide messaging capabilities_|outline">Does
+		Celtix provide messaging capabilities?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Does Celtix depend on any JMS implementation_|outline">Does
+		Celtix depend on any JMS implementation?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.J2EE|outline">J2EE</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Can Celtix interoperate with a J2EE container_|outline">Can
+		Celtix interoperate with a J2EE container?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.JBI|outline">JBI</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What is JBI_|outline">What is JBI?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.How does Celtix relate to JBI_|outline">How
+		does Celtix relate to JBI?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.SCA|outline">SCA</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What is SCA_|outline">What is SCA?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.How does Celtix relate to SCA_|outline">How
+		does Celtix relate to SCA?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.Management|outline">Management</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What are Celtix's management capabilities_|outline">What
+		are Celtix's management capabilities?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.BEPL|outline">BEPL</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Does Celtix include a BPEL engine for service orchestration_|outline">Does
+		Celtix include a BPEL engine for service orchestration?</A></FONT></DL>
+</DIV>
+<H1><A NAME="0.Prerequisites|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Prerequisites</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.What are the prerequisites for using Celtix_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What are the
+prerequisites for using Celtix?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>For running Celtix-enabled applications
+all you need to have is a Java 5 JVM.</FONT></P>
+<P ALIGN=JUSTIFY><FONT SIZE=3>To develop services using Celtix, you
+need Sun Microsystem's Java 5 JDK.</FONT></P>
+<H2><A NAME="0.0.Does the Celtix runtime require a J2EE container_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Does the Celtix
+runtime require a J2EE container?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>No. Celtix does not require either a
+J2EE container or a Web container.</FONT></P>
+<H1><A NAME="0.Standards|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Standards</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.What Web service standards does Celtix support_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What Web
+service standards does Celtix support?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix implements the following Web
+service standards:</FONT></P>
+<UL>
+	<LI><P>JAX-WS 2.0</P>
+	<LI><P>WS-ReliableMessaging(WS-RM)</P>
+	<LI><P>WS-Addressing</P>
+	<LI><P>WSDL 1.1</P>
+	<LI><P>SOAP 1.1</P>
+</UL>
+<H1><A NAME="0.JAX-WS|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>JAX-WS</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.How does Celtix allow you to service-enable your applications_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>How does Celtix
+allow you to service-enable your applications?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix implements the JAX-WS 2.0
+specification. JAX-WS 2.0 provides a straightforward way to
+service-enable your applications using the Java 1.5 <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Annotation</FONT></FONT></FONT>
+mechanism. It also provides a programming model that enables the
+creation of Web services-ready Java applications.</FONT></P>
+<H2><A NAME="0.0.Has Celtix extended JAX-WS in any way_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Has
+Celtix extended JAX-WS in any way?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Yes. Celtix has extended JAX-WS by
+adding the concept of <I>system handlers</I>. This allows developers
+to attach handlers at various points within the invocation chain,
+giving them more power to interact with the data as it flows in and
+out of Celtix.</FONT></P>
+<H1><A NAME="0.Messaging|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Messaging</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.Does Celtix provide messaging capabilities_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Does Celtix
+provide messaging capabilities?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix supports a means to deliver
+messages to a JMS implementation.</FONT></P>
+<H2><A NAME="0.0.Does Celtix depend on any JMS implementation_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Does Celtix
+depend on any JMS implementation?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix is not based on a particular JMS
+implementation. It supports any JMS implementation and ships with the
+open source ActiveMQ JMS implementation.</FONT></P>
+<H1><A NAME="0.J2EE|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>J2EE</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.Can Celtix interoperate with a J2EE container_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Can Celtix
+interoperate with a J2EE container?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>While Celtix does not require a J2EE
+application server, Celtix artifacts can be deployed into a J2EE
+container.</FONT></P>
+<H1><A NAME="0.JBI|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>JBI</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.What is JBI_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What
+is JBI?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>JBI stands for Java Bussines
+Integration. It is a standardized set of APIs, Service Provider
+Interfaces (SPIs) and technologies, maintained through the Java
+Community Process, for integration of business components.</FONT></P>
+<H2><A NAME="0.0.How does Celtix relate to JBI_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>How
+does Celtix relate to JBI?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>At a quick glance Celtix and a JBI
+implementation may appear to be addressing the same set of problems.
+However, Celtix is not a JBI implementation. Unlike JBI, Celtix
+provides a much more extensible framework for building services. Its
+focus is to provide a rich framework for linking non-Java, non-Web
+Service artifacts as well as building feature rich Web services.
+Celtix is intended to complement JBI. To this end, it is possible to
+deploy Celtix runtime components and Celtix developed services inside
+a compliant JBI container.</FONT></P>
+<H1><A NAME="0.SCA|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>SCA</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.What is SCA_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What
+is SCA?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>SCA stands for Service Component
+Architecture. It is a set of specifications that describe a framework
+for building applications and systems using SOA concepts. One of the
+driving concepts behind SCA is that applications and systems are
+built up by linking services into assemblies.</FONT></P>
+<H2><A NAME="0.0.How does Celtix relate to SCA_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>How
+does Celtix relate to SCA?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>SCA focuses on assembling service
+implementations into complex business applications. Celtix focuses on
+implementing individual services. Celtix services can be consumed by
+SCA implementations. Currently, the Celtix project is working with
+the Tuscany project to ensure robust integration between Celtix
+services and SCA implementations.</FONT></P>
+<H1><A NAME="0.Management|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Management</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.What are Celtix's management capabilities_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What are
+Celtix's management capabilities?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>All of the internal components of
+Celtix are instrumented using JMX. In addition, Celtix supports
+adding custom JMX instrumentation to any services developed using
+Celtix. Therefore, Celtix artifacts can be managed by any JMX
+compliant management tool.</FONT></P>
+<H1><A NAME="0.BEPL|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>BEPL</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.Does Celtix include a BPEL engine for service orchestration_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Does Celtix
+include a BPEL engine for service orchestration?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix does not include a native BPEL
+orchestration engine. However, Celtix services can be orchestrated
+using both open source and commercial BPEL engines including Active
+Endpoints, Intalio and others. There is a demo that illustrates
+Celtix working with Intalio's BPEL offering on the demo page at
+<A HREF="http://celtix.objectweb.org/demos/index.html">http://celtix.objectweb.org/demos/index.html</A>.
+Javascript could also be used as an alternative to BPEL to create
+microflows.</FONT></P>
+</BODY>
+</HTML>

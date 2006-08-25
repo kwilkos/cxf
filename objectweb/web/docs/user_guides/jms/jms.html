@@ -1,0 +1,945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20060222;10051300">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060508;17213611">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Using
+the Java Messaging System</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.Overview|outline">Overview</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.WSDL Namespace|outline">WSDL Namespace</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.Configuration Namespace|outline">Configuration
+		Namespace</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.Basic Endpoint Configuration|outline">Basic
+		Endpoint Configuration</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.1.Using WSDL|outline">Using WSDL</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.2.Using Celtix Configuration|outline">Using
+		Celtix Configuration</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#5.Consumer Endpoint Configuration|outline">Consumer
+		Endpoint Configuration</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#5.1.Using Celtix Configuration|outline">Using
+		Celtix Configuration</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#5.2.Using WSDL|outline">Using WSDL</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#6.Service Endpoint Configuration|outline">Service
+		Endpoint Configuration</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#6.1.Using Celtix Configuration|outline">Using
+		Celtix Configuration</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#6.2.Using WSDL|outline">Using WSDL</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#7.Using the JMS Context|outline">Using
+		the JMS Context</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#7.1.Inspecting JMS Properties|outline">Inspecting
+		JMS Properties</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#7.2.Setting JMS Properties|outline">Setting
+		JMS Properties</A></I></FONT></DL>
+</DIV>
+<H1><A NAME="1.Overview|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Overview</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Celtix provides a transport plug-in that enables
+endpoints to use Java Messaging System (JMS) queues and topics.
+Celtix&rsquo;s JMS transport plug-in uses the Java Naming and
+Directory Interface (JNDI) to locate and obtain references to the JMS
+provider that brokers for the JMS destinations. Once Celtix has
+established a connection to a JMS provider, Celtix supports the
+passing of messages packaged as either a JMS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ObjectMessage</FONT></FONT></FONT>
+or a JMS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>TextMessage</FONT></FONT></FONT>.</FONT></P>
+<H1><A NAME="2.WSDL Namespace|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>WSDL
+Namespace</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The WSDL extensions for defining a JMS endpoint are
+defined in the namespace <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/transports/jms</FONT></FONT></FONT>.
+In order to use the JMS extensions you will need to add the line
+shown in Text 1 to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>definitions</FONT></FONT></FONT>
+element of your contract.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>xmlns:jms=&quot;http://celtix.objectweb.org/transports/jms&quot;</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2><I>Text 1: JMS Extension Namespace</I></FONT></P>
+<H1><A NAME="3.Configuration Namespace|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Configuration
+Namespace</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The Celtix JMS endpoint configuration properties are
+specified under the namespace
+<A HREF="http://celtix.objectweb.org/transports/jms">http://celtix.objectweb.org/transports/jms</A>.
+In order to use the JMS configuration properties you will need to add
+the line shown in Text 2 to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>beans</FONT></FONT></FONT>
+element of your configuration.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>xmlns:jms=&quot;http://celtix.objectweb.org/transports/jms&quot;</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2>Text 2: JMS Properties Namespace</FONT></P>
+<H1><A NAME="4.Basic Endpoint Configuration|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Basic
+Endpoint Configuration</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>JMS endpoints need to know certain basic information
+about how to establish a connection to the proper destination. This
+information can be provided in one of two places:</FONT></P>
+<UL>
+	<LI><P><FONT SIZE=2><A HREF="#2.1.Using WSDL|outline">WSDL File</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#4.2.Using Celtix Configuration|outline">Celtix
+	Configuration</A></FONT></P>
+</UL>
+<H2><A NAME="4.1.Using WSDL|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using
+WSDL</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The JMS destination information is provided using the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>
+element and its child, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:JMSNamingProperties</FONT></FONT></FONT>
+element. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>
+element&rsquo;s attributes specify the information needed to identify
+the JMS broker and the destination. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:JMSNamingProperties</FONT></FONT></FONT>
+element specifies the Java properties used to connect to the JNDI
+service.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>The address
+Element</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The basic configuration for a JMS endpoint is done by
+using a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>
+element as the child of your service&rsquo;s <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+element. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>
+element uses the attributes described in Table 1 to configure the
+connection to the JMS broker.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=85*>
+	<COL WIDTH=171*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=33%>
+				<P><I>Attribute</I></TH>
+			<TH WIDTH=67%>
+				<P><I>Description</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=33%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>destinationStyle</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=67%>
+				<P><FONT SIZE=2>Specifies if the JMS destination is a JMS queue
+				or a JMS topic.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=33%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jndiConnectionFactoryName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=67%>
+				<P><FONT SIZE=2>Specifies the JNDI name bound to the JMS
+				connection factory to use when connecting to the JMS destination.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=33%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jndiDestinationName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=67%>
+				<P><FONT SIZE=2>Specifies the JNDI name bound to the JMS
+				destination to which requests are sent.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=33%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jndiReplyDestinationName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=67%>
+				<P><FONT SIZE=2>Specifies the JNDI name bound to the JMS
+				destinations where replies are sent. This attribute allows you to
+				use a user defined destination for replies. For more details see
+				<A HREF="#0.0.Using a Named Reply Destination|outline">Using a
+				Named Reply Destination</A>.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=33%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>connectionUserName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=67%>
+				<P><FONT SIZE=2>Specifies the username to use when connecting to
+				a JMS broker.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=33%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>connectionPassword</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=67%>
+				<P><FONT SIZE=2>Specifies the password to use when connecting to
+				a JMS broker.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 1: JMS Endpoint Attributes</I></FONT></P>
+<H3><A NAME="JMSNamingProperties"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>The
+JMSNamingProperties Element</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>To increase interoperability with JMS and JNDI
+providers, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>
+element has a child element, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:JMSNamingProperties</FONT></FONT></FONT>,
+that allows you to specify the values used to populate the properties
+used when connecting to the JNDI provider. The
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:JMSNamingProperties</FONT></FONT></FONT>
+element has two attributes: <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>value</FONT></FONT></FONT>.
+The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+attribute specifies the name of the property to set. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>value</FONT></FONT></FONT>
+attribute specifies the value for the specified property.
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:JMSNamingProperties</FONT></FONT></FONT>
+element can also be used for specification of provider specific
+properties.</FONT></P>
+<P><FONT SIZE=2>The following is a list of common JNDI properties
+that can be set:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.factory.initial</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.provider.url</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.factory.object</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.factory.state</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.factory.url.pkgs</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.dns.url</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.authoritative</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.batchsize</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.referral</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.security.protocol</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.security.authentication</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.security.principal</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.security.credentials</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.language</FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java.naming.applet</FONT></FONT></FONT></FONT></P>
+</UL>
+<P><FONT SIZE=2>For more details on what information to use in these
+attributes, check your JNDI provider&rsquo;s documentation and 
+consult the Java API reference material.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Using a
+Named Reply Destination</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>By default, Celtix endpoints using JMS create a
+temporary queue for sending replies back and forth. You can change
+this behavior by setting the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jndiReplyDestinationName</FONT></FONT></FONT>
+attribute in the endpoint's contract. A Celtix client endpoint will
+listen for replies on the specified destination and it will specify
+the value of the attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ReplyTo</FONT></FONT></FONT>
+field of all outgoing requests. A Celtix service endpoint will use
+the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jndiReplyDestinationName</FONT></FONT></FONT>
+attribute as the location for placing replies if there is no
+destination specified in the request&rsquo;s <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ReplyTo</FONT></FONT></FONT>
+field.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Example</FONT></FONT></FONT></H3>
+<P>Text 3 <FONT SIZE=2>shows an example of an Celtix JMS port
+specification.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;service
+				name=&quot;JMSService&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;port
+				binding=&quot;tns:Greeter_SOAPBinding&quot; name=&quot;SoapPort&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:address
+				jndiConnectionFactoryName=&quot;ConnectionFactory&quot; </FONT></FONT></FONT>
+				<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>jndiDestinationName=&quot;dynamicQueues/test.Celtix.jmstransport&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:JMSNamingProperty
+				name=&quot;java.naming.factory.initial&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>value=&quot;org.activemq.jndi.ActiveMQInitialContextFactory&quot;
+				/&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:JMSNamingProperty
+				name=&quot;java.naming.provider.url&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>value=&quot;tcp://localhost:61616&quot;
+				/&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/jms:address&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/port&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;/service&gt;</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2><I>Text 3: Celtix JMS Port</I></FONT></P>
+<H2><A NAME="4.1.Using Celtix Configuration|outline"></A><A NAME="4.2.Using Celtix Configuration|outline"></A><A NAME="4.2.Using Celtix Configuration|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using Celtix
+Configuration</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>In addition to using the WSDL file to specify the
+connection information for a JMS endpoint, you can supply it in the
+endpoint's configuration file. The information in the configuration
+file will override the information in the endpoint's WSDL file.</FONT></P>
+<P><FONT SIZE=2>JMS connection information is specified using the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsAddress</FONT></FONT></FONT>
+property. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsAddress</FONT></FONT></FONT>
+property has a single value: <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>.
+It is identical to the jms:address element used in the WSDL file. Its
+attributes are listed in Table 1. Like the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>j<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>m</FONT></FONT></FONT>s:address</FONT></FONT></FONT>
+element in the WSDL file, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:address</FONT></FONT></FONT>
+property also has a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:JMSNamingProperties</FONT></FONT></FONT>
+child element that is used to specify additional information used to
+connect to a JNDI provider. For more information on populating this
+element see <A HREF="#JMSNamingProperties">JMSNamingProperties</A>.</FONT></P>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsAddress</FONT></FONT></FONT>
+property can be specified in either the client configuration bean or
+the service configuration bean.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Example</FONT></FONT></FONT></H3>
+<P>Text 4 <FONT SIZE=2>shows a Celtix configuration entry for
+configuring the addressing information for a JMS consumer endpoint.</FONT>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;beans
+				xmlns:ct<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">=&quot;http://celtix.objectweb.org/configuration/types&quot;</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>xmlns:jms=&quot;http://celtix.objectweb.org/transports/jms&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>...</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;bean
+				id=&quot;celtix.{http://celtix.objectweb.org/jms_conf_test}</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>class=&quot;org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JMSClientConfigBean&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;property
+				name=&quot;jmsAddress&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;value&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:address
+				destinationStyle=&quot;queue&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>jndiConnectionFactoryName=&quot;MockConnectionFactory&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>jndiDestinationName=&quot;myOwnDestination&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>jndiReplyDestinationName=&quot;myOwnReplyDestination&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>connectionUserName=&quot;testUser&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>connectionPassword=&quot;testPassword&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:JMSNamingProperty
+				name=&quot;java.naming.factory.initial&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>value=&quot;org.objectweb.celtix.transport.jms.MockInitialContextFactory&quot;/&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:JMSNamingProperty
+				name=&quot;java.naming.provider.url&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>value=&quot;tcp://localhost:61616&quot;/&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/jms:address&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/value&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/property&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>...</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;/beans&gt;</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2>Text 4: Addressing Information in Celtix
+Configuration</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>More
+information</FONT></FONT></FONT></H3>
+<DL>
+	<DT><FONT SIZE=2>For more information on using Celtix configuration
+	see the <A HREF="http://celtix.objectweb.org/docs/user_guides/configuration/configuration.html">Celtix
+	Configuration Guide</A>.</FONT></DL>
+<H1>
+<A NAME="5.Consumer Endpoint Configuration|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Consumer
+Endpoint Configuration</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>JMS consumer endpoints specify the type of messages
+they use. JMS consumer endpoint can use either a JMS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ObjectMessage</FONT></FONT></FONT>
+or a JMS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>TextMessage</FONT></FONT></FONT>.
+When using an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ObjectMessage</FONT></FONT></FONT>
+the consumer endpoint uses a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>byte[]</FONT></FONT></FONT>
+as the method for storing data into and retrieving data from the JMS
+message body. When messages are sent, the message data, including any
+formating information, is packaged into a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>byte[]</FONT></FONT></FONT>
+and placed into the JMS message body before it is placed on the wire.
+When messages are received, the consumer endpoint will attempt to
+unmarshall the data stored in the JMS body as if it were packed in a
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>byte[]</FONT></FONT></FONT>.</FONT></P>
+<P><FONT SIZE=2>When using a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>TextMessage</FONT></FONT></FONT>,
+the consumer endpoint uses a string as the method for storing and
+retrieving data from the JMS message body. When messages are sent,
+the message information, including any format-specific information,
+is converted into a string and placed into the JMS message body. When
+messages are received the consumer endpoint will attempt to unmashall
+the data stored in the JMS message body as if it were packed into a
+string.</FONT></P>
+<P><FONT SIZE=2>When a native JMS applications interact with Celtix
+consumers, the JMS application is responsible for interpreting the
+message and the formatting information. For example, if the Celtix
+contract specifies that the binding used for a JMS endpoint is SOAP,
+and the messages are packaged as <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>TextMessage</FONT></FONT></FONT>,
+the receiving JMS application will get a text message containing all
+of the SOAP envelope information.</FONT></P>
+<P><FONT SIZE=2>Consumer endpoint can be configured in one of two
+ways:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><A HREF="#3.1.Using Celtix Configuration|outline">Celtix
+	configuration</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#3.2.Using WSDL|outline">WSDL file</A></FONT></P>
+</UL>
+<P><FONT SIZE=2>The recommended method is to place the consumer
+endpoint specific information into the Celtix configuration file for
+the endpoint.</FONT></P>
+<H2><A NAME="5.1.Using Celtix Configuration|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using
+Celtix Configuration</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Consumer endpoint configuration is specified using
+the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JMSClientConfigBean</FONT></FONT></FONT>
+class for the configuration bean. Using this configuration bean, you
+specify the message type supported by the consumer endpoint using the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsClient</FONT></FONT></FONT>
+property. It has a single value, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:client</FONT></FONT></FONT>,
+that has a single attribute:</FONT></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<COL WIDTH=44*>
+	<COL WIDTH=212*>
+	<TR VALIGN=TOP>
+		<TD WIDTH=17%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>messageType</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=83%>
+			<P><FONT SIZE=2>Specifies how the message data will be packaged as
+			a JMS message. <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>text</FONT></FONT></FONT>
+			specifies that the data will be packaged as a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>TextMessage</FONT></FONT></FONT>.
+			<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>binary</FONT></FONT></FONT>
+			specifies that the data will be packaged as an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ObjectMessage</FONT></FONT></FONT>.</FONT></TD>
+	</TR>
+</TABLE>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Example</FONT></FONT></FONT></H3>
+<P>Text 5 <FONT SIZE=2>shows a Celtix configuration entry for
+configuring a JMS consumer endpoint.</FONT>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;beans
+				xmlns:ct<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">=&quot;http://celtix.objectweb.org/configuration/types&quot;</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>xmlns:jms=&quot;http://celtix.objectweb.org/transports/jms&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>...</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;bean
+				id=&quot;celtix.{http://celtix.objectweb.org/jms_conf_test}</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-client&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>class=&quot;org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JMSClientConfigBean&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;property
+				name=&quot;jmsClient&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;value&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:client
+				messageType=&quot;binary&quot; /&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/value&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/property&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/bean&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>...</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;/beans&gt;</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2>Text 5: Configuration for a JMS consumer endpoint</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Adding
+address information</FONT></FONT></FONT></H3>
+<DL>
+	<DT><FONT SIZE=2>In addition to specifying the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsClient</FONT></FONT></FONT>
+	property, you can also specify the contact information used by the
+	consumer for contacting a service endpoint. This is done by adding
+	the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsAddress</FONT></FONT></FONT>
+	property to the consumer endpoint's configuration bean.</FONT></DL>
+<H3>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>More
+information</FONT></FONT></FONT></H3>
+<DL>
+	<DT><FONT SIZE=2>For more information on using Celtix configuration
+	see the <A HREF="http://celtix.objectweb.org/docs/user_guides/configuration/configuration.html">Celtix
+	Configuration Guide</A>.</FONT></DL>
+<H2>
+<A NAME="5.2.Using WSDL|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using
+WSDL</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The type of messages accepted by a JMS consumer
+endpoint is configured using the optional <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:client</FONT></FONT></FONT>
+element. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:client</FONT></FONT></FONT>
+element is a child of the WSDL <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+element and has one attribute:</FONT></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<COL WIDTH=44*>
+	<COL WIDTH=212*>
+	<TR VALIGN=TOP>
+		<TD WIDTH=17%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>messageType</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=83%>
+			<P><FONT SIZE=2>Specifies how the message data will be packaged as
+			a JMS message. <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>text</FONT></FONT></FONT>
+			specifies that the data will be packaged as a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>TextMessage</FONT></FONT></FONT>.
+			<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>binary</FONT></FONT></FONT>
+			specifies that the data will be packaged as an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ObjectMessage</FONT></FONT></FONT>.</FONT></TD>
+	</TR>
+</TABLE>
+<H1><A NAME="6.Service Endpoint Configuration|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Service
+Endpoint Configuration</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>JMS service endpoints have a number of behaviors that
+are configurable in the contract. These include:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2>how messages are correlated</FONT></P>
+	<LI><P><FONT SIZE=2>the use of durable subscriptions</FONT></P>
+	<LI><P><FONT SIZE=2>if the service uses local JMS transactions</FONT></P>
+	<LI><P><FONT SIZE=2>the message selectors used by the endpoint</FONT></P>
+</UL>
+<P><FONT SIZE=2>Service endpoints can be configure in one of two
+ways:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><A HREF="#4.1.Using Celtix Configuration|outline">Celtix
+	configuration</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#6.2.Using WSDL|outline">WSDL file</A></FONT></P>
+</UL>
+<H2><A NAME="6.1.Using Celtix Configuration|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using
+Celtix Configuration</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Service endpoint configuration is specified using the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JMSServerConfigBean</FONT></FONT></FONT>
+class for the configuration bean. Using this configuration bean, you
+specify the service endpoint's behaviors using the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsServer</FONT></FONT></FONT>
+property. It has a single value, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:server</FONT></FONT></FONT>,
+that has a the following attributes:</FONT></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<COL WIDTH=85*>
+	<COL WIDTH=171*>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>useMessageIDAsCorrealationID</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies whether the JMS broker will use the
+			message ID to correlate messages. The default is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>false</FONT></FONT></FONT>.</FONT></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>durableSubscriberName</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies the name used to register a durable
+			subscription.</FONT></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>messageSelector</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies the string value of a message selector
+			to use. For more information on the syntax used to specify message
+			selectors, see the JMS 1.1 specification.</FONT></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>transactional</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies whether the local JMS broker will create
+			transactions around message processing. The default is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>false</FONT></FONT></FONT>.
+			Currently, this is not supported by the runtime.</FONT></TD>
+	</TR>
+</TABLE>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Example</FONT></FONT></FONT></H3>
+<P>Text 6 <FONT SIZE=2>shows a Celtix configuration entry for
+configuring a JMS service endpoint.</FONT>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;beans
+				xmlns:ct<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">=&quot;http://celtix.objectweb.org/configuration/types&quot;</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>xmlns:jms=&quot;http://celtix.objectweb.org/transports/jms&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>...</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;bean
+				id=&quot;celtix.{http://celtix.objectweb.org/jms_conf_test}</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>HelloWorldQueueBinMsgService/HelloWorldQueueBinMsgPort.jms-server&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>class=&quot;org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JMSServerConfigBean&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;property
+				name=&quot;jmsServer&quot;&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;value&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;jms:server
+				messageSelector=&quot;pickMe&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>useMessageIDAsCorrelationID=&quot;true&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>transactional=&quot;false&quot;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>durableSubscriberName=&quot;CeltixSubscriber&quot;
+				/&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/value&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/property&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>&lt;/bean&gt;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>...</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;/beans&gt;</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2>Text 6: Configuration for a JMS service endpoint</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Adding
+address information</FONT></FONT></FONT></H3>
+<DL>
+	<DT><FONT SIZE=2>In addition to specifying the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsServer</FONT></FONT></FONT>
+	property, you can also specify the contact information of the
+	service endpoint. This is done by adding the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jmsAddress</FONT></FONT></FONT>
+	property to the service endpoint's configuration bean.</FONT></DL>
+<H3>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>More
+information</FONT></FONT></FONT></H3>
+<DL>
+	<DT><FONT SIZE=2>For more information on using Celtix configuration
+	see the <A HREF="http://celtix.objectweb.org/docs/user_guides/configuration/configuration.html">Celtix
+	Configuration Guide</A>.</FONT></DL>
+<H2>
+<A NAME="6.2.Using WSDL|outline"></A><A NAME="6.2.Using WSDL|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using WSDL</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Service endpoint behaviors are configured using the
+optional <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:server</FONT></FONT></FONT>
+element. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms:server</FONT></FONT></FONT>
+element is a child of the WSDL <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+element and has the following attributes:</FONT></P>
+<TABLE WIDTH=100% BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<COL WIDTH=85*>
+	<COL WIDTH=171*>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>useMessageIDAsCorrealationID</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies whether JMS will use the message ID to
+			correlate messages. The default is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>false</FONT></FONT></FONT>.</FONT></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>durableSubscriberName</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies the name used to register a durable
+			subscription.</FONT></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>messageSelector</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies the string value of a message selector
+			to use. For more information on the syntax used to specify message
+			selectors, see the JMS 1.1 specification.</FONT></TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=33%>
+			<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>transactional</FONT></FONT></FONT></FONT></TD>
+		<TD WIDTH=67%>
+			<P><FONT SIZE=2>Specifies whether the local JMS broker will create
+			transactions around message processing. The default is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>false</FONT></FONT></FONT>.
+			Currently, this is not supported by the runtime.</FONT></TD>
+	</TR>
+</TABLE>
+<H1><A NAME="7.Using the JMS Context|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Using
+the JMS Context</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The Celtix context mechanism can be used to inspect a
+number of the properties associated with a JMS message. The context
+mechanism can also be used to override some of the JMS endpoint's
+configuration.</FONT></P>
+<H2><A NAME="7.1.Inspecting JMS Properties|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Inspecting
+JMS Properties</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Once a message has been successfully retrieved from
+the JMS transport you can inspect the JMS header properties using the
+consumer's response context. In addition, you can see how long the
+client will wait for a response before timing out.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>JMS Header
+Properties</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <A HREF="#Table12|table">JMS properties table</A>
+lists the properties in the JMS header that you can inspect. The JMS
+header properties are retrieved using the response context's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>get()</FONT></FONT></FONT>
+method and supplying the value
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.jms.client.response.headers</FONT></FONT></FONT>.
+The returned properties will be of type <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType</FONT></FONT></FONT>.</FONT></P><A NAME="Table12|table"></A>
+<TABLE WIDTH=663 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=236>
+	<COL WIDTH=135>
+	<COL WIDTH=267>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=236 BGCOLOR="#e6e6e6">
+				<P><I>Property Name</I></TH>
+			<TH WIDTH=135 BGCOLOR="#e6e6e6">
+				<P><I>Property Type</I></TH>
+			<TH WIDTH=267 BGCOLOR="#e6e6e6">
+				<P><I>Getter Method</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Correlation ID</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>string</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSCorralationID()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Delivery Mode</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>int</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSDeliveryMode()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Message Expiration</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>long</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSExpiration()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Message ID</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>string</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSMessageID()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Priority</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>int</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSPriority()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Redelivered</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>boolean</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSRedlivered()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Time Stamp</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>long</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSTimeStamp()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Type</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>string</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getJMSType()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Time To Live</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>long</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>getTimeToLive()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 1.: JMS Header Properties</I></FONT></P>
+<P><FONT SIZE=2>In addition, you can inspect any optional properties
+stored in the JMS header using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType.getProperty()</FONT></FONT></FONT>.
+The optional properties are returned as a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>List</FONT></FONT></FONT>
+of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSPropertyType</FONT></FONT></FONT>.
+Optional properties are stored as name/value pairs.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Example</FONT></FONT></FONT></H3>
+<P>Text 7 <FONT SIZE=2>shows code for inspecting some of the JSM
+properties using the response context.</FONT>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">//
+				Proxy greeter initialized previously</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">InvocationHandler
+				handler = Proxy.getInvocationHandler(greeter);</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">//
+				Invoke on greeter proxy</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>BindingProvider
+				bp= null;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>if
+				(handler instanceof BindingProvider)</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>{</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>bp
+				= (BindingProvider)handler;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>Map&lt;String,
+				Object&gt; responseContext = bp.getResponseContext();</FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType
+				responseHdr = (JMSMessageHeadersType)</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>responseContext.get(&quot;org.objectweb.celtix.jms.client.response.headers&quot;);</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>if
+				(responseHdr != null)</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>{</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>System.out.println(&quot;Correlation
+				ID: &quot;+responseHdr.getJMSCorrelationID());</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>System.out.println(&quot;Message
+				Priority: &quot;+responseHdr.getJMSPriority());</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>System.out.println(&quot;Redelivered:
+				&quot;+responseHdr.getRedelivered());</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>}</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>}</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2>Text 7: Reading JMS Properties from the Response
+Context</FONT></P>
+<P><FONT SIZE=2>The code in <FONT SIZE=2>Text 7 does the following:</FONT></FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Gets the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InvocationHandler</FONT></FONT></FONT>
+	for the proxy whose message headers you want to inspect.</FONT></P>
+	<LI><P><FONT SIZE=2>Casts the returned <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InvocationHandler</FONT></FONT></FONT>
+	object into a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>BindingProvider</FONT></FONT></FONT>
+	object to retrieve the response context.</FONT></P>
+	<LI><P><FONT SIZE=2>Gets the response context.</FONT></P>
+	<LI><P><FONT SIZE=2>Retrieves the JMS message headers from the
+	response context.</FONT></P>
+	<LI><P><FONT SIZE=2>Prints some of the message header properties.</FONT></P>
+</OL>
+<H2><A NAME="7.2.Setting JMS Properties|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Setting
+JMS Properties</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Using the request context in a consumer endpoint, you
+can set a number of the JMS message header properties and the
+consumer endpoint's timeout value. These properties are valid for a
+single invocation. You will need to reset them each time you invoke
+an operation on the service proxy.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>JMS Header
+Properties</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <A HREF="#Table14|table">JMS properties table</A>
+lists the properties in the JMS header that you can set using the
+consumer endpoint's request context.</FONT></P><A NAME="Table14|table"></A>
+<TABLE WIDTH=663 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=236>
+	<COL WIDTH=135>
+	<COL WIDTH=267>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=236 BGCOLOR="#e6e6e6">
+				<P><I>Property Name</I></TH>
+			<TH WIDTH=135 BGCOLOR="#e6e6e6">
+				<P><I>Property Type</I></TH>
+			<TH WIDTH=267 BGCOLOR="#e6e6e6">
+				<P><I>Setter Method</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Correlation ID</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>string</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>setJMSCorralationID()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Delivery Mode</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>int</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>setJMSDeliveryMode()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=236>
+				<P><FONT SIZE=2>Time To Live</FONT></TD>
+			<TD WIDTH=135>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>long</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=267>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>setTimeToLive()</FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 2.: Settable JMS Header Properties</I></FONT></P>
+<P><FONT SIZE=2>To set these properties do the following:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Create a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType</FONT></FONT></FONT>
+	object.</FONT></P>
+	<LI><P><FONT SIZE=2>Populate the values you wish to set using the
+	appropriate setter methods from the <A HREF="#Table14|table">JMS
+	properties table</A>.</FONT></P>
+	<LI><P><FONT SIZE=2>Set the values into the request context by
+	calling the request context's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>put()</FONT></FONT></FONT>
+	method using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.jms.client.request.headers</FONT></FONT></FONT>
+	as the first argument and the new <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType</FONT></FONT></FONT>
+	object as the second argument.</FONT></P>
+</OL>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Optional
+JMS Header Properties</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>You can also set optional properties into the JMS
+header. Optional JMS header properties are stored in the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType</FONT></FONT></FONT>
+object that is used to set the other JMS header properties. They are
+stored as a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>List</FONT></FONT></FONT>
+of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSPropertyType</FONT></FONT></FONT>.
+To add optional properties to the JMS header do the following:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Create a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSPropertyType</FONT></FONT></FONT>
+	object.</FONT></P>
+	<LI><P><FONT SIZE=2>Set the property's name field using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>setName()</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Set the property's value field using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>setValue()</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Add the property to the JMS message header to
+	the JMS message header using
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType.getProperty().add(JMSPropertyType)</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Repeat steps 1 through 4 until all of the
+	properties have been added to the message header.</FONT></P>
+</OL>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Client
+Receive Timeout</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>In addition to the JMS header properties, you can set
+the amount of time a consumer endpoint will wait for a response
+before timing out. You set the value by calling the request context's
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>put()</FONT></FONT></FONT>
+method with <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.celtix.jms.client.timeout</FONT></FONT></FONT>
+as the first argument and a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>long</FONT></FONT></FONT>
+representing the amount of time in milliseconds that you want to
+consumer to wait as the second argument.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Example</FONT></FONT></FONT></H3>
+<P>Text 8 <FONT SIZE=2>shows code for setting some of the JMS
+properties using the request context.</FONT>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=256*>
+	<TR>
+		<TD WIDTH=100% VALIGN=TOP>
+			<DL>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">//
+				Proxy greeter initialized previously</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New">InvocationHandler
+				handler = Proxy.getInvocationHandler(greeter);</FONT></FONT></FONT></FONT></FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>BindingProvider
+				bp= null;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>if
+				(handler instanceof BindingProvider)</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>{</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>bp
+				= (BindingProvider)handler;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>Map&lt;String,
+				Object&gt; requestContext = bp.getRequestContext();</FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>JMSMessageHeadersType
+				requestHdr = new JMSMessageHeadersType();</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>requestHdr.setJMSCorrelationID(&quot;WithBob&quot;);</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>requestHdr.setJMSExpiration(3600000L);</FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>JMSPropertyType
+				prop = new JMSPropertyType;</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>prop.setName(&quot;MyProperty&quot;);</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>prop.setValue(&quot;Bluebird&quot;);</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>requestHdr.getProperty().add(prop);</FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>requestContext.put(&quot;org.objectweb.celtix.jms.client.request.headers&quot;,</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>requestHdr);</FONT></FONT></FONT><DD>
+				<BR>
+				<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>requestContext.put(&quot;org.objectweb.celtix.client.timeout&quot;,
+				new Long(1000));</FONT></FONT></FONT><DD>
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>}</FONT></FONT></FONT></DL>
+		</TD>
+	</TR>
+</TABLE>
+<P><FONT SIZE=2>Text 8: Setting JMS Properties using the Request
+Context</FONT></P>
+<P><FONT SIZE=2>The code in <FONT SIZE=2>Text 8 does the following:</FONT></FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Gets the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InvocationHandler</FONT></FONT></FONT>
+	for the proxy whose JMS properties you want to change.</FONT></P>
+	<LI><P><FONT SIZE=2>Casts the returned <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InvocationHandler</FONT></FONT></FONT>
+	object into a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>BindingProvider</FONT></FONT></FONT>
+	object to retrieve the request context.</FONT></P>
+	<LI><P><FONT SIZE=2>Gets the request context.</FONT></P>
+	<LI><P><FONT SIZE=2>Creates a JMSMessageHeadersType object to hold
+	the new message header values.</FONT></P>
+	<LI><P><FONT SIZE=2>Sets the Correlation ID.</FONT></P>
+	<LI><P><FONT SIZE=2>Sets the Expiration property to 60 minutes.</FONT></P>
+	<LI><P><FONT SIZE=2>Creates a new JMSPropertyType object.</FONT></P>
+	<LI><P><FONT SIZE=2>Sets the values for the optional property.</FONT></P>
+	<LI><P><FONT SIZE=2>Adds the optional property to the message
+	header.</FONT></P>
+	<LI><P><FONT SIZE=2>Sets the JMS message header values into the
+	request context.</FONT></P>
+	<LI><P><FONT SIZE=2>Sets the client receive timeout property to 1
+	second.</FONT></P>
+</OL>
+</BODY>
+</HTML>

@@ -1,0 +1,974 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20060331;12551700">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060509;9593039">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Command
+Line Tools</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.The Celtix wsdl2java Utility|outline">The
+		Celtix wsdl2java Utility	1</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.The Celtix java2wsdl Utility|outline">The
+		Celtix java2wsdl Utility	2</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.The Celtix wsdl2soap Utility|outline">The
+		Celtix wsdl2soap Utility	3</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.The Celtix wsdl2service Utility|outline">The
+		Celtix wsdl2service Utility	4</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#5.The Celtix wsdl2xml Utility|outline">The
+		Celtix wsdl2xml Utility	5</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#6.The Celtix xsd2wsdl Utility|outline">The
+		Celtix xsd2wsdl Utility	6</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#7.The Celtix wsdlvalidator Utility|outline">The
+		Celtix wsdlvalidator Utility	7</A></FONT></DL>
+</DIV>
+<H1><A NAME="1.The Celtix wsdl2java Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix wsdl2java Utility</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Using the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>wsdl2java</FONT></FONT></FONT>
+utility gives you greater control over the code generation process. 
+The syntax of the command is summarized in the following
+illustration.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>wsdl2java</FONT></FONT></FONT>
+	-p &lt;[<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>w<I><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>sdl-namespace</FONT></FONT></FONT></I></FONT></FONT></FONT>
+	=]<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>Package-Name</I></FONT></FONT></FONT>&gt;*
+	-b &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>binding-name</I></FONT></FONT></FONT>&gt;*</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New">-d
+	&lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New">output-di</FONT></SPAN>rectory</FONT></FONT></FONT>&gt;
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-compile
+	-classdir &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>compile-classes-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-client
+	-server -impl -all -ant</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-nexclude
+	&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>schema-namespace</I></FONT></FONT></FONT>
+	[= <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>java-packagename</I></FONT></FONT></FONT>]&gt;*</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-exsh
+	&lt;(true, false)&gt; -validate -v -verbose -quiet &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdlfile</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The arguments used to manage the code generation process
+are reviewed in the following table.</FONT></P>
+<TABLE WIDTH=657 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=288>
+	<COL WIDTH=351>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=288 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=351 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Displays the help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-p
+				&lt;[<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdl-namespac</I></FONT></FONT></FONT>e=]<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>Package-name</I></FONT></FONT></FONT>&gt;*</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Specifies zero, or more, package names to use for
+				the generated code.  Optionally specifies the WSDL namespace to
+				package name mapping.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-b
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>binding-file-name</I></FONT></FONT></FONT>&gt;*</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Specifies zero, or more, JAXWS or JAXB binding
+				files.  Use spaces to separate multiple entries.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-d
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Specifies the directory into which the generated
+				code files are written.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-compile</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Compiles generated Java files.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-classdir</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Specifies the directory into which the compiled
+				class files are written.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-client</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Generates starting point code for a client
+				mainline.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-server</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Generates starting point code for a server
+				mainline.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-impl</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Generates starting point code for an
+				implementation object.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-all</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Generates all starting point code: types, service
+				proxy, service interface, server mainline, client mainline,
+				implementation object, and an Ant <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>build.xml</FONT></FONT></FONT>
+				file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-ant</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Generates the Ant <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>build.xml</FONT></FONT></FONT>
+				file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-nexclude
+				<BR>  &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>schema-namespace</I></FONT></FONT></FONT>[=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>java-packagename</I></FONT></FONT></FONT>]&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Ignore the specified WSDL schema namespace when
+				generating code. This option may be specified multiple times. 
+				Also, optionally specifies the Java  package name used by types
+				described in the excluded namespace(s).</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-exsh
+				&lt;(true/false)&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Enables or disables processing of extended soap
+				header message binding.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">-validate</FONT></FONT></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Enables or disables validating the wsdl before
+				generate the code</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Displays comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>Suppresses comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdlfile</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=351>
+				<P><FONT SIZE=2>The path and name of the WSDL file to use in
+				generating the code.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2>You must specify the absolute or relative path to the
+WSDL file as the last argument.  All other arguments are optional and
+may be listed in any order.</FONT></P>
+<H1><A NAME="2.The Celtix java2wsdl Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix java2wsdl Utility</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">java2wsdl
+</FONT></FONT></FONT></FONT></FONT></FONT>tool uses a Web service
+endpoint's implementation (SEI) class and associated types classes to
+generate a WSDL file. The syntax of the command is summarized in the
+following illustration.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java2wsdl
+	-o &lt;output-file&gt; -cp &lt;class-path&gt; -t &lt;target-namespace&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-servicename
+	&lt;service-name&gt; -h -v -verbose -quiet &lt;classname&gt;</FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The arguments used to manage the WSDL file generation
+are reviewed in the following table.</FONT></P>
+<TABLE WIDTH=662 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=288>
+	<COL WIDTH=356>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=288 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=356 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<DL>
+					<DT><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT><DT>
+					<FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></DL>
+			</TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the online help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-o
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-file</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the generated WSDL file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-cp
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>class-path</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specify the SEI and types class search path of
+				directories and zip/jar files.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-t
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>target-namespace</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the target namespace  to use in the
+				generated WSDL file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-servicename
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>service-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the value of the generated </FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2>&lt;service&gt;</FONT></FONT></FONT></FONT><FONT SIZE=2>
+				element's </FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2>name</FONT></FONT></FONT></FONT><FONT SIZE=2>
+				attribute.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Suppresses comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>classname</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the service endpoint class.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<DL>
+	<DT><FONT SIZE=2>You must include the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>&lt;classname&gt;</I></FONT></FONT></FONT>
+	argument.  All other arguments are optional and  may be listed in
+	any order. This tool will search and load the service endpoint class
+	and types classes.  Make certain these classes are on the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>CLASSPATH</FONT></FONT></FONT>
+	or in a location identified through the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-cp</FONT></FONT></FONT>
+	flag. </FONT>
+</DL>
+<H1><A NAME="3.The Celtix wsdl2soap Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix wsdl2soap Utility</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>This tool will generate a new WSDL file with a SOAP
+binding from an existing WSDL file containing a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>portType</FONT></FONT></FONT>
+element. The syntax of the command is summarized in the following
+illustration.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>wsdl2soap
+	-i &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-type-name</I></FONT></FONT></FONT>&gt;
+	-b &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>binding-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-d
+	&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;
+	-o &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-file</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-n
+	&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>soap-body-namespace</I></FONT></FONT></FONT>&gt;
+	-style &lt;(document/rpc)&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New">-use
+	&lt;(literal/encoded)&gt; -h -v -verbose -quiet &lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">wsdlurl</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;</FONT></SPAN></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The arguments used to manage the WSDL file generation
+are reviewed in the following table.</FONT></P>
+<TABLE WIDTH=662 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=288>
+	<COL WIDTH=356>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=288 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=356 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the online help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-i
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-type-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>portType</FONT></FONT></FONT>
+				element for which a binding should be generated.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-b
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>binding-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the generated SOAP binding.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-d
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the directory to place generated WSDL
+				file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-o
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-file</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the generated WSDL file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-n
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>soap-body-namespace</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the SOAP body namespace when the style
+				is RPC.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-style
+				&lt;(document/rpc)&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><A NAME="wp336938"></A><FONT SIZE=2>Specifies the encoding
+				style (<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>document</FONT></FONT></FONT>
+				or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>RPC</FONT></FONT></FONT>)
+				to use in the SOAP binding. The default is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>document</FONT></FONT></FONT>.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-use
+				&lt;(literal/encoded)&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the binding use (<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>encoded</FONT></FONT></FONT>
+				or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>literal</FONT></FONT></FONT>)
+				to use in the SOAP binding. The default is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>literal</FONT></FONT></FONT>.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Suppresses comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdlurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>The path and name of the WSDL file containing the
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>portType</FONT></FONT></FONT>
+				element definition.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-i
+&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-type-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdlurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+arguments are required.  If the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-style
+rpc</FONT></FONT></FONT> argument is specified, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-n
+&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>soap-body-namspace</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+argument is also required.  All other arguments are optional and may
+be listed in any order.</FONT></P>
+<H1><A NAME="4.The Celtix wsdl2service Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix wsdl2service Utility</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2><FONT SIZE=2>The </FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">wsdl2service</FONT></FONT></FONT></FONT></FONT></FONT><FONT SIZE=2>
+tool creates a new WSDL file containing an HTTP or JMS service
+definition from an existing</FONT> WSDL document containing a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>binding</FONT></FONT></FONT>
+element. <FONT SIZE=2>The syntax of the command is summarized in the
+following illustration.</FONT></FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>wsdl2service
+	-transport &lt;http/jms&gt; -e &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>service-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-p
+	&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-name</I></FONT></FONT></FONT>&gt;
+	-n &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>attribute-binding-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New">[-a
+	&lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">address</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;]
+	</FONT></SPAN>-jds &lt;jms-destionation-Style(queue/topic)&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Courier New">-jpu
+	<I>&lt;jms-jndi-provider-URL&gt;</I> -jcf
+	<I>&lt;jms-initial-context-factory&gt;</I>                          
+	            </FONT></FONT></FONT></SPAN></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-jfn
+	<I>&lt;jms-jndi-connection-factory-name&gt;</I> </FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-jdn
+	<I>&lt;jms-jndi-destination-name&gt;</I> </FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-jmt
+	<I>&lt;jms-message-type(text/binary)&gt; </I></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-jmc
+	<I>&lt;use-messageid-as-correlationid(true/false)&gt;</I> </FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000"><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New"><FONT SIZE=2>-jsn
+	<I>&lt;durable-subscriber-name&gt;</I> </FONT></FONT>-o
+	&lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">output-file</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;
+	</FONT></SPAN></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New">-d
+	&lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">output-directory</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;
+	-h -v -verbose -quiet &lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">wsdlurl</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;</FONT></SPAN></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The arguments used to manage the WSDL file generation
+are reviewed in the following table.</FONT></P>
+<TABLE WIDTH=662 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=357>
+	<COL WIDTH=287>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=357 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=287 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Displays the online help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-transport
+				&lt;http/jms&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the type of transport to use for the
+				generated service.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-e
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>service-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the value of the generated <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>service</FONT></FONT></FONT>
+				element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-p
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the value of the generated <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute. To specify multiple <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				elements, separate the names by a space.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>address</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the value used in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>address</FONT></FONT></FONT>
+				element of the port.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-n
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>attribute-binding-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the binding used to generate the
+				service.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-jds
+				&lt;<I>jms-destionation-Style(queue/topic)</I>&gt;</FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>JMS destination style (queue/topic)</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-jpu <I>&lt;jms-jndi-provider-URL&gt;</I></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>JMS JNDI provider URL</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-jcf <I>&lt;jms-initial-context-factory&gt;</I></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>JMS initial context factory</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-jfn <I>&lt;jms-jndi-connection-factory-name&gt;</I></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>JMS JNDI connection factory name</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-jdn <I>&lt;jms-jndi-destination-name&gt;</I></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>JMS JNDI destination name</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-jmt <I>&lt;jms-message-type(text/binary)&gt;</I></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>JMS message type(text/binary)</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">-jmc <I>&lt;use-messageid-as-correlationid(true/false)&gt;</I></FONT></FONT></FONT></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Use MessageID As CorrelationID(true/false)</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<PRE><FONT FACE="Bitstream Vera Sans Mono"><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">-jsn <I>&lt;durable-subscriber-name&gt;</I></FONT></FONT></FONT></FONT></FONT></FONT></FONT></PRE>
+			</TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Durable Subscriber Name</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-o
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-file</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the name of the generated WSDL file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-d
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Specifies the directory in which the generated
+				WSDL is placed.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Displays comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>Suppresses comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=357>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdlurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=287>
+				<P><FONT SIZE=2>The path and name of the existing WSDL file.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2>You must specify the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-n
+&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>attribute-binding-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+argument and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>&lt;wsdlurl&gt;</I></FONT></FONT></FONT>
+argument. All other arguments are optional and may be listed in any
+order.</FONT></P>
+<H1><A NAME="5.The Celtix wsdl2xml Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix wsdl2xml Utility</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The <KBD><FONT COLOR="#800000"><FONT SIZE=2>wsdl2xml</FONT></FONT></KBD>
+tool <FONT SIZE=2>generates an XML binding from an existing</FONT>
+WSDL document containing a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;portType&gt;</B></FONT></FONT></FONT>
+definition. <FONT SIZE=2>The syntax of the command is summarized in
+the following illustration.</FONT></FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>wsdl2xml
+	-i &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-type-name</I></FONT></FONT></FONT>&gt;
+	-b &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>binding-name</I></FONT></FONT></FONT>&gt;
+	-e &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>service-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-p
+	&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-name</I></FONT></FONT></FONT>&gt;
+	-a &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>address</I></FONT></FONT></FONT>&gt;
+	-d &lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><SPAN LANG="en-US"><FONT FACE="Courier New">-o
+	&lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">output-file</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;
+	-h -v -verbose -quiet &lt;</FONT></SPAN><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><SPAN LANG="en-US"><FONT FACE="Courier New">wsdlurl</FONT></SPAN></I></FONT></FONT></FONT><SPAN LANG="en-US"><FONT FACE="Courier New">&gt;</FONT></SPAN></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The arguments used to manage WSDL file generation are
+reviewed in the following table.</FONT></P>
+<TABLE WIDTH=662 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=288>
+	<COL WIDTH=356>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=288 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=356 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the online help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-i
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-type-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>portType</FONT></FONT></FONT>
+				element to use.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-b
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>binding-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the generated XML binding.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-e
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>service-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the value of the generated <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;service&gt;</FONT></FONT></FONT>
+				element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-p
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the value of the generated <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;port&gt;</FONT></FONT></FONT>
+				element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.  To specify multiple <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;port&gt;</FONT></FONT></FONT>
+				elements, separate the names by a space.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-a
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>address</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the value used in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;address&gt;</FONT></FONT></FONT>
+				element of the generated <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;port&gt;</FONT></FONT></FONT>
+				element.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-d
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the directory to place generated WSDL
+				file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-o
+				&lt;output-file&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the generated WSDL file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Suppresses comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdlurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>The path and name of the existing WSDL file.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-i
+&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>port-type-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>w<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>sd</FONT></FONT></FONT>lurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+arguments are required. All other arguments are optional and may be
+listed in any order.</FONT></P>
+<H1><A NAME="6.The Celtix xsd2wsdl Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix xsd2wsdl Utility</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">xsd2wsdl</FONT></FONT></FONT></FONT></FONT></FONT>
+tool imports an XMLSchema document and generates a WSDL file
+containing a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;types&gt;</FONT></FONT></FONT>
+element populated by the types defined in the XMLSchema document. 
+<FONT SIZE=2>The syntax of the command is summarized in the following
+illustration.</FONT></FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>xsd2wsdl
+	-t &lt;target-name-space&gt; -n &lt;wsdl-name&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-d
+	&lt;output-directory&gt; -o &lt;output-file&gt;</FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2>-h
+	-v -verbose -quiet &lt;xsdurl&gt;</FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The arguments used to manage WSDL file generation are
+reviewed in the following table.</FONT></P>
+<TABLE WIDTH=662 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=288>
+	<COL WIDTH=356>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=288 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=356 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the online help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-t
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>target-name-space</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the target namespace for the generated
+				WSDL.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-n
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>wsdl-name</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the value of the generated <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;definition&gt;</FONT></FONT></FONT>
+				element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-d
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>output-directory</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the directory in which the generated
+				WSDL is placed.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-o
+				&lt;output-file&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the name of the generated WSDL file.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Suppresses comments during the code generation
+				process.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>xsdurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>The path and name of the existing XSDSchema file.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><STRONG>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>-</B>t
+&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>target-name-space</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>xsdurl</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT>
+arguments are required.  All other arguments are optional and may be
+listed in any order.</STRONG></FONT></P>
+<H1><A NAME="7.The Celtix wsdlvalidator Utility|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><STRONG>The
+Celtix wsdlvalidator Utility</STRONG></FONT></FONT></FONT></H1>
+<P><FONT SIZE=2><STRONG>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">wsdlvalidator</FONT></FONT></FONT></FONT></FONT></FONT>
+tool<FONT SIZE=2> validates whether a wsdl file or wsdl url is
+well-formed and schema conformed.</FONT></STRONG></FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT COLOR="#800000"><FONT COLOR="#800000">
+	<FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New">wsdlvalidator
+	-d &lt;schema-directory&gt; -s &lt;schema-url&gt;* </FONT></FONT></FONT></FONT></FONT></FONT></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000"><FONT COLOR="#800000"><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New">-h
+	-v -verbose -quiet &lt;wsdlurl&gt;</FONT></FONT></FONT></FONT></FONT></FONT></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2><STRONG><FONT SIZE=2>The arguments used to validate WSDL
+file are reviewed in the following table.</FONT></STRONG></FONT></P>
+<TABLE WIDTH=662 BORDER=1 CELLPADDING=4 CELLSPACING=0 RULES=ROWS>
+	<COL WIDTH=288>
+	<COL WIDTH=356>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=288 BGCOLOR="#e6e6e6">
+				<P><I>Command Line Argument</I></TH>
+			<TH WIDTH=356 BGCOLOR="#e6e6e6">
+				<P><I>Interpretation</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-?</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-help</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-h</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the online help for this utility.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><FONT SIZE=2><FONT FACE="Courier New"><FONT COLOR="#800000">-d
+				&lt;schema-directory&gt;</FONT></FONT></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><A NAME="wp336974"></A><FONT SIZE=2>Specifies the directory
+				used to search for schemas</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-s
+				&lt;<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>schema-url</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Specifies the URL of a user specific schema to be
+				included in the validation of the contract. This switch can
+				appear multiple times. </FONT>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays the version number for the tool.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-verbose</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Displays comments during the validation.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-quiet</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>Suppresses comments during the validation</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=288>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>&lt;wsdl<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>url</I></FONT></FONT></FONT>&gt;</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=356>
+				<P><FONT SIZE=2>The path and name of the existing WSDL file</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><BR>
+</BODY>
+</HTML>

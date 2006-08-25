@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20060508;11271300">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060516;14265323">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<p><font size=-1><a href="basic.pdf">Download as PDF</a></font></p>
+<P ALIGN=LEFT><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>General
+FAQ</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT FACE="Arial"><A HREF="#0.Basics|outline">Basics</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What is Celtix_|outline">What is
+		Celtix?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What is an ESB_|outline">What is
+		an ESB?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What is SOA_|outline">What is SOA?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.Relationship to other ESBs|outline">Relationship
+		to other ESBs</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.How does Celtix compare to other open source ESBs like Mule and ServiceMix_|outline">How
+		does Celtix compare to other open source ESBs like Mule and
+		ServiceMix?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.How does Celtix compare to commercial ESBs_ |outline">How
+		does Celtix compare to commercial ESBs? </A></FONT>
+		<DT><FONT FACE="Arial"><A HREF="#0.Relationship to Other Open Source Projects|outline">Relationship
+		to Other Open Source Projects</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Does Celtix use other open source projects_|outline">Does
+		Celtix use other open source projects?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.What other open source projects does Celtix work with_|outline">What
+		other open source projects does Celtix work with?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Are members of the Celtix community working with any open-source JBI projects_|outline">Are
+		members of the Celtix community working with any open-source JBI
+		projects?</A></FONT><DT>
+		<FONT FACE="Arial"><A HREF="#0.0.Are members of the Celtix community working with any open-source SCA projects_|outline">Are
+		members of the Celtix community working with any open-source SCA
+		projects?</A></FONT></DL>
+</DIV>
+<H1><A NAME="0.Basics|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Basics</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.What is Celtix_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What
+is Celtix?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Cetlix is an open source Java Web
+services ESB implementation. It is based on JAX-WS 2.0.</FONT></P>
+<H2><A NAME="0.0.What is an ESB_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What
+is an ESB?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>ESB stands for Enterprise Service Bus.
+An ESB is the layer of technology that makes SOA possible. It enables
+the abstraction by translating the messages defining the services
+into data that can be manipulated by a physical process implementing
+a service. Essentially, an ESB is the yarn that weaves a SOA
+together.</FONT></P>
+<H2><A NAME="0.0.What is SOA_|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What
+is SOA?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>SOA stands for Service-Oriented
+Architecture. Service-Oriented Architecture is an approach to
+software architecture with the goal to decouple the agents of work in
+a software system from the functionality advertised by those agents. 
+An agent offers a contract, representing a service, which can then be
+consumed by other software agents that require work to be done. In
+SOA terms, the contract-offering agent is the Service Provider, and
+the contract itself represents the Service. Using SOA, system
+designers can describe the core functions of the system as service
+elements that can be composed and reused to form business
+applications.</FONT></P>
+<H1><A NAME="0.Relationship to other ESBs|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Relationship
+to other ESBs</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.How does Celtix compare to other open source ESBs like Mule and ServiceMix_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>How does Celtix
+compare to other open source ESBs like Mule and ServiceMix?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix is the only ESB that implements
+the JAX-WS specification. Also, Celtix has the ability to send SOAP
+messages over HTTP built-in, and it does not require any external
+program for this functionality, like Apache Axis. Also, Celtix is not
+based on a particular messaging technology. It supports JMS and comes
+with ActiveMQ, but it can work with any JMS implementation. Celtix is
+extensible, so it is possible to write other messaging transports for
+Celtix since the messaging bus is not tightly bound to how Celtix
+works.</FONT></P>
+<H2><A NAME="0.0.How does Celtix compare to commercial ESBs_ |outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>How does Celtix
+compare to commercial ESBs? </FONT></FONT></FONT>
+</H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Due to the rapid innovation capability
+of an open source community, Celtix is comparable, and ahead in some
+ways, in capability to commercial Java-centric ESBs. For example,
+Celtix is currently the only ESB with JAX-WS support. The
+non-Java-centric ESBs complement and interoperate with Celtix to
+provide additional transports and bindings, i.e. IONA's Artix product
+provides additional capabilities to integrate with IBM MQ, CORBA,
+Tuxedo, etc.</FONT></P>
+<H1><A NAME="0.Relationship to Other Open Source Projects|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Relationship to
+Other Open Source Projects</FONT></FONT></FONT></H1>
+<H2><A NAME="0.0.Does Celtix use other open source projects_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Does Celtix use
+other open source projects?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Yes. Celtix is built and packaged using
+Maven 2.0 from Apache. All of the documentation for the Celtix
+project is written using OpenOffice 2.0.</FONT></P>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Celtix also uses components from Spring
+and Active MQ.</FONT></P>
+<P ALIGN=JUSTIFY><FONT SIZE=3>The Celtix team is also working with
+the STP project at the Eclipse foundation to build a set of GUI tools
+for developing SOAs.</FONT></P>
+<H2><A NAME="0.0.What other open source projects does Celtix work with_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>What other open
+source projects does Celtix work with?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Currently a number of open source
+projects are in discussions with the Celtix project about taking
+shared dependencies.</FONT></P>
+<H2><A NAME="0.0.Are members of the Celtix community working with any open-source JBI projects_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Are members of
+the Celtix community working with any open-source JBI projects?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Yes.</FONT></P>
+<H2><A NAME="0.0.Are members of the Celtix community working with any open-source SCA projects_|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4>Are members of
+the Celtix community working with any open-source SCA projects?</FONT></FONT></FONT></H2>
+<P ALIGN=JUSTIFY><FONT SIZE=3>Yes.</FONT></P>
+</BODY>
+</HTML>

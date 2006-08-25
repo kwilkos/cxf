@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+   xmlns:r="http://celtix.objectweb.org/routing/configuration" 
+   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
+   targetNamespace="http://celtix.objectweb.org/routing/configuration" elementFormDefault="qualified">
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+    <xs:element name="route" type="r:routeType"/>
+    <xs:complexType name="routeType">
+        <xs:annotation>
+            <xs:documentation>Used to describe the route from source service to destination service.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:sequence>
+                    <xs:element name="source" type="r:sourceType" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Describes the Source Service.
+                            </xs:documentation>
+                        </xs:annotation>                    
+                    </xs:element>
+                    <xs:element name="propagateInputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Describes the Trasnport Attributes to be propagated from Source to Destination Service for the input message.
+                            </xs:documentation>
+                        </xs:annotation>                    
+                    </xs:element>
+                    <xs:element name="propagateOutputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Describes the Trasnport Attributes to be propagated from Destination to Source Service for the output message.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="operation" type="r:operationType" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Describes the operation to be routed from source to a partixulare destination service.
+                            </xs:documentation>
+                        </xs:annotation>                    
+                    </xs:element>
+                    <xs:element name="destination" type="r:destinationType" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Describes the Destination Service.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name="name" type="xs:NCName" use="required">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Specifies the route name.
+                            </xs:documentation>
+                        </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="multiRoute" type="r:multiRouteType" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>
+                            Type of route.
+                            </xs:documentation>
+                        </xs:annotation>                
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="multiRouteType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="failover"/>
+            <xs:enumeration value="fanout"/>
+            <xs:enumeration value="loadBalance"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="sourceType">
+        <xs:attribute name="service" type="xs:QName" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                Specifies the service qname of the service as defined in the router wsdl..
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="port" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                Specifies the endpoint name among the service. Incase of the attribute not specified and multiple endpoint defined for the service, the first endpoint will be selected.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="propagateAttributeType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="target" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="operationType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="target" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="destinationType">
+        <xs:attribute name="service" type="xs:QName" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                Specifies the service qname of the service as defined in the router wsdl..
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="port" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                Specifies the endpoint name among the service. Incase of the attribute not specified and multiple endpoint defined for the service, the first endpoint will be selected.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="operation" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                Specifies the operation in the destination porttype to which the incoming input message from the source service should be routed.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:element name="wsdlUrl" type="r:urlListPolicy"/>
+    <xs:complexType name="urlListPolicy">
+        <xs:sequence>
+            <xs:element name="url" type="xs:string" maxOccurs="unbounded">
+            <xs:annotation>
+                <xs:documentation>
+                Specifies the list of wsdl urls which define the routes.
+                </xs:documentation>
+            </xs:annotation>            
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="John Lifter">
+	<META NAME="CREATED" CONTENT="20060407;12412700">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060508;17293413">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Deploying
+Celtix into a Servlet Container</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.Overview|outline">Overview	1</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.A Deployed Celtix Web Service|outline">A
+		Deployed Celtix Web Service	1</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.1.The XML Files|outline">The XML
+		Files	2</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.The Endpoint URL|outline">The
+		Endpoint URL	3</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.Alternative Deployment Approaches|outline">Alternative
+		Deployment Approaches	4</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.1.Removing Extraneous Files|outline">Removing
+		Extraneous Files	4</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.2.Relocating the Celtix JAR Files|outline">Relocating
+		the Celtix JAR Files	4</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.3.Installing Multiple Web Services into a Common Directory Hierarchy|outline">Installing
+		Multiple Web Services into a Common Directory Hierarchy	5</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.4.Installing Tomcat|outline">Installing
+		Tomcat	6</A></I></FONT></DL>
+</DIV>
+<H1><A NAME="1.Overview|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Overview</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>It is possible to deploy a Celtix Web service
+endpoint into a servlet container such as Tomcat.  The sample
+applications hello_world and hello_world_RPCLit demonstrate this
+capability.  However, these examples illustrate a very basic approach
+to accomplishing this task.  This document will discuss alternative
+approaches that are more scalable and efficient.</FONT></P>
+<P><FONT SIZE=2>Before discussing these alternative approaches, it is
+essential that you understand what is needed to deploy a Celtix Web
+service endpoint into Tomcat.  If you need guidance on installing
+Tomcat, refer to the last section in this document &ndash; Installing Tomcat
+on page 6.</FONT></P>
+<H1><A NAME="2.A Deployed Celtix Web Service|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>A
+Deployed Celtix Web Service</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Go to either the hello_world or hello_world_RPCLit
+examples and follow the instructions to build the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file.  Instructions for performing this task are near the end of the
+README file.  The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file is generated into the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>build/war</B></FONT></FONT></FONT>
+directory.  Review the content of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>build.xml</B></FONT></FONT></FONT>
+file in either example.  Note that it has targets to create the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file and to run the client application against the Tomcat hosted Web
+service.  If you would rather run the client using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+directly, refer to the instructions in the README file.</FONT></P>
+<P><FONT SIZE=2>If desired, copy one, or both, of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+files to the Tomcat <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+directory, start Tomcat, and run the client application(s).</FONT></P>
+<P><FONT SIZE=2>Use WinZip to open the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file and view its contents; then extract the archive to a temporary
+location.  </FONT>
+</P>
+<P><IMG SRC="deploy_into_tomcat_html_2cd0d264.jpg" NAME="graphics1" ALIGN=LEFT WIDTH=192 HEIGHT=175 BORDER=0><BR CLEAR=LEFT><FONT SIZE=2>Alternatively,
+if you installed the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file(s) into Tomcat, you can view the contents from the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+directory; the files will have been extracted into a directory with a
+name corresponding to the name of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file (without the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+extension).</FONT></P>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>classes</B></FONT></FONT></FONT>
+directory includes the code generated from the WSDL file plus any
+additional files you have added to the application.  Note that files
+from both the server and client application are included.  Obviously,
+the client related files are not needed and will not be included in
+the alternative approaches discussed later in this document.</FONT></P>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>lib</B></FONT></FONT></FONT>
+directory includes all of the JAR files from your Celtix
+installation's lib directory, and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>wsdl</B></FONT></FONT></FONT>
+directory contains the WSDL file for the application.</FONT></P>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>WEB-INF</B></FONT></FONT></FONT>
+directory includes two XML files: <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>web.xml</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-servlet.xml</B></FONT></FONT></FONT>.
+ You need to understand the content of these files in order to
+appreciate the alternative approaches described in this document.</FONT></P>
+<H2><A NAME="2.1.The XML Files|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+XML Files</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>web.xml</B></FONT></FONT></FONT>
+file is the standard servlet deployment descriptor file while the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-servlet.xml</B></FONT></FONT></FONT>
+file includes configuration information specific to the Celtix Web
+service endpoint.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>The web.xml
+File</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>Although this file contains the standard servlet
+configuration information, you need to review its contents.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	web-app PUBLIC &quot;-//Sun Microsystems, Inc.//DTD Web Application
+	2.3//EN&quot; </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://java.sun.com/j2ee/dtds/web-app_2_3.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;web-app&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;display-name&gt;celtix&lt;/display-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;description&gt;celtix&lt;/description&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;servlet&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;servlet-name&gt;celtix&lt;/servlet-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;display-name&gt;celtix&lt;/display-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;description&gt;Celtix
+	endpoint&lt;/description&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;servlet-class&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#00ae00">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.jaxws.servlet.CeltixServlet</FONT></B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/servlet-class&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/servlet&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;servlet-mapping&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;servlet-name&gt;celtix&lt;/servlet-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#00ae00">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;url-pattern&gt;/celtix/*&lt;/url-pattern&gt;</FONT></B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/servlet-mapping&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;session-config&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;session-timeout&gt;60&lt;/session-timeout&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/session-config&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/web-app&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Note that the servlet class is not actually part of your
+application.  It is pre-written and part of your Celtix installation.
+ This class file is located in the file <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-rt-&lt;version
+number&gt;.jar</B></FONT></FONT></FONT>, which is one of the files
+included in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>lib</B></FONT></FONT></FONT>
+directory.</FONT></P>
+<P><FONT SIZE=2>Also note the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;url-pattern&gt;</B></FONT></FONT></FONT>
+entry <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix</B></FONT></FONT></FONT>.
+ This will become part the the URL that client applications use to
+invoke on the Web service.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>The
+celtix-servlet.xml File</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>This file contains content specific to the Celtix Web
+service application.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoints&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint
+	name=&quot;hello_world&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>interface=&quot;org.objectweb.hello_world_soap_http.Greeter&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>implementation=&quot;demo.hw.server.GreeterImpl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>wsdl=&quot;WEB-INF/wsdl/hello_world.wsdl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>service=&quot;{http://objectweb.org/hello_world_soap_http}SOAPService&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>port=&quot;{http://objectweb.org/hello_world_soap_http}SOAPPort&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>url-pattern=&quot;/hello_world&quot;
+	/&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/endpoints&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Notice that all information related to a specific Web
+service is specified as attributes within the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint&gt;</B></FONT></FONT></FONT>
+tag.  The origin of most of these entries is straight-forward, being
+derived either from declarations in the WSDL file or from the class
+names of code generated from the WSDL file.  The value for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>wsdl</B></FONT></FONT></FONT>
+attribute is the path to the application's WSDL file relative to the
+application's installation directory under the Tomcat <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+directory, and the values of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>service</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>port</B></FONT></FONT></FONT>
+attributes are derived from a combination of the target namespace and
+service, or port, name specified in the WSDL file.</FONT></P>
+<P><FONT SIZE=2>The value for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>url-pattern</B></FONT></FONT></FONT>
+attribute is the same as the name attribute, but that is not a firm
+requirement.  What is important, however, is that this entry will
+also become part of the URL that client applications will use to
+invoke on the Web service.</FONT></P>
+<P><FONT SIZE=2>As you will see later in this document, if you want
+to deploy multiple Celtix Web service endpoints into the same Tomcat
+instance, you can simply add additional <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint&gt;</B></FONT></FONT></FONT>
+elements to this XML file.</FONT></P>
+<H1><A NAME="3.The Endpoint URL|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Endpoint URL</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>In order to access the Web service endpoint, client
+applications need a URL.  Since the endpoint is hosted within Tomcat,
+access will be through the TCP/IP port used by Tomcat and not through
+the URL specified in the WSDL file.  In the Celtix example
+applications, access to the hello_world Web service deployed into
+Tomcat uses the URL:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://hostname:port/helloworld/celtix/hello_world</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>and access to the hello_world_RPCLit Web service uses
+the URL:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://hostname:port/helloworldrpclit/celtix/hello_world_rpclit</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Where:</FONT></P>
+<UL>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://hostname:port</B></FONT></FONT></FONT>
+	refer to the host and TCP/IP port used by Tomcat (for Tomcat, the
+	default port is generally 8080),</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/helloworld</B></FONT></FONT></FONT>
+	or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/helloworldrpclit</B></FONT></FONT></FONT>
+	are derived from the name of the subdirectory under the Tomcat
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+	directory that contains the application (note that this subdirectory
+	has the same name as the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+	file),</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/celtix</B></FONT></FONT></FONT>
+	is derived from the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;url-pattern&gt;</B></FONT></FONT></FONT>
+	entry in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>web.xml</B></FONT></FONT></FONT>
+	file, and</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/hello_world</B></FONT></FONT></FONT>
+	or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/hello_world_rpclit</B></FONT></FONT></FONT>
+	are derived from the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>url-pattern</B></FONT></FONT></FONT>
+	attribute within the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint&gt;</B></FONT></FONT></FONT>
+	tag in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-servlet.xml</B></FONT></FONT></FONT>
+	file.</FONT></P>
+</UL>
+<P><FONT SIZE=2>You should note how these URLs are specified when
+running the sample applications.  If you choose to run the client
+application using Ant, the URL is derived from information supplied
+on the command line combined with information that is already
+included in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;target
+name=&ldquo;client-servlet&rdquo;...&gt;&lt;celtix-run.../&gt;&lt;/target&gt;</B></FONT></FONT></FONT>
+tags in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>build.xml</B></FONT></FONT></FONT>
+file.  If you run the application using <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>,
+you must supply the URL as a command line parameter.</FONT></P>
+<H1><A NAME="4.Alternative Deployment Approaches|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Alternative
+Deployment Approaches</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>While the approach used in the Celtix example
+applications demonstrates how Celtix Web services can be deployed
+into Tomcat, there are some improvements that you can make.</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>First, the client related files do not
+	need to be included.</FONT></P>
+	<LI><P><FONT SIZE=2>Second, the server mainline file is also not
+	required.</FONT></P>
+	<LI><P><FONT SIZE=2>Third, many of the Celtix JAR files are not
+	needed.</FONT></P>
+	<LI><P><FONT SIZE=2>Fourth, the Celtix JAR files can be moved into
+	the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>shared/lib</B></FONT></FONT></FONT>
+	subdirectory under your Tomcat installation.  With this arrangement,
+	these files are shared by all Celtix applications that are deployed
+	into Tomcat.</FONT></P>
+	<LI><P><FONT SIZE=2>And fifth, multiple Web services can be deployed
+	within the same directory hierarchy rather than deploying each
+	service into a unique subdirectory under the Tomcat <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+	directory.</FONT></P>
+</OL>
+<P><FONT SIZE=2>Once you have deployed the first Web service, you can
+deploy additional endpoints into the same directory hierarchy by
+simply copying the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.class</B></FONT></FONT></FONT>
+files and WSDL file corresponding to the Web service and extending
+the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-servlet.xml</B></FONT></FONT></FONT>
+file with another <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint&gt;</B></FONT></FONT></FONT>
+entry.  There is no need to actually generate the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+file, which will include files (client mainline, server mainline,
+Celtix JARS, and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>web.xml</B></FONT></FONT></FONT>)
+that you do not need.</FONT></P>
+<P><FONT SIZE=2>To illustrate these points, you can rework the
+hello_world and hello_world_RPCLit demos, combining them into a
+single servlet application.</FONT></P>
+<H2><A NAME="4.1.Removing Extraneous Files|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Removing
+Extraneous Files</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>If you have not done so already, copy the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+files from the hello_world and hello_world_RPCLit example
+applications into the Tomcat <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+directory.  Start Tomcat, which causes the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+files to be unpacked into  subdirectories under <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>.
+ Stop Tomcat and open a command window, or Windows explorer, to the
+subdirectory (<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworld</B></FONT></FONT></FONT>)
+holding one of the hello_world deployed application.  </FONT>
+</P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Removing
+Unneeded Application Files</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>Under the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworld/WEB-INF/classes/demo/hw</B></FONT></FONT></FONT>
+directory, delete the entire <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>client</B></FONT></FONT></FONT>
+subdirectory and the file <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Server.class</B></FONT></FONT></FONT>
+from the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>server</B></FONT></FONT></FONT>
+subdirectory; be certain to leave the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.class</B></FONT></FONT></FONT>
+file corresponding to the implementation class.  Also remove the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Server.class</B></FONT></FONT></FONT>
+file from the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworldrpclit/WEB-INF/<BR>classes/demo/hwRPCLit/server</B></FONT></FONT></FONT>
+subdirectory.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Removing
+Unneeded Celtix JAR Files</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>Delete the following JAR files from the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworld/WEB-INF/lib</B></FONT></FONT></FONT>
+directory: (REVISIT at v1.0 GA.)</FONT></P>
+<H2><A NAME="4.2.Relocating the Celtix JAR Files|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Relocating
+the Celtix JAR Files</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Move the contents of the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworld/WEB-INF/lib</B></FONT></FONT></FONT>
+directory into the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>shared/lib</B></FONT></FONT></FONT>
+directory.  The Celtix JAR files will now be available to all Celtix
+applications deployed into this Tomcat instance.  (REVISIT at v1.0
+GA; approach to generating, and contents of, the .war file may
+change.)</FONT></P>
+<H2><A NAME="4.3.Installing Multiple Web Services into a Common Directory Hierarchy|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Installing
+Multiple Web Services into a Common Directory Hierarchy</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>To avoid some confusion, you will first rename the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworld</B></FONT></FONT></FONT>
+directory to <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications</B></FONT></FONT></FONT>.
+ Then you are going to copy the files from the hello_world_RPCLit
+example into the corresponding subdirectories under
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications</B></FONT></FONT></FONT>.
+ Finally, you will edit the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-servlet.xml</B></FONT></FONT></FONT>
+file, adding a second <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint&gt;</B></FONT></FONT></FONT>
+element that describes the hello_world_RPCLit service.  When you
+restart Tomcat both endpoints will be accessed through a URL
+beginning with a common context:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://hostname:port/applications/celtix/</B></FONT></FONT></FONT>.</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Be certain that Tomcat is not running.</FONT></P>
+	<LI><P><FONT SIZE=2>Rename the directory <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworld</B></FONT></FONT></FONT>
+	to <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications</B></FONT></FONT></FONT>.
+	 Expand each subdirectory.</FONT></P>
+	<LI><P><FONT SIZE=2>Copy the directory
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworldrpclit/WEB-INF/classes/demo/hwRPCLit</B></FONT></FONT></FONT>
+	and paste it into the directory
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications/WEB-INF/classes/demo</B></FONT></FONT></FONT>.
+	 This step copies the directory containing the endpoint application,
+	specifically the implementation class, from the hello_world_RPCLit
+	example into the combined deployment.</FONT></P>
+	<LI><P><FONT SIZE=2>Copy the directory
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworldrpclit/WEB-INF/classes/demo/org/objectweb/<BR>hello_world_rpclit</B></FONT></FONT></FONT>
+	and paste it into the directory
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications/WEB-INF/classes/demo/orb/objectweb</B></FONT></FONT></FONT>.
+	 This step copies the directory containing the types generated from
+	the hello_world_RPCLit example's WSDL file into the combined
+	deployment.</FONT></P>
+	<P><IMG SRC="deploy_into_tomcat_html_m3becb539.jpg" NAME="graphics2" ALIGN=LEFT WIDTH=192 HEIGHT=204 BORDER=0><BR CLEAR=LEFT></P>
+	<LI><P><FONT SIZE=2>Copy the file
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworldrpclit/WEB-INF/wsdl/hello_world_RPCLit.wsdl</B></FONT></FONT></FONT>
+	and paste it into the directory <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications/WEB-INF/wsdl</B></FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>In a text editor, open the file
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/helloworldrpclit/WEB-INF/celtix-servlet.xml</B></FONT></FONT></FONT>
+	and copy the entire <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint&gt;</B></FONT></FONT></FONT>
+	element.  Paste this content into the file
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps/applications/WEB-INF/<BR>celtix-servlet.xml</B></FONT></FONT></FONT>
+	and save the file.<BR></FONT><BR><BR>
+	</P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoints&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint
+	name=&quot;hello_world_rpclit&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>interface=&quot;org.objectweb.hello_world_rpclit.GreeterRPCLit&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>implementation=&quot;demo.hwRPCLit.server.GreeterRPCLitImpl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>wsdl=&quot;WEB-INF/wsdl/hello_world_RPCLit.wsdl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>service=&quot;{http://objectweb.org/hello_world_rpclit}SOAPServiceRPCLit&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>port=&quot;{http://objectweb.org/hello_world_rpclit}SOAPPortRPCLit&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>url-pattern=&quot;/hello_world_rpclit&quot;
+	/&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;endpoint
+	name=&quot;hello_world&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>interface=&quot;org.objectweb.hello_world_soap_http.Greeter&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>implementation=&quot;demo.hw.server.GreeterImpl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>wsdl=&quot;WEB-INF/wsdl/hello_world.wsdl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>service=&quot;{http://objectweb.org/hello_world_soap_http}SOAPService&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>port=&quot;{http://objectweb.org/hello_world_soap_http}SOAPPort&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>url-pattern=&quot;/hello_world&quot;
+	/&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/endpoints&gt;</B></FONT></FONT></FONT></DL>
+<OL START=7>
+	<LI><P>
+	<FONT SIZE=2>Delete the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>helloworldrpclit</B></FONT></FONT></FONT>
+	subdirectory and the two <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.war</B></FONT></FONT></FONT>
+	files from the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>webapps</B></FONT></FONT></FONT>
+	directory.</FONT></P>
+	<LI><P><FONT SIZE=2>Restart Tomcat.</FONT></P>
+	<LI><P><FONT SIZE=2>Access the hello_world_RPCLit Web service using
+	the URL:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://hostname:port/applications/celtix/hello_world_rpclit</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>From the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix/samples/hello_world_RPCLit</B></FONT></FONT></FONT>
+directory, run the client with the command:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java
+	-Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+	<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;demo.hwRPCLit.client.Client
+	<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://localhost:8080/applications/celtix/hello_world_rpclit</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Access the hello_world Web service using the URL:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://hostname:port/applications/celtix/hello_world</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>From the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix/samples/hello_world</B></FONT></FONT></FONT>
+directory, run the client with the command:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java
+	-Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+	<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;demo.hw.client.Client
+	http://localhost:8080/applications/celtix/hello_world</B></FONT></FONT></FONT></DL>
+<H2>
+<A NAME="4.4.Installing Tomcat|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Installing
+Tomcat</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Since Celtix requires the Java 2 Standard Edition,
+v5.0 or later, it is essential that you use a version of Tomcat that
+is compatible with this version of Java.  Tomcat v5.5.x is the proper
+choice and may be downloaded from the Apache Software Foundation site
+at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://tomcat.apache.org/download-55.cgi">http://tomcat.apache.org/download-55.cgi</A></B></FONT></FONT></FONT>.</FONT></P>
+<P><FONT SIZE=2>For Windows, an executable installer is available. 
+Alternatively Windows users can download a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.zip</B></FONT></FONT></FONT>
+file and UNIX/Linux users can download a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>.tar.gz</B></FONT></FONT></FONT>
+file.  If you download one of the archive files, you can simply
+extract the file to a convenient location.  If you downloaded the
+Windows executable, double click on its icon to run the installation
+program.  Windows users will generally find the executable installer
+more convenient to use as it eliminates a number of environment and
+batch files and sets up some management applications and Start menu
+items that you may find useful.</FONT></P>
+<P><FONT SIZE=2>Once you have completed the installation, you must be
+certain that the environment is properly set before you try to launch
+Tomcat.  If you installed Tomcat from one of the archives, then you
+must set two environment variables.  Open a command window and issue
+the following commands:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>set
+	JAVA_HOME=C:\j2sdk5.0</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>set
+	CATALINA_HOME=C:\apache-tomcat-[version]</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>If you installed Tomcat using the Windows installer, you
+only need to set one environment variable.  Open a command window and
+issue the following commands:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>set
+	JAVA_HOME=C:\j2sdk5.0</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Rather than setting these values explicitly in a command
+window, you may find it more convenient to set these variables
+through your global configuration.</FONT></P>
+<P><FONT SIZE=2>Once the environment has been set, start Tomcat.  If
+you installed Tomcat using one of the archives, run the script
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>startup.bat</B></FONT></FONT></FONT>
+or <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>startup.sh</B></FONT></FONT></FONT>.
+ If you installed Tomcat using the Windows installer, start the
+executable program <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Tomcat5.exe</B></FONT></FONT></FONT>.
+ Both the scripts and the executable are in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CATALINA_HOME/bin</B></FONT></FONT></FONT>
+directory.</FONT></P>
+<P><FONT SIZE=2>By default, Tomcat is configured to use TCP/IP port
+8080 to service requests.  You can confirm that your Tomcat has been
+properly installed and configured by opening a Web browser and
+entering <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://localhost:8080</B></FONT></FONT></FONT>
+into the address text box.  If everything is properly set, the
+browser will display a confirmatory page.  If necessary, you can
+change any of the Tomcat TCP/IP ports used by editing the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>server.xml</B></FONT></FONT></FONT>
+file, which is located in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CATALINA_HOME/conf</B></FONT></FONT></FONT>
+directory.</FONT></P>
+</BODY>
+</HTML>

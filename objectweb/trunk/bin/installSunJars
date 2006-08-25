@@ -1,0 +1,33 @@
+#!/bin/sh
+
+
+printUsage() {
+        echo "You must specify the directory of your JAX-WS RI2.0 Early Access 3 install."
+        echo "It can be downloaded from https://jax-ws.dev.java.net/jax-ws-ea3/jaxws20ea3.jar"
+        echo "example:   $0 ~/jaxws-ri"
+        exit 1
+}
+
+
+if [ "$1" = "" ]; then 
+        printUsage
+fi
+
+if [ ! -e $1 ]; then 
+        echo "Could not find directory $1"
+        printUsage
+fi
+
+
+mvn install:install-file -DgroupId=javax.annotation  -DartifactId=jsr250-api -Dversion=2.0-JAXWS-2.0-EA3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/jsr250-api.jar
+mvn install:install-file -DgroupId=javax.jws  -DartifactId=jsr181-api -Dversion=2.0-JAXWS-2.0-EA3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/jsr181-api.jar
+mvn install:install-file -DgroupId=javax.activation  -DartifactId=activation -Dversion=1.0.2 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/activation.jar
+mvn install:install-file -DgroupId=javax.xml  -DartifactId=jaxws-api -Dversion=2.0-JAXWS-2.0-EA3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/jaxws-api.jar
+mvn install:install-file -DgroupId=javax.xml  -DartifactId=jaxb-api -Dversion=2.0-JAXWS-2.0-EA3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/jaxb-api.jar
+mvn install:install-file -DgroupId=javax.xml  -DartifactId=saaj-api -Dversion=1.3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/saaj-api.jar
+
+mvn install:install-file -DgroupId=com.sun.xml  -DartifactId=jaxb-xjc -Dversion=2.0-JAXWS-2.0-EA3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/jaxb-xjc.jar
+mvn install:install-file -DgroupId=com.sun.xml  -DartifactId=jaxb-impl -Dversion=2.0-JAXWS-2.0-EA3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/jaxb-impl.jar
+mvn install:install-file -DgroupId=com.sun.xml  -DartifactId=saaj-impl -Dversion=1.3 -Dpackaging=jar -DgeneratePom=true -Dfile=$1/lib/saaj-impl.jar
+
+

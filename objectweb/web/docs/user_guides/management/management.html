@@ -1,0 +1,1224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20060501;13315100">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060508;15212300">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Using
+Celtix Management</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.Overview|outline">Overview	1</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.Instrumented Celtix Components|outline">Instrumented
+		Celtix Components	1</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.1.CeltixBus|outline">CeltixBus	2</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.2.WorkQueue|outline">WorkQueue	3</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.3.WSDLManager|outline">WSDLManager	3</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.4.Endpoint|outline">Endpoint	4</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.5.HTTPServerTransport|outline">HTTPServerTransport	5</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.6.JMSServerTransport|outline">JMSServerTransport	6</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.Adding Instrumentation to a Celtix-enabled Application|outline">Adding
+		Instrumentation to a Celtix-enabled Application	6</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#3.1.Using the JMX MBean Interfaces|outline">Using
+		the JMX MBean Interfaces	6</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#3.2.Using the Celtix Instrumentation Interface|outline">Using
+		the Celtix Instrumentation Interface	8</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.Configuring Celtix Management Features|outline">Configuring
+		Celtix Management Features	12</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#5.Accessing Celtix MBeans from a Management Console|outline">Accessing
+		Celtix MBeans from a Management Console	14</A></FONT></DL>
+</DIV>
+<H1><A NAME="1.Overview|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Overview</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Celtix management features are implemented using the
+Java Management Extensions(JMX). These features include:</FONT></P>
+<UL>
+	<LI><P><FONT SIZE=2>instrumentation of key Celtix runtime components
+	as JMX MBeans</FONT></P>
+	<LI><P><FONT SIZE=2>support for dynamically exposing the MBeans of
+	the Celtix runtime components</FONT></P>
+	<LI><P><FONT SIZE=2>support for static registration of custom MBeans</FONT></P>
+	<LI><P><FONT SIZE=2>support for dynamic registration of custom
+	MBeans</FONT></P>
+</UL>
+<P><FONT SIZE=2>Once components of a Celtix-enabled application are
+exposed as MBeans they can be monitored and managed using any JMX
+compliant management console. They can also be monitored and managed
+using the JMXRemote APIs.</FONT></P>
+<H1><A NAME="2.Instrumented Celtix Components|outline"></A><A NAME="2.Instrumented Celtix Components|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Instrumented
+Celtix Components</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The following Celtix runtime components are
+instrumented and can be exposed as JMX MBeans:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><A HREF="#2.1.CeltixBus|outline">CeltixBus</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#2.2.WorkQueue|outline">WorkQueue</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#2.3.WSDLManager|outline">WSDLManager</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#2.4.Endpoint|outline">Endpoint</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#2.5.HTTPServerTransport|outline">HTTPServerTransport</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#2.6.JMSServerTransport|outline">JMSServerTransort</A></FONT></P>
+</UL>
+<P><FONT SIZE=2>The components are registered with the Celtix
+MbeanServer as Model Dynamic MBeans. They are named following the
+Guidelines laid out in the JMX best practices document at
+<A HREF="http://java.sun.com/products/JavaManagement/best-practices.html">http://java.sun.com/products/JavaManagement/best-practices.html</A>.
+All Celtix runtime MBeans are registered using
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.instrumentation</FONT></FONT></FONT>
+as their domain name. The remaining properties used to make up each
+MBean's ObjectName is made up of a combination of the bus name and
+other information from the service's WSDL contract.</FONT></P>
+<P>Table 1 <FONT SIZE=2>lists the ObjectName for each of the
+instrumented Celtix components.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=52*>
+	<COL WIDTH=204*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=20% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Component</I></FONT></TH>
+			<TH WIDTH=80% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Properties</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=20%>
+				<P><FONT SIZE=2>CeltixBus</FONT></TD>
+			<TD WIDTH=80%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>type=Bus,name=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>busName</I></FONT></FONT></FONT></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=20%>
+				<P><FONT SIZE=2>WorkQueue</FONT></TD>
+			<TD WIDTH=80%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>type=Bus.WorkQueue,Bus=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>busName</I></FONT></FONT></FONT>,name=WorkQueue</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=20%>
+				<P><FONT SIZE=2>WSDLManager</FONT></TD>
+			<TD WIDTH=80%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>type=Bus.WSDLManager,Bus=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>busName</I></FONT></FONT></FONT>,name=WSDLManager</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=20%>
+				<P><FONT SIZE=2>Endpoint</FONT></TD>
+			<TD WIDTH=80%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>type=Bus.Endpoint,Bus=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>busName</I></FONT></FONT></FONT>,Bus.Service=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>WSDLServiceQName</I></FONT></FONT></FONT>,Bus.Port=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>WSDLPort</I></FONT></FONT></FONT>,name=Endpoint</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=20%>
+				<P><FONT SIZE=2>HTTP Server Transport</FONT></TD>
+			<TD WIDTH=80%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>type=Bus.Service.Port.HTTPServerTransport,Bus=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>busName</I></FONT></FONT></FONT>,<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Bus.Service=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>WSDLServiceQName</I></FONT></FONT></FONT>,Bus.Port=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>WSDLPort</I></FONT></FONT></FONT>,</FONT></FONT></FONT>name=HTTPServerTransport</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=20%>
+				<P><FONT SIZE=2>JMS Server Transport</FONT></TD>
+			<TD WIDTH=80%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>type=Bus.Service.Port.JMSServerTransport,Bus=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>busName</I></FONT></FONT></FONT>,<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Bus.Service=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>WSDLServiceQName</I></FONT></FONT></FONT>,Bus.Port=<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>WSDLPort</I></FONT></FONT></FONT>,</FONT></FONT></FONT>name=JMSServerTransport</FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 1.: Instrumented Celtix Component
+ObjectNames</I></FONT></P>
+<P><IMG SRC="management_html_623f7e95.gif" NAME="Frame1" ALT="Frame1" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT><FONT SIZE=2>For
+example, the MBean for the Endpoint component corresponding to the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+element <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>SOAPPort</FONT></FONT></FONT>
+shown in Example 1 would have the ObjectName
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.instrumentation:type=Bus.Endpoint,Bus=hello_bus,Bus.Service={http://obejectweb.org/hello_world}SOAPService,Bus.Port=SoapPort,name=Endpoint</FONT></FONT></FONT>.</FONT></P>
+<H2><A NAME="2.1.CeltixBus|outline"></A><A NAME="2.1.CeltixBus|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>CeltixBus</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The CeltixBus component is responsible for loading
+and managing the transports and bindings in use by a Celtix-enabled
+application. It also manages the flow of messages between the network
+and the WorkQueue that is responsible for processing the message.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Attributes</FONT></FONT></FONT></H3>
+<P>Table 2 <FONT SIZE=2>lists the managed attributes for the
+CeltixBus component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=127*>
+	<COL WIDTH=37*>
+	<COL WIDTH=37*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=49% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Type</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Read/Write</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>TransportFactories</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the list of all transport factories
+				loaded by the bus instance</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>BindingFactories</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies a list of all binding factories loaded
+				by the bus instance.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>ServiceMonitoring</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies if transport performance monitoring is
+				enabled.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Boolean</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>RW</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 2.: Managed Attributes for the CelixBus
+Component</I></FONT></P>
+<H2><A NAME="2.2.WorkQueue|outline"></A><A NAME="2.2.WorkQueue|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>WorkQueue</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The WorkQueue component manages the processing of
+messages by the servants implementing the service's business logic.
+It instantiates servants and passes data to and from them.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Attributes</FONT></FONT></FONT></H3>
+<P>Table 3 <FONT SIZE=2>lists the managed attributes for the
+WorkQueue component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=127*>
+	<COL WIDTH=37*>
+	<COL WIDTH=37*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=49% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Type</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Read/Write</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>ThreadingModel</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the threading model in use. Possible
+				values are <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>SINGLE_THREADED</FONT></FONT></FONT>
+				and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>MULTI_THREADED</FONT></FONT></FONT>.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>WorkQueueSize</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the number of threads in the
+				WorkQueue's thread pool.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Empty</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies if the WorkQueue is empty.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Boolean</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>HighWaterMark</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the maximum threads available to the
+				WorkQueue's thread pool.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>RW</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>LowWaterMarkr</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the minimum number of threads available
+				in the WorkQueue's thread pool</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>RW</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Full</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies if the WorkQueue is full.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Boolean</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 3.: Managed Attributes for the WorkQueue
+Component</I></FONT></P>
+<H2><A NAME="2.3.WSDLManager|outline"></A><A NAME="2.3.WSDLManager|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>WSDLManager</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The WSDLManager component provides a WSDL registry
+and a numer of methods to retrieve WSDL.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Attributes</FONT></FONT></FONT></H3>
+<P>Table 4 <FONT SIZE=2>lists the managed attributes for the
+WSDLManager component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=127*>
+	<COL WIDTH=37*>
+	<COL WIDTH=37*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=49% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Type</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Read/Write</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Services</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the list of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>service</FONT></FONT></FONT>
+				elements loaded by the WSDL manager. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>service</FONT></FONT></FONT>
+				elements are identified by their QName.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Ports</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the list of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				elements loaded by the WSDL Manager. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				elements are identified by the value of their <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Bindings</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the list of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>binding</FONT></FONT></FONT>
+				elements loaded by the WSDL manager. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>binding</FONT></FONT></FONT>
+				elements are identified by the value of their <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 4.: Managed Attributes for the WSDLManager
+Component</I></FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Operations</FONT></FONT></FONT></H3>
+<P>Table 5 <FONT SIZE=2>lists the operations supported by the
+WSDLManager component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=90*>
+	<COL WIDTH=55*>
+	<COL WIDTH=55*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=35% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Parameters</I></FONT></TH>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Return Type</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>GetOperation</FONT></TD>
+			<TD WIDTH=35%>
+				<P><FONT SIZE=2>Returns the list of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>operation</FONT></FONT></FONT>
+				elements for a given endpoint. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>operation</FONT></FONT></FONT>
+				elements are identified by the value of their <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>serviceQName</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>portTypeName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 5.: Operations Supported by the WSDLManager
+Component</I></FONT></P>
+<H2><A NAME="2.4.Endpoint|outline"></A><A NAME="2.4.Endpoint|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Endpoint</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The Endpoint component represents an endpoint running
+inside of the Celtix runtime. It allows you to monitor and control
+the state of an endpoint based on its service name and port name.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Attributes</FONT></FONT></FONT></H3>
+<P>Table 6 <FONT SIZE=2>lists the managed attributes for the Endpoint
+component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=127*>
+	<COL WIDTH=37*>
+	<COL WIDTH=37*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=49% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Type</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Read/Write</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>ServiceName</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the service QName implemented by the
+				endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>PortName</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element used to register the endpoint. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element is identified by the value of its <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>HandlerChains</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the list of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>MassageHandler</FONT></FONT></FONT>
+				objects used by the endpoint. The objects are identified by their
+				class name.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String[]</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>State</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the state of the service. Possible
+				values are ...</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 6.: Managed Attributes for the Endpoint
+Component</I></FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Operations</FONT></FONT></FONT></H3>
+<P>Table 7 <FONT SIZE=2>lists the operations provided by the Endpoint
+component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=90*>
+	<COL WIDTH=55*>
+	<COL WIDTH=55*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=35% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Parameters</I></FONT></TH>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Return Type</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>start</FONT></TD>
+			<TD WIDTH=35%>
+				<P><FONT SIZE=2>Activates the endpoint to accept requests.</FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>None</FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Void</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>stop</FONT></TD>
+			<TD WIDTH=35%>
+				<P><FONT SIZE=2>Deactivates the endpoint.</FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>None</FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Void</FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 7.: Operations Provided by the Endpoint
+Component</I></FONT></P>
+<H2><A NAME="2.5.HTTPServerTransport|outline"></A><A NAME="2.5.HTTPServerTransport|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>HTTPServerTransport</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The HTTPServerTransport component is created when the
+Endpoint component receives an HTTP address to instantiate. It
+provides a logical view of the HTTP transport for the service side.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Attributes</FONT></FONT></FONT></H3>
+<P>Table 8 <FONT SIZE=2>lists the managed attributes for the
+HTTPServerTransport component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=127*>
+	<COL WIDTH=37*>
+	<COL WIDTH=37*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=49% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Type</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Read/Write</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>ServiceName</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the QName of the service using this
+				instance of the HTTP server transport.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>PortName</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element of the endpoint using this instance of the HTTP server
+				tranport. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element is identified by the value of its <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>URL</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the URL to which this instance of the
+				HTTP server transport listens.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>TotalError</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Species the number of request processing errors
+				handled by this endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>RequestTotal</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the number of requests received by this
+				endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>RequestOneWay</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the number of oneway requests received
+				by this endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 8.: Managed Attributes for the
+HTTPServerTransport Component</I></FONT></P>
+<H2><A NAME="2.6.JMSServerTransport|outline"></A><A NAME="2.6.JMSServerTransport|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>JMSServerTransport</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The JMSServerTransport component is created when the
+Endpoint receives a JMS address to instantiate. It provides a logical
+view of the JMS transport for the service side.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Attributes</FONT></FONT></FONT></H3>
+<P>Table 9 <FONT SIZE=2>lists the managed attributes for the
+JMSServerTransport component.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=127*>
+	<COL WIDTH=37*>
+	<COL WIDTH=37*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Name</I></FONT></TH>
+			<TH WIDTH=49% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Type</I></FONT></TH>
+			<TH WIDTH=14% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Read/Write</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>ServiceName</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the QName of the service using this
+				instance of the HTTP server transport.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>PortName</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element of the endpoint using this instance of the HTTP server
+				tranport. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>port</FONT></FONT></FONT>
+				element is identified by the value of its <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT>
+				attribute.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>URL</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the URL to which this instance of the
+				HTTP server transport listens.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>String</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>TotalError</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Species the number of request processing errors
+				handled by this endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>RequestTotal</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the number of requests received by this
+				endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>RequestOneWay</FONT></TD>
+			<TD WIDTH=49%>
+				<P><FONT SIZE=2>Specifies the number of oneway requests received
+				by this endpoint.</FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Integer</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=14%>
+				<P><FONT SIZE=2>R</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 9.: Managed Attributes for the
+JMSServerTransport Component</I></FONT></P>
+<H1><A NAME="3.Adding Instrumentation to a Celtix-enabled Application|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Adding
+Instrumentation to a Celtix-enabled Application</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Celtix supports the creation and registration of
+custom MBeans inside of Celtix-enabled applications. A service
+developer can create one or more MBeans to instrument their service.
+These custom MBeans can then be registered with the Celtix MBean
+server. This makes it possible to manage a service using the same
+interface as the Celtix runtime components.</FONT></P>
+<P><FONT SIZE=2>There is two ways to add custom instrumentation to a
+Celtix-enabled application:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><A HREF="#3.1.Using the JMX MBean Interfaces|outline">implement
+	one of the JMX MBean interfaces and register it with the Celtix
+	MBeanServer</A></FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#3.2.Using the Celtix instrumentation Interface|outline">implement
+	the Celtix <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Instrumentation</FONT></FONT></FONT>
+	interface</A></FONT></P>
+</UL>
+<P><FONT SIZE=2>Functionally, there is no difference between the two
+approaches. You can base your decision on the ease of development,
+maintainability, and portability.</FONT></P>
+<H2><A NAME="3.1.Using the JMX MBean Interfaces|outline"></A><A NAME="3.1.Using the JMX MBean Interfaces|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using the
+JMX MBean Interfaces</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The Celtix MBean server can be accessed through the
+Celtix bus and allows for the registration of user developed MBeans.
+This allows you to instrument your service implementation by
+developing a custom MBean using one of the JMX MBean interfaces and
+registering it with the Celtix MBean server. Your custom
+instrumentation will then be accessible through the same JMX
+connection as the Celtix internal components used by your service.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Creating
+your custom MBean</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>When you use the JMX APIs to instrument your service
+implementation, you follow the design methodology laid out by the JMX
+specification. This involves the following steps:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Decide what type of MBean you wish to
+	use.</FONT></P>
+</OL>
+<UL>
+	<LI><P><FONT SIZE=2>Standard MBeans expose a management interface
+	that is defined at development time.</FONT></P>
+	<LI><P><FONT SIZE=2>Dynamic MBeans expose their management interface
+	at run time.</FONT></P>
+</UL>
+<OL START=2>
+	<LI><P><FONT SIZE=2>Create the MBean interface to expose the
+	properties and operations used to manager your service
+	implementation.</FONT></P>
+</OL>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2>Standard MBeans use the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>MBean</FONT></FONT></FONT>
+	inteface.</FONT></P>
+	<LI><P><FONT SIZE=2>Dynamic MBeans use the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>DynamicMBean</FONT></FONT></FONT>
+	interface.</FONT></P>
+</UL>
+<OL START=3>
+	<LI><P><FONT SIZE=2>Implement the MBean class.</FONT></P>
+</OL>
+<P><IMG SRC="management_html_5ff9b277.gif" NAME="Frame2" ALT="Frame2" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 2
+<FONT SIZE=2>shows the interface for a standard MBean.</FONT></P>
+<P><IMG SRC="management_html_m3f34c7ea.gif" NAME="Frame3" ALT="Frame3" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 3
+<FONT SIZE=2>shows the class that implements the MBean defined in Example 2.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Registering
+the MBean</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>For your MBean to be exposed to a management console,
+it must be registered with the Celtix MBean server. The Celtix MBean
+server is accessible through the bus. Typically, this will be done
+when your service is initialized.</FONT></P>
+<P><FONT SIZE=2>To register a custom MBean do the following:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Instantiate your custom MBean.</FONT></P>
+	<LI><P><FONT SIZE=2>Get an instance of the the bus using
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Bus.getCurrent()</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Get the Celtix MBean server from the bus using
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>bus.getInstrumentationManager().getMBeanServer()</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Create an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ObjectName</FONT></FONT></FONT>
+	for your MBean.</FONT></P>
+</OL>
+<DL>
+	<DD><P><STRONG>Note: </STRONG><FONT SIZE=2>It is recommended that
+	you follow the naming conventions suggested in <A HREF="#2.Instrumented Celtix Components|outline">Instrumented
+	Celtix Components</A>. However, you can choose any naming scheme you
+	desire.</FONT></P>
+</DL>
+<OL START=5>
+	<LI><P><FONT SIZE=2>Register your MBean server using the server&rsquo;s
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>registerMBean()</FONT></FONT></FONT>
+	method.</FONT></P>
+</OL>
+<P><IMG SRC="management_html_m779ccf9b.gif" NAME="Frame4" ALT="Frame4" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 4
+<FONT SIZE=2>shows code for registering a custom MBean with the
+Cetlix MBean server.</FONT></P>
+<H2><A NAME="3.2.Using the Celtix instrumentation Interface|outline"></A><A NAME="3.2.Using the Celtix Instrumentation Interface|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Using the
+Celtix Instrumentation Interface</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>If you don not want to use the JMX APIs to add
+instrumentation to your service, you can use the Celtix
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Instrumentation</FONT></FONT></FONT>
+interface. This interface wraps the JMX subsystem in a Celtix
+specific API. You do not need to access the Celtix MBean server to
+register your Instrumentation because the Celtix wrappers handle it
+all for you.</FONT></P>
+<DL>
+	<DD><P><STRONG>Note: </STRONG><FONT SIZE=2>You will, however, be
+	responsible for cleaning up all instances of your custom
+	instrumentation.</FONT></P>
+</DL>
+<P><FONT SIZE=2>To add custom instrumentation using the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Instrumentation</FONT></FONT></FONT>
+interface do the following:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2><A HREF="#Instrument Impl">Write</A> an
+	instrumentation class that implements the
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.Instrumentation</FONT></FONT></FONT>
+	interface.</FONT></P>
+	<LI><P><FONT SIZE=2>When your service is starting up, <A HREF="#Instrument Active">activate</A>
+	your instrumentation object by instantiating it and registering it
+	with the bus.</FONT></P>
+	<LI><P><FONT SIZE=2>When your service is shutting down, <A HREF="#Instrument Deactive">deactivate</A>
+	your instrumentation by unregistering it and cleaning it up.</FONT></P>
+</OL>
+<H3><A NAME="Instrument Impl"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Implementing
+the Instrumentation class</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>Like an MBean a Celtix instrumentation class is
+responsible for providing access to the attributes you want to track
+and implement any management operations you want to expose. Unlike an
+MBean a Celtix instrumentation class does not implement a user
+defined interface. Instead, a Celtix instrumentation class implements
+a Celtix defined interface, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Instrumentation</FONT></FONT></FONT>,
+and defines the operations required to expose the attributes and
+operations you desire.</FONT></P>
+<P><FONT SIZE=2>The Celtix management facilities use JDK 5.0
+annotations to create a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>MBeanInfoAssembler</FONT></FONT></FONT>.
+The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>MBeanInfoAssember</FONT></FONT></FONT>
+reads the Celtix provided annotations to identify the attributes and
+operations that are to be exposed. It then uses the information to
+create a ModelMBean that is registered with the Celix MBean server.</FONT></P>
+<P>Table 1 <FONT SIZE=2>lists the JDK 5.0 annotations used when
+implementing your instrumentation class.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=117*>
+	<COL WIDTH=83*>
+	<COL WIDTH=55*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=46% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Purpose</I></FONT></TH>
+			<TH WIDTH=32% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>JDK 5.0 Annotation</I></FONT></TH>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Attribute / Annotation Type</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Mark all instances of a class as a JMX managed
+				resource</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>@ManagedResource</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Class</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Mark a method as a JMX operation</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>@ManagedOperation</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Method</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Mark a getter or a setter as one half of a JMX
+				attribute</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>@ManagedAttribute</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Method</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Describe the parameters of a managed operation</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>@ManagedOperationParameter</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>@ManagedOperationParameters</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2>Method</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 1.: Celtix JMX Annotations</I></FONT></P>
+<P>Table 2 <FONT SIZE=2>lists the metadata that can be provided along
+with the Celtix JMX annotations.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=55*>
+	<COL WIDTH=117*>
+	<COL WIDTH=83*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=22% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Parameter</I></FONT></TH>
+			<TH WIDTH=46% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+			<TH WIDTH=32% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Annotation</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>componentName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the name of the managed respurce.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>description</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies a user-friendly description of the
+				resource, attribute, or operation.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedAttribute</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedOperation</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedOperationParameter</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>currencyTimeLimit</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>currencyTimeLimt</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></P>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedAttribute</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>defaultValue</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>defaultValue</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedAttribute</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>log</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>log</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>logFile</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>logFile</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistPolicy</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistPolicy</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistPeriod</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistPeriod</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistLocation</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistLocation</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistName</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>persistName</FONT></FONT></FONT>
+				descriptor field.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>name</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the display name of an operation
+				parameter.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedOperationParameter</FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=22%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>index</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=46%>
+				<P><FONT SIZE=2>Specifies the index of an operation parameter.</FONT></TD>
+			<TD WIDTH=32%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedOperationParameter</FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 2.: Celtix JMX Annotations Metadata</I></FONT></P>
+<P><FONT SIZE=2>When you are implementing your custom instrumentation
+class, you should annotate the class with the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedResource</FONT></FONT></FONT>
+attribute. Any management operation you wish to expose within the
+instrumentation class should be annotated with the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedOperation</FONT></FONT></FONT>
+attribute. For attributes you wish to expose, you will should
+annotate their getter and setter methods with the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ManagedAttribute</FONT></FONT></FONT>
+attribute. If you want to make an attribute read-only or write-only,
+you can omit the annotation from either its setter method or its
+getter method.</FONT></P>
+<P><IMG SRC="management_html_m332e8886.gif" NAME="Frame5" ALT="Frame5" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 5
+<FONT SIZE=2>shows a Celtix instrumentation class.</FONT></P>
+<H3><A NAME="Instrument Active"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Activating
+your custom instrumentation</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>To make your custom instrumentation available to
+management consoles you must create an instance of your
+instrumentation class and register it with the bus. The handles the
+creation of the ModelMBean to represent your instrumentation. It also
+handles the registration of the MBean with the MBean server.</FONT></P>
+<P><FONT SIZE=2>To activate your custom instrumentation do the
+following:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Create an instance of your
+	instrumentation class.</FONT></P>
+	<LI><P><FONT SIZE=2>Get the current bus instance.</FONT></P>
+	<LI><P><FONT SIZE=2>Get the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InstrumentationManager</FONT></FONT></FONT>
+	from the bus.</FONT></P>
+	<LI><P><FONT SIZE=2>Register your instrumentation instance with the
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InstrumentationManager</FONT></FONT></FONT>.</FONT></P>
+</OL>
+<P><IMG SRC="management_html_m2018f186.gif" NAME="Frame6" ALT="Frame6" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 6
+<FONT SIZE=2>shows code for activating your custom instrumentation.</FONT></P>
+<H3><A NAME="Instrument Deactive"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Deactivating
+your custom instrumentation</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>Unlike MBeans created using the JMX APIs, Celtix
+instrumentation classes must be cleaned up. You must explicitly tell
+the bus to remove the ModelMBean created for your instrumentation
+using the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InstrumentationManager.unregister()</FONT></FONT></FONT>
+method. This method removes the MBean from the Celtix MBean server,
+destroys the associated ModelMBean, and frees up any resources used
+by it.</FONT></P>
+<P><IMG SRC="management_html_4a8270f8.gif" NAME="Frame7" ALT="Frame7" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 7
+<FONT SIZE=2>shows code for deactivating your custom instrumentation.</FONT></P>
+<H1><A NAME="4.Configuring Celtix Management Features|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Configuring
+Celtix Management Features</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>The Celtix management configuration is specified
+using the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.bus.instrumentation.instrumentation_config.spring.InstrumentationConfigBean</FONT></FONT></FONT>
+class. This class consists of two properties:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><A HREF="#Config Listener">im:instrumentationControl</A></FONT></FONT></FONT>
+	configures the instrumentation event listener that collects the JMX
+	provided data.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><A HREF="#Config MBean">im:MBServer</A></FONT></FONT></FONT>
+	configures the JMXConnectorServer that runs the Celtix MBean server.</FONT></P>
+</UL>
+<P><FONT SIZE=2>In order to use the management configuration you are
+must specify the namespace under which the Celtix management
+configuration properties are defined. You do this by adding the line
+shown below to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>beans</FONT></FONT></FONT>
+element of your configuration file.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>xmlns:im=&quot;http://celtix.objectweb.org/bus/instrumentation&quot;</FONT></FONT></FONT></DL>
+<H3>
+<A NAME="Config Listener"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Configuring
+the instrumentation event listeners</FONT></FONT></FONT></H3>
+<P>Table 1 <FONT SIZE=2>lists the values for the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>im:instrumentationControl</FONT></FONT></FONT>
+property.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=74*>
+	<COL WIDTH=182*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=29% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Value</I></FONT></TH>
+			<TH WIDTH=71% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=29%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InstrumentationEnable</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=71%>
+				<P><FONT SIZE=2>Specifies if the Celtix runtime's instrumentation
+				created and removed events are enabled or disabled.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=29%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMXEnable</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=71%>
+				<P><FONT SIZE=2>Specifies if the Celtix JMX MBean register and
+				unregister events are enabled or disabled.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 1.: instrumentationControl Values</I></FONT></P>
+<H3><A NAME="Config MBean"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Configuring
+the MBean server</FONT></FONT></FONT></H3>
+<P>Table 2 <FONT SIZE=2>lists the values for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>im:<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>M</FONT></FONT></FONT>BServer</FONT></FONT></FONT>
+property.</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=74*>
+	<COL WIDTH=182*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=29% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Value</I></FONT></TH>
+			<TH WIDTH=71% BGCOLOR="#e6e6e6">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=29%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMXConnector</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=71%>
+				<P><FONT SIZE=2>Specifies how to set up the JMXConnectorServer
+				which provides the remote connection to a JMXServer. This value
+				has three sub-values:</FONT></P>
+				<UL>
+					<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Threaded</FONT></FONT></FONT>
+					specifies specifies if the JMXConnectorServer can run in a new
+					thread. The default value is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>false</FONT></FONT></FONT>.</FONT></P>
+					<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Daemon</FONT></FONT></FONT>
+					specifies if the thread created for the JMXConnectorServer runs
+					in Daemon mode. The default value is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>true</FONT></FONT></FONT>.</FONT></P>
+				</UL>
+				<DL>
+					<DD><P><STRONG>Note: </STRONG><FONT SIZE=2>This is only
+					applicable if <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Threaded</FONT></FONT></FONT>
+					is set to <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>true</FONT></FONT></FONT>.</FONT></P>
+				</DL>
+				<UL>
+					<LI VALUE=1><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMXServiceURL</FONT></FONT></FONT>
+					specifies the JMXServiceURL used for remote access through the
+					JMX Remote API. For more information see the <A HREF="http://java.sun.com/j2se/1.5.0/docs/api/javax/management/remote/rmi/package-summary.html">JMX
+					<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>remote.rmi</I></FONT></FONT></FONT>
+					package documentation</A>.</FONT></UL>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 2.: MBServer Values</I></FONT></P>
+<P><IMG SRC="management_html_53a364d0.gif" NAME="Frame8" ALT="Frame8" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 8
+<FONT SIZE=2>shows the management configuration for a Celtix-enabled
+application.</FONT></P>
+<P><FONT SIZE=2>For more information on configuring Celtix see the
+<A HREF="http://celtix.objectweb.org/docs/user_guides/configuration/configuration.html">Celtix
+Configuration Guide</A>.</FONT></P>
+<H1><A NAME="5.Accessing Celtix MBeans from a Management Console|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Accessing
+Celtix MBeans from a Management Console</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Celtix runtime MBeans can be accessed remotely using
+JMXRemote. This means that any management console that supports
+JMXRemote can be used to monitor and manage Celtix-enabled
+applications.</FONT></P>
+<P><FONT SIZE=2>As a starting point, JDK 1.5 provides a lightweight
+JMX console called jconsole. To view the management information for a
+deployed Celtix-enabled application using jconsole do the following:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2>Launch the jconsole application using
+	the command <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>JDK_HOME/</I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>bin/jconsole</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>Select the <FONT SIZE=2><B>Advanced</B></FONT>
+	tab.</FONT></P>
+	<LI><P><FONT SIZE=2>Enter the URL of your Celtix MBean server in the
+	<FONT SIZE=2><B>JMXServiceURL</B></FONT> field.</FONT></P>
+</OL>
+<DL>
+	<DD><P><FONT SIZE=2>The URL of your Celtix MBean server will either
+	be the default Celtix JMXServiceURL or the value specified by the
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>JMXServiceURL</FONT></FONT></FONT>
+	property in your application configuration.</FONT></P>
+</DL>
+</BODY>
+</HTML>

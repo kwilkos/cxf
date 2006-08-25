@@ -1,0 +1,238 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="Eric Johnson">
+	<META NAME="CREATED" CONTENT="20060503;21254100">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060508;17072900">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Using
+Dynamic Languages to Implement Services</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.Overview|outline">Overview	1</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.Implementing a Service in JavaScript|outline">Implementing
+		a Service in JavaScript	1</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.1.Defining the Metadata|outline">Defining
+		the Metadata	1</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#2.2.Implementing the Service Logic|outline">Implementing
+		the Service Logic	2</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.Implementing a Service in ECMAScript for XML(E4X)|outline">Implementing
+		a Service in ECMAScript for XML(E4X)	2</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.Deploying Scripted Services|outline">Deploying
+		Scripted Services	3</A></FONT></DL>
+</DIV>
+<H1><A NAME="1.Overview|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Overview</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>JavaScript, also known by its formal name ECMAScript,
+is one of the many dynamic languages that are growing in prevalence
+in development environments. It provides a quick and lightweight
+means of creating functionality that can be run on a number of
+platforms. Another strength of JavaScript is that applications can be
+quickly rewritten.</FONT></P>
+<P><FONT SIZE=2>Celtix provides support for developing services using
+JavaScript and ECMAScript for XML(E4X). The pattern used to develop
+these services are similar to JAX-WS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Provider</FONT></FONT></FONT>
+implementations that handle their requests and responses (either SOAP
+messages or SOAP payloads) as DOM documents.</FONT></P>
+<H1><A NAME="2.Implementing a Service in JavaScript|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Implementing
+a Service in JavaScript</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Writing a service in JavaScript is a two step
+process:</FONT></P>
+<OL>
+	<LI VALUE=1><P><FONT SIZE=2><A HREF="#2.1.Defining the Metadata|outline">Define</A>
+	the JAX-WS style metadata.</FONT></P>
+	<LI><P><FONT SIZE=2><A HREF="#2.2.Implementing the Service Logic|outline">Implement</A>
+	the services business logic.</FONT></P>
+</OL>
+<H2><A NAME="2.1.Defining the Metadata|outline"></A><A NAME="2.1.Defining the Metadata|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Defining the
+Metadata</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Normal Java providers typically use Java annotations
+to specify JAX-WS metadata. Since JavaScript does not support
+annotations, you use ordinary JavaScript variables to specify
+metadata for JavaScript implementations. Celtix treats any JavaScript
+variable in your code whose name equals or begins with
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>WebServiceProvider</FONT></FONT></FONT>
+as a JAX-WS metadata variable.</FONT></P>
+<UL>
+	<P><FONT SIZE=2>Properties of the variable are expected to specify
+	the same metadata that the JAX-WS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>WebServiceProvider</FONT></FONT></FONT>
+	annotation specifies, including:</FONT></P>
+</UL>
+<UL>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>wsdlLocation</FONT></FONT></FONT>
+	specifies a URL for the WSDL defining the service.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>serviceName</FONT></FONT></FONT>
+	specifies the name of the service.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>portName</FONT></FONT></FONT>
+	specifies the service's port/interface name.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>targetNamespace</FONT></FONT></FONT>
+	specifies the target namespace of the service.</FONT></P>
+</UL>
+<P><FONT SIZE=2>The JavaScript <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>WebServiceProvider</FONT></FONT></FONT>
+can also specify the following optional properties:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServiceMode</FONT></FONT></FONT>
+	indicates whether the specified service handles SOAP payload
+	documents or full SOAP message documents. This property mimics the
+	JAX-WS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServiceMode</FONT></FONT></FONT>
+	annotation. The default value is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>PAYLOAD</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>BindingMode</FONT></FONT></FONT>
+	indicates the service binding ID URL. The default is the SOAP
+	1.1/HTTP binding.</FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>EndpointAddress</FONT></FONT></FONT>
+	indicates the URL consumer applications use to communicate with this
+	service. The property is optional but has no default.</FONT></P>
+</UL>
+<P><IMG SRC="dynamic_lang_html_m6bd64941.gif" NAME="Frame2" ALT="Frame2" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 1
+<FONT SIZE=2>shows a metadata description for a JavaScript service
+implementation.</FONT></P>
+<H2><A NAME="2.2.Implementing the Service Logic|outline"></A><A NAME="2.2.Implementing the Service Logic|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Implementing
+the Service Logic</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>You implement the service's logic using the required
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>invoke</FONT></FONT></FONT>
+property of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>WebServiceProvider</FONT></FONT></FONT>
+variable. This variable is a function that accepts one input
+argument, a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>javax.xml.transform.dom.DOMSource</FONT></FONT></FONT>
+node, and returns a document of the same type. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>invoke</FONT></FONT></FONT>
+function can manipulate either the input or output documents using
+the regular Java <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>DOMSource</FONT></FONT></FONT>
+class interface just as a Java application would.</FONT></P>
+<P><IMG SRC="dynamic_lang_html_m3136eff8.gif" NAME="Frame1" ALT="Frame1" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 2
+<FONT SIZE=2>shows an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>invoke</FONT></FONT></FONT>
+property for a simple JavaScript service implementation.</FONT></P>
+<H1><A NAME="3.Implementing a Service in ECMAScript for XML(E4X)|outline"></A>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Implementing a
+Service in ECMAScript for XML(E4X)</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Writing a Celtix service using E4X is very similar to
+writing a service using JavaScript. You define the JAX-WS metadata
+using the same <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>WebServiceProvider</FONT></FONT></FONT>
+variable in JavaScript. You also implement the service's logic in the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>WebServiceProvider</FONT></FONT></FONT>
+variable's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>invoke</FONT></FONT></FONT>
+property.</FONT></P>
+<P><FONT SIZE=2>The only difference between the two approaches is the
+type of document the implementation manipulates. When working with
+E4X, the implementation receives requests as an E4X XML document and
+returns a document of the same type. These documents are manipulated
+using built-in E4X XML features.</FONT></P>
+<P><IMG SRC="dynamic_lang_html_1ed11540.gif" NAME="Frame3" ALT="Frame3" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT>Example 3
+<FONT SIZE=2>shows an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>invoke</FONT></FONT></FONT>
+property for a simple E4X service implementation.</FONT></P>
+<H1><A NAME="4.Deploying Scripted Services|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Deploying
+Scripted Services</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Celtix provides a lightweight container that allows
+you to deploy your Javascript and E4X services and take advantage of
+Celtix's pluggable transport infrastructure.</FONT></P>
+<DL>
+	<DD><P><STRONG>Note: <FONT SIZE=2>Script based services can work
+	with SOAP messages. So, while they are multi-transport,  they can
+	only use the SOAP binding.</STRONG></FONT></P>
+</DL>
+<P><FONT SIZE=2>You deploy them into the container using the
+following command:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>java
+	org.objectweb.celtix.js.rhino.ServerApp [-a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>addressURL</I></FONT></FONT></FONT>]
+	[-b <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>baseAddressURL</I></FONT></FONT></FONT>]
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>file</I></FONT></FONT></FONT>.js
+	[<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>file2</I></FONT></FONT></FONT>.js
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>file3</I></FONT></FONT></FONT>.jsx
+	...]</FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>org.objectweb.celtix.js.rhino.ServerApp</FONT></FONT></FONT>
+class, shorted to <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+below, takes one or more Javascript files, suffixed with a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>.js</FONT></FONT></FONT>,
+or E4X files, suffixed with a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>.jsx</FONT></FONT></FONT>,
+and loads them into the Celtix runtime. If  <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+locates JAX-WS metadata in the files it creates and registers a
+JAX-WS <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Provider&lt;DOMSource&gt;</FONT></FONT></FONT>
+object for each service. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>Provider&lt;DOMSource&gt;</FONT></FONT></FONT>
+object delegates the processing of requests to the implementation
+stored in the associated file. <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+can also take the name of a directory containing Javascript and E4X
+files. It will load all of the scripts that contain JAX-WS metadata,
+load them, and publish a service endpoint for each one.</FONT></P>
+<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+has three optional arguments:</FONT></P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=74*>
+	<COL WIDTH=182*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=29% BGCOLOR="#e6e6ff">
+				<P><FONT SIZE=2><I>Argument</I></FONT></TH>
+			<TH WIDTH=71% BGCOLOR="#e6e6ff">
+				<P><FONT SIZE=2><I>Description</I></FONT></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=29%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-a
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>addressURL</I></FONT></FONT></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=71%>
+				<P><FONT SIZE=2>Specifies the address at which <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+				publishes the service endpoint implementation found in the script
+				file following the URL.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=29%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-b
+				<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I>baseAddressURL</I></FONT></FONT></FONT></FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=71%>
+				<P><FONT SIZE=2>Specifies the base address used by <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+				when publishing the service endpoints defined by the script
+				files. The full address for the service endpoints is formed by
+				appending the service's port name to the base address.</FONT></TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=29%>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>-v</FONT></FONT></FONT></FONT></TD>
+			<TD WIDTH=71%>
+				<P><FONT SIZE=2>Specifies that <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+				is to run in verbose mode.</FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><FONT SIZE=2><I>Table 1.: Optional Arguments</I></FONT></P>
+<P><FONT SIZE=2>The optional arguments take precedence over any
+addressing information provided in <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>EndpointAddress</FONT></FONT></FONT>
+properties that appear in the JAX-WS metadata.</FONT></P>
+<P><IMG SRC="dynamic_lang_html_258cf249.gif" NAME="Frame4" ALT="Frame4" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT><FONT SIZE=2>For
+example, if you deployed a Javascript service using the command shown
+in Example 4, your service would be deployed at
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/goodness</FONT></FONT></FONT>.</FONT></P>
+<P><IMG SRC="dynamic_lang_html_mf0b7dac.gif" NAME="Frame5" ALT="Frame5" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT><FONT SIZE=2>To
+deploy a number of services using a common base URL you could use the
+command shown in Example 5. If the service defined by <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>hello_world.jsx</FONT></FONT></FONT>
+had port name of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>helloWorld</FONT></FONT></FONT>,
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+would publish it at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/helloWorld</FONT></FONT></FONT>.
+If the service defined by <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>goodbye_moon.js</FONT></FONT></FONT>
+had a port name of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>blue</FONT></FONT></FONT>,
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>ServerApp</FONT></FONT></FONT>
+would publish at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/blue</FONT></FONT></FONT>.</FONT></P>
+<P><IMG SRC="dynamic_lang_html_449ccc91.gif" NAME="Frame6" ALT="Frame6" ALIGN=LEFT HSPACE=8 VSPACE=8><BR CLEAR=LEFT><FONT SIZE=2>You
+can also combine the arguments as shown in Example 6., your service
+would be deployed at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/goodness</FONT></FONT></FONT>.
+ServerApp would publish three service endpoints:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2>The service defined by <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>hello_world.jsx</FONT></FONT></FONT>
+	at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/helloWorld</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>The service defined by <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>goodbye_moon.js</FONT></FONT></FONT>
+	at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/blue</FONT></FONT></FONT>.</FONT></P>
+	<LI><P><FONT SIZE=2>The service defined by <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>chocolate.jsx</FONT></FONT></FONT>
+	at <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://celtix.objectweb.org/goodness</FONT></FONT></FONT>.</FONT></P>
+</UL>
+</BODY>
+</HTML>

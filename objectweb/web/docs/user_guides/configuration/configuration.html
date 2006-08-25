@@ -1,0 +1,1575 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 2.0  (Win32)">
+	<META NAME="AUTHOR" CONTENT="John Lifter">
+	<META NAME="CREATED" CONTENT="20060413;16122200">
+	<META NAME="CHANGEDBY" CONTENT="Eric Johnson">
+	<META NAME="CHANGED" CONTENT="20060509;14102118">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<p><font size=-1><a href="configuration.pdf">Download as PDF</a></font></p>
+<P ALIGN=CENTER><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5><B>Using
+Celtix Configuration</B></FONT></FONT></FONT></P>
+<DIV ID="Table of Contents1" DIR="LTR">
+	<DIV ID="Table of Contents1_Head" DIR="LTR">
+		<P><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><B>Table
+		of Contents</B></FONT></FONT></FONT></P>
+	</DIV>
+	<DL>
+		<DT><FONT COLOR="#000000"><A HREF="#1.Overview|outline">Overview</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#2.Structure of a Celtix Configuration File|outline">Structure
+		of a Celtix Configuration File</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#3.The Celtix Metadata XML Files|outline">The
+		Celtix Metadata XML Files</A></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#4.The Celtix Schema Files|outline">The
+		Celtix Schema Files</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#4.1.Configuring the Routing Service|outline">Configuring
+		the Routing Service</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#5.Writing a Celtix Configuration File|outline">Writing
+		a Celtix Configuration File</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#5.1.The Namespace Declarations|outline">The
+		Namespace Declarations</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#5.2.The class Attribute|outline">The
+		class Attribute</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#5.3.The id Attribute|outline">The id
+		Attribute</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#5.4.The property Element|outline">The
+		property Element</A></I></FONT><DT>
+		<FONT COLOR="#000000"><A HREF="#6.An Example Application|outline">An
+		Example Application</A></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#6.1.The Application Code|outline">The
+		Application Code</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#6.2.The Configuration File|outline">The
+		Configuration File</A></I></FONT><DT>
+		<FONT SIZE=2><I><A HREF="#6.3.Running the Example|outline">Running
+		the Example</A></I></FONT></DL>
+</DIV>
+<H1><A NAME="1.Overview|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Overview</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>This document describes how to write and use a Celtix
+configuration file.</FONT></P>
+<P><FONT SIZE=2>A Celtix configuration file is a Spring Framework
+XMLBeanFactory configuration file (see
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://www.springframework.org/docs/reference/beans.html#beans-factory">http://www.springframework.org/docs/reference/beans.html#beans-factory</A>
+</B></FONT></FONT></FONT>and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><A HREF="http://www.springframework.org/">http://www.springframework.org/</A></B></FONT></FONT></FONT>).
+However, other than learning how to write the configuration file, you
+do not need to know anything about the Spring Framework or its APIs.</FONT></P>
+<P>Illustration 1 <FONT SIZE=2>shows the hierarchical organization of
+configurable components in Celtix. The shaded components can be
+configured using a Celtix configuration file. In a client
+application, configuration settings may be applied at the level of a
+service (to all invocations using a specific proxy instance), a port,
+or a transport. In a server application, configuration settings may
+be applied at the level of an endpoint (to all invocations against a
+specific service) or transport.</FONT></P>
+<P><IMG SRC="configuration_html_6a67306.gif" NAME="Frame1" ALT="Frame1" ALIGN=LEFT><BR CLEAR=LEFT><BR><BR>
+</P>
+<P><FONT SIZE=2>Later in this document, you will see how an
+understanding of this hierarchy is used to identify the component
+that a collection of configuration settings should apply to.</FONT></P>
+<P><FONT SIZE=2>Celtix also has some fully implemented services (for
+example, the routing service) that require configuration.  These
+services are also configured using the approach described in this
+document.  However, in a configuration file used by a Celtix service,
+the identity of the configurable component is not derived from the
+configuration hierarchy illustrated in Illustration 1.</FONT></P>
+<P><FONT SIZE=2>This document is based on the Celtix 1.0 General
+Availability release (April 2006); there may be revisions in interim
+builds and subsequent releases. It is essential that you refer to the
+metadata XML and schema files that are packaged with your
+installation, see The Celtix Metadata XML Files, when writing or
+editing Celtix configuration files.</FONT></P>
+<P><FONT SIZE=2>Refer to the Celtix configuration Wiki page for the
+most current description of this functionality. This page is located
+at:
+(<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>https://wiki.objectweb.org/celtix/Wiki.jsp?page=ConfigurationDocumentation</B></FONT></FONT></FONT>).</FONT></P>
+<H1><A NAME="2.Structure of a Celtix Configuration File|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Structure
+of a Celtix Configuration File</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>A Celtix configuration file has the syntax shown in
+the following fragment:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans
+	xmlns:...&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;...&quot; abstract=&quot;true&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;...&quot; class=&quot;...&quot; parent=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;...&quot; class=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>With the exception of the URL listed in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>DOCTYPE</B></FONT></FONT></FONT>
+declaration, this syntax derives directly from the Spring Framework
+XMLBeanFactory configuration file. Starting from this basic
+framework, your task is to fill in the entries indicated by the
+ellipsis (...).</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Beans
+element</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>In the opening <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>beans</B></FONT></FONT></FONT>
+element, you must include namespace declarations for the schema files
+that define acceptable configuration entries. The file may then
+include one, or more, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+elements, each of which corresponds to a configurable component in
+Celtix.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Bean
+element</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The example file in this section shows three ways of
+specifying a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element. The first approach is used to define an abstract
+configuration, which is a configuration that is reused in another
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element.  Because this declaration only describes configuration
+entries that are reused in another declaration, there is no
+corresponding <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+entry. The second approach is used to define a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+that reuses the configuration entries defined in an abstract <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element. The value of the parent attribute is the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+of the abstract <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean&gt;</B></FONT></FONT></FONT>.
+And the third approach is used to completely define a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Id
+attribute</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+attribute represents the component to which the configuration is
+applied, for example, a bus, a service, a port, a transport, or a
+Celtix service. The value you supply for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+attribute generally includes a bus identifier and the name of the
+service, or the service and port, to which the configuration applies,
+that is, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+attribute is derived from the configuration hierarchy. However, the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+value is nothing more than a unique string, so there are exceptions
+to this rule (for example, configuration entries for the Celtix
+routing service). The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute provides the class name of a bean in the Spring Framework
+infrastructure that is responsible for managing the configuration
+entries.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Property
+element</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element corresponds to a configurable variable, identified by a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute, and the content within the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT>
+element is the value for that configuration entry.</FONT></P>
+<P><FONT SIZE=2>Specifying values for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+attribute and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute is fairly straight-forward. The information needed to
+create an <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+that indicates the configurable component can be derived from the
+WSDL file for the service (although the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+can be any unique string), whereas the information needed to create
+the class name is derived from the namespace URI of the metadata XML
+file that defines acceptable configuration entries for the component
+being configured.</FONT></P>
+<P><FONT SIZE=2>To complete the information in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+elements, you need to use the types that are defined in several
+schema and metadata XML files, which are described in the next
+section.</FONT></P>
+<H1><A NAME="3.The Celtix Metadata XML Files|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix Metadata XML Files</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>For each configurable component, Celtix provides an
+XML file that contains the metadata needed to identify and set a
+configuration variable, and a schema file that defines types
+typically used in configuration entries. In both the Celtix binary
+and source distributions, copies of these files exist in the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.jar</B></FONT></FONT></FONT>
+file, located in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CELTIX_HOME/lib</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>CELTIX_HOME<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>/</FONT></FONT></FONT>resources</B></FONT></FONT></FONT>
+directories. </FONT>
+</P>
+<P><FONT SIZE=2>When you are writing a Celtix configuration file, you
+must refer to the copies of these files that ship with your product
+to be certain that you have correctly specified each element.  The
+best place to start is with an existing configuration file, which you
+can modify to suit the requirements of your application. If you need
+to define another configuration entry, first use the metadata XML
+file to determine the name and content of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element, and then use a schema file to determine the content of the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element.</FONT></P>
+<P><FONT SIZE=2>The content of each of the Celtix XML metadata files
+adheres to the structure defined in the following schema file:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>resources/schemas/configuration/metadata.xsd</FONT></FONT></FONT></B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Each <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;configItem&gt;</B></FONT></FONT></FONT>
+element represents a configurable variable for the component. </FONT>
+</P>
+<P><FONT SIZE=2>The  Celtix XML metadata files are as follows:</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>bus-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/bus-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the bus component. This
+file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bindingFactories</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>transportFactories</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resourceResolvers</B></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/bus-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes Bus related
+configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is derived from the following namespace declaration:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</B></FONT></FONT></FONT>.
+</FONT>
+</P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>endpoint-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/endpoint-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the endpoint (server)
+component. This file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChain</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>systemHandlerChain</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>serverContextInspectors</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>enableSchemaValidation</B></FONT></FONT></FONT></FONT></P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/jaxws/endpoint-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes endpoint related
+configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>http-client-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/http-client-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the service (client) HTTP
+transport. This file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>httpClient</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>authorization</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>proxyAuthorization</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ssl</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/transports/http/http-client-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes http client related
+configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>http-listener-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/http-listener-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring an HTTP transport listener.
+This file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>httpListener</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ssl</B></FONT></FONT></FONT></FONT></P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/transports/http/http-listener-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes http listener related
+configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.http.<BR>http_server_config.spring.HttpListenerConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>http-server-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/http-server-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the endpoint (server) HTTP
+transport. This file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>httpServer</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>authorization</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ssl</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>When writing a configuration file that includes http
+server related configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.http.<BR>http_server_config.spring.HttpServerConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>instrumentation-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/instrumentation-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring instrumentation. This file
+describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>InstrumentationControl</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>MBServer</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>When writing a configuration file that includes
+instrumentation related configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.instrumentation.spring.<BR>InstrumentationConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>jms-client-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/jms-client-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the service (client) JMS
+transport. This file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>jmsClient</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>jmsAddress</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/<BR>transports/jms/jms-client-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes jms client related
+configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.<BR>JmsClientConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>jms-server-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The file
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/jms-server-config.xml</B></FONT></FONT></FONT>
+defines the metadata for configuring the endpoint (server) JMS
+transport. This file describes the following configurable variables: </FONT>
+</P>
+<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>jmsServer</B></FONT></FONT></FONT>
+</FONT>
+</P>
+<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>jmsAddress</B></FONT></FONT></FONT>
+</FONT>
+</P>
+<P><FONT SIZE=2>When writing a configuration file that includes jms
+server related configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean&gt;</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.jms.jms_server_config.<BR>spring.JmsServerConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>port-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/port-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the endpoint's port
+component. This file describes the following configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>address</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bindingId</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>transportId
+	</B></FONT></FONT></FONT></FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChain</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>systemHandlerChain</B></FONT></FONT></FONT>
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>enableSchemaValidataion</B></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/jaxws/port-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes port related
+configuration entries, the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is: 
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>rm-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/rm-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring WS-Reliable Messaging
+(WS-RM). This file describes three configurable variables: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>rmAssertion</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>sourcePolicies</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>destinationPolicies</B></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>The namespace assigned to this file's content is:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/bus/ws/rm/rm-config</B></FONT></FONT></FONT>.
+When writing a configuration file that includes WS-RM related
+configuration entries, the value of the class attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>router-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/router-config.xml</B></FONT></FONT></FONT>
+file defines the metadata for configuring the Celtix routing service.
+This file describes the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>routesWSDL</B></FONT></FONT></FONT>
+configurable variable. The namespace assigned to this file's content
+is: <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/routing/configuration</B></FONT></FONT></FONT>.
+When writing a configuration file that includes routing configuration
+entries, the value of the class attribute in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element is:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.routing.configuration.spring.ConfigurationBean</B></FONT></FONT></FONT>.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>service-config.xml</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/config-metadata/service-config.xml</B></FONT></FONT></FONT>
+file is a placeholder for future service level configuration
+settings. It currently has no content.</FONT></P>
+<H1><A NAME="4.The Celtix Schema Files|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>The
+Celtix Schema Files</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Your starting point for specifying a configuration
+entry is the metadata XML file. This enables you to determine what
+configuration variables you can include, and identify which schema
+files contain the corresponding type information. Also, use the
+namespace declaration in the metadata XML file to determine the name
+of the Spring configuration bean corresponding to the component that
+you want to configure. Then refer to the schema file to discover the
+syntax and type of data you need to add to the configuration file. In
+some cases, you will need to refer to more than one schema file to
+complete your configuration entry. In this case, the metadata XML
+file will include namespace declarations for all of the associated
+schema files. The schema files are located in the  following
+subdirectories:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/schemas/configuration</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/schemas/wsdl</B></FONT></FONT></FONT></FONT></P>
+</UL>
+<P><FONT SIZE=2>A simple example using the Celtix routing service
+will help to illustrate.</FONT></P>
+<H2><A NAME="4.1.Configuring the Routing Service|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Configuring
+the Routing Service</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>Review the content of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>router-config.xml</B></FONT></FONT></FONT>
+metadata XML file:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:config</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:cm=&quot;http://celtix.objectweb.org/configuration/metadata&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#0000ff">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:router-conf=&quot;http://celtix.objectweb.org/routing/configuration&quot;</FONT></B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#0000ff">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>namespace=&quot;http://celtix.objectweb.org/routing/configuration&quot;</FONT>&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:configImport
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000"><FONT COLOR="#0000ff">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>namespace=&quot;http://celtix.objectweb.org/routing/configuration&quot;
+	</FONT></B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000"><FONT COLOR="#0000ff">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>location=&quot;schemas/wsdl/routing.xsd&quot;</FONT>/&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:configItem&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:name&gt;<FONT COLOR="#0000ff">routesWSDL</FONT>&lt;/cm:name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:type&gt;<FONT COLOR="#0000ff">router-conf:urlListPolicy</FONT>&lt;/cm:type&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:description&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>List
+	of wsdl urls used by router</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/cm:description&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;cm:lifecyclePolicy&gt;bus&lt;/cm:lifecyclePolicy&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/cm:configItem&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/cm:config&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>You can extract the following information from this file
+(highlighted in the example XML):</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2>The namespace and location of the schema
+	file(s) that define the types used to specify the configurable
+	variables.</FONT></P>
+	<LI><P><FONT SIZE=2>The namespace assigned to the metadata XML file,
+	which leads to the class name of the Spring configuration bean.</FONT></P>
+	<LI><P><FONT SIZE=2>The name and type of the configurable variable.</FONT></P>
+</UL>
+<P><FONT SIZE=2>Using this information, you can start writing the
+configuration file with the following content.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM
+	&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#0000ff">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:router-conf=&quot;http://celtix.objectweb.org/routing/configuration&quot;</FONT>&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;...&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#0000ff">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.routing.configuration.spring.ConfigurationBean&quot;</FONT>&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>property
+	<FONT COLOR="#0000ff">name=&quot;routesWSDL&quot;</FONT>&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The value that you assign to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+attribute must be a unique string. Because this configuration file
+will be used by the Celtix routing service, and not specifically by
+one of the components identified in Illustration 1, you do not need
+to derive the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+from the bus identifier. You can simply specify a string value
+instead.</FONT></P>
+<P><FONT SIZE=2>To complete the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element, you must refer to the associated schema file. The
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/schemas/wsdl/routing.xsd</B></FONT></FONT></FONT>
+schema file is defined in the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/routing<BR>/configuration</B></FONT></FONT></FONT>
+namespace. This is the file you use to define the content of the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element.</FONT></P>
+<P><FONT SIZE=2>This schema file contains multiple type definitions.
+Most of these types are used in defining a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>route</B></FONT></FONT></FONT>
+specification in a WSDL file, and do not relate to configuring the
+routing service. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>wsdlUrl</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>urlListPolicy</B></FONT></FONT></FONT>
+types (at the end of the file) are relevant to configuration.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:schema</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:r=&quot;http://celtix.objectweb.org/routing/configuration&quot;
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B><SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Courier New">targetNamespace=&quot;</FONT></FONT></SPAN><SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Courier New">http://celtix.objectweb.org/routing/configuration</FONT></FONT></SPAN><SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Courier New">&quot;&gt;</FONT></FONT></SPAN></B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xs:element
+	name=&quot;wsdlUrl&quot; type=&quot;r:urlListPolicy&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:complexType
+	name=&quot;urlListPolicy&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;url&quot; type=&quot;xs:string&quot;
+	maxOccurs=&quot;unbounded&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:complexType&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:schema&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>In the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>router-config.xml</B></FONT></FONT></FONT>
+metadata XML file, the type for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>routesWSDL</B></FONT></FONT></FONT>
+configurable variable is  <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>urlListPolicy</B></FONT></FONT></FONT>.
+This is a sequence of string entries, where each entry is the path to
+a WSDL file that includes a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>route</B></FONT></FONT></FONT>
+definition. In the schema file <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>routing.xsd</B></FONT></FONT></FONT>
+you can see that the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>wsdlUrl</B></FONT></FONT></FONT>
+element wraps the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>urlListPolicy</B></FONT></FONT></FONT>
+type. So to complete the configuration entry, you need to nest a
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>wsdlUrl</B></FONT></FONT></FONT>
+element, which in turn contains one or more <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>url</B></FONT></FONT></FONT>
+elements, under the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM
+	&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:router-conf=&quot;http://celtix.objectweb.org/routing/configuration&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;...&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.routing.configuration.spring.Configurationbean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;routesWSDL&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+	<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;router-conf:wsdlUrl&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;router-conf:url&gt;/wsdl/router.wsdl&lt;/router-conf:url&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/router-conf:wsdlUrl&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>This simple configuration example uses the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>wsdlUrl</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>url</B></FONT></FONT></FONT>
+elements, and not the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>urlListPolicy</B></FONT></FONT></FONT>
+type . A more complex example is presented in the next section.</FONT></P>
+<H1><A NAME="5.Writing a Celtix Configuration File|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>Writing
+a Celtix Configuration File</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Review the structure of a Celtix configuration file
+(see page 2). You can write a separate configuration file for each
+process that you want to configure. You will then define a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element for each component that requires configuration. This means
+that you must provide a value for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attributes in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element, and for the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute in one, or more, <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+elements.  In the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element, you specify a value for this configurable entry. Entering
+the value is the most difficult part of this process as you must use
+the information in the schema and XML metadata files as guides to the
+proper syntax.</FONT></P>
+<H2><A NAME="5.1.The Namespace Declarations|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+Namespace Declarations</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>In the opening <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>beans</B></FONT></FONT></FONT>
+element, you should include namespace declarations corresponding to
+the Celtix schema files:</FONT></P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org/objectweb/celtix/configuration/config-metadata/types.xsd</B></FONT></FONT></FONT></FONT></P>
+	<LI><P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org/objectweb/celtix/configuration/config-metadata/metadata.xsd</B></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>These declarations are then available to all <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+elements in the configuration file. The beginning of each Celtix
+configuration file is shown in the following fragment.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:jaxws-types=&quot;http://celtix.objectweb.org/bus/jaxws/configuration/types&quot;<SPAN LANG="en-US"><FONT SIZE=2><FONT FACE="Courier New">&gt;</FONT></FONT></SPAN></B></FONT></FONT></FONT></DL>
+<H2>
+<A NAME="5.2.The class Attribute|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+class Attribute</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The section on The Celtix Metadata XML Files explains
+how the namespace used in the metadata XML file is mapped to the name
+of a Java bean class in the Spring Framework. This class name is used
+as the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute within a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element.  The information in the metadata XML and Celtix
+configuration files is used by the Celtix runtime to instantiate and
+initialize a bean instance that manages a component's configuration.
+The following table summarizes the class attribute values that
+correspond to each configurable component:</FONT></P>
+<TABLE WIDTH=665 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=123>
+	<COL WIDTH=524>
+	<THEAD>
+		<TR>
+			<TH WIDTH=123>
+				<P><I>Component</I></TH>
+			<TH WIDTH=524>
+				<P><I>Bean Class Name</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>Bus</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>Endpoint</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>Port</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>HTTP Client Transport</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.http.http_client_config.spring.<BR>HttpClientConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>HTTP Server Transport</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.http.http_server_config.spring.<BR>HttpServerConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>HTTP Listener</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.http.http_listener_config.spring.<BR>HttpListenerConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>JMS Client Transport</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms.jms_client_config.spring.<BR>JmsServerConfigBean
+				</FONT></FONT></FONT></B></FONT></FONT></FONT></FONT>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>JMS Server Transport</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.transports.<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>jms.jms_server_config.spring.<BR>JmsServerConfigBean
+				</FONT></FONT></FONT></B></FONT></FONT></FONT></FONT>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>Instrumentation</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.instrumentation.spring.<BR><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>InstrumentationConfigBean</FONT></FONT></FONT>.</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>Reliable Messaging</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=123>
+				<P><FONT SIZE=2>Routing Service</FONT></TD>
+			<TD WIDTH=524>
+				<P><FONT SIZE=2><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>org.objectweb.celtix.routing.configuration.spring.ConfigurationBean</B></FONT></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2><A NAME="5.3.The id Attribute|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+id Attribute</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+attribute can indicate what component the configuration applies to,
+however, it is not a simple one-to-one relationship like the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>class</B></FONT></FONT></FONT>
+attribute. This is because the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+is generally derived from information in the WSDL file that describes
+the service. This can be illustrated using the simple hello world
+WSDL file that follows. The entries that you need to specify the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+are highlighted: </FONT>
+</P>
+<UL>
+	<LI VALUE=1><P><FONT SIZE=2>the targetNamespace </FONT>
+	</P>
+	<LI><P><FONT SIZE=2>the service name</FONT></P>
+	<LI><P><FONT SIZE=2>the port name </FONT>
+	</P>
+</UL>
+<P><FONT SIZE=2>You also need the name assigned to the Celtix bus. By
+default, in a simple application where the bus instance is created
+transparently by the Celtix runtime, the bus name is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix</B></FONT></FONT></FONT>.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:definitions
+	name=&quot;HelloWorld&quot; </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>targetNamespace=&quot;<FONT COLOR="#2323dc">http://objectweb.org/hello_world</FONT>&quot;
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:types&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;schema
+	targetNamespace=</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://objectweb.org/hello_world_soap_http/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/schema&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:types&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:message
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:message&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:message
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>...</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:message&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:portType
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:operation
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:input
+	message=&quot;...&quot; name=&quot;...&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:output
+	message=&quot;...&quot; name=&quot;...&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:operation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:operation
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:input
+	message=&quot;...&quot; name=&quot;...&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:output
+	message=&quot;...&quot; name=&quot;...&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:operation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:portType&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:binding
+	name=&quot;...&quot; type=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:binding
+	style=&quot;document&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>transport=&quot;http://schemas.xmlsoap.org/soap/http&quot;
+	/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:operation
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:operation
+	soapAction=&quot;&quot; style=&quot;document&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:input
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:body
+	use=&quot;literal&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:input&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:output
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:body
+	use=&quot;literal&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:output&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:operation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:operation
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:operation
+	soapAction=&quot;&quot; style=&quot;document&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:input
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:body
+	use=&quot;literal&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:input&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:output
+	name=&quot;...&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:body
+	use=&quot;literal&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:output&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:operation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:binding&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:service
+	name=&quot;<FONT COLOR="#2323dc">SOAPService</FONT>&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:port
+	binding=&quot;...&quot; name=&quot;<FONT COLOR="#2323dc">SoapPort</FONT>&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:address
+	location=&quot;http://localhost:9000/SoapContext/SoapPort&quot; /&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:port&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:service&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:definitions&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The following table lists which pieces of information
+are needed to create the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>id</B></FONT></FONT></FONT>
+for each configurable component and shows the resulting value
+specific to this WSDL file.</FONT></P>
+<TABLE WIDTH=665 BORDER=1 CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=111>
+	<COL WIDTH=147>
+	<COL WIDTH=381>
+	<THEAD>
+		<TR>
+			<TH WIDTH=111>
+				<P><I>Component</I></TH>
+			<TH WIDTH=147>
+				<P><I>Instance Identifier</I></TH>
+			<TH WIDTH=381>
+				<P><I>id Value</I></TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR>
+			<TD WIDTH=111>
+				<P><FONT SIZE=2>Bus</FONT></TD>
+			<TD WIDTH=147>
+				<P><FONT SIZE=2>Bus name</FONT></TD>
+			<TD WIDTH=381>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix</B></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=111>
+				<P><FONT SIZE=2>Endpoint</FONT></TD>
+			<TD WIDTH=147>
+				<P><FONT SIZE=2>Bus name and QName of service</FONT></TD>
+			<TD WIDTH=381>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.{http://objectweb.org/hello_world}SOAPService</B></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=111>
+				<P><FONT SIZE=2>Port</FONT></TD>
+			<TD WIDTH=147>
+				<P><FONT SIZE=2>Bus name, QName of service, and name of port</FONT></TD>
+			<TD WIDTH=381>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort</B></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=111>
+				<P><FONT SIZE=2>HTTP Client Transport</FONT></TD>
+			<TD WIDTH=147>
+				<P><FONT SIZE=2>Bus name, QName of service, name of port, and
+				string constant</FONT></TD>
+			<TD WIDTH=381>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.{<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://objectweb.org/hello_world}SOAPService/SoapPort.</FONT></FONT></FONT>http-client</B></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=111>
+				<P><FONT SIZE=2>HTTP Server Transport</FONT></TD>
+			<TD WIDTH=147>
+				<P><FONT SIZE=2>Bus name, QName of service, name of port, and
+				string constant</FONT></TD>
+			<TD WIDTH=381>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.{<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2>http://objectweb.org/hello_world}SOAPService/SoapPort.</FONT></FONT></FONT>http-server</B></FONT></FONT></FONT></TD>
+		</TR>
+		<TR>
+			<TD WIDTH=111>
+				<P><FONT SIZE=2>HTTP Listener</FONT></TD>
+			<TD WIDTH=147>
+				<P><FONT SIZE=2>Bus name, string constant, and port number (where
+				port number is the TCP/IP port number set in the server mainline
+				code).</FONT></TD>
+			<TD WIDTH=381>
+				<P><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix.http-listener.port_number</B></FONT></FONT></FONT></TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<H2><A NAME="5.4.The property Element|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+property Element</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>The best way to learn how to complete the rest of the
+Celtix configuration file is to look at some examples.</FONT></P>
+<H3><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Setting the
+endpoint URL </FONT></FONT></FONT>
+</H3>
+<P><FONT SIZE=2>The most straightforward example is where you want to
+configure the client application so that the URL used to invoke on
+the endpoint is defined in the configuration file instead of the WSDL
+file's content.  The following fragment shows the corresponding
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element for the hello world example.  This corresponds to the
+configuration entry that sets the URL:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;celtix.{http://objectweb.org/hello_world}SOAPService.SoapPort&quot;
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;address&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;ct:stringValue&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>http://localhost:9002/SoapContext/SoapPort</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/ct:stringValue&gt;
+	             </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Because you are configuring an HTTP port, the
+appropriate XML metadata file to use as a guide is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>port-config.xml</B></FONT></FONT></FONT>,
+and the desired <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>configItem</B></FONT></FONT></FONT>
+element is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>address</B></FONT></FONT></FONT>.
+Assign the value of the configItem's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute. In the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element, enter a string that is the desired URL. Notice that the
+element used to delimit the URL correspond to an element type defined
+in the schema file <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>std-types.xsd</B></FONT></FONT></FONT>.
+The configuration scheme also supports a shorthand notation that
+eliminates the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>stringValue</B></FONT></FONT></FONT>
+tags.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;http://localhost:9002/SoapContext/SoapPort&lt;/value&gt;</B></FONT></FONT></FONT></DL>
+<H3>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Specifying a
+handler</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The server configuration file (<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>celtix-server.xml</B></FONT></FONT></FONT>)
+included in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlers</B></FONT></FONT></FONT>
+product demo shows a more complex example:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:jaxws-types=&quot;http://celtix.objectweb.org/bus/jaxws/configuration/types&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;celtix.{http://www.objectweb.org/handlers}AddNumbersService&quot;
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;handlerChain&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-chain&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>File
+	Logging Handler</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-class&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>demo.handlers.common.FileLoggingHandler</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-class&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-chain&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Because you are configuring a service endpoint, the
+appropriate XML metadata file to use as a guide is
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>endpoint-config.xml</B></FONT></FONT></FONT>,
+and the desired <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>configItem</B></FONT></FONT></FONT>
+element is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChain</B></FONT></FONT></FONT>.
+ Assign the value of the configItem's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute.  In the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element, you need to make entries that identify the class in your
+application that implements the handler you want to deploy.</FONT></P>
+<P><FONT SIZE=2>Deciding what to place in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+element is a little more complex than in the previous example. In the
+metadata XML file, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChain</B></FONT></FONT></FONT>
+entry corresponds to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChainType</B></FONT></FONT></FONT>
+defined in the schema file <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>jaxws-types.xsd</B></FONT></FONT></FONT>.
+However, because the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChainType</B></FONT></FONT></FONT>
+is a complex type, and the configuration file must include an element
+type, you identify the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handler-chain</B></FONT></FONT></FONT>
+element type as a suitable replacement. Then you look up the
+composition of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerChainType</B></FONT></FONT></FONT>
+and determine that it includes a optional handler-name, of type
+string, and a sequence of zero or more <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerType</B></FONT></FONT></FONT>
+instances.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:complexType
+	name=&quot;handlerChainType&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;handler-chain-name&quot; type=&quot;xs:string&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>minOccurs=&quot;0&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;handler&quot; type=&quot;tns:handlerType&quot; </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>minOccurs=&quot;0&quot;
+	maxOccurs=&quot;unbounded&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>/xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:complexType&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>And the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerType</B></FONT></FONT></FONT>
+is also a sequence in which only the second element is required:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:complexType
+	name=&quot;handlerType&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;handler-name&quot; type=&quot;xs:string&quot;
+	minOccurs=&quot;0&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;handler-class&quot; type=&quot;xs:string&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;init-param&quot; type=&quot;tns:handlerInitParamType&quot;
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>nillable=&quot;false&quot;
+	minOccurs=&quot;0&quot; maxOccurs=&quot;unbounded&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:complexType&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>In the configuration file, use the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handler-name</B></FONT></FONT></FONT>
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handler-class</B></FONT></FONT></FONT>
+types to specify the handler class.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-chain&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>File
+	Logging Handler</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-class&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>demo.handlers.common.FileLoggingHandler</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-class&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-chain&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT></DL>
+<H3>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Specifying
+initialization parameters</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>If your handler class requires initialization
+parameters, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerType</B></FONT></FONT></FONT>
+allows for this through its <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>init-param</B></FONT></FONT></FONT>
+element, which is an instance of <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerInitParamType</B></FONT></FONT></FONT>.
+The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerInitParamType</B></FONT></FONT></FONT>
+is a sequence of name value pairs that correspond to the handler's
+initialization values. Because the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>handlerInitParamType</B></FONT></FONT></FONT>
+is an unbounded sequence, your configuration entry may have as many
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>init-param</B></FONT></FONT></FONT>
+elements as required. The following fragment illustrates how the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>init-param</B></FONT></FONT></FONT>
+elements would be included in the configuration file.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;handlerChain&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-chain&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-name&gt;...&lt;/jaxws-types:handler-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:handler-class&gt;...&lt;/jaxws-types:handler-class&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:init-param&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:param-name&gt;arg1&lt;/jaxws-types:param-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:param-value&gt;value1&lt;/jaxws-types:param-value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:init-param&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:init-param&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:param-name&gt;arg2&lt;/jaxws-types:param-name&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;jaxws-types:param-value&gt;value2&lt;/jaxws-types:param-value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:init-param&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/jaxws-types:handler-chain&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT></DL>
+<H3>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Specifying
+authorization information</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>Because you are configuring the client service, the
+appropriate metadata XML file to use as a guide is
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http-client-config.xml.</B></FONT></FONT></FONT>
+The desired <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>configItem</B></FONT></FONT></FONT>
+element is <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>authorization</B></FONT></FONT></FONT>.
+Assign the value of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>configItem</B></FONT></FONT></FONT>
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+element to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+element's <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>name</B></FONT></FONT></FONT>
+attribute.</FONT></P>
+<P><FONT SIZE=2>In the metadata XML file, the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>authorization</B></FONT></FONT></FONT>
+entry corresponds to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>AuthorizationPolicy</B></FONT></FONT></FONT>
+type defined in the schema file <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>security.xsd</B></FONT></FONT></FONT>.
+However, because the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>AuthorizationPolicy</B></FONT></FONT></FONT>
+type is a complex type, and the configuration file must include a
+element type, you identify the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>authorization</B></FONT></FONT></FONT>
+element  as a suitable replacement. Then look up the composition of
+the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>AuthorizationPolicy</B></FONT></FONT></FONT>
+type and determine that it is a sequence of the following elements:
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>UserName</B></FONT></FONT></FONT>,
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Password</B></FONT></FONT></FONT>,
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>AuthorizationType</B></FONT></FONT></FONT>,
+and <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>Authorization</B></FONT></FONT></FONT>.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:complexType
+	name=&quot;AuthorizationPolicy&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;UserName&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;Password&quot; type=&quot;xs:string&quot; minOccurs=&quot;0&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;AuthorizationType&quot; type=&quot;xs:string&quot;
+	minOccurs=&quot;0&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;Authorization&quot; type=&quot;xs:string&quot;
+	minOccurs=&quot;0&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:sequence&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:complexType&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;authorization&quot; type=&quot;tns:AuthorizationPolicy&quot;/&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>Combining this information, leads to the following <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+element.  Note the use of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>sec:</B></FONT></FONT></FONT>
+namespace prefix.  You must include the corresponding namespace
+declaration at the beginning of the configuration file.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans
+	xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:sec=&quot;</FONT><FONT COLOR="#800000">http://celtix.objectweb.org/bus/configuration/security</FONT><FONT COLOR="#800000">&quot;&gt;</FONT></B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>id=&quot;celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort.http-client&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;authorization&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;sec:authorization&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;sec:UserName&gt;User&lt;/sec:UserName&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;sec:Password&gt;celtix&lt;/sec:Password&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/sec:authorization&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<H3>
+<FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=3>Setting
+transport attributes</FONT></FONT></FONT></H3>
+<P><FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>configItem</B></FONT></FONT></FONT>
+element <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>httpClient</B></FONT></FONT></FONT>
+in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http-client-config.xml
+metadata file</B></FONT></FONT></FONT> indicates that the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>HTTPClientPolicy</B></FONT></FONT></FONT>
+type can be used to set transport attributes. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>HTTPClientPolicy</B></FONT></FONT></FONT>
+type, defined in the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>resources/schemas/wsdl/http-conf.xsd</B></FONT></FONT></FONT>
+schema file, is a complex type consisting of multiple attributes.
+This example illustrates how to use attributes to send the request to
+a proxy server.</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:complexType
+	name=&quot;HTTPClientPolicy&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>HTTP
+	client configuration properties.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Used
+	for configuring a HTTP client port.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:complexContent&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:extension
+	base=&quot;wsdl:tExtensibilityElement&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!--
+	Other attribute definitions --&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:attribute
+	name=&quot;AutoRedirect&quot; type=&quot;xs:string&quot;
+	use=&quot;optional&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>default=&quot;false&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!--Proxy
+	server attributes--&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:attribute
+	name=&quot;ProxyServer&quot; type=&quot;xs:string&quot;
+	use=&quot;optional&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Address
+	of proxy server, if used</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>(proxy
+	servers are a special kind of firewall)</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>proxy.mycompany.com</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:attribute&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:attribute
+	name=&quot;ProxyServerPort&quot; type=&quot;xs:int&quot;
+	use=&quot;optional&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Port
+	number of proxy server.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:attribute&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:attribute
+	name=&quot;ProxyServerType&quot; type=&quot;http-conf:proxyServerType&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>use=&quot;optional&quot;
+	default=&quot;HTTP&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Type
+	of number of proxy server.</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:documentation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:annotation&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:attribute&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:extension&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:complexContent&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/xs:complexType&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;xs:element
+	name=&quot;client&quot; type=&quot;http-conf:HTTPClientPolicy&quot;/&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>client</B></FONT></FONT></FONT>
+element may be used to reference the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>HTTPClientPolicy</B></FONT></FONT></FONT>
+type in a Celtix configuration file. The bean class used to configure
+transport attributes is the same as the bean class used to configure
+authorization. The <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http-conf.xsd</B></FONT></FONT></FONT>
+schema file is described in the namespace
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http://celtix.objectweb.org/transports/http/configuration</B></FONT></FONT></FONT>,
+and you must include a prefix definition for this namespace at the
+beginning of the Celtix configuration file:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans
+	xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:sec=&quot;http://celtix.objectweb.org/bus/configuration/security&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:http-conf=&quot;http://celtix.objectweb.org/transports/http/configuration&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>id=&quot;celtix.{<A HREF="http://objectweb.org/hello_world_soap_http">http://objectweb.org/hello_world_soap_http</A>}SOAPService.SoapPort.http-client&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;httpClient&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;http-conf:client
+	ProxyServer=&quot;localhost&quot; ProxyServerPort=&quot;5049&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>AutoRedirect=&quot;true&quot;
+	/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<H1>
+<A NAME="6.An Example Application|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=5>An
+Example Application</FONT></FONT></FONT></H1>
+<P><FONT SIZE=2>Celtix includes several sample applications that
+illustrate configuration techniques. However, the best way to learn
+is to try it yourself, so here is a simple example. Besides giving
+you a chance to write a Celtix configuration file, this example will
+show you how to direct your application to use the configuration
+file.</FONT></P>
+<H2><A NAME="6.1.The Application Code|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+Application Code</I></FONT></FONT></FONT></H2>
+<P><FONT SIZE=2>For this example, you build on the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>hello_world</B></FONT></FONT></FONT>
+product demo. You need to perform the following steps:</FONT></P>
+<OL>
+	<LI><P><FONT SIZE=2>Build this demo and confirm that it runs
+	successfully using both the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ant</B></FONT></FONT></FONT>
+	utility and the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	executable, as described in the demo <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>README</B></FONT></FONT></FONT>
+	file.</FONT></P>
+</OL>
+<P><FONT SIZE=2>In this demo, the server mainline code sets the URL
+on which the application will listen for incoming requests, for
+example:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>package
+	demo.hw.server;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>import
+	javax.xml.ws.Endpoint;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>public
+	class Server {</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>protected
+	Server() throws Exception {</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>System.out.println(&quot;Starting
+	Server&quot;);</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Object
+	implementor = new GreeterImpl();</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>String
+	address = &quot;http://localhost:9000/SoapContext/SoapPort&quot;;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Endpoint.publish(address,
+	implementor);</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>}</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>public
+	static void main(String args[]) throws Exception {</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>new
+	Server();</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>System.out.println(&quot;Server
+	ready...&quot;);</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>Thread.sleep(5
+	* 60 * 1000);</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>System.out.println(&quot;Server
+	exiting&quot;);</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>System.exit(0);</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>}</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>}</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The client, however, obtains the URL from the WSDL file,
+as follows:</FONT></P>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:service
+	name=&quot;SOAPService&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;wsdl:port
+	binding=&quot;tns:Greeter_SOAPBinding&quot; name=&quot;SoapPort&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:address
+	location=&quot;http://localhost:9000/SoapContext/SoapPort&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:port&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/wsdl:service&gt;</B></FONT></FONT></FONT></DL>
+<OL START=2>
+	<LI><P>
+	<FONT SIZE=2>In a text editor, open the WSDL file and change the
+	TCP/IP port (any value is acceptable, just be certain that it is an
+	unused port number). </FONT>
+	</P>
+	<LI><P><FONT SIZE=2>Save the WSDL file.</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;soap:address
+	location=&quot;http://localhost:9002/SoapContext/SoapPort&quot;/&gt;</B></FONT></FONT></FONT></DL>
+<OL START=4>
+	<LI><P>
+	<FONT SIZE=2>Now if you try to run the client, it will be unable to
+	contact the server and the invocation requests will fail.</FONT></P>
+</OL>
+<H2><A NAME="6.2.The Configuration File|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>The
+Configuration File</I></FONT></FONT></FONT></H2>
+<OL START=5>
+	<LI><P><FONT SIZE=2>Write a configuration file that sets the address
+	property of the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>PortConfigBean</B></FONT></FONT></FONT>,
+	for example:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans
+	xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;address&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;ct:stringValue&gt;http://localhost:9000/SoapContext/SoapPort&lt;/ct:stringValue&gt;
+	             </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT><DD><P>
+	<FONT SIZE=2>Alternatively, you may code the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>value</B></FONT></FONT></FONT>
+	element as:</FONT></P>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>http://localhost:9000/SoapContext/SoapPort</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT></DL>
+<OL START=6>
+	<LI><P>
+	<FONT SIZE=2>Add a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>bean</B></FONT></FONT></FONT>
+	element for a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>HttpClientConfigBean</B></FONT></FONT></FONT>
+	and include a <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+	element to set authorization details and another <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>property</B></FONT></FONT></FONT>
+	element to set the attributes related to the proxy server.</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;?xml
+	version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!DOCTYPE
+	beans SYSTEM </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&quot;http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;beans
+	xmlns:ct=&quot;http://celtix.objectweb.org/configuration/types&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:sec=&quot;http://celtix.objectweb.org/bus/configuration/security&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>xmlns:http-conf=&quot;http://celtix.objectweb.org/transports/http/configuration&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean
+	id=&quot;celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;address&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;ct:stringValue&gt;http://localhost:9000/SoapContext/SoapPort&lt;/ct:stringValue&gt;
+	             </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>id=&quot;celtix.{http://objectweb.orb/hello_world_soap_http}SOAPService.SoapPort.http-client&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>class=&quot;org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;authorization&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;sec:authorization&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;sec:UserName&gt;User&lt;/sec:UserName&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;sec:Password&gt;celtix&lt;/sec:Password&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/sec:authorization&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<BR>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!--
+	If you have a proxy server, remove comments and edit the values of</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>ProxyServer
+	and ProxyServerPort accordingly. --&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;!--</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;httpClient&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;http-conf:client
+	ProxyServer=&quot;localhost&quot; ProxyServerPort=&quot;5049&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>AutoRedirect=&quot;true&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/value&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/property&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>--&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/bean&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/beans&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<FONT SIZE=2>The configuration file now includes two <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;bean&gt;</B></FONT></FONT></FONT>
+elements; the first represents configurable settings described in the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>port-config.xml</B></FONT></FONT></FONT>
+metadata file, and the second represents configurable settings in the
+<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>http-client-config.xml</B></FONT></FONT></FONT>
+metadata file.</FONT></P>
+<OL START=7>
+	<LI><P><FONT SIZE=2>Save this file in text format into the
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><B>installationDirectory</B></I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/celtix/samples/hello_world</B></FONT></FONT></FONT>
+	directory; you may give the file any name; the next section assumes
+	that the file is saved as <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>client.xml</B></FONT></FONT></FONT>.
+	The WSDL file now has an incorrect URL while the configuration file
+	and server mainline have the same URL.</FONT></P>
+</OL>
+<H2><A NAME="6.3.Running the Example|outline"></A><FONT COLOR="#cc6633"><FONT FACE="Arial"><FONT SIZE=4><I>Running
+the Example</I></FONT></FONT></FONT></H2>
+<OL START=8>
+	<LI><P><FONT SIZE=2>Build the applications by issuing the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ant
+	build</B></FONT></FONT></FONT> command. Then, using either the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ant</B></FONT></FONT></FONT>
+	utility or the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	executable, start the server application as described in the README.</FONT></P>
+	<LI><P><FONT SIZE=2>When running the client application, you must
+	force it to read the configuration file. You do this by providing a
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>-D</B></FONT></FONT></FONT>
+	command line argument to the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	executable.</FONT></P>
+	<LI><P><FONT SIZE=2>To run the client using the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java</B></FONT></FONT></FONT>
+	executable, enter the command:</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>java
+	-Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>-Dceltix.config.file=file:///%CELTIX_HOME%\samples\hello_world\client.xml</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>demo.hw.client.Client
+	.\wsdl\hello_world.wsdl</B></FONT></FONT></FONT></DL>
+<OL START=11>
+	<LI><P>
+	<FONT SIZE=2>To run the client using the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>ant</B></FONT></FONT></FONT>
+	utility, you will need to edit the <FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>build.xml</B></FONT></FONT></FONT>
+	file that is in the directory
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><I><B>installationDirectory</B></I></FONT></FONT></FONT><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>/celtix/samples/hello_world</B></FONT></FONT></FONT>.
+	</FONT>
+	</P>
+	<LI><P><FONT SIZE=2>Open this file in a text editor and modify the
+	client target.</FONT></P>
+</OL>
+<DL>
+	<DD><FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;target
+	name=&quot;client&quot; description=&quot;run demo client&quot;&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;property
+	name=&quot;param&quot; value=&quot;&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>&lt;celtixrun
+	classname=&quot;demo.hw.client.Client&quot; </B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>jvmarg1=&quot;-Dceltix.config.file=file:///${basedir}/client.xml&quot;
+	</B></FONT></FONT></FONT>
+	<DD><FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>param1=&quot;${basedir}/wsdl/hello_world.wsdl&quot;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<FONT FACE="Courier New"><FONT SIZE=2><B>param2=&quot;${op}&quot;
+	param3=&quot;${param}&quot;/&gt;</B></FONT></FONT></FONT><DD>
+	<FONT COLOR="#800000"><FONT FACE="Courier New"><FONT SIZE=2><B>&lt;/target&gt;</B></FONT></FONT></FONT></DL>
+<P>
+<BR><BR>
+</P>
+</BODY>
+</HTML>
