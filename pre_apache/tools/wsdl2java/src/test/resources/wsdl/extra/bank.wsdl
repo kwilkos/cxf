@@ -1,0 +1,127 @@
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.iona.com/bus/tests" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://soapinterop.org/xsd" xmlns:stub="http://schemas.iona.com/transports/stub" xmlns:http="http://schemas.iona.com/transports/http" xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" xmlns:fixed="http://schemas.iona.com/bindings/fixed" xmlns:iiop="http://schemas.iona.com/transports/iiop_tunnel" xmlns:corba="http://schemas.iona.com/bindings/corba" xmlns:ns1="http://www.iona.com/corba/typemap/BasePortType.idl" xmlns:references="http://schemas.iona.com/references" xmlns:mq="http://schemas.iona.com/transports/mq" xmlns:routing="http://schemas.iona.com/routing" targetNamespace="http://www.iona.com/bus/tests" name="BaseService">
+	<types>
+        <xs:schema targetNamespace="http://schemas.iona.com/references" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd2="http://schemas.iona.com/references">
+            <xs:complexType name="Reference">
+                <xs:sequence>
+                    <xs:element name="service_qname" type="xs:QName">
+                        <xs:annotation>
+                            <xs:documentation>The service_qname indicates the QName of the Service.</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="port_name" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation>The port_name indicates the Port Name within the Service.</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="binding_qname" type="xs:QName">
+                        <xs:annotation>
+                            <xs:documentation>The binding_qname indicates the binding that this endpoint uses. This would be used for transient endpoints which do not have a static Service or Port.</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                    <xs:element name="wsdl_location" type="xs:string">
+                        <xs:annotation>
+                            <xs:documentation>The Service Name indicates the local part of the QName of the Service.</xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+					<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>The reference properties convey information about the endpoint that may be QoS or binding specific.</xs:documentation>
+						</xs:annotation>
+					</xs:any>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+	</types>
+	<message name="get_account">
+		<part name="account_name" type="xsd:string"/>
+	</message>
+	<message name="get_accountResponse">
+		<part name="return" type="references:Reference"/>
+	</message>
+	<message name="find_account">
+		<part name="account_details" type="xsd:anyType"/>
+	</message>
+	<message name="find_accountResponse">
+		<part name="account_details" type="xsd:anyType"/>
+	</message>
+	<message name="get_balance"/>
+	<message name="get_balanceResponse">
+		<part name="balance" type="xsd:float"/>
+	</message>
+	<message name="deposit">
+		<part name="addition" type="xsd:float"/>
+	</message>
+	<message name="depositResponse"/>
+	<portType name="Bank">
+		<operation name="get_account">
+			<input name="get_account" message="tns:get_account"/>
+			<output name="get_accountResponse" message="tns:get_accountResponse"/>
+		</operation>
+		<operation name="find_account">
+			<input name="find_account" message="tns:find_account"/>
+			<output name="find_accountResponse" message="tns:find_accountResponse"/>
+		</operation>
+	</portType>
+	<portType name="Account">
+		<operation name="get_balance">
+			<input name="get_balance" message="tns:get_balance"/>
+			<output name="get_balanceResponse" message="tns:get_balanceResponse"/>
+		</operation>
+		<operation name="deposit">
+			<input name="deposit" message="tns:deposit"/>
+			<output name="depositResponse" message="tns:depositResponse"/>
+		</operation>
+	</portType>
+	<binding name="BankBinding" type="tns:Bank">
+		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="get_account">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+		<operation name="find_account">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+	</binding>
+	<binding name="AccountBinding" type="tns:Account">
+		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="get_balance">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+		<operation name="deposit">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+	</binding>
+	<service name="BankService">
+		<port name="BankPort" binding="tns:BankBinding">
+			<soap:address location="http://localhost:0/BankService/BankPort/"/>
+		</port>
+	</service>
+	<service name="AccountService">
+		<port name="AccountPort" binding="tns:AccountBinding">
+			<soap:address location="http://localhost:0/AccountService/AccountPort/"/>
+		</port>
+	</service>
+</definitions>

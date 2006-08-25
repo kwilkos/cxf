@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ct:classNamespaceMappingListValue xmlns:ct="http://celtix.objectweb.org/configuration/types">
+    <ct:map>
+        <ct:classname>org.objectweb.celtix.transports.jms.JMSTransportFactory</ct:classname>
+        <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
+        <ct:namespace>http://celtix.objectweb.org/transports/jms/configuration</ct:namespace>
+    </ct:map>
+</ct:classNamespaceMappingListValue>

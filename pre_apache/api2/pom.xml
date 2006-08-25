@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-api2</artifactId>
+    <packaging>jar</packaging>
+    <name>CeltiXfire API v2</name>
+    <version>1.1-SNAPSHOT</version>
+
+    <parent>
+	<groupId>org.objectweb.celtixfire</groupId>
+	<artifactId>celtixfire</artifactId>
+	<version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <topDirectoryLocation>..</topDirectoryLocation>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.objectweb.celtixfire</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <!-- REVISIT: generate schemas and configuration beans in projects where needed first -->
+                            <!-- may need to modify bean generator so it can pick up schemas from jars -->
+                            <xsdOptions>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
+                                    <dependencies>
+                                    	<dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
+                                    </dependencies>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
+                                    <packagename>org.objectweb.celtix.ws.addressing</packagename>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
+                                    <packagename>org.objectweb.celtix.ws.addressing.wsdl</packagename>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
+                                </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>
+                                </xsdOption>
+                            </xsdOptions>
+                            <beanfiles>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/bus-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/http-listener-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>                                
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
+                            </beanfiles>
+                        </configuration>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                            <goal>beangen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

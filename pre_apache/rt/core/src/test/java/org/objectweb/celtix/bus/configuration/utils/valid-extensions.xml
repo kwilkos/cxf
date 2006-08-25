@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ct:extensionTypeListValue xmlns:ct="http://celtix.objectweb.org/configuration/types">
+    <ct:extension>
+        <ct:parentType>javax.wsdl.BindingInout</ct:parentType>
+        <ct:elementType>org.objectweb.celtix.bindings.xmlformat.TBody</ct:elementType>
+    </ct:extension>
+    <ct:extension>
+        <ct:parentType>javax.wsdl.Port</ct:parentType>
+        <ct:elementType>org.xmlsoap.schemas.wsdl.http.AddressType</ct:elementType>
+    </ct:extension>
+</ct:extensionTypeListValue>

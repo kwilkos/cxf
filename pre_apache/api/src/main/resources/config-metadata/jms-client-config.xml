@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
+    xmlns:jms="http://celtix.objectweb.org/transports/jms"
+    xmlns:jms-conf="http://celtix.objectweb.org/transports/jms/jms-conf"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    namespace="http://celtix.objectweb.org/bus/transports/jms/jms-client-config"
+>
+
+    <cm:configImport namespace="http://celtix.objectweb.org/transports/jms" location="schemas/wsdl/jms.xsd"/>
+    <cm:configImport namespace="http://celtix.objectweb.org/transports/jms/jms-conf" location="schemas/wsdl/jms-conf.xsd"/>
+
+    <cm:configItem>
+        <cm:name>jmsClient</cm:name>
+        <cm:type>jms:JMSClientBehaviorPolicyType</cm:type>
+        <cm:description>JMS client configuration properties.
+            Used for configuring a JMS client behaviour.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- attribute values are defaulted -->
+        <jms:client></jms:client>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>jmsAddress</cm:name>
+        <cm:type>jms:JMSAddressPolicyType</cm:type>
+        <cm:description>Policies for JMS Broker connection.</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <jms:address></jms:address>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>jmsSessionPool</cm:name>
+        <cm:type>jms-conf:JMSSessionPoolConfigPolicy</cm:type>
+        <cm:description>Policy for the JMS Session Pool LowWaterMark and HighWaterMark.</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>jmsClientConfig</cm:name>
+        <cm:type>jms-conf:JMSClientConfig</cm:type>
+        <cm:description>Policy for the JMS Client receive timeout and message time-to-live.</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
+    
+</cm:config>

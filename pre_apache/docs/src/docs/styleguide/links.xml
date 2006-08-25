@@ -1,0 +1,134 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter>
+  <title>Cross References and Links</title>
+  <section>
+    <title>Overview</title>
+	<para>The CeliXfire documentation uses a subset of the linking elements defined by Docbook. The 
+	      elements include:</para>
+	<itemizedlist>
+	  <listitem>
+	    <para><link linkend="xref"><sgmltag class="element">xref</sgmltag></link></para>
+	  </listitem>
+	  <listitem>
+	    <para><link linkend="link"><sgmltag class="element">link</sgmltag></link></para>
+	  </listitem>
+	  <listitem>
+	    <para><link linkend="ulink"><sgmltag class="element">ulink</sgmltag></link></para>
+	  </listitem>
+	  <listitem><para><sgmltag class="element">anchor</sgmltag></para></listitem>
+	</itemizedlist>
+	<para>Using this set of elements, you can create cross references, internal links, and external 
+	      links in your documents.</para>
+  </section>
+  <section>
+    <title>Internal Links and Cross References</title>
+	<para>Internal links are links whose anchor is in the same document. A cross reference is a 
+	      special instance of an internal link. Where an internal link requires that you supply the 
+		  text that is displayed, as with an HTML link, a cross reference's text is automatically 
+		  determined by the link's target.</para>
+	<section id="link">
+	  <title>Inserting an Internal Link</title>
+	  <para>Internal links are created using the <sgmltag class="element">link</sgmltag> element. 
+	        The <sgmltag class="element">link</sgmltag> element has one required attribute 
+			<sgmltag class="attribute">linkend</sgmltag> whose value is the id of element 
+			anchoring the link. The anchoring element can be any valid Docbook element that uses 
+			the <sgmltag class="attribute">id</sgmltag> attribute. For example if you wanted to 
+			create a link to an image in your document, you could use the id of the 
+			<sgmltag class="element">figure</sgmltag> element that wraps the image.</para>
+	  <note>
+	    <para>You can also create anchor points in your text using the 
+		      <sgmltag class="element">anchor</sgmltag> element. In this case, the value of the 
+			  <sgmltag class="attribute">linkend</sgmltag> attribute would be the id of the 
+			  <sgmltag class="element">anchor</sgmltag> element.</para>
+	  </note>
+	  <para>The text used for the link is the content of the 
+	        <sgmltag class="element">link</sgmltag> element. <xref linkend="linkexample" /> shows 
+			the mark up for this <link linkend="link">link to the top</link> of this section.</para>
+	  <example id="linkexample">
+	    <title>Example of an Internal Link</title>
+		<programlisting>this &lt;link linkend="link"&gt;link to the top&lt;/link&gt; of</programlisting>
+	  </example>
+	</section>
+	<section id="xref">
+	  <title>Inserting a Cross Reference</title>
+	  <para>Cross references are created using the <sgmltag class="element">xref</sgmltag> element. 
+	        Like the <sgmltag class="element">link</sgmltag> element, the 
+			<sgmltag class="element">xref</sgmltag> element requires the use of the 
+			<sgmltag class="attribute">linkend</sgmltag> attribute to identify the element being 
+			referenced.</para>
+	  <para>Unlike the <sgmltag class="element">link</sgmltag> element, the 
+	        <sgmltag class="element">xref</sgmltag> element does not have any contents. The text 
+			displayed for the generated link is generated based on the contents of the referenced 
+			element. If the referenced element has a <sgmltag class="element">title</sgmltag> 
+			element, such as a <sgmltag class="element">section</sgmltag> element or a 
+			<sgmltag class="element">example</sgmltag> element, the contents of the 
+			<sgmltag class="element">title</sgmltag> element is used as the link text. 
+			Alternatively, the value of the referenced element's 
+			<sgmltag class="attribute">xreflable</sgmltag> attribute will be used as the link 
+			text.</para>
+	  <note>
+	    <para>If the referenced element has both a <sgmltag class="element">title</sgmltag> 
+		      element and a value specified in its <sgmltag class="attribute">xreflable</sgmltag> 
+			  attribute, the value of the <sgmltag class="attribute">xreflable</sgmltag> attribute 
+			  is used.</para>
+	  </note>
+	  <para><xref linkend="xrefexample1" /> shows an example of a cross reference whose text is 
+	        derived from the <sgmltag class="element">title</sgmltag> element of the referenced 
+			element. The resulting link text would be <literal>the section called "Coco Crisps" 
+			shows</literal>.</para>
+	  <example id="xrefexample1">
+	    <title>Cross Reference to a Titled Element</title>
+		<programlisting>&lt;para&gt;&lt;xref linkend="topsect" /&gt; shows ...&lt;/para&gt;
+...
+&lt;section id="topsect"&gt;
+  &lt;title&gt;Coco Crisps&lt;/title&gt;
+...
+&lt;/section&gt;</programlisting>
+	  </example>
+	  <para><xref linkend="xrefexample2" /> shows an example of a cross reference whose text is 
+	        derived from the <sgmltag class="attribute">xreflable</sgmltag> attribute of the 
+			referenced element. The resulting link text would be <literal>short stop shows</literal>
+			.</para>
+	  <example id="xrefexample2">
+	    <title>Cross Reference to an Element with an Xreflable</title>
+		<programlisting>&lt;para&gt;&lt;xref linkend="example1" /&gt; shows ...&lt;/para&gt;
+...
+&lt;example id="example1" xlableref="short stop"&gt;
+  &lt;title&gt;Catching Coco Crisp&lt;/title&gt;
+  ...
+&lt;/example&gt;</programlisting>
+	  </example>
+	</section>
+  </section>
+  <section id="ulink">
+    <title>External Links</title>
+	<para>External links are links to resources that are not contianed in the same XML source 
+	      document. They do not have to be links to other documents. They can be links to Web pages 
+		  or any other resource that can be reached using a URL. Generally, they are transformed 
+		  into HTML links when the document is published.</para>
+	<para>External links are created using the <sgmltag class="element">ulink</sgmltag> element. 
+	      You identify the linked resource using the required <sgmltag class="attribute">url</sgmltag> 
+		  attribute. The value must be a valid URL.</para>
+    <note>
+	  <para>Because the CeltiXfire documentation is built with Forrest, you can use the 
+	        <filename>site:<replaceable>siteId</replaceable></filename> resource identifier to 
+			refer to pages that are listed in <filename>site.xml</filename>.</para>
+	</note>
+	<para>The link text can be specified in one of two ways. You can specified the desired link 
+	      text as the value of the <sgmltag class="element">ulink</sgmltag> element. If you leave 
+		  the <sgmltag class="element">ulink</sgmltag> element empty, the value of the 
+		  <sgmltag class="attribute">url</sgmltag> attribute will be used as the link text.</para>
+	<para><xref linkend="ulinkexample1"/> shows an example of an external link with supplied link 
+	      text.</para>
+	<example id="ulinkexample1">
+	  <title>External Link with Link Text</title>
+	  <programlisting>&lt;ulink url="http://celtixfire.org"&gt;CeltiXfire Home&lt;/ulink&gt;</programlisting>
+	</example>
+	<para><xref linkend="ulinkexample2"/> shows an example of an external link that uses the default 
+	      link text.</para>
+	<example id="ulinkexample2">
+	  <title>External Link Using Default Link Text</title>
+	  <programlisting>&lt;ulink url="http://celtixfire.org" /&gt;</programlisting>
+	</example>
+  </section>
+</chapter>

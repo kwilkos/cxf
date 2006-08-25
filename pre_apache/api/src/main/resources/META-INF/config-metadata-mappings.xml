@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>mapping of configuration namespace - configuration metadata resource name</comment>
+<entry key="http://celtix.objectweb.org/bus/bus-config">config-metadata/bus-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/jaxws/endpoint-config">config-metadata/endpoint-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/transports/http/http-client-config">config-metadata/http-client-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/transports/http/http-listener-config">config-metadata/http-listener-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/transports/http/http-server-config">config-metadata/http-server-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/jaxws/port-config">config-metadata/port-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/transports/jms/jms-client-config">config-metadata/jms-client-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/transports/jms/jms-server-config">config-metadata/jms-server-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/ws/rm/rm-config">config-metadata/rm-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/ws/addressing/wsa-config">config-metadata/wsa-config.xml</entry>
+<entry key="http://celtix.objectweb.org/bus/instrumentation/instrumentation-config">config-metadata/instrumentation-config.xml</entry>
+</properties>

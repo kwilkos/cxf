@@ -1,0 +1,135 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.objectweb.celtixfire</groupId>
+    <artifactId>cxf-router</artifactId>
+    <packaging>jar</packaging>
+    <version>1.1-SNAPSHOT</version>
+    <name>CeltiXfire Router Support</name>
+    <url>http://celtix.objectweb.org/</url>
+
+    <parent>
+        <groupId>org.objectweb.celtixfire</groupId>
+        <artifactId>celtixfire</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <topDirectoryLocation>..</topDirectoryLocation>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.5.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-tools-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+	    <groupId>org.objectweb.celtixfire</groupId>
+	    <artifactId>cxf-tools-wsdl2java</artifactId>
+	    <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-bindings-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-rt-transports-jms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtixfire</groupId>
+            <artifactId>cxf-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.objectweb.celtixfire</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <xsdOptions>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/routing.xsd</xsd>
+                                    <!--
+                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/routing.xjb</bindingFile>
+                                    -->
+                                    <!-- xsdtoJava does not disable code generation based on schema namespaces-->
+                                    <!-- requires explicit deletion post compilation-->
+                                    <deleteDirs>
+                                        <deleteDir>${basedir}/target/generated/src/main/java/org/objectweb/celtix/wsdl</deleteDir>
+                                        <deleteDir>${basedir}/target/classes/org/objectweb/celtix/wsdl</deleteDir>
+                                    </deleteDirs>
+                                </xsdOption>
+                            </xsdOptions>
+                            <beanfiles>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/router-config.xml</beanfile>
+                            </beanfiles>
+                        </configuration>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                            <goal>beangen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

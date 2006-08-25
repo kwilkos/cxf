@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"
+    xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+>
+  
+  <!-- configuration for the demo server -->
+
+  <bean id="celtix.http-listener.9001"
+        class="org.objectweb.celtix.bus.transports.http.http_listener_config.spring.HttpListenerConfigBean">
+ 
+      <property name="sslServer">
+          <value>
+              <sec:sslServer>
+	        <sec:Keystore>src/demo/hw_https/resources/celtix.p12</sec:Keystore>
+		<sec:KeystoreType>PKCS12</sec:KeystoreType>
+		<sec:KeystorePassword>celtixpass</sec:KeystorePassword>
+		<sec:KeyPassword>celtixpass</sec:KeyPassword>
+		<sec:WantClientAuthentication>true</sec:WantClientAuthentication>
+		<sec:RequireClientAuthentication>true</sec:RequireClientAuthentication>
+		<sec:TrustStore>src/demo/hw_https/resources/celtixp12.truststore</sec:TrustStore>
+              </sec:sslServer>
+          </value>
+      </property>
+  </bean>
+ 
+</beans>

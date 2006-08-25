@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter>
+  <title>Admonitions</title>
+  <section>
+    <title>Overview</title>
+    <para>Admonitions are pieces of text that are offset from the main flow of text. They include 
+	      things like warnings, notes, and tips. They should be used sparingly because they 
+		  interupt the flow of the text. However, if you think one is needed, use one.</para>
+	<para>As a general rule, warnings and notes are the <emphasis role="strong">prefered</emphasis> 
+	      admonitions in CeltiXire documentation. That does not mean the use of the other types are 
+		  prohibited. It only means that they should be used with caution.</para>
+  </section>
+  <section id="warn">
+    <title>Warnings</title>
+	<para>Warnings are used to callout instances where a serious loss of data could occur. The 
+	      text of the warning should make it clear what will cause the data loss and what data 
+		  is at risk. For example, if using a value greater than 1 million will cause a method 
+		  invocation to return garbage, you should use a warning to mention this.</para>
+	<para>Warnings are marked up using a <sgmltag class="element">warning</sgmltag> element. The 
+	      <sgmltag class="element">warning</sgmltag> element should contain a single 
+		  <sgmltag class="element">para</sgmltag> element that contains the text for the warning.</para>
+	<para>The <sgmltag class="element">warning</sgmltag> element can, however, contain more than one 
+	      paragraph, a code listing, or a table. These are exceptions that are to be used sparingly.</para>
+  </section>
+  <section id="note">
+    <title>Notes</title>
+	<para>Notes are used to callout information that the reader should be aware of, but is 
+	      ancillary to the topic being discused in the main flow of the text. For example, if you 
+		  are discussing the mapping of a CORBA service from IDL to WSDL and want to reference the
+		  official IDL to WSDL mapping, you might put the reference in a note.</para>
+	<para>Notes are marked up using a <sgmltag class="element">note</sgmltag> element. Like the 
+	      <sgmltag class="element">warning</sgmltag> element, the <sgmltag class="element">note</sgmltag> 
+		  element should contain a single <sgmltag class="element">para</sgmltag> element that 
+		  contains the text for the warning. The <sgmltag class="element">note</sgmltag> element 
+		  can also contain more than one paragraph, a code listing, or a table.</para>
+  </section>
+  <section>
+    <title>Footnotes</title>
+	<para>In general, you should not need to use footnotes in CeltiXfire documentation. If you 
+	      find that a footnote is required, you can use one. However, most information that would 
+		  be put in a footnote is more appropriately placed in a note. For example, if there is a 
+		  related specification for a feature or some other ancilary piece of information, you might 
+		  put it in a footnote.</para>
+	<para>Footnotes are marked up using the <sgmltag class="element">footnote</sgmltag> element. 
+	      The <sgmltag class="element">footnote</sgmltag> element must contain a block element such 
+		  as a <sgmltag class="element">para</sgmltag> element or a 
+		  <sgmltag class="element">table</sgmltag> element. The contents of the footnote will be 
+		  placed according to the formatting rules and a link will be inserted where the 
+		  <sgmltag class="element">footnote</sgmltag> element was in the text.</para>
+	<para>In addition to using a footnote as a holder for text, you can also create a footnot that 
+		  refers to another footnote. To do this you use the 
+		  <sgmltag class="element">footnoteref</sgmltag> element. It takes a single attribute, 
+		  <sgmltag class="attribute">linkend</sgmltag>, that specifies the 
+		  <sgmltag class="attribute">id</sgmltag> of the referenced footnote. The generated link 
+		  will point back to the referenced footnote.</para>
+  </section>
+  <section>
+    <title>Others</title>
+    <para>In addition to the above admonition types, Docbook has elements for three other types:</para>
+	<itemizedlist>
+	  <listitem><para><link linkend="caution">cautions</link></para></listitem>
+	  <listitem><para><link linkend="important">important notes</link></para></listitem>
+	  <listitem><para><link linkend="tip">tips</link></para></listitem>
+	</itemizedlist>
+	<section id="caution">
+	  <title>Cautions</title>
+	  <para>Cautions are intended for use when a <link linkend="warn">warning</link> is too 
+	        strong. For example, a caution may be used when an action will potentially cuase a 
+			service to return an exception, but not crash or result in any loss of critical data. 
+			In general, it is best to use a <link linkend="warn">warning</link>.</para>
+		<para>Cautions are marked up using the <sgmltag class="element">caution</sgmltag> element.
+		      As with warnings elements, the <sgmltag class="element">caution</sgmltag> element 
+			  should contain only a single <sgmltag class="element">para</sgmltag> element.</para>
+	</section>
+	<section id="important">
+	  <title>Important Notes</title>
+	  <para>Important notes are used to point out information that is important for the user to 
+	        know, but that may not be obvious. For example, if you change a value in a context and 
+			the new value overrides a transport setting for the service. Or if the new value 
+			persists for all future uses of the context.</para>
+	  <para>Important notes are marked up using the <sgmltag class="element">important</sgmltag> 
+	        element. The <sgmltag class="element">important</sgmltag> element should contain 
+			only a single <sgmltag class="element">para</sgmltag> element. However, it is 
+			allowable to use other block elements in an important note.</para>
+	</section>
+	<section id="tip">
+	  <title>Tips</title>
+	  <para>Tips are bits of information that may help a user be more productive, but that are not 
+	        critical to using the product. In general, this type of information should either be 
+			worked directly into the text or placed in a <link linkend="note">note</link>.</para>
+	  <para>Tips are marked up using the <sgmltag class="element">tip</sgmltag> element. The 
+	        <sgmltag class="element">tip</sgmltag> element should contain only a single 
+		    <sgmltag class="element">para</sgmltag> element. However, it is allowable to use other 
+		    block elements in a tip.</para>
+	</section>
+  </section>
+</chapter>

@@ -1,0 +1,102 @@
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.iona.com/bus/tests" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsd1="http://soapinterop.org/xsd" xmlns:stub="http://schemas.iona.com/transports/stub" xmlns:http="http://schemas.iona.com/transports/http" xmlns:http-conf="http://schemas.iona.com/transports/http/configuration" xmlns:fixed="http://schemas.iona.com/bindings/fixed" xmlns:iiop="http://schemas.iona.com/transports/iiop_tunnel" xmlns:corba="http://schemas.iona.com/bindings/corba" xmlns:ns1="http://www.iona.com/corba/typemap/BasePortType.idl" xmlns:references="http://schemas.iona.com/references" xmlns:mq="http://schemas.iona.com/transports/mq" xmlns:routing="http://schemas.iona.com/routing" targetNamespace="http://www.iona.com/bus/tests" name="BaseService"
+xmlns:msg="http://schemas.iona.com/port/messaging"
+>
+	<types>
+	<xsd:schema>
+        <xsd:import namespace="http://schemas.iona.com/references" 
+            schemaLocation="../../schemas/references.xsd"/>
+        </xsd:schema>
+	</types>
+	<message name="get_account">
+		<part name="account_name" type="xsd:string"/>
+	</message>
+	<message name="get_accountResponse">
+		<part name="return" type="references:Reference"/>
+	</message>
+	<message name="find_account">
+		<part name="account_details" type="xsd:anyType"/>
+	</message>
+	<message name="find_accountResponse">
+		<part name="account_details" type="xsd:anyType"/>
+	</message>
+	<message name="get_balance"/>
+	<message name="get_balanceResponse">
+		<part name="balance" type="xsd:float"/>
+	</message>
+	<message name="deposit">
+		<part name="addition" type="xsd:float"/>
+	</message>
+	<message name="depositResponse"/>
+	<portType name="Bank">
+		<operation name="get_account">
+			<input name="get_account" message="tns:get_account"/>
+			<output name="get_accountResponse" message="tns:get_accountResponse"/>
+		</operation>
+		<operation name="find_account">
+			<input name="find_account" message="tns:find_account"/>
+			<output name="find_accountResponse" message="tns:find_accountResponse"/>
+		</operation>
+	</portType>
+	<portType name="Account">
+		<operation name="get_balance">
+			<input name="get_balance" message="tns:get_balance"/>
+			<output name="get_balanceResponse" message="tns:get_balanceResponse"/>
+		</operation>
+		<operation name="deposit">
+			<input name="deposit" message="tns:deposit"/>
+			<output name="depositResponse" message="tns:depositResponse"/>
+		</operation>
+	</portType>
+	<binding name="BankBinding" type="tns:Bank">
+		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="get_account">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+		<operation name="find_account">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+	</binding>
+	<binding name="AccountBinding" type="tns:Account">
+		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="get_balance">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+		<operation name="deposit">
+			<soap:operation soapAction="http://www.iona.com/bus/tests" style="rpc"/>
+			<input>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</input>
+			<output>
+				<soap:body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://www.iona.com/bus/tests"/>
+			</output>
+		</operation>
+	</binding>
+	<service name="BankService">
+		<port name="BankPort" binding="tns:BankBinding">
+			<soap:address location="http://localhost:0/BankService/BankPort/"/>
+		</port>
+	</service>
+	<service name="AccountService">
+		<port name="AccountPort" binding="tns:AccountBinding">
+			<soap:address location="http://localhost:0/AccountService/AccountPort/"/>
+		</port>
+	</service>
+</definitions>

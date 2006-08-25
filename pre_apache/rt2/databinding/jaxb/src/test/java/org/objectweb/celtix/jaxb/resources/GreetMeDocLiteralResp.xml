@@ -1,0 +1,3 @@
+<ns4:greetMeResponse xmlns:ns4="http://objectweb.org/hello_world_soap_http/types">
+    <ns4:responseType>TestSOAPOutputPMessage</ns4:responseType>
+</ns4:greetMeResponse>

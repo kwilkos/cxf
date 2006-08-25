@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    namespace="http://celtix.objectweb.org/configuration/test/leaf">
+
+   <!-- configuration metadata for test component leaf  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    
+    <!-- items without default values --> 
+    
+    <cm:configItem>
+		<cm:name>stringLeafItem</cm:name>
+		<cm:type>xs:string</cm:type>
+		<ct:stringValue>the default</ct:stringValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>longLeafItemNoDefault</cm:name>
+		<cm:type>xs:long</cm:type>
+	</cm:configItem>
+
+</cm:config>

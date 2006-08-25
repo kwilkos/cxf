@@ -1,0 +1,1535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<article lang="en-US">
+  <title>Using CeltiXfire Configuration</title>
+
+  <section>
+    <title>Overview</title>
+
+    <para>This document describes how to write and use a CeltiXfire
+    configuration file.</para>
+
+    <para>A CeltiXfire configuration file is a Spring Framework XMLBeanFactory
+    configuration file (see <ulink
+    url="http://www.springframework.org/docs/reference/beans.html#beans-factory">http://www.springframework.org/docs/reference/beans.html#beans-factory</ulink>
+    and <ulink
+    url="http://www.springframework.org/">http://www.springframework.org/</ulink>).
+    However, other than learning how to write the configuration file, you do
+    not need to know anything about the Spring Framework or its APIs.</para>
+
+    <para><xref linkend="fig_1" /> shows the hierarchical organization of
+    configurable components in CeltiXfire. The shaded components can be
+    configured using a CeltiXfire configuration file. In a client application,
+    configuration settings may be applied at the level of a service (to all
+    invocations using a specific proxy instance), a port, or a transport. In a
+    server application, configuration settings may be applied at the level of
+    an endpoint (to all invocations against a specific service) or
+    transport.</para>
+
+    <figure id="fig_1">
+      <title>CeltiXfire Configuration Hierarchy</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="./images/configuration.gif" />
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <para>Later in this document, you will see how an understanding of this
+    hierarchy is used to identify the component to which a collection of
+    configuration settings apply.</para>
+
+    <para>CeltiXfire also has some fully implemented services (for example,
+    the routing service) that require configuration. These services are also
+    configured using the approach described in this document. However, in a
+    configuration file used by a CeltiXfire service, the identity of the
+    configurable component is not derived from the configuration hierarchy
+    illustrated in <xref linkend="fig_1" />.</para>
+
+    <para>This document is based on the CeltiXfire 1.0 General Availability
+    release (April 2006); there may be revisions in interim builds and
+    subsequent releases. It is essential that you refer to the metadata XML
+    and schema files that are packaged with your installation, see The
+    CeltiXfire Metadata XML Files, when writing or editing CeltiXfire
+    configuration files.</para>
+
+    <para>Refer to the CeltiXfire configuration Wiki page for the most current
+    description of this functionality. This page is located at: (<ulink
+    url="https://wiki.objectweb.org/celtix/Wiki.jsp?page=ConfigurationDocumentation">https://wiki.objectweb.org/celtix/Wiki.jsp?page=ConfigurationDocumentation</ulink>).</para>
+  </section>
+
+  <section id="file_struct">
+    <title>Structure of a CeltiXfire Configuration File</title>
+
+    <para>A CeltiXfire configuration file has the syntax shown in the
+    following fragment:</para>
+
+    <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+&lt;beans xmlns:...&gt;
+  &lt;bean id="..." abstract="true"&gt;
+    &lt;property name="..."&gt;
+      &lt;value&gt;
+      ...
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+
+  &lt;bean id="..." class="..." parent="..."&gt;
+    &lt;property name="..."&gt;
+      &lt;value&gt;
+      ...
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+
+  &lt;bean id="..." class="..."&gt;
+    &lt;property name="..."&gt;
+      &lt;value&gt;
+      ...
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+
+    <para>With the exception of the URL listed in the <sgmltag
+    class="element">DOCTYPE</sgmltag> declaration, this syntax derives
+    directly from the Spring Framework XMLBeanFactory configuration file.
+    Starting from this basic framework, your task is to fill in the entries
+    indicated by the ellipsis (...).</para>
+
+    <section>
+      <title>Beans element</title>
+
+      <para>In the opening <sgmltag class="element">beans</sgmltag> element,
+      you must include namespace declarations for the schema files that define
+      acceptable configuration entries. The file may then include one, or
+      more, <sgmltag class="element">bean</sgmltag> elements, each of which
+      corresponds to a configurable component in CeltiXfire.</para>
+    </section>
+
+    <section>
+      <title>Bean element</title>
+
+      <para>The example file in this section shows three ways of specifying a
+      <sgmltag class="element">bean</sgmltag> element. The first approach is
+      used to define an abstract configuration, which is a configuration that
+      is reused in another <sgmltag class="element">bean</sgmltag> element.
+      Because this declaration only describes configuration entries that are
+      reused in another declaration, there is no corresponding class entry.
+      The second approach is used to define a bean that reuses the
+      configuration entries defined in an abstract <sgmltag
+      class="element">bean</sgmltag> element. The value of the <sgmltag
+      class="attribute">parent</sgmltag> attribute is the id of the abstract
+      bean. And the third approach is used to completely define a bean.</para>
+
+      <section>
+        <title>Id attribute</title>
+
+        <para>The <sgmltag class="attribute">id</sgmltag> attribute represents
+        the component to which the configuration is applied, for example, a
+        bus, a service, a port, a transport, or a CeltiXfire service. The
+        value you supply for the <sgmltag class="element">id</sgmltag>
+        attribute generally includes a bus identifier and the name of the
+        service, or the service and port, to which the configuration applies,
+        that is, the value of the <sgmltag class="element">id</sgmltag>
+        attribute is derived from the configuration hierarchy. However, the id
+        value is nothing more than a unique string, so there are exceptions to
+        this rule (for example, configuration entries for the CeltiXfire
+        routing service). The <sgmltag class="element">class</sgmltag>
+        attribute provides the class name of a bean in the Spring Framework
+        infrastructure that is responsible for managing the configuration
+        entries.</para>
+
+        <para>Specifying values for the <sgmltag
+        class="attribute">id</sgmltag> attribute and the <sgmltag
+        class="element">class</sgmltag> attribute is fairly straight-forward.
+        The information needed to create an id that indicates the configurable
+        component can be derived from the WSDL file for the service (although
+        the id can be any unique string), whereas the information needed to
+        create the class name is derived from the namespace URI of the
+        metadata XML file that defines acceptable configuration entries for
+        the component being configured.</para>
+      </section>
+    </section>
+
+    <section>
+      <title>Property element</title>
+
+      <para>The <sgmltag class="element">property</sgmltag> element
+      corresponds to a configurable variable, identified by a <sgmltag
+      class="attribute">name</sgmltag> attribute, and the content within the
+      <sgmltag class="attribute">value</sgmltag> element is the value for that
+      configuration entry.</para>
+
+      <para>To complete the information in the <sgmltag
+      class="element">property</sgmltag> element and the <sgmltag
+      class="element">value</sgmltag> elements, you need to use the types that
+      are defined in several schema and metadata XML files, which are
+      described in the next section.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>The CeltiXfire Metadata XML Files</title>
+
+    <para>For each configurable component, CeltiXfire provides an XML file
+    that contains the metadata needed to identify and set a configuration
+    variable, and a schema file that defines types typically used in
+    configuration entries. In both the CeltiXfire binary and source
+    distributions, copies of these files exist in the
+    <filename>celtix.jar</filename> file, located in the
+    <filename>CELTIX_HOME/lib</filename> and
+    <filename>CELTIX_HOME/resources</filename> directories.</para>
+
+    <para>When you are writing a CeltiXfire configuration file, you must refer
+    to the copies of these files that ship with your product to be certain
+    that you have correctly specified each element. The best place to start is
+    with an existing configuration file, which you can modify to suit the
+    requirements of your application. If you need to define another
+    configuration entry, first use the metadata XML file to determine the name
+    and content of the property element, and then use a schema file to
+    determine the content of the value element.</para>
+
+    <para>The content of each of the CeltiXfire XML metadata files adheres to
+    the structure defined in the following schema file:</para>
+
+    <para><filename>resources/schemas/configuration/metadata.xsd</filename></para>
+
+    <para>Each <sgmltag class="element">configItem</sgmltag> element
+    represents a configurable variable for the component.</para>
+
+    <para>The CeltiXfire XML metadata files are as follows:</para>
+
+    <section>
+      <title>bus-config.xml</title>
+
+      <para><filename>resources/config-metadata/bus-config.xml</filename>
+      defines the metadata for configuring the bus component. This file
+      describes the following configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>bindingFactories</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>transportFactories</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>resourceResolvers</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is:
+      <classname>http://celtix.objectweb.org/bus/bus-config</classname>. When
+      writing a configuration file that includes Bus related configuration
+      entries, the value of the <sgmltag class="attribute">class</sgmltag>
+      attribute in the <sgmltag class="element">bean</sgmltag> element is
+      derived from the following namespace declaration:
+      <classname>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>endpoint-config.xml</title>
+
+      <para><filename>resources/config-metadata/endpoint-config.xml</filename>
+      defines the metadata for configuring the endpoint (server) component.
+      This file describes the following configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>handlerChain</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>systemHandlerChain</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>serverContextInspectors</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>enableSchemaValidation</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is
+      <classname>http://celtix.objectweb.org/bus/jaxws/endpoint-config</classname>.
+      When writing a configuration file that includes endpoint related
+      configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>http-client-config.xml</title>
+
+      <para><filename>resources/config-metadata/http-client-config.xml</filename>
+      defines the metadata for configuring the service (client) HTTP
+      transport. This file describes the following configurable
+      variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>httpClient</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>authorization</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>proxyAuthorization</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>ssl</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is:
+      <classname>http://celtix.objectweb.org/bus/transports/http/http-client-config</classname>.
+      When writing a configuration file that includes http client related
+      configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>http-listener-config.xml</title>
+
+      <para><filename>resources/config-metadata/http-listener-config.xml</filename>
+      defines the metadata for configuring an HTTP transport listener. This
+      file describes the following configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>httpListener</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>ssl</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is:
+      <literal>http://celtix.objectweb.org/bus/transports/http/http-listener-config</literal>.
+      When writing a configuration file that includes http listener related
+      configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.transports.http.http_server_config.spring.HttpListenerConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>http-server-config.xml</title>
+
+      <para><filename>resources/config-metadata/http-server-config.xml</filename>
+      defines the metadata for configuring the endpoint (server) HTTP
+      transport. This file describes the following configurable
+      variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>httpServer</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>authorization</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>ssl</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>When writing a configuration file that includes http server
+      related configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.transports.http.http_server_config.spring.HttpServerConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>instrumentation-config.xml</title>
+
+      <para><filename>resources/config-metadata/instrumentation-config.xml</filename>
+      defines the metadata for configuring instrumentation. This file
+      describes the following configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>InstrumentationControl</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>MBServer</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>When writing a configuration file that includes instrumentation
+      related configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.instrumentation.spring.InstrumentationConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>jms-client-config.xml</title>
+
+      <para><filename>resources/config-metadata/jms-client-config.xml</filename>
+      defines the metadata for configuring the service (client) JMS transport.
+      This file describes the following configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>jmsClient</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>jmsAddress</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is
+      <classname>http://celtix.objectweb.org/bus/transports/jms/jms-client-config</classname>.
+      When writing a configuration file that includes jms client related
+      configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsClientConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>jms-server-config.xml</title>
+
+      <para><filename>resources/config-metadata/jms-server-config.xml</filename>
+      defines the metadata for configuring the endpoint (server) JMS
+      transport. This file describes the following configurable
+      variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>jmsServer</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>jmsAddress</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>When writing a configuration file that includes jms server related
+      configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>port-config.xml</title>
+
+      <para><filename>resources/config-metadata/port-config.xml</filename>
+      defines the metadata for configuring the endpoint's port component. This
+      file describes the following configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>address</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>bindingId</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>transportId</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>handlerChain</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>systemHandlerChain</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>enableSchemaValidataion</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is
+      <literal>http://celtix.objectweb.org/bus/jaxws/port-config</literal>.
+      When writing a configuration file that includes port related
+      configuration entries, the value of the <sgmltag
+      class="attribute">class</sgmltag> attribute in the <sgmltag
+      class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>rm-config.xml</title>
+
+      <para><filename>resources/config-metadata/rm-config.xml</filename>
+      defines the metadata for configuring WS-Reliable Messaging (WS-RM). This
+      file describes three configurable variables:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><classname>rmAssertion</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>sourcePolicies</classname></para>
+        </listitem>
+
+        <listitem>
+          <para><classname>destinationPolicies</classname></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The namespace assigned to this file's content is:
+      <literal>http://celtix.objectweb.org/bus/ws/rm/rm-config</literal>. When
+      writing a configuration file that includes WS-RM related configuration
+      entries, the value of the <sgmltag class="attribute">class</sgmltag>
+      attribute in the <sgmltag class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>router-config.xml</title>
+
+      <para><filename>resources/config-metadata/router-config.xml</filename>
+      defines the metadata for configuring the CeltiXfire routing service.
+      This file describes the routesWSDL configurable variable. The namespace
+      assigned to this file's content is:
+      <classname>http://celtix.objectweb.org/routing/configuration</classname>.
+      When writing a configuration file that includes routing configuration
+      entries, the value of the <sgmltag class="attribute">class</sgmltag>
+      attribute in the <sgmltag class="element">bean</sgmltag> element is:
+      <classname>org.objectweb.celtix.routing.configuration.spring.ConfigurationBean</classname>.</para>
+    </section>
+
+    <section>
+      <title>service-config.xml</title>
+
+      <para><filename>resources/config-metadata/service-config.xml</filename>
+      is a placeholder for future service level configuration settings. It
+      currently has no content.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>The CeltiXfire Schema Files</title>
+
+    <para>Your starting point for specifying a configuration entry is the
+    metadata XML file. This enables you to determine what configuration
+    variables you can include, and identify which schema files contain the
+    corresponding type information. Also, use the namespace declaration in the
+    metadata XML file to determine the name of the Spring configuration bean
+    corresponding to the component that you want to configure. Then refer to
+    the schema file to discover the syntax and type of data you need to add to
+    the configuration file. In some cases, you will need to refer to more than
+    one schema file to complete your configuration entry. In this case, the
+    metadata XML file will include namespace declarations for all of the
+    associated schema files. The schema files are located in the following
+    subdirectories:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><filename>resources/schemas/configuration</filename></para>
+      </listitem>
+
+      <listitem>
+        <para><filename>resources/schemas/wsdl</filename></para>
+      </listitem>
+    </itemizedlist>
+
+    <para>A simple example using the CeltiXfire routing service will help to
+    illustrate.</para>
+
+    <section>
+      <title>Configuring the Routing Service</title>
+
+      <para>Review the content of the <filename>router-config.xml</filename>
+      metadata XML file:</para>
+
+      <programlisting id="routexml" xreflabel="router-config.xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;cm:config xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
+           <emphasis>xmlns:router-conf="http://celtix.objectweb.org/routing/configuration"</emphasis>
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           <emphasis>namespace="http://celtix.objectweb.org/routing/configuration"&gt;</emphasis>
+
+  &lt;cm:configImport <emphasis>namespace="http://celtix.objectweb.org/routing/configuration"</emphasis>
+                   <emphasis>location="schemas/wsdl/routing.xsd"/&gt;</emphasis>
+
+  &lt;cm:configItem&gt;
+    &lt;cm:name&gt;<emphasis>routesWSDL</emphasis>&lt;/cm:name&gt;
+    &lt;cm:type&gt;<emphasis>router-conf:urlListPolicy</emphasis>&lt;/cm:type&gt;
+    &lt;cm:description&gt;
+      List of wsdl urls used by router
+    &lt;/cm:description&gt;
+    &lt;cm:lifecyclePolicy&gt;bus&lt;/cm:lifecyclePolicy&gt;
+  &lt;/cm:configItem&gt;
+&lt;/cm:config&gt;</programlisting>
+
+      <para>You can extract the following information from this file
+      (highlighted in <xref linkend="routexml" />):</para>
+
+      <orderedlist>
+        <listitem>
+          <para>The namespace and location of the schema file(s) that define
+          the types used to specify the configurable variables.</para>
+        </listitem>
+
+        <listitem>
+          <para>The namespace assigned to the metadata XML file, which leads
+          to the class name of the Spring configuration bean.</para>
+        </listitem>
+
+        <listitem>
+          <para>The name and type of the configurable variable.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Using this information, you can start writing the configuration
+      file with the following content:</para>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+       xmlns:router-conf="http://celtix.objectweb.org/routing/configuration"&gt;
+  &lt;bean id="..."
+        class="org.objectweb.celtix.routing.configuration.spring.ConfigurationBean"&gt;
+    &lt;property name="routesWSDL"&gt;
+      &lt;value&gt;
+        ...
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+
+      <para>The value that you assign to the <sgmltag
+      class="element">bean</sgmltag> element's <sgmltag
+      class="attribute">id</sgmltag> attribute must be a unique string.
+      Because this configuration file will be used by the CeltiXfire routing
+      service, and not specifically by one of the components identified in
+      <xref linkend="fig_1" />, you do not need to derive the id from the bus
+      identifier. You can simply specify a string value instead.</para>
+
+      <para>To complete the value element, you must refer to the associated
+      schema file. <filename>resources/schemas/wsdl/routing.xsd</filename> is
+      defined in the
+      <classname>http://celtix.objectweb.org/routing/configuration</classname>
+      namespace. This is the file you use to define the content of the value
+      element.</para>
+
+      <para>This schema file contains multiple type definitions. Most of these
+      types are used in defining a route specification in a WSDL file, and do
+      not relate to configuring the routing service. The
+      <classname>wsdlUrl</classname> and <classname>urlListPolicy</classname>
+      types (at the end of the file) are relevant to configuration.</para>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;xs:schema ...
+           xmlns:r="http://celtix.objectweb.org/routing/configuration"
+           targetNamespace="http://celtix.objectweb.org/routing/configuration"&gt;
+  ...
+  &lt;xs:element name="wsdlUrl" type="r:urlListPolicy"/&gt;
+  &lt;xs:complexType name="urlListPolicy"&gt;
+    &lt;xs:sequence&gt;
+      &lt;xs:element name="url" type="xs:string" maxOccurs="unbounded"/&gt;
+    &lt;/xs:sequence&gt;
+  &lt;/xs:complexType&gt;
+&lt;/xs:schema&gt;</programlisting>
+
+      <para>In <filename>router-config.xml</filename>, the type for the
+      <classname>routesWSDL</classname> configurable variable is
+      <classname>urlListPolicy</classname>. This is a sequence of string
+      entries, where each entry is the path to a WSDL file that includes a
+      route definition. In the schema file <filename>routing.xsd</filename>
+      you can see that the <sgmltag class="element">wsdlUrl</sgmltag> element
+      wraps the <classname>urlListPolicy</classname> type. So to complete the
+      configuration entry, you need to nest a <sgmltag
+      class="element">wsdlUrl</sgmltag> element, which in turn contains one or
+      more <sgmltag class="element">url</sgmltag> elements, under the <sgmltag
+      class="element">value</sgmltag> element.</para>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+       xmlns:router-conf="http://celtix.objectweb.org/routing/configuration"&gt;
+  &lt;bean id="..."
+        class="org.objectweb.celtix.routing.configuration.spring.Configurationbean"&gt;
+    &lt;property name="routesWSDL"&gt;
+      &lt;value&gt;
+        &lt;router-conf:wsdlUrl&gt;
+          &lt;router-conf:url&gt;/wsdl/router.wsdl&lt;/router-conf:url&gt;
+        &lt;/router-conf:wsdlUrl&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+
+      <para>This simple configuration example uses the <sgmltag
+      class="element">wsdlUrl</sgmltag> and <sgmltag
+      class="element">url</sgmltag> elements, and not the
+      <classname>urlListPolicy</classname> type . A more complex example is
+      presented in the next section.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Writing a CeltiXfire Configuration File</title>
+
+    <para>Review the structure of a CeltiXfire configuration file (see <xref
+    linkend="file_struct" />). You can write a separate configuration file for
+    each process that you want to configure. You will then define a <sgmltag
+    class="element">bean</sgmltag> element for each component that requires
+    configuration. This means that you must provide a value for the <sgmltag
+    class="attribute">id</sgmltag> and <sgmltag
+    class="attribute">name</sgmltag> attributes in the <sgmltag
+    class="element">bean</sgmltag> element, and for the <sgmltag
+    class="attribute">name</sgmltag> attribute in one, or more, <sgmltag
+    class="element">property</sgmltag> elements. In the <sgmltag
+    class="element">property</sgmltag> element, you specify a value for this
+    configurable entry. Entering the value is the most difficult part of this
+    process as you must use the information in the schema and XML metadata
+    files as guides to the proper syntax.</para>
+
+    <section>
+      <title>The Namespace Declarations</title>
+
+      <para>In the opening beans element, you should include namespace
+      declarations corresponding to the CeltiXfire schema files:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><filename>org/objectweb/celtix/configuration/config-metadata/types.xsd</filename></para>
+        </listitem>
+
+        <listitem>
+          <para><filename>org/objectweb/celtix/configuration/config-metadata/metadata.xsd</filename></para>
+        </listitem>
+      </itemizedlist>
+
+      <para>These declarations are then available to all <sgmltag
+      class="element">bean</sgmltag> elements in the configuration file. The
+      beginning of each CeltiXfire configuration file is shown in the
+      following fragment:</para>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+       xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"&gt;</programlisting>
+    </section>
+
+    <section>
+      <title>The class Attribute</title>
+
+      <para>The section on The CeltiXfire Metadata XML Files explains how the
+      namespace used in the metadata XML file is mapped to the name of a Java
+      bean class in the Spring Framework. This class name is used as the value
+      of the <sgmltag class="attribute">class</sgmltag> attribute within a
+      <sgmltag class="element">bean</sgmltag> element. The information in the
+      metadata XML and CeltiXfire configuration files is used by the
+      CeltiXfire runtime to instantiate and initialize a bean instance that
+      manages a component's configuration. The following table summarizes the
+      <sgmltag class="attribute">class</sgmltag> attribute values that
+      correspond to each configurable component:</para>
+
+      <table frame="all">
+        <title>CeltiXfire Configuration Bean Class Names</title>
+
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Component</entry>
+
+              <entry>Bean Class Name</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>Bus</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.bus_config.spring.BusConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>Endpoint</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>Port</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>HTTP Client Transport</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>HTTP Server Transport</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.transports.http.http_server_config.spring.HttpServerConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>HTTP Listener</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.transports.http.http_listener_config.spring.HttpListenerConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>JMS Client Transport</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JmsServerConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>JMS Server Transport</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JmsServerConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>Instrumentation</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.instrumentation.spring.InstrumentationConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>Reliable Messaging</entry>
+
+              <entry><classname>org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean</classname></entry>
+            </row>
+
+            <row>
+              <entry>Routing Service</entry>
+
+              <entry><classname>org.objectweb.celtix.routing.configuration.spring.ConfigurationBean</classname></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section>
+      <title>The id Attribute</title>
+
+      <para>The value of the <sgmltag class="attribute">id</sgmltag> attribute
+      can indicate what component the configuration applies to, however, it is
+      not a simple one-to-one relationship like the <sgmltag
+      class="attribute">class</sgmltag> attribute. This is because the id is
+      generally derived from information in the WSDL file that describes the
+      service. This can be illustrated using the simple hello world WSDL file
+      that follows. The entries that you need to specify the id are
+      highlighted:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>the targetNamespace</para>
+        </listitem>
+
+        <listitem>
+          <para>the service name</para>
+        </listitem>
+
+        <listitem>
+          <para>the port name</para>
+        </listitem>
+      </orderedlist>
+
+      <para>You also need the name assigned to the CeltiXfire bus. By default,
+      in a simple application where the bus instance is created transparently
+      by the CeltiXfire runtime, the bus name is celtix.</para>
+
+      <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;wsdl:definitions name="HelloWorld"
+                   <emphasis>targetNamespace="http://objectweb.org/hello_world"</emphasis>
+                   ...&gt;
+  &lt;wsdl:types&gt;
+    &lt;schema targetNamespace="http://objectweb.org/hello_world_soap_http/types"
+            ...&gt;
+      ...
+    &lt;/schema&gt;
+  &lt;/wsdl:types&gt;
+  &lt;wsdl:message name="..."&gt;
+    ...
+  &lt;/wsdl:message&gt;
+    .
+    .
+    .
+  &lt;wsdl:message name="..."&gt;
+    ...
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:portType name="..."&gt;
+    &lt;wsdl:operation name="..."&gt;
+      &lt;wsdl:input message="..." name="..." /&gt;
+      &lt;wsdl:output message="..." name="..." /&gt;
+    &lt;/wsdl:operation&gt;
+    .
+    .
+    .
+    &lt;wsdl:operation name="..."&gt;
+      &lt;wsdl:input message="..." name="..." /&gt;
+      &lt;wsdl:output message="..." name="..." /&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:portType&gt;
+  &lt;wsdl:binding name="..." type="..."&gt;
+    &lt;soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" /&gt;
+    &lt;wsdl:operation name="..."&gt;
+      &lt;soap:operation soapAction="" style="document" /&gt;
+      &lt;wsdl:input name="..."&gt;
+        &lt;soap:body use="literal" /&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output name="..."&gt;
+        &lt;soap:body use="literal" /&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+    .
+    .
+    .
+    &lt;wsdl:operation name="..."&gt;
+      &lt;soap:operation soapAction="" style="document" /&gt;
+      &lt;wsdl:input name="..."&gt;
+        &lt;soap:body use="literal" /&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output name="..."&gt;
+        &lt;soap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:binding&gt;
+  &lt;wsdl:service name="<emphasis>SOAPService</emphasis>"&gt;
+    &lt;wsdl:port binding="..." name="<emphasis>SoapPort</emphasis>"&gt;
+      &lt;soap:address location="http://localhost:9000/SoapContext/SoapPort" /&gt;
+    &lt;/wsdl:port&gt;
+  &lt;/wsdl:service&gt;
+&lt;/wsdl:definitions&gt;</programlisting>
+
+      <para>The following table lists which pieces of information are needed
+      to create the id for each configurable component and shows the resulting
+      value specific to this WSDL file.</para>
+
+      <table frame="all">
+        <title>Information Needed to Create Component IDs</title>
+
+        <tgroup cols="3">
+          <thead>
+            <row>
+              <entry>Component</entry>
+
+              <entry>Instance Identifier</entry>
+
+              <entry>id Value</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>Bus</entry>
+
+              <entry>Bus name</entry>
+
+              <entry>celtix</entry>
+            </row>
+
+            <row>
+              <entry>Endpoint</entry>
+
+              <entry>Bus name and QName of service</entry>
+
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService</entry>
+            </row>
+
+            <row>
+              <entry>Port</entry>
+
+              <entry>Bus name, QName of service, and name of port</entry>
+
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort</entry>
+            </row>
+
+            <row>
+              <entry>HTTP Client Transport</entry>
+
+              <entry>Bus name, QName of service, name of port, and string
+              constant</entry>
+
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-client</entry>
+            </row>
+
+            <row>
+              <entry>HTTP Server Transport</entry>
+
+              <entry>Bus name, QName of service, name of port, and string
+              constant</entry>
+
+              <entry>celtix.{http://objectweb.org/hello_world}SOAPService/SoapPort.http-server</entry>
+            </row>
+
+            <row>
+              <entry>HTTP Listener</entry>
+
+              <entry>Bus name, string constant, and port number (where port
+              number is the TCP/IP port number set in the server mainline
+              code).</entry>
+
+              <entry>celtix.http-listener.port_number</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section>
+      <title>The property Element</title>
+
+      <para>The best way to learn how to complete the rest of the CeltiXfire
+      configuration file is to look at some examples.</para>
+
+      <section>
+        <title>Setting the endpoint URL</title>
+
+        <para>The most straightforward example is where you want to configure
+        the client application so that the URL used to invoke on the endpoint
+        is defined in the configuration file instead of the WSDL file's
+        content. The following fragment shows the corresponding <sgmltag
+        class="element">property</sgmltag> element for the hello world
+        example. This corresponds to the configuration entry that sets the
+        URL:</para>
+
+        <programlisting>&lt;bean id="celtix.{http://objectweb.org/hello_world}SOAPService.SoapPort"
+      class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean"&gt;
+  &lt;property name="address"&gt;
+    &lt;value&gt;
+      &lt;ct:stringValue&gt;
+        http://localhost:9002/SoapContext/SoapPort
+      &lt;/ct:stringValue&gt;
+    &lt;/value&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;</programlisting>
+
+        <para>Because you are configuring an HTTP port, the appropriate XML
+        metadata file to use as a guide is
+        <filename>port-config.xml</filename>, and the desired <sgmltag
+        class="element">configItem</sgmltag> element is <sgmltag
+        class="element">address</sgmltag>. Assign the value of the <sgmltag
+        class="element">configItem</sgmltag> element's <sgmltag
+        class="attribute">name</sgmltag> attribute to the <sgmltag
+        class="element">property</sgmltag> element's <sgmltag
+        class="attribute">name</sgmltag> attribute. In the <sgmltag
+        class="element">value</sgmltag> element, enter a string that is the
+        desired URL. Notice that the element used to delimit the URL
+        corresponds to an element type defined in the schema file
+        <filename>std-types.xsd</filename>. The configuration scheme also
+        supports a shorthand notation that eliminates the <sgmltag
+        class="element">stringValue</sgmltag> tags.</para>
+
+        <programlisting>&lt;value&gt;http://localhost:9002/SoapContext/SoapPort&lt;/value&gt;</programlisting>
+      </section>
+
+      <section>
+        <title>Specifying a handler</title>
+
+        <para>The server configuration file
+        (<filename>celtix-server.xml</filename>) included in the handlers
+        product demo shows a more complex example:</para>
+
+        <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM  "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+       xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"&gt;
+  &lt;bean id="celtix.{http://www.objectweb.org/handlers}AddNumbersService"
+        class="org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean"&gt;
+    &lt;property name="handlerChain"&gt;
+      &lt;value&gt;
+        &lt;jaxws-types:handler-chain&gt;
+          &lt;jaxws-types:handler&gt;
+            &lt;jaxws-types:handler-name&gt;
+              File Logging Handler
+            &lt;/jaxws-types:handler-name&gt;
+            &lt;jaxws-types:handler-class&gt;
+              demo.handlers.common.FileLoggingHandler
+            &lt;/jaxws-types:handler-class&gt;
+          &lt;/jaxws-types:handler&gt;
+        &lt;/jaxws-types:handler-chain&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+
+        <para>Because you are configuring a service endpoint, the appropriate
+        XML metadata file to use as a guide is
+        <filename>endpoint-config.xml</filename>, and the desired <sgmltag
+        class="element">configItem</sgmltag> element is handlerChain. Assign
+        the value of the <sgmltag class="element">configItem</sgmltag>
+        element's <sgmltag class="attribute">name</sgmltag> attribute to the
+        <sgmltag class="element">property</sgmltag> element's <sgmltag
+        class="attribute">name</sgmltag> attribute. In the <sgmltag
+        class="element">value</sgmltag> element, you need to make entries that
+        identify the class in your application that implements the handler you
+        want to deploy.</para>
+
+        <para>Deciding what to place in the <sgmltag
+        class="element">value</sgmltag> element is a little more complex than
+        in the previous example. In the metadata XML file, the handlerChain
+        entry corresponds to the handlerChainType defined in the schema file
+        <filename>jaxws-types.xsd</filename>. However, because the
+        <type>handlerChainType</type> is a complex type, and the configuration
+        file must include an element type, you identify the <sgmltag
+        class="element">handler-chain</sgmltag> element type as a suitable
+        replacement. Then you look up the composition of the handlerChainType
+        and determine that it includes a optional handler-name, of type
+        string, and a sequence of zero or more handlerType instances.</para>
+
+        <programlisting>&lt;xs:complexType name="handlerChainType"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="handler-chain-name" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="handler" type="tns:handlerType" minOccurs="0" maxOccurs="unbounded"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;</programlisting>
+
+        <para>And the handlerType is also a sequence in which only the second
+        element is required:</para>
+
+        <programlisting>&lt;xs:complexType name="handlerType"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="handler-name" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="handler-class" type="xs:string"/&gt;
+    &lt;xs:element name="init-param" type="tns:handlerInitParamType"
+                nillable="false" minOccurs="0" maxOccurs="unbounded"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;</programlisting>
+
+        <para>In the configuration file, use the handler-name and
+        handler-class types to specify the handler class.</para>
+
+        <programlisting>&lt;value&gt;
+  &lt;jaxws-types:handler-chain&gt;
+    &lt;jaxws-types:handler&gt;
+      &lt;jaxws-types:handler-name&gt;
+        File Logging Handler
+      &lt;/jaxws-types:handler-name&gt;
+      &lt;jaxws-types:handler-class&gt;
+        demo.handlers.common.FileLoggingHandler
+      &lt;/jaxws-types:handler-class&gt;
+    &lt;/jaxws-types:handler&gt;
+  &lt;/jaxws-types:handler-chain&gt;
+&lt;/value&gt;</programlisting>
+      </section>
+
+      <section>
+        <title>Specifying initialization parameters</title>
+
+        <para>If your handler class requires initialization parameters, the
+        handlerType allows for this through its <sgmltag
+        class="element">init-param</sgmltag> element, which is an instance of
+        <classname>handlerInitParamType</classname>.
+        <classname>handlerInitParamType</classname> is a sequence of name
+        value pairs that correspond to the handler's initialization values.
+        Because <classname>handlerInitParamType</classname> is an unbounded
+        sequence, your configuration entry may have as many <sgmltag
+        class="element">init-param</sgmltag> elements as required. The
+        following fragment illustrates how the <sgmltag
+        class="element">init-param</sgmltag> elements would be included in the
+        configuration file.</para>
+
+        <programlisting>&lt;property name="handlerChain"&gt;
+  &lt;value&gt;
+    &lt;jaxws-types:handler-chain&gt;
+      &lt;jaxws-types:handler&gt;
+        &lt;jaxws-types:handler-name&gt;...&lt;/jaxws-types:handler-name&gt;
+        &lt;jaxws-types:handler-class&gt;...&lt;/jaxws-types:handler-class&gt;
+        &lt;jaxws-types:init-param&gt;
+          &lt;jaxws-types:param-name&gt;arg1&lt;/jaxws-types:param-name&gt;
+          &lt;jaxws-types:param-value&gt;value1&lt;/jaxws-types:param-value&gt;
+        &lt;/jaxws-types:init-param&gt;
+        &lt;jaxws-types:init-param&gt;
+          &lt;jaxws-types:param-name&gt;arg2&lt;/jaxws-types:param-name&gt;
+          &lt;jaxws-types:param-value&gt;value2&lt;/jaxws-types:param-value&gt;
+        &lt;/jaxws-types:init-param&gt;
+      &lt;/jaxws-types:handler&gt;
+    &lt;/jaxws-types:handler-chain&gt;
+  &lt;/value&gt;
+&lt;/property&gt;</programlisting>
+      </section>
+
+      <section>
+        <title>Specifying authorization information</title>
+
+        <para>Because you are configuring the client service, the appropriate
+        metadata XML file to use as a guide is
+        <filename>http-client-config.xml</filename>. The desired <sgmltag
+        class="element">configItem</sgmltag> element is authorization. Assign
+        the value of the configItem name element to the <sgmltag
+        class="element">property</sgmltag> element's <sgmltag
+        class="attribute">name</sgmltag> attribute.</para>
+
+        <para>In the metadata XML file, the authorization entry corresponds to
+        the <type>AuthorizationPolicy</type> type defined in the schema file
+        <filename>security.xsd</filename>. However, because the
+        <type>AuthorizationPolicy</type> type is a complex type, and the
+        configuration file must include a element type, you identify the
+        authorization element as a suitable replacement. Then look up the
+        composition of the AuthorizationPolicy type and determine that it is a
+        sequence of the following elements: <sgmltag
+        class="element">UserName</sgmltag>, <sgmltag
+        class="element">Password</sgmltag>, <sgmltag
+        class="element">AuthorizationType</sgmltag>, and <sgmltag
+        class="element">Authorization</sgmltag>.</para>
+
+        <programlisting>&lt;xs:complexType name="AuthorizationPolicy"&gt;
+  &lt;xs:sequence&gt;
+    &lt;xs:element name="UserName" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="Password" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="AuthorizationType" type="xs:string" minOccurs="0"/&gt;
+    &lt;xs:element name="Authorization" type="xs:string" minOccurs="0"/&gt;
+  &lt;/xs:sequence&gt;
+&lt;/xs:complexType&gt;
+&lt;xs:element name="authorization" type="tns:AuthorizationPolicy"/&gt;</programlisting>
+
+        <para>Combining this information, leads to the following <sgmltag
+        class="element">bean</sgmltag> element. Note the use of the sec:
+        namespace prefix. You must include the corresponding namespace
+        declaration at the beginning of the configuration file.</para>
+
+        <programlisting>&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+        xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"&gt;
+  &lt;bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean"&gt;
+    &lt;property name="authorization"&gt;
+      &lt;value&gt;
+        &lt;sec:authorization&gt;
+          &lt;sec:UserName&gt;User&lt;/sec:UserName&gt;
+          &lt;sec:Password&gt;celtix&lt;/sec:Password&gt;
+        &lt;/sec:authorization&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+      </section>
+
+      <section>
+        <title>Setting transport attributes</title>
+
+        <para>The <sgmltag class="element">configItem</sgmltag> element
+        httpClient in the <filename>http-client-config.xml</filename> metadata
+        file indicates that the <type>HTTPClientPolicy</type> type can be used
+        to set transport attributes. The <type>HTTPClientPolicy</type> type,
+        defined in <filename>resources/schemas/wsdl/http-conf.xsd</filename>,
+        is a complex type consisting of multiple attributes. This example
+        illustrates how to use attributes to send the request to a proxy
+        server.</para>
+
+        <programlisting>&lt;xs:complexType name="HTTPClientPolicy"&gt;
+  &lt;xs:annotation&gt;
+    &lt;xs:documentation&gt;
+      HTTP client configuration properties.
+      Used for configuring a HTTP client port.
+    &lt;/xs:documentation&gt;s
+  &lt;/xs:annotation&gt;
+  &lt;xs:complexContent&gt;
+    &lt;xs:extension base="wsdl:tExtensibilityElement"&gt;
+      &lt;!-- Other attribute definitions --&gt;
+      &lt;xs:attribute name="AutoRedirect" type="xs:string" use="optional"
+                    default="false"/&gt;
+      &lt;!--Proxy server attributes--&gt;
+      &lt;xs:attribute name="ProxyServer" type="xs:string" use="optional"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation&gt;
+            Address of proxy server, if used (proxy servers are a special kind of firewall)
+            proxy.mycompany.com
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:attribute&gt;
+      &lt;xs:attribute name="ProxyServerPort" type="xs:int" use="optional"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation&gt;
+            Port number of proxy server.
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:attribute&gt;
+      &lt;xs:attribute name="ProxyServerType" type="http-conf:proxyServerType"
+                    use="optional" default="HTTP"&gt;
+        &lt;xs:annotation&gt;
+          &lt;xs:documentation&gt;
+            Type of number of proxy server.
+          &lt;/xs:documentation&gt;
+        &lt;/xs:annotation&gt;
+      &lt;/xs:attribute&gt;
+    &lt;/xs:extension&gt;
+  &lt;/xs:complexContent&gt;
+&lt;/xs:complexType&gt;
+&lt;xs:element name="client" type="http-conf:HTTPClientPolicy"/&gt;
+</programlisting>
+
+        <para>The <sgmltag class="element">client</sgmltag> element may be
+        used to reference the <type>HTTPClientPolicy</type> type in a
+        CeltiXfire configuration file. The bean class used to configure
+        transport attributes is the same as the bean class used to configure
+        authorization. The <filename>http-conf.xsd</filename> schema file is
+        described in the namespace
+        <classname>http://celtix.objectweb.org/transports/http/configuration</classname>,
+        and you must include a prefix definition for this namespace at the
+        beginning of the CeltiXfire configuration file:</para>
+
+        <programlisting>
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+        xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+        xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"&gt;
+
+  &lt;bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort.http-client"
+         class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean"&gt;
+    &lt;property name="httpClient"&gt;
+      &lt;value&gt;
+        &lt;http-conf:client ProxyServer="localhost" ProxyServerPort="5049"
+                          AutoRedirect="true" /&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;
+</programlisting>
+      </section>
+    </section>
+  </section>
+
+  <section>
+    <title>An Example Application</title>
+
+    <para>CeltiXfire includes several sample applications that illustrate
+    configuration techniques. However, the best way to learn is to try it
+    yourself, so here is a simple example. Besides giving you a chance to
+    write a CeltiXfire configuration file, this example will show you how to
+    direct your application to use the configuration file.</para>
+
+    <section>
+      <title>The Application Code</title>
+
+      <para>For this example, you build on the hello_world product demo. You
+      need to perform the following steps:</para>
+
+      <procedure>
+        <step>
+          <para>Build this demo and confirm that it runs successfully using
+          both the ant utility and the java executable, as described in the
+          demo <filename>README</filename> file.</para>
+
+          <para>In this demo, the server mainline code sets the URL on which
+          the application will listen for incoming requests, for
+          example:</para>
+
+          <programlisting>package demo.hw.server;
+import javax.xml.ws.Endpoint;
+
+public class Server
+{
+  protected Server() throws Exception
+  {
+    System.out.println("Starting Server");
+    Object implementor = new GreeterImpl();
+    String address = "http://localhost:9000/SoapContext/SoapPort";
+    Endpoint.publish(address, implementor);
+  }
+
+  public static void main(String args[]) throws Exception
+  {
+    new Server();
+    System.out.println("Server ready...");
+    Thread.sleep(5 * 60 * 1000);
+    System.out.println("Server exiting");
+    System.exit(0);
+  }
+}</programlisting>
+
+          <para>The client, however, obtains the URL from the WSDL file, as
+          follows:</para>
+
+          <programlisting>&lt;wsdl:service name="SOAPService"&gt;
+  &lt;wsdl:port binding="tns:Greeter_SOAPBinding" name="SoapPort"&gt;
+    &lt;soap:address location="http://localhost:9000/SoapContext/SoapPort"/&gt;
+  &lt;/wsdl:port&gt;
+&lt;/wsdl:service&gt;</programlisting>
+        </step>
+
+        <step>
+          <para>In a text editor, open the WSDL file and change the TCP/IP
+          port (any value is acceptable, just be certain that it is an unused
+          port number).</para>
+
+          <programlisting>&lt;soap:address location="http://localhost:9002/SoapContext/SoapPort"/&gt;</programlisting>
+        </step>
+
+        <step>
+          <para>Save the WSDL file.</para>
+        </step>
+
+        <step>
+          <para>Now if you try to run the client, it will be unable to contact
+          the server and the invocation requests will fail.</para>
+        </step>
+      </procedure>
+    </section>
+
+    <section>
+      <title>The Configuration File</title>
+
+      <procedure>
+        <step>
+          <para>Write a configuration file that sets the address property of
+          the PortConfigBean, for example:</para>
+
+          <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM  "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"&gt;
+  &lt;bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort"
+        class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean"&gt;
+    &lt;property name="address"&gt;
+      &lt;value&gt;
+        &lt;ct:stringValue&gt;http://localhost:9000/SoapContext/SoapPort&lt;/ct:stringValue&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+
+          <para>Alternatively, you may code the <sgmltag
+          class="element">value</sgmltag> element as:</para>
+
+          <programlisting>&lt;value&gt;
+  http://localhost:9000/SoapContext/SoapPort
+&lt;/value&gt;</programlisting>
+        </step>
+
+        <step>
+          <para>Add a <sgmltag class="element">bean</sgmltag> element for a
+          HttpClientConfigBean and include a <sgmltag
+          class="element">property</sgmltag> element to set authorization
+          details and another <sgmltag class="element">property</sgmltag>
+          element to set the attributes related to the proxy server.</para>
+
+          <programlisting>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd"&gt;
+&lt;beans xmlns:ct="http://celtix.objectweb.org/configuration/types"
+       xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+       xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"&gt;
+  &lt;bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.SoapPort"
+        class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean"&gt;
+    &lt;property name="address"&gt;
+      &lt;value&gt;
+        &lt;ct:stringValue&gt;http://localhost:9000/SoapContext/SoapPort&lt;/ct:stringValue&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+  &lt;/bean&gt;
+
+  &lt;bean id="celtix.{http://objectweb.orb/hello_world_soap_http}SOAPService.SoapPort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean"&gt;
+    &lt;property name="authorization"&gt;
+      &lt;value&gt;
+        &lt;sec:authorization&gt;
+          &lt;sec:UserName&gt;User&lt;/sec:UserName&gt;
+          &lt;sec:Password&gt;celtix&lt;/sec:Password&gt;
+        &lt;/sec:authorization&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+
+    &lt;!-- If you have a proxy server, remove comments and edit the values of
+         ProxyServer and ProxyServerPort accordingly. --&gt;
+    &lt;!--
+    &lt;property name="httpClient"&gt;
+      &lt;value&gt;
+        &lt;http-conf:client ProxyServer="localhost" ProxyServerPort="5049"
+                          AutoRedirect="true"/&gt;
+      &lt;/value&gt;
+    &lt;/property&gt;
+    --&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</programlisting>
+
+          <para>The configuration file now includes two <sgmltag
+          class="element">bean</sgmltag> elements; the first represents
+          configurable settings described in the
+          <filename>port-config.xml</filename> metadata file, and the second
+          represents configurable settings in the
+          <filename>http-client-config.xml</filename> metadata file.</para>
+        </step>
+
+        <step>
+          <para>Save this file in text format into the
+          <filename>installationDirectory/celtix/samples/hello_world</filename>
+          directory; you may give the file any name; the next section assumes
+          that the file is saved as <filename>client.xml</filename>. The WSDL
+          file now has an incorrect URL while the configuration file and
+          server mainline have the same URL.</para>
+        </step>
+      </procedure>
+    </section>
+
+    <section>
+      <title>Running the Example</title>
+
+      <procedure>
+        <step>
+          <para>Build the applications by issuing the <command>ant
+          build</command> command. Then, using either the ant utility or the
+          java executable, start the server application as described in the
+          README.</para>
+        </step>
+
+        <step>
+          <para>When running the client application, you must force it to read
+          the configuration file. You do this by providing a
+          <option>-D</option> command line argument to the java
+          executable.</para>
+        </step>
+
+        <step>
+          <para>To run the client using the java executable, enter the
+          command:</para>
+
+          <para><userinput><command>java</command>
+          <option>-Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties</option>
+          <option>-Dceltix.config.file=file:///%CELTIX_HOME%\samples\hello_world\client.xml</option>
+          demo.hw.client.Client .\wsdl\hello_world.wsdl</userinput></para>
+        </step>
+
+        <step>
+          <para>To run the client using the ant utility, you will need to edit
+          the <filename>build.xml</filename> file that is in the directory
+          <filename><replaceable>installationDirectory</replaceable>/celtix/samples/hello_world</filename>.</para>
+        </step>
+
+        <step>
+          <para>Open this file in a text editor and modify the client
+          target.</para>
+
+          <programlisting>&lt;target name="client" description="run demo client"&gt;
+  &lt;property name="param" value=""/&gt;
+  &lt;celtixrun classname="demo.hw.client.Client"
+              jvmarg1="-Dceltix.config.file=file:///${basedir}/client.xml"
+              param1="${basedir}/wsdl/hello_world.wsdl"
+              param2="${op}" param3="${param}"/&gt;
+&lt;/target&gt;</programlisting>
+        </step>
+      </procedure>
+    </section>
+  </section>
+</article>

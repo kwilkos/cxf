@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="ASP_ExceptionDemo_1_0Service" 
+    targetNamespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:wsi="http://ws-i.org/schemas/conformanceClaim/" 
+    xmlns:references="http://schemas.iona.com/references/" 
+    xmlns:tns="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsd1="http://artixmf.iona.com/ASP_ExceptionDemo_1_0">
+
+    <types> 
+      <schema targetNamespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" 
+          xmlns="http://www.w3.org/2001/XMLSchema" 
+          xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+          xmlns:xsd1="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" > 
+      <xsd:complexType name="CS_B.SysExAndTrace_T">
+        <xsd:sequence>
+          <xsd:element name="d" type="xsd1:CS_B.ExDescrSeq_T"/>
+          <xsd:element name="t" type="xsd1:CS_B.ExTraceEntrySeq_T"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="CS_ExCd_T">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="8" fixed="true"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CS_ExTraceEntry_T">
+        <xsd:sequence>
+          <xsd:element name="pgm" type="xsd:string"/>
+          <xsd:element name="id" type="xsd:string"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="CS_Timestamp_T">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="26" fixed="true"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CS_ExTraceEntrySeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd1:CS_ExTraceEntry_T" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_B.ExTraceEntry_T">
+        <xsd:sequence>
+          <xsd:element name="pgm" type="xsd:string"/>
+          <xsd:element name="id" type="xsd:string"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="CS_B.Timestamp_T">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="26" fixed="true"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CS_ExCtxSeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd:string" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_ExDescrSeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd1:CS_ExDescr_T" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_ExParamSeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd:string" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_B.Remarks_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd1:CS_B.ExDescr_T" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_B.ExCtxSeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd:string" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_Remarks_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd1:CS_ExDescr_T" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_B.ExDescr_T">
+        <xsd:sequence>
+          <xsd:element name="cd" type="xsd1:CS_B.ExCd_T"/>
+          <xsd:element name="timestamp" type="xsd1:CS_B.Timestamp_T"/>
+          <xsd:element name="params" type="xsd1:CS_B.ExParamSeq_T"/>
+          <xsd:element name="ctx" type="xsd1:CS_B.ExCtxSeq_T"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="CS_FILLER_2">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="2" fixed="true"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CS_B.ExDescrSeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd1:CS_B.ExDescr_T" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_ExDescr_T">
+        <xsd:sequence>
+          <xsd:element name="cd" type="xsd1:CS_ExCd_T"/>
+          <xsd:element name="level" type="xsd:int"/>
+          <xsd:element name="timestamp" type="xsd1:CS_Timestamp_T"/>
+          <xsd:element name="filler1" type="xsd1:CS_FILLER_2"/>
+          <xsd:element name="params" type="xsd1:CS_ExParamSeq_T"/>
+          <xsd:element name="ctx" type="xsd1:CS_ExCtxSeq_T"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_Ex_T">
+        <xsd:sequence>
+          <xsd:element name="d" type="xsd1:CS_ExDescrSeq_T"/>
+          <xsd:element name="t" type="xsd1:CS_ExTraceEntrySeq_T"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="CS_B.ExTraceEntrySeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd1:CS_B.ExTraceEntry_T" 
+minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="CS_B.ExCd_T">
+        <xsd:restriction base="xsd:string">
+          <xsd:maxLength value="8" fixed="true"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:complexType name="CS_B.ExParamSeq_T">
+        <xsd:sequence>
+          <xsd:element name="item" type="xsd:string" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:simpleType name="UnsupportedType">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+
+      <xsd:complexType name="Reference">
+        <xsd:sequence>
+          <xsd:element name="port" type="xsd1:IONA.Port" minOccurs="0" 
+maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="service" type="xsd:QName" use="required" />
+        <xsd:attribute name="wsdlLocation" type="xsd:string" use="required" />
+        <xsd:attribute name="interface" type="xsd:QName" use="required" />
+      </xsd:complexType>
+      <xsd:complexType name="IONA.Port">
+        <xsd:sequence>
+          <xsd:any namespace="##other" minOccurs="0" maxOccurs="unbounded" 
+processContents="lax" /> 
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:NCName" use="required" /> 
+        <xsd:attribute name="binding" type="xsd:QName" use="required" /> 
+      </xsd:complexType>
+      </schema>    </types> 
+    <message name="ASP_ExceptionDemo_1_0.getOldSysExcep"/> 
+    <message name="ASP_ExceptionDemo_1_0.getOldSysExcepResponse"> 
+      <part name="ex" type="xsd1:CS_Ex_T" /> 
+    </message> 
+    <message name="ASP_ExceptionDemo_1_0.getModBoth"/> 
+    <message name="ASP_ExceptionDemo_1_0.getModBothResponse"> 
+      <part name="ex" type="xsd1:CS_B.SysExAndTrace_T" /> 
+      <part name="remarks" type="xsd1:CS_B.Remarks_T" /> 
+    </message> 
+    <message name="ASP_ExceptionDemo_1_0.getOldBusExcep"/> 
+    <message name="ASP_ExceptionDemo_1_0.getOldBusExcepResponse"> 
+      <part name="remarks" type="xsd1:CS_Remarks_T" /> 
+    </message> 
+    <message name="ASP_ExceptionDemo_1_0.getModBusExcep"/> 
+    <message name="ASP_ExceptionDemo_1_0.getModBusExcepResponse"> 
+      <part name="remarks" type="xsd1:CS_B.Remarks_T" /> 
+    </message> 
+    <message name="ASP_ExceptionDemo_1_0.getOldBoth"/> 
+    <message name="ASP_ExceptionDemo_1_0.getOldBothResponse"> 
+      <part name="ex" type="xsd1:CS_Ex_T" /> 
+      <part name="remarks" type="xsd1:CS_Remarks_T" /> 
+    </message> 
+    <message name="ASP_ExceptionDemo_1_0.getModSysExcep"/> 
+    <message name="ASP_ExceptionDemo_1_0.getModSysExcepResponse"> 
+      <part name="ex" type="xsd1:CS_B.SysExAndTrace_T" /> 
+    </message> 
+    <portType name="ASP_ExceptionDemo_1_0SOAPPort"> 
+      <operation name="getOldSysExcep" parameterOrder="ex">
+        <input message="tns:ASP_ExceptionDemo_1_0.getOldSysExcep" 
+name="getOldSysExcep" /> 
+        <output message="tns:ASP_ExceptionDemo_1_0.getOldSysExcepResponse" 
+name="getOldSysExcepResponse" /> 
+      </operation>
+      <operation name="getModBoth" parameterOrder="ex remarks">
+        <input message="tns:ASP_ExceptionDemo_1_0.getModBoth" 
+name="getModBoth" /> 
+        <output message="tns:ASP_ExceptionDemo_1_0.getModBothResponse" 
+name="getModBothResponse" /> 
+      </operation>
+      <operation name="getOldBusExcep" parameterOrder="remarks">
+        <input message="tns:ASP_ExceptionDemo_1_0.getOldBusExcep" 
+name="getOldBusExcep" /> 
+        <output message="tns:ASP_ExceptionDemo_1_0.getOldBusExcepResponse" 
+name="getOldBusExcepResponse" /> 
+      </operation>
+      <operation name="getModBusExcep" parameterOrder="remarks">
+        <input message="tns:ASP_ExceptionDemo_1_0.getModBusExcep" 
+name="getModBusExcep" /> 
+        <output message="tns:ASP_ExceptionDemo_1_0.getModBusExcepResponse" 
+name="getModBusExcepResponse" /> 
+      </operation>
+      <operation name="getOldBoth" parameterOrder="ex remarks">
+        <input message="tns:ASP_ExceptionDemo_1_0.getOldBoth" 
+name="getOldBoth" /> 
+        <output message="tns:ASP_ExceptionDemo_1_0.getOldBothResponse" 
+name="getOldBothResponse" /> 
+      </operation>
+      <operation name="getModSysExcep" parameterOrder="ex">
+        <input message="tns:ASP_ExceptionDemo_1_0.getModSysExcep" 
+name="getModSysExcep" /> 
+        <output message="tns:ASP_ExceptionDemo_1_0.getModSysExcepResponse" 
+name="getModSysExcepResponse" /> 
+      </operation>
+    </portType> 
+    <binding name="ASP_ExceptionDemo_1_0SOAPBinding" 
+             type="tns:ASP_ExceptionDemo_1_0SOAPPort">
+      <soap:binding style="rpc" 
+transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="getOldSysExcep">
+        <soap:operation style="rpc"/>
+        <input name="getOldSysExcep">
+          <soap:body use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </input>
+        <output name="getOldSysExcepResponse">
+          <soap:body parts="ex" use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </output>
+      </operation>
+      <operation name="getModBoth">
+        <soap:operation style="rpc"/>
+        <input name="getModBoth">
+          <soap:body use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </input>
+        <output name="getModBothResponse">
+          <soap:body parts="ex remarks" use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </output>
+      </operation>
+      <operation name="getOldBusExcep">
+        <soap:operation style="rpc"/>
+        <input name="getOldBusExcep">
+          <soap:body use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </input>
+        <output name="getOldBusExcepResponse">
+          <soap:body parts="remarks" use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </output>
+      </operation>
+      <operation name="getModBusExcep">
+        <soap:operation style="rpc"/>
+        <input name="getModBusExcep">
+          <soap:body use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </input>
+        <output name="getModBusExcepResponse">
+          <soap:body parts="remarks" use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </output>
+      </operation>
+      <operation name="getOldBoth">
+        <soap:operation style="rpc"/>
+        <input name="getOldBoth">
+          <soap:body use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </input>
+        <output name="getOldBothResponse">
+          <soap:body parts="ex remarks" use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </output>
+      </operation>
+      <operation name="getModSysExcep">
+        <soap:operation style="rpc"/>
+        <input name="getModSysExcep">
+          <soap:body use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </input>
+        <output name="getModSysExcepResponse">
+          <soap:body parts="ex" use="literal" 
+namespace="http://artixmf.iona.com/ASP_ExceptionDemo_1_0" />
+        </output>
+      </operation>
+    </binding>
+  <service name="ASP_ExceptionDemo_1_0Service">
+    <port name="ASP_ExceptionDemo_1_0SOAPPort"
+          binding="tns:ASP_ExceptionDemo_1_0SOAPBinding" >
+      <documentation>
+        <wsi:Claim conformsTo="http://ws-i.org/profiles/basic/1.0" />
+      </documentation>
+      <soap:address 
+location="http://169.62.108.132:17737/ionasoap/ASP_ExceptionDemo_1_0" /> 
+    </port>
+  </service>
+</definitions>

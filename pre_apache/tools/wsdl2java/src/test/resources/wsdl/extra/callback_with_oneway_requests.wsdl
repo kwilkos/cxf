@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<definitions name="callback" targetNamespace="http://www.iona/com/callback"
+ xmlns="http://schemas.xmlsoap.org/wsdl/"
+ xmlns:corba="http://schemas.iona.com/bindings/corba"
+ xmlns:ns1="http://www.iona/com/callback/corba/typemap/"
+ xmlns:ns2="http://schemas.iona.com/routing"
+ xmlns:references="http://schemas.iona.com/references"
+ xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:tns="http://www.iona/com/callback"
+ xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+	<types>
+		<xs:schema targetNamespace="http://schemas.iona.com/references" xmlns:references="http://schemas.iona.com/references" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+			<xs:complexType name="Reference">
+				<xs:sequence>
+					<xs:element name="port" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>A port definition for a Service, equivalent to wsdl:tPort.</xs:documentation>
+						</xs:annotation>
+						<xs:complexType>
+							<xs:sequence>
+								<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+							</xs:sequence>
+							<xs:attribute name="name" type="xs:NCName" use="required"/>
+							<xs:attribute name="binding" type="xs:QName" use="required"/>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="service" type="xs:QName" use="required">
+					<xs:annotation>
+						<xs:documentation>The service indicates the QName of the Service.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="wsdlLocation" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>This element specifies a uri for the wsdl document.</xs:documentation>
+				</xs:annotation>
+				</xs:attribute>
+			</xs:complexType>
+		</xs:schema>
+		<schema targetNamespace="http://www.iona/com/callback"
+		 xmlns="http://www.w3.org/2001/XMLSchema"
+		 xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+			<import namespace="http://schemas.iona.com/references"/>
+			<element name="RegisterCallback">
+				<complexType>
+					<sequence>
+						<element name="reference" type="references:Reference"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="InvokeCallback" type="xsd:string"/>
+			<element name="returnType" type="xsd:string"/>
+		</schema>
+	</types>
+
+	<message name="registerMessage">
+		<part element="tns:RegisterCallback" name="register_message"/>
+	</message>
+
+	<message name="callbackMessage">
+		<part element="tns:InvokeCallback" name="callback_message"/>
+	</message>
+
+<!-- NO RESPONSE MESSAGE EXISTS (ONEWAY CALLS) -->
+
+<!-- PORTS HAVE NO OUTPUT -->
+
+	<portType name="ServerPortType">
+		<operation name="RegisterCallback">
+			<input message="tns:registerMessage" name="RegisterCallbackRequest"/>
+		</operation>
+	</portType>
+
+	<portType name="CallbackPortType">
+		<operation name="InvokeCallback">
+			<input message="tns:callbackMessage" name="InvokeCallbackRequest"/>
+		</operation>
+	</portType>
+
+<!-- BINDINGS HAVE NO OUTPUT -->
+
+	<binding name="ServerPortType_SOAPBinding" type="tns:ServerPortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="RegisterCallback">
+			<soap:operation soapAction="" style="document"/>
+				<input name="RegisterCallbackRequest">
+					<soap:body use="literal"/>
+				</input>
+		</operation>
+	</binding>
+
+	<binding name="CallbackPortType_SOAPBinding" type="tns:CallbackPortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="InvokeCallback">
+			<soap:operation soapAction="" style="document"/>
+			<input name="InvokeCallbackRequest">
+				<soap:body use="literal"/>
+			</input>
+		</operation>
+	</binding>
+
+<!-- SERVICES ARE UNCHANGED -->
+
+	<service name="SOAPService">
+		<port binding="tns:ServerPortType_SOAPBinding" name="ServerPort">
+			<soap:address location="http://localhost:9000"/>
+		</port>
+	</service>
+
+	<service name="SOAPCallback">
+		<port binding="tns:CallbackPortType_SOAPBinding" name="CallbackPort">
+			<soap:address location="http://localhost:0"/>
+		</port>
+	</service>
+
+</definitions>

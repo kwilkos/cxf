@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extensions xmlns="http://celtix.objectweb.org/bus/extension">
+
+    <extension interface="org.objectweb.celtix.foo.Foo" class="org.objectweb.celtix.foo.FooImpl">
+       <namespace>http://celtix.objectweb.org/a/b/c</namespace>
+       <namespace>http://celtix.objectweb.org/d/e/f</namespace>
+    </extension>
+    
+    <extension class="java.lang.Boolean" deferred="true">
+        <namespace>http://celtix.objectweb.org/x/y/z</namespace>
+    </extension>
+    
+    <extension class="java.lang.Long" deferred="true">
+        <namespace>http://celtix.objectweb.org/x/y/z</namespace>
+    </extension>
+    
+</extensions>

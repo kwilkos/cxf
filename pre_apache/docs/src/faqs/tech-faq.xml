@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2002-2004 The Apache Software Foundation or its licensors,
+  as applicable.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<!DOCTYPE faqs PUBLIC "-//APACHE//DTD FAQ V2.0//EN" "http://forrest.apache.org/dtd/faq-v20.dtd">
+
+<faqs>
+  <title>Technology FAQ</title>
+<faqsection>
+<title>Prerequisites</title> 
+ <faq>
+      <question>
+	    What are the prerequisites for using CeltiXfire?
+      </question>
+      <answer>
+      <p>For running CeltiXfire-enabled applications all you need to have is a Java 5 JVM.</p>
+	  <p>To develop services using CeltiXfire, you need Sun Microsystem's Java 5 JDK.</p>
+      </answer>
+    </faq>
+	<faq>
+	<question>
+	Does the CeltiXfire runtime require a J2EE container?
+	</question>
+	<answer>
+	No. CeltiXfire does not require either a J2EE container or a Web container.
+	</answer>
+	</faq>
+</faqsection>
+<faqsection>
+<title>Standards</title>
+	<faq>
+	<question>
+	What Web service standards does CeltiXfire support?
+	</question>
+	<answer>
+	<p>CeltiXfire implements the following Web service standards:</p>
+	<ul>
+	<li>JAX-WS 2.0</li>
+	<li>WS-Addressing</li>
+	<li>WS-ReliableMessaging(WS-RM)</li>
+	<li>WSDL 1.1</li>
+	<li>SOAP 1.1</li>
+	</ul>
+	</answer>
+	</faq>
+</faqsection>
+<faqsection>
+<title>JAX-WS</title>
+	<faq>
+	<question>
+	How does CeltiXfire allow you to service-enable your applications?
+	</question>
+	<answer>
+	CeltiXfire implements the JAX-WS 2.0 specification. JAX-WS 2.0 provides a straightforward way 
+	to service-enable your applications using the Java 1.5 Annotation mechanism. It also 
+	provides a programming model that enables the creation of Web services-ready Java applications.
+	</answer>
+	</faq>
+	<faq>
+	<question>
+	Has CeltiXfire extended JAX-WS in any way?
+	</question>
+	<answer>
+    Yes. CeltiXfire has extended JAX-WS by adding the concept of system handlers. This allows 
+	developers to attach handlers at various points within the invocation chain, giving them more 
+	power to interact with the data as it flows in and out of CeltiXfire.
+	</answer>
+	</faq>
+</faqsection>
+<faqsection>
+<title>Messaging</title>
+		<faq>
+	<question>
+	Does CeltiXfire provide messaging capabilities?
+	</question>
+	<answer>
+	CeltiXfire supports a means to deliver messages to a JMS implementation.
+	</answer>
+	</faq>
+<faq>
+	<question>
+	Does CeltiXfire depend on any JMS implementation?
+	</question>
+	<answer>
+	CeltiXfire is not based on a particular JMS implementation. It supports any JMS implementation and 
+	ships with the open source ActiveMQ JMS implementation.
+	</answer>
+</faq>
+</faqsection>
+<faqsection>
+<title>J2EE</title>
+	<faq>
+		<question>
+		Can CeltiXfire interoperate with a J2EE container?
+		</question>
+		<answer>
+		While CeltiXfire does not require a J2EE application server, CeltiXfire artifacts can be deployed 
+		into a J2EE container.
+		</answer>
+	</faq>
+</faqsection>
+<faqsection>
+<title>JBI</title>
+<faq>
+<question>
+What is JBI?
+</question>
+<answer>
+<p>JBI stands for Java Bussines Integration. It is a standardized set of APIs, Service Provider 
+Interfaces (SPIs) and technologies, maintained through the Java Community Process, for integration 
+of business components.</p>
+<p>For more information see 
+<a href="http://www.jcp.org/en/jsr/detail?id=208">http://www.jcp.org/en/jsr/detail?id=208</a></p>
+</answer>
+</faq>
+<faq>
+<question>
+How does CeltiXfire relate to JBI?
+</question>
+<answer>
+At a quick glance CeltiXfire and a JBI implementation may appear to be addressing the same set of 
+problems. However, CeltiXfire is not a JBI implementation. Unlike JBI, CeltiXfire provides a much more 
+extensible framework for building services. Its focus is to provide a rich framework for linking 
+non-Java, non-Web Service artifacts as well as building feature rich Web services. CeltiXfire is 
+intended to complement JBI. To this end, it is possible to deploy CeltiXfire runtime components and 
+CeltiXfire developed services inside a compliant JBI container.
+</answer>
+</faq>
+</faqsection>
+<faqsection>
+<title>SCA</title>
+<faq>
+<question>
+What is SCA?
+</question>
+<answer>
+<p>SCA stands for Service Component Architecture. It is a set of specifications that describe a 
+framework for building applications and systems using SOA concepts. One of the driving concepts 
+behind SCA is that applications and systems are built up by linking services into assemblies.</p>
+<p>For more information see 
+<a href="http://www-128.ibm.com/developerworks/library/specification/ws-scasdosumm/">http://www-128.ibm.com/developerworks/library/specification/ws-scasdosumm/</a>.</p>
+</answer>
+</faq>
+<faq>
+<question>
+How does CeltiXfire relate to SCA?
+</question>
+<answer>
+SCA focuses on assembling service implementations into complex business applications. CeltiXfire 
+focuses on implementing individual services. CeltiXfire services can be consumed by SCA 
+implementations. Currently, the CeltiXfire project is working with the Tuscany project to ensure 
+robust integration between CeltiXfire services and SCA implementations.
+</answer>
+</faq>
+</faqsection>
+<faqsection>
+<title>Management</title>
+<faq>
+<question>
+What are CeltiXfire's management capabilities?
+</question>
+<answer>
+All of the internal components of CeltiXfire are instrumented using JMX. In addition, CeltiXfire supports 
+adding custom JMX instrumentation to any services developed using CeltiXfire. Therefore, CeltiXfire 
+artifacts can be managed by any JMX compliant management tool.
+</answer>
+</faq>
+</faqsection>
+</faqs>

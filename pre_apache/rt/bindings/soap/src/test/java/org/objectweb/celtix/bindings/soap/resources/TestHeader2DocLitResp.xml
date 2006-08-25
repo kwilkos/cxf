@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<SOAP-ENV:Envelope 
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ns4="http://objectweb.org/header_test/types">
+	<SOAP-ENV:Header>
+		<ns4:testHeader2Response SOAP-ENV:mustUnderstand="true">
+			<ns4:responseType>HeaderVal2</ns4:responseType>
+		</ns4:testHeader2Response>
+	</SOAP-ENV:Header>
+	<SOAP-ENV:Body><ns4:testHeader2Response>
+				<ns4:responseType>BodyVal2</ns4:responseType>
+		</ns4:testHeader2Response>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

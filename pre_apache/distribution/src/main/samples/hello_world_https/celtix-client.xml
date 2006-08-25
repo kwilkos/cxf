@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"
+    xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
+>
+
+   <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/InsecurePort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+  
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+              </sec:sslClient>
+          </value>
+      </property>
+    </bean>
+ 
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SecurePort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+  
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+
+		<sec:Keystore>src/demo/hw_https/resources/celtix.p12</sec:Keystore> 
+		<sec:KeystorePassword>celtixpass</sec:KeystorePassword>
+		<sec:KeyPassword>celtixpass</sec:KeyPassword>
+		<sec:TrustStore>src/demo/hw_https/resources/abigcompany_ca.pem</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property> 
+    </bean>
+
+
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/StrictSecurePort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+  
+      <property name="sslClient">
+          <value>
+              <sec:sslClient>
+		<sec:Keystore>src/demo/hw_https/resources/celtix.p12</sec:Keystore> 
+		<sec:TrustStore>src/demo/hw_https/resources/abigcompany_ca.pem</sec:TrustStore>
+              </sec:sslClient>
+          </value>
+      </property> 
+    </bean>
+ 
+</beans>

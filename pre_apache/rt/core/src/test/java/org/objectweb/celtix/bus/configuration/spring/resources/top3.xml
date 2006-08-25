@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans xmlns:ct="http://celtix.objectweb.org/configuration/types">
+  
+  <!-- illegal values -->
+  
+  <bean id="top3" class="org.objectweb.celtix.configuration.test.top.spring.TopBean">
+   
+      <property name="booleanItem">
+          <value>rubbish</value>
+      </property>
+  </bean>
+  
+  <bean id="top4" class="org.objectweb.celtix.configuration.test.top.spring.TopBean">
+   
+      <property name="stringListItem">
+          <value>
+          <ct:stringListValue>
+              <ct:longValue>1345</ct:longValue>
+          </ct:stringListValue>
+          </value>
+      </property>
+  </bean>
+ 
+  
+</beans>

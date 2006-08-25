@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<pingMe xmlns:xmlformat="http://celtix.objectweb.org/bindings/xmlformat" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <xmlformat:XMLFault>
+	<!--xmlformat:faultcode>Server</xmlformat:faultcode-->
+	<xmlformat:faultstring>org.objectweb.hello_world_xml_http.wrapped.PingMeFault: PingMeFault raised by server</xmlformat:faultstring>
+	<xmlformat:detail>
+	    <ns4:faultDetail xmlns:ns4="http://objectweb.org/hello_world_xml_http/wrapped/types">
+		<ns4:minor>1</ns4:minor>
+		<ns4:major>2</ns4:major>
+	    </ns4:faultDetail>
+	</xmlformat:detail>
+    </xmlformat:XMLFault>
+</pingMe>

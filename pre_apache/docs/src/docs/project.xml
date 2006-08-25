@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+<document> 
+  <header> 
+    <title>CeltiXfire Documentation Project</title> 
+  </header> 
+  <body> 
+    <section>
+      <title>Roadmap</title>
+      <p>The full 1.0 Documentation plan in PDF format is available here: <a href="../docs/oneoplan.pdf">1.0 Doc Plan</a></p>
+      <section>
+	  <title>Milestones</title>
+	  <section>
+      <title>Doc Milestone 1 - 4/28/06</title>
+      <ul>
+        <li><strong>Installation Guide (finsihed)</strong></li>
+        <li><strong>Getting Started with CeltiXfire (finished)</strong></li>
+        <li><strong>Developing a Service with CeltiXfire</strong></li>
+        <li><strong>Developing a Consumer with CeltiXfire (finished)</strong></li>
+        <li><strong>CeltiXfire Configuration Guide (finished)</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Doc Milestone 2 - 5/26/06</title>
+      <ul>
+        <li><strong>Writing Handlers</strong></li>
+        <li><strong>Creating Routes with CeltiXfire</strong></li>
+        <li><strong>Using the JMS Transport (finished)</strong></li>
+        <li><strong>Deploying CeltiXfire in a Servlet Container (drafted)</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Doc Milestone 3 - 6/30/06</title>
+      <ul>
+        <li><strong>Writing Asynchronous Services</strong></li>
+        <li><strong>Securing CeltiXfire Services</strong></li>
+        <li><strong>Using Reliable Messaging in CeltiXfire</strong></li>
+        <li><strong>Deploying CeltiXfire Applications in a J2EE Environment</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Docs 1.0 - 7/28/06</title>
+      <ul>
+        <li><strong>Deploying CeltiXfire Applications in an SCA Container</strong></li>
+        <li><strong>Deploying CeltiXfire Applications in a JBI Container</strong></li>
+        <li><strong>Command Line Tool Reference (finished)</strong></li>
+      </ul>
+	  </section>
+	  <section>
+      <title>Post 1.0</title>
+      <ul>
+        <li><strong>Implementing a CeltiXfire Transport</strong></li>
+        <li><strong>Implementing a CeltiXfire Binding</strong></li>
+        <li><strong>Extending CeltiXfire Configuration</strong></li>
+        <li><strong>CeltiXfire Architecture Guide</strong></li>
+        <li>Tutorials</li>
+        <li>FAQs</li>
+      </ul>
+	  </section>
+	  </section>
+	  </section>
+	  <section>
+      <title>How to participate</title>
+      <p>To work on the CeltiXfire documentation do the following:</p>
+      <ol>
+        <li>Check the list of tasks in the <a href="http://forge.objectweb.org/pm/task.php?group_project_id=182">documentation subproject</a>.</li>
+        <li>E-mail a notice to the <a href="mailto:celtix-dev@objectweb.org">CeltiXfire developers list</a> stating which document you want to work on.</li>
+        <li>If you are writing a new document, see the <a href="site:style">CeltiXfire Style Guide</a>.</li>
+        <li>If you are updating existing documentation, download the current version from the repository and edit that.</li>
+        <li>Send the finished product to the <a href="mailto:celtix-dev@objectweb.org">CeltiXfire developers list</a>.</li>
+      </ol>
+	  </section>
+  </body>
+</document>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by John Rodell (IONA Technologies) -->
+<schema targetNamespace="http://www.citibank.com/" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:tns="http://www.citibank.com/" 
+    xmlns="http://www.w3.org/2001/XMLSchema">
+	<complexType name="REQUEST_HEADER">
+		<all>
+			<element name="TransactionID" type="xsd:string"/>
+			<element name="LoanID" type="xsd:string"/>
+			<element name="Vender" type="xsd:string"/>
+			<element name="VA_TimeStamp" type="xsd:dateTime"/>
+			<element name="OrderLocation" type="xsd:string"/>
+			<element name="Comment" type="xsd:string" minOccurs="0"/>
+		</all>
+	</complexType>
+	<complexType name="REQUEST">
+		<all>
+			<element name="ActionType" type="xsd:string"/>
+			<element name="ActionTypeDescription" type="xsd:string" minOccurs="0"/>
+			<element name="RushIndicator" type="xsd:string" minOccurs="0"/>
+			<element name="OrderType" type="xsd:string" minOccurs="0"/>
+			<element name="Instructions" type="xsd:string" minOccurs="0"/>
+		</all>
+	</complexType>
+	<complexType name="BORROWER">
+		<all>
+			<element name="NamePrefix" type="xsd:string" minOccurs="0"/>
+			<element name="FirstName" type="xsd:string"/>
+			<element name="MiddleName" type="xsd:string" minOccurs="0"/>
+			<element name="LastName" type="xsd:string"/>
+			<element name="NameSuffix" type="xsd:string" minOccurs="0"/>
+			<element name="UnparsedName" type="xsd:string"/>
+			<element name="MaritalStatus" type="xsd:string"/>
+			<element name="SSN" type="xsd:string"/>
+			<element name="ContactPreference" type="xsd:string"/>
+		</all>
+	</complexType>
+	<complexType name="PHONE">
+		<all>
+			<element name="PhoneType" type="xsd:string"/>
+			<element name="CountryCode" type="xsd:string"/>
+			<element name="AreaCode" type="xsd:string"/>
+			<element name="Number" type="xsd:string"/>
+			<element name="Extension" type="xsd:string" minOccurs="0"/>
+		</all>
+	</complexType>
+	<complexType name="RESIDENCE">
+		<all>
+			<element name="StreetAddress" type="xsd:string"/>
+			<element name="City" type="xsd:string"/>
+			<element name="ZipCode" type="xsd:string"/>
+			<element name="State" type="xsd:string"/>
+			<element name="County" type="xsd:string"/>
+		</all>
+	</complexType>
+	<complexType name="PROPERTY">
+		<all>
+			<element name="PropertyType" type="xsd:string"/>
+			<element name="EstimatedValue" type="xsd:decimal"/>
+			<element name="YearPurchased" type="xsd:date"/>
+			<element name="YearBuilt" type="xsd:string"/>
+			<element name="PurchasePrice" type="xsd:decimal"/>
+		</all>
+	</complexType>
+	<complexType name="ADDRESS">
+		<all>
+			<element name="Line1" type="xsd:string"/>
+			<element name="Line2" type="xsd:string" minOccurs="0"/>
+			<element name="Line3" type="xsd:string" minOccurs="0"/>
+			<element name="StNum" type="xsd:string" minOccurs="0"/>
+			<element name="StName" type="xsd:string" minOccurs="0"/>
+			<element name="StType" type="xsd:string" minOccurs="0"/>
+			<element name="StDir" type="xsd:string" minOccurs="0"/>
+			<element name="AptNum" type="xsd:string" minOccurs="0"/>
+			<element name="RRNum" type="xsd:string" minOccurs="0"/>
+			<element name="POBox" type="xsd:string"/>
+			<element name="City" type="xsd:string"/>
+			<element name="State" type="xsd:string"/>
+			<element name="ZipCode" type="xsd:string"/>
+			<element name="Country" type="xsd:string"/>
+		</all>
+	</complexType>
+	<complexType name="LIEN">
+		<all>
+			<element name="Holder" type="xsd:string"/>
+			<element name="Balance" type="xsd:decimal"/>
+			<element name="FinalLienPosition" type="xsd:string" minOccurs="0"/>
+		</all>
+	</complexType>
+	<complexType name="PRODUCT">
+		<all>
+			<element name="LoanAmount" type="xsd:decimal"/>
+			<element name="Product" type="xsd:string"/>
+		</all>
+	</complexType>
+	<complexType name="CitiBankMessage">
+		<all>
+			<element name="request_header" type="tns:REQUEST_HEADER"/>
+			<element name="request" type="tns:REQUEST"/>
+			<element name="borrower" type="tns:BORROWER" minOccurs="0"/>
+			<element name="phone" type="tns:PHONE" minOccurs="0"/>
+			<element name="residence" type="tns:RESIDENCE" minOccurs="0"/>
+			<element name="property" type="tns:PROPERTY" minOccurs="0"/>
+			<element name="address" type="tns:ADDRESS" minOccurs="0"/>
+			<element name="lien" type="tns:LIEN" minOccurs="0"/>
+			<element name="product" type="tns:PRODUCT" minOccurs="0"/>
+		</all>
+	</complexType>
+	<element name="CitiBankMessageElement" type="tns:CitiBankMessage"/>
+</schema>

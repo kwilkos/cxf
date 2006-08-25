@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+
+<project name="Inbound Connection Demo" default="build" basedir=".">
+
+    <!-- properties to customise the building of the demo --> 
+    <property name="demos.current.dir" value="."/>
+    <property name="celtix.home" value="../../../.."/>
+    <property name="wsdl.dir" value="${basedir}/wsdl"/>
+    <property name="wsdl.location" value="${basedir}/wsdl/hello_world.wsdl"/>
+    <property name="build.archives" value="${basedir}/j2ee-archives"/> 
+    <property name="ejb.xml" location="./etc/ejb.xml"/>
+    
+    <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
+    <property name="servants.props.file" location="${basedir}/../../../../etc/ejb_servants.properties"/>
+    <property file="${servants.props.file}"/>
+    <property name="j2ee.archives" value="j2ee-archives"/>
+
+ 
+    <path id="other.classpath">
+      <pathelement location="${basedir}/../../../../lib/servlet-api-2.4.jar"/>
+      <pathelement location="${basedir}/../../../../lib/ejb.jar"/>
+      <pathelement location="${basedir}/../../../../lib/connector.jar"/>
+      <pathelement location="${basedir}/../common/common.jar"/>
+    </path>
+    
+    <import file="../../../common_build.xml"/>
+
+
+    <!--target name="build" depends="clean,init,build.common.jar,j2ee.compile,build.ejb.jar"/--> 
+    <target name="build" depends="clean,init,j2ee.compile,build.ejb.jar"/> 
+
+    <target name="init"> 
+      <mkdir dir="${build.classes.dir}"/>
+      <mkdir dir="${j2ee.archives}"/>
+    </target>
+
+
+    <!--target name="build.common.jar"> 
+      <ant dir="../common" target="build"/>
+    </target--> 
+
+    <!--target name="j2ee.compile" depends="maybe.generate.code"-->
+    <!--target name="j2ee.compile">
+      <javac srcdir="${build.classes.dir}/.." destdir="${build.classes.dir}" debug="true" fork="yes">
+	<include name="**/*.java"/>
+	<classpath>
+	  <path refid="celtix.classpath"/>
+	  <path refid="other.classpath"/>
+	</classpath>
+      </javac>
+
+      <javac srcdir="${basedir}/src/demo/client" destdir="${build.classes.dir}" debug="true" fork="yes">
+	<include name="**/*.java"/>
+	<classpath>
+	  <path refid="celtix.classpath"/>
+	  <path refid="other.classpath"/>
+	  <pathelement location="${}"/>
+	</classpath>
+      </javac>
+      
+      <copy todir="${build.classes.dir}">
+	<fileset dir="${basedir}/src" includes="**/*.xml" />            
+	<fileset dir="${build.src.dir}" includes="**/*.xml" />
+	<fileset dir="${build.src.dir}" includes="**/*.wsdl" />
+      </copy>
+    </target>
+
+    <target name="generate.code">
+      <echo level="info" message="Generating code using wsdl2java..."/>
+      <wsdl2java file="hello_world.wsdl"/>
+    </target>
+
+    <target name="ejb.compile">
+      <javac srcdir="${basedir}/src" destdir="${j2ee.archives}" debug="true" fork="yes">
+	<include name="**/*.java"/>
+	<classpath>
+	  <path refid="celtix.classpath"/>
+	  <path refid="other.classpath"/>
+	</classpath>
+      </javac>
+    </target-->
+    
+    <target name="j2ee.compile">
+      <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true" fork="yes">
+	<include name="**/*.java"/>
+	<classpath>
+	  <path refid="celtix.classpath"/>
+	  <path refid="other.classpath"/>
+	</classpath>
+      </javac>
+    </target>
+    <target name="clean">
+      <delete failonerror="no">
+	<fileset dir="./src" includes="**/*.class"/>
+	<fileset dir="." includes="**/*.jar"/>
+	<fileset dir="." includes="**/*.rar"/>
+      </delete>
+    </target>
+    
+    <target name="build.ejb.jar"> 
+      <jar destfile="${j2ee.archives}/greeterejb.jar"> 
+	<metainf dir="./etc"> 
+	    <include name="*ejb*.xml"/>
+	</metainf>
+	<fileset dir="${build.classes.dir}/" includes="org/**/*.class"/>
+	<fileset dir="${build.classes.dir}">
+	  <include name="**/ejb/*.class"/>
+	</fileset>
+      </jar>
+    </target> 
+
+    <!-- 
+	 this target appends the necessary entry to ejb_servants.properties 
+	 to activate the web services facade for the greeterejb.jar application.
+    -->
+    <target name="activate" description="updates ejb_servants.properties for demo " unless="GreeterBean">
+      <property name="servant.definition" 
+		value="GreeterBean={http://objectweb.org/hello_world_soap_http}SOAPService@file:${wsdl.location}"/>
+      <echo message="updating ${servants.props.file}" />
+
+      <echo file="${servants.props.file}" append="true">
+# entry for the j2ee inbound demo
+${servant.definition}
+      </echo>
+      <replace file="${servants.props.file}" token="\" value="/"/> 
+    </target>
+
+    <target name="client"> 
+      <java classname="demo.client.GreeterClient" fork="true"> 
+	<arg value="${wsdl.location}"/> 
+	<classpath> 
+	  <pathelement location="${build.classes.dir}"/>
+	  <pathelement path="../../../../lib/celtix.jar"/>
+	</classpath>
+      </java> 
+    </target> 
+</project>

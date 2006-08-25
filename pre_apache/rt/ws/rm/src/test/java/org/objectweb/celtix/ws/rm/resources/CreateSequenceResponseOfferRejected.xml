@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" 
+xmlns:wsrm="http://schemas.xmlsoap.org/ws/2005/02/rm" 
+xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing">
+    <S:Header>
+        <wsa:To>http://Business456.com/serviceA/789</wsa:To>
+        <wsa:RelatesTo>http://Business456.com/guid/0baaf88d-483b-4ecf-a6d8a7c2eb546817</wsa:RelatesTo>
+        <wsa:Action>http://schemas.xmlsoap.org/ws/2005/02/rm/CreateSequenceResponse</wsa:Action>
+    </S:Header>
+    <S:Body>
+        <wsrm:CreateSequenceResponse>
+            <wsrm:Identifier>http://Business456.com/RM/ABC</wsrm:Identifier>
+            <wsrm:Accept>
+                <wsrm:AcksTo>
+                    <wsa:Address>http://schemas.xmlsoap.org/ws/2004/08/addressing/none</wsa:Address>
+                </wsrm:AcksTo>
+            </wsrm:Accept>
+        </wsrm:CreateSequenceResponse>
+    </S:Body>
+</S:Envelope>

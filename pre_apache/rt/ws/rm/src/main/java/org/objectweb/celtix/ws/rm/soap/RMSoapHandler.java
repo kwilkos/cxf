@@ -1,0 +1,392 @@
+package org.objectweb.celtix.ws.rm.soap;
+
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.soap.Name;
+import javax.xml.soap.SOAPEnvelope;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPHeader;
+import javax.xml.soap.SOAPHeaderElement;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
+import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+
+import org.objectweb.celtix.bindings.BindingContextUtils;
+import org.objectweb.celtix.bindings.DataBindingCallback;
+import org.objectweb.celtix.common.logging.LogUtils;
+import org.objectweb.celtix.common.util.PackageUtils;
+import org.objectweb.celtix.context.ObjectMessageContext;
+import org.objectweb.celtix.ws.addressing.AddressingProperties;
+import org.objectweb.celtix.ws.addressing.AttributedURIType;
+import org.objectweb.celtix.ws.addressing.ContextUtils;
+import org.objectweb.celtix.ws.rm.AckRequestedType;
+import org.objectweb.celtix.ws.rm.CreateSequenceRequest;
+import org.objectweb.celtix.ws.rm.CreateSequenceResponse;
+import org.objectweb.celtix.ws.rm.Names;
+import org.objectweb.celtix.ws.rm.RMContextUtils;
+import org.objectweb.celtix.ws.rm.RMProperties;
+import org.objectweb.celtix.ws.rm.RMPropertiesImpl;
+import org.objectweb.celtix.ws.rm.RMUtils;
+import org.objectweb.celtix.ws.rm.SequenceAcknowledgement;
+import org.objectweb.celtix.ws.rm.SequenceType;
+import org.objectweb.celtix.ws.rm.TerminateSequenceRequest;
+
+
+/**
+ * Protocol Handler responsible for {en|de}coding the RM 
+ * Properties for {outgo|incom}ing messages.
+ */
+public class RMSoapHandler implements SOAPHandler<SOAPMessageContext> {
+
+    protected static JAXBContext jaxbContext;
+
+    private static final Logger LOG = LogUtils.getL7dLogger(RMSoapHandler.class);
+    private static final String WS_RM_PACKAGE = 
+        PackageUtils.getPackageName(SequenceType.class);
+
+    /**
+     * Constructor.
+     */
+    public RMSoapHandler() {
+    } 
+
+    /**
+     * @return the set of SOAP headers understood by this handler 
+     */
+    public Set<QName> getHeaders() {
+        return Names.HEADERS;
+    }
+    
+    /**
+     * Invoked for normal processing of inbound and outbound messages.
+     *
+     * @param context the messsage context
+     */
+    public boolean handleMessage(SOAPMessageContext context) {
+        return mediate(context);
+    }
+
+    /**
+     * Invoked for fault processing.
+     *
+     * @param context the messsage context
+     */
+    public boolean handleFault(SOAPMessageContext context) {
+        return mediate(context);
+    }
+
+    /**
+     * Called at the conclusion of a message exchange pattern just prior to
+     * the JAX-WS runtime dispatching a message, fault or exception.
+     *
+     * @param context the message context
+     */
+    public void close(MessageContext context) {
+    }
+
+
+    /**
+     * Mediate message flow, peforming MAP {en|de}coding.
+     * 
+     * @param context the messsage context
+     * @return true if processing should continue on dispatch path 
+     */     
+    boolean mediate(SOAPMessageContext context) {
+        if (ContextUtils.isOutbound(context)) {
+            encode(context);
+        } else {
+            decode(context);
+            storeBindingInfo(context);
+        }
+        return true;
+    }
+    
+    /**
+     * Encode the current RM properties  in protocol-specific headers.
+     *
+     * @param context the message context.
+     */
+    private void encode(SOAPMessageContext context) {
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(context, true);
+        if (null == rmps) {
+            // nothing to encode
+            return;
+        }
+        SOAPMessage message = context.getMessage();
+        encode(message, rmps);
+    }
+
+    /**
+     * Encode the current RM properties  in protocol-specific headers.
+     *
+     * @param message the SOAP message.
+     * @param rmps the current RM properties.
+     */
+
+    public static void encode(SOAPMessage message, RMProperties rmps) {
+        try {
+            SOAPEnvelope env = message.getSOAPPart().getEnvelope();
+            SOAPHeader header = env.getHeader() != null 
+                                ? env.getHeader()
+                                : env.addHeader(); 
+                                
+            discardRMHeaders(header);
+            header.addNamespaceDeclaration(Names.WSRM_NAMESPACE_PREFIX,
+                                           Names.WSRM_NAMESPACE_NAME);
+            Marshaller marshaller = getJAXBContext().createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+           
+            SequenceType seq = rmps.getSequence();
+            if (null != seq) {
+                encodeProperty(seq, 
+                               Names.WSRM_SEQUENCE_QNAME, 
+                               SequenceType.class, 
+                               header,
+                               marshaller);
+            } 
+            Collection<SequenceAcknowledgement> acks = rmps.getAcks();
+            if (null != acks) {
+                for (SequenceAcknowledgement ack : acks) {
+                    encodeProperty(ack, 
+                                   Names.WSRM_SEQUENCE_ACK_QNAME, 
+                                   SequenceAcknowledgement.class, 
+                                   header,
+                                   marshaller);
+                }
+            }
+            Collection<AckRequestedType> requested = rmps.getAcksRequested();
+            if (null != requested) {
+                for (AckRequestedType ar : requested) {
+                    encodeProperty(ar, 
+                                   Names.WSRM_ACK_REQUESTED_QNAME, 
+                                   AckRequestedType.class, 
+                                   header,
+                                   marshaller);
+                }
+            }                           
+        } catch (SOAPException se) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", se); 
+        } catch (JAXBException je) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_ENCODE_FAILURE_MSG", je);
+        }
+    }
+    
+    /**
+     * Decode the RM properties from protocol-specific headers.
+     *  
+     * @param context the messsage context
+     * @param the decoded MAPs
+     * @exception SOAPFaultException if decoded MAPs are invalid 
+     */
+    private void decode(SOAPMessageContext context) { 
+        SOAPMessage message = context.getMessage();
+        RMProperties rmps = unmarshalRMProperties(message);
+        RMContextUtils.storeRMProperties(context, rmps, false);
+    }
+    
+    /**
+     * Decode the RM properties from the SOAP message.
+     * 
+     * @param message the SOAP message
+     * @return the RM properties
+     */
+    public RMProperties unmarshalRMProperties(SOAPMessage message) { 
+        RMProperties rmps = new RMPropertiesImpl();
+        
+        try {
+            Collection<SequenceAcknowledgement> acks = new ArrayList<SequenceAcknowledgement>();
+            Collection<AckRequestedType> requested = new ArrayList<AckRequestedType>();           
+            
+            SOAPEnvelope env = message.getSOAPPart().getEnvelope();
+            SOAPHeader header = env.getHeader();
+            
+            if (header != null) {
+                Unmarshaller unmarshaller = 
+                    getJAXBContext().createUnmarshaller();
+                Iterator headerElements = header.examineAllHeaderElements();
+                while (headerElements.hasNext()) {
+                    SOAPHeaderElement headerElement = 
+                        (SOAPHeaderElement)headerElements.next();
+                    Name headerName = headerElement.getElementName();
+                    String localName = headerName.getLocalName(); 
+                    if (Names.WSRM_NAMESPACE_NAME.equals(headerName.getURI())) {
+                        LOG.log(Level.INFO, "decoding RM header {0}", localName);
+                        if (Names.WSRM_SEQUENCE_NAME.equals(localName)) {
+                            SequenceType s = decodeProperty(SequenceType.class,
+                                                            headerElement,
+                                                            unmarshaller);
+                            
+                            rmps.setSequence(s);
+                        } else if (Names.WSRM_SEQUENCE_ACK_NAME.equals(localName)) {
+                            SequenceAcknowledgement ack = decodeProperty(SequenceAcknowledgement.class,
+                                                            headerElement,
+                                                            unmarshaller);
+                            acks.add(ack);                            
+                        } else if (Names.WSRM_ACK_REQUESTED_NAME.equals(localName)) {
+                            AckRequestedType ar = decodeProperty(AckRequestedType.class,
+                                                            headerElement,
+                                                            unmarshaller);
+                            requested.add(ar);
+                        }
+                    }
+                }
+                if (acks.size() > 0) {
+                    rmps.setAcks(acks);
+                }
+                if (requested.size() > 0) {
+                    rmps.setAcksRequested(requested);
+                }
+            }
+        } catch (SOAPException se) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", se); 
+        } catch (JAXBException je) {
+            LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
+        }
+        return rmps;
+    }
+
+
+    /**
+     * @return a JAXBContext
+     */
+    private static synchronized JAXBContext getJAXBContext() throws JAXBException {
+        if (jaxbContext == null) {
+            jaxbContext = JAXBContext.newInstance(WS_RM_PACKAGE);
+        }
+        return jaxbContext;
+    }
+    
+    /**
+     * Encodes an RM property as a SOAP header.
+     *
+     * @param value the value to encode
+     * @param qname the QName for the header 
+     * @param clz the class
+     * @param header the SOAP header
+     * @param marshaller the JAXB marshaller to use
+     */
+    private static <T> void encodeProperty(T value, 
+                                           QName qname, 
+                                           Class<T> clz, 
+                                           SOAPHeader header,
+                                           Marshaller marshaller)
+        throws JAXBException {
+        if (value != null) {
+            LOG.log(Level.INFO, "encoding " + value + " into RM header {0}", qname);
+            marshaller.marshal(new JAXBElement<T>(qname, clz, value), header);
+        }
+    }
+    
+    /**
+     * Decodes an RM property from a SOAP header.
+     * 
+     * @param clz the class
+     * @param headerElement the SOAP header element
+     * @param marshaller the JAXB marshaller to use
+     * @return the decoded EndpointReference
+     */
+    public static <T> T decodeProperty(Class<T> clz,
+                                       SOAPHeaderElement headerElement,
+                                       Unmarshaller unmarshaller)
+        throws JAXBException {
+        if (null == unmarshaller) {
+            unmarshaller = getJAXBContext().createUnmarshaller();
+        }
+        JAXBElement<T> element =
+            unmarshaller.unmarshal(headerElement, clz);
+        return element.getValue();
+    }
+
+
+    /**
+     * Discard any pre-existing RM headers - this may occur if the runtime
+     * re-uses a SOAP message.
+     *
+     * @param header the SOAP header
+     */
+    private static void discardRMHeaders(SOAPHeader header) throws SOAPException {
+        Iterator headerElements = header.examineAllHeaderElements();
+        while (headerElements.hasNext()) {
+            SOAPHeaderElement headerElement =
+                (SOAPHeaderElement)headerElements.next();
+            Name headerName = headerElement.getElementName();
+            if (Names.WSRM_NAMESPACE_NAME.equals(headerName.getURI())) {
+                headerElement.detachNode();
+            }
+            
+            // REVISIT should detach wsa:Action on resend
+            if (org.objectweb.celtix.ws.addressing.Names.WSA_NAMESPACE_NAME
+                .equals(headerName.getURI())
+                && org.objectweb.celtix.ws.addressing.Names.WSA_ACTION_NAME
+                .equals(headerName.getLocalName())) {
+                headerElement.detachNode();
+            }
+        }
+    }
+    
+    /**
+     * When invoked inbound, check if the action indicates that this is one of the 
+     * RM protocol messages (CreateSequence, CreateSequenceResponse, TerminateSequence)
+     * and if so, store method, operation name and data binding callback in the context.
+     * The action has already been extracted from its associated soap header into the
+     * addressing properties as the addressing protocol handler is executed. 
+     * 
+     * @param context
+     */
+    private void storeBindingInfo(MessageContext context) {
+        assert !ContextUtils.isOutbound(context);
+        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
+        AttributedURIType actionURI = null == maps ? null : maps.getAction();
+        String action = null == actionURI ? null : actionURI.getValue();
+        DataBindingCallback callback = null;
+        String operationName = null;
+        boolean rmProtocolMessage = true;
+
+        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
+            callback = CreateSequenceRequest.createDataBindingCallback();
+            operationName = CreateSequenceRequest.getOperationName();
+        } else if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
+            callback = CreateSequenceResponse.createDataBindingCallback();
+            operationName = CreateSequenceResponse.getOperationName();
+        } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
+            callback = TerminateSequenceRequest.createDataBindingCallback();
+            operationName = TerminateSequenceRequest.getOperationName();
+        } else if (RMUtils.getRMConstants().getLastMessageAction().equals(action) 
+            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)) {
+            // It does not really matter what callback we are using here as the body
+            // in messages with these actions is always empty
+            callback = TerminateSequenceRequest.createDataBindingCallback();
+            operationName = TerminateSequenceRequest.getOperationName();
+        } else {
+            rmProtocolMessage = false;
+        }
+        
+        if (rmProtocolMessage) {
+            BindingContextUtils.storeDispatch(context, false);
+            BindingContextUtils.storeDataBindingCallback(context, callback);
+            context.put(MessageContext.WSDL_OPERATION, new QName("", operationName));
+            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);            
+        }
+    }
+
+}
+
+
+
+
+
+

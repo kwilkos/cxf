@@ -1,0 +1,275 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter>
+  <title>Working with Code</title>
+  <section>
+    <title>Overview</title>
+    <para>There are several instances when you will need to code in the
+    CeltiXfire(CXF) documentation. You may need to use a class name, interface
+    name, or element name as part of a sentence. You will also need to provide
+    long code samples in many places. Docbook has a number of elements that
+    are used for placing code in your documentation. </para>
+    <note>
+      <para>XML mark-up, such as WSDL and XMLSchema, are also considered code
+      for the purposes of CXF documentation.</para>
+    </note>
+  </section>
+  <section>
+    <title>Code Listings</title>
+    <section>
+      <title>Examples</title>
+      <para>When providing code examples, you need to separate them from the
+      text and provide a caption for them. To do this you use the <sgmltag class="element">example</sgmltag> element. You should always provide a
+      descriptive value for the <sgmltag class="element">example</sgmltag>
+      element&apos;s <sgmltag class="attribute">id</sgmltag> attribute.</para>
+      <para>As shown in <xref linkend="example_example"/>, the first child of
+      the example element is a title element. The contents of the title
+      element will be used as the caption of the example. It will also be used
+      as the text for any cross references.</para>
+      <note>
+        <para>If you want to have different text appear when cross referencing
+        an example, set the <sgmltag class="element">example</sgmltag>
+        element&apos;s <sgmltag class="attribute">xreflabel</sgmltag>
+        attribute.</para>
+      </note>
+      <para>The last child of the example element is the <sgmltag class="element">programlisting</sgmltag> element. The <sgmltag class="element">programlisting</sgmltag> element contains the code
+      sample itself. Any text placed inside the <sgmltag class="element">programlisting</sgmltag> element is
+      treated literally. Therefore, any spacing that you use will be exactly
+      reproduced when the document is produced.</para>
+      <warning>
+        <para>When using XML inside a <sgmltag class="element">programlisting</sgmltag>
+        element you must not use the   <literal>&lt;</literal> or  
+        <literal>&gt;</literal>characters. Instead use <wordasword>&amp;lt;</wordasword> and
+        <wordasword>&amp;gt;</wordasword>.</para>
+      </warning>
+      <example id="example_example">
+        <title>Example Mark-Up</title>
+        <programlisting>&lt;example id=&quot;example_example&quot;&gt;
+  &lt;title&gt;Example Mark-Up&lt;/title&gt;
+  &lt;programlisting&gt;public class ServiceName extends javax.xml.ws.Service
+{
+  ...
+  public ServiceName(URL wsdlLocation, QName serviceName) { }
+  
+  public ServiceName() { }
+
+  public Greeter getPortName() { }
+  .
+  .
+  .
+}</programlisting>
+      </example>
+      <section>
+        <title>Using Callouts</title>
+        <para>I need to figure out how to write the mark-up for using
+        callouts. It is complicated and I haven&apos;t had time to really try
+        it.</para>
+      </section>
+    </section>
+    <section>
+      <title>Code Blocks</title>
+      <para>There are cases when you need to use a block of code, but do not need to create a formal example with a title. In such cases you can use one of two methods:</para>
+      <itemizedlist>
+        <listitem>
+          <para>Use an <sgmltag class="element">informalexample</sgmltag> element</para>
+        </listitem>
+        <listitem>
+          <para>Use a <sgmltag class="element">programlisting</sgmltag> element</para>
+        </listitem>
+      </itemizedlist>
+      <para>In terms of the generated output, there is no difference between the two approaches. The real difference is in the complexity of the mark-up and the formality of the structure you wish to use. In the CXF documentation, the preferred method is to simply use the <sgmltag class="element">programlisting</sgmltag> element. However, if you feel that a code block needs to be wrapped in an <sgmltag class="element">informalexample</sgmltag> element, that is fine.</para>
+      <para><xref linkend="block_example"/> shows the mark-up for a standalone block of code.</para>
+      <example id="block_example">
+        <title>Example Code Block</title>
+        <programlisting>&lt;programlisting&gt;var WebServiceProvider1 = {
+    &apos;wsdlLocation&apos;: &apos;file:./wsdl/hello_world.wsdl&apos;,
+    &apos;serviceName&apos;: &apos;SOAPService1&apos;,
+    &apos;portName&apos;: &apos;SoapPort1&apos;,
+    &apos;targetNamespace&apos;: http://objectweb.org/hello_world_soap_http&apos;,
+};&lt;/programlisting&gt;</programlisting>
+      </example>
+    </section>
+  </section>
+  <section id="prog_arts">
+    <title>In-line Code</title>
+    <para>There are many instances where you need to place a code artifact in a block of text such as when you are referring to a Java class or an XML element. Docbook has a number of specialized elements for placing code artifacts in-line. The ones used in CXF include:</para>
+    <itemizedlist>
+      <listitem>
+        <para><sgmltag class="element">sgmltag</sgmltag></para>
+      </listitem>
+      <listitem>
+        <para><sgmltag>classname</sgmltag></para>
+      </listitem>
+      <listitem>
+        <para><sgmltag>interfacename</sgmltag></para>
+      </listitem>
+      <listitem>
+        <para><sgmltag>methodname</sgmltag></para>
+      </listitem>
+    </itemizedlist>
+    <section>
+      <title>XML Artifacts</title>
+      <para>When placing XML artifacts such as element names or attribute names in your text wrap them in an <sgmltag class="element">sgmltag</sgmltag> element. To specify the type of XML artifact, the <sgmltag class="element">sgmltag</sgmltag> element&apos;s <sgmltag class="attribute">class</sgmltag> attribute is always used. <xref linkend="class_values"/> shows the values used for the <sgmltag class="attribute">class</sgmltag> attribute.</para>
+      <table id="class_values">
+        <title>Values for the <sgmltag class="attribute">class</sgmltag> Attribute</title>
+        <tgroup cols="2">
+          <colspec colwidth="1.5in"/>
+          <thead>
+            <row>
+              <entry>Value</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">attribute</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is an attribute of an XML element.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">element</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is an XML element.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">attrvalue</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is the value of an XML element&apos;s attribute.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="attvalue">emptytag</sgmltag>
+              </entry>
+              <entry>Specifies an XML element that does not hold any data such as <sgmltag class="emptytag">foo</sgmltag>.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+    <section id="gen_prog_arts">
+      <title>General Programming Language Artifacts</title>
+      <para>Docbook defines a number of in-line tags for specifying programming artifacts. The CXF documentation makes use of the tags listed in <xref linkend="progarti"/>.</para>
+      <table id="progarti" frame="all">
+        <title>Elements for In-Line Programming Artifacts</title>
+        <tgroup cols="2">
+          <colspec colwidth="1.5in" colnum="1" colname="c1"/>
+          <colspec colnum="2" colname="c2"/>
+          <thead>
+            <row>
+              <entry>Element</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <sgmltag class="element">type</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a data type such as <type>int</type>.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">constant</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a constant such as <constant>NULL</constant> 
+			         or <constant>9</constant>.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">exceptionname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is an exception. It could be the name of the 
+			         exception or the name of the class that implements the exception.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">function</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a function such as <function>println()</function>.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">parameter</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a parameter to a function or a method.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">varname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a variable.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+    <section>
+      <title>Object Oriented Programming Language Artifacts</title>
+      <para>In addition to the elements listed in <xref linkend="gen_prog_arts"/>, Docbook defines three elements that are used specifically for object-oriented programming artifacts. They are listed in <xref linkend="oo_arts"/>.</para>
+      <table frame="all" id="oo_arts">
+        <title>Elements for In-Line OO Programming Artifacts</title>
+        <tgroup cols="2">
+          <colspec colnum="1" colname="c1" colwidth="1.5in"/>
+          <colspec colnum="2" colname="c2"/>
+          <thead>
+            <row>
+              <entry>Element</entry>
+              <entry>Description</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>
+                <sgmltag class="element">interfacename</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java interface the user must implement.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">oointerface</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java interface the user must implement. 
+			         Requires the use of an <sgmltag class="element">modifier</sgmltag> element 
+					 that contains details about if the interface is public or private.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">classname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java class or an instantiated object.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">ooclass</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java class. Requires the use of an 
+			         <sgmltag class="element">modifier</sgmltag> element that contains details 
+					 about if the class is public/private or static/final.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">methodname</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a method. Methods are different from functions 
+			         in that methods are associated with classes and objects.</entry>
+            </row>
+            <row>
+              <entry>
+                <sgmltag class="element">ooexception</sgmltag>
+              </entry>
+              <entry>Specifies that the artifact is a Java exception. Requires the use of an 
+			         <sgmltag class="element">modifier</sgmltag> element that contains details 
+					 about if the exception is public or private.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+  </section>
+  <section>
+    <title>Class Synopses</title>
+    <para>This is pretty complex stuff. It needs to cover both class and ooclass.</para>
+  </section>
+</chapter>

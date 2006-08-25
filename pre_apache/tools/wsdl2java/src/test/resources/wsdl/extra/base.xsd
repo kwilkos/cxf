@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <schema targetNamespace="http://schemas.iona.com/tests/base"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+            <!-- SimpleContent type -->
+
+            <complexType name="Document">
+                <simpleContent>
+                    <extension base="xsd:string">
+                        <attribute name="ID1" type="xsd:string" use="optional"/>
+                    </extension>
+                </simpleContent>
+            </complexType>
+            </schema>

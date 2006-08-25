@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"
+>
+  
+  <!-- configuration for the handler demo server -->
+
+  <bean id="celtix.{http://www.objectweb.org/handlers}AddNumbersService" class="org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean">
+
+      <property name="handlerChain">
+          <value>
+              <jaxws-types:handler-chain>
+                 <jaxws-types:handler>
+                      <jaxws-types:handler-name>File Logging Handler</jaxws-types:handler-name>
+                      <jaxws-types:handler-class>test.common.FileLoggingHandler</jaxws-types:handler-class>
+                  </jaxws-types:handler>
+              </jaxws-types:handler-chain>              
+          </value>
+      </property>
+
+      
+  </bean>
+</beans>

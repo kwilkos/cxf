@@ -1,0 +1,12 @@
+<xsd:schema targetNamespace="http://objectweb.org/hello_world_soap_http/types"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:x1="http://objectweb.org/hello_world_soap_http/types"
+    elementFormDefault="qualified">
+        <xsd:complexType name="stringStruct">
+            <xsd:sequence>
+                <xsd:element name="arg0" type="string"/>
+                <xsd:element name="arg1" type="string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+</xsd:schema>
