@@ -1,4 +1,4 @@
-package org.apache.cxf.interceptors;
+package org.apache.cxf.interceptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;

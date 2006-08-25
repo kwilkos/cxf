@@ -1,4 +1,4 @@
-package org.apache.cxf.interceptors;
+package org.apache.cxf.interceptor;
 
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
