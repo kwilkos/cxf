@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/HelloWorld" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:jms="http://celtix.objectweb.org/transports/jms" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:tns="http://celtix.objectweb.org/HelloWorld" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://celtix.objectweb.org/HelloWorld/xsd">
+    <message name="greetMe">
+        <part name="stringParam0" type="xsd:string"/>
+    </message>
+    <message name="greetMeResponse">
+        <part name="return" type="xsd:string"/>
+    </message>
+    <message name="sayHi"/>
+    <message name="sayHiResponse">
+        <part name="return" type="xsd:string"/>
+    </message>
+    <portType name="HelloWorldPortType">
+        <operation name="greetMe">
+            <input message="tns:greetMe" name="greetMe"/>
+            <output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </operation>
+        <operation name="sayHi">
+            <input message="tns:sayHi" name="sayHi"/>
+            <output message="tns:sayHiResponse" name="sayHiResponse"/>
+        </operation>
+    </portType>
+    <binding name="HelloWorldPortBinding" type="tns:HelloWorldPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="greetMe">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="greetMe">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+            </input>
+            <output name="greetMeResponse">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+            </output>
+        </operation>
+        <operation name="sayHi">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="sayHi">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+            </input>
+            <output name="sayHiResponse">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+            </output>
+        </operation>
+    </binding>
+    <service name="HelloWorldService">
+        <port binding="tns:HelloWorldPortBinding" name="HelloWorldPort">
+            <jms:address destinationStyle="queue" jndiProviderURL="foo" 
+                initialContextFactory="foo_factory" jndiConnectionFactoryName="bar_connection" 
+                jndiDestinationName="bar_destination" messageType="text"
+                useMessageIDAsCorrelationID="true" 
+                java.naming.factory.object="java.naming.factory.object"
+                java.naming.factory.state="java.naming.factory.state"
+                java.naming.factory.url.pkgs="java.naming.factory.url.pkgs"
+                java.naming.dns.url="java.naming.dns.url"
+                java.naming.authoritative="java.naming.authoritative"
+                java.naming.batchsize="java.naming.batchsize"
+                java.naming.referral="java.naming.referral"
+                java.naming.security.protocol="java.naming.security.protocol"
+                java.naming.security.authentication="java.naming.security.authentication"
+                java.naming.security.principal="java.naming.security.principal"
+                java.naming.security.credentials="java.naming.security.credentials"
+                java.naming.language="java.naming.language"
+                java.naming.applet="java.naming.applet"
+		durableSubscriberName="durable_subscriber_name"
+		messageSelector="message_selector"
+		transactional = "true"
+                />
+        </port>
+
+        <port binding="tns:HelloWorldPortBinding" name="HelloWorldPort2">
+            <jms:address destinationStyle="queue" jndiProviderURL="foo" 
+                initialContextFactory="foo_factory" jndiConnectionFactoryName="bar_connection" 
+                jndiDestinationName="bar_destination" messageType="text"
+                useMessageIDAsCorrelationID="true" 
+                java.naming.factory.object="java.naming.factory.object"
+                java.naming.factory.state="java.naming.factory.state"
+                java.naming.factory.url.pkgs="java.naming.factory.url.pkgs"
+                java.naming.dns.url="java.naming.dns.url"
+                java.naming.authoritative="java.naming.authoritative"
+                java.naming.batchsize="java.naming.batchsize"
+                java.naming.referral="java.naming.referral"
+                java.naming.security.protocol="java.naming.security.protocol"
+                java.naming.security.authentication="java.naming.security.authentication"
+                java.naming.security.principal="java.naming.security.principal"
+                java.naming.security.credentials="java.naming.security.credentials"
+                java.naming.language="java.naming.language"
+                java.naming.applet="java.naming.applet"
+                />
+        </port>
+    </service>
+</definitions>
+
+

@@ -1,0 +1,47 @@
+# 
+# set the environment for the Celtix runtime 
+#
+
+#
+# check that the required environment variables are set
+#
+
+if [ ${CELTIX_HOME-"x"} == "x" ]; then
+    echo "The CELTIX_HOME environment variable is unset.  Please set CELTIX_HOME"
+    echo "envionment variable to the location of the Celtix installation"
+    return 1
+fi
+
+#
+# let's avoid setting it all again if we
+# can to avoid really big environment spaces
+#
+if [ "${CELTIX_ENV_SET:-$dummy}" = "true" ]
+then
+    echo Celtix Environment already set
+    return 0
+fi
+
+CELTIX_ENV_SET=true
+
+if [ ${JAXWS_HOME-"x"} == "x" ]; then
+	export JAXWS_HOME=${CELTIX_HOME}/lib/jaxws-ri/20050929
+fi
+
+
+#
+# add the jdk's tools.jar to the classpath
+#
+if [ -e "${JAVA_HOME}/lib/tools.jar" ]; then
+    CLASSPATH=${JAVA_HOME}/lib/tools.jar:$CLASSPATH
+fi
+
+#
+# add the core celtix jar to the classpath
+#
+CLASSPATH=$CELTIX_HOME/lib/celtix.jar:$CELTIX_HOME/lib/wsdl4j/1.5.1/wsdl4j.jar:${CLASSPATH-""}
+
+
+export PATH=$CELTIX_HOME/bin:$PATH 
+
+export CLASSPATH CELTIX_ENV_SET
