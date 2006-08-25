@@ -2,7 +2,7 @@ package org.apache.cxf.endpoint;
 
 import java.util.Map;
 
-import org.apache.cxf.interceptors.InterceptorProvider;
+import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 public interface Client extends InterceptorProvider {

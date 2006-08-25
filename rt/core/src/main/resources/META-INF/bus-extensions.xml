@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.cxf.bindings.BindingFactoryManagerImpl"
-           interface="org.apache.cxf.bindings.BindingFactoryManager"/>
-    <extension class="org.apache.cxf.messaging.DestinationFactoryManagerImpl"
-           interface="org.apache.cxf.messaging.DestinationFactoryManager"/>
-    <extension class="org.apache.cxf.messaging.ConduitInitiatorManagerImpl"
-           interface="org.apache.cxf.messaging.ConduitInitiatorManager"/>
+    <extension class="org.apache.cxf.binding.BindingFactoryManagerImpl"
+           interface="org.apache.cxf.binding.BindingFactoryManager"/>
+    <extension class="org.apache.cxf.transport.DestinationFactoryManagerImpl"
+           interface="org.apache.cxf.transport.DestinationFactoryManager"/>
+    <extension class="org.apache.cxf.transport.ConduitInitiatorManagerImpl"
+           interface="org.apache.cxf.transport.ConduitInitiatorManager"/>
     <extension class="org.apache.cxf.wsdl11.WSDLManagerImpl"
            interface="org.apache.cxf.wsdl.WSDLManager"/>
     <extension class="org.apache.cxf.phase.PhaseManagerImpl"

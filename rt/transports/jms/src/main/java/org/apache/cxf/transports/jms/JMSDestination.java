@@ -8,11 +8,11 @@ import javax.wsdl.WSDLException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.messaging.Conduit;
-import org.apache.cxf.messaging.ConduitInitiator;
-import org.apache.cxf.messaging.Destination;
-import org.apache.cxf.messaging.MessageObserver;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 

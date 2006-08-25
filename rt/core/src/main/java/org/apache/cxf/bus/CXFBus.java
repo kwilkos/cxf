@@ -10,7 +10,7 @@ import org.apache.cxf.configuration.Configuration;
 import org.apache.cxf.configuration.ConfigurationBuilder;
 import org.apache.cxf.configuration.impl.ConfigurationBuilderImpl;
 import org.apache.cxf.extension.ExtensionManagerImpl;
-import org.apache.cxf.interceptors.Interceptor;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;

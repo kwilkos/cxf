@@ -8,9 +8,9 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bindings.BindingFactoryManager;
-import org.apache.cxf.bindings.BindingFactoryManagerImpl;
-import org.apache.cxf.bindings.soap.SoapBindingFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.BindingFactoryManagerImpl;
+import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -18,7 +18,6 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.hello_world_soap_http.GreeterImpl;
-
 import org.easymock.IMocksControl;
 
 import static org.easymock.EasyMock.expect;

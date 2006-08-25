@@ -28,8 +28,8 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.bindings.BindingFactory;
-import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.binding.BindingFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
@@ -44,7 +44,6 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
-
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;

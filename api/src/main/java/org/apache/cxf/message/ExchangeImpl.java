@@ -2,8 +2,8 @@ package org.apache.cxf.message;
 
 import java.util.HashMap;
 
-import org.apache.cxf.messaging.Conduit;
-import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 
 public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 

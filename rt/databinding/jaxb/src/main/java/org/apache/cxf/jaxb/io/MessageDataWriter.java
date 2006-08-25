@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
-import org.apache.cxf.jaxb.attachments.JAXBAttachmentMarshaller;
+import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
 import org.apache.cxf.message.Message;
 
 public class MessageDataWriter implements DataWriter<Message> {

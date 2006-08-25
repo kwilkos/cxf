@@ -10,18 +10,14 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.bindings.Binding;
-import org.apache.cxf.interceptors.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptors.Interceptor;
-import org.apache.cxf.interceptors.InterceptorChain;
-import org.apache.cxf.interceptors.MessageSenderInterceptor;
+import org.apache.cxf.binding.Binding;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.messaging.Conduit;
-import org.apache.cxf.messaging.ConduitInitiator;
-import org.apache.cxf.messaging.ConduitInitiatorManager;
-import org.apache.cxf.messaging.MessageObserver;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
@@ -33,6 +29,10 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.MessageObserver;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
     

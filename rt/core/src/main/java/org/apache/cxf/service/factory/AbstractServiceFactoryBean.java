@@ -3,10 +3,10 @@ package org.apache.cxf.service.factory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.databinding.DataReaderFactory;
 import org.apache.cxf.databinding.DataWriterFactory;
-import org.apache.cxf.interceptors.MessageSenderInterceptor;
-import org.apache.cxf.interceptors.OutgoingChainInterceptor;
-import org.apache.cxf.interceptors.OutgoingChainSetupInterceptor;
-import org.apache.cxf.interceptors.ServiceInvokerInterceptor;
+import org.apache.cxf.interceptor.MessageSenderInterceptor;
+import org.apache.cxf.interceptor.OutgoingChainInterceptor;
+import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
+import org.apache.cxf.interceptor.ServiceInvokerInterceptor;
 import org.apache.cxf.service.Service;
 
 public abstract class AbstractServiceFactoryBean {

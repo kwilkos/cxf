@@ -2,7 +2,7 @@ package org.apache.cxf.transports.http;
 
 
 import org.apache.cxf.message.Message;
-import org.apache.cxf.messaging.AbstractCachedOutputStream;
+import org.apache.cxf.transport.AbstractCachedOutputStream;
 
 
 /**

@@ -12,7 +12,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
@@ -23,7 +23,6 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
-
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;

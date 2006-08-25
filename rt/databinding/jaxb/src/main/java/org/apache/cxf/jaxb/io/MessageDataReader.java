@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
-import org.apache.cxf.jaxb.attachments.JAXBAttachmentUnmarshaller;
+import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Message;
 
 public class MessageDataReader implements DataReader<Message> {

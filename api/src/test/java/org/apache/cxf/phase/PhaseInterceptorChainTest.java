@@ -8,9 +8,8 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.interceptors.Interceptor;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 

@@ -19,10 +19,10 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
-import org.apache.cxf.messaging.ChainInitiationObserver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.ChainInitiationObserver;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
     

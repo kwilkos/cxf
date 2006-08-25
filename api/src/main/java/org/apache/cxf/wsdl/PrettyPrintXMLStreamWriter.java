@@ -16,7 +16,6 @@ import javax.wsdl.Operation;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
-
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;

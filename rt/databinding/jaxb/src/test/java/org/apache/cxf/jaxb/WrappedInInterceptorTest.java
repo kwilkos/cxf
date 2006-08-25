@@ -5,7 +5,7 @@ import java.util.List;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 

@@ -13,8 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.interceptors.Interceptor;
-import org.apache.cxf.interceptors.InterceptorChain;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
 
 /**

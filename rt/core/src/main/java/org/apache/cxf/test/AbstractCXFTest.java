@@ -21,11 +21,11 @@ import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.messaging.Conduit;
-import org.apache.cxf.messaging.ConduitInitiator;
-import org.apache.cxf.messaging.ConduitInitiatorManager;
-import org.apache.cxf.messaging.MessageObserver;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.MessageObserver;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 /**

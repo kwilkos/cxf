@@ -18,15 +18,15 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.apache.cxf.messaging.ChainInitiationObserver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.transport.ChainInitiationObserver;
 
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 

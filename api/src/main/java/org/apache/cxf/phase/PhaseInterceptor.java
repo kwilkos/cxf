@@ -2,7 +2,7 @@ package org.apache.cxf.phase;
 
 import java.util.Set;
 
-import org.apache.cxf.interceptors.Interceptor;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 
 /**

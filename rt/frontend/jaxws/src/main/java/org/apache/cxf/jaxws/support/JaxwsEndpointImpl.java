@@ -6,14 +6,14 @@ import java.util.List;
 import javax.xml.ws.Binding;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bindings.soap.SoapBinding;
+import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.endpoint.EndpointImpl;
-import org.apache.cxf.interceptors.Interceptor;
-import org.apache.cxf.jaxws.bindings.BindingImpl;
-import org.apache.cxf.jaxws.bindings.soap.SOAPBindingImpl;
-import org.apache.cxf.jaxws.handlers.LogicalHandlerInterceptor;
-import org.apache.cxf.jaxws.handlers.StreamHandlerInterceptor;
-import org.apache.cxf.jaxws.handlers.soap.SOAPHandlerInterceptor;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.binding.BindingImpl;
+import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
+import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
+import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.service.Service;
@@ -24,7 +24,7 @@ import org.apache.cxf.service.model.EndpointInfo;
  * Extends the interceptor provider functionality of its base class by adding 
  * interceptors in which to execute the JAX-WS handlers.
  * Creates and owns an implementation of {@link Binding} in addition to the
- * CXF {@link org.apache.cxf.bindings.Binding}. 
+ * CXF {@link org.apache.cxf.binding.Binding}. 
  *
  */
 public class JaxwsEndpointImpl extends EndpointImpl {

@@ -9,7 +9,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.cxf.interceptors.BareOutInterceptor;
+import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;

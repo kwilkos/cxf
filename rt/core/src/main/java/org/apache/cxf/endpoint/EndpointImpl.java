@@ -8,12 +8,12 @@ import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.bindings.Binding;
-import org.apache.cxf.bindings.BindingFactory;
-import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.BindingFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.interceptors.AbstractBasicInterceptorProvider;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;

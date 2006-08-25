@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.cxf.bindings.soap.SoapBindingFactory" deferred="true">
+    <extension class="org.apache.cxf.binding.soap.SoapBindingFactory" deferred="true">
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://cxf.apache.org/transports/jms</namespace>

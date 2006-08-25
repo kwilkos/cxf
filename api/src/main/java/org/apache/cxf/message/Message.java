@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.cxf.interceptors.InterceptorChain;
-import org.apache.cxf.messaging.Conduit;
-import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 
 public interface Message extends Map<String, Object> {
     

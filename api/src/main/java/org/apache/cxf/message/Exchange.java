@@ -2,8 +2,8 @@ package org.apache.cxf.message;
 
 import java.util.Map;
 
-import org.apache.cxf.messaging.Conduit;
-import org.apache.cxf.messaging.Destination;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 
 public interface Exchange extends Map<String, Object> {
     Message getInMessage();

@@ -5,7 +5,7 @@ import java.util.List;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.interceptors.BareInInterceptor;
+import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.hello_world_soap_http.types.GreetMe;

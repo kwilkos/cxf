@@ -6,16 +6,15 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.cxf.BusException;
-import org.apache.cxf.bindings.BindingFactoryManager;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.CXFBus.State;
 import org.apache.cxf.configuration.Configuration;
 import org.apache.cxf.event.EventProcessor;
 import org.apache.cxf.management.InstrumentationManager;
-import org.apache.cxf.messaging.ConduitInitiatorManager;
-import org.apache.cxf.messaging.DestinationFactoryManager;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.WSDLManager;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 

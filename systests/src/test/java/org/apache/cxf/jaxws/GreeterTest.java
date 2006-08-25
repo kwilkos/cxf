@@ -5,16 +5,16 @@ import java.net.URL;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bindings.BindingFactoryManager;
-import org.apache.cxf.bindings.soap.SoapBindingFactory;
-import org.apache.cxf.bindings.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.messaging.ConduitInitiatorManager;
-import org.apache.cxf.messaging.DestinationFactoryManager;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.test.AbstractCXFTest;
-import org.apache.cxf.transports.local.LocalTransportFactory;
+import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class GreeterTest extends AbstractCXFTest {

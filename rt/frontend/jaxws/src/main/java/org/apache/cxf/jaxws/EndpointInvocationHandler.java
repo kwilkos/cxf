@@ -18,7 +18,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.interceptors.WrappedInInterceptor;
+import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.service.model.BindingOperationInfo;

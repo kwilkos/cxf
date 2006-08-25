@@ -27,7 +27,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
-import org.apache.cxf.jaxws.handlers.HandlerResolverImpl;
+import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;

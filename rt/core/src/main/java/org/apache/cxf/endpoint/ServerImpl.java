@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.messaging.ChainInitiationObserver;
-import org.apache.cxf.messaging.Destination;
-import org.apache.cxf.messaging.DestinationFactory;
-import org.apache.cxf.messaging.DestinationFactoryManager;
-import org.apache.cxf.messaging.MessageObserver;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.ChainInitiationObserver;
+import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.MessageObserver;
 
 public class ServerImpl implements Server {
     
