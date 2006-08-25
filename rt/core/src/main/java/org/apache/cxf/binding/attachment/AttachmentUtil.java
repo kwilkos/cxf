@@ -5,6 +5,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.ws.WebServiceException;
@@ -47,8 +50,8 @@ public final class AttachmentUtil {
     public static String getUniqueBoundaryValue(int part) {
         StringBuffer s = new StringBuffer();
         // Unique string is ----=_Part_<part>_<hashcode>.<currentTime>
-        s.append("----=_Part_").append(part++).append("_").append(s.hashCode()).append('.')
-            .append(System.currentTimeMillis());
+        s.append("----=_Part_").append(part++).append("_").append(s.hashCode()).append('.').append(
+                        System.currentTimeMillis());
         return s.toString();
     }
 
@@ -66,12 +69,18 @@ public final class AttachmentUtil {
         return buffer.toString();
     }
 
-    public static String getMimeRequestHeader(Message message, String soapPartId, String contentDesc) {
-        StringBuffer buffer = new StringBuffer(200);
-        buffer.append("MIME-Version: 1.0\n");
-        buffer.append("Content-Type: Multipart/" + getMimeSubType(message, soapPartId) + "\n");
-        buffer.append("Content-Description: " + contentDesc + "\n");
-        return buffer.toString();
+    public static void setMimeRequestHeader(Map<String, List<String>> reqHeaders, Message message,
+                    String soapPartId, String contentDesc) {
+        List<String> header1 = new ArrayList<String>();
+        header1.add("1.0");
+        reqHeaders.put("MIME-Version", header1);
+        List<String> header2 = new ArrayList<String>();
+        header2.add("Multipart/" + getMimeSubType(message, soapPartId));
+        reqHeaders.put("Content-Type", header2);
+        List<String> header3 = new ArrayList<String>();
+        header3.add(contentDesc);
+        reqHeaders.put("Content-Description", header3);
+
     }
 
     public static String getMimeSubType(Message message, String soapPartId) {
