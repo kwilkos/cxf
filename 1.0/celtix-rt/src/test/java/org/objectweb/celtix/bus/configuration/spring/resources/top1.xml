@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans>
+  
+  <!-- incorrect class -->
+  
+  <bean id="top1" class="org.objectweb.celtix.configuration.test.top.spring.TopBean">
+  </bean>
+  
+</beans>

@@ -1,0 +1,8 @@
+<optionGroup id="common_options">
+     <option id="help" maxOccurs="1" minOccurs="0">
+        <switch>?</switch>
+      </option>
+      <option id="version" minOccurs="0">
+	    <switch>v</switch>
+      </option>
+</optionGroup>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema targetNamespace="http://celtix.objectweb.org/bus/configuration/wsrm"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           elementFormDefault="qualified" 
+           attributeFormDefault="unqualified"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:tns="http://celtix.objectweb.org/bus/configuration/wsrm"
+           jaxb:version="2.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings generateIsSetMethod="true"/>
+        </xs:appinfo>
+    </xs:annotation>
+    
+    <!--
+        global elements 
+            - can be referenced from other parts of this schema or from other schema documents
+            - can appear as root element in valid documents
+    -->
+    <xs:element name="endpointPolicy" type="tns:endpointPolicyType"/>
+    <xs:element name="sourcePolicy" type="tns:sourcePolicyType"/>
+    <xs:element name="destinationPolicy" type="tns:destinationPolicyType"/>
+    <xs:element name="store" type="tns:storeType"/>
+    
+    <xs:complexType name="endpointPolicyType">
+        <xs:annotation>
+            <xs:documentation>RM endpoint properties common to
+            a source and destination.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence/>
+    </xs:complexType>
+    
+   <xs:complexType name="storeType">
+        <xs:annotation>
+            <xs:documentation>Identifies the store to be used by RM sources and destinations.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element minOccurs="0" name="store-name" type="xs:string"/>
+            <xs:element name="store-class" type="xs:string"/>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="init-param" nillable="false" type="tns:storeInitParamType"/>
+        </xs:sequence>
+    </xs:complexType> 
+
+    <xs:complexType name="storeInitParamType">
+        <xs:sequence>
+            <xs:element name="param-name" type="xs:string"/>
+            <xs:element minOccurs="0" name="param-value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="sourcePolicyType">
+        <xs:annotation>
+            <xs:documentation>RM source configuration properties. 
+            Used for configuring an RM source.
+            </xs:documentation>
+        </xs:annotation>
+        
+       <xs:sequence>  
+            <xs:element name="sequenceTerminationPolicy" type="tns:sequenceTerminationPolicyType" minOccurs="0"/>
+       </xs:sequence>
+        
+        <xs:attribute name="sequenceExpiration" type="xs:duration" use="optional" default="PT0S">
+            <xs:annotation>
+                <xs:documentation>
+                    Preferred lifetime of a sequence - included in createSequence 
+                    requests issued by an RM source. 
+                    A default of PT0S means that the sequence should never expire.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="acksTo" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    Address to which sequence acknowledgements should be sent. 
+                    If this attribute is not set, defaults to the anonymous address.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="includeOffer" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    Indicates if an RM source should include an offer for an inbound sequence
+                    when issuing a createSequence request.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="offeredSequenceExpiration" type="xs:duration" use="optional" default="PT0S">
+            <xs:annotation>
+                <xs:documentation>
+                    The lifetime of an offered inbound sequence.
+                    A default of PT0S means that the sequence never expires.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="destinationPolicyType">
+        <xs:annotation>
+            <xs:documentation>RM destination configuration properties. 
+            Used for configuring an RM destination.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>  
+            <xs:element name="acksPolicy" type="tns:acksPolicyType" minOccurs="0"/>
+        </xs:sequence>
+        
+        <xs:attribute name="sequenceExpiration" type="xs:duration" use="optional" default="PT0S">
+            <xs:annotation>
+                <xs:documentation>
+                    Preferred lifetime of a sequence - can be lower than the duration
+                    requested by the RM source in a CreateSequence request. 
+                    A default of PT0S means that the sequence should never expire.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        
+        <xs:attribute name="acceptOffers" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    Indicates if an RM destination should accept inbound sequence offers.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        
+    </xs:complexType>
+
+    <xs:complexType name="sequenceTerminationPolicyType">    
+        <xs:attribute name="maxLength" type="xs:unsignedLong" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum length of a sequence. 
+                    A value of 0 means the sequence length is unbound.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute> 
+        <xs:attribute name="maxRanges" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of acknowledgment ranges tolerated in sequence
+                    acknowledgment. When this value is exceeded the sequence
+                    will be terminated. 
+                    A value of 0 means sequence termination does not depend on
+                    the number of acknowledgment ranges.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="maxUnacknowledged" type="xs:int" use="optional" default="0">
+            <xs:annotation>
+                <xs:documentation>
+                    The maximum number of unacknowledged messages that can accrue within per
+                    sequence before the sequence is terminated.
+                    A value of 0 means sequence termination does not depend on
+                    the number of unacknowledgment messages.
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute>
+        <xs:attribute name="terminateOnShutdown" type="xs:boolean" use ="optional" default="false">
+        <xs:annotation>
+                <xs:documentation>
+                    Specifies if sequences should be terminated when the bus is shutdown.
+                    If set to true, and no last message had been sent for a sequence,
+                    an out of band LastMessage will be issued (in response to which 
+                    a sequence acknowledgment will be sent). If a last message had already been
+                    sent, an acknowledgment is requested instead. 
+                    If, after processing these acknowledgement, all messages have been acknowledged,
+                    an attempt is then made to terminates these sequences.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="acksPolicyType">    
+        <xs:attribute name="intraMessageThreshold" type="xs:int" use="optional" default="10">
+            <xs:annotation>
+                <xs:documentation>
+                    Restricts the deferred sending of acknowledgments to the case where the stream of incoming 
+                    messages is steady, i.e. the number of messages for one destination per minute stays above the 
+                    specified threshold (only effective if the AcknowledgmentInterval specified in the
+                    RMAssertion is greater 0).
+                </xs:documentation>
+            </xs:annotation>      
+        </xs:attribute> 
+    </xs:complexType>
+
+</xs:schema>

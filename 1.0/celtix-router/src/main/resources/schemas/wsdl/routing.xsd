@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+   xmlns:r="http://celtix.objectweb.org/routing/configuration" 
+   xmlns="http://www.w3.org/2001/XMLSchema"  
+   targetNamespace="http://celtix.objectweb.org/routing/configuration" elementFormDefault="qualified">
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+    <xs:element name="route" type="r:routeType"/>
+    <xs:complexType name="routeType">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:sequence>
+                    <xs:element name="source" type="r:sourceType" maxOccurs="unbounded"/>
+                    <xs:element name="propagateInputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="propagateOutputAttribute" type="r:propagateAttributeType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="operation" type="r:operationType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="destination" type="r:destinationType" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:attribute name="name" type="xs:NCName" use="required"/>
+                <xs:attribute name="multiRoute" type="r:multiRouteType" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="multiRouteType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="failover"/>
+            <xs:enumeration value="fanout"/>
+            <xs:enumeration value="loadBalance"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="sourceType">
+        <xs:attribute name="service" type="xs:QName" use="required"/>
+        <xs:attribute name="port" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="propagateAttributeType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="target" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="operationType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="target" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="destinationType">
+        <xs:attribute name="service" type="xs:QName" use="required"/>
+        <xs:attribute name="port" type="xs:string" use="optional"/>
+        <xs:attribute name="operation" type="xs:string" use="optional"/>
+    </xs:complexType>
+    <xs:element name="wsdlUrl" type="r:urlListPolicy"/>
+    <xs:complexType name="urlListPolicy">
+        <xs:sequence>
+            <xs:element name="url" type="xs:string" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,128 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.objectweb.celtix</groupId>
+    <artifactId>celtix-js</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+    <name>Celtix JavaScript</name>
+    <url>http://celtix.objectweb.org/</url>
+
+    <parent>
+        <groupId>org.objectweb.celtix</groupId>
+        <artifactId>celtix</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <properties>
+        <topDirectoryLocation>..</topDirectoryLocation>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>1.5.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-tools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>rhino</groupId>
+            <artifactId>js</artifactId>
+            <version>1.6R2</version>
+        </dependency>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+    </dependencies>
+
+
+
+    <build>
+      <plugins>
+        <!--plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-jar-plugin</artifactId>
+	    <executions>
+	      <execution>
+		<phase>compile</phase>
+		<goals>
+		  <goal>jar</goal>
+                </goals>
+		<configuration>
+		  <finalName>celtix</finalName>
+		  <archive>
+		    <manifestEntries>
+		      <Class-Path>test</Class-Path>            
+		    </manifestEntries>
+		  </archive>
+		</configuration>
+	      </execution>
+	    </executions>		            
+        </plugin-->
+        
+        <!--plugin>
+	    <groupId>org.codehaus.mojo</groupId>
+	    <artifactId>surefire-report-maven-plugin</artifactId>
+	    <version>${surefire-report.version}</version>
+        </plugin-->
+        
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>dependency-maven-plugin</artifactId>
+          <executions>
+	    <execution>
+	      <phase>compile</phase>
+	      <goals>
+		<goal>copy-dependencies</goal>
+              </goals>		       
+              <configuration>
+                <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              </configuration>
+              <!--artifactItems>
+	          <artifactItem>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                    <version>3.8.1</version>
+                    <type>jar</type>
+                    <outputDirectory>${project.build.directory}/jars</outputDirectory>
+                  </artifactItem>
+            </artifactItems>
+	      </configuration-->
+	    </execution>
+	  </executions>
+        </plugin>
+        
+      </plugins>       
+    </build>
+
+</project>

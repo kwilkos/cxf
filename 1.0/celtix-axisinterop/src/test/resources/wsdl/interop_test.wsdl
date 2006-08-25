@@ -1,0 +1,494 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest" 
+    targetNamespace="http://soapinterop.org/celtix"
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://soapinterop.org/celtix"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <types>
+    <schema elementFormDefault="qualified"
+        targetNamespace="http://soapinterop.org/celtix"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <element name="echoString" type="xsd:string"/>
+      <element name="echoStringResponse" type="xsd:string"/>
+      <complexType name="ArrayOfstring">
+        <sequence>
+          <!--element maxOccurs="unbounded" minOccurs="1" name="string" type="xsd:string"/-->
+          <element maxOccurs="unbounded" minOccurs="1" name="echoStringArray" type="xsd:string"/>
+        </sequence>
+      </complexType>
+      <element name="echoStringArray" type="tns:ArrayOfstring"/>
+      <element name="echoStringArrayResponse" type="tns:ArrayOfstring"/>
+      <element name="echoInteger" type="xsd:int"/>
+      <element name="echoIntegerResponse" type="xsd:int"/>
+      <element name="echoFloat" type="xsd:float"/>
+      <element name="echoFloatResponse" type="xsd:float"/>
+      <complexType name="SOAPStruct">
+        <all>
+          <element name="varFloat" type="float"/>
+          <element name="varInt" type="int"/>
+          <element name="varString" type="string"/>
+        </all>
+      </complexType>
+      <element name="echoStruct" type="tns:SOAPStruct"/>
+      <element name="echoStructResponse" type="tns:SOAPStruct"/>
+      <element name="echoBase64" type="xsd:base64Binary"/>
+      <element name="echoBase64Response" type="xsd:base64Binary"/>
+      <element name="echoDate" type="xsd:date"/>
+      <element name="echoDateResponse" type="xsd:date"/>
+      <element name="echoDateTime" type="xsd:dateTime"/>
+      <element name="echoDateTimeResponse" type="xsd:dateTime"/>
+      <element name="echoHexBinary" type="xsd:hexBinary"/>
+      <element name="echoHexBinaryResponse" type="xsd:hexBinary"/>
+      <element name="echoDecimal" type="xsd:decimal"/>
+      <element name="echoDecimalResponse" type="xsd:decimal"/>
+      <element name="echoBoolean" type="xsd:boolean"/>
+      <element name="echoBooleanResponse" type="xsd:boolean"/>
+      <element name="echoToken" type="xsd:token"/>
+      <element name="echoTokenResponse" type="xsd:token"/>
+      <element name="echoNormalizedString" type="xsd:normalizedString"/>
+      <element name="echoNormalizedStringResponse" type="xsd:normalizedString"/>
+      <element name="echoUnsignedInt" type="xsd:unsignedInt"/>
+      <element name="echoUnsignedIntResponse" type="xsd:unsignedInt"/>
+      <element name="echoUnsignedLong" type="xsd:unsignedLong"/>
+      <element name="echoUnsignedLongResponse" type="xsd:unsignedLong"/>
+      <element name="echoUnsignedShort" type="xsd:unsignedShort"/>
+      <element name="echoUnsignedShortResponse" type="xsd:unsignedShort"/>
+      <element name="echoUnsignedByte" type="xsd:unsignedByte"/>
+      <element name="echoUnsignedByteResponse" type="xsd:unsignedByte"/>
+      <element name="echoNonNegativeInteger" type="xsd:nonNegativeInteger"/>
+      <element name="echoNonNegativeIntegerResponse" type="xsd:nonNegativeInteger"/>
+      <element name="echoPositiveInteger" type="xsd:positiveInteger"/>
+      <element name="echoPositiveIntegerResponse" type="xsd:positiveInteger"/>
+      <element name="echoNonPositiveInteger" type="xsd:nonPositiveInteger"/>
+      <element name="echoNonPositiveIntegerResponse" type="xsd:nonPositiveInteger"/>
+      <element name="echoNegativeInteger" type="xsd:negativeInteger"/>
+      <element name="echoNegativeIntegerResponse" type="xsd:negativeInteger"/>
+      <element name="echoVoid">
+        <complexType/>
+      </element>
+    </schema>
+  </types>
+
+  <message name="echoString">
+    <part name="in" element="tns:echoString"/>
+  </message>
+  <message name="echoStringResponse">
+    <part name="return" element="tns:echoStringResponse"/>
+  </message>
+  <message name="echoStringArray">
+    <part name="in" element="tns:echoStringArray"/>
+  </message>
+  <message name="echoStringArrayResponse">
+    <part name="return" element="tns:echoStringArrayResponse"/>
+  </message>
+  <message name="echoInteger">
+    <part name="in" element="tns:echoInteger"/>
+  </message>
+  <message name="echoIntegerResponse">
+    <part name="return" element="tns:echoIntegerResponse"/>
+  </message>
+  <message name="echoFloat">
+    <part name="in" element="tns:echoFloat"/>
+  </message>
+  <message name="echoFloatResponse">
+    <part name="return" element="tns:echoFloatResponse"/>
+  </message>
+  <message name="echoStruct">
+    <part name="in" element="tns:echoStruct"/>
+  </message>
+  <message name="echoStructResponse">
+    <part name="return" element="tns:echoStructResponse"/>
+  </message>
+  <message name="echoVoid">
+    <part name="in" element="tns:echoVoid"/>
+  </message>
+  <message name="echoBase64">
+    <part name="in" element="tns:echoBase64"/>
+  </message>
+  <message name="echoBase64Response">
+    <part name="return" element="tns:echoBase64Response"/>
+  </message>
+  <message name="echoDate">
+    <part name="in" element="tns:echoDate"/>
+  </message>
+  <message name="echoDateResponse">
+    <part name="return" element="tns:echoDateResponse"/>
+  </message>
+  <message name="echoDateTime">
+    <part name="in" element="tns:echoDateTime"/>
+  </message>
+  <message name="echoDateTimeResponse">
+    <part name="return" element="tns:echoDateTimeResponse"/>
+  </message>
+  <message name="echoHexBinary">
+    <part name="in" element="tns:echoHexBinary"/>
+  </message>
+  <message name="echoHexBinaryResponse">
+    <part name="return" element="tns:echoHexBinaryResponse"/>
+  </message>
+  <message name="echoDecimal">
+    <part name="in" element="tns:echoDecimal"/>
+  </message>
+  <message name="echoDecimalResponse">
+    <part name="return" element="tns:echoDecimalResponse"/>
+  </message>
+  <message name="echoBoolean">
+    <part name="in" element="tns:echoBoolean"/>
+  </message>
+  <message name="echoBooleanResponse">
+    <part name="return" element="tns:echoBooleanResponse"/>
+  </message>
+  <message name="echoToken">
+    <part name="in" element="tns:echoToken"/>
+  </message>
+  <message name="echoTokenResponse">
+    <part name="return" element="tns:echoTokenResponse"/>
+  </message>
+  <message name="echoNormalizedString">
+    <part name="in" element="tns:echoNormalizedString"/>
+  </message>
+  <message name="echoNormalizedStringResponse">
+    <part name="return" element="tns:echoNormalizedStringResponse"/>
+  </message>
+  <message name="echoUnsignedInt">
+    <part name="in" element="tns:echoUnsignedInt"/>
+  </message>
+  <message name="echoUnsignedIntResponse">
+    <part name="return" element="tns:echoUnsignedIntResponse"/>
+  </message>
+  <message name="echoUnsignedLong">
+    <part name="in" element="tns:echoUnsignedLong"/>
+  </message>
+  <message name="echoUnsignedLongResponse">
+    <part name="return" element="tns:echoUnsignedLongResponse"/>
+  </message>
+  <message name="echoUnsignedShort">
+    <part name="in" element="tns:echoUnsignedShort"/>
+  </message>
+  <message name="echoUnsignedShortResponse">
+    <part name="return" element="tns:echoUnsignedShortResponse"/>
+  </message>
+  <message name="echoUnsignedByte">
+    <part name="in" element="tns:echoUnsignedByte"/>
+  </message>
+  <message name="echoUnsignedByteResponse">
+    <part name="return" element="tns:echoUnsignedByteResponse"/>
+  </message>
+  <message name="echoNonNegativeInteger">
+    <part name="in" element="tns:echoNonNegativeInteger"/>
+  </message>
+  <message name="echoNonNegativeIntegerResponse">
+    <part name="return" element="tns:echoNonNegativeIntegerResponse"/>
+  </message>
+  <message name="echoPositiveInteger">
+    <part name="in" element="tns:echoPositiveInteger"/>
+  </message>
+  <message name="echoPositiveIntegerResponse">
+    <part name="return" element="tns:echoPositiveIntegerResponse"/>
+  </message>
+  <message name="echoNonPositiveInteger">
+    <part name="in" element="tns:echoNonPositiveInteger"/>
+  </message>
+  <message name="echoNonPositiveIntegerResponse">
+    <part name="return" element="tns:echoNonPositiveIntegerResponse"/>
+  </message>
+  <message name="echoNegativeInteger">
+    <part name="in" element="tns:echoNegativeInteger"/>
+  </message>
+  <message name="echoNegativeIntegerResponse">
+    <part name="return" element="tns:echoNegativeIntegerResponse"/>
+  </message>
+
+  <portType name="InteropTestPortType">
+    <operation name="echoString">
+      <input message="tns:echoString" name="echoString"/>
+      <output message="tns:echoStringResponse" name="echoStringResponse"/>
+    </operation>
+    <operation name="echoStringArray">
+      <input message="tns:echoStringArray" name="echoStringArray"/>
+      <output message="tns:echoStringArrayResponse" name="echoStringArrayResponse"/>
+    </operation>
+    <operation name="echoInteger">
+      <input message="tns:echoInteger" name="echoInteger"/>
+      <output message="tns:echoIntegerResponse" name="echoIntegerResponse"/>
+    </operation>
+    <operation name="echoFloat">
+      <input message="tns:echoFloat" name="echoFloat"/>
+      <output message="tns:echoFloatResponse" name="echoFloatResponse"/>
+    </operation>
+    <operation name="echoStruct">
+      <input message="tns:echoStruct" name="echoStruct"/>
+      <output message="tns:echoStructResponse" name="echoStructResponse"/>
+    </operation>
+    <operation name="echoVoid">
+      <input message="tns:echoVoid" name="echoVoid"/>
+    </operation>
+    <operation name="echoBase64">
+      <input message="tns:echoBase64" name="echoBase64"/>
+      <output message="tns:echoBase64Response" name="echoBase64Response"/>
+    </operation>
+    <operation name="echoDate">
+      <input message="tns:echoDate" name="echoDate"/>
+      <output message="tns:echoDateResponse" name="echoDateResponse"/>
+    </operation>
+    <operation name="echoDateTime">
+      <input message="tns:echoDateTime" name="echoDateTime"/>
+      <output message="tns:echoDateTimeResponse" name="echoDateTimeResponse"/>
+    </operation>
+    <operation name="echoHexBinary">
+      <input message="tns:echoHexBinary" name="echoHexBinary"/>
+      <output message="tns:echoHexBinaryResponse" name="echoHexBinaryResponse"/>
+    </operation>
+    <operation name="echoDecimal">
+      <input message="tns:echoDecimal" name="echoDecimal"/>
+      <output message="tns:echoDecimalResponse" name="echoDecimalResponse"/>
+    </operation>
+    <operation name="echoBoolean">
+      <input message="tns:echoBoolean" name="echoBoolean"/>
+      <output message="tns:echoBooleanResponse" name="echoBooleanResponse"/>
+    </operation>
+    <operation name="echoToken">
+      <input message="tns:echoToken" name="echoToken"/>
+      <output message="tns:echoTokenResponse" name="echoTokenResponse"/>
+    </operation>
+    <operation name="echoNormalizedString">
+      <input message="tns:echoNormalizedString" name="echoNormalizedString"/>
+      <output message="tns:echoNormalizedStringResponse" name="echoNormalizedStringResponse"/>
+    </operation>
+    <operation name="echoUnsignedInt">
+      <input message="tns:echoUnsignedInt" name="echoUnsignedInt"/>
+      <output message="tns:echoUnsignedIntResponse" name="echoUnsignedIntResponse"/>
+    </operation>
+    <operation name="echoUnsignedLong">
+      <input message="tns:echoUnsignedLong" name="echoUnsignedLong"/>
+      <output message="tns:echoUnsignedLongResponse" name="echoUnsignedLongResponse"/>
+    </operation>
+    <operation name="echoUnsignedShort">
+      <input message="tns:echoUnsignedShort" name="echoUnsignedShort"/>
+      <output message="tns:echoUnsignedShortResponse" name="echoUnsignedShortResponse"/>
+    </operation>
+    <operation name="echoUnsignedByte">
+      <input message="tns:echoUnsignedByte" name="echoUnsignedByte"/>
+      <output message="tns:echoUnsignedByteResponse" name="echoUnsignedByteResponse"/>
+    </operation>
+    <operation name="echoNonNegativeInteger">
+      <input message="tns:echoNonNegativeInteger" name="echoNonNegativeInteger"/>
+      <output message="tns:echoNonNegativeIntegerResponse" name="echoNonNegativeIntegerResponse"/>
+    </operation>
+    <operation name="echoPositiveInteger">
+      <input message="tns:echoPositiveInteger" name="echoPositiveInteger"/>
+      <output message="tns:echoPositiveIntegerResponse" name="echoPositiveIntegerResponse"/>
+    </operation>
+    <operation name="echoNonPositiveInteger">
+      <input message="tns:echoNonPositiveInteger" name="echoNonPositiveInteger"/>
+      <output message="tns:echoNonPositiveIntegerResponse" name="echoNonPositiveIntegerResponse"/>
+    </operation>
+    <operation name="echoNegativeInteger">
+      <input message="tns:echoNegativeInteger" name="echoNegativeInteger"/>
+      <output message="tns:echoNegativeIntegerResponse" name="echoNegativeIntegerResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="InteropTestDocLitBinding" type="tns:InteropTestPortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="echoString">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoString">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoStringResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoStringArray">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoStringArray">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoStringArrayResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoInteger">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoInteger">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoIntegerResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoFloat">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoFloat">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoFloatResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoStruct">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoStruct">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoStructResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoVoid">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoVoid">
+        <soap:body use="literal"/>
+      </input>
+    </operation>
+    <operation name="echoBase64">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoBase64">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoBase64Response">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoDate">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoDate">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoDateResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoDateTime">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoDateTime">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoDateTimeResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoHexBinary">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoHexBinary">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoHexBinaryResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoDecimal">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoDecimal">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoDecimalResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoBoolean">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoBoolean">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoBooleanResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoToken">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoToken">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoTokenResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoNormalizedString">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoNormalizedString">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoNormalizedStringResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoUnsignedInt">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoUnsignedInt">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoUnsignedIntResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoUnsignedLong">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoUnsignedLong">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoUnsignedLongResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoUnsignedShort">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoUnsignedShort">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoUnsignedShortResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoUnsignedByte">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoUnsignedByte">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoUnsignedByteResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoNonNegativeInteger">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoNonNegativeInteger">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoNonNegativeIntegerResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoPositiveInteger">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoPositiveInteger">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoPositiveIntegerResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoNonPositiveInteger">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoNonPositiveInteger">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoNonPositiveIntegerResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="echoNegativeInteger">
+      <soap:operation soapAction="" style="document"/>
+      <input name="echoNegativeInteger">
+        <soap:body use="literal"/>
+      </input>
+      <output name="echoNegativeIntegerResponse">
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+
+</definitions>

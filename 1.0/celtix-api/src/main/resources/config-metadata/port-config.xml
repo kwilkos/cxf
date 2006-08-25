@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus/jaxws/port-config">
+
+   <!-- configuration metadata for component Port  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/jaxws-types.xsd" namespace="http://celtix.objectweb.org/bus/jaxws/configuration/types"/>
+    
+    <cm:configItem>
+        <cm:name>address</cm:name>
+        <cm:type>xs:string</cm:type>
+        <cm:description>
+        Address to which the service should connect.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>bindingId</cm:name>
+        <cm:type>xs:string</cm:type>
+        <cm:description>
+        Binding to be used by the service.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>transportId</cm:name>
+        <cm:type>xs:string</cm:type>
+        <cm:description>
+        Transport to be used by the service. If not specified, the transport will be determined
+        by the form of the address.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>handlerChain</cm:name>
+        <cm:type>jaxws-types:handlerChainType</cm:type>
+        <cm:description>
+        Specifies the list of handlers to be used for the service. The list can contain a mix 
+        of logical and protocol handlers.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>systemHandlerChain</cm:name>
+        <cm:type>jaxws-types:systemHandlerChainType</cm:type>
+        <cm:description>
+        Specifies the list of system handlers to be used for the service. 
+        System handlers are created along with the client binding and - unlike
+        regular JAX-WS handlers - cannot be changed.
+        Their relative position w.r.t to regular handlers remains the same throughout
+        the lifetime of the binding.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>enableSchemaValidation</cm:name>
+        <cm:type>xs:boolean</cm:type>
+        <cm:description>
+            Schema validation is disabled by default.  Set this to true
+            to enable schema validation.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+    </cm:configItem>
+
+</cm:config>

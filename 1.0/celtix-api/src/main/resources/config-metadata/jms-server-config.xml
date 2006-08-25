@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
+    xmlns:jms="http://celtix.objectweb.org/transports/jms"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    namespace="http://celtix.objectweb.org/bus/transports/jms/jms-server-config"
+>
+
+    <cm:configImport namespace="http://celtix.objectweb.org/transports/jms" location="schemas/wsdl/jms.xsd"/>
+
+    <cm:configItem>
+        <cm:name>jmsServer</cm:name>
+        <cm:type>jms:JMSServerBehaviorPolicyType</cm:type>
+        <cm:description>JMS server configuration properties.
+            Used for configuring a JMS server behaviour.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- attribute values are defaulted -->
+        <jms:server></jms:server>
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>jmsAddress</cm:name>
+        <cm:type>jms:JMSAddressPolicyType</cm:type>
+        <cm:description>Policies for JMS Broker connection.</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <jms:address></jms:address>
+    </cm:configItem>
+</cm:config>
+

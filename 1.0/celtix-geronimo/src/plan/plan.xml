@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
+    configId="geronimo/celtix-deployer/1.2/car"
+    domain="geronimo.maven"
+    server="geronimo">
+
+
+  <!-- parent config -->
+  <import>
+    <groupId>geronimo</groupId>
+    <type>car</type>
+    <artifactId>j2ee-deployer</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </import>
+  
+  <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>celtix-geronimo</artifactId>
+    <version>1.0-beta-1</version>
+  </dependency>
+
+  <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>celtix-api</artifactId>
+    <version>1.0-beta-1</version>
+  </dependency>
+
+  <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>celtix-rt</artifactId>
+    <version>1.0-beta-1</version>
+  </dependency>
+
+  <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>celtix-common</artifactId>
+    <version>1.0-beta-1</version>
+  </dependency>
+
+  <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>wsdl4j</artifactId>
+    <version>1.5.2</version>
+  </dependency>
+
+ <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>spring-core</artifactId>
+    <version>1.2.5</version>
+  </dependency>
+
+ <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>spring-beans</artifactId>
+    <version>1.2.5</version>
+  </dependency>
+
+ <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>org.mortbay.jetty</artifactId>
+    <version>5.1.8</version>
+  </dependency>
+			
+	
+ <dependency>
+    <groupId>celtix</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxb-impl</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxws-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jaxb-impl</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+  
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>activation</artifactId>
+    <version>1.0.2</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jsr250-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3 </version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>jsr181-api</artifactId>
+    <version>2.0-JAXWS-2.0-EA3</version>
+  </dependency>
+
+  <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>saaj-api</artifactId>
+    <version>1.3</version>
+  </dependency>
+	
+ <dependency>
+  	<groupId>celtix</groupId>
+    <artifactId>saaj-impl</artifactId>
+    <version>1.3</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-j2ee-builder</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-deployment</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-webservices</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <dependency>
+    <groupId>geronimo</groupId>
+    <artifactId>geronimo-naming</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </dependency>
+
+  <!-- ensure that we only see our version of these classes -->
+  <hidden-classes>
+	  <!-- SAAJ --> 
+      <filter>javax.xml.soap</filter>
+  </hidden-classes>
+  <hidden-classes>
+	  <!-- SAAJ Implementation --> 
+      <filter>com.sun.xml.messaging</filter>
+  </hidden-classes>
+
+		
+  <gbean name="WebServiceBuilder" class="org.objectweb.celtix.geronimo.builder.CeltixBuilder">
+  </gbean>
+</configuration>
+

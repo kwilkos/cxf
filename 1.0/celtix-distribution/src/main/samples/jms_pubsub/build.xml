@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<project name="JMS Greeter pub-sub demo" default="build" basedir=".">
+
+    <import file="../common_build.xml"/>
+
+    <property name="wsdl.dir" location="${basedir}/wsdl"/>
+    <property name="wsdl.file" value="jms_greeter.wsdl"/>
+
+    <target name="client" description="run demo client" depends="build">
+        <property name="param1" value=""/>
+        <property name="param2" value=""/>
+        <property name="param3" value=""/>
+        <celtixrun classname="demo.jms_greeter.client.Client" jvmarg1="-Dceltix.config.file=file:///${basedir}/wsdl/jms_greeter_config.xml" param1="${basedir}/wsdl/jms_greeter.wsdl" param2="${op}" param3="${param1}" param4="${param2}" param5="${param3}"/>
+    </target>
+    
+
+    <target name="server" description="run demo server" depends="build">
+        <celtixrun classname="demo.jms_greeter.server.Server" jvmarg1="-Dceltix.config.file=file:///${basedir}/wsdl/jms_greeter_config.xml" param1="${basedir}/wsdl/jms_greeter.wsdl"/>
+    </target>
+
+    <target name="generate.code" unless="codegen.notrequired">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="${wsdl.file}"/>
+        <touch file="${codegen.timestamp.file}"/>
+    </target>        
+</project>

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<project name="hello world demo" default="build" basedir=".">
+
+    <import file="../common_build.xml"/>        
+        
+    <target name="client" description="run demo client" depends="build">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.hw.client.Client"
+            jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-client.xml"
+            param1="${basedir}/wsdl/hello_world.wsdl" 
+            param2="${op}" 
+            param3="${param}"/>
+    </target> 
+        
+    <target name="server" description="run demo server" depends="build">
+        <celtixrun classname="demo.hw.server.Server" 
+            jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-server.xml"
+            param1="${basedir}/wsdl/hello_world.wsdl"/>
+    </target>
+        
+    <target name="generate.code">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="hello_world.wsdl"/>
+    </target>
+    
+    <target name="war" depends="build">
+        <celtixwar wsdl="hello_world.wsdl" filename="helloworld.war"/>
+	</target>
+
+    <target name="client-servlet" description="run demo client hitting servlet" depends="build">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.hw.client.Client" param1="${base.url}/helloworld/celtix/hello_world" param2="${op}" param3="${param}"/>
+    </target> 
+</project>

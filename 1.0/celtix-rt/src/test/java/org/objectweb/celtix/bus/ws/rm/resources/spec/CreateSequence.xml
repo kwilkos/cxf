@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<S:Envelope xmlns:S="http://www.w3.org/2003/05/soap-envelope" 
+xmlns:wsrm="http://schemas.xmlsoap.org/ws/2005/02/rm" 
+xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"> 
+    <S:Header>
+        <wsa:MessageID>http://Business456.com/guid/0baaf88d-483b-4ecf-a6d8-a7c2eb546817</wsa:MessageID>
+        <wsa:To>http://fabrikam123.com/serviceB/123</wsa:To>
+        <wsa:Action>http://schemas.xmlsoap.org/ws/2005/02/rm/CreateSequence</wsa:Action>
+        <wsa:ReplyTo>
+            <wsa:Address>http://Business456.com/serviceA/789</wsa:Address>
+        </wsa:ReplyTo>
+    </S:Header>
+    <S:Body>
+        <wsrm:CreateSequence>
+            <wsrm:AcksTo>
+                <wsa:Address>http://Business456.com/serviceA/789</wsa:Address>
+            </wsrm:AcksTo>
+        </wsrm:CreateSequence>
+    </S:Body>
+</S:Envelope> 

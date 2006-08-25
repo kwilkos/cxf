@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:std-types="http://celtix.objectweb.org/configuration/types" 
+    xmlns:wsrm-conf="http://celtix.objectweb.org/bus/configuration/wsrm"
+    xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus/ws/rm/rm-config">
+
+   <!-- configuration metadata for component RMHandler  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    <cm:configImport location="schemas/configuration/wsrm-conf.xsd" namespace="http://celtix.objectweb.org/bus/configuration/wsrm"/>
+    <cm:configImport location="schemas/configuration/wsrm-policy.xsd" namespace="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"/>
+    
+    <cm:configItem>
+        <cm:name>rmAssertion</cm:name>
+        <cm:type>wsrm-policy:RMAssertionType</cm:type>
+        <cm:description>
+            Used for configuring an RM source.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <wsrm-policy:RMAssertion>
+            <wsrm-policy:BaseRetransmissionInterval Milliseconds="3000"/>
+            <wsrm-policy:ExponentialBackoff base="2"/>
+        </wsrm-policy:RMAssertion>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>sourcePolicies</cm:name>
+        <cm:type>wsrm-conf:sourcePolicyType</cm:type>
+        <cm:description>
+            Used for configuring an RM source.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>destinationPolicies</cm:name>
+        <cm:type>wsrm-conf:destinationPolicyType</cm:type>
+        <cm:description>
+            Used for configuring an RM destination.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- no default -->
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>store</cm:name>
+        <cm:type>wsrm-conf:storeType</cm:type>
+        <cm:description>
+            Used for configuring the RM persistent store.
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <wsrm-conf:store>
+            <wsrm-conf:store-name>File based store</wsrm-conf:store-name>
+            <wsrm-conf:store-class>org.objectweb.celtix.bus.ws.rm.persistence.file.RMFileStore</wsrm-conf:store-class>
+        </wsrm-conf:store>
+    </cm:configItem>
+    
+</cm:config>
