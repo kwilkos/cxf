@@ -1,0 +1,144 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.objectweb.celtix</groupId>
+    <artifactId>celtix-axisinterop</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-beta-1</version>
+    <name>Celtix Axis Interop Tests</name>
+    <url>http://celtix.objectweb.org/</url>
+
+    <parent>
+        <groupId>org.objectweb.celtix</groupId>
+        <artifactId>celtix</artifactId>
+        <version>1.0-beta-1</version>
+    </parent>
+
+    <properties>
+        <topDirectoryLocation>..</topDirectoryLocation>
+        <!-- Axis generated code causes unchecked warnings -->
+        <compile.flags>-Xlint:deprecation,fallthrough,finally</compile.flags>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-tools</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-rt</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objectweb.celtix</groupId>
+            <artifactId>celtix-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!---->
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!---->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.objectweb.celtix</groupId>
+                <artifactId>celtix-codegen-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/wsdl/axis_echo.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/test/resources/wsdl/celtix_echo.wsdl</wsdl>
+                                </wsdlOption>
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>axistools-maven-plugin</artifactId>
+                <configuration>
+                    <sourceDirectory>${basedir}/src/test/resources/wsdl</sourceDirectory>
+                    <outputDirectory>${basedir}/target/generated/src/test/java</outputDirectory>
+                    <packageSpace>org.soapinterop.axis</packageSpace>
+                    <serverSide>true</serverSide>
+                </configuration>
+                <dependencies>
+                    <!-- defaults to axis 1.2.1 which adds javax.mail
+                         as a transitive dependency. -->
+                    <dependency>
+                        <groupId>axis</groupId>
+                        <artifactId>axis</artifactId>
+                        <version>1.2</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>generate-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snapshots</id>
+            <name>Maven Plugin Repository</name>
+            <url>http://snapshots.maven.codehaus.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

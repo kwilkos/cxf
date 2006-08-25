@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata"
+    xmlns:im="http://celtix.objectweb.org/bus/instrumentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    namespace="http://celtix.objectweb.org/bus/instrumentation/instrumentation-config"
+>
+
+    <cm:configImport namespace="http://celtix.objectweb.org/bus/instrumentation" location="schemas/wsdl/instrumentation.xsd"/>
+
+    <cm:configItem>
+        <cm:name>InstrumentationControl</cm:name>
+        <cm:type>im:InstrumentationPolicyType</cm:type>
+        <cm:description>The Policy for instrumentation manager
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <!-- attribute values are defaulted -->
+        <im:instrumentation>
+        <im:InstrumentationEnabled>true</im:InstrumentationEnabled>
+        <im:JMXEnabled>false</im:JMXEnabled>
+        </im:instrumentation>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>MBServer</cm:name>
+        <cm:type>im:MBServerPolicyType</cm:type>
+        <cm:description>Policies for JMX MBeanServer</cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <im:MBServer>
+        	<im:PlatformMBeanServer>true</im:PlatformMBeanServer>
+        	<im:JMXConnector>
+        		<im:Threaded>false</im:Threaded>
+        		<im:Daemon>false</im:Daemon>
+        		<im:JMXServiceURL>service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi</im:JMXServiceURL>
+        	</im:JMXConnector>
+        </im:MBServer>        
+    </cm:configItem>   
+    
+</cm:config>

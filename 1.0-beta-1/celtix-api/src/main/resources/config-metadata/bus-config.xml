@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata
+    http://celtix.objectweb.org/configuration/metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus/bus-config">
+
+   <!-- configuration metadata for component Bus  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    
+    <cm:configItem>
+        <cm:name>bindingFactories</cm:name>
+        <cm:type>ct:classNamespaceMappingListType</cm:type>
+        <cm:description>        
+        Specifies (by classname) the binding factories to be registered with the bus,
+        and, for each factory, the list of supported binding URIs.  
+        </cm:description>   
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+        <ct:classNamespaceMappingListValue>
+            <ct:map>
+                <ct:classname>org.objectweb.celtix.bus.bindings.soap.SOAPBindingFactory</ct:classname>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
+                <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
+            </ct:map>
+            <ct:map>
+                <ct:classname>org.objectweb.celtix.bus.bindings.xml.XMLBindingFactory</ct:classname>
+                <ct:namespace>http://celtix.objectweb.org/bindings/xmlformat</ct:namespace>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
+            </ct:map>
+        </ct:classNamespaceMappingListValue>
+    </cm:configItem>
+    
+    <cm:configItem>
+        <cm:name>transportFactories</cm:name>
+        <cm:type>ct:classNamespaceMappingListType</cm:type>
+        <cm:description>
+        Specifies (by classname) the transport factories to be registered with the bus,
+        and, for each factory, the list of supported transport URIs.  
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>    
+        <ct:classNamespaceMappingListValue>
+            <ct:map>
+                <ct:classname>org.objectweb.celtix.bus.transports.http.HTTPTransportFactory</ct:classname>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
+                <ct:namespace>http://schemas.xmlsoap.org/wsdl/http/</ct:namespace>
+                <ct:namespace>http://celtix.objectweb.org/transports/http/configuration</ct:namespace>
+            </ct:map>
+            <ct:map>
+                <ct:classname>org.objectweb.celtix.bus.transports.jms.JMSTransportFactory</ct:classname>
+                <ct:namespace>http://celtix.objectweb.org/transports/jms</ct:namespace>
+                <ct:namespace>http://celtix.objectweb.org/transports/jms/configuration</ct:namespace>
+            </ct:map>
+        </ct:classNamespaceMappingListValue>
+    </cm:configItem>
+
+    <cm:configItem>
+        <cm:name>resourceResolvers</cm:name>
+        <cm:type>ct:stringListType</cm:type>
+        <cm:description>
+	  Specifies (by classname) the ResourceResolvers that are to be
+	  registered with the bus' ResourceManager
+        </cm:description>
+        <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>    
+        <ct:stringListValue>
+            <ct:item>org.objectweb.celtix.resource.ClasspathResolver</ct:item>
+            <ct:item>org.objectweb.celtix.resource.ClassLoaderResolver</ct:item>
+            <ct:item>org.objectweb.celtix.bus.jaxws.WebContextResourceResolver</ct:item>
+	</ct:stringListValue>
+    </cm:configItem>
+
+</cm:config>

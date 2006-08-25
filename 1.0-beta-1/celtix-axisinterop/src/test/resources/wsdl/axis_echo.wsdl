@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<definitions name="InteropTest" 
+    targetNamespace="http://soapinterop.org/celtix"
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://soapinterop.org/celtix"
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://soapinterop.org/celtix" location="interop_test.wsdl"/>
+
+  <service name="AxisEchoService">
+    <port binding="tns:InteropTestDocLitBinding" name="Echo">
+      <soap:address location="http://localhost:9360/axis/services/Echo"/>
+      <http-conf:client SendTimeout="30000" AllowChunking="false"/>
+      <!--http-conf:client SendTimeout="30000" AutoRedirect="true" AllowChunking="false"/-->
+    </port>
+  </service>
+
+</definitions>

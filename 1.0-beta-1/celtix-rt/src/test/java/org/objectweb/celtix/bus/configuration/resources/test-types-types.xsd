@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:tns="http://celtix.objectweb.org/configuration/test/types-types" 
+    targetNamespace="http://celtix.objectweb.org/configuration/test/types-types" 
+    elementFormDefault="qualified"
+>
+	
+	<!--
+        test configuration types
+    -->
+	<xs:simpleType name="bool">
+		<xs:restriction base="xs:boolean"/>
+	</xs:simpleType>
+	<xs:simpleType name="int">
+		<xs:restriction base="xs:integer"/>
+	</xs:simpleType>
+	<xs:simpleType name="longType">
+		<xs:restriction base="tns:longBaseType"/>
+	</xs:simpleType>
+	<xs:simpleType name="longBaseType">
+		<xs:restriction base="xs:long"/>
+	</xs:simpleType>
+	<xs:simpleType name="string">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:complexType name="boolList">
+		<xs:sequence>
+			<xs:element name="item" type="xs:boolean" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="addressType">
+		<xs:sequence>
+			<xs:element name="street" type="tns:string"/>
+			<xs:element name="number" type="tns:int"/>
+	    </xs:sequence>
+	</xs:complexType>
+</xs:schema>

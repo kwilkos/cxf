@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:sec="http://celtix.objectweb.org/bus/configuration/security"
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort" 
+        class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
+
+      <property name="address">
+          <value>
+              <ct:stringValue>
+                http://localhost:9000/SoapContext/SoapPort
+              </ct:stringValue>              
+          </value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">
+      
+      <property name="authorization">
+          <value>
+              <sec:authorization>
+                  <sec:UserName>User</sec:UserName>
+                  <sec:Password>celtix</sec:Password>
+              </sec:authorization>
+          </value>
+      </property>
+
+      <!-- If you have a proxy server, remove comment delimiters and edit the
+           values of ProxyServer and ProxyServerPort accordingly. -->
+
+  <!--
+      <property name="httpClient">
+          <value>
+              <http-conf:client ProxyServer="localhost" ProxyServerPort="5049" AutoRedirect="true"/>
+          </value>
+      </property>
+  -->
+
+  </bean>
+
+</beans>

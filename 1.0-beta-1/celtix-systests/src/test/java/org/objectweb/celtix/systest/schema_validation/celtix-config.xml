@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types"
+>
+  
+  <bean id="celtix.{http://objectweb.org/schema_validation}SchemaValidationService/SoapPort"
+        class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
+
+      <property name="enableSchemaValidation">
+          <value>true</value>
+      </property>
+  </bean>
+
+  <bean id="celtix.{http://objectweb.org/schema_validation}SchemaValidationService" 
+        class="org.objectweb.celtix.bus.jaxws.endpoint_config.spring.EndpointConfigBean">
+
+      <property name="enableSchemaValidation">
+          <value>true</value>
+      </property>
+  </bean>
+ 
+</beans>

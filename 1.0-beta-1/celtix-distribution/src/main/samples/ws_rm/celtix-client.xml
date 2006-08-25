@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM 
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration"
+       xmlns:wsrm-conf="http://celtix.objectweb.org/bus/configuration/wsrm"
+       xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
+       xmlns:jaxws-types="http://celtix.objectweb.org/bus/jaxws/configuration/types">
+
+    <!-- HTTP decoupled endpoint -->
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort.http-client"
+        class="org.objectweb.celtix.bus.transports.http.http_client_config.spring.HttpClientConfigBean">     
+        <property name="httpClient">
+            <value>
+                <http-conf:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
+            </value>
+        </property>
+    </bean>
+
+    <!-- RM Handler -->
+    <bean id="rm-handler-all" abstract="true">  
+        <property name="destinationPolicies">
+            <value>
+                <wsrm-conf:destinationPolicy>
+                    <wsrm-conf:acksPolicy intraMessageThreshold="0"/>
+                </wsrm-conf:destinationPolicy>
+            </value>
+        </property>
+        
+        <property name="rmAssertion">
+            <value>
+                <wsrm-policy:RMAssertion>         
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="2000"/>
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="0"/>
+                </wsrm-policy:RMAssertion>
+            </value>
+        </property>
+    </bean>   
+    
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService.rm-handler" 
+        class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean"
+        parent="rm-handler-all">
+    </bean>
+    
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort.rm-handler" 
+        class="org.objectweb.celtix.bus.ws.rm.rm_config.spring.RmConfigBean"
+        parent="rm-handler-all">         
+    </bean>
+
+    <!-- Handler chains -->
+    <bean id="celtix.{http://objectweb.org/hello_world_soap_http}SOAPService/SoapPort" 
+        class="org.objectweb.celtix.bus.jaxws.port_config.spring.PortConfigBean">
+        <!-- System handlers (for WS-Addressing and WS-RM) -->
+        <property name="systemHandlerChain">
+            <value>
+                <jaxws-types:system-handler-chain>
+                    <jaxws-types:preLogical>
+                        <jaxws-types:handler>
+                            <jaxws-types:handler-name>MAPAggregator</jaxws-types:handler-name>
+                            <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.MAPAggregator</jaxws-types:handler-class>
+                        </jaxws-types:handler>
+                        <jaxws-types:handler>
+                            <jaxws-types:handler-name>RMHandler</jaxws-types:handler-name>
+                            <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.RMHandler</jaxws-types:handler-class>
+                        </jaxws-types:handler>
+                    </jaxws-types:preLogical>
+                    <jaxws-types:postLogical/>
+                    <jaxws-types:preProtocol>
+                        <jaxws-types:handler>
+                            <jaxws-types:handler-name>RMSoapHandler</jaxws-types:handler-name>
+                            <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.rm.soap.RMSoapHandler</jaxws-types:handler-class>
+                        </jaxws-types:handler>
+                        <jaxws-types:handler>
+                            <jaxws-types:handler-name>MAPCodec</jaxws-types:handler-name>
+                            <jaxws-types:handler-class>org.objectweb.celtix.bus.ws.addressing.soap.MAPCodec</jaxws-types:handler-class>
+                        </jaxws-types:handler>
+                    </jaxws-types:preProtocol>
+                    <jaxws-types:postProtocol/>
+                </jaxws-types:system-handler-chain>
+            </value>
+        </property>
+        <!-- User handler (for snooping message headers) -->
+        <property name="handlerChain">
+            <value>
+                <jaxws-types:handler-chain>
+                    <jaxws-types:handler>
+                        <jaxws-types:handler-name>HeaderSnooper</jaxws-types:handler-name>
+                        <jaxws-types:handler-class>demo.ws_rm.common.HeaderSnooper</jaxws-types:handler-class>
+                    </jaxws-types:handler>
+                </jaxws-types:handler-chain>
+            </value>
+        </property>
+  </bean>
+ 
+</beans>

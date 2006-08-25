@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+xmlns:tns="http://celtix.objectweb.org/configuration/types" 
+targetNamespace="http://celtix.objectweb.org/configuration/types" 
+elementFormDefault="qualified" 
+>
+
+	<!-- 
+        global elements 
+            - can be referenced from other parts of this schema or from other schema documents
+            - can appear as root element in valid documents  
+    -->
+    
+	<xs:element name="booleanValue" type="xs:boolean"/>
+	<xs:element name="shortValue" type="xs:short"/>
+	<xs:element name="intValue" type="xs:int"/>
+	<xs:element name="integerValue" type="xs:integer"/>
+	<xs:element name="longValue" type="xs:long"/>
+	<xs:element name="floatValue" type="xs:float"/>
+	<xs:element name="doubleValue" type="xs:double"/>
+	<xs:element name="stringValue" type="xs:string"/>
+	
+	<xs:element name="unsignedShortValue" type="xs:unsignedShort"/>
+	<xs:element name="unsignedIntValue" type="xs:unsignedInt"/>
+	<xs:element name="unsignedLongValue" type="xs:unsignedLong"/>
+
+	<!--
+	<xs:element name="boolean" type="tns:booleanType"/>
+	<xs:element name="short" type="tns:shortType"/>
+	<xs:element name="int" type="tns:intType"/>
+	<xs:element name="integer" type="tns:integerType"/>
+	<xs:element name="long" type="tns:longType"/>
+	<xs:element name="float" type="tns:floatType"/>
+	<xs:element name="double" type="tns:doubleType"/>
+	<xs:element name="string" type="tns:stringType"/>
+	-->
+	
+	<xs:element name="stringListValue" type="tns:stringListType"/>
+	<xs:element name="classNamespaceMappingListValue" type="tns:classNamespaceMappingListType"/>
+	
+	<!--
+        Standard configuration types
+    -->
+    
+    <!--
+	<xs:simpleType name="booleanType">
+		<xs:restriction base="xs:boolean"/>
+	</xs:simpleType>
+	<xs:simpleType name="shortType">
+		<xs:restriction base="xs:short"/>
+	</xs:simpleType>
+	<xs:simpleType name="intType">
+		<xs:restriction base="xs:int"/>
+	</xs:simpleType>
+	<xs:simpleType name="integerType">
+		<xs:restriction base="xs:integer"/>
+	</xs:simpleType>
+	<xs:simpleType name="longType">
+		<xs:restriction base="xs:long"/>
+	</xs:simpleType>
+	<xs:simpleType name="floatType">
+		<xs:restriction base="xs:float"/>
+	</xs:simpleType>
+	<xs:simpleType name="doubleType">
+		<xs:restriction base="xs:double"/>
+	</xs:simpleType>
+	<xs:simpleType name="stringType">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	-->
+	
+	<xs:complexType name="stringListType">
+		<xs:sequence>
+			<xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="classNamespaceMappingType">
+		<xs:sequence>
+			<xs:element name="classname" type="xs:string"/>
+			<xs:sequence>
+				<xs:element name="namespace" type="xs:anyURI" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="classNamespaceMappingListType">
+		<xs:sequence id="mappings">
+			<xs:element name="map" type="tns:classNamespaceMappingType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

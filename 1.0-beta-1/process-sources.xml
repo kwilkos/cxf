@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project name="process-sources">
+    <target name="checkstyle.1"/>
+    <target name="checkstyle.true"/>
+    <target name="checkstyle.null" depends="checkstyle.false"/>
+    <target name="checkstyle.false" unless="no.checkstyle">
+        <taskdef resource="checkstyletask.properties"/>
+        <checkstyle config="${baselocation}/checkstyle.xml">
+            <fileset dir="." includes="src/**/*.java" excludes="src/**/build/**/*.java"/>
+        </checkstyle>
+    </target>
+
+    <target name="pmd.1" unless="no.pmd"/>
+    <target name="pmd.true" unless="no.pmd"/>
+    <target name="pmd.null" depends="pmd.false"/>
+    <target name="pmd.false" unless="no.pmd">
+        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask"/>
+        <pmd printToConsole="true" targetjdk="1.5" rulesetfiles="${basedir}/.ruleset" failonerror="true" failOnRuleViolation="true">
+            <fileset dir="." includes="src/**/*.java" excludes="src/**/build/**/*.java"/>
+        </pmd>
+    </target>
+</project>

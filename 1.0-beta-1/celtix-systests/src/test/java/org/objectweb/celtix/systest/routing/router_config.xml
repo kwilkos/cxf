@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans SYSTEM
+     "http://celtix.objectweb.org/configuration/spring/celtix-spring-beans.dtd">
+
+<beans
+    xmlns:ct="http://celtix.objectweb.org/configuration/types"
+    xmlns:rt-conf="http://celtix.objectweb.org/routing/configuration">
+
+  <bean id="celtix-st.router"
+        class="org.objectweb.celtix.routing.configuration.spring.ConfigurationBean">
+
+      <property name="routesWSDL">
+          <value>
+              <rt-conf:wsdlUrl>
+                  <rt-conf:url>/wsdl/router_noimport.wsdl</rt-conf:url>
+              </rt-conf:wsdlUrl>
+          </value>
+      </property>
+  </bean>
+<!--Add another bean id for e.g celtix-st2.router for starting a router with another bus-->
+</beans>

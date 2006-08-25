@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project name="hello world demo" default="build" basedir=".">
+    <property name="celtix.home" location="../../.."/>
+    <property name="thirdparty.classpath" value="${basedir}"/>
+
+    <!-- If in a source distro, find the right activemq dir -->
+    <condition property="activemq.home" value="${celtix.home}/../../tools/activemq/3.2">
+        <not>
+            <available file="${celtix.home}/lib/celtix.jar"/>
+        </not>
+    </condition>
+
+    <import file="../../common_build.xml"/>
+
+    <target name="server" description="run demo server" depends="build">
+        <celtixrun classname="demo.routing.server.Server"/>
+    </target>
+
+    <target name="jmsbroker" description="run ActiveMQ broker" depends="jmsbroker.start"/>
+
+    <target name="router" description="run celtix router">
+        <celtixrun classname="org.objectweb.celtix.routing.RouterManager" jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-router.xml" param1="-BUSid" param2="celtix-st"/>
+    </target>
+
+    <target name="client" description="run demo client" depends="build">
+        <celtixrun classname="demo.routing.client.Client" param1="${basedir}/wsdl/source.wsdl"/>
+    </target>
+
+    <target name="generate.code">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="target.wsdl"/>
+    </target>
+</project>
