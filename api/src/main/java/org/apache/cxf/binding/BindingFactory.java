@@ -1,4 +1,4 @@
-package org.apache.cxf.bindings;
+package org.apache.cxf.binding;
 
 import org.apache.cxf.service.model.BindingInfo;
 
