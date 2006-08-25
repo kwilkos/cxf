@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?><fileset-config file-format-version="1.1.0" simple-config="false">
+<fileset name="src" check-config-name="Celtix Checks" enabled="true"><file-match-pattern match-pattern="^src/.*java$" include-pattern="true"/>
+</fileset>
+<fileset name="unittest" check-config-name="Celtix Checks" enabled="true"><file-match-pattern match-pattern="^testunit/.*java$" include-pattern="true"/>
+</fileset>
+<fileset name="systest" check-config-name="Celtix Checks" enabled="true"><file-match-pattern match-pattern="^testsys/.*java$" include-pattern="true"/>
+</fileset>
+</fileset-config>

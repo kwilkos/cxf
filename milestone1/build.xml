@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project name="celtix" default="build" basedir=".">
+    <property file="build.properties"/>
+    <property file="etc/celtix.version"/>
+
+    <target name="build" depends="src.compile,unittest.compile,systest.compile,unit.test,system.test,release" description="Main build target"/>
+	<target name="test" depends="unit.test,system.test" description="Run unit and system tests"/>
+	
+    <target name="cruisecontrol.build" depends="very.clean,build" description="Main target for cruisecontrol"/>
+	
+
+    <property environment="env"/>
+    <fail unless="env.JAXWS_HOME">.
+            The JAXWS_HOME  environment variable is unset.  We use the
+            JAX-WS interfaces and the JAXB jars that are included in the
+            JAX-WS 2.0 Early Access release.   You need to download that from
+            https://jax-rpc.dev.java.net/jaxws20-ea2/, install it, and set
+            the JAXWS_HOME environment variable to the installation
+            directory.
+    </fail>
+
+    <!-- Find the location of the tools directory -->
+    <import file="etc/ant-inc/tools.xml"/>
+
+    <!-- Load the path definitions -->
+    <import file="etc/ant-inc/paths.xml"/>
+
+    <!-- Load the codegen targets -->
+    <import file="etc/ant-inc/codegen.xml"/>
+
+    <!-- Load the compile targets -->
+    <import file="etc/ant-inc/compile.xml"/>
+
+    <!-- Load the unit test targets -->
+    <import file="etc/ant-inc/unittest.xml"/>
+
+    <!-- Load the system test targets -->
+    <import file="etc/ant-inc/systest.xml"/>
+
+    <!-- Load the coverage targets -->
+    <import file="etc/ant-inc/coverage.xml"/>
+
+    <!-- Load the javadoc targets -->
+    <import file="etc/ant-inc/javadoc.xml"/>
+
+    <!-- Load the eclipse targets -->
+    <import file="etc/ant-inc/eclipse.xml"/>
+
+    <!-- Load the release targets -->
+    <import file="etc/ant-inc/release.xml"/>
+	
+	<!-- Target to clean the build dir -->
+    <target name="clean" description="Clean the build artifacts">
+        <delete quiet="true" includeemptydirs="true">
+            <fileset dir="build">
+                 <include name="classes/**/*"/>
+                 <include name="classes-tests/wsdl/**/*"/>
+                 <include name="classes-tests/unit/**/*"/>
+                 <include name="classes-tests/system/**/*"/>
+                 <include name="src/**/*"/>
+                 <include name="test-src/**/*"/>
+                 <include name="set_env*"/>
+            </fileset>
+        </delete>
+        <delete quiet="true" dir="build/coverage"/>
+        <delete quiet="true" dir="build/classes-instrumented"/>
+        <delete quiet="true" dir="build/testresults"/>
+        <delete quiet="true" dir="${build.release.dir}"/>
+        <delete quiet="true" dir="${build.lib.dir}"/>
+        <delete quiet="true" dir="${build.package.dir}"/>
+        <delete quiet="true" dir="${basedir}/build/javadoc"/>
+        <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
+        <delete quiet="true" file="run"/>
+        <delete quiet="true" file="run.bat"/>
+    </target>
+    <target name="very.clean" description="Clean the build artifacts, generated artifacts and directories">
+        <delete quiet="true" dir="build"/>
+        <delete quiet="true" dir="${tools.dir}/tomcat/5.5.9/server/work"/>
+    </target>
+
+</project>

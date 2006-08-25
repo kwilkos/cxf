@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<project name="celtix-unittests" basedir="../..">
+    <!-- Targets for running the unittests -->
+
+    <!-- Load the compile targets -->
+    <import file="compile.xml"/>
+    <import file="./common_test.xml"/>
+    <import file="coverage.xml"/>
+       
+    <target name="unit.test" description="Run the unit tests" depends="src.compile,unittest.compile,unit.test.nodeps"/>
+        
+        
+    <target name="unit.test.nodeps" depends="clean.instrumented" description="Run the unit tests">
+    	<runjunittest type="unit"/>        
+    </target>
+</project>

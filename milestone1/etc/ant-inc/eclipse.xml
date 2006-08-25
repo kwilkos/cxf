@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<project name="celtix-eclipse" basedir="../..">
+    <!-- Targets for generating an eclipse project -->
+
+    <import file="paths.xml"/>
+    <import file="compile.xml"/>
+
+    <property name="eclipse.project.name" value="celtix"/>
+    <property name="eclipse.project.workspace" value="${basedir}/../workspace"/>
+
+    <target name="generate.eclipse.project" description="Generates an eclipse project"
+        depends="src.compile,unittest.compile,generate.eclipse.project.dirs,generate.eclipse.workspace.checkstyle,generate.eclipse.project.checkstyle,generate.eclipse.project.classpath,generate.eclipse.project.project,generate.eclipse.project.settings"/>
+
+    <target name="generate.eclipse.project.dirs">
+        <mkdir dir="${eclipse.project.workspace}"/>
+        <mkdir dir="${eclipse.project.workspace}/.metadata"/>
+        <mkdir dir="${eclipse.project.workspace}/.metadata/.plugins"/>
+        <mkdir dir="${eclipse.project.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
+        <mkdir dir="${eclipse.project.workspace}/${eclipse.project.name}/"/>
+        <mkdir dir="${eclipse.project.workspace}/${eclipse.project.name}/"/>
+        <mkdir dir="${eclipse.project.workspace}/${eclipse.project.name}/.settings"/>
+    </target>
+
+    <target name="generate.eclipse.workspace.checkstyle">
+        <copy file="${basedir}/etc/eclipse/template.checkstyle-config.xml"
+            tofile="${eclipse.project.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
+            overwrite="yes">
+            <filterset>
+                <filter token="CHECKSTYLE_CONFIG_FILE" value="${basedir}${file.separator}etc${file.separator}checkstyle.xml"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <target name="generate.eclipse.project.checkstyle">
+        <copy file="${basedir}/etc/eclipse/template.checkstyle"
+            tofile="${eclipse.project.workspace}/${eclipse.project.name}/.checkstyle"
+            overwrite="yes"/>
+    </target>
+
+    <target name="generate.eclipse.project.classpath">
+        <property name="classpath.entry.prefix" value="        &lt;classpathentry kind=&quot;lib&quot; path=&quot;"/>
+        <property name="classpath.entry.suffix" value="&quot;/&gt;${line.separator}"/>
+        
+        <pathconvert refid="unit.test.classpath" property="classpath.entries" 
+            pathsep="${classpath.entry.suffix}${classpath.entry.prefix}" dirsep="/">
+            <mapper type="glob" from="*.jar" to="*.jar"/>
+        </pathconvert>
+        <echo file="${eclipse.project.workspace}/${eclipse.project.name}/.classpath" append="false"
+             message="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;${line.separator}&lt;classpath&gt;${line.separator}        &lt;classpathentry sourcepath=&quot;JRE_SRC&quot; kind=&quot;var&quot; path=&quot;JRE_LIB&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;src&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes&quot; kind=&quot;src&quot; path=&quot;buildsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/wsdl&quot; kind=&quot;src&quot; path=&quot;testsrc&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/unit&quot; kind=&quot;src&quot; path=&quot;testunit&quot;/&gt;${line.separator}        &lt;classpathentry output=&quot;classes-tests/system&quot; kind=&quot;src&quot; path=&quot;testsys&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;etc&quot;/&gt;${line.separator}        &lt;classpathentry kind=&quot;src&quot; path=&quot;schemas&quot;/&gt;${line.separator}${classpath.entry.prefix}${classpath.entries}${classpath.entry.suffix}        &lt;classpathentry kind=&quot;lib&quot; path=&quot;${junit.jar}&quot;/&gt;${line.separator}&lt;/classpath&gt;${line.separator}"/>
+    </target>
+
+    <target name="generate.eclipse.project.project">
+        <pathconvert property="base.dir" targetos="unix">
+            <path>
+                <pathelement location="${basedir}"/>
+            </path>
+        </pathconvert>
+        <filterset id="eclipse.project.filterset">
+            <filter token="PROJECT_NAME" value="${eclipse.project.name}"/>
+            <filter token="TEST_UNIT_DIR" value="${base.dir}/test/unit"/>
+            <filter token="TEST_SYS_DIR" value="${base.dir}/test/system"/>
+            <filter token="SCHEMAS_DIR" value="${base.dir}/schemas"/>
+            <filter token="BUILD_SRC_DIR" value="${base.dir}/build/src"/>
+            <filter token="ETC_DIR" value="${base.dir}/etc"/>
+            <filter token="BUILD_CLASSES_TESTS_DIR" value="${base.dir}/build/classes-tests"/>
+            <filter token="BUILD_CLASSES_DIR" value="${base.dir}/build/classes"/>
+            <filter token="SRC_DIR" value="${base.dir}/src"/>
+            <filter token="BUILD_TEST_SRC_DIR" value="${base.dir}/build/test-src"/>
+            <filter token="BUILD_FILE" value="${base.dir}/build.xml"/>
+        </filterset>
+        <copy file="${basedir}/etc/eclipse/template.project"
+            tofile="${eclipse.project.workspace}/${eclipse.project.name}/.project"
+            overwrite="yes">
+            <filterset refid="eclipse.project.filterset"/>	   
+        </copy> 
+    </target>
+
+    <target name="generate.eclipse.project.settings" depends="generate.eclipse.project.core.prefs,generate.eclipse.project.ui.prefs"/>
+
+    <target name="generate.eclipse.project.core.prefs">
+        <xslt in="${basedir}/etc/eclipse/CeltixCodeFormatter.xml"
+            out="${eclipse.project.workspace}/${eclipse.project.name}/.settings/org.eclipse.jdt.core.prefs"
+            style="${basedir}/etc/eclipse/org.eclipse.jdt.core.prefs.xsl">
+            <param name="offset" expression="${deploy.port.offset}"/>
+        </xslt>
+    </target>
+
+    <target name="generate.eclipse.project.ui.prefs">
+        <copy file="${basedir}/etc/eclipse/template.org.eclipse.jdt.ui.prefs"
+            tofile="${eclipse.project.workspace}/${eclipse.project.name}/.settings/org.eclipse.jdt.ui.prefs"
+            overwrite="yes"/>
+    </target>
+</project>

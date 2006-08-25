@@ -1,0 +1,15 @@
+#!/bin/sh
+# run the Celtix wsdl2java tool 
+#
+
+if [ ${CELTIX_HOME-"x"} == "x" ]; then
+    echo "The CELTIX_HOME environment variable is unset.  Please set CELTIX_HOME"
+    echo "envionment variable to the location of the Celtix installation"
+    return 1
+fi
+
+source $CELTIX_HOME/bin/celtix_env
+
+java -Djaxws.home=$JAXWS_HOME org.objectweb.celtix.tools.Wsdl2Java "$@"
+
+

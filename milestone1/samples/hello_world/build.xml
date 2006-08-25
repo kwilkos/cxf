@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<project name="hello world demo" default="build" basedir=".">
+
+    <property environment="env"/>
+    <fail unless="env.JAXWS_HOME">.
+            The JAXWS_HOME  environment variable is unset.  We use the
+            JAX-WS interfaces and the JAXB jars that are included in the
+            JAX-WS 2.0 Early Access release.   You need to download that from
+            https://jax-rpc.dev.java.net/jaxws20-ea2/, install it, and set
+            the JAXWS_HOME environment variable to the installation
+            directory.
+    </fail>
+
+    <import file="../common_build.xml"/>
+
+    <property name="wsdl.dir" location="${basedir}/wsdl"/>
+    <property name="wsdl.file" value="hello_world.wsdl"/>
+
+    <target name="client" description="run demo client">
+      <celtixrun classname="demo.hw.client.Client" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
+    </target>	
+    
+    <target name="server" description="run demo server">
+      <celtixrun classname="demo.hw.server.Server" wsdl="${basedir}/wsdl/hello_world.wsdl"/>
+    </target>	
+</project>

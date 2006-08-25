@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project name="celtix-tools" basedir="../..">
+
+    <!--
+    Find the location of our tools directory.   This can be one of three places
+    depending on where we are building from:
+
+    1)  Tagged releases
+       celtix/tags/.   - the tags will have the tools copied into the tag like:
+           celtix/tags/1.0/tools
+           celtix/tags/1.0/src
+           ....
+        Thus, the path is ${basedir}/tools
+
+    2) celtix/trunk development.   The path is ${basedir}/../tools
+
+    3) celtix/branch/my_branch_name development.   The path is 
+    ${basedir}/../../tools
+
+    We'll check the three places (in that order) and figure out which one
+    to use and set the tools.dir property to that location
+    -->
+
+
+    <available property="tools.dir.property" value="./tools" file="./tools"/>
+
+    <condition property="tools.dir.property" value="../tools">
+        <and>
+            <not>
+                <isset property="tools.dir.property"/>
+            </not>
+            <available filepath="../" file="tools" type="dir"/>
+        </and>
+    </condition>
+
+    <condition property="tools.dir.property" value="../../tools">
+        <and>
+            <not>
+                <isset property="tools.dir.property"/>
+            </not>
+            <available filepath="../../" file="tools" type="dir"/>
+        </and>
+    </condition>
+
+    <property name="tools.dir" location="${basedir}/${tools.dir.property}"/>
+</project>
+
