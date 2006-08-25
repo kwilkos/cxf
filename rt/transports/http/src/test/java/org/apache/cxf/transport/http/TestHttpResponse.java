@@ -1,4 +1,4 @@
-package org.apache.cxf.transports.http;
+package org.apache.cxf.transport.http;
 
 import java.io.OutputStream;
 

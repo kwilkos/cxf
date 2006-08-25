@@ -1,4 +1,4 @@
-package org.apache.cxf.transports.jms;
+package org.apache.cxf.transport.jms;
 
 public final class JMSConstants {
     

@@ -1,4 +1,4 @@
-package org.apache.cxf.transports.jms;
+package org.apache.cxf.transport.jms;
 
 import java.io.IOException;
 import java.util.Collection;
