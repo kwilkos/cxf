@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.cxf.transports.http.HTTPTransportFactory" deferred="true">
+    <extension class="org.apache.cxf.transport.http.HTTPTransportFactory" deferred="true">
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
         <namespace>http://cxf.apache.org/transports/http/configuration</namespace>
     </extension>
     
-    <extension class="org.apache.cxf.transports.http.HTTPTransportFactory" deferred="true">
+    <extension class="org.apache.cxf.transport.http.HTTPTransportFactory" deferred="true">
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
