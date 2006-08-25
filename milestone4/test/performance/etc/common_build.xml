@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<!-- common build targets for Celtix demos -->
+<project name="celtix-demo-common">
+
+
+    <!-- Setup for building in a source build -->
+    <import file="../../../celtix-distribution/target/srcbuild_paths.xml" optional="true"/>
+    <property name="srcbuild.classpath" value=""/>
+
+
+    <property name="build.dir" location ="${basedir}/build"/>
+    <property name="build.classes.dir" location ="${build.dir}/classes"/>
+    <property name="build.src.dir" location ="${build.dir}/src"/>
+
+    <!-- define the default argument for performance test client to run -->
+    <property name="celtix.running.time" value="30"/>
+    <property name="celtix.basedon" value=""/>
+    <property name="celtix.operation" value="echoString"/>
+    <property name="celtix.packet.size" value="1" />
+    <property name="celtix.threads" value="2"/>
+    <!-- find the tools jar, which on darwin, tools.jar does not exist -->
+    <property environment="env"/>
+    <available property="tools.jar" value="${env.JAVA_HOME}/lib/tools.jar"
+           file="${env.JAVA_HOME}/lib/tools.jar"/>
+
+    <path id="jdk.tools.classpath">
+        <pathelement location="${tools.jar}"/>
+    </path>
+
+    <condition property="is.java.version.15">
+        <equals arg1="${ant.java.version}" arg2="1.5"/>
+    </condition>
+
+    <fail message="Celtix requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
+      unless="is.java.version.15"/>
+  
+
+    <condition property="celtix.home" value="${env.CELTIX_HOME}">
+        <isset property="env.CELTIX_HOME"/>
+    </condition>
+    <property name="celtix.home" value="../../.."/>
+
+    <property name="celtix.etc.dir" location="../../etc"/>
+
+    <target name="build"  depends="generate.code,compile" description="build demo client and server"/>
+
+    <property name="celtix.lib.dir" value="${celtix.home}/lib"/>
+
+    <path id="celtix.build.classpath">
+        <pathelement path="${srcbuild.classpath}"/>
+        <pathelement location="${basedir}/build/classes"/>
+        <pathelement location="${basedir}/../base/build/classes"/>
+        <pathelement location="${celtix.home}/lib/celtix.jar"/>
+        <pathelement location="${celtix.home}/build/lib/celtix.jar"/>
+        <fileset dir="${celtix.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+  
+
+
+    <path id="celtix.runtime.classpath">
+        <path refid="celtix.build.classpath"/>
+    </path>
+
+    <macrodef name="celtix.perform.run">
+        <attribute name="classname"/>
+        <attribute name="argline" default=""/>
+        <sequential>
+            <java classname="@{classname}" fork="yes" maxMemory="512M">
+                <jvmarg value="-Xms512M"/>
+                <classpath refid="celtix.runtime.classpath"/>
+                <arg line="@{argline}"/>
+                <!--
+                <assertions>
+                    <enable package="org.objectweb.celtix"/>
+                </assertions>
+                -->
+                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <target name="init">
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.src.dir}"/>
+    </target>
+
+    <target name="compile" depends="generate.code">
+        <javac srcdir="${basedir}/src" destdir="${basedir}/build/classes"
+           debug="true">
+            <classpath refid="celtix.build.classpath"/>
+        </javac>
+        <copy todir="${basedir}/build/classes">
+            <fileset dir="${basedir}/src" includes="**/*.xml"/>
+        </copy>
+    </target>
+
+    <target name="checkstyle">
+        <checkstyle config="${checkstyle.config.file}">
+            <fileset dir="src" includes="**/*.java"/>
+            <classpath>
+                <path refid="celtix.build.classpath"/>
+            </classpath>
+        </checkstyle>
+    </target>
+
+    <target name="generate.code" depends="init">
+        <uptodate property="codegen.notrequired" value="true">
+            <srcfiles dir="${wsdl.dir}" includes="*"/>
+            <mapper type="merge" to="${build.src.dir}/.CODEGEN.DONE"/>
+        </uptodate>
+        <antcall target="codegen.internal"/>
+    </target>
+
+    <target name="codegen.internal" unless="codegen.notrequired">
+        <wsdltojava file="${wsdl.dir}/${wsdl.file}" destdir="${build.classes.dir}"
+            srcdestdir="${build.src.dir}"/>
+        <touch file="${build.src.dir}/.CODEGEN.DONE"/>
+    </target>
+  
+
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+
+    <!-- targets and tasks for code generation -->
+
+    <macrodef name="wsdltojava">
+        <attribute name="srcdestdir"/>
+        <attribute name="destdir"/>
+        <attribute name="file"/>
+        <attribute name="package" default="NOT_SPECIFIED"/>
+        <sequential>
+            <mkdir dir="@{destdir}"/>
+            <mkdir dir="@{srcdestdir}"/>
+            <condition property="package.arg.@{file}" value="-p @{package}">
+                <not>
+                    <equals arg1="@{package}" arg2="NOT_SPECIFIED"/>
+                </not>
+            </condition>
+            <property name="package.arg.@{file}" value=""/>
+            <java failonerror="true" classname="com.sun.tools.ws.WsImport" fork="yes">
+                <classpath refid="celtix.build.classpath"/>
+                <sysproperty key="java.util.logging.config.file" value="${celtix.etc.dir}/logging.properties"/>
+                <arg line="${package.arg.@{file}}"/>
+                <arg value="-keep"/>
+                <arg value="-s"/>
+                <arg value="@{srcdestdir}"/>
+                <arg value="-d"/>
+                <arg value="@{destdir}"/>
+                <arg value="@{file}"/>
+            </java>
+        </sequential>
+    </macrodef>
+</project>

@@ -1,0 +1,118 @@
+Celtix Milestone 3 Release Notes
+
+1. New Features
+
+  Added in Milestone 4:
+    * Migration of build system to Maven 2.0.
+    * Source Code Organization for better reuse. 
+    * Support for JAX-WS Dispatch and Provider API's.
+    * Support for non-wrapper Doc/Literal Style.
+    * Celtix based WSDLToJava and JavaToWSDL commandline Tools.
+    * Infrastructure support for WS-RM.
+
+  Added in Milestone 3:
+    * HTTP 1.1 transport.
+    * HTTP servlet transport.
+    * Support for SOAP 1.1 headers.
+    * JMS transport based on Active MQ.
+    * Support for WS-Addressing.
+    * Support for JAX-WS 2.0 async client APIs.
+    * Enhanced type support testing.
+    * Preliminary implementation of Celtix code generation tools.
+    * Release under the EPL and the LPGL.
+    * Policy based configuration.
+    * StreamHandler APIs are implemented.
+
+  Added in Milestone 2a:
+    * Support for inout and out variables.
+    * Resolved issues with schema primitive types.
+    * Improved server side binding support.
+
+  Added in Milestone 2:
+
+    * Enhanced Binding API for better pluggability. 
+    * Support for Protocol and Logical Handlers and Context. 
+    * SOAP 1.1 support for Doc/Rpc literal and Faults. 
+    * Complete support for JAX-WS Sync and One-Way API's. 
+    
+  Added in Milestone 1:
+
+    * Working end-to-end Hello World SOAP/HTTP scenario. 
+    * First cut of transport and binding API's 
+    * Minimal support for SOAP 1.1 and HTTP 1.1 
+    * Java-to-WSDL and WSDL-to-Java tools. 
+
+
+2. Installation Prerequisites 
+
+Before installing Celtix Milestone 4, you must ensure that the following products
+with the specified versions are installed on your system:
+
+    * Java 5 developer's kit.
+    * Apache ant 1.6.
+
+
+2.1 Java 5 developer's kit
+
+You need to install the J2SE Development Kit (JDK) 5.0, which can be downloaded from
+the following location:
+
+    http://java.sun.com/j2se/1.5.0/download.jsp
+
+After installing the JDK, you should set or modify the following environment variables:
+
+    * JAVA_HOME environment variable - set this environment variable
+      to point at the root directory of the JDK 5.0 installation.
+
+    * PATH environment variable - ensure that your PATH includes the 
+      %JAVA_HOME%\bin directory (Windows) 
+      or, $JAVA_HOME/bin directory (UNIX).
+
+If you are planning on building Celtix from the source distribution you should use
+version 1.5.0_06 of the JDK. Earlier versions will result in a number of compiler warnings
+when build Celtix. The warnings can be ignored.
+
+2.2 Apache ant 1.6
+
+If you are planning to install the binary distribution of Celtix, you must
+install the Apache ant 1.6 build utility, which can be downloaded from the
+following location:
+
+    http://ant.apache.org/bindownload.cgi
+
+After installing Apache ant, add the <AntInstallDir>/bin directory to your PATH.
+
+If you are planning to install the source distribution of Celtix, you can optionally
+use the ant installation provided with that distribution.
+For more details, see the Celtix Installation Guide.
+
+
+3. Known Problems
+
+3.1 HTTP
+There is an issue with the Jetty HTTP that prevents Celtix from being able to 
+shutdown the actual port listener.   If you programmatically remove the last endpoint
+published on a port, the listener will remain running on the port, but will only 
+serve 404 (not found) errors to all client connections.
+
+
+3.2 JMS
+
+3.2.1 WS-Addressing Support
+The JMS transport does not currently use policy based configuration, or support WS-Addressing.
+
+3.2.2 Pubsub Demo
+The pubsub demo fails when the following is done:
+1. Start JMS Broker, Server and run client this works fine.
+2. Kill JMS Broker, kill server.
+3. Again Start JMS Broker, Server and run client this works fine.
+4. Kill JMS Broker, Kill server.
+5. Start JMS Broker and Start Server, this time Server will hang and will not show "Server Ready"
+
+The work around is to ensure to clean up database before running the demo.
+This can be done by calling "ant clean"
+
+4. Reporting Problems
+
+If you have any problems or want to send feedback of any kind, please e-mail the
+Celtix dev list, celtix-dev@objectweb.org. 

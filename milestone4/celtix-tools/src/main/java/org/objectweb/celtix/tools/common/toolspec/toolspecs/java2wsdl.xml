@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The xhtml namespace is for usage documentation -->
+<toolspec xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xmlns:xhtml="http://www.w3.org/TR/xhtml1/strict"
+	  xsi:schemaLocation="http://www.xsume.com/Xutil/ToolSpecification http://www.xsume.com/schema/xutil/tool-specification.xsd"
+	  xmlns="http://www.xsume.com/Xutil/ToolSpecification"
+	  xmlns:ts="http://www.xsume.com/Xutil/ToolSpecification">
+
+    <annotation> Examples :
+    java2wsdl org.objectweb.hello_world_soap_http.Greeter
+    java2wsdl -o hello.wsdl org.objectweb.hello_world_soap_http.Greeter
+    java2wsdl -o hello.wsdl -t http://celtix.objectweb.org org.objectweb.hello_world_soap_http.Greeter
+    </annotation>
+
+    <usage>
+
+	<optionGroup id="options">
+	    <option id="outputfile" maxOccurs="1">
+		<annotation>The wsdl output file name.</annotation>
+		<switch>o</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>output-file</annotation>
+		</associatedArgument>
+	    </option>
+<!--
+	    <option id="porttype" maxOccurs="1">
+		<annotation>Specify the porttype/interface name to use in the wsdl.</annotation>
+		<switch>i</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>port-type-name</annotation>
+		</associatedArgument>
+	    </option>
+-->
+	    <option id="tns" maxOccurs="1">
+		<annotation>Specify the target namespace to use in the wsdl.</annotation>
+		<switch>t</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>target-namespace</annotation>
+		</associatedArgument>
+	    </option>
+<!--
+	    <option id="schemans" maxOccurs="1">
+		<annotation>Specify the schema namespace to use in the wsdl.</annotation>
+		<switch>x</switch>
+		<associatedArgument placement="afterSpace">
+		    <annotation>schema-namespace</annotation>
+		</associatedArgument>
+	    </option>
+
+	    <option id="usetypes" maxOccurs="1">
+		<annotation>Specify whether to use types instead of elements in the wsdl. If not specified,
+		uses element.
+		</annotation>
+		<switch>useTypes</switch>
+	    </option>
+-->
+
+	</optionGroup>
+
+	<optionGroup id="common_options">
+	    <option id="help" maxOccurs="1">
+		<annotation>Display detailed information for options.</annotation>
+		<switch>h</switch>
+		<switch>?</switch>
+		<switch>help</switch>
+	    </option>
+	    
+	    <option id="version">
+		<annotation>Display the version of the tool.</annotation>
+		<switch>v</switch>
+	    </option>
+
+	    <option id="verbose">
+		<annotation>Verbose mode</annotation>
+		<switch>verbose</switch>
+		<switch>V</switch>
+	    </option>
+
+	    <option id="quiet">
+		<annotation>Quiet mode</annotation>
+		<switch>quiet</switch>
+		<switch>q</switch>
+	    </option>
+
+
+	</optionGroup>
+
+	<argument id="classname" minOccurs="1" maxOccurs="1">
+	    <annotation>class-name</annotation>
+	</argument>
+    </usage>
+</toolspec>

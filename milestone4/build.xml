@@ -1,0 +1,119 @@
+<project name="Celtix">
+
+    <!-- Targets for cruisecontrol to use -->
+    <target name="cruisecontrol.build">
+        <delete file="build.out"/>
+        <delete file="build.out.clean"/>
+        <exec executable="mvn" dir="${basedir}" failonerror="false" output="build.out.clean" logError="true">
+            <arg line="clean -Drelease"/>
+        </exec>
+        <exec executable="mvn" dir="${basedir}" failonerror="false" resultproperty="build.result" output="build.out" logError="true">
+            <arg line="install -Dsurefire.fork.mode=once -Drelease"/>
+        </exec>
+        <condition property="build.failed">
+            <not>
+                <equals arg1="${build.result}" arg2="0"/>
+            </not>
+        </condition>
+        <loadfile property="build.out" srcFile="build.out">
+            <filterchain>
+                <tailfilter lines="25"/>
+            </filterchain>
+        </loadfile>
+        <antcall target="echo.failure"/>
+        <fail if="build.failed">Build Failed</fail>
+    </target>
+
+
+    <target name="cruisecontrol.build.distribution">
+        <delete file="celtix-distribution/build.out"/>
+        <delete file="celtix-distribution/build.out.clean"/>
+        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" output="celtix-distribution/build.out.clean" logError="true">
+            <arg line="clean -Drelease"/>
+        </exec>
+        <exec executable="mvn" dir="${basedir}/celtix-distribution" failonerror="false" resultproperty="build.result"
+            output="celtix-distribution/build.out" logError="true">
+            <arg line="install -Drelease"/>
+        </exec>
+
+
+        <condition property="build.failed">
+            <not>
+                <equals arg1="${build.result}" arg2="0"/>
+            </not>
+        </condition>
+        <loadfile property="build.out" srcFile="celtix-distribution/build.out">
+            <filterchain>
+                <tailfilter lines="25"/>
+            </filterchain>
+        </loadfile>
+        <antcall target="echo.failure"/>
+        <fail if="build.failed">Build Failed</fail>
+    </target>
+    <target name="echo.failure" if="build.failed">
+        <echo level="error" message="Tail of log: ${build.out}"/>
+    </target>
+
+
+
+
+    <target name="setup.eclipse">
+        <condition property="bat.ext" value=".bat">
+            <os family="windows"/>
+        </condition>
+        <property name="bat.ext" value=""/>
+
+        <property name="eclipse.workspace" value="../workspace"/>
+        <property name="eclipse.downloadSources" value="true"/>
+        <exec executable="mvn${bat.ext}" dir="${basedir}">
+            <arg line="install -Dfastinstall"/>
+        </exec>
+        <exec executable="mvn${bat.ext}" dir="${basedir}">
+            <arg line="eclipse:add-maven-repo -Declipse.workspace=${eclipse.workspace}"/>
+        </exec>
+
+        <mkdir dir="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings"/>
+        <mkdir dir="${eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
+
+        <!-- Add checkstyle config -->
+        <copy file="${basedir}/etc/eclipse/template.checkstyle-config.xml"
+            tofile="${eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
+            overwrite="yes">
+            <filterset>
+                <filter token="CHECKSTYLE_CONFIG_FILE" value="${basedir}${file.separator}checkstyle.xml"/>
+            </filterset>
+        </copy>
+
+        <!-- Add warning flags that we want -->
+        <propertyfile file="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs">
+            <entry key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore"/>
+            <entry key="org.eclipse.jdt.core.compiler.problem.unusedImport" value="ignore"/>
+        </propertyfile>
+
+
+        <!-- Add code format rules -->
+        <concat destfile="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs"
+            append="true" fixlastline="true">
+            <filelist dir="${basedir}/etc/eclipse" files="org.eclipse.jdt.core.prefs"/>
+        </concat>
+        <loadfile property="eclipse.code.format" srcFile="${basedir}/etc/eclipse/CeltixCodeFormatter.xml"/>
+        <loadfile property="eclipse.code.templates" srcFile="${basedir}/etc/eclipse/codetemplates.xml"/>
+        <propertyfile file="${eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
+            <entry key="formatter_profile" value="_Celtix Java Conventions"/>
+            <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}"/>
+            <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}"/>
+
+            <!-- Add import order -->
+            <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;junit;com;org;"/>
+            <!-- Sort order -->
+            <entry key="org.eclipse.jdt.ui.visibility.order" value="B,R,D,V,"/>
+            <entry key="outlinesortoption" value="T,SF,F,SI,I,C,SM,M,"/>
+            <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true"/>
+        </propertyfile>
+
+
+        <exec executable="mvn${bat.ext}" dir="${basedir}">
+            <arg line="eclipse:eclipse -Declipse.downloadSources=${eclipse.downloadSources}"/>
+        </exec>
+    </target>
+</project>

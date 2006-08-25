@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project name="soap header demo" default="build" basedir=".">
+
+    <import file="../common_build.xml"/>
+
+    <target name="client" description="run demo client">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.soap_header.client.Client" param1="${basedir}/wsdl/soap_header.wsdl" param2="${op}" param3="${param}"/>
+    </target>
+
+    <target name="server" description="run demo server">
+        <celtixrun classname="demo.soap_header.server.Server" param1="${basedir}/wsdl/soap_header.wsdl"/>
+    </target>
+
+    <target name="generate.code">
+        <echo level="info" message="Generating code using wsdl2java..."/>
+        <wsdl2java file="soap_header.wsdl"/>
+    </target>
+    
+    
+    <target name="war" depends="build">
+        <celtixwar wsdl="soap_header.wsdl" filename="soapheader.war"/>
+	</target>
+
+    <target name="client-servlet" description="run demo client hitting servlet">
+        <property name="param" value=""/>
+        <celtixrun classname="demo.soap_header.client.Client" param1="${base.url}/soapheader/celtix/soap_header" param2="${op}" param3="${param}"/>
+    </target>           
+</project>

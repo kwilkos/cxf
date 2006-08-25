@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="HelloWorldService" targetNamespace="http://celtix.objectweb.org/HelloWorld" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:tns="http://celtix.objectweb.org/HelloWorld" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://celtix.objectweb.org/HelloWorld/xsd">
+    <message name="greetMe">
+        <part name="stringParam0" type="xsd:string"/>
+    </message>
+    <message name="greetMeResponse">
+        <part name="return" type="xsd:string"/>
+    </message>
+    
+    <portType name="HelloWorldPortType">
+        <operation name="greetMe">
+            <input message="tns:greetMe" name="greetMe"/>
+            <output message="tns:greetMeResponse" name="greetMeResponse"/>
+        </operation>
+    </portType>
+    
+    <binding name="HelloWorldPortBinding" type="tns:HelloWorldPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="greetMe">
+            <soap:operation soapAction="" style="rpc"/>
+            <input name="greetMe">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+            </input>
+            <output name="greetMeResponse">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://celtix.objectweb.org/HelloWorld" use="encoded"/>
+            </output>
+        </operation>       
+    </binding>
+    
+    <service name="HelloWorldService">
+        <port binding="tns:HelloWorldPortBinding" name="HelloWorldPort">
+            <soap:address location="http://localhost:9876"/>
+			<http-conf:server SendTimeout="60000"/>
+			<http-conf:client ReceiveTimeout="90000"/>
+        </port>
+    </service>
+</definitions>
+
+
