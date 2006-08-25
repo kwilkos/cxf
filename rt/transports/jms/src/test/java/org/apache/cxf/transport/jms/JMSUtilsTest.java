@@ -6,7 +6,6 @@ import javax.naming.Context;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.transport.jms.JMSUtils;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 import org.apache.cxf.transports.jms.JMSNamingPropertyType;
 

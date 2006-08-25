@@ -27,14 +27,9 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transport.http.HTTPConduitConfiguration;
-import org.apache.cxf.transport.http.ServerEngine;
-import org.apache.cxf.transport.http.URLConnectionFactory;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.mortbay.http.HttpHandler;

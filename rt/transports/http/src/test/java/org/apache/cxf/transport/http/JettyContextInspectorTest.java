@@ -2,10 +2,8 @@ package org.apache.cxf.transport.http;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.transport.http.JettyContextInspector;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-
 import org.mortbay.http.HttpContext;
 
 

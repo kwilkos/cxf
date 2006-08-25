@@ -29,17 +29,12 @@ import org.apache.cxf.transport.AbstractCachedOutputStream;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.http.HTTPDestinationConfiguration;
-import org.apache.cxf.transport.http.JettyHTTPDestination;
-import org.apache.cxf.transport.http.ServerEngine;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.mortbay.http.handler.AbstractHttpHandler;
-
 
 import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
 

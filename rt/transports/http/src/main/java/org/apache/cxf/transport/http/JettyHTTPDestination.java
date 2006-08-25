@@ -20,10 +20,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 
-
-
 import org.apache.cxf.Bus;
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -33,8 +30,6 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
-
-
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;

@@ -7,7 +7,6 @@ import javax.jms.Session;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.transport.jms.PooledSession;
 import org.easymock.classextension.EasyMock;
 
 public class PooledSessionTest extends TestCase {

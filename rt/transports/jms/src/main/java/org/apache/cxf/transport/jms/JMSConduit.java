@@ -9,14 +9,10 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-
-
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;

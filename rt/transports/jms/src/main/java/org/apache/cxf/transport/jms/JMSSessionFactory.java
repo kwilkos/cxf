@@ -23,8 +23,6 @@ import javax.naming.NamingException;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.AbstractTwoStageCache;
-//import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-//import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
 import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
