@@ -1,0 +1,8 @@
+<handler-config> 
+  <handler-chain> 
+    <handler-chain-name>TestHandlerChain</handler-chain-name> 
+    <handler> 
+      <handler-name>DummyHandler0</handler-name> 
+    </handler> 
+  </handler-chain> 
+</handler-config> 

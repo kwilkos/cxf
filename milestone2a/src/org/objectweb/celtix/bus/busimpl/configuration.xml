@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://celtix.objectweb.org/configuration/metadata
+    http://celtix.objectweb.org/configuration/metadata.xsd"
+    namespace="http://celtix.objectweb.org/bus">
+
+   <!-- configuration metadata for test component top  -->
+   
+    <cm:configImport location="/org/objectweb/celtix/configuration/types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    
+    <!-- items with default values --> 
+    
+    <cm:configItem>
+		<cm:name>bindingFactories</cm:name>
+		<cm:type>ct:classNamespaceMappingList</cm:type>
+		<cm:description>		
+		Specifies (by classname) the binding factories to be registered with the bus,
+		and, for each factory, the list of supported binding URIs.  
+	    </cm:description>	
+	    <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>
+		<ct:classNamespaceMappingList>
+		    <ct:map>
+		        <ct:classname>org.objectweb.celtix.bus.bindings.soap.SOAPBindingFactory</ct:classname>
+		        <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
+		        <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/http</ct:namespace>
+		    </ct:map>
+		</ct:classNamespaceMappingList>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>transportFactories</cm:name>
+		<cm:type>ct:classNamespaceMappingList</cm:type>
+		<cm:description>
+		Specifies (by classname) the transport factories to be registered with the bus,
+		and, for each factory, the list of supported transport URIs.  
+	    </cm:description>
+	    <cm:lifecyclePolicy>bus</cm:lifecyclePolicy>	
+		<ct:classNamespaceMappingList>
+		    <ct:map>
+		        <ct:classname>org.objectweb.celtix.bus.transports.http.HTTPTransportFactory</ct:classname>
+		        <ct:namespace>http://schemas.xmlsoap.org/wsdl/soap/</ct:namespace>
+		        <ct:namespace>http://celtix.objectweb.org/transports/http/configuration</ct:namespace>
+		    </ct:map>
+		</ct:classNamespaceMappingList>
+	</cm:configItem>
+	
+</cm:config>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project name="celtix-coverage" basedir="../..">
+    <!-- Targets for generating code coverage metrics -->
+    <import file="compile.xml"/>
+    <import file="unittest.xml"/>
+    
+    <target name="unit.test.coverage" depends="instrument.src,unit.test,coverage.report"
+        description="Run the unit tests in coverage mode and generate a coverage report"/>
+    
+    <target name="clean.instrumented" unless="emma.enabled">
+    	<delete dir="build/classes-instrumented" quiet="true"/>
+    </target>
+    
+    <target name="instrument.src" depends="src.compile">
+    	<delete dir="build/classes-instrumented" quiet="true"/>
+        <mkdir dir="build/classes-instrumented"/>
+    	<emma enabled="true">
+            <instr instrpath="build/classes"
+                   destdir="build/classes-instrumented"
+                   mode="copy"
+                   metadatafile="build/classes-instrumented/coverage.em">
+                <filter excludes="*Type"/>
+                <filter excludes="*.ObjectFactory"/>
+                <filter excludes="*.package-info"/>
+                <filter excludes="org.objectweb.celtix.wsdl.T*"/>
+                <filter excludes="*.spring.BeanGenerator"/>
+            </instr>
+        </emma>
+        <property name="emma.enabled" value="true"/>
+    </target>
+    
+    <target name="coverage.report">
+        <emma enabled="true" >
+            <report>
+                <!-- collect all EMMA data dumps (metadata and runtime): -->
+                <infileset dir="." includes="**/*.em, **/*.ec" />
+
+                <sourcepath location="src"/>
+                <sourcepath location="build/src"/>
+                <html outfile="build/coverage/index.html"/>
+            </report>
+        </emma>    
+    </target>
+    
+</project>

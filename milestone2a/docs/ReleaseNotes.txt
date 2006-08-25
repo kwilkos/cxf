@@ -1,0 +1,121 @@
+Celtix Milestone 2 Release Notes
+
+1. Features
+
+  Added in Milestone 2a:
+    * Support for inout and out variables.
+    * Resolved issues with schema primitive types.
+    * Improved server side binding support.
+
+  Added in Milestone 2:
+
+    * Enhanced Binding API for better pluggability. 
+    * Support for Protocol and Logical Handlers and Context. 
+    * SOAP 1.1 support for Doc/Rpc literal and Faults. 
+    * Complete support for JAX-WS Sync and One-Way API's. 
+    
+  Added in Milestone 1:
+
+    * Working end-to-end Hello World SOAP/HTTP scenario. 
+    * First cut of transport and binding API's 
+    * Minimal support for SOAP 1.1 and HTTP 1.1 
+    * Java-to-WSDL and WSDL-to-Java tools. 
+    * Added in Milestone 2 
+
+
+2. Installation Prerequisites 
+
+Before installing Celtix Milestone 2, you must ensure that the following 
+products with the specified versions are installed on your system:
+
+    * Java 5 developer’s kit.
+    * Apache ant 1.6.
+
+
+2.1 Java 5 developer’s kit
+
+You need to install the J2SE Development Kit (JDK) 5.0, which can be 
+downloaded from the following location:
+
+    http://java.sun.com/j2se/1.5.0/download.jsp
+
+After installing the JDK, you should set or modify the following 
+environment variables:
+
+    * JAVA_HOME environment variable — set this environment variable
+      to point at the root directory of the JDK 5.0 installation.
+
+    * PATH environment variable — ensure that your PATH includes the 
+      %JAVA_HOME%\bin directory (Windows) 
+      or, $JAVA_HOME/bin directory (UNIX).
+
+
+2.2 Apache ant 1.6
+
+If you are planning to install the binary distribution of Celtix, you must
+install the Apache ant 1.6 build utility, which can be downloaded from the
+following location:
+
+    http://ant.apache.org/bindownload.cgi
+
+After installing Apache ant, add the <AntInstallDir>/bin directory to
+your PATH.
+
+If you are planning to install the source distribution of Celtix, 
+you can optionally use the ant installation provided with that distribution.
+For more details, see Installation Instructions below.
+
+
+3. Installation Instructions
+
+You can install Celtix on any Operating System that supports the 
+Java 5 platform. To install Celtix Milestone 2, perform the following steps:
+
+   1. Unpack the .tgz file into a directory of your choice, <CeltixInstallDir>. 
+      You can use Gnu tar and gunzip on UNIX-like systems or the Winzip 
+      utility on Windows for that purpose.
+   2. Set the environment variable, CELTIX_HOME, to point to the directory, 
+      <CeltixInstallDir>/celtix.
+   3. If you are installing the source distribution and you want to use the 
+      version of ant included in this distribution, add the 
+      $CELTIX_HOME/tools/ant/1.6.5/bin directory to your PATH.
+   4. If you are installing the source distribution, you must build the 
+      celtix.jar JAR file. To build the JAR file, open a command prompt, 
+      change directory to $CELTIX_HOME, and enter ant celtix.jar.
+
+
+4. Testing the Installation
+
+To test the installation of Celtix, try running the Hello World demonstration,
+located in $CELTIX_HOME/samples/hello_world. To build and run the Hello World
+demonstration, perform the following steps:
+
+   1. Open a command prompt and change directory to 
+      $CELTIX_HOME/samples/hello_world.
+   2. Enter the command, ant build, to build the demonstration.
+   3. Open a new command prompt, change directory to the 
+      $CELTIX_HOME/samples/hello_world directory, and enter the command,
+      ant server. The server takes a few seconds to start up.
+   4. From the first command prompt, enter the command, 
+      ant client -Dop=sayHi. 
+      See the README.txt file for more client options.
+   5. To terminate the server process, type Ctrl-C in the server window.
+
+5. Running the Unit and System Tests
+
+If you have installed the source distribution of Celtix, you can run the full
+suite of unit and system tests by performing the following steps:
+
+   1. Add $CELTIX_HOME/tools/junit/3.8.1/junit.jar to your CLASSPATH. 
+      Note: Alternatively, you could add the junit.jar file to the lib 
+      directory of your ant installation.
+   2. Change directory to $CELTIX_HOME, and enter the command, 
+      ant test.
+
+The build.xml file in CELTIX_HOME provides several targets for compiling 
+and running tests. For a summary of the targets, enter ant -projecthelp. 
+
+6. Reporting Problems
+
+If you have any problems or want to send feedback of any kind, 
+please e-mail the Celtix dev list, celtix-dev@objectweb.org. 

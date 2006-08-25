@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8" ?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><SOAP-ENV:Body><ns4:testInt xmlns:ns4="http://objectweb.org/type_test"><ns4:x>5</ns4:x><ns4:y>10</ns4:y></ns4:testInt></SOAP-ENV:Body></SOAP-ENV:Envelope>

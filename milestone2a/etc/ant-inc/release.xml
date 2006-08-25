@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<project name="celtix-release" basedir="../../">
+    <import file="compile.xml"/>
+    <import file="javadoc.xml"/>
+
+    <target name="release" depends="celtix.jar,publicapi.javadoc,check.samples"
+        description="Build a release kit">
+
+        <mkdir dir="${build.release.dir}"/>
+        <mkdir dir="${build.release.dir}/bin"/>
+        <mkdir dir="${build.release.dir}/samples"/>
+        <copy todir="${build.release.dir}">
+            <fileset dir="${basedir}">
+                <include name="LICENSE"/>
+                <include name="NOTICE"/>
+            </fileset>
+        </copy>
+        <copy includeEmptyDirs="false" todir="${build.release.dir}/bin">
+            <fileset dir="${basedir}/bin">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        <copy includeEmptyDirs="false" todir="${build.release.dir}/etc">
+            <fileset dir="${basedir}/etc">
+                <include name="logging.properties"/>
+            </fileset>
+        </copy>    	
+        <copy includeEmptyDirs="false" todir="${build.release.dir}/samples">
+            <fileset dir="${basedir}/samples">
+                <include name="**/*"/>
+                <exclude name="**/build/**/*"/>
+                <exclude name="**/build"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.release.dir}/lib">
+            <fileset dir="${build.lib.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.release.dir}/lib">
+            <fileset dir="${tools.dir}">
+                <include name="wsdl4j/**/*"/>
+                <include name="tomcat/**/*"/>
+                <include name="jaxws-ri/**/*"/>
+                <include name="spring/**/*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.release.dir}/docs">
+            <fileset dir="${basedir}/docs">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.release.dir}/docs/api">
+            <fileset dir="${basedir}/build/javadoc/api">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+		
+        <delete dir="${build.package.dir}" quiet="true"/>
+        <mkdir dir="${build.package.dir}"/>
+
+        <tar compression="gzip"
+            destfile="${build.package.dir}/celtix-${celtix.version}-bin.tgz">
+            <tarfileset prefix="celtix" dir="${build.release.dir}">
+                <include name="**/*"/>
+                <exclude name="**/tomcat/**/work/**/*"/>
+                <exclude name="**/*.wc"/>
+                <exclude name="bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix" dir="${build.release.dir}" mode="755">
+                <include name="bin/*"/>
+            </tarfileset>
+        </tar>
+        <tar compression="gzip"
+            destfile="${build.package.dir}/celtix-${celtix.version}-src.tgz">
+            <tarfileset prefix="celtix" dir="${basedir}">
+                <include name="**/*"/>
+                <exclude name="build"/>
+                <exclude name="build/**/*"/>
+                <exclude name="samples/**/build/**/*"/>
+                <exclude name="**/.*"/>
+                <exclude name="NOTICE"/>
+                <exclude name="**/tomcat/**/work/**/*"/>
+                <exclude name="bin/*"/>
+                <exclude name="tools/**/bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix" dir="${build.release.dir}" mode="755">
+                <include name="bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix" dir="${basedir}" mode="755">
+                <include name="tools/**/bin/*"/>
+            </tarfileset>
+            <tarfileset prefix="celtix" dir="${basedir}">
+                <include name=".ruleset"/>
+            </tarfileset>
+        </tar>
+    </target>
+	
+    <target name="celtix.jar" depends="src.compile" description="build the celtix jar">
+        <mkdir dir="${build.lib.dir}"/>
+	<pathconvert dirsep="/" pathsep=" " property="manifest.classpath" refid="runtime.classpath">
+	  <!-- remove the location specific parts -->
+	  <map from="${tools.dir}${file.separator}" to=""/>
+	</pathconvert>
+
+        <jar destfile="${celtix.jar}"
+             basedir="${build.classes.dir}">
+            <metainf dir="${basedir}/etc/metainf"/>
+            <manifest>
+                <attribute name="Class-Path" value="${manifest.classpath}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="check.samples">
+        <check.sample sample.dir="samples/handlers"/>
+        <check.sample sample.dir="samples/hello_world"/>
+        <check.sample sample.dir="samples/hello_world_RPCLit"/>
+    </target>
+
+    <macrodef name="check.sample">
+        <attribute name="sample.dir"/>
+        <sequential>
+            <ant dir="@{sample.dir}" target="compile" inheritAll="false"/>
+            <ant dir="@{sample.dir}" target="checkstyle" inheritAll="false">
+                <property name="checkstyle.config.file" location="${basedir}/etc/checkstyle.xml"/>
+            </ant>
+        </sequential>
+    </macrodef>
+</project>
