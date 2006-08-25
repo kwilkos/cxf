@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm:config 
+    xmlns:cm="http://celtix.objectweb.org/configuration/metadata" 
+    xmlns:ct="http://celtix.objectweb.org/configuration/types" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    namespace="http://celtix.objectweb.org/configuration/test/meta8">
+
+   <!-- default values for all standard types  -->
+   
+    <cm:configImport location="schemas/configuration/std-types.xsd" namespace="http://celtix.objectweb.org/configuration/types"/>
+    
+    <cm:configItem>
+		<cm:name>booleanItem</cm:name>
+		<cm:type>xs:boolean</cm:type>
+		<ct:booleanValue>true</ct:booleanValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>shortItem</cm:name>
+		<cm:type>xs:short</cm:type>
+		<ct:shortValue>3</ct:shortValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>intItem</cm:name>
+		<cm:type>xs:int</cm:type>
+		<ct:intValue>44959</ct:intValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>integerItem</cm:name>
+		<cm:type>xs:integer</cm:type>
+		<ct:integerValue>44959</ct:integerValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>longItem</cm:name>
+		<cm:type>xs:long</cm:type>
+		<ct:longValue>-99</ct:longValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>floatItem</cm:name>
+		<cm:type>xs:float</cm:type>
+		<ct:floatValue>1234.5678</ct:floatValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>doubleItem</cm:name>
+		<cm:type>xs:double</cm:type>
+		<ct:doubleValue>1234.5678</ct:doubleValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>stringItem</cm:name>
+		<cm:type>xs:string</cm:type>
+		<ct:stringValue>"Hello World!"</ct:stringValue>
+	</cm:configItem>
+	
+	<cm:configItem>
+		<cm:name>stringListItem</cm:name>
+		<cm:type>ct:stringListType</cm:type>
+		<ct:stringListValue>
+		    <ct:item>a</ct:item>
+		    <ct:item>b</ct:item>
+		    <ct:item>c</ct:item>
+		</ct:stringListValue>		
+	</cm:configItem>
+	
+</cm:config>
