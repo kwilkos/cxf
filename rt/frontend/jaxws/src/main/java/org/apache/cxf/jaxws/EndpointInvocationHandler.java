@@ -28,13 +28,14 @@ import org.apache.cxf.service.model.OperationInfo;
 public final class EndpointInvocationHandler extends BindingProviderImpl implements InvocationHandler {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
+
     // private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     private Endpoint endpoint;
+
     private Client client;
 
-    private Map<Method, BindingOperationInfo> infoMap
-        = new ConcurrentHashMap<Method, BindingOperationInfo>();
+    private Map<Method, BindingOperationInfo> infoMap = new ConcurrentHashMap<Method, BindingOperationInfo>();
 
     EndpointInvocationHandler(Client c, Binding b) {
         super(b);
@@ -49,7 +50,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         BindingOperationInfo oi = getOperationInfo(proxy, method);
 
         // REVISIT - Holder objects, etc...
-        
+
         Object[] params = args;
         if (null == params) {
             params = new Object[0];
@@ -78,44 +79,41 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             }
 
             InterfaceInfo ii = endpoint.getService().getServiceInfo().getInterface();
-   
-            OperationInfo oi = ii.getOperation(new QName(endpoint.getService().getName().getNamespaceURI(),
-                                                         operationName));
+            QName oiQName = new QName(endpoint.getService().getName().getNamespaceURI(), operationName);
+            OperationInfo oi = ii.getOperation(oiQName);
             if (null == oi) {
                 Message msg = new Message("NO_OPERATION_INFO", LOG, operationName);
                 throw new WebServiceException(msg.toString());
             }
-            //found the OI in the Interface, now find it in the binding
-            for (BindingOperationInfo boi2 : endpoint.getEndpointInfo().getBinding().getOperations()) {
-                if (boi2.getOperationInfo() == oi) {
-                    if (boi2.isUnwrappedCapable()) {
-                        try {
-                            Class requestWrapper = getRequestWrapper(method);
-                            Class responseWrapper = getResponseWrapper(method);
-                            
-                            if (requestWrapper != null || responseWrapper != null) {
-                                BindingOperationInfo boi3 = boi2.getUnwrappedOperation();
-                                oi = boi3.getOperationInfo();
-                                oi.setProperty(WrapperClassOutInterceptor.SINGLE_WRAPPED_PART,
-                                               requestWrapper);
-                                boi2.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
-                                                                    Boolean.TRUE);
-                                infoMap.put(method, boi3);
-                                return boi3;
-                            }
-                        } catch (ClassNotFoundException cnfe) {
-                            cnfe.printStackTrace();
-                            //TODO - exception
+            // found the OI in the Interface, now find it in the binding
+            BindingOperationInfo boi2 = endpoint.getEndpointInfo().getBinding().getOperation(oiQName);
+            if (boi2.getOperationInfo() == oi) {
+                if (boi2.isUnwrappedCapable()) {
+                    try {
+                        Class requestWrapper = getRequestWrapper(method);
+                        Class responseWrapper = getResponseWrapper(method);
+
+                        if (requestWrapper != null || responseWrapper != null) {
+                            BindingOperationInfo boi3 = boi2.getUnwrappedOperation();
+                            oi = boi3.getOperationInfo();
+                            oi.setProperty(WrapperClassOutInterceptor.SINGLE_WRAPPED_PART, requestWrapper);
+                            boi2.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
+                                            Boolean.TRUE);
+                            infoMap.put(method, boi3);
+                            return boi3;
                         }
+                    } catch (ClassNotFoundException cnfe) {
+                        cnfe.printStackTrace();
+                        // TODO - exception
                     }
-                    infoMap.put(method, boi2);
-                    return boi2;
                 }
+                infoMap.put(method, boi2);
+                return boi2;
             }
         }
         return boi;
     }
-    
+
     protected Class getResponseWrapper(Method selected) throws ClassNotFoundException {
         ResponseWrapper rw = selected.getAnnotation(ResponseWrapper.class);
         if (rw == null) {
@@ -124,6 +122,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         String cn = rw.className();
         return ClassLoaderUtils.loadClass(cn, selected.getDeclaringClass());
     }
+
     protected Class getRequestWrapper(Method selected) throws ClassNotFoundException {
         RequestWrapper rw = selected.getAnnotation(RequestWrapper.class);
         if (rw == null) {
@@ -132,6 +131,5 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         String cn = rw.className();
         return ClassLoaderUtils.loadClass(cn, selected.getDeclaringClass());
     }
-
 
 }

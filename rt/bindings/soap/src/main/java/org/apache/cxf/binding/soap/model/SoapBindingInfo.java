@@ -8,7 +8,9 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class SoapBindingInfo extends BindingInfo {
     private SoapVersion soapVersion;
+
     private String style;
+
     private String transportURI;
 
     public SoapBindingInfo(ServiceInfo serv, String n, SoapVersion soapVersion) {
@@ -30,7 +32,12 @@ public class SoapBindingInfo extends BindingInfo {
     }
 
     public String getStyle(OperationInfo operation) {
-        return style;
+        SoapOperationInfo opInfo = getOperation(operation.getName()).getExtensor(SoapOperationInfo.class);
+        if (opInfo != null) {
+            return opInfo.getStyle();
+        } else {
+            return style;
+        }
     }
 
     public OperationInfo getOperationByAction(String action) {
@@ -52,13 +59,13 @@ public class SoapBindingInfo extends BindingInfo {
      * @return
      */
     public String getSoapAction(OperationInfo operation) {
-        BindingOperationInfo b = (BindingOperationInfo)getOperation(operation.getName());
+        BindingOperationInfo b = (BindingOperationInfo) getOperation(operation.getName());
         SoapOperationInfo opInfo = b.getExtensor(SoapOperationInfo.class);
 
         if (opInfo != null && opInfo.getAction() != null) {
             return opInfo.getAction();
         }
-        
+
         return "";
     }
 
