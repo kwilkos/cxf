@@ -16,8 +16,8 @@ public class TokenInputStream {
     }
 
     public String read() {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Reading token " + tokens[pos]);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Reading token " + tokens[pos]);
         }
         return tokens[pos++];
     }
