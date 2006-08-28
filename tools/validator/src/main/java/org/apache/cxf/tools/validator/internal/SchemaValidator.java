@@ -70,6 +70,7 @@ import org.xml.sax.SAXParseException;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
@@ -166,8 +167,9 @@ public class SchemaValidator extends AbstractValidator {
             Document document = docBuilder.parse(wsdlsource.getSystemId());
            
             
-            if (document.getFirstChild() != null 
-                && !"definitions".equals(document.getFirstChild().getLocalName())) {
+            Node node = DOMUtils.getChild(document, null);
+            if (node != null 
+                && !"definitions".equals(node.getLocalName())) {
                 Message msg = new Message("NOT_A_WSDLFILE", LOG, wsdlsource.getSystemId());
                 throw new ToolException(msg);
             }
