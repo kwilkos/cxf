@@ -230,6 +230,9 @@
                                 <linkXRef>false</linkXRef>
                                 <excludes>${checkstyle.excludes}</excludes>
                                 <sourceDirectory>${basedir}/src</sourceDirectory>
+                                <propertyExpansion>
+                                    apache.header.file=${basedir}/${topDirectoryLocation}/etc/apache-header.txt
+                                </propertyExpansion>
                             </configuration>
                             <goals>
                                 <goal>checkstyle</goal>
@@ -672,6 +675,7 @@
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/net.sourceforge.pmd.eclipse"/>
                                         <copy file="${basedir}/${topDirectoryLocation}/checkstyle.xml" tofile="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
+                                        <copy file="${basedir}/${topDirectoryLocation}/etc/apache-header.txt" tofile="${full.eclipse.workspace}/apache-header.txt"/>
         
                                         <!-- Add checkstyle config -->
                                         <copy file="${basedir}/${topDirectoryLocation}/etc/eclipse/template.checkstyle-config.xml"
@@ -679,6 +683,7 @@
                                             overwrite="no">
                                             <filterset>
                                                 <filter token="CHECKSTYLE_CONFIG_FILE" value="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
+                                                <filter token="APACHE_HEADER_FILE" value="${full.eclipse.workspace}/apache-header.txt"/>
                                             </filterset>
                                         </copy>
 
