@@ -7,10 +7,15 @@ public abstract class AbstractBasicInterceptorProvider implements InterceptorPro
 
     private List<Interceptor> in = new ArrayList<Interceptor>();
     private List<Interceptor> out = new ArrayList<Interceptor>();
-    private List<Interceptor> fault  = new ArrayList<Interceptor>();
+    private List<Interceptor> outFault  = new ArrayList<Interceptor>();
+    private List<Interceptor> inFault  = new ArrayList<Interceptor>();
     
-    public List<Interceptor> getFaultInterceptors() {
-        return fault;
+    public List<Interceptor> getOutFaultInterceptors() {
+        return outFault;
+    }
+
+    public List<Interceptor> getInFaultInterceptors() {
+        return inFault;
     }
 
     public List<Interceptor> getInInterceptors() {
@@ -20,7 +25,4 @@ public abstract class AbstractBasicInterceptorProvider implements InterceptorPro
     public List<Interceptor> getOutInterceptors() {
         return out;
     }
-
-    
-
 }

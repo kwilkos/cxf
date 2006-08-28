@@ -15,13 +15,15 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.*;
 
+import org.apache.cxf.helpers.DOMUtils;
+
 public final class StaxUtils {
 
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
 
     private static final String XML_NS = "http://www.w3.org/2000/xmlns/";
-
+    
     private StaxUtils() {
     }
 
@@ -382,11 +384,17 @@ public final class StaxUtils {
         }
     }
 
-    public static Document read(DocumentBuilder builder, XMLStreamReader reader, boolean repairing,
-                                QName stopAt) throws XMLStreamException {
+    public static Document read(XMLStreamReader reader) throws XMLStreamException {
+        Document doc = DOMUtils.createDocument();
+        readDocElements(doc, reader, true);
+        return doc;
+    }
+    
+    public static Document read(DocumentBuilder builder, XMLStreamReader reader, boolean repairing) 
+        throws XMLStreamException {
         Document doc = builder.newDocument();
 
-        readDocElements(doc, reader, repairing, stopAt);
+        readDocElements(doc, reader, repairing);
 
         return doc;
     }
@@ -405,17 +413,11 @@ public final class StaxUtils {
      * @return
      * @throws XMLStreamException
      */
-    private static Element startElement(Node parent, XMLStreamReader reader, boolean repairing, QName stopAt)
+    private static Element startElement(Node parent, XMLStreamReader reader, boolean repairing)
         throws XMLStreamException {
         Document doc = getDocument(parent);
 
-        if (stopAt != null && stopAt.getNamespaceURI().equals(reader.getNamespaceURI())
-            && stopAt.getLocalPart().equals(reader.getLocalName())) {
-            return null;
-        }
-
         Element e = doc.createElementNS(reader.getNamespaceURI(), reader.getLocalName());
-
         if (reader.getPrefix() != null) {
             e.setPrefix(reader.getPrefix());
         }
@@ -443,7 +445,7 @@ public final class StaxUtils {
 
         reader.next();
 
-        readDocElements(e, reader, repairing, stopAt);
+        readDocElements(e, reader, repairing);
 
         if (repairing && !isDeclared(e, reader.getNamespaceURI(), reader.getPrefix())) {
             declare(e, reader.getNamespaceURI(), reader.getPrefix());
@@ -476,22 +478,21 @@ public final class StaxUtils {
      * @param reader
      * @throws XMLStreamException
      */
-    public static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing, QName stopAt)
+    private static void readDocElements(Node parent, XMLStreamReader reader, boolean repairing)
         throws XMLStreamException {
         Document doc = getDocument(parent);
 
         int event = reader.getEventType();
-
         while (reader.hasNext()) {
             switch (event) {
             case XMLStreamConstants.START_ELEMENT:
-                if (startElement(parent, reader, repairing, stopAt) == null) {
-                    return;
-                }
-                if (parent instanceof Document && stopAt != null) {
+                startElement(parent, reader, repairing);
+                
+                if (parent instanceof Document) {
                     if (reader.hasNext()) {
                         reader.next();
                     }
+                    
                     return;
                 }
                 break;
@@ -589,4 +590,67 @@ public final class StaxUtils {
         }
     }
 
+    /**
+     * Reads a QName from the element text. Reader must be positioned at the
+     * start tag.
+     */
+    public static QName readQName(XMLStreamReader reader) throws XMLStreamException {
+        String value = reader.getElementText();
+        if (value == null) {
+            return null;
+        }
+        
+        int index = value.indexOf(":");
+
+        if (index == -1) {
+            return new QName(value);
+        }
+
+        String prefix = value.substring(0, index);
+        String localName = value.substring(index + 1);
+        String ns = reader.getNamespaceURI(prefix);
+
+        if (ns == null || localName == null) {
+            throw new RuntimeException("Invalid QName in mapping: " + value);
+        }
+
+        return new QName(ns, localName, prefix);
+    }
+    
+
+    /**
+     * Create a unique namespace uri/prefix combination.
+     * 
+     * @param nsUri
+     * @return The namespace with the specified URI. If one doesn't exist, one
+     *         is created.
+     * @throws XMLStreamException
+     */
+    public static String getUniquePrefix(XMLStreamWriter writer, String namespaceURI, boolean declare)
+        throws XMLStreamException {
+        String prefix = writer.getPrefix(namespaceURI);
+        if (prefix == null) {
+            prefix = getUniquePrefix(writer);
+
+            if (declare) {
+                writer.setPrefix(prefix, namespaceURI);
+                writer.writeNamespace(prefix, namespaceURI);
+            }
+        }
+        return prefix;
+    }
+
+    public static String getUniquePrefix(XMLStreamWriter writer) {
+        int n = 1;
+
+        while (true) {
+            String nsPrefix = "ns" + n;
+
+            if (writer.getNamespaceContext().getNamespaceURI(nsPrefix) == null) {
+                return nsPrefix;
+            }
+
+            n++;
+        }
+    }
 }

@@ -4,20 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
+import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 
-public class SoapBinding implements Binding {
+public class SoapBinding extends AbstractBasicInterceptorProvider implements Binding {
 
     private List<Interceptor> in;
     private List<Interceptor> out;
     private List<Interceptor> fault;
+    private Interceptor outFaultInterceptor;
+    private Interceptor inFaultInterceptor;
     
     public SoapBinding() {
         in = new ArrayList<Interceptor>();
         out = new ArrayList<Interceptor>();
-        fault = new ArrayList<Interceptor>();     
+        fault = new ArrayList<Interceptor>();
+        
+        outFaultInterceptor = new Soap11FaultOutInterceptor();
+        inFaultInterceptor = new Soap11FaultInInterceptor();
     }
     
     public Message createMessage() {
@@ -40,4 +48,11 @@ public class SoapBinding implements Binding {
         return out;
     }
 
+    public Interceptor getInFaultInterceptor() {
+        return inFaultInterceptor;
+    }
+
+    public Interceptor getOutFaultInterceptor() {
+        return outFaultInterceptor;
+    }
 }

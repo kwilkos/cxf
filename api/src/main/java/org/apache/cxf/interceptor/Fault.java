@@ -19,4 +19,9 @@ public class Fault extends UncheckedException {
     public Fault(Throwable t) {
         super(t);
     }
+
+    @SuppressWarnings("deprecation")
+    protected Fault(String message) {
+        super(message);
+    }
 }

@@ -47,7 +47,7 @@ public class JaxwsEndpointImpl extends EndpointImpl {
         }
         handlerInterceptors.add(new StreamHandlerInterceptor(binding));
         
-        List<Interceptor> fault = super.getFaultInterceptors();
+        List<Interceptor> fault = super.getOutFaultInterceptors();
         fault.addAll(handlerInterceptors);
         List<Interceptor> in = super.getInInterceptors();
         in.addAll(handlerInterceptors);

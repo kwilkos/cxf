@@ -1,4 +1,4 @@
-package org.apache.cxf.binding.soap;
+package org.apache.cxf.binding.soap.interceptor;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,6 +12,9 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.binding.soap.HeaderUtil;
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Interceptor;

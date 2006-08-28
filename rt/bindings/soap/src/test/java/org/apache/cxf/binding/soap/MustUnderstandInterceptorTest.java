@@ -12,6 +12,9 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.binding.attachment.AttachmentImpl;
 import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
+import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
+import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;

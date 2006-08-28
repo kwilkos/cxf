@@ -30,7 +30,7 @@ import org.easymock.classextension.IMocksControl;
 public class WSDLServiceBuilderTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
-    private static final String WSDL_PATH = "/wsdl/hello_world.wsdl";
+    private static final String WSDL_PATH = "hello_world.wsdl";
     private Definition def;
     private Service service;
     private ServiceInfo serviceInfo;

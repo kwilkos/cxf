@@ -12,7 +12,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
-
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 

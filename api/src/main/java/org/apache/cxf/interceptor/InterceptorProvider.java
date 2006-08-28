@@ -8,5 +8,7 @@ public interface InterceptorProvider {
     
     List<Interceptor> getOutInterceptors();
     
-    List<Interceptor> getFaultInterceptors();
+    List<Interceptor> getOutFaultInterceptors();
+    
+    List<Interceptor> getInFaultInterceptors();
 }

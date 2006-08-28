@@ -7,12 +7,11 @@ import javax.xml.stream.XMLStreamReader;
 public class StaxStreamFilter implements StreamFilter {
     private QName[] tags;
 
-    public StaxStreamFilter(QName[] eventsToReject) {
+    public StaxStreamFilter(QName... eventsToReject) {
         tags = eventsToReject;
     }
 
     public boolean accept(XMLStreamReader reader) {
-
         if (reader.isStartElement()) {
             QName elName = reader.getName();
             for (QName tag : tags) {

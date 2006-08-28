@@ -1,4 +1,4 @@
-package org.apache.cxf.binding.soap;
+package org.apache.cxf.binding.soap.interceptor;
 
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 

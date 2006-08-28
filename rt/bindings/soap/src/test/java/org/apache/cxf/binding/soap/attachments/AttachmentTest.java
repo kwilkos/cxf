@@ -27,12 +27,12 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.binding.attachment.CachedOutputStream;
-import org.apache.cxf.binding.soap.MultipartMessageInterceptor;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.TestBase;
 import org.apache.cxf.binding.soap.TestUtil;
+import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.bindings.soap.attachments.types.DetailType;
 import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
 import org.apache.cxf.jaxb.attachment.AttachmentSerializer;

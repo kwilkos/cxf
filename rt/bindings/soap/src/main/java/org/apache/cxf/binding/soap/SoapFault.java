@@ -1,5 +1,8 @@
 package org.apache.cxf.binding.soap;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
@@ -38,7 +41,8 @@ public class SoapFault extends Fault {
     private QName subCode;
     private String role;
     private Element detail;
-
+    private Map<String, String> namespaces = new HashMap<String, String>();
+    
     public SoapFault(Message message, Throwable throwable, QName type) {
         super(message, throwable);
         this.faultCode = type;
@@ -49,6 +53,11 @@ public class SoapFault extends Fault {
         this.faultCode = faultCode;
     }
 
+    public SoapFault(String message, QName faultCode) {
+        super(message);
+        this.faultCode = faultCode;
+    }
+    
     /**
      * Returns the detail node. If no detail node has been set, an empty
      * <code>&lt;detail&gt;</code> is created.
@@ -134,5 +143,13 @@ public class SoapFault extends Fault {
      */
     public boolean hasDetails() {
         return detail == null ? false : true;
+    }
+
+    public Map<String, String> getNamespaces() {
+        return namespaces;
+    }
+
+    public void setNamespaces(Map<String, String> namespaces) {
+        this.namespaces = namespaces;
     }
 }

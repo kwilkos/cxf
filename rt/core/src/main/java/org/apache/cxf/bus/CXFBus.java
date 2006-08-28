@@ -2,7 +2,6 @@ package org.apache.cxf.bus;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
@@ -10,34 +9,25 @@ import org.apache.cxf.configuration.Configuration;
 import org.apache.cxf.configuration.ConfigurationBuilder;
 import org.apache.cxf.configuration.impl.ConfigurationBuilderImpl;
 import org.apache.cxf.extension.ExtensionManagerImpl;
-import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;
 
-public class CXFBus implements Bus {
+public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
     
     public static final String BUS_PROPERTY_NAME = "bus";
     
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
     
     enum State { INITIAL, RUNNING, SHUTDOWN };
-    
-    
-    
-    
-    
-    private List<Interceptor> inInterceptors;
-    private List<Interceptor> outInterceptors;
-    private List<Interceptor> faultInterceptors;
+
     private Map<Class, Object> extensions;
     private Configuration configuration;
     private String id;
     private State state;
-    
-    
     
     protected CXFBus() {
         this(new HashMap<Class, Object>());
@@ -85,18 +75,7 @@ public class CXFBus implements Bus {
         state = State.INITIAL;
 
     }
-    
-    public List<Interceptor> getFaultInterceptors() {
-        return faultInterceptors;
-    }
 
-    public List<Interceptor> getInInterceptors() {
-        return inInterceptors;
-    }    
-
-    public List<Interceptor> getOutInterceptors() {
-        return outInterceptors;
-    }
       
     public <T> T getExtension(Class<T> extensionType) {
         Object obj = extensions.get(extensionType);
@@ -148,7 +127,4 @@ public class CXFBus implements Bus {
     protected State getState() {
         return state;
     }
-    
-    
-    
 }

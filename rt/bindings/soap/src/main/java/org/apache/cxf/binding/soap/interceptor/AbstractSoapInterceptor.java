@@ -1,4 +1,4 @@
-package org.apache.cxf.binding.soap;
+package org.apache.cxf.binding.soap.interceptor;
 
 import java.net.URI;
 import java.util.Collections;
@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
 public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<SoapMessage> 

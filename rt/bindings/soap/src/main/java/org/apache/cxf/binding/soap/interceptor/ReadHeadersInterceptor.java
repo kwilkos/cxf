@@ -1,11 +1,8 @@
-package org.apache.cxf.binding.soap;
+package org.apache.cxf.binding.soap.interceptor;
 
 import java.io.InputStream;
 import java.util.ResourceBundle;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -13,9 +10,14 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
@@ -35,20 +37,18 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
             }
             xmlReader = StaxUtils.createXMLStreamReader(in);
         }
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
-        try {
-            builder = builderFactory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            throw new SoapFault(new Message("PARSER_EXC", BUNDLE), e, SoapFault.SENDER);
-        }
-        Document doc = builder.newDocument();
+
         try {
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
                 message.setVersion(soapVersion);
-                StaxUtils.readDocElements(doc, xmlReader, true, message.getVersion().getBody());
+                
+                XMLStreamReader filteredReader = 
+                    new PartialXMLStreamReader(xmlReader, message.getVersion().getBody());
+                
+                Document doc = StaxUtils.read(filteredReader);
+                
                 Element envelop = (Element)doc.getChildNodes().item(0);
                 String header = soapVersion.getHeader().getLocalPart();
                 for (int i = 0; i < envelop.getChildNodes().getLength(); i++) {
@@ -59,6 +59,9 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                         }
                     }
                 }
+                
+                // advance just past body.
+                xmlReader.next();
             }
         } catch (XMLStreamException e) {
             throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, SoapFault.SENDER);

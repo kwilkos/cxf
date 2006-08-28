@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
@@ -33,8 +32,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
 
         // Trying to find the operation name from the XML.
-        if (xmlReader.getEventType() != XMLStreamConstants.START_ELEMENT
-            && !StaxUtils.toNextElement(xmlReader)) {
+        if (!StaxUtils.toNextElement(xmlReader)) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
         BindingOperationInfo operation = message.getExchange().get(BindingOperationInfo.class);

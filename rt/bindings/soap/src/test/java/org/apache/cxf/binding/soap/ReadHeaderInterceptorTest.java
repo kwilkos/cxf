@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.binding.attachment.AttachmentImpl;
 import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Attachment;
 
@@ -45,6 +46,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
                 headerChilds.add(element);
             }
         }
+
         assertEquals(2, headerChilds.size());
         for (int i = 0; i < headerChilds.size(); i++) {
             Element ele = headerChilds.get(i);

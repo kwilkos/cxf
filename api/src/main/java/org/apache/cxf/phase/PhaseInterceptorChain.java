@@ -41,7 +41,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private State state;
     private ListIterator<Interceptor<? extends Message>> iterator;
     private Message pausedMessage;
-    
+    private Interceptor faultInterceptor;
     
     public PhaseInterceptorChain(List<Phase> ps) {
         state = State.EXECUTING;
@@ -116,6 +116,10 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 }
                 message.setContent(Exception.class, ex);
                 unwind(message);
+                
+                if (faultInterceptor != null) {
+                    faultInterceptor.handleMessage(message);
+                }
                 state = State.ABORTED;
             } 
         }
@@ -287,6 +291,12 @@ public class PhaseInterceptorChain implements InterceptorChain {
         
     }
 
+    public Interceptor getFaultInterceptor() {
+        return faultInterceptor;
+    }
 
+    public void setFaultInterceptor(Interceptor faultInterceptor) {
+        this.faultInterceptor = faultInterceptor;
+    }
 
 }
