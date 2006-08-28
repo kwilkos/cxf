@@ -63,6 +63,8 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
+        
+        
     }
     
     public void testBasicConnection() throws Exception {
