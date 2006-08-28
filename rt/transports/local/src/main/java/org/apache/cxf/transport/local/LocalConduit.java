@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
+import org.apache.cxf.binding.attachment.CachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.transport.AbstractCachedOutputStream;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
@@ -56,7 +57,7 @@ public class LocalConduit implements Conduit {
             }
         };
 
-        final PipedOutputStream outStream = new PipedOutputStream(stream);
+        final AbstractCachedOutputStream outStream = new CachedOutputStream(stream);
 
         message.setContent(OutputStream.class, outStream);
 

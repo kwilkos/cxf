@@ -10,11 +10,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 
 public abstract class AbstractCachedOutputStream extends OutputStream {
 
-    protected OutputStream currentStream;
+    protected OutputStream currentStream;    
     private long threshold = 8 * 1024;
     private int totalLength;
     private boolean inmem;
@@ -22,8 +24,13 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     private File outputDir;
     
 
+    public AbstractCachedOutputStream(PipedInputStream stream) throws IOException {
+        currentStream = new PipedOutputStream(stream);        
+        inmem = true;       
+    }
+
     public AbstractCachedOutputStream() {
-        currentStream = new ByteArrayOutputStream();
+        currentStream = new ByteArrayOutputStream();        
         inmem = true;       
     }
 

@@ -24,6 +24,8 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
+        // Calling for soap out interceptor        
+        message.getInterceptorChain().doIntercept(message);
         AbstractCachedOutputStream ops = (AbstractCachedOutputStream)message.getContent(OutputStream.class);
         try {
             Collection<Attachment> attachments = message.getAttachments();
@@ -33,8 +35,6 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
                 as.serializeMultipartMessage();
                 ops.resetOut(cos, false);
             }           
-            ops.flush();
-            ops.close();
         } catch (IOException ioe) {
             throw new SoapFault(new Message("ATTACHMENT_IO", BUNDLE, ioe.toString()), 
                                 SoapFault.ATTACHMENT_IO);
