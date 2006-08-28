@@ -19,6 +19,7 @@ import org.apache.cxf.phase.Phase;
 
 public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LogUtils.getL7dLogger(MustUnderstandInterceptor.class);
+
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     public MustUnderstandInterceptor() {
@@ -43,21 +44,20 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
             }
             sb.delete(pos - 2, pos);
             throw new SoapFault(new Message("MUST_UNDERSTAND", BUNDLE, sb.toString()),
-                                SoapFault.MUST_UNDERSTAND);
+                            SoapFault.MUST_UNDERSTAND);
         }
     }
 
     private void initServiceSideInfo(Set<QName> mustUnderstandQNames, SoapMessage soapMessage,
-                                     Set<URI> serviceRoles) {
-        // 
-        // Set<QName> paramHeaders =
-        // HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
-        // if (paramHeaders != null) {
-        // mustUnderstandQNames.addAll(paramHeaders);
-        // }
+                    Set<URI> serviceRoles) {
+
+        Set<QName> paramHeaders = HeaderUtil.getHeaderQNameInOperationParam(soapMessage);
+        if (paramHeaders != null) {
+            mustUnderstandQNames.addAll(paramHeaders);
+        }
         for (Interceptor interceptorInstance : soapMessage.getInterceptorChain()) {
             if (interceptorInstance instanceof SoapInterceptor) {
-                SoapInterceptor si = (SoapInterceptor)interceptorInstance;
+                SoapInterceptor si = (SoapInterceptor) interceptorInstance;
                 serviceRoles.addAll(si.getRoles());
                 mustUnderstandQNames.addAll(si.getUnderstoodHeaders());
             }
@@ -65,27 +65,26 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     }
 
     private void buildMustUnderstandHeaders(Set<Element> mustUnderstandHeaders, SoapMessage soapMessage,
-                                            Set<URI> serviceRoles) {
-        Element headers = (Element)soapMessage.getHeaders(Element.class);
+                    Set<URI> serviceRoles) {
+        Element headers = (Element) soapMessage.getHeaders(Element.class);
         List<Element> headerChilds = new ArrayList<Element>();
         for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
             if (headers.getChildNodes().item(i) instanceof Element) {
-                headerChilds.add((Element)headers.getChildNodes().item(i));
+                headerChilds.add((Element) headers.getChildNodes().item(i));
             }
         }
         for (int i = 0; i < headerChilds.size(); i++) {
             Element header = headerChilds.get(i);
             String mustUnderstand = header.getAttributeNS(soapMessage.getVersion().getNamespace(),
-                                                          soapMessage.getVersion()
-                                                              .getAttrNameMustUnderstand());
+                            soapMessage.getVersion().getAttrNameMustUnderstand());
 
             if (Boolean.valueOf(mustUnderstand) || "1".equals(mustUnderstand.trim())) {
                 String role = header.getAttributeNS(soapMessage.getVersion().getNamespace(), soapMessage
-                    .getVersion().getAttrNameRole());
+                                .getVersion().getAttrNameRole());
                 if (role != null) {
                     role = role.trim();
                     if (role.equals(soapMessage.getVersion().getNextRole())
-                        || role.equals(soapMessage.getVersion().getUltimateReceiverRole())) {
+                                    || role.equals(soapMessage.getVersion().getUltimateReceiverRole())) {
                         mustUnderstandHeaders.add(header);
                     } else {
                         for (URI roleFromBinding : serviceRoles) {
@@ -105,7 +104,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     }
 
     private boolean checkUnderstand(Set<Element> mustUnderstandHeaders, Set<QName> mustUnderstandQNames,
-                                    Set<QName> notUnderstandQNames) {
+                    Set<QName> notUnderstandQNames) {
 
         for (Element header : mustUnderstandHeaders) {
             QName qname = new QName(header.getNamespaceURI(), header.getLocalName());
