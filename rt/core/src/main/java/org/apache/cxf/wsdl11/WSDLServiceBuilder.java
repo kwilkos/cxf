@@ -43,6 +43,7 @@ import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
@@ -52,6 +53,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
@@ -243,9 +245,11 @@ public class WSDLServiceBuilder {
                     bi.addOperation(bop2);
                     if (bop.getBindingInput() != null) {
                         copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
+                        handleHeader(bop2.getInput());
                     }
                     if (bop.getBindingOutput() != null) {
                         copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
+                        handleHeader(bop2.getOutput());
                     }
                     for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
                         copyExtensors(bop2.getFault(f.getName()), bop.getBindingFault(f.getName())
@@ -258,6 +262,17 @@ public class WSDLServiceBuilder {
 
         service.addBinding(bi);
         return bi;
+    }
+    
+    private void handleHeader(BindingMessageInfo bindingMessageInfo) {
+        //mark all message part which should be in header
+        List<ExtensibilityElement> extensiblilityElement = bindingMessageInfo.getWSDL11Extensors();
+        for (ExtensibilityElement element : extensiblilityElement) {
+            LOG.info("the extensibility is " + element.getClass().getName());
+            if (element instanceof SOAPHeader) {
+                LOG.info("the header is " + ((SOAPHeader)element).getPart());
+            }
+        }
     }
 
     public void buildInterface(ServiceInfo si, PortType p) {

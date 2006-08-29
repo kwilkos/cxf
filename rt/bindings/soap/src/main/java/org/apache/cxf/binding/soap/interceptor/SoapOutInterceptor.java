@@ -21,6 +21,7 @@ package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.ResourceBundle;
 
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -31,7 +32,6 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -45,6 +45,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
     
     public void handleMessage(SoapMessage message) {
         try {
+            handleHeaderPart(message);
             XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
             message.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = message.getVersion();
@@ -64,6 +65,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             Element eleHeaders = message.getHeaders(Element.class);
+            
 
             if (eleHeaders != null) {
                 StaxUtils.writeElement(eleHeaders, xtw, true);
@@ -80,10 +82,22 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
             // Write Envelop end element
             xtw.writeEndElement();
+            
             xtw.flush();
         } catch (XMLStreamException e) {
-            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, SoapFault.SENDER);
+            //e.printStackTrace();
+            throw new SoapFault(
+                new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, SoapFault.SENDER);
         }
     }
+    
+    private void handleHeaderPart(SoapMessage message) {
+        //add MessagePart to soapHeader if necessary
+    }
+        
+    protected boolean isRequestor(org.apache.cxf.message.Message message) {
+        return Boolean.TRUE.equals(message.containsKey(
+            org.apache.cxf.message.Message.REQUESTOR_ROLE));
+    }    
     
 }

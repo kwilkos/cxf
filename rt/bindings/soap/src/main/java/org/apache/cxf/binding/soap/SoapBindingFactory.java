@@ -44,7 +44,6 @@ import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
-import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapBodyInfo;
@@ -181,6 +180,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
                 MessagePartInfo part = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
                     .getPart()));
+                if (part != null) {
+                    part.setInSoapHeader(true);
+                }
                 headerInfo.setPart(part);
                 messageParts.remove(part);
 

@@ -38,6 +38,7 @@ public interface Message extends Map<String, Object> {
 
     String INBOUND_MESSAGE = "org.apache.cxf.message.inbound";
     String INVOCATION_OBJECTS = "org.apache.cxf.invocation.objects";
+    String METHOD = "org.apache.cxf.method";
     
     String getId();
     

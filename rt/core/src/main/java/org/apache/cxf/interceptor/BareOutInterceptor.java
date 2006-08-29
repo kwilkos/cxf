@@ -69,9 +69,15 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             for (int idx = 0; idx < countParts; idx++) {
                 Object arg = args[idx];
                 MessagePartInfo part = (MessagePartInfo)els[idx];
+                if (part.isInSoapHeader()) {
+                    //this part should be in header, should donot write to soap body
+                    continue;
+                }
                 QName elName = ServiceModelUtil.getPartName(part);
                 dataWriter.write(arg, elName, xmlWriter);
             }
         }
     }
+    
+    
 }

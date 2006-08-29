@@ -27,6 +27,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     
     private boolean isElement;
     private QName typeName;
+    private boolean isInSoapHeader;
 
     MessagePartInfo(QName n, AbstractMessageContainer info) {
         mInfo = info;
@@ -78,4 +79,11 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
         return mInfo;
     }
 
+    public boolean isInSoapHeader() {
+        return isInSoapHeader;
+    }
+
+    public void setInSoapHeader(boolean inSoapHeader) {
+        this.isInSoapHeader = inSoapHeader;
+    }
 }

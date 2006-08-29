@@ -20,6 +20,7 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -76,6 +77,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
         }
         Message message = endpoint.getBinding().createMessage();
+        if (ctx != null) {
+            message.setContent(Method.class, ctx.get(Message.METHOD));
+        }
         if (params == null) {
             message.setContent(List.class, Collections.emptyList());
         } else {

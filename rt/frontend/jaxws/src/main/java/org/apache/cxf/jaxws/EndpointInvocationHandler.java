@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -74,7 +75,9 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         if (null == params) {
             params = new Object[0];
         }
-        Object obj[] = client.invoke(oi, params, null);
+        Map<String, Object> context = new HashMap<String, Object>();
+        context.put(org.apache.cxf.message.Message.METHOD, method);
+        Object obj[] = client.invoke(oi, params, context);
 
         return obj.length == 0 ? null : obj[0];
     }
