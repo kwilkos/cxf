@@ -72,9 +72,11 @@ lengths, if/try depths, etc...
         <module name="TypeName"/>
         
         <!-- Header checks -->
+        <!--
         <module name="Header">
             <property name="headerFile" value="${apache.header.file}"/>
         </module>
+        -->
         <!-- <module name="RegexpHeader"/> -->
 
 
