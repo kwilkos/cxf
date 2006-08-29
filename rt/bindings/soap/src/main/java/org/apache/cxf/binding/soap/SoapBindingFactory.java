@@ -105,7 +105,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
-        sb.getOutFaultInterceptors().add(new Soap11FaultOutInterceptor());
+        sb.getOutFaultInterceptors().add(sb.getOutFaultInterceptor());
 
         if (SoapConstants.STYLE_RPC.equalsIgnoreCase(sbi.getStyle())) {
             sb.getInInterceptors().add(new RPCInInterceptor());
