@@ -23,7 +23,6 @@
         simplification, the following elements are excluded from the set used:</para>
 	<itemizedlist>
 	  <listitem><para><sgmltag class="element">ackno</sgmltag></para></listitem>
-	  <listitem><para><sgmltag class="element">acronym</sgmltag></para></listitem>
 	  <listitem><para><sgmltag class="element">address</sgmltag></para></listitem>
 	  <listitem><para><sgmltag class="element">affiliation</sgmltag></para></listitem>
 	  <listitem><para><sgmltag class="element">appendixinfo</sgmltag></para></listitem>
