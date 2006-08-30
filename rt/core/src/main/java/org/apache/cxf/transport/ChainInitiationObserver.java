@@ -54,11 +54,13 @@ public class ChainInitiationObserver implements MessageObserver {
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
             .getInPhases());
+        
+        message.setInterceptorChain(chain);
         chain.add(bus.getInInterceptors());
         chain.add(endpoint.getInInterceptors());
         chain.add(endpoint.getBinding().getInInterceptors());
         chain.add(endpoint.getService().getInInterceptors());
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());
+        chain.setFaultInterceptor(endpoint.getFaultInterceptor());        
         
         chain.doIntercept(message);        
     }

@@ -32,25 +32,28 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-
 public abstract class AbstractCachedOutputStream extends OutputStream {
 
-    protected OutputStream currentStream;    
+    protected OutputStream currentStream;
+
     private long threshold = 8 * 1024;
+
     private int totalLength;
+
     private boolean inmem;
+
     private File tempFile;
+
     private File outputDir;
-    
 
     public AbstractCachedOutputStream(PipedInputStream stream) throws IOException {
-        currentStream = new PipedOutputStream(stream);        
-        inmem = true;       
+        currentStream = new PipedOutputStream(stream);
+        inmem = true;
     }
 
     public AbstractCachedOutputStream() {
-        currentStream = new ByteArrayOutputStream();        
-        inmem = true;       
+        currentStream = new ByteArrayOutputStream();
+        inmem = true;
     }
 
     /**
@@ -69,7 +72,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      */
     protected abstract void doClose() throws IOException;
 
-    public void close() throws IOException {        
+    public void close() throws IOException {
         currentStream.close();
         doClose();
     }
@@ -84,11 +87,12 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      * AttachmentSerializer Or Copy the cached output stream to the "real"
      * output stream, i.e. onto the wire.
      * 
-     * @param realOS the real output stream
+     * @param realOS
+     *            the real output stream
      * @throws IOException
      */
     public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
-        ByteArrayOutputStream bout = (ByteArrayOutputStream)currentStream;
+        ByteArrayOutputStream bout = (ByteArrayOutputStream) currentStream;
         if (copyOldContent && bout.size() > 0) {
             bout.writeTo(out);
         }
@@ -108,11 +112,10 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     public String toString() {
         return currentStream.toString();
-    }    
-    
+    }
+
     protected abstract void onWrite() throws IOException;
-        
-    
+
     public void write(byte[] b, int off, int len) throws IOException {
         onWrite();
         this.totalLength += len;
@@ -140,9 +143,8 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
         currentStream.write(b);
     }
 
-    
     private void createFileOutputStream() throws IOException {
-        byte[] bytes = ((ByteArrayOutputStream)currentStream).toByteArray();
+        byte[] bytes = ((ByteArrayOutputStream) currentStream).toByteArray();
         if (outputDir == null) {
             tempFile = File.createTempFile("att", "tmp");
         } else {
@@ -159,7 +161,13 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     public InputStream getInputStream() throws IOException {
         if (inmem) {
-            return new ByteArrayInputStream(((ByteArrayOutputStream)currentStream).toByteArray());
+            if (currentStream instanceof ByteArrayOutputStream) {
+                return new ByteArrayInputStream(((ByteArrayOutputStream)currentStream).toByteArray());
+            } else if (currentStream instanceof PipedOutputStream) {
+                return new PipedInputStream((PipedOutputStream)currentStream);                
+            } else {
+                return null;
+            }
         } else {
             try {
                 return new FileInputStream(tempFile);
