@@ -93,11 +93,6 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
     
     private void handleHeaderPart(SoapMessage message) {
         //add MessagePart to soapHeader if necessary
-    }
-        
-    protected boolean isRequestor(org.apache.cxf.message.Message message) {
-        return Boolean.TRUE.equals(message.containsKey(
-            org.apache.cxf.message.Message.REQUESTOR_ROLE));
-    }    
+    }       
     
 }

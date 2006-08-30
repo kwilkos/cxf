@@ -39,6 +39,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
@@ -102,6 +103,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getOutInterceptors().add(new StaxOutInterceptor());
         sb.getOutInterceptors().add(new SoapOutInterceptor());
 
+        sb.getOutFaultInterceptors().add(new AttachmentOutInterceptor());
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
         sb.getOutFaultInterceptors().add(sb.getOutFaultInterceptor());

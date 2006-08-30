@@ -46,10 +46,14 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
     public MustUnderstandInterceptor() {
         super();
-        setPhase(Phase.PROTOCOL);
+        setPhase(Phase.PRE_PROTOCOL);
     }
 
     public void handleMessage(SoapMessage soapMessage) {
+        //Client-in message needs not to handle MustUnderstand
+        if (isRequestor(soapMessage)) {
+            return;
+        }                
         Set<Element> mustUnderstandHeaders = new HashSet<Element>();
         Set<URI> serviceRoles = new HashSet<URI>();
         Set<QName> notUnderstandQNames = new HashSet<QName>();
@@ -90,10 +94,12 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
                     Set<URI> serviceRoles) {
         Element headers = (Element) soapMessage.getHeaders(Element.class);
         List<Element> headerChilds = new ArrayList<Element>();
-        for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
-            if (headers.getChildNodes().item(i) instanceof Element) {
-                headerChilds.add((Element) headers.getChildNodes().item(i));
-            }
+        if (headers != null) {
+            for (int i = 0; i < headers.getChildNodes().getLength(); i++) {
+                if (headers.getChildNodes().item(i) instanceof Element) {
+                    headerChilds.add((Element) headers.getChildNodes().item(i));
+                }
+            }            
         }
         for (int i = 0; i < headerChilds.size(); i++) {
             Element header = headerChilds.get(i);
