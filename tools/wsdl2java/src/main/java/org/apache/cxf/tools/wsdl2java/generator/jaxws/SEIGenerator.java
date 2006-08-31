@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -31,9 +31,8 @@ import org.apache.cxf.tools.common.model.JavaModel;
 public class SEIGenerator extends AbstractGenerator {
 
     private static final String SEI_TEMPLATE = TEMPLATE_BASE + "/sei.vm";
-   
-    public SEIGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        super(jmodel, env);
+
+    public SEIGenerator() {
         this.name = ToolConstants.SEI_GENERATOR;
     }
 
@@ -48,7 +47,10 @@ public class SEIGenerator extends AbstractGenerator {
         return intf.getHandlerChains() != null;
     }
 
-    public void generate() throws ToolException {
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+        JavaModel javaModel = env.getJavaModel();
+
         if (passthrough()) {
             return;
         }
@@ -59,8 +61,10 @@ public class SEIGenerator extends AbstractGenerator {
             JavaInterface intf = interfaces.get(interfaceName);
 
             if (hasHandlerConfig(intf)) {
-                HandlerConfigGenerator handlerGen = new HandlerConfigGenerator(intf, getEnvironment());
-                handlerGen.generate();
+                HandlerConfigGenerator handlerGen = new HandlerConfigGenerator();
+                //REVISIT: find a better way to handle Handler gen, should not pass JavaInterface around.
+                handlerGen.setJavaInterface(intf);
+                handlerGen.generate(getEnvironment());
 
                 if (handlerGen.getHandlerAnnotation() != null) {
                     intf.addAnnotation(handlerGen.getHandlerAnnotation().toString());

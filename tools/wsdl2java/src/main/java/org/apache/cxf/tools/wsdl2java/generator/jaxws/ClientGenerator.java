@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -33,23 +33,23 @@ import org.apache.cxf.tools.common.model.JavaServiceClass;
 public class ClientGenerator extends AbstractGenerator {
 
     private static final String CLT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
-    
-    public ClientGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        super(jmodel, env);
+
+    public ClientGenerator() {
         this.name = ToolConstants.CLT_GENERATOR;
     }
 
-
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_CLIENT) 
+        if (env.optionSet(ToolConstants.CFG_CLIENT)
             || env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;
     }
 
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+        JavaModel javaModel = env.getJavaModel();
 
-    public void generate() throws ToolException {
         if (passthrough()) {
             return;
         }
@@ -71,7 +71,7 @@ public class ClientGenerator extends AbstractGenerator {
                     jp = (JavaPort)i.next();
                     if (jp.getPortType().equals(interfaceName)) {
                         serviceName = js.getName();
-                        
+
                         break;
                     }
                 }
@@ -80,20 +80,20 @@ public class ClientGenerator extends AbstractGenerator {
                 }
             }
 
-           
+
             String clientClassName = interfaceName + "Client";
             while (isCollision(intf.getPackageName(), clientClassName)) {
                 clientClassName = clientClassName + "_Client";
             }
-            
+
             clearAttributes();
             setAttributes("clientClassName", clientClassName);
             setAttributes("intf", intf);
             setAttributes("service", js);
             setAttributes("port", jp);
-            
+
             setCommonAttributes();
-           
+
             doWrite(CLT_TEMPLATE, parseOutputName(intf.getPackageName(),
                     clientClassName));
         }

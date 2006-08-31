@@ -23,19 +23,22 @@ import java.io.*;
 import java.util.*;
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.PropertyUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 
 public class ProcessorEnvironment {
 
+    protected JavaModel javaModel;
     private Map<String, Object> paramMap;
     private String packageName;
     private Map<String, String> namespacePackageMap = new HashMap<String, String>();
     private Map<String, String> excludeNamespacePackageMap = new HashMap<String, String>();
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
+
     public ProcessorEnvironment() {
     }
-   
+
 
     public void loadDefaultNS2Pck(InputStream ins) {
         try {
@@ -57,6 +60,13 @@ public class ProcessorEnvironment {
         }
     }
 
+    public JavaModel getJavaModel() {
+        return javaModel;
+    }
+
+    public void setJavaModel(JavaModel jModel) {
+        this.javaModel = jModel;
+    }
 
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;

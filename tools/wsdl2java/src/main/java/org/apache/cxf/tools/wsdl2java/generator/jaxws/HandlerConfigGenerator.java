@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.io.Writer;
 
@@ -36,13 +36,10 @@ public class HandlerConfigGenerator extends AbstractGenerator {
 
     private static final String HANDLER_CHAIN_NAME = "";
     private JavaInterface intf;
-    private JavaAnnotation handlerChainAnnotation; 
-  
-    public HandlerConfigGenerator(JavaInterface i, ProcessorEnvironment env) {
-        
+    private JavaAnnotation handlerChainAnnotation;
+
+    public HandlerConfigGenerator() {
         this.name = ToolConstants.HANDLER_GENERATOR;
-        this.intf = i;
-        super.setEnvironment(env);
     }
 
     public JavaAnnotation getHandlerAnnotation() {
@@ -55,8 +52,14 @@ public class HandlerConfigGenerator extends AbstractGenerator {
         }
         return false;
     }
-    
-    public void generate() throws ToolException {
+
+    public void setJavaInterface(JavaInterface javaInterface) {
+        this.intf = javaInterface;
+    }
+
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+
         if (passthrough()) {
             return;
         }
@@ -76,7 +79,6 @@ public class HandlerConfigGenerator extends AbstractGenerator {
     }
 
     private void generateHandlerChainFile(Element hChains, Writer writer) throws ToolException {
-        
         XMLUtils.generateXMLFile(hChains, writer);
     }
 }

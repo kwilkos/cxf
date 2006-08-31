@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -28,8 +28,7 @@ public class AntGenerator extends AbstractGenerator {
 
     private static final String ANT_TEMPLATE = TEMPLATE_BASE + "/build.vm";
 
-    public AntGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        super(jmodel, env);
+    public AntGenerator() {
         this.name = ToolConstants.ANT_GENERATOR;
     }
 
@@ -41,7 +40,10 @@ public class AntGenerator extends AbstractGenerator {
         return true;
     }
 
-    public void generate() throws ToolException {
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+        JavaModel javaModel = env.getJavaModel();
+
         if (passthrough()) {
             return;
         }

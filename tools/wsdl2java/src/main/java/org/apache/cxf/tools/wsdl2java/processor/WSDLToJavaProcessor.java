@@ -38,19 +38,14 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.tools.common.PluginProfile;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.wsdl2java.generator.AntGenerator;
-import org.apache.cxf.tools.wsdl2java.generator.ClientGenerator;
-import org.apache.cxf.tools.wsdl2java.generator.FaultGenerator;
-import org.apache.cxf.tools.wsdl2java.generator.ImplGenerator;
-import org.apache.cxf.tools.wsdl2java.generator.SEIGenerator;
-import org.apache.cxf.tools.wsdl2java.generator.ServerGenerator;
-import org.apache.cxf.tools.wsdl2java.generator.ServiceGenerator;
+import org.apache.cxf.tools.wsdl2java.generator.jaxws.JAXWSProfile;
 import org.apache.cxf.tools.wsdl2java.processor.compiler.Compiler;
 import org.apache.cxf.tools.wsdl2java.processor.internal.PortTypeProcessor;
 import org.apache.cxf.tools.wsdl2java.processor.internal.SEIAnnotationProcessor;
@@ -59,31 +54,20 @@ import org.apache.cxf.tools.wsdl2java.processor.internal.TypesCodeWriter;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
-    protected void registerGenerators(JavaModel jmodel) {
-        addGenerator(ToolConstants.SEI_GENERATOR, new SEIGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.FAULT_GENERATOR, new FaultGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.SVR_GENERATOR, new ServerGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.IMPL_GENERATOR, new ImplGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.CLT_GENERATOR, new ClientGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.SERVICE_GENERATOR, new ServiceGenerator(jmodel, getEnvironment()));
-        addGenerator(ToolConstants.ANT_GENERATOR, new AntGenerator(jmodel, getEnvironment()));
-    }
-
     public void process() throws ToolException {
         init();
+
+        //Generate type classes for specified databinding
         if (isSOAP12Binding(wsdlDefinition)) {
             Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
             throw new ToolException(msg);
         }
         generateTypes();
 
-        JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
-        if (jmodel == null) {
-            Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
-            throw new ToolException(msg);
-        }
-        registerGenerators(jmodel);
+        //Generate client, server and service stub codeS for specified profile
+        registerGenerators();
         doGeneration();
+
         if (env.get(ToolConstants.CFG_COMPILE) != null) {
             compile();
         }
@@ -106,13 +90,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             throw new ToolException(msg);
         }
 
-        JavaModel jmodel = wsdlDefinitionToJavaModel(def);
-        if (jmodel == null) {
-            Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
-            throw new ToolException(msg);
-        }
-        registerGenerators(jmodel);
+        //Generate client, server and service stub code for specified profile
+        registerGenerators();
         doGeneration();
+
         try {
             if (env.isExcludeNamespaceEnabled()) {
                 removeExcludeFiles();
@@ -157,6 +138,32 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         }
     }
 
+    private void registerGenerators() {
+        //FIXME: Get profile name from input parameters
+        String profile = null;
+        if (profile == null) {
+            profile = JAXWSProfile.class.getName();
+        }
+
+        PluginProfile profileObj = null;
+        try {
+            profileObj = (PluginProfile) Class.forName(profile).newInstance();
+        } catch (Exception e) {
+            Message msg = new Message("FAIl_TO_CREATE_PLUGINPROFILE", LOG);
+            throw new ToolException(msg);
+        }
+
+        //Setup JavaModel for generators.
+        JavaModel jmodel = wsdlDefinitionToJavaModel(getWSDLDefinition());
+        if (jmodel == null) {
+            Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
+            throw new ToolException(msg);
+        }
+        getEnvironment().setJavaModel(jmodel);
+
+        generators =  profileObj.getPlugins();
+    }
+
     private void generateTypes() throws ToolException {
         if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
             return;
@@ -168,20 +175,20 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
 
             TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), excludePkgList);
-             
+
             if (rawJaxbModelGenCode instanceof S2JJAXBModel  && !nestedJaxbBinding) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-            
+
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
                 jcodeModel.build(fileCodeWriter);
                 excludeGenFiles = fileCodeWriter.getExcludeFileList();
             }
-            
+
             if (rawJaxbModelGenCode instanceof S2JJAXBModel  && nestedJaxbBinding) {
                 model.codeModel.build(fileCodeWriter);
                 excludeGenFiles = fileCodeWriter.getExcludeFileList();
             }
-            
+
             return;
         } catch (IOException e) {
             Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
@@ -198,7 +205,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         javaModel.setJAXWSBinding(customizing(definition));
 
         Map<QName, PortType> portTypes = getPortTypes(definition);
- 
+
         for (Iterator iter = portTypes.keySet().iterator(); iter.hasNext();) {
             PortType portType = (PortType)portTypes.get(iter.next());
             PortTypeProcessor portTypeProcessor = new PortTypeProcessor(getEnvironment());

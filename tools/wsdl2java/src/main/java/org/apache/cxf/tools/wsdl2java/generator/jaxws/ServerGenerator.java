@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -30,55 +30,68 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 
-public class ImplGenerator extends AbstractGenerator {
+public class ServerGenerator extends AbstractGenerator {
 
-    private static final String IMPL_TEMPLATE = TEMPLATE_BASE + "/impl.vm";
+    private static final String SRV_TEMPLATE = TEMPLATE_BASE + "/server.vm";
 
-   
-    public ImplGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        super(jmodel, env);
-        this.name = ToolConstants.IMPL_GENERATOR;
+    public ServerGenerator() {
+        this.name = ToolConstants.SVR_GENERATOR;
     }
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_IMPL)
+        if (env.optionSet(ToolConstants.CFG_SERVER)
+                || env.optionSet(ToolConstants.CFG_GEN_SERVER)
                 || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
         }
         return true;
     }
 
-    public void generate() throws ToolException {
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+        JavaModel javaModel = env.getJavaModel();
+
         if (passthrough()) {
             return;
         }
 
         Map<String, JavaInterface> interfaces = javaModel.getInterfaces();
-        Map<String, JavaServiceClass> services = javaModel.getServiceClasses();
-        String service = "";
-        String port = "";
-        if (!services.values().isEmpty()) {
-            JavaServiceClass javaservice = services.values().iterator().next();
-            service = javaservice.getServiceName();
-            if (javaservice.getPorts().size() != 0) {
-                JavaPort jport = (JavaPort)javaservice.getPorts().get(0);
-                port = jport.getPortName();
-            }
-        }
         for (Iterator iter = interfaces.keySet().iterator(); iter.hasNext();) {
             String interfaceName = (String)iter.next();
             JavaInterface intf = interfaces.get(interfaceName);
+            String address = "";
+
+            Iterator it = javaModel.getServiceClasses().values().iterator();
+            while (it.hasNext()) {
+                JavaServiceClass js = (JavaServiceClass)it.next();
+                Iterator i = js.getPorts().iterator();
+                while (i.hasNext()) {
+                    JavaPort jp = (JavaPort)i.next();
+                    if (interfaceName.equals(jp.getPortType())) {
+                        address = jp.getBindingAdress();
+                        break;
+                    }
+                }
+                if (!"".equals(address)) {
+                    break;
+                }
+            }
+
+
+            String serverClassName = interfaceName + "Server";
+
+            while (isCollision(intf.getPackageName(), serverClassName)) {
+                serverClassName = serverClassName + "_Server";
+            }
 
             clearAttributes();
+            setAttributes("serverClassName", serverClassName);
             setAttributes("intf", intf);
-           
-            setAttributes("service", service);
-            setAttributes("port", port);
-           
+            setAttributes("address", address);
             setCommonAttributes();
 
-            doWrite(IMPL_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName() + "Impl"));
-        }        
+            doWrite(SRV_TEMPLATE, parseOutputName(intf.getPackageName(), serverClassName));
+        }
     }
 
 }

@@ -17,18 +17,30 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.common;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
-import org.apache.cxf.configuration.CommandlineConfiguration;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.cxf.tools.common.GeneratorPlugin;
+import org.apache.cxf.tools.common.PluginProfile;
 
 /**
- * Interface for code generators used by the tools
- * 
- * @author codea
+ * Generates a service interface, service stub, and port accessor.
+ *
  */
-public interface Generator {
+public class JAXWSProfile implements PluginProfile {
+    public List<GeneratorPlugin> getPlugins() {
+        List<GeneratorPlugin> plugins = new ArrayList<GeneratorPlugin>();
 
-    void setConfiguration(CommandlineConfiguration config);
-    void generate();
+        plugins.add(new SEIGenerator());
+        plugins.add(new FaultGenerator());
+        plugins.add(new ServerGenerator());
+        plugins.add(new ImplGenerator());
+        plugins.add(new ClientGenerator());
+        plugins.add(new ServiceGenerator());
+        plugins.add(new AntGenerator());
+
+        return plugins;
+    }
 }
-

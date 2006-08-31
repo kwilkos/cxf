@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -29,39 +29,35 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.tools.common.GeneratorPlugin;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
+import org.apache.cxf.tools.wsdl2java.generator.VelocityWriter;
 import org.apache.cxf.version.Version;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
-public abstract class AbstractGenerator {
-   
+public abstract class AbstractGenerator implements GeneratorPlugin {
+
     public static final String TEMPLATE_BASE = "org/apache/cxf/tools/wsdl2java/generator/template";
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     protected ProcessorEnvironment env;
-    protected JavaModel javaModel;
+    //protected JavaModel javaModel;
     protected Map<String, Object> attributes = new HashMap<String, Object>();
     protected String name;
-    protected ClassCollector collector;
-    public  AbstractGenerator() {
-        
-    }
-    public AbstractGenerator(JavaModel jmodel, ProcessorEnvironment penv) {
-        javaModel = jmodel;
-        this.env = penv;
-        collector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
+    //protected ClassCollector collector;
+
+    public AbstractGenerator() {
     }
 
     public abstract boolean passthrough();
 
-    public abstract void generate() throws ToolException;
+    public abstract void generate(ProcessorEnvironment penv) throws ToolException;
 
     protected void doWrite(String templateName, Writer outputs) throws ToolException {
         Template tmpl = null;
@@ -114,11 +110,11 @@ public abstract class AbstractGenerator {
     }
 
     protected Writer parseOutputName(String packageName, String filename) throws ToolException {
-        // collector.
+        ClassCollector collector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
         if (ToolConstants.CLT_GENERATOR.equals(name)) {
             collector.addClientClassName(packageName , filename , packageName + "." + filename);
         }
-        
+
         if (ToolConstants.FAULT_GENERATOR.equals(name)) {
             collector.addExceptionClassName(packageName , filename , packageName + "." + filename);
         }
@@ -127,10 +123,10 @@ public abstract class AbstractGenerator {
         }
         if (ToolConstants.SVR_GENERATOR.equals(name)) {
             collector.addServiceClassName(packageName , filename , packageName + "." + filename);
-            
+
         }
-        
-        
+
+
         return parseOutputName(packageName, filename, ".java");
     }
 

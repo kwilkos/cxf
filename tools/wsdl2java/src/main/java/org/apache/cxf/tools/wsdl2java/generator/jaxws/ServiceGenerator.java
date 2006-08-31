@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.net.URL;
 import java.util.Iterator;
@@ -37,31 +37,33 @@ public class ServiceGenerator extends AbstractGenerator {
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     private static final String SERVICE_TEMPLATE = TEMPLATE_BASE + "/service.vm";
 
-    public ServiceGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        super(jmodel, env);
+    public ServiceGenerator() {
         this.name = ToolConstants.SERVICE_GENERATOR;
     }
 
-    public boolean passthrough() {  
+    public boolean passthrough() {
         if (env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
             return true;
         }
         return false;
     }
-    
-    public void generate() throws ToolException {
+
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+        JavaModel javaModel = env.getJavaModel();
+
         if (passthrough()) {
             return;
         }
-        
+
         Map<String, JavaServiceClass> serviceClasses = javaModel.getServiceClasses();
-        
+
         Iterator ite = serviceClasses.values().iterator();
-        
+
         while (ite.hasNext()) {
-            
+
             JavaServiceClass js = (JavaServiceClass)ite.next();
-            
+
             String location = (String)env.get(ToolConstants.CFG_WSDLURL);
             URL url = null;
             try {
@@ -72,7 +74,7 @@ public class ServiceGenerator extends AbstractGenerator {
             }
 
             clearAttributes();
-            
+
             setAttributes("service", js);
             setAttributes("wsdlLocation", url.toString());
             setCommonAttributes();

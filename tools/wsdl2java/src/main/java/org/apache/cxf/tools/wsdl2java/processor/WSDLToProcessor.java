@@ -74,6 +74,7 @@ import com.sun.tools.xjc.model.Model;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.WSDLHelper;
+import org.apache.cxf.tools.common.GeneratorPlugin;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -85,7 +86,6 @@ import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
-import org.apache.cxf.tools.wsdl2java.generator.AbstractGenerator;
 import org.apache.cxf.tools.wsdl2java.processor.internal.ClassNameAllocatorImpl;
 import org.apache.cxf.tools.wsdl2java.processor.internal.JAXBBindingMerger;
 
@@ -107,17 +107,16 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     protected List<String> excludeGenFiles;
     protected Map<QName, Service> importedServices = new java.util.HashMap<QName, Service>();
     protected Map<QName, PortType> importedPortTypes = new java.util.HashMap<QName, PortType>();
+    protected List<GeneratorPlugin> generators;
 
     //  For process nestedJaxbBinding
     protected boolean nestedJaxbBinding;
     protected Model model;
 
-    
     protected List<Schema> schemaList = new ArrayList<Schema>();
-    private final Map<String, AbstractGenerator> generators = new HashMap<String, AbstractGenerator>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
     private List<String> schemaTargetNamespaces = new ArrayList<String>();
-    
+
     protected Writer getOutputWriter(String newNameExt) throws ToolException {
         Writer writer = null;
         String newName = null;
@@ -153,7 +152,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         try {
             writer = fw.getWriter("", newName);
         } catch (IOException ioe) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("FAIL_TO_WRITE_FILE",
                                                               LOG,
                                                               env.get(ToolConstants.CFG_OUTPUTDIR)
@@ -175,8 +174,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             parseImports(wsdlDefinition);
             buildImportedMaps();
         } catch (WSDLException we) {
-            org.apache.cxf.common.i18n.Message msg = 
-                new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", 
+            org.apache.cxf.common.i18n.Message msg =
+                new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION",
                                                              LOG);
             throw new ToolException(msg, we);
         }
@@ -237,7 +236,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
             Velocity.init(props);
         } catch (Exception e) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("FAIL_TO_INITIALIZE_VELOCITY_ENGINE",
                                                              LOG);
             LOG.log(Level.SEVERE, msg.toString());
@@ -277,7 +276,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         try {
             buildJaxbModel();
         } catch (Exception e) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_JAXB_MODEL",
                                                              LOG);
             LOG.log(Level.SEVERE, msg.toString());
@@ -341,8 +340,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
                 insource.setSystemId(systemid);
                 opt.setSchemaLanguage(Language.XMLSCHEMA);
                 opt.addGrammar(file);
-               
-            } 
+
+            }
 
         }
 
@@ -364,7 +363,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             model = ModelLoader.load(opt, new JCodeModel(), new JAXBErrorReceiver());
             model.generateCode(opt, new JAXBErrorReceiver());
         }
-       
+
     }
 
     @SuppressWarnings("unchecked")
@@ -496,10 +495,6 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         return this.wsdlDefinition;
     }
 
-    public void addGenerator(String name, AbstractGenerator gen) {
-        generators.put(name, gen);
-    }
-
     public void process() throws ToolException {
     }
 
@@ -511,9 +506,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     }
 
     protected void doGeneration() throws ToolException {
-        for (String genName : generators.keySet()) {
-            AbstractGenerator gen = generators.get(genName);
-            gen.generate();
+        for (GeneratorPlugin plugin : generators) {
+            plugin.generate(env);
         }
     }
 
@@ -555,14 +549,14 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
     public void checkSupported(Definition def) throws ToolException {
         if (isSOAP12Binding(wsdlDefinition)) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("SOAP12_UNSUPPORTED",
                                                              LOG);
             throw new ToolException(msg);
         }
 
         if (isRPCEncoded(wsdlDefinition)) {
-            org.apache.cxf.common.i18n.Message msg = 
+            org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("UNSUPPORTED_RPC_ENCODED",
                                                              LOG);
             throw new ToolException(msg);
@@ -623,7 +617,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
     }
 
-    private static enum Mode {       
+    private static enum Mode {
         CODE,
         BGM,
         SIGNATURE,
@@ -637,17 +631,17 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             if (env.isVerbose()) {
                 saxEx.printStackTrace();
             } else {
-                System.err.println("Use jaxb customization binding file to generate types warring " 
+                System.err.println("Use jaxb customization binding file to generate types warring "
                                    + saxEx.getMessage());
             }
-            
+
         }
 
         public void error(org.xml.sax.SAXParseException saxEx) throws com.sun.tools.xjc.AbortException {
             if (env.isVerbose()) {
                 saxEx.printStackTrace();
             } else {
-                System.err.println("Use jaxb customization binding file to generate types error " 
+                System.err.println("Use jaxb customization binding file to generate types error "
                                    + saxEx.getMessage());
             }
         }
@@ -655,14 +649,14 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         public void info(org.xml.sax.SAXParseException saxEx) {
             if (env.isVerbose()) {
                 saxEx.printStackTrace();
-            } 
+            }
         }
 
         public void fatalError(org.xml.sax.SAXParseException saxEx) throws com.sun.tools.xjc.AbortException {
             if (env.isVerbose()) {
                 saxEx.printStackTrace();
             } else {
-                System.err.println("Use jaxb customization binding file to generate types fatal error " 
+                System.err.println("Use jaxb customization binding file to generate types fatal error "
                                    + saxEx.getMessage());
             }
         }

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.generator;
+package org.apache.cxf.tools.wsdl2java.generator.jaxws;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -34,21 +34,23 @@ public class FaultGenerator extends AbstractGenerator {
 
     private static final String FAULT_TEMPLATE = TEMPLATE_BASE + "/fault.vm";
 
-    public FaultGenerator(JavaModel jmodel, ProcessorEnvironment env) {
-        super(jmodel, env);
+    public FaultGenerator() {
         this.name = ToolConstants.FAULT_GENERATOR;
     }
 
 
     public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) 
+        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT)
             || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
             return true;
         }
         return false;
     }
 
-    public void generate() throws ToolException {
+    public void generate(ProcessorEnvironment penv) throws ToolException {
+        this.env = penv;
+        JavaModel javaModel = env.getJavaModel();
+
         if (passthrough()) {
             return;
         }
@@ -58,7 +60,7 @@ public class FaultGenerator extends AbstractGenerator {
         for (Iterator iter = exceptionClasses.keySet().iterator(); iter
                 .hasNext();) {
             String expClassName = (String)iter.next();
-            JavaExceptionClass expClz = 
+            JavaExceptionClass expClz =
                 exceptionClasses.get(expClassName);
 
             clearAttributes();
