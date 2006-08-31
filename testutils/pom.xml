@@ -192,7 +192,7 @@
                                     <wsdl>${basedir}/src/main/resources/wsdl/handler_test.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
-                                    <wsdl>${basedir}/src/main/resources/wsdl/soapheader_test.wsdl</wsdl>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/soapheader.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/schema_validation.wsdl</wsdl>

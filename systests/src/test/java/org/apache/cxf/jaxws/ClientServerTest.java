@@ -38,10 +38,13 @@ import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
+import org.apache.hello_world_soap_http.DocLitBare;
+import org.apache.hello_world_soap_http.DocLitBareGreeterImpl;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 
@@ -51,6 +54,10 @@ public class ClientServerTest extends ClientServerTestBase {
                                                 "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                                              "SoapPort");
+    
+    
+    private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
+                "SoapPort2");
 
     public static class Server extends TestServerBase {
 
@@ -58,7 +65,9 @@ public class ClientServerTest extends ClientServerTestBase {
             Object implementor = new GreeterImpl();
             String address = "http://localhost:9000/SoapContext/SoapPort";
             Endpoint.publish(address, implementor);
-            
+            implementor = new DocLitBareGreeterImpl();
+            address = "http://localhost:7600/SoapContext/SoapPort";
+            Endpoint.publish(address, implementor);
         }
         
 
@@ -84,6 +93,7 @@ public class ClientServerTest extends ClientServerTestBase {
         };
         
         
+        
     }
     
     public void testBasicConnection() throws Exception {
@@ -95,6 +105,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
         String response = new String("Bonjour");
         try {
+            greeter.greetMe("test");
             String reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
             assertEquals(response, reply);
@@ -102,6 +113,23 @@ public class ClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     } 
+    
+    public void testDocLitBareConnection() throws Exception {
+        
+        SOAPServiceDocLitBare service = new SOAPServiceDocLitBare();
+        assertNotNull(service);
+
+        DocLitBare greeter = service.getPort(portName1, DocLitBare.class);
+        try {
+       
+            BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
+            assertNotNull("no response for operation testDocLitBare", bareres);
+            assertEquals("CXF", bareres.getCompany());
+            assertTrue(bareres.getId() == 1);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
     
     public void xtestBasicConnection() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -127,10 +155,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
                 greeter.greetMeOneWay("Milestone-" + idx);
                 
-                BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
-                assertNotNull("no response for operation testDocLitBare", bareres);
-                assertEquals("CXF", bareres.getCompany());
-                assertTrue(bareres.getId() == 1);  
+                
                 
             }            
         } catch (UndeclaredThrowableException ex) {
@@ -164,10 +189,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
                 greeter.greetMeOneWay("Milestone-" + idx);
                 
-                BareDocumentResponse bareres = greeter.testDocLitBare("MySimpleDocument");
-                assertNotNull("no response for operation testDocLitBare", bareres);
-                assertEquals("CXF", bareres.getCompany());
-                assertTrue(bareres.getId() == 1);  
+                
                 
             }            
         } catch (UndeclaredThrowableException ex) {

@@ -20,8 +20,10 @@
 package org.apache.cxf.interceptor;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.databinding.DataReader;
@@ -51,9 +53,11 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
 
-        StaxUtils.nextEvent(xmlReader);
+        //StaxUtils.nextEvent(xmlReader);
         while (StaxUtils.toNextElement(xmlReader)) {
-            parameters.add(dr.read(xmlReader));
+            Object o = dr.read(xmlReader);
+            
+            parameters.add(o);
         }
 
         // If we didn't know the operation going into this, lets try to figure
@@ -72,7 +76,15 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                 }
             }
         }
-
-        message.setContent(List.class, parameters);
+        List<Object> newParameters = new ArrayList<Object>();
+        for (Iterator iter = parameters.iterator(); iter.hasNext();) {
+            Object element = (Object)iter.next();
+            if (element instanceof JAXBElement) {
+                element = ((JAXBElement)element).getValue();
+            }
+            newParameters.add(element);
+            
+        }
+        message.setContent(List.class, newParameters);
     }
 }

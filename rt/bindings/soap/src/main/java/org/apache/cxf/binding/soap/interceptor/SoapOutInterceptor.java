@@ -19,11 +19,14 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
+
 import java.util.ResourceBundle;
+
 
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
 
 import org.w3c.dom.Element;
 
@@ -32,7 +35,9 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.BundleUtils;
+
 import org.apache.cxf.phase.Phase;
+
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
@@ -45,7 +50,6 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
     
     public void handleMessage(SoapMessage message) {
         try {
-            handleHeaderPart(message);
             XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
             message.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = message.getVersion();
@@ -64,6 +68,9 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                   soapVersion.getEnvelope().getLocalPart(),
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
+            
+            //handleHeaderPart(message);
+
             Element eleHeaders = message.getHeaders(Element.class);
             
 
@@ -91,8 +98,68 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         }
     }
     
-    private void handleHeaderPart(SoapMessage message) {
+    /*private void handleHeaderPart(SoapMessage message) {
         //add MessagePart to soapHeader if necessary
+        Exchange exchange = message.getExchange();
+        BindingOperationInfo operation = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
+                                                                            .getName());
+        Element soapHeaders = message.getHeaders(Element.class);
+         
+         
+         
+        int countParts = 0;
+        List<MessagePartInfo> parts = null;
+        if (!isRequestor(message)) {
+            parts = operation.getOutput().getMessageInfo().getMessageParts();
+        } else {
+            parts = operation.getInput().getMessageInfo().getMessageParts();
+        }
+        countParts = parts.size();
+ 
+        if (countParts > 0) {
+            List<?> objs = message.getContent(List.class);
+            Object[] args = objs.toArray();
+            Object[] els = parts.toArray();
+ 
+            if (args.length != els.length) {
+                message.setContent(Exception.class,
+                                   new RuntimeException("The number of arguments is not equal!"));
+            }
+ 
+            for (int idx = 0; idx < countParts; idx++) {
+                //Object arg = args[idx];
+                MessagePartInfo part = (MessagePartInfo)els[idx];
+                if (!part.isInSoapHeader()) {
+                    //this part should be in header, so write to header
+                    continue;
+                }
+                 
+                // todo write to header
+                if (soapHeaders == null) {
+                    DocumentBuilder builder = null;
+                    try {
+                        builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                    } catch (ParserConfigurationException e) {
+                        e.printStackTrace();
+                    }
+                    Document doc = builder.newDocument();
+                    SoapVersion version = message.getVersion();
+                    soapHeaders =
+                        doc.createElementNS(version.getNamespace(), version.getHeader().getLocalPart());
+                    QName headerPartQName = ServiceModelUtil.getPartName(part);
+                    soapHeaders.appendChild(
+                        doc.createElementNS(
+                            headerPartQName.getNamespaceURI(), headerPartQName.getLocalPart()));
+                }
+                 
+            }
+        }
+        message.setHeaders(Element.class, soapHeaders);
+
     }       
     
+    protected boolean isRequestor(Message message) {
+        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
+    }*/
+
 }

@@ -194,6 +194,10 @@
             <wsdl:fault name="NoSuchCodeLitFault" message="tns:NoSuchCodeLitFault"/>
             <wsdl:fault name="BadRecordLitFault" message="tns:BadRecordLitFault"/>
         </wsdl:operation>
+
+    </wsdl:portType>
+
+    <wsdl:portType name="DocLitBare">
         <wsdl:operation name="testDocLitBare">
             <wsdl:input name="testDocLitBareRequest" message="tns:testDocLitBareRequest"/>
             <wsdl:output name="testDocLitBareResponse" message="tns:testDocLitBareResponse"/>
@@ -249,6 +253,10 @@
                 <soap:fault name="BadRecordLitFault" use="literal"/>
             </wsdl:fault>
         </wsdl:operation>
+
+    </wsdl:binding>
+    <wsdl:binding name="Doc_Lit_Bare_SOAPBinding" type="tns:DocLitBare">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
         <wsdl:operation name="testDocLitBare">
             <soap:operation style="document" soapAction="http://apache.org/hello_world_soap_http/testDocLitBare"/>
             <wsdl:input name="testDocLitBareRequest">
@@ -259,12 +267,20 @@
             </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
+
+
     <wsdl:service name="SOAPService">
         <wsdl:port name="SoapPort" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:9000/SoapContext/SoapPort"/>
         </wsdl:port>
 	<wsdl:port name="SoapPort1" binding="tns:Greeter_SOAPBinding">
             <soap:address location="http://localhost:7000/SoapContext/SoapPort"/>
+        </wsdl:port>
+    </wsdl:service>
+
+    <wsdl:service name="SOAPService_DocLitBare">
+        <wsdl:port name="SoapPort2" binding="tns:Doc_Lit_Bare_SOAPBinding">
+            <soap:address location="http://localhost:7600/SoapContext/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
     <wsdl:service name="SOAPService_Test1">

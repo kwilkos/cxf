@@ -55,7 +55,7 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
 
             public void run() {
                 Object result = invoker.invoke(message.getExchange(), 
-                    exchange.getInMessage().getContent(List.class));
+                    message.getContent(List.class));
 
                 if (result != null) {
                     if (!(result instanceof List)) {

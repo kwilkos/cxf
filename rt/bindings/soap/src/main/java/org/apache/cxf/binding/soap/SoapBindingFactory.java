@@ -35,6 +35,7 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
@@ -95,6 +96,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         SoapBinding sb = new SoapBinding();
         SoapBindingInfo sbi = (SoapBindingInfo)binding;
                 
+        for (BindingOperationInfo boi : sbi.getOperations()) {
+            if (boi.getUnwrappedOperation() == null) {
+                sbi.setStyle(SoapConstants.STYLE_BARE);
+            }
+        }
+        
         sb.getInInterceptors().add(new MultipartMessageInterceptor());        
         sb.getInInterceptors().add(new ReadHeadersInterceptor());        
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
@@ -145,7 +152,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
-
+        
         SOAPOperation soapOp = boi.getExtensor(SOAPOperation.class);
         if (soapOp != null) {
             String action = soapOp.getSoapActionURI();
@@ -155,6 +162,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
             soi.setAction(action);
             soi.setStyle(soapOp.getStyle());
+            
+            
         }
 
         boi.addExtensor(soi);

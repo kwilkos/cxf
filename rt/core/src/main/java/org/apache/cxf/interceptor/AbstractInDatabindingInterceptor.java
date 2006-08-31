@@ -20,9 +20,11 @@
 package org.apache.cxf.interceptor;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -31,6 +33,7 @@ import org.apache.cxf.databinding.DataReaderFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -70,71 +73,76 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         // first check for exact matches
         for (OperationInfo o : operations) {
             List messageParts = o.getInput().getMessageParts();
-            if (messageParts.size() == parameters.size()) {
+            if (messageParts.size() == parameters.size() 
+                    && checkExactParameters(messageParts, parameters)) {
                 return o;
-//                if (checkExactParameters(messageParts, parameters))
-//                    return o;
+                
             }
         }
 
 //        // now check for assignable matches
-//        for (OperationInfo o : operations) {
-//            List messageParts = o.getInput().getMessageParts();
-//            if (messageParts.size() == parameters.size()) {
-//                if (checkParameters(messageParts, parameters))
-//                    return o;
-//            }
-//        }
+        /*for (OperationInfo o : operations) {
+            List messageParts = o.getInput().getMessageParts();
+            if (messageParts.size() == parameters.size()) {
+                if (checkParameters(messageParts, parameters)) {
+                    return o;
+                }
+            }
+        }*/
         return null;
     }
-//
-//    /**
-//     * Return true only if the message parts exactly match the classes of the
-//     * parameters
-//     * 
-//     * @param messageParts
-//     * @param parameters
-//     * @return
-//     */
-//    private boolean checkExactParameters(List messageParts, List parameters) {
-//        Iterator messagePartIterator = messageParts.iterator();
-//        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
-//            Object param = parameterIterator.next();
-//            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
-//            if (!mpi.getTypeClass().equals(param.getClass())) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    private boolean checkParameters(List messageParts, List parameters) {
-//        Iterator messagePartIterator = messageParts.iterator();
-//        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
-//            Object param = parameterIterator.next();
-//            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
-//
-//            if (!mpi.getTypeClass().isAssignableFrom(param.getClass())) {
-//                if (!param.getClass().isPrimitive() && mpi.getTypeClass().isPrimitive()) {
-//                    return checkPrimitiveMatch(mpi.getTypeClass(), param.getClass());
-//                } else {
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-//
-//    private boolean checkPrimitiveMatch(Class clazz, Class typeClass) {
-//        if ((typeClass == Integer.class && clazz == int.class)
-//            || (typeClass == Double.class && clazz == double.class)
-//            || (typeClass == Long.class && clazz == long.class)
-//            || (typeClass == Float.class && clazz == float.class)
-//            || (typeClass == Short.class && clazz == short.class)
-//            || (typeClass == Boolean.class && clazz == boolean.class)
-//            || (typeClass == Byte.class && clazz == byte.class))
-//            return true;
-//
-//        return false;
-//    }
+
+      /**
+       * Return true only if the message parts exactly match the classes of the
+       * parameters
+       * 
+       * @param messageParts
+       * @param parameters
+       * @return
+       */
+    private boolean checkExactParameters(List messageParts, List parameters) {
+        Iterator messagePartIterator = messageParts.iterator();
+        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
+            Object param = parameterIterator.next();
+            if (param instanceof JAXBElement) {
+                JAXBElement paramEl = (JAXBElement)param;
+                MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
+                if (!mpi.getElementQName().equals(paramEl.getName())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /*private boolean checkParameters(List messageParts, List parameters) {
+        Iterator messagePartIterator = messageParts.iterator();
+        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
+            Object param = parameterIterator.next();
+            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
+
+            if (!mpi.getTypeClass().isAssignableFrom(param.getClass())) {
+                if (!param.getClass().isPrimitive() && mpi.getTypeClass().isPrimitive()) {
+                    return checkPrimitiveMatch(mpi.getTypeClass(), param.getClass());
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean checkPrimitiveMatch(Class clazz, Class typeClass) {
+        if ((typeClass == Integer.class && clazz == int.class)
+            || (typeClass == Double.class && clazz == double.class)
+            || (typeClass == Long.class && clazz == long.class)
+            || (typeClass == Float.class && clazz == float.class)
+            || (typeClass == Short.class && clazz == short.class)
+            || (typeClass == Boolean.class && clazz == boolean.class)
+            || (typeClass == Byte.class && clazz == byte.class)) {
+            return true;
+        }
+
+        return false;
+    }*/
 }
