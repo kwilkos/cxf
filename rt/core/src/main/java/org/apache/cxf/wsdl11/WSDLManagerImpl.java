@@ -284,8 +284,8 @@ public class WSDLManagerImpl implements WSDLManager {
         }
         
         for (Iterator it = initialExtensions.keySet().iterator(); it.hasNext();) {
-            String elementType = (String)it.next();
-            String parentType = initialExtensions.getProperty(elementType);
+            String parentType = (String)it.next();
+            String elementType = initialExtensions.getProperty(parentType);
             
             try {
                 JAXBExtensionHelper.addExtensions(registry, 
