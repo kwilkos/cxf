@@ -132,7 +132,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             File file = new File(outPutDir, excludeFile);
             file.delete();
             File tmpFile = file.getParentFile();
-            while (!tmpFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
+            while (tmpFile != null && !tmpFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
                 if (tmpFile.isDirectory() && tmpFile.list().length == 0) {
                     tmpFile.delete();
                 }
@@ -146,7 +146,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
                                                     + ".class");
                 classFile.delete();
                 File tmpClzFile = classFile.getParentFile();
-                while (!tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
+                while (tmpClzFile != null && !tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
                     if (tmpClzFile.isDirectory() && tmpClzFile.list().length == 0) {
                         tmpClzFile.delete();
                     }

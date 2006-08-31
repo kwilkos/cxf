@@ -50,11 +50,9 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 import org.apache.cxf.tools.common.extensions.jms.JMSAddress;
-
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -64,7 +62,6 @@ import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
-
 import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class ServiceProcessor extends AbstractProcessor {
@@ -99,7 +96,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     public void process(JavaModel model) throws ToolException {
-        
+
         Collection services = definition.getServices().values();
         if (services.size() == 0) {
             Iterator bindingIte = definition.getBindings().values().iterator();
@@ -158,7 +155,8 @@ public class ServiceProcessor extends AbstractProcessor {
         // TODO: extend other bindings
         jport.setBindingAdress(getPortAddress(port));
         jport.setBindingName(binding.getQName().getLocalPart());
-
+       
+        
         String namespace = binding.getPortType().getQName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, env.mapPackageName(namespace));
         jport.setPackageName(packageName);
@@ -172,8 +170,8 @@ public class ServiceProcessor extends AbstractProcessor {
         if (bindingType == null) {
             org.apache.cxf.common.i18n.Message msg = 
                 new org.apache.cxf.common.i18n.Message("BINDING_SPECIFY_ONE_PROTOCOL",
-                                                              LOG,
-                                                              binding.getQName());
+                                                             LOG, 
+                                                             binding.getQName());
             throw new ToolException(msg);
         }
 
@@ -217,8 +215,6 @@ public class ServiceProcessor extends AbstractProcessor {
 
     }
 
-    
-
     private void processOperation(JavaModel model, BindingOperation bop, Binding binding)
         throws ToolException {
         String portType = ProcessorUtil
@@ -250,8 +246,8 @@ public class ServiceProcessor extends AbstractProcessor {
                     jm.setSoapAction(soapAction);
                     if (getSoapStyle(soapStyle) == null && this.bindingObj == null) {
                         org.apache.cxf.common.i18n.Message msg = 
-                            new org.apache.cxf.common.i18n.Message("BINDING_STYLE_NOT_DEFINED",
-                                                                          LOG);
+                            new  org.apache.cxf.common.i18n.Message("BINDING_STYLE_NOT_DEFINED",
+                                                                         LOG);
                         throw new ToolException(msg);
                     }
                     if (getSoapStyle(soapStyle) == null) {
@@ -263,18 +259,18 @@ public class ServiceProcessor extends AbstractProcessor {
                     // REVISIT: fix for xml binding
                     jm.setSoapStyle(jf.getSOAPStyle());
                 }
-                
+
                 if (jm.getSoapStyle().equals(javax.jws.soap.SOAPBinding.Style.RPC)) {
                     jm.getAnnotationMap().remove("SOAPBinding");
                 }
-                
+
                 OperationProcessor processor = new OperationProcessor(env);
 
                 int headerType = isNonWrappable(bop);
 
                 if (jm.isWrapperStyle() && headerType > this.noHEADER) {
                     // changed wrapper style
-                   
+
                     jm.setWrapperStyle(false);
                     processor.processMethod(jm, bop.getOperation());
                     jm.getAnnotationMap().remove("ResponseWrapper");
@@ -282,7 +278,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
                 } else {
                     processor.processMethod(jm, bop.getOperation());
-                  
+
                 }
 
                 if (headerType == this.resultHeader) {
@@ -304,9 +300,13 @@ public class ServiceProcessor extends AbstractProcessor {
     private void processParameter(JavaMethod jm, BindingOperation operation) throws ToolException {
 
         // process input
-        Iterator inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
+        
+        Iterator inbindings = null;
+        if (operation.getBindingInput() != null) {
+            inbindings = operation.getBindingInput().getExtensibilityElements().iterator();
+        }
         String use = null;
-        while (inbindings.hasNext()) {
+        while (inbindings != null && inbindings.hasNext()) {
             Object obj = inbindings.next();
             if (obj instanceof SOAPBody) {
                 SOAPBody soapBody = (SOAPBody)obj;
@@ -600,7 +600,7 @@ public class ServiceProcessor extends AbstractProcessor {
             // TBD: There is no extensibilityelement in port type
             bindingExt = new JAXWSBinding();
         }
-        
+
         ji.setBindingExt(bindingExt);
     }
 

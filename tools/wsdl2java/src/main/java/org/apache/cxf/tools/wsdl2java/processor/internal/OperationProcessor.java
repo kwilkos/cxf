@@ -37,16 +37,13 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
-
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
-
 import org.apache.cxf.tools.util.ProcessorUtil;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 
@@ -62,9 +59,9 @@ public class OperationProcessor  extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, Operation operation) throws ToolException {
         JavaMethod method = new JavaMethod(intf);
-        //set default Document Bare style
+        // set default Document Bare style
         method.setSoapStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
-        
+
         method.setName(ProcessorUtil.mangleNameToVariableName(operation.getName()));
         method.setOperationName(operation.getName());
         method.setStyle(operation.getStyle());
@@ -80,7 +77,7 @@ public class OperationProcessor  extends AbstractProcessor {
         method.setJAXWSBinding(customizing(intf, operation));
         processMethod(method, operation);
         Map<String, Fault> faults = operation.getFaults();
-       
+
         FaultProcessor faultProcessor = new FaultProcessor(env);
         faultProcessor.process(method, faults);
 
@@ -94,18 +91,18 @@ public class OperationProcessor  extends AbstractProcessor {
         Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();
 
         if (inputMessage == null) {
-            LOG.log(Level.WARNING, "NO_INPUT_MESSAGE",
-                    new Object[] {operation.getName(), operation.getInput().getName()});
+            LOG.log(Level.WARNING, "NO_INPUT_MESSAGE", new Object[] {operation.getName()});
+            org.apache.cxf.common.i18n.Message msg 
+                = new org.apache.cxf.common.i18n.Message("INVALID_MEP", LOG,
+                                                               new Object[] {operation.getName()});
+            throw new ToolException(msg);
         }
-        
+
         ParameterProcessor paramProcessor = new ParameterProcessor(env);
         method.clear();
-        paramProcessor.process(method,
-                               inputMessage,
-                               outputMessage,
-                               isRequestResponse(operation),
+        paramProcessor.process(method, inputMessage, outputMessage, isRequestResponse(operation),
                                parameterOrder);
-        isWrapperStyle(operation);        
+        isWrapperStyle(operation);
         addWebMethodAnnotation(method);
         addWrapperAnnotation(method, operation);
         addWebResultAnnotation(method);
@@ -126,7 +123,7 @@ public class OperationProcessor  extends AbstractProcessor {
     private void addWebMethodAnnotation(JavaMethod method) {
         addWebMethodAnnotation(method, method.getOperationName());
     }
-    
+
     private void addWebMethodAnnotation(JavaMethod method, String operationName) {
         JavaAnnotation methodAnnotation = new JavaAnnotation("WebMethod");
         methodAnnotation.addArgument("operationName", operationName);
@@ -136,7 +133,7 @@ public class OperationProcessor  extends AbstractProcessor {
         method.addAnnotation("WebMethod", methodAnnotation);
         method.getInterface().addImport("javax.jws.WebMethod");
     }
-    
+
     private void addWebResultAnnotation(JavaMethod method) {
         if (method.isOneWay()) {
             JavaAnnotation oneWayAnnotation = new JavaAnnotation("Oneway");
@@ -144,7 +141,7 @@ public class OperationProcessor  extends AbstractProcessor {
             method.getInterface().addImport("javax.jws.Oneway");
             return;
         }
-       
+
         if ("void".equals(method.getReturn().getType())) {
             return;
         }
@@ -152,8 +149,7 @@ public class OperationProcessor  extends AbstractProcessor {
         String targetNamespace = method.getReturn().getTargetNamespace();
         String name = "return";
 
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
-            && !method.isWrapperStyle()) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle()) {
             name = method.getName() + "Response";
         }
 
@@ -167,12 +163,10 @@ public class OperationProcessor  extends AbstractProcessor {
             }
             targetNamespace = method.getReturn().getTargetNamespace();
         }
-       
+
         resultAnnotation.addArgument("name", name);
         resultAnnotation.addArgument("targetNamespace", targetNamespace);
-        
-        
-        
+
         if (method.getSoapStyle() == SOAPBinding.Style.RPC
             || (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT && !method.isWrapperStyle())) {
             resultAnnotation.addArgument("partName", method.getReturn().getName());
@@ -181,12 +175,12 @@ public class OperationProcessor  extends AbstractProcessor {
         method.addAnnotation("WebResult", resultAnnotation);
         method.getInterface().addImport("javax.jws.WebResult");
     }
-    
+
     protected void addWrapperAnnotation(JavaMethod method, Operation operation) {
         if (!isWrapperStyle(operation)) {
             return;
         }
-        
+
         if (wrapperRequest != null) {
             JavaAnnotation wrapperRequestAnnotation = new JavaAnnotation("RequestWrapper");
             wrapperRequestAnnotation.addArgument("localName", wrapperRequest.getType());
@@ -214,17 +208,18 @@ public class OperationProcessor  extends AbstractProcessor {
 
         Map<String, Part> inputParts = new HashMap<String, Part>();
         Map<String, Part> outputParts = new HashMap<String, Part>();
-        
+
         if (inputMessage != null) {
             inputParts = inputMessage.getParts();
         }
         if (outputMessage != null) {
             outputParts = outputMessage.getParts();
         }
-        
+
         //
         // RULE No.1:
-        // The operation's input and output message (if present) each contain only a single part
+        // The operation's input and output message (if present) each contain
+        // only a single part
         //
         if (inputParts.size() > 1 || outputParts.size() > 1) {
             return false;
@@ -232,7 +227,8 @@ public class OperationProcessor  extends AbstractProcessor {
 
         //
         // RULE No.2:
-        // The input message part refers to a global element decalration whose localname
+        // The input message part refers to a global element decalration whose
+        // localname
         // is equal to the operation name
         //
         Part inputPart = null;
@@ -266,7 +262,7 @@ public class OperationProcessor  extends AbstractProcessor {
         // RULE No.4 and No5:
         // wrapper element should be pure complex type
         //
-        if (ProcessorUtil.getBlock(inputPart, env) == null
+        if (ProcessorUtil.getBlock(inputPart, env) == null 
             || ProcessorUtil.getBlock(outputPart, env) == null) {
             return false;
         }
@@ -278,7 +274,6 @@ public class OperationProcessor  extends AbstractProcessor {
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
 
             wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, this.env, this.collector));
-                
 
         }
         if (outputPart != null) {
@@ -290,7 +285,7 @@ public class OperationProcessor  extends AbstractProcessor {
             wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, this.env, this.collector));
 
         }
-        
+
         return true;
     }
 
@@ -318,12 +313,13 @@ public class OperationProcessor  extends AbstractProcessor {
             binding = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
                                                                                       operationName);
         }
-               
+
         if (binding == null) {
             binding = new JAXWSBinding();
         }
-        if (!binding.isSetAsyncMapping() && (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping()
-            || intf.getJAXWSBinding().isEnableAsyncMapping())) {
+        if (!binding.isSetAsyncMapping()
+            && (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping() || intf.getJAXWSBinding()
+                .isEnableAsyncMapping())) {
             binding.setEnableAsyncMapping(true);
         }
         return binding;
@@ -337,14 +333,14 @@ public class OperationProcessor  extends AbstractProcessor {
         method.getInterface().addImport("java.util.concurrent.Future");
         method.getInterface().addImport("javax.xml.ws.Response");
     }
-    
+
     private void addPollingMethod(JavaMethod method) throws ToolException {
         JavaMethod pollingMethod = new JavaMethod(method.getInterface());
         pollingMethod.setName(method.getName() + ToolConstants.ASYNC_METHOD_SUFFIX);
         pollingMethod.setStyle(method.getStyle());
         pollingMethod.setWrapperStyle(method.isWrapperStyle());
         pollingMethod.setSoapAction(method.getSoapAction());
-        
+
         JavaReturn future = new JavaReturn();
         future.setClassName("Future<?>");
         pollingMethod.setReturn(future);
@@ -353,7 +349,7 @@ public class OperationProcessor  extends AbstractProcessor {
         pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
         pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         pollingMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
-        
+
         for (Iterator iter = method.getParameters().iterator(); iter.hasNext();) {
             pollingMethod.addParameter((JavaParameter)iter.next());
         }
@@ -377,7 +373,7 @@ public class OperationProcessor  extends AbstractProcessor {
         callbackMethod.setStyle(method.getStyle());
         callbackMethod.setWrapperStyle(method.isWrapperStyle());
         callbackMethod.setSoapAction(method.getSoapAction());
-        
+
         JavaReturn response = new JavaReturn();
         response.setClassName(getAsyncClassName(method, "Response"));
         callbackMethod.setReturn(response);

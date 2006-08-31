@@ -21,6 +21,7 @@ package org.apache.cxf.tools.wsdl2java.processor.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -189,8 +190,10 @@ public class ParameterProcessor extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     private void processOutput(JavaMethod method, Message inputMessage, Message outputMessage,
                                boolean isRequestResponse) throws ToolException {
-        Map<String, Part> inputPartsMap = inputMessage.getParts();
-        Map<String, Part> outputPartsMap = outputMessage.getParts();
+        Map<String, Part> inputPartsMap = 
+            inputMessage == null ? new HashMap<String, Part>() : inputMessage.getParts();
+        Map<String, Part> outputPartsMap = 
+            outputMessage == null ? new HashMap<String, Part>() : outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
         // figure out output parts that are not present in input parts
         List<Part> outParts = new ArrayList<Part>();
@@ -229,8 +232,10 @@ public class ParameterProcessor extends AbstractProcessor {
     private void processWrappedOutput(JavaMethod method, Message inputMessage, Message outputMessage,
                                       boolean isRequestResponse) throws ToolException {
         
-        Map<String, Part> inputPartsMap = inputMessage.getParts();
-        Map<String, Part> outputPartsMap = outputMessage.getParts();
+        Map<String, Part> inputPartsMap = 
+            inputMessage == null ? new HashMap<String, Part>() : inputMessage.getParts();
+        Map<String, Part> outputPartsMap = 
+            outputMessage == null ? new HashMap<String, Part>() : outputMessage.getParts();
         Collection<Part> outputParts = outputPartsMap.values();
         Collection<Part> inputParts = inputPartsMap.values();
 
@@ -384,8 +389,10 @@ public class ParameterProcessor extends AbstractProcessor {
     private void buildParamModelsWithOrdering(JavaMethod method, Message inputMessage, Message outputMessage,
                                               boolean isRequestResponse, List<String> parameterList)
         throws ToolException {
-        Map<String, Part> inputPartsMap = inputMessage.getParts();
-        Map<String, Part> outputPartsMap = outputMessage.getParts();
+        Map<String, Part> inputPartsMap = 
+            inputMessage == null ? new HashMap<String, Part>() : inputMessage.getParts();
+        Map<String, Part> outputPartsMap = 
+            outputMessage == null ? new HashMap<String, Part>() : outputMessage.getParts();
 
         Collection<Part> inputParts = inputPartsMap.values();
         Collection<Part> outputParts = outputPartsMap.values();
