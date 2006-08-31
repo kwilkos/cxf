@@ -66,7 +66,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testRPCLit() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_rpc_lit.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -103,7 +103,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testAsynMethod() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_async.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_async.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -138,7 +138,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testHelloWorld() throws Exception {
 
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -212,7 +212,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testDocLitHolder() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/mapping-doc-literal.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/mapping-doc-literal.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -239,7 +239,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testSchemaImport() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_schema_import.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -275,8 +275,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testExternalJaxbBinding() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-b",
-                                      getLocation("/wsdl/hello_world_schema_import.xjb"),
-                                      getLocation("/wsdl/hello_world_schema_import.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/hello_world_schema_import.xjb"),
+                                      getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl")};
         WSDLToJava.main(args);
 
         assertNotNull(output);
@@ -294,7 +294,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testExceptionNameCollision() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/InvoiceServer.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -326,7 +326,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testAllNameCollision() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_collision.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_collision.wsdl"));
         env.setPackageName("org.apache");
         processor.setEnvironment(env);
         processor.process();
@@ -356,7 +356,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testImportNameCollision() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-portname_servicename.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL,
+                getLocation("/wsdl2java_wsdl/helloworld-portname_servicename.wsdl"));
         env.setPackageName("org.apache");
         processor.setEnvironment(env);
         processor.process();
@@ -381,8 +382,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHelloWorldExternalBindingFile() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_jaxws_base.wsdl"));
-        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/hello_world_jaxws_binding.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_jaxws_base.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/hello_world_jaxws_binding.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -402,7 +403,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testSoapHeader() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/soap_header.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/soap_header.wsdl"));
         env.setPackageName("org.apache");
         processor.setEnvironment(env);
         processor.process();
@@ -439,7 +440,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHolderHeader() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_holder.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_holder.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -466,7 +467,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     public void testNamespacePackageMapping1() throws Exception {
         env.setPackageName("org.cxf");
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -492,7 +493,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     public void testNamespacePackageMapping2() throws Exception {
         env.setPackageName("org.cxf");
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "org.apache");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -517,7 +518,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testNamespacePackageMapping3() throws Exception {
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "org.cxf");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -544,8 +545,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testWSAddress() throws Exception {
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "ws.address");
-        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl/ws_address_binding.wsdl"));
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_addr.wsdl"));
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/ws_address_binding.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_addr.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -569,20 +570,20 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testSupportXMLBindingBare() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/xml_http_bare.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_bare.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
     }
 
     public void testSupportXMLBindingWrapped() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/xml_http_wrapped.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_wrapped.wsdl"));
         processor.setEnvironment(env);
         processor.process();
     }
 
     public void testRouterWSDL() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/router.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/router.wsdl"));
         processor.setEnvironment(env);
         processor.process();
     }
@@ -592,7 +593,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
                                       "http://apache.org/test/types=com.iona", "-nexclude",
                                       "http://apache.org/Invoice",
-                                      getLocation("/wsdl/hello_world_exclude.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
 
         assertNotNull(output);
@@ -612,7 +613,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
                                       "http://apache.org/test/types",
-                                      getLocation("/wsdl/hello_world_exclude.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
 
         assertNotNull(output);
@@ -625,7 +626,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         String[] args = new String[] {"-compile", "-d", output.getCanonicalPath(), "-classdir",
                                       output.getCanonicalPath() + "/classes", "-p", "org.cxf", "-p",
                                       "http://apache.org/hello_world_soap_http/types=org.apache.types",
-                                      "-client", "-server", "-impl", getLocation("/wsdl/hello_world.wsdl")};
+                                      "-client", "-server", "-impl",
+                                      getLocation("/wsdl2java_wsdl/hello_world.wsdl")};
         WSDLToJava.main(args);
 
         Class clz = classLoader.loadClass("org.cxf.Greeter");
@@ -635,7 +637,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testDefaultLoadNSMappingOFF() throws Exception {
         String[] args = new String[] {"-dns", "false", "-d", output.getCanonicalPath(),
-                                      getLocation("/wsdl/basic_callback.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
 
         WSDLToJava.main(args);
 
@@ -657,7 +659,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testDefaultLoadNSMappingON() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(),
-                                      getLocation("/wsdl/basic_callback.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
 
         WSDLToJava.main(args);
 
@@ -678,7 +680,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testWithNoService() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-noservice.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld-noservice.wsdl"));
         processor.setEnvironment(env);
         processor.process();
         Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
@@ -696,7 +698,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testWithNoBinding() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/helloworld-nobinding.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld-nobinding.wsdl"));
         processor.setEnvironment(env);
         processor.process();
         Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
@@ -716,7 +718,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testVoidInOutMethod() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/interoptestdoclit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/interoptestdoclit.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -745,7 +747,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testWsdlImport() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_wsdl_import.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_wsdl_import.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -771,7 +773,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testWebFault() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/InvoiceServer-issue305570.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer-issue305570.wsdl"));
         processor.setEnvironment(env);
         processor.process();
 
@@ -794,7 +796,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testMultiSchemaParsing() throws Exception {
         String[] args = 
-            new String[] {"-d", output.getCanonicalPath(), getLocation("/wsdl/multi_schema.wsdl")};
+            new String[] {"-d", output.getCanonicalPath(), getLocation("/wsdl2java_wsdl/multi_schema.wsdl")};
         WSDLToJava.main(args);
 
         assertNotNull(output);
@@ -817,7 +819,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
                                           "-nexclude",
                                           "http://www.w3.org/2005/08/addressing"
                                               + "=org.apache.cxf.ws.addressing",
-                                          getLocation("/wsdl/bug305728/hello_world.wsdl")};
+                                          getLocation("/wsdl2java_wsdl/bug305728/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -852,7 +854,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             String[] args = new String[] {"-compile", "-classdir", output.getCanonicalPath() + "/classes",
                                           "-d", output.getCanonicalPath(), "-nexclude",
                                           "http://apache.org/hello_world/types",
-                                          getLocation("/wsdl/bug305728/hello_world2.wsdl")};
+                                          getLocation("/wsdl2java_wsdl/bug305728/hello_world2.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
             e.printStackTrace();
@@ -874,7 +876,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testBug305729() {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305729/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305729/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
         assertNotNull("Process message with no part wsdl error", output);
@@ -886,7 +888,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
             env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
             env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305700/addNumbers.wsdl"));
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305700/addNumbers.wsdl"));
             processor.setEnvironment(env);
             processor.process();
         } catch (Exception e) {
@@ -900,7 +902,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
             env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
             env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305773/hello_world.wsdl"));
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305773/hello_world.wsdl"));
             processor.setEnvironment(env);
             processor.process();
             Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
@@ -924,7 +926,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
             env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
             // env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305772/hello_world.wsdl"));
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305772/hello_world.wsdl"));
             processor.setEnvironment(env);
             processor.process();
             File file = new File(output.getCanonicalPath(), "build.xml");
@@ -947,7 +949,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
             env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
             env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bug305770/Printer.wsdl"));
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305770/Printer.wsdl"));
             processor.setEnvironment(env);
             processor.process();
         } catch (Exception e) {
@@ -956,7 +958,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     }
 
     public void testHangingBug() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/bughanging/wsdl/wsrf.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL,
+                getLocation("/wsdl2java_wsdl/bughanging/wsdl/wsrf.wsdl"));
         processor.setEnvironment(env);
         processor.process();
     }
@@ -966,8 +969,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             String[] args = new String[] {"-all", "-compile", "-classdir",
                                           output.getCanonicalPath() + "/classes", "-d",
                                           output.getCanonicalPath(), "-b",
-                                          getLocation("/wsdl/bug305924/binding2.xml"),
-                                          getLocation("/wsdl/bug305924/hello_world.wsdl")};
+                                          getLocation("/wsdl2java_wsdl/bug305924/binding2.xml"),
+                                          getLocation("/wsdl2java_wsdl/bug305924/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -987,8 +990,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             String[] args = new String[] {"-all", "-compile", "-classdir",
                                           output.getCanonicalPath() + "/classes", "-d",
                                           output.getCanonicalPath(), "-b",
-                                          getLocation("/wsdl/bug305924/binding1.xml"),
-                                          getLocation("/wsdl/bug305924/hello_world.wsdl")};
+                                          getLocation("/wsdl2java_wsdl/bug305924/binding1.xml"),
+                                          getLocation("/wsdl2java_wsdl/bug305924/hello_world.wsdl")};
             WSDLToJava.main(args);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -1005,7 +1008,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     public void testInvalidMepOperation() throws Exception {
         try {
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/invalid_mep.wsdl"));
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/invalid_mep.wsdl"));
             processor.setEnvironment(env);
             processor.process();
         } catch (Exception e) {

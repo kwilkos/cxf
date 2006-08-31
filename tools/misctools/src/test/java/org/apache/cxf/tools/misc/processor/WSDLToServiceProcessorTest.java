@@ -44,7 +44,8 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
                                       "Greeter_SOAPBinding", "-a",
                                       "http://localhost:9000/newservice/newport", "-d",
-                                      output.getCanonicalPath(), getLocation("/wsdl/hello_world.wsdl")};
+                                      output.getCanonicalPath(),
+                                      getLocation("/misctools_wsdl/hello_world.wsdl")};
         WSDLToService.main(args);
 
         File outputFile = new File(output, "hello_world-service.wsdl");
@@ -89,7 +90,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
         String[] args = new String[] {"-transport", "http", "-e", "serviceins", "-p", "portins", "-n",
                                       "Greeter_SOAPBinding", "-d", output.getCanonicalPath(),
-                                      getLocation("/wsdl/hello_world.wsdl")};
+                                      getLocation("/misctools_wsdl/hello_world.wsdl")};
         WSDLToService.main(args);
 
         File outputFile = new File(output, "hello_world-service.wsdl");
@@ -137,7 +138,8 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
                                       "ConnectionFactory", "-jdn",
                                       "dynamicQueues/test.cxf.jmstransport.queue", "-jmt", "text", "-jmc",
                                       "false", "-jsn", "cxf_Queue_subscriber", "-d",
-                                      output.getCanonicalPath(), getLocation("/wsdl/jms_test.wsdl")};
+                                      output.getCanonicalPath(),
+                                      getLocation("/misctools_wsdl/jms_test.wsdl")};
         WSDLToService.main(args);
         File outputFile = new File(output, "jms_test-service.wsdl");
         assertTrue("New wsdl file is not generated", outputFile.exists());
@@ -203,7 +205,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
         WSDLToServiceProcessor processor = new WSDLToServiceProcessor();
 
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world.wsdl"));
         env.put(ToolConstants.CFG_TRANSPORT, new String("http"));
         env.put(ToolConstants.CFG_SERVICE, new String("SOAPService_Test1"));
         env.put(ToolConstants.CFG_PORT, new String("SoapPort_Test1"));
@@ -227,7 +229,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
 
         WSDLToServiceProcessor processor = new WSDLToServiceProcessor();
 
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world.wsdl"));
         env.put(ToolConstants.CFG_TRANSPORT, new String("http"));
         env.put(ToolConstants.CFG_BINDING_ATTR, new String("BindingNotExist"));
         env.put(ToolConstants.CFG_SERVICE, new String("serviceins"));

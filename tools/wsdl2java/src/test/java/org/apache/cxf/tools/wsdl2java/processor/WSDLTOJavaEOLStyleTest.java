@@ -40,7 +40,7 @@ public class WSDLTOJavaEOLStyleTest extends ProcessorTestBase {
     }
 
     public void testHelloWorld() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
         File seiFile = new File(output.getCanonicalPath()

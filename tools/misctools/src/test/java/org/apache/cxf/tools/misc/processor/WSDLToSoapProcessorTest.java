@@ -47,7 +47,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     public void testDocLitWithFault() throws Exception {
         String[] args = new String[] {"-i", "Greeter", "-d", output.getCanonicalPath(),
-                                      getLocation("/wsdl/hello_world_doc_lit.wsdl")};
+                                      getLocation("/misctools_wsdl/hello_world_doc_lit.wsdl")};
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_doc_lit-soapbinding.wsdl");
@@ -121,7 +121,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
                                       "Greeter_SOAPBinding_NewBinding", "-style", "rpc", "-use", "literal",
                                       "-d", output.getCanonicalPath(), "-o",
                                       "hello_world_rpc_lit_newbinding.wsdl",
-                                      getLocation("/wsdl/hello_world_rpc_lit.wsdl")};
+                                      getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl")};
         WSDLToSoap.main(args);
 
         File outputFile = new File(output, "hello_world_rpc_lit_newbinding.wsdl");
@@ -193,7 +193,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_STYLE, "rpc");
         env.put(ToolConstants.CFG_USE, "literal");
         env.put(ToolConstants.CFG_NAMESPACE, "http://com.iona.hello_world/rpc");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         try {
             processor.process();
@@ -209,7 +209,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     public void testBindingExist() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl"));
         env.put(ToolConstants.CFG_PORTTYPE, new String("GreeterRPCLit"));
         env.put(ToolConstants.CFG_BINDING, new String("Greeter_SOAPBinding_RPCLit"));
         processor.setEnvironment(env);
@@ -226,7 +226,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     public void testPortTypeNotExist() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl"));
         env.put(ToolConstants.CFG_PORTTYPE, new String("NonExistPortType"));
         env.put(ToolConstants.CFG_BINDING, new String("NewBinding_RPCLit"));
         processor.setEnvironment(env);
@@ -244,7 +244,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
 
     public void testNameSpaceMissing() throws Exception {
         WSDLToSoapProcessor processor = new WSDLToSoapProcessor();
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/misctools_wsdl/hello_world_rpc_lit.wsdl"));
         env.put(ToolConstants.CFG_PORTTYPE, new String("GreeterRPCLit"));
         env.put(ToolConstants.CFG_BINDING, new String("NewBinding_RPCLit"));
         env.put(ToolConstants.CFG_STYLE, new String("rpc"));

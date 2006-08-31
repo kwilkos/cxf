@@ -47,7 +47,7 @@ public class WSDLToXMLProcessorTest extends ProcessorTestBase {
 
     public void testAllDefault() throws Exception {
         String[] args = new String[] {"-i", "Greeter", "-d", output.getCanonicalPath(),
-                                      getLocation("/wsdl/hello_world.wsdl")};
+                                      getLocation("/misctools_wsdl/hello_world.wsdl")};
         WSDLToXML.main(args);
 
         File outputFile = new File(output, "hello_world-xmlbinding.wsdl");

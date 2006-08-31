@@ -38,7 +38,7 @@ public class WSDLToJavaMIMETest
 
 //    public void testHelloWorld() throws Exception {
 //        String[] args = new String[] {"-d", output.getCanonicalPath(),
-//                                      getLocation("/wsdl/binary_attachment.wsdl")};
+//                                      getLocation("/wsdl2java_wsdl/binary_attachment.wsdl")};
 //        WSDLToJava.main(args);
 //        assertNotNull(output);
 //        File org = new File(output, "org");
@@ -70,8 +70,8 @@ public class WSDLToJavaMIMETest
 //
 //    public void testWithExternalBindingSwitch() throws Exception {
 //        String[] args = new String[] {"-d", output.getCanonicalPath(), "-b",
-//                                      getLocation("/wsdl/mime_binding.wsdl"),
-//                                      getLocation("/wsdl/binary_attachment.wsdl")};
+//                                      getLocation("/wsdl2java_wsdl/mime_binding.wsdl"),
+//                                      getLocation("/wsdl2java_wsdl/binary_attachment.wsdl")};
 //        WSDLToJava.main(args);
 //        assertNotNull(output);
 //        File org = new File(output, "org");

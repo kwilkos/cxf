@@ -49,7 +49,7 @@ public class WSDLToJavaExSoapHeaderTest
     public void testSoapBindingDiffMessage() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(), 
                                       "-exsh", "true", "-compile", 
-                                      getLocation("/wsdl/soapheader_test.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/soapheader_test.wsdl")};
         WSDLToJava.main(args);
 
         Class clz = classLoader.loadClass("org.apache.header_test.TestHeader");        
@@ -69,7 +69,7 @@ public class WSDLToJavaExSoapHeaderTest
 
     public void testSoapHeaderBinding() throws Exception {
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-compile",
-                                      getLocation("/wsdl/soapheader_test.wsdl")};
+                                      getLocation("/wsdl2java_wsdl/soapheader_test.wsdl")};
         WSDLToJava.main(args);
 
         Class clz = classLoader.loadClass("org.apache.header_test.TestHeader");

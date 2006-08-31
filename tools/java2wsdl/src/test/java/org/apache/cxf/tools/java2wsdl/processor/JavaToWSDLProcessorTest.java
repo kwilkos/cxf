@@ -64,7 +64,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_async.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/java2wsdl_wsdl/hello_world_async.wsdl"));
         wj2Processor.setEnvironment(env);
         wj2Processor.process();
 
@@ -92,7 +92,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_doc_wrapped_bare.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/java2wsdl_wsdl/hello_world_doc_wrapped_bare.wsdl"));
         wj2Processor.setEnvironment(env);
         wj2Processor.process();
 
@@ -121,7 +121,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_doc_lit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/java2wsdl_wsdl/hello_world_doc_lit.wsdl"));
         wj2Processor.setEnvironment(env);
         wj2Processor.process();
  
@@ -149,7 +149,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world_rpc_lit.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/java2wsdl_wsdl/hello_world_rpc_lit.wsdl"));
         wj2Processor.setEnvironment(env);
         wj2Processor.process();
    

@@ -36,7 +36,7 @@ public class XSDToWSDLProcessorTest
     public void testNewTypes() throws Exception {
         String[] args = new String[] {"-t", "http://org.apache/invoice", "-n", "Invoice", "-d",
                                       output.getCanonicalPath(), "-o", "Invoice_xsd.wsdl",
-                                      getLocation("/wsdl/Invoice.xsd")};
+                                      getLocation("/misctools_wsdl/Invoice.xsd")};
         XSDToWSDL.main(args);
 
         File outputFile = new File(output, "Invoice_xsd.wsdl");
@@ -64,7 +64,7 @@ public class XSDToWSDLProcessorTest
 
     public void testDefaultFileName() throws Exception {
         String[] args = new String[] {"-t", "http://org.apache/invoice", "-n", "Invoice", "-d",
-                                      output.getCanonicalPath(), getLocation("/wsdl/Invoice.xsd")};
+                                      output.getCanonicalPath(), getLocation("/misctools_wsdl/Invoice.xsd")};
         XSDToWSDL.main(args);
 
         File outputFile = new File(output, "Invoice.wsdl");

@@ -49,7 +49,7 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
 
     public void testGenClientOnly() throws Exception {
 
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         env.put(ToolConstants.CFG_GEN_CLIENT, ToolConstants.CFG_GEN_CLIENT);
         processor.setEnvironment(env);
         processor.process();
@@ -69,7 +69,7 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
 
     public void testGenServerOnly() throws Exception {
 
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl/hello_world.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
         processor.setEnvironment(env);
         processor.process();
