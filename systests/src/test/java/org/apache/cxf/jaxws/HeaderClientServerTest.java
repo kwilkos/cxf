@@ -34,6 +34,7 @@ import junit.framework.TestSuite;
 
 
 //import org.apache.cxf.systest.common.ClientServerSetupBase;
+import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.header_test.SOAPHeaderService;
@@ -83,12 +84,12 @@ public class HeaderClientServerTest extends ClientServerTestBase {
     
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(HeaderClientServerTest.class);
-        /*return new ClientServerSetupBase(suite) {
+        return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 assertTrue("server did not launch correctly", launchServer(MyServer.class));
             }
-        };*/
-        return suite;
+        };
+        
         
 
     }  
