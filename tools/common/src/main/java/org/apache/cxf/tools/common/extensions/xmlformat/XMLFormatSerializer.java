@@ -37,17 +37,17 @@ import org.apache.cxf.tools.common.ToolConstants;
 
 public class XMLFormatSerializer implements ExtensionSerializer, ExtensionDeserializer, Serializable {
 
-    XMLUtils xmlUtils = new XMLUtils();
+    
     
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
         XMLFormat xmlFormat = (XMLFormat)extension;
         StringBuffer sb = new StringBuffer(300);
-        sb.append("<" + xmlUtils.writeQName(def, elementType) + " ");
+        sb.append("<" + XMLUtils.writeQName(def, elementType) + " ");
         if (xmlFormat.getRootNode() != null) {
             sb.append(ToolConstants.XMLBINDING_ROOTNODE + "=\""
-                      + xmlUtils.writeQName(def, xmlFormat.getRootNode()) + "\"");
+                      + XMLUtils.writeQName(def, xmlFormat.getRootNode()) + "\"");
         }
         sb.append(" />");
         pw.print(sb.toString());

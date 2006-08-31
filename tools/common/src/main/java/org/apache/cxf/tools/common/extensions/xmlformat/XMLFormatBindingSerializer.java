@@ -35,12 +35,11 @@ import org.apache.cxf.helpers.XMLUtils;
 
 public class XMLFormatBindingSerializer implements ExtensionDeserializer, ExtensionSerializer {
 
-    XMLUtils xmlUtils = new XMLUtils();
-    
+        
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
-        pw.print("<" + xmlUtils.writeQName(def, elementType) + "/>");
+        pw.print("<" + XMLUtils.writeQName(def, elementType) + "/>");
         pw.println();
     }
 

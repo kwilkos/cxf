@@ -42,31 +42,35 @@ import org.xml.sax.SAXException;
 import org.apache.cxf.common.logging.LogUtils;
 
 
-public class XMLUtils {
+public final class XMLUtils {
     
     private static final Logger LOG = LogUtils.getL7dLogger(XMLUtils.class);
-    private final DocumentBuilderFactory parserFactory;
-    private final TransformerFactory transformerFactory;
-    private String omitXmlDecl = "no";
-    private String charset = "utf-8";
-    private int indent = -1;
+    private static DocumentBuilderFactory parserFactory;
+    private static TransformerFactory transformerFactory;
+    private static String omitXmlDecl = "no";
+    private static String charset = "utf-8";
+    private static int indent = -1;
     
-    public XMLUtils() {
+    static {
         parserFactory = DocumentBuilderFactory.newInstance();
         parserFactory.setNamespaceAware(true);
         
         transformerFactory = TransformerFactory.newInstance();
     }
-
-    private Transformer newTransformer() throws TransformerConfigurationException {
+    
+    private XMLUtils() {
+        
+    }
+    
+    private static  Transformer newTransformer() throws TransformerConfigurationException {
         return transformerFactory.newTransformer();
     }
 
-    private DocumentBuilder getParser() throws ParserConfigurationException {
+    private static DocumentBuilder getParser() throws ParserConfigurationException {
         return parserFactory.newDocumentBuilder();
     }
     
-    public Document parse(InputStream in) 
+    public static Document parse(InputStream in) 
         throws ParserConfigurationException, SAXException, IOException {
         if (in == null && LOG.isLoggable(Level.FINE)) {
             LOG.fine("XMLUtils trying to parse a null inputstream");
@@ -74,12 +78,12 @@ public class XMLUtils {
         return getParser().parse(in);
     }
 
-    public Document parse(String in) 
+    public static Document parse(String in) 
         throws ParserConfigurationException, SAXException, IOException {
         return parse(in.getBytes());
     }
 
-    public Document parse(byte[] in) 
+    public static Document parse(byte[] in) 
         throws ParserConfigurationException, SAXException, IOException {
         if (in == null && LOG.isLoggable(Level.FINE)) {
             LOG.fine("XMLUtils trying to parse a null bytes");
@@ -87,27 +91,27 @@ public class XMLUtils {
         return getParser().parse(new ByteArrayInputStream(in));
     }
 
-    public Document newDocument() throws ParserConfigurationException {
+    public static Document newDocument() throws ParserConfigurationException {
         return getParser().newDocument();
     }
 
-    public void setOmitXmlDecl(String value) {
-        this.omitXmlDecl = value;        
+    public static void setOmitXmlDecl(String value) {
+        omitXmlDecl = value;        
     }
     
-    public void setCharsetEncoding(String value) {
-        this.charset = value;
+    public static void setCharsetEncoding(String value) {
+        charset = value;
     }
 
-    public void setIndention(int i) {
-        this.indent = i;
+    public static void setIndention(int i) {
+        indent = i;
     }
 
-    private boolean indent() {
-        return this.indent != -1;
+    private static boolean indent() {
+        return indent != -1;
     }
     
-    public void writeTo(Node node, OutputStream os) {
+    public static void writeTo(Node node, OutputStream os) {
         try {
             Transformer it = newTransformer();
             
@@ -115,7 +119,7 @@ public class XMLUtils {
             if (indent()) {
                 it.setOutputProperty(OutputKeys.INDENT, "yes");
                 it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-                                     Integer.toString(this.indent));
+                                     Integer.toString(indent));
             }
             it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, omitXmlDecl);
             it.setOutputProperty(OutputKeys.ENCODING, charset);
@@ -125,33 +129,33 @@ public class XMLUtils {
         }
     }
     
-    public String toString(Node node) {
+    public static String toString(Node node) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writeTo(node, out);
         return out.toString();
     }
 
-    public void printDOM(Node node) {
+    public static void printDOM(Node node) {
         printDOM("", node);
     }
 
-    public void printDOM(String words, Node node) {
+    public static void printDOM(String words, Node node) {
         System.out.println(words);
         System.out.println(toString(node));
     }
 
-    public Attr getAttribute(Element el, String attrName) {
+    public static Attr getAttribute(Element el, String attrName) {
         return el.getAttributeNode(attrName);
     }
 
-    public void replaceAttribute(Element element, String attr, String value) {
+    public static void replaceAttribute(Element element, String attr, String value) {
         if (element.hasAttribute(attr)) {
             element.removeAttribute(attr);
         }
         element.setAttribute(attr, value);
     }
 
-    public boolean hasAttribute(Element element, String value) {
+    public static boolean hasAttribute(Element element, String value) {
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node node = attributes.item(i);
@@ -171,7 +175,7 @@ public class XMLUtils {
         }
     }
 
-    public QName getNamespace(Map<String, String> namespaces, String str, String defaultNamespace) {
+    public static QName getNamespace(Map<String, String> namespaces, String str, String defaultNamespace) {
         String prefix = null;
         String localName = null;
         
@@ -190,7 +194,7 @@ public class XMLUtils {
         return new QName(namespceURI, localName);
     }
 
-    public void generateXMLFile(Element element, Writer writer) {
+    public static void generateXMLFile(Element element, Writer writer) {
         try {
             Transformer it = newTransformer();
             
@@ -204,27 +208,27 @@ public class XMLUtils {
         }
     }
 
-    public Element createElementNS(Node node, QName name) {
+    public static Element createElementNS(Node node, QName name) {
         return createElementNS(node.getOwnerDocument(), name.getNamespaceURI(), name.getLocalPart());
     }
 
-    public Element createElementNS(Document root, QName name) {
+    public static Element createElementNS(Document root, QName name) {
         return createElementNS(root, name.getNamespaceURI(), name.getLocalPart());
     }
     
-    public Element createElementNS(Document root, String namespaceURI, String qualifiedName) {
+    public static Element createElementNS(Document root, String namespaceURI, String qualifiedName) {
         return root.createElementNS(namespaceURI, qualifiedName);
     }
 
-    public Text createTextNode(Document root, String data) {
+    public static Text createTextNode(Document root, String data) {
         return root.createTextNode(data);
     }
 
-    public Text createTextNode(Node node, String data) {
+    public static Text createTextNode(Node node, String data) {
         return createTextNode(node.getOwnerDocument(), data);
     }
 
-    public void removeContents(Node node) {
+    public static void removeContents(Node node) {
         NodeList list = node.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node entry = list.item(i);
@@ -232,7 +236,7 @@ public class XMLUtils {
         }
     }
     
-    public String writeQName(Definition def, QName qname) {
+    public static String writeQName(Definition def, QName qname) {
         return def.getPrefix(qname.getNamespaceURI()) + ":" + qname.getLocalPart();
     }
 

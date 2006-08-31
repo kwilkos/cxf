@@ -36,13 +36,12 @@ import org.apache.cxf.tools.common.ToolConstants;
 
 public class XMLHttpSerializer implements ExtensionSerializer, ExtensionDeserializer {
 
-    XMLUtils xmlUtils = new XMLUtils();
     public void marshall(Class parentType, QName elementType, ExtensibilityElement extension, PrintWriter pw,
                          Definition def, ExtensionRegistry extReg) throws WSDLException {
 
         XMLHttpAddress xmlHttpAddress = (XMLHttpAddress)extension;
         StringBuffer sb = new StringBuffer(300);
-        sb.append("<" + xmlUtils.writeQName(def, elementType) + " ");
+        sb.append("<" + XMLUtils.writeQName(def, elementType) + " ");
         if (xmlHttpAddress.getLocation() != null) {
             sb.append(ToolConstants.XMLBINDING_HTTP_LOCATION + "=\"" + xmlHttpAddress.getLocation() + "\"");
         }

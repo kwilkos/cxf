@@ -76,7 +76,7 @@ public class HandlerConfigGenerator extends AbstractGenerator {
     }
 
     private void generateHandlerChainFile(Element hChains, Writer writer) throws ToolException {
-        XMLUtils xmlUtils = new XMLUtils();
-        xmlUtils.generateXMLFile(hChains, writer);
+        
+        XMLUtils.generateXMLFile(hChains, writer);
     }
 }

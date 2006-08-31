@@ -41,8 +41,8 @@ public final class JAXBUtils {
 
     public static Node innerJaxbPackageBinding(Element schema, String packagevalue) {
         Document doc = schema.getOwnerDocument();
-        XMLUtils xmlUtils = new XMLUtils();
-        if (!xmlUtils.hasAttribute(schema, ToolConstants.NS_JAXB_BINDINGS)) {
+        
+        if (!XMLUtils.hasAttribute(schema, ToolConstants.NS_JAXB_BINDINGS)) {
             schema.setAttributeNS(ToolConstants.NS_JAXB_BINDINGS, "version", "2.0");
         }
 

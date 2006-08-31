@@ -38,7 +38,7 @@ public class JMSAddressSerializer implements ExtensionSerializer,
                                              ExtensionDeserializer,
                                              Serializable {
     public static final long serialVersionUID = 1;
-    XMLUtils xmlUtils = new XMLUtils();
+    
     
     public void marshall(Class parentType,
                          QName elementType,
@@ -49,7 +49,7 @@ public class JMSAddressSerializer implements ExtensionSerializer,
 
         JMSAddress jmsAddress = (JMSAddress)extension;
         StringBuffer sb = new StringBuffer(300);        
-        sb.append(" <" + xmlUtils.writeQName(def, elementType) + " ");
+        sb.append(" <" + XMLUtils.writeQName(def, elementType) + " ");
         sb.append(jmsAddress.getAttrXMLString());
         sb.append("/>");
         pw.print(sb.toString());
