@@ -19,8 +19,13 @@
 
 package org.apache.cxf.jaxws.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.ws.Binding;
+import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
+import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
@@ -56,8 +61,20 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     }
     
     public void testInterceptSuccess() {
+        List<LogicalHandler> list = new ArrayList<LogicalHandler>();
+        list.add(new LogicalHandler() {
+            public void close(MessageContext arg0) {
+            }
+            public boolean handleFault(MessageContext arg0) {
+                return true;
+            }
+            public boolean handleMessage(MessageContext arg0) {
+                return true;
+            }
+        });
+        expect(invoker.getLogicalHandlers()).andReturn(list);
         expect(message.getExchange()).andReturn(exchange);
-        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(invoker.invokeLogicalHandlers(eq(true),
             isA(LogicalMessageContext.class))).andReturn(true);
         control.replay();
@@ -67,8 +84,20 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     }
     
     public void testInterceptFailure() {
+        List<LogicalHandler> list = new ArrayList<LogicalHandler>();
+        list.add(new LogicalHandler() {
+            public void close(MessageContext arg0) {
+            }
+            public boolean handleFault(MessageContext arg0) {
+                return true;
+            }
+            public boolean handleMessage(MessageContext arg0) {
+                return true;
+            }
+        });
+        expect(invoker.getLogicalHandlers()).andReturn(list);
         expect(message.getExchange()).andReturn(exchange);
-        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(invoker.invokeLogicalHandlers(eq(true), 
             isA(LogicalMessageContext.class))).andReturn(false);
         control.replay();
@@ -78,7 +107,7 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     
     public void testOnCompletion() {
         expect(message.getExchange()).andReturn(exchange);
-        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         invoker.mepComplete(message);
         expectLastCall();
         control.replay();

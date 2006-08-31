@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.jws.WebMethod;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
@@ -68,6 +69,16 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         BindingOperationInfo oi = getOperationInfo(proxy, method);
+        if (oi == null) {
+            //check for method on BindingProvider
+            if (method.getDeclaringClass().equals(BindingProvider.class)
+                || method.getDeclaringClass().equals(BindingProviderImpl.class)) {
+                return method.invoke(this);
+            }
+            
+            Message msg = new Message("NO_OPERATION_INFO", LOG, method.getName());
+            throw new WebServiceException(msg.toString());
+        }
 
         // REVISIT - Holder objects, etc...
 
@@ -78,8 +89,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         Map<String, Object> context = new HashMap<String, Object>();
         context.put(org.apache.cxf.message.Message.METHOD, method);
         Object obj[] = client.invoke(oi, params, context);
-
-        return obj.length == 0 ? null : obj[0];
+        
+        return obj == null || obj.length == 0 ? null : obj[0];
     }
 
     BindingOperationInfo getOperationInfo(Object proxy, Method method) {
@@ -104,8 +115,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             QName oiQName = new QName(endpoint.getService().getName().getNamespaceURI(), operationName);
             OperationInfo oi = ii.getOperation(oiQName);
             if (null == oi) {
-                Message msg = new Message("NO_OPERATION_INFO", LOG, operationName);
-                throw new WebServiceException(msg.toString());
+                return null;
             }
             // found the OI in the Interface, now find it in the binding
             BindingOperationInfo boi2 = endpoint.getEndpointInfo().getBinding().getOperation(oiQName);

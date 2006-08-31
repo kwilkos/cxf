@@ -32,11 +32,14 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
     }
     
     public void handleMessage(T message) {
-        LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
-        if (!getInvoker(message).invokeLogicalHandlers(isRequestor(message), lctx)) {
-            // need to abort - not sure how to do this:
-            // we have access to the interceptor chain via the message but 
-            // there is no support for terminating the chain yet
+        HandlerChainInvoker invoker = getInvoker(message);
+        if (!invoker.getLogicalHandlers().isEmpty()) {
+            LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
+            if (!invoker.invokeLogicalHandlers(isRequestor(message), lctx)) {
+                // need to abort - not sure how to do this:
+                // we have access to the interceptor chain via the message but 
+                // there is no support for terminating the chain yet
+            }
         }
     }
     

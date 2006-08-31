@@ -92,7 +92,7 @@ public class HandlerChainInvoker {
         return protocolHandlers;
     }
 
-    public List<? extends Handler> getStreamHandlers() { 
+    public List<StreamHandler> getStreamHandlers() { 
         return streamHandlers;
     }
 

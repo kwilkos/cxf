@@ -25,9 +25,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
 public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends AbstractPhaseInterceptor<T> {
-
-    public static final String HANDLER_CHAIN_INVOKER = "org.apache.cxf.jaxws.handlers.invoker";
-    
     private Binding binding;
     
     protected AbstractJAXWSHandlerInterceptor(Binding b) {
@@ -35,6 +32,7 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     }
     
     boolean isOneway(T message) {
+        //@@TODO
         return true;
     }
     
@@ -43,15 +41,16 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     }
     
     boolean isRequestor(T message) {
-        return true;
+        Boolean b = (Boolean)message.get(Message.REQUESTOR_ROLE);
+        return b == null ? true : b.booleanValue();
     }
     
     protected HandlerChainInvoker getInvoker(T message) {
         HandlerChainInvoker invoker = 
-            (HandlerChainInvoker)message.getExchange().get(HANDLER_CHAIN_INVOKER);
+            message.getExchange().get(HandlerChainInvoker.class);
         if (null == invoker) {
             invoker = new HandlerChainInvoker(binding.getHandlerChain());
-            message.getExchange().put(HANDLER_CHAIN_INVOKER, invoker);
+            message.getExchange().put(HandlerChainInvoker.class, invoker);
         }
         return invoker;
     }

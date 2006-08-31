@@ -19,10 +19,15 @@
 
 package org.apache.cxf.jaxws.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.ws.Binding;
+import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.jaxws.handlers.StreamHandler;
 import org.apache.cxf.jaxws.handlers.StreamMessageContext;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -47,7 +52,18 @@ public class StreamHandlerInterceptorTest extends TestCase {
         invoker = control.createMock(HandlerChainInvoker.class);
         message = control.createMock(Message.class);
         exchange = control.createMock(Exchange.class);
-        
+        List<StreamHandler> list = new ArrayList<StreamHandler>();
+        list.add(new StreamHandler() {
+            public void close(MessageContext arg0) {
+            }
+            public boolean handleFault(StreamMessageContext arg0) {
+                return true;
+            }
+            public boolean handleMessage(StreamMessageContext arg0) {
+                return true;
+            }
+        });
+        expect(invoker.getStreamHandlers()).andReturn(list);        
     }
     
     public void tearDown() {
@@ -56,7 +72,7 @@ public class StreamHandlerInterceptorTest extends TestCase {
 
     public void testInterceptSuccess() {
         expect(message.getExchange()).andReturn(exchange);
-        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(invoker.invokeStreamHandlers(isA(StreamMessageContext.class))).andReturn(true);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(binding);
@@ -66,7 +82,7 @@ public class StreamHandlerInterceptorTest extends TestCase {
     
     public void testInterceptFailure() {
         expect(message.getExchange()).andReturn(exchange);
-        expect(exchange.get(AbstractProtocolHandlerInterceptor.HANDLER_CHAIN_INVOKER)).andReturn(invoker);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(invoker.invokeStreamHandlers(isA(StreamMessageContext.class))).andReturn(false);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(binding);
