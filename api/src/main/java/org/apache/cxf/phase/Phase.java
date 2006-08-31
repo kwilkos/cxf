@@ -22,9 +22,7 @@ package org.apache.cxf.phase;
 public class Phase implements Comparable {
     
     // can be removed from once defined as default value in configuration metadata for bus
-    
-    // --- out ---
-    
+
     public static final String POST_INVOKE = "post-invoke";
     public static final String PRE_LOGICAL = "pre-logical";
     public static final String USER_LOGICAL = "user-logical";
@@ -39,8 +37,6 @@ public class Phase implements Comparable {
     public static final String POST_STREAM = "port-stream";
     public static final String WRITE = "write";
     public static final String SEND = "send";
-    
-    // --- in ---
     
     public static final String RECEIVE = "receive";
     public static final String READ = "read";
