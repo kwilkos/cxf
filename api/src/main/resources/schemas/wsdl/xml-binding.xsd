@@ -1,27 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xformat="http://cxf.apache.org/bindings/xformat"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-	xmlns:tns="http://cxf.apache.org/bindings/xformat"
 	targetNamespace="http://cxf.apache.org/bindings/xformat"
 	elementFormDefault="qualified"
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0">
 
-	<xs:attribute name="required" type="xs:boolean" />
-
-	<xs:complexType name="tExtensibilityElement" abstract="true">
-		<xs:annotation>
-			<xs:appinfo>
-				<jaxb:class
-					implClass="org.apache.cxf.wsdl.TExtensibilityElementImpl" />
-			</xs:appinfo>
-		</xs:annotation>
-		<xs:attribute ref="tns:required" use="optional" />
-	</xs:complexType>
-
+	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/"
+		schemaLocation="wsdl.xsd" />
 
 	<xs:complexType name="XMLBindingMessageFormat">
 		<xs:complexContent>
-			<xs:extension base="tns:tExtensibilityElement">
+			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:sequence />
 				<xs:attribute name="rootNode" type="xs:QName"
 					use="optional" />
@@ -29,6 +19,6 @@
 		</xs:complexContent>
 	</xs:complexType>
 
-	<xs:element name="body" type="tns:XMLBindingMessageFormat" />
+	<xs:element name="body" type="xformat:XMLBindingMessageFormat" />
 
 </xs:schema>

@@ -27,7 +27,8 @@
     <xs:import namespace="http://cxf.apache.org/transports/http/configuration" schemaLocation="http-conf.xsd"/>
     <xs:import namespace="http://cxf.apache.org/transports/jms" schemaLocation="jms.xsd"/>
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/http/" schemaLocation="http.xsd"/>
-    <!-- <xs:import namespace="http://cxf.apache.org/bindings/xmlformat" schemaLocation="xml-binding.xsd"/> -->
+    <xs:import namespace="http://cxf.apache.org/bindings/xformat" schemaLocation="xml-binding.xsd"/>
+    
     <xs:annotation>
         <xs:appinfo>
             <jaxb:schemaBindings>
