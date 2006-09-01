@@ -26,6 +26,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
@@ -33,7 +34,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 
-public class XMLMessageOutInterceptor extends AbstractXMLBindingInterceptor {
+public class XMLMessageOutInterceptor
+                extends AbstractOutDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
 
@@ -46,32 +48,32 @@ public class XMLMessageOutInterceptor extends AbstractXMLBindingInterceptor {
         } else {
             mi = boi.getOperationInfo().getOutput();
         }
-        String rootInModel = ((XMLBindingMessageFormat) mi.getExtensor(XMLBindingMessageFormat.class))
-                        .getRootNode();
-
         if (boi.isUnwrapped()) {
             if (mi.getMessageParts().size() != 1) {
+                QName rootInModel = ((XMLBindingMessageFormat) mi.getExtensor(XMLBindingMessageFormat.class))
+                                .getRootNode();
                 if (rootInModel == null) {
                     throw new RuntimeException("Bare style must define the rootNode in this case!");
                 }
-                XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
-
-                MessageInfo messageInfo = message.get(MessageInfo.class);
-                QName name = messageInfo.getName();
-
-                try {
-                    xmlWriter.writeStartElement(name.getLocalPart(), name.getNamespaceURI());
-                    new BareOutInterceptor().handleMessage(message);
-                    xmlWriter.writeEndElement();
-                } catch (XMLStreamException e) {
-                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE, e));
-                }
-
+                writeMessage(message, rootInModel);
             } else {
                 new BareOutInterceptor().handleMessage(message);
             }
-
+        } else {
+            QName name = mi.getName();
+            writeMessage(message, name);
         }
     }
 
+    private void writeMessage(Message message, QName name) {
+        XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+        try {
+            xmlWriter.writeStartElement(name.getLocalPart(), name.getNamespaceURI());
+            new BareOutInterceptor().handleMessage(message);
+            xmlWriter.writeEndElement();
+        } catch (XMLStreamException e) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE, e));
+        }
+
+    }
 }
