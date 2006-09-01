@@ -91,6 +91,10 @@
                                     </dependencies>
                                 </xsdOption>
                                 <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl4jext.xsd</xsd>
+                                    <packagename>org.apache.cxf.bindings.xformat</packagename>
+                                </xsdOption>
+                                <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
                                     <packagename>org.apache.cxf.ws.addressing</packagename>
                                 </xsdOption>

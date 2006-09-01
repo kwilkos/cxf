@@ -86,9 +86,16 @@ public class JAXBExtensionHelper implements ExtensionSerializer, ExtensionDeseri
                         QName elementType = new QName(elementDecl.namespace(), elementDecl.name());
                         registry.registerDeserializer(parentType, elementType, helper); 
                         registry.registerSerializer(parentType, elementType, helper);                         
+                        registry.mapExtensionTypes(parentType, elementType, cls);                        
+                        registry.createExtension(parentType, elementType);
                     }                    
                 }
-            }
+            }        
+            
+        } catch (WSDLException we) {
+            // TODO
+            we.printStackTrace();            
+
         } catch (ClassNotFoundException ex) {
             // TODO
             ex.printStackTrace();            
