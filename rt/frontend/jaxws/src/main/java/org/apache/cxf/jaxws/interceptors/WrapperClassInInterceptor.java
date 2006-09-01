@@ -39,7 +39,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
 
     public WrapperClassInInterceptor() {
         super();
-        setPhase(Phase.PRE_LOGICAL);
+        setPhase(Phase.POST_LOGICAL);
     }
 
     public void handleMessage(Message message) throws Fault {

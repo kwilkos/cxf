@@ -51,6 +51,16 @@ public interface Exchange extends Map<String, Object> {
      */
     void setConduit(Conduit conduit);
     
+
+    /**
+     * @return true if the exchange is known to be a one-way exchange
+     */
+    boolean isOneWay();
+    /**
+     * 
+     * @param b true if the exchange is known to be a one-way exchange
+     */
+    void setOneWay(boolean b);
     
     /**
      * Convienience method for storing/retrieving typed objects from the map.

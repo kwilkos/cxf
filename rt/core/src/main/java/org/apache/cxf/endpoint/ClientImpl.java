@@ -90,6 +90,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (null != ctx) {
             exchange.putAll(ctx);
         }
+        exchange.setOneWay(oi.getOutput() == null);
 
         exchange.setOutMessage(message);
         message.setExchange(exchange);
@@ -174,6 +175,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
 
     public void onMessage(Message message) {
+       
         message = endpoint.getBinding().createMessage(message);
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         

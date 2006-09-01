@@ -31,7 +31,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
-import org.apache.cxf.service.model.BindingOperationInfo;
 
 /**
  * Sets up the outgoing chain if the operation has an output message.
@@ -46,12 +45,10 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
 
     public void handleMessage(Message message) {
         Exchange ex = message.getExchange();
-        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
-        
-        if (bop.getOperationInfo().isOneWay()) {
+        if (ex.isOneWay()) {
             return;
         }
-            
+        
         Bus bus = ex.get(Bus.class);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());

@@ -139,7 +139,7 @@
         <compiler.version>2.0.1</compiler.version>
         <dependency.plugin.version>1.0</dependency.plugin.version>
         <eclipse.plugin.version>2.2</eclipse.plugin.version>
-        <jar.version>2.0</jar.version>
+        <jar.version>2.1</jar.version>
         <javadoc.version>2.0</javadoc.version>
         <jxr.version>2.0</jxr.version>
         <mprojectinfo.version>2.0</mprojectinfo.version>
@@ -161,6 +161,7 @@
 
 
         <eclipse.workspace.dir>${basedir}/${topDirectoryLocation}/../workspace</eclipse.workspace.dir>
+        <downloadSources>true</downloadSources>
     </properties>
 
     <modules>
@@ -335,7 +336,6 @@
                     <artifactId>maven-eclipse-plugin</artifactId>
                     <version>${eclipse.plugin.version}</version>
                     <configuration>
-                        <!--downloadSources>true</downloadSources-->
                         <buildcommands>
                             <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>
                             <java.lang.String>com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder</java.lang.String>

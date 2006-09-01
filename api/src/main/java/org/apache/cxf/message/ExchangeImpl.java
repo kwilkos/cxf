@@ -28,6 +28,7 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     private Destination destination;
     private Conduit conduit;
+    private boolean oneWay;
     
     private Message inMessage;
     private Message outMessage;
@@ -73,6 +74,14 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     public <T> void put(Class<T> key, T value) {
         put(key.getName(), value);
+    }
+
+    public boolean isOneWay() {
+        return oneWay;
+    }
+
+    public void setOneWay(boolean b) {
+        oneWay = b;
     }
 
 }

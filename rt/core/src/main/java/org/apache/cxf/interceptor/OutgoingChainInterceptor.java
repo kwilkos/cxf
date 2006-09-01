@@ -38,9 +38,11 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
         Exchange ex = message.getExchange();
         Message out = ex.getOutMessage();
         
-        BindingOperationInfo bin = ex.get(BindingOperationInfo.class);
-        out.put(MessageInfo.class, bin.getOperationInfo().getOutput());
-        out.put(BindingMessageInfo.class, bin.getOutput());
-        out.getInterceptorChain().doIntercept(out);
+        if (out != null) {
+            BindingOperationInfo bin = ex.get(BindingOperationInfo.class);
+            out.put(MessageInfo.class, bin.getOperationInfo().getOutput());
+            out.put(BindingMessageInfo.class, bin.getOutput());
+            out.getInterceptorChain().doIntercept(out);
+        }
     }
 }

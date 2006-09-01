@@ -46,7 +46,10 @@ public class SimpleMethodInvoker implements Invoker {
         
         Object res;
         try {
-            res = m.invoke(bean, params.toArray()); 
+            res = m.invoke(bean, params.toArray());
+            if (exchange.isOneWay()) {
+                return null;
+            }
             return Arrays.asList(res);
         } catch (Exception e) {
             throw new Fault(e);

@@ -38,7 +38,7 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
 
     public WrapperClassOutInterceptor() {
         super();
-        setPhase(Phase.POST_LOGICAL);
+        setPhase(Phase.PRE_LOGICAL);
     }
 
     @SuppressWarnings("unchecked")

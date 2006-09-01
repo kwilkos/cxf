@@ -318,7 +318,7 @@ public class WSDLServiceBuilder {
         // only a single part
         // input message must exist
         if (inputMessage == null || inputMessage.size() != 1
-            || (outputMessage != null && outputMessage.size() != 1)) {
+            || (outputMessage != null && outputMessage.size() > 1)) {
             return;
         }
 
@@ -406,9 +406,7 @@ public class WSDLServiceBuilder {
                     return false;
                 }
                 XmlSchemaElement el = (XmlSchemaElement)o;
-                if (el.getMaxOccurs() > 1) {
-                    return false;
-                }
+
                 // If this is an anonymous complex type, mark it as unwrapped.
                 // We're doing this because things like JAXB don't have support
                 // for finding classes from anonymous type names.

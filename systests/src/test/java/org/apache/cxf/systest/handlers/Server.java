@@ -16,23 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.systest.handlers;
 
-package org.apache.cxf.jaxws.binding;
 
-import java.util.ArrayList;
-import java.util.List;
+// import java.util.ArrayList;
+// import java.util.List;
+import javax.xml.ws.Endpoint;
+// import javax.xml.ws.handler.Handler;
 
-import javax.xml.ws.Binding;
-import javax.xml.ws.handler.Handler;
+import org.apache.cxf.systest.common.TestServerBase;
 
-public class BindingImpl implements Binding {
-    private List<Handler> handlerChain = new ArrayList<Handler>();
+public class Server extends TestServerBase {
     
-    public List<Handler> getHandlerChain() {
-        return handlerChain;
+    protected void run()  {
+        Object implementor = new HandlerTestImpl();
+        String address = "http://localhost:9005/HandlerTest/SoapPort";
+        Endpoint.publish(address, implementor);
     }
+    
 
-    public void setHandlerChain(List<Handler> hc) {
-        handlerChain = hc;
-    }   
+
+    public static void main(String[] args) {
+        try { 
+            Server s = new Server(); 
+            s.start();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.exit(-1);
+        } finally { 
+            System.out.println("done!");
+        }
+    }
 }

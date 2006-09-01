@@ -76,7 +76,7 @@ public class OutgoingChainInterceptorTest extends TestCase {
         opInfo = control.createMock(OperationInfo.class);
         mInfo = control.createMock(MessageInfo.class);
         bmInfo = control.createMock(BindingMessageInfo.class);
-        EasyMock.expect(bopInfo.getOperationInfo()).andReturn(opInfo).times(2);
+        EasyMock.expect(bopInfo.getOperationInfo()).andReturn(opInfo);
         EasyMock.expect(opInfo.getOutput()).andReturn(mInfo);
         EasyMock.expect(bopInfo.getOutput()).andReturn(bmInfo);
 

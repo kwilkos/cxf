@@ -72,6 +72,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
                 if (bop.getOperationInfo().equals(op)) {
                     exchange.put(BindingOperationInfo.class, bop);
+                    exchange.setOneWay(bop.getOutput() == null);
                     break;
                 }
             }

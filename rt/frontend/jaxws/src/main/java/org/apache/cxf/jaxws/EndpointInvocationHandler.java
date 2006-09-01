@@ -40,7 +40,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
-import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -62,8 +61,6 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         super(b);
         endpoint = c.getEndpoint();
         client = c;
-        client.getOutInterceptors().add(new WrapperClassOutInterceptor());
-        client.getInInterceptors().add(new WrapperClassInInterceptor());
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

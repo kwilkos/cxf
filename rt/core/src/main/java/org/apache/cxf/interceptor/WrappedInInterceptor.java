@@ -70,6 +70,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             }
             message.getExchange().put(BindingOperationInfo.class, operation);
             message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
+            message.getExchange().setOneWay(operation.getOutput() == null);
         }
         if (requestor) {
             message.put(MessageInfo.class, operation.getOperationInfo().getOutput());

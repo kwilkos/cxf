@@ -43,6 +43,7 @@ import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -410,8 +411,14 @@ public class HTTPConduit implements Conduit {
 
         private void handleResponse() throws IOException {
             // REVISIT distinguish decoupled case
+            Exchange exchange = outMessage.getExchange();
+            if (exchange != null && exchange.isOneWay()) {
+                //onway operation
+                connection.getInputStream().close();
+                return;
+            }
             Message inMessage = new MessageImpl();
-            inMessage.setExchange(outMessage.getExchange());
+            inMessage.setExchange(exchange);
             InputStream in = null;
             inMessage.put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());
             inMessage.put(HTTP_RESPONSE_CODE, getResponseCode(connection));
