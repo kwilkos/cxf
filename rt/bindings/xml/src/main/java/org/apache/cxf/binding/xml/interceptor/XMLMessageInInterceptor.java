@@ -16,19 +16,77 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.cxf.binding.xml.interceptor;
 
+import java.util.ResourceBundle;
+
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.staxutils.DepthXMLStreamReader;
+import org.apache.cxf.staxutils.StaxUtils;
 
-public class XMLMessageInInterceptor extends AbstractPhaseInterceptor {
+public class XMLMessageInInterceptor
+                extends AbstractXMLBindingInterceptor {
+
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
 
     public void handleMessage(Message message) throws Fault {
-        new WrappedInInterceptor().handleMessage(message);
-        new BareInInterceptor().handleMessage(message);        
+        XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
+        DepthXMLStreamReader dxsr = new DepthXMLStreamReader(xsr);
+        Endpoint ep = message.getExchange().get(Endpoint.class);
+        BindingInfo service = ep.getEndpointInfo().getBinding();
+        boolean result = false;
+        for (BindingOperationInfo boi : service.getOperations()) {
+            if (!boi.isUnwrappedCapable()) {
+                // process bare mode
+                MessageInfo mi;
+                if (isRequestor(message)) {
+                    mi = boi.getOperationInfo().getInput();
+                } else {
+                    mi = boi.getOperationInfo().getOutput();
+                }
+                if (mi.getMessageParts().size() != 1) {
+                    // Part more than 1, needs a root, which should match the
+                    // root defined in wsdl binding
+                    // Retrive the root value from input message xml infoset
+                    if (!StaxUtils.toNextElement(dxsr)) {
+                        throw new Fault(
+                            new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
+                    }
+                    String rootMsg = dxsr.getLocalName();
+                    String rootInModel = ((XMLBindingMessageFormat) mi
+                                    .getExtensor(XMLBindingMessageFormat.class)).getRootNode();
+                    if (rootInModel != null && rootInModel.equals(rootMsg)) {
+                        message.getExchange().put(BindingOperationInfo.class, boi);
+                        new BareInInterceptor().handleMessage(message);
+                        result = true;
+                        break;
+                    }
+                } else {
+                    // Only one part, no root, using the BareInInterceptor inner
+                    // logic to find operation
+                    new BareInInterceptor().handleMessage(message);
+                    result = true;
+                    break;
+                }
+            } else {
+                // process wrap mode
+                new WrappedInInterceptor().handleMessage(message);
+            }
+        }
+        if (!result) {
+            // fault processing
+        }
     }
-
 }
