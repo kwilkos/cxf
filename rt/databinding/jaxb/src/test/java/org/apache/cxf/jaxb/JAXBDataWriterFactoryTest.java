@@ -22,6 +22,7 @@ package org.apache.cxf.jaxb;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.soap.SOAPBody;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -32,6 +33,7 @@ import junit.framework.TestCase;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.io.EventDataWriter;
 import org.apache.cxf.jaxb.io.NodeDataWriter;
+import org.apache.cxf.jaxb.io.SOAPBodyDataWriter;
 import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
 
 public class JAXBDataWriterFactoryTest extends TestCase {
@@ -44,10 +46,11 @@ public class JAXBDataWriterFactoryTest extends TestCase {
     public void testSupportedFormats() {
         List<Class<?>> cls = Arrays.asList(factory.getSupportedFormats());
         assertNotNull(cls);
-        assertEquals(3, cls.size());
+        assertEquals(4, cls.size());
         assertTrue(cls.contains(XMLStreamWriter.class));
         assertTrue(cls.contains(XMLEventWriter.class));
         assertTrue(cls.contains(Node.class));
+        assertTrue(cls.contains(SOAPBody.class));
     }
 
     public void testCreateWriter() {
@@ -59,6 +62,9 @@ public class JAXBDataWriterFactoryTest extends TestCase {
         
         writer = factory.createWriter(Node.class);
         assertTrue(writer instanceof NodeDataWriter);
+
+        writer = factory.createWriter(SOAPBody.class);
+        assertTrue(writer instanceof SOAPBodyDataWriter);
 
         writer = factory.createWriter(null);
         assertNull(writer);

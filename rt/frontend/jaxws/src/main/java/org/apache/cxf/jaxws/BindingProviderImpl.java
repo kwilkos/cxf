@@ -33,6 +33,10 @@ public class BindingProviderImpl implements BindingProvider {
     private ThreadLocal<Map<String, Object>> requestContext;
     private Map<String, Object> responseContext;
     
+    public BindingProviderImpl() {
+        binding = null;
+    }
+
     public BindingProviderImpl(Binding b) {
         binding = b;
     }

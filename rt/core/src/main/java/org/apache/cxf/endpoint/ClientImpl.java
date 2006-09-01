@@ -94,7 +94,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         exchange.setOutMessage(message);
         message.setExchange(exchange);
         
-//        message.setContent(List.class, Arrays.asList(params));
+        // message.setContent(List.class, Arrays.asList(params));
         
         setOutMessageProperties(message, oi);
         setExchangeProperties(exchange, ctx, oi);
@@ -124,8 +124,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Interceptors contributed by binding: " + il);
         }
-        chain.add(il);
-        
+        chain.add(il);        
         
         modifyChain(chain, ctx);
         

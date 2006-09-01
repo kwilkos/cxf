@@ -40,11 +40,13 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
@@ -54,25 +56,25 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 public class ServiceImpl extends ServiceDelegate {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(ServiceImpl.class);
-    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();    
-    
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+
     private Bus bus;
     private URL wsdlURL;
-    
+
     private Service service;
     private HandlerResolver handlerResolver;
     private final Collection<QName> ports = new HashSet<QName>();
-    
+
     public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
         wsdlURL = url;
-        
+
         WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
-        service = sf.create(); 
+        service = sf.create();
         handlerResolver = new HandlerResolverImpl(bus, name);
-        
+
         try {
             JAXBDataBinding dataBinding = new JAXBDataBinding(cls);
             service.setDataReaderFactory(dataBinding.getDataReaderFactory());
@@ -82,18 +84,42 @@ public class ServiceImpl extends ServiceDelegate {
             e.printStackTrace();
         }
     }
-    
 
     public void addPort(QName portName, String bindingId, String address) {
-        throw new WebServiceException(new Message("UNSUPPORTED_API_EXC", LOG, "addPort").toString());        
+        throw new WebServiceException(new Message("UNSUPPORTED_API_EXC", LOG, "addPort").toString());
     }
 
-    public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) { 
-        return null;
+    private Endpoint getJaxwsEndpoint(QName portName) {
+        ServiceInfo si = service.getServiceInfo();
+        EndpointInfo ei = null;
+        if (portName == null) {
+            ei = si.getEndpoints().iterator().next();
+        } else {
+            ei = si.getEndpoint(portName);
+        }
+        return new JaxwsEndpointImpl(bus, service, ei);        
+    }
+    
+    public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
+        Dispatch<T> disp = new DispatchImpl<T>(bus, 
+            mode, 
+            type, 
+            getExecutor(), 
+            getJaxwsEndpoint(portName));
+
+        return disp;
     }
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
-        return null;
+
+        Dispatch<Object> disp = new DispatchImpl<Object>(bus, 
+            mode, 
+            context, 
+            Object.class, 
+            getExecutor(),
+            getJaxwsEndpoint(portName));
+
+        return disp;
     }
 
     public Executor getExecutor() {
@@ -132,9 +158,9 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public void setHandlerResolver(HandlerResolver hr) {
-        handlerResolver = hr;   
+        handlerResolver = hr;
     }
-    
+
     public Bus getBus() {
         return bus;
     }
@@ -142,13 +168,11 @@ public class ServiceImpl extends ServiceDelegate {
     public Service getService() {
         return service;
     }
-    
+
     protected <T> T createPort(QName portName, Class<T> serviceEndpointInterface) {
 
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
-
-
 
         QName pn = portName;
         ServiceInfo si = service.getServiceInfo();
@@ -162,24 +186,23 @@ public class ServiceImpl extends ServiceDelegate {
             ei = si.getEndpoint(portName);
         }
         if (null == pn) {
-            throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));  
+            throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));
         }
-        
+
         JaxwsEndpointImpl jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
         Client client = new ClientImpl(bus, jaxwsEndpoint);
-        
-        InvocationHandler ih = new EndpointInvocationHandler(client, 
-                                                             jaxwsEndpoint.getJaxwsBinding());
-        
+
+        InvocationHandler ih = new EndpointInvocationHandler(client, jaxwsEndpoint.getJaxwsBinding());
+
         // configuration stuff 
         // createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
-        
-        Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(),
-                                            new Class[] {serviceEndpointInterface, BindingProvider.class},
-                                            ih);
+
+        Object obj = Proxy
+            .newProxyInstance(serviceEndpointInterface.getClassLoader(),
+                              new Class[] {serviceEndpointInterface, BindingProvider.class}, ih);
 
         LOG.log(Level.FINE, "created proxy", obj);
-        
+
         ports.add(pn);
         return serviceEndpointInterface.cast(obj);
     }

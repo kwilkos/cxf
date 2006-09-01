@@ -22,6 +22,8 @@ package org.apache.cxf.jaxb;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
 
@@ -32,6 +34,8 @@ import junit.framework.TestCase;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.io.EventDataReader;
 import org.apache.cxf.jaxb.io.NodeDataReader;
+import org.apache.cxf.jaxb.io.SOAPBodyDataReader;
+import org.apache.cxf.jaxb.io.SOAPMessageDataReader;
 import org.apache.cxf.jaxb.io.XMLStreamDataReader;
 
 public class JAXBDataReaderFactoryTest extends TestCase {
@@ -44,10 +48,12 @@ public class JAXBDataReaderFactoryTest extends TestCase {
     public void testSupportedFormats() {
         List<Class<?>> cls = Arrays.asList(factory.getSupportedFormats());
         assertNotNull(cls);
-        assertEquals(3, cls.size());
+        assertEquals(5, cls.size());
         assertTrue(cls.contains(XMLStreamReader.class));
         assertTrue(cls.contains(XMLEventReader.class));
         assertTrue(cls.contains(Node.class));
+        assertTrue(cls.contains(SOAPBody.class));
+        assertTrue(cls.contains(SOAPMessage.class));
     }
 
     public void testCreateReader() {
@@ -59,6 +65,12 @@ public class JAXBDataReaderFactoryTest extends TestCase {
 
         reader = factory.createReader(Node.class);
         assertTrue(reader instanceof NodeDataReader);
+
+        reader = factory.createReader(SOAPBody.class);
+        assertTrue(reader instanceof SOAPBodyDataReader);
+
+        reader = factory.createReader(SOAPMessage.class);
+        assertTrue(reader instanceof SOAPMessageDataReader);
 
         reader = factory.createReader(null);
         assertNull(reader);

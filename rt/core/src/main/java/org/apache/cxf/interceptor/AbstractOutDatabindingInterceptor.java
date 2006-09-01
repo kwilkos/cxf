@@ -39,6 +39,26 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
+    protected DataWriter getDataWriter(Message message, Class<?> output) {
+        Service service = ServiceModelUtil.getService(message.getExchange());
+        DataWriterFactory factory = service.getDataWriterFactory();
+
+        DataWriter dataWriter = null;
+        for (Class<?> cls : factory.getSupportedFormats()) {
+            if (cls == output) {
+                dataWriter = factory.createWriter(output);
+                break;
+            }
+        }
+
+        if (dataWriter == null) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
+                .getName()));
+        }
+
+        return dataWriter;        
+    }
+    
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriterFactory factory = service.getDataWriterFactory();

@@ -60,7 +60,9 @@ public class ChainInitiationObserver implements MessageObserver {
         chain.add(endpoint.getInInterceptors());
         chain.add(endpoint.getBinding().getInInterceptors());
         chain.add(endpoint.getService().getInInterceptors());
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());        
+        chain.setFaultInterceptor(endpoint.getFaultInterceptor());   
+        
+
         
         chain.doIntercept(message);        
     }

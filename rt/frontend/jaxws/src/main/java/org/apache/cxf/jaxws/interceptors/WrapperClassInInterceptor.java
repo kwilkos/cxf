@@ -44,7 +44,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
 
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
-        if (boi.isUnwrappedCapable()) {
+        if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
             OperationInfo op = boi2.getOperationInfo();
             MessageInfo messageInfo = message.get(MessageInfo.class);

@@ -45,6 +45,10 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         InputStream is = message.getContent(InputStream.class);
+        
+
+        
+        
 
         assert is != null;
 

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb;
 
+import javax.xml.soap.SOAPBody;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -28,12 +29,14 @@ import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.jaxb.io.EventDataWriter;
 import org.apache.cxf.jaxb.io.NodeDataWriter;
+import org.apache.cxf.jaxb.io.SOAPBodyDataWriter;
 import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
 
 public final class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWriterFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
                                                                         XMLEventWriter.class,
-                                                                        XMLStreamWriter.class};
+                                                                        XMLStreamWriter.class,
+                                                                        SOAPBody.class};
     
     public JAXBDataWriterFactory() {
         
@@ -49,6 +52,8 @@ public final class JAXBDataWriterFactory extends JAXBDataFactoryBase implements 
             return (DataWriter<T>)new EventDataWriter(this);            
         } else if (cls == Node.class) {
             return (DataWriter<T>)new NodeDataWriter(this);
+        } else if (cls == SOAPBody.class) {
+            return (DataWriter<T>)new SOAPBodyDataWriter(this);
         }
         
         return null;

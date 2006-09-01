@@ -19,6 +19,8 @@
 
 package org.apache.cxf.jaxb;
 
+import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
 
@@ -28,13 +30,17 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataReaderFactory;
 import org.apache.cxf.jaxb.io.EventDataReader;
 import org.apache.cxf.jaxb.io.NodeDataReader;
+import org.apache.cxf.jaxb.io.SOAPBodyDataReader;
+import org.apache.cxf.jaxb.io.SOAPMessageDataReader;
 import org.apache.cxf.jaxb.io.XMLStreamDataReader;
 
 
 public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
                                                                         XMLEventReader.class,
-                                                                        XMLStreamReader.class};
+                                                                        XMLStreamReader.class,
+                                                                        SOAPBody.class,
+                                                                        SOAPMessage.class};
     
     public JAXBDataReaderFactory() {
         
@@ -49,6 +55,10 @@ public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements 
             return (DataReader<T>)new EventDataReader(this);            
         } else if (cls == Node.class) {
             return (DataReader<T>)new NodeDataReader(this);
+        } else if (cls == SOAPBody.class) {
+            return (DataReader<T>)new SOAPBodyDataReader(this);
+        } else if (cls == SOAPMessage.class) {
+            return (DataReader<T>)new SOAPMessageDataReader(this);
         }
         // TODO Auto-generated method stub
         return null;

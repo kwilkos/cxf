@@ -44,7 +44,7 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-        if (bop.isUnwrapped()) {
+        if (bop != null && bop.isUnwrapped()) {
             List<Object> objs = message.getContent(List.class);
             
             OperationInfo op = bop.getOperationInfo();

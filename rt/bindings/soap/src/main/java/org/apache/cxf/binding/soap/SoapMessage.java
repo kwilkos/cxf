@@ -29,7 +29,7 @@ public class SoapMessage extends AbstractWrappedMessage {
     
     private Map<Class<?>, Object> headers = new HashMap<Class<?>, Object>(); 
     
-    private SoapVersion version;
+    private SoapVersion version = new Soap11();
 
     public SoapMessage(Message message) {
         super(message);

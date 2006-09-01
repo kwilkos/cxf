@@ -37,6 +37,11 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.*;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
+
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.logging.LogUtils;
@@ -62,11 +67,11 @@ public final class XMLUtils {
         
     }
     
-    private static  Transformer newTransformer() throws TransformerConfigurationException {
+    public static  Transformer newTransformer() throws TransformerConfigurationException {
         return transformerFactory.newTransformer();
     }
 
-    private static DocumentBuilder getParser() throws ParserConfigurationException {
+    public static DocumentBuilder getParser() throws ParserConfigurationException {
         return parserFactory.newDocumentBuilder();
     }
     
@@ -238,6 +243,24 @@ public final class XMLUtils {
     
     public static String writeQName(Definition def, QName qname) {
         return def.getPrefix(qname.getNamespaceURI()) + ":" + qname.getLocalPart();
+    }
+
+    public static InputStream getInputStream(Document doc) throws Exception {
+        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        if (impl == null) {
+            System.setProperty(DOMImplementationRegistry.PROPERTY,
+                "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+            registry = DOMImplementationRegistry.newInstance();
+            impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        }
+        LSOutput output = impl.createLSOutput();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        output.setByteStream(byteArrayOutputStream);
+        LSSerializer writer = impl.createLSSerializer();
+        writer.write(doc, output);
+        byte[] buf = byteArrayOutputStream.toByteArray();
+        return new ByteArrayInputStream(buf);
     }
 
 }
