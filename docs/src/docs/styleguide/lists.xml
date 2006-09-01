@@ -1,35 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements. See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership. The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License. You may obtain a copy of the License at
- 
-  http://www.apache.org/licenses/LICENSE-2.0
- 
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-<chapter>
+<chapter id="lists">
   <title>Lists</title>
   <section>
     <title>Simple Lists</title>
     <para>Simple lists are like a grocery list. They are a simple list of
     words or phrases without any delimiter. Their elements can only consist of
-    simple, in-line tags. Therefore they cannot contain sublists, examples,
-    code listings or multiple paragraphs. They are rarely used in CeltiXfire(CXF)
+    simple, in-line tags, and therefore cannot contain sublists, examples,
+    code listings or multiple paragraphs. Simple lists are rarely used in CeltiXfire (CXF)
     documentation.</para>
     <section>
       <title>Specifying a simple list</title>
       <para>A simple list is specified by a <sgmltag class="element">simplelist</sgmltag> element. 
-	  <sgmltag class="element">simplelist</sgmltag> has two optional attributes:</para>
+   <sgmltag class="element">simplelist</sgmltag> has two optional attributes:</para>
       <table>
         <title>Attributes of the <sgmltag class="element">simplelist</sgmltag> Element</title>
         <tgroup cols="3">
@@ -45,7 +27,7 @@
               <entry>
                 <sgmltag class="attribute">type</sgmltag>
               </entry>
-              <entry><sgmltag class="attvalue">inline</sgmltag>, <sgmltag class="attvalue">horiz</sgmltag>, <sgmltag class="attvalue">vert</sgmltag>(default)</entry>
+              <entry><sgmltag class="attvalue">inline</sgmltag>, <sgmltag class="attvalue">horiz</sgmltag>, <sgmltag class="attvalue">vert</sgmltag> (default)</entry>
               <entry>Specifies how the items in the list are to be listed.</entry>
             </row>
             <row>
@@ -58,7 +40,7 @@
           </tbody>
         </tgroup>
       </table>
-      <para>The elements of a simple list are specified using a <sgmltag class="element">member</sgmltag> element. The contents of each<sgmltag>member</sgmltag> element can only contain character data and
+      <para>The elements of a simple list are specified using a <sgmltag class="element">member</sgmltag> element. The contents of each <sgmltag>member</sgmltag> element can only contain character data and
       inline elements.</para>
     </section>
     <section>
@@ -126,7 +108,7 @@
     <section>
       <title>Specifying an Ordered List</title>
       <para>Ordered lists are specified by an <sgmltag class="element">orderedlist</sgmltag> element. In addition to the
-      <sgmltag class="attribute">id</sgmltag> attribute and <sgmltag class="attribute">xreflable</sgmltag> attribute, <sgmltag class="element">orderedlist</sgmltag> elements have three optional
+      <sgmltag class="attribute">id</sgmltag> attribute and <sgmltag class="attribute">xreflabel</sgmltag> attribute, <sgmltag class="element">orderedlist</sgmltag> elements have three optional
       elements.</para>
       <table>
         <title>Attributes of the <sgmltag class="element">orderedlist</sgmltag> Element</title>
@@ -143,14 +125,14 @@
               <entry>
                 <sgmltag class="attribute">continuation</sgmltag>
               </entry>
-              <entry><sgmltag class="attvalue">continues</sgmltag>, <sgmltag class="attvalue">restarts</sgmltag>(default)</entry>
+              <entry><sgmltag class="attvalue">continues</sgmltag>, <sgmltag class="attvalue">restarts</sgmltag> (default)</entry>
               <entry>Specifies if the item numbering should restart at one or continue from the previous ordered list.</entry>
             </row>
             <row>
               <entry>
                 <sgmltag class="attribute">inheritnum</sgmltag>
               </entry>
-              <entry><sgmltag class="attvalue">inherit</sgmltag>, <sgmltag class="attvalue">ignore</sgmltag>(default)</entry>
+              <entry><sgmltag class="attvalue">inherit</sgmltag>, <sgmltag class="attvalue">ignore</sgmltag> (default)</entry>
               <entry>Valid only for nested lists. Specifies if the items in the nested list contain a reference to the item of the parent list.</entry>
             </row>
             <row>
@@ -205,7 +187,7 @@
     <section>
       <title>Specifying a Variable List</title>
       <para>Variable lists are specified by a <sgmltag class="element">variablelist</sgmltag> element. The <sgmltag class="element">variablelist</sgmltag> element can have the optional
-      <sgmltag class="attribute">id</sgmltag> attribute and <sgmltag class="attribute">xreflable</sgmltag> attribute specified. You can also
+      <sgmltag class="attribute">id</sgmltag> attribute and <sgmltag class="attribute">xreflabel</sgmltag> attribute specified. You can also
       supply a title for a variable list by adding a <sgmltag class="element">title</sgmltag> element as the <sgmltag class="element">variablelist</sgmltag> element&apos;s first child.</para>
       <para>The items in a variable list are specified using a <sgmltag class="element">varlistentry</sgmltag> element. The <sgmltag class="element">varlistentry</sgmltag> element has two children elements
       that specify the contents of the item: <sgmltag class="element">term</sgmltag> and <sgmltag class="element">listitem</sgmltag>.</para>
@@ -293,7 +275,7 @@
     <section>
       <title>Specifying a Glossary List</title>
       <para>A glossary list is specified using the <sgmltag class="element">glosslist</sgmltag> element. If you want to refer back
-      to a glossary list, you can provide values for the <sgmltag class="attribute">id</sgmltag> attribute and the <sgmltag class="attribute">xreflable</sgmltag> attribute. Unlike variable lists,
+      to a glossary list, you can provide values for the <sgmltag class="attribute">id</sgmltag> attribute and the <sgmltag class="attribute">xreflabel</sgmltag> attribute. Unlike variable lists,
       glossary lists cannot have titles.</para>
       <para>The entries in a glossary list are specified using a <sgmltag class="element">glossentry</sgmltag> element. The <sgmltag class="element">glossentry</sgmltag> element typically has two children:
       <sgmltag class="element">glossterm</sgmltag> and <sgmltag class="element">glossdef</sgmltag>. You can also use the <sgmltag class="element">glosssee</sgmltag> element to xref with other
@@ -332,25 +314,29 @@
   &lt;glossentry&gt;
     &lt;glossterm id=&quot;consumerdef&quot;&gt;consumer&lt;/glossterm&gt;
     &lt;glossdef&gt;
-      &lt;para&gt;The end user of a service, also called a client for that service.&lt;/para&gt;
+      &lt;para&gt;The end user of a service, also called a 
+         client for that service.&lt;/para&gt;
     &lt;/glossdef&gt;
   &lt;/glossentry&gt;
   &lt;glossentry&gt;
     &lt;glossterm id=&quot;endptdef&quot;&gt;endpoint&lt;/glossterm&gt;
     &lt;glossdef&gt;
-      &lt;para&gt;The point of contact that a &lt;glossterm
-          linkend=&quot;servicedef&quot;&gt;service&lt;/glossterm&gt; provides for its &lt;glossterm
-          linkend=&quot;consumerdef&quot;&gt;consumers&lt;/glossterm&gt;.&lt;/para&gt;
+      &lt;para&gt;The point of contact that a 
+         &lt;glossterm linkend=&quot;servicedef&quot;&gt;service&lt;/glossterm&gt; 
+        provides for its 
+        &lt;glossterm linkend=&quot;consumerdef&quot;&gt;consumers&lt;/glossterm&gt;.
+    &lt;/para&gt;
     &lt;/glossdef&gt;
   &lt;/glossentry&gt;
   &lt;glossentry&gt;
     &lt;glossterm id=&quot;servicedef&quot;&gt;service&lt;/glossterm&gt;
     &lt;glossdef&gt;
-      &lt;para&gt;A collection of operations that perform a useful set of
-          functions in a network, access to which is implemented as an
-          &lt;glossterm linkend=&quot;endptdef&quot;&gt;endpoint&lt;/glossterm&gt;. In a
-          service-oriented network, services are defined by a service
-          contract.&lt;/para&gt;
+      &lt;para&gt;A collection of operations that perform a 
+        useful set of functions in a network, access to 
+        which is implemented as an
+        &lt;glossterm linkend=&quot;endptdef&quot;&gt;endpoint&lt;/glossterm&gt;.
+        In a service-oriented network, services are defined          
+        by a service contract.&lt;/para&gt;
     &lt;/glossdef&gt;
   &lt;/glossentry&gt;
   &lt;glossentry&gt;

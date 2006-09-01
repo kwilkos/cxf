@@ -1,24 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements. See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership. The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License. You may obtain a copy of the License at
- 
-  http://www.apache.org/licenses/LICENSE-2.0
- 
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-<chapter>
-  <title>Writing Documentation for CeltiXfire(CXF)</title>
+<chapter id="overview">
+  <title>Writing Documentation for CeltiXfire (CXF)</title>
   <section>
     <title>Why XML Based Documents?</title>
     <para>The easy answer is because XML is cool!! However, it does have some
@@ -45,7 +27,7 @@
           <para>They can be edited by a slew of freely available tools.</para>
         </listitem>
         <listitem>
-          <para>They can be easily diffed when being commited to a
+          <para>They can be easily diffed when being committed to a
           repository.</para>
         </listitem>
         <listitem>
@@ -57,7 +39,7 @@
       <title>Structure</title>
       <para>Writing documentation with a markup language may give writers
       visions of troff and LaTex. Unlike those markups, the XML tags used by
-      both XDOC and Docbook are used to describe the structure of a document.
+      both XDOC and DocBook are used to describe the structure of a document.
       It also provides tags to help identify different types of content with
       in your document.</para>
       <para>This means that it It makes no assumptions about the presentation
@@ -66,7 +48,7 @@
     </section>
     <section>
       <title>Single Source, Multiple Outputs</title>
-      <para>Formating is handled by back end processing tools. CeltiXfire(CXF) uses
+      <para>Formatting is handled by back end processing tools. CeltiXfire (CXF) uses
       Apache Forrest to generate HTML and PDF versions of its content. There
       are also a number of other tools, both open source and commercial, that
       generate documentation from XML source. This means that all of the
@@ -90,12 +72,12 @@
           <para><ulink url="#FAQ">FAQs in XDOC</ulink></para>
         </listitem>
         <listitem>
-          <para><ulink url="#the_rest">Everything else in Docbook</ulink></para>
+          <para><ulink url="#the_rest">Everything else in DocBook</ulink></para>
         </listitem>
       </itemizedlist>
     </section>
     <section>
-      <title>Formating the XML</title>
+      <title>Formatting the XML</title>
       <para>To make the source as readable as possible there are a few general
       guidelines to follow when writing CXF documentation:</para>
       <itemizedlist>
@@ -126,22 +108,22 @@
   </section>
   <section id="the_rest">
     <title>Writing General Documentation</title>
-    <para>All other types of documentation are written using Docbook 4.2. Docbook 4.2
+    <para>All other types of documentation are written using DocBook 4.2. DocBook 4.2
     provides a structured, XML based grammar for writing complex technical
     documentation. It is also an OASIS standard. This makes it a natural fit
     for writing open source documentation.</para>
     <para>The remainder of this style guide discusses how the CXF
-    project uses Docbook. For more general references and some help getting
-    familiar with Docbook, see the following:</para>
+    project uses DocBook. For more general references and some help getting
+    familiar with DocBook, see the following:</para>
     <itemizedlist>
       <listitem>
-        <para><ulink url="http://docbook.org/">Docbook.org</ulink></para>
+        <para><ulink url="http://DocBook.org/">DocBook.org</ulink></para>
       </listitem>
       <listitem>
-        <para><ulink url="http://opensource.bureau-cornavin.com/crash-course/">The Crash Course to Docbook</ulink></para>
+        <para><ulink url="http://opensource.bureau-cornavin.com/crash-course/">The Crash Course to DocBook</ulink></para>
       </listitem>
       <listitem>
-        <para><ulink url="http://nwalsh.com/docbook/">Norman Walsh&apos;s Docbook page</ulink></para>
+        <para><ulink url="http://nwalsh.com/DocBook/">Norman Walsh&apos;s DocBook page</ulink></para>
       </listitem>
     </itemizedlist>
   </section>

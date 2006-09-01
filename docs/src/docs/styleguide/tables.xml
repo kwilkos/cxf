@@ -1,27 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements. See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership. The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License. You may obtain a copy of the License at
- 
-  http://www.apache.org/licenses/LICENSE-2.0
- 
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-<chapter>
+<chapter id="tables">
   <title>Tables</title>
   <section>
     <title>Types of Tables</title>
-    <para>There are two types of tables in Docbook:</para>
+    <para>There are two types of tables in DocBook:</para>
     <itemizedlist>
       <listitem>
         <para>Informal tables</para>
@@ -123,7 +105,7 @@
                 <sgmltag class="attribute">colsep</sgmltag>
               </entry>
               <entry>Specifies if a rule will be drawn between the columns in the table.</entry>
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
             </row>
             <row>
               <entry>
@@ -137,14 +119,14 @@
                 <sgmltag class="attribute">orient</sgmltag>
               </entry>
               <entry>Specifies how the table will be oriented in relationship to the rest of the text.</entry>
-              <entry><sgmltag class="attvalue">land</sgmltag>, <sgmltag class="attvalue">port</sgmltag>(default)</entry>
+              <entry><sgmltag class="attvalue">land</sgmltag>, <sgmltag class="attvalue">port</sgmltag> (default)</entry>
             </row>
             <row>
               <entry>
                 <sgmltag class="attribute">rowsep</sgmltag>
               </entry>
               <entry>Specifies if a rule will be drawn between the rows in the table.</entry>
-              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+              <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
             </row>
             <row>
               <entry>
@@ -155,13 +137,13 @@
             </row>
             <row>
               <entry>
-                <sgmltag class="attribute">xreflable</sgmltag>
+                <sgmltag class="attribute">xreflabel</sgmltag>
               </entry>
-              <entry>Specifies a label to be used when cross referencing the table.<note>
-                  <para>This should only be used for an informal table. A
-                  cross reference to a table will use its title as a
-                  label.</para>
-                </note></entry>
+              <entry>Specifies a label to be used when cross referencing the table.
+				<para><emphasis role="bold">Note: </emphasis>This should only be used for an 
+				informal table. A cross reference to a table will use its title 
+				as a label.</para>
+			  </entry>
               <entry>a string</entry>
             </row>
           </tbody>
@@ -206,21 +188,21 @@
                   <sgmltag class="attribute">colsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn between the columns of the group.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag class="attribute">rowsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn between the rows of the group.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag>align</sgmltag>
                 </entry>
                 <entry>Specifies the horizontal alignment of the entries in the group.</entry>
-                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
@@ -280,21 +262,21 @@
                   <sgmltag class="attribute">colsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn to the right of entries in the column.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag class="attribute">rowsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn between the rows in the column.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag>align</sgmltag>
                 </entry>
                 <entry>Specifies the horizontal alignment of the entries in the column.</entry>
-                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
@@ -315,7 +297,7 @@
                   <sgmltag class="attribute">colwidth</sgmltag>
                 </entry>
                 <entry>Specifies the width of the column.</entry>
-                <entry>Can be either a fixed measure using either points(pts), inches(in), or centimeters(cm).</entry>
+                <entry>Can be either a fixed measure using either points (pts), inches (in), or centimeters (cm).</entry>
               </row>
             </tbody>
           </tgroup>
@@ -343,7 +325,7 @@
     </section>
     <section>
       <title>Defining Spans</title>
-      <para>Docbook allows you to define properties for cells that span
+      <para>DocBook allows you to define properties for cells that span
       columns and name them for use by the cells in the group. To define a
       span you use the <sgmltag class="element">spanspec</sgmltag>
       element.</para>
@@ -408,21 +390,21 @@
                   <sgmltag class="attribute">colsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn to the right of entries in the span.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag class="attribute">rowsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn below the rows in the span.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag>align</sgmltag>
                 </entry>
                 <entry>Specifies the horizontal alignment of the entry in the span.</entry>
-                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag> (default)</entry>
               </row>
             </tbody>
           </tgroup>
@@ -477,7 +459,7 @@
                   <sgmltag>valign</sgmltag>
                 </entry>
                 <entry>Specifies the vertical alignment of the entry in the heading.</entry>
-                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag class="attvalue">bottom</sgmltag>, <sgmltag class="attvalue">middle</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag class="attvalue">bottom</sgmltag>, <sgmltag class="attvalue">middle</sgmltag> (default)</entry>
               </row>
             </tbody>
           </tgroup>
@@ -542,7 +524,7 @@
         <sgmltag>cols</sgmltag> attribute. It is possible to have less
         <sgmltag>entry</sgmltag> child elements. This can happen when you wish
         to have empty columns, when one entry spans multiple columns, or if
-        there is an entry from a prevois row that verticaly spans the row
+        there is an entry from a previous row that vertically spans the row
         being specified.</para>
         <important>
           <para>When spans are being used the number of
@@ -572,14 +554,14 @@
                   <sgmltag class="attribute">rowsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn below all of the entries in the row.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag>valign</sgmltag>
                 </entry>
                 <entry>Specifies the vertical alignment of the entry in the heading.</entry>
-                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag class="attvalue">bottom</sgmltag>, <sgmltag class="attvalue">middle</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag class="attvalue">bottom</sgmltag>, <sgmltag class="attvalue">middle</sgmltag> (default)</entry>
               </row>
             </tbody>
           </tgroup>
@@ -622,21 +604,21 @@
                   <sgmltag class="attribute">rowsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn below the entry.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag>valign</sgmltag>
                 </entry>
                 <entry>Specifies the vertical alignment of the entry.</entry>
-                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag class="attvalue">bottom</sgmltag>, <sgmltag class="attvalue">middle</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">top</sgmltag>, <sgmltag class="attvalue">bottom</sgmltag>, <sgmltag class="attvalue">middle</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
                   <sgmltag class="attribute">colsep</sgmltag>
                 </entry>
                 <entry>Specifies if a rule will be drawn to the right of the entry.</entry>
-                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">0</sgmltag>, <sgmltag class="attvalue">1</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
@@ -664,7 +646,7 @@
                   <sgmltag class="attribute">align</sgmltag>
                 </entry>
                 <entry>Specifies the horizontal alignment of the contents in the entry.</entry>
-                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag>(default)</entry>
+                <entry><sgmltag class="attvalue">center</sgmltag>, <sgmltag class="attvalue">justify</sgmltag>, <sgmltag class="attvalue">right</sgmltag>, <sgmltag class="attvalue">left</sgmltag> (default)</entry>
               </row>
               <row>
                 <entry>
@@ -677,9 +659,9 @@
                 <entry>
                   <sgmltag class="attribute">colname</sgmltag>
                 </entry>
-                <entry>Specifies the column, defined by a colspec element, in which the entry belongs.<note>
-                    <para>You must specify entries from left to right.</para>
-                  </note></entry>
+                <entry>Specifies the column, defined by a colspec element, in which the entry belongs.
+                   <para><emphasis role="bold">Note: </emphasis>You must specify entries from left to right.</para>
+                  </entry>
                 <entry>The value of the <sgmltag class="attribute">name</sgmltag> attribute of the <sgmltag class="element">colspec</sgmltag> element defining the column of the span.</entry>
               </row>
             </tbody>
@@ -701,19 +683,37 @@
     ...
     &lt;tbody&gt;
       &lt;row&gt;
-        &lt;entry&gt;&lt;sgmltag class=&quot;attribute&quot;&gt;colsep&lt;/sgmltag&gt;&lt;/entry&gt;
-        &lt;entry&gt;Specifies if a rule will be drawn to the right of entries in the span.&lt;/entry&gt;
-        &lt;entry&gt;&lt;sgmltag class=&quot;attvalue&quot;&gt;0&lt;/sgmltag&gt;, &lt;sgmltag class=&quot;attvalue&quot;&gt;1&lt;/sgmltag&gt;(default)&lt;/entry&gt;
+        &lt;entry&gt;
+           &lt;sgmltag class=&quot;attribute&quot;&gt;colsep&lt;/sgmltag&gt;
+        &lt;/entry&gt;
+        &lt;entry&gt;Specifies if a rule will be drawn to 
+            the right of entries in the span.&lt;/entry&gt;
+        &lt;entry&gt;
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;0&lt;/sgmltag&gt;, 
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;1&lt;/sgmltag&gt; 
+           (default)&lt;/entry&gt;
       &lt;/row&gt;
       &lt;row&gt;
-        &lt;entry&gt;&lt;sgmltag class=&quot;attribute&quot;&gt;rowsep&lt;/sgmltag&gt;&lt;/entry&gt;
-        &lt;entry&gt;Specifies if a rule will be drawn below the rows in the span.&lt;/entry&gt;
-        &lt;entry&gt;&lt;sgmltag class=&quot;attvalue&quot;&gt;0&lt;/sgmltag&gt;, &lt;sgmltag class=&quot;attvalue&quot;&gt;1&lt;/sgmltag&gt;(default)&lt;/entry&gt;
+        &lt;entry&gt;
+           &lt;sgmltag class=&quot;attribute&quot;&gt;rowsep&lt;/sgmltag&gt;
+        &lt;/entry&gt;
+        &lt;entry&gt;Specifies if a rule will be drawn below 
+            the rows in the span.&lt;/entry&gt;
+        &lt;entry&gt;
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;0&lt;/sgmltag&gt;, 
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;1&lt;/sgmltag&gt; 
+           (default)&lt;/entry&gt;
       &lt;/row&gt;
       &lt;row&gt;
         &lt;entry&gt;&lt;sgmltag&gt;align&lt;/sgmltag&gt;&lt;/entry&gt;
-        &lt;entry&gt;Specifies the horizontal alignment of the entry in the span.&lt;/entry&gt;
-        &lt;entry&gt;&lt;sgmltag class=&quot;attvalue&quot;&gt;center&lt;/sgmltag&gt;, &lt;sgmltag class=&quot;attvalue&quot;&gt;justify&lt;/sgmltag&gt;, &lt;sgmltag class=&quot;attvalue&quot;&gt;right&lt;/sgmltag&gt;, &lt;sgmltag class=&quot;attvalue&quot;&gt;left&lt;/sgmltag&gt;(default)&lt;/entry&gt;
+        &lt;entry&gt;Specifies the horizontal alignment of 
+            the entry in the span.&lt;/entry&gt;
+        &lt;entry&gt;
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;center&lt;/sgmltag&gt;, 
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;justify&lt;/sgmltag&gt;, 
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;right&lt;/sgmltag&gt;, 
+           &lt;sgmltag class=&quot;attvalue&quot;&gt;left&lt;/sgmltag&gt; 
+           (default)&lt;/entry&gt;
       &lt;/row&gt;
     &lt;/tbody&gt;
   &lt;/tgroup&gt;
@@ -759,15 +759,15 @@
               <entry>Apples</entry>
               <entry align="right">Kiwis</entry>
               <entry namest="c3" nameend="c5" align="center">Passion Fruits</entry>
-              <entry>Watermellon</entry>
+              <entry>Watermelon</entry>
             </row>
             <row>
               <entry spanname="14">Strawberries</entry>
-              <entry>Cantalope</entry>
+              <entry>Cantaloupe</entry>
               <entry>Tamarind</entry>
             </row>
             <row>
-              <entry>Lychee</entry>
+              <entry>Lichee</entry>
               <entry spanname="25">Boysenberry</entry>
               <entry>Guava</entry>
             </row>
@@ -786,8 +786,10 @@
     &lt;colspec colname=&quot;c4&quot; colnum=&quot;4&quot; /&gt;
     &lt;colspec align=&quot;right&quot; colname=&quot;c5&quot; colnum=&quot;5&quot; /&gt;
     &lt;colspec align=&quot;left&quot; colname=&quot;c6&quot; /&gt;
-    &lt;spanspec align=&quot;center&quot; nameend=&quot;c5&quot; namest=&quot;c2&quot; spanname=&quot;25&quot; /&gt;
-    &lt;spanspec align=&quot;left&quot; nameend=&quot;c4&quot; namest=&quot;c1&quot; spanname=&quot;14&quot; /&gt;
+    &lt;spanspec align=&quot;center&quot; nameend=&quot;c5&quot; namest=&quot;c2&quot;
+        spanname=&quot;25&quot; /&gt;
+    &lt;spanspec align=&quot;left&quot; nameend=&quot;c4&quot; namest=&quot;c1&quot; 
+        spanname=&quot;14&quot; /&gt;
     &lt;thead&gt;
       &lt;row&gt;
         &lt;entry&gt;c1&lt;/entry&gt;
@@ -810,17 +812,18 @@
       &lt;row&gt;
         &lt;entry&gt;Apples&lt;/entry&gt;
         &lt;entry align=&quot;right&quot;&gt;Kiwis&lt;/entry&gt;
-        &lt;entry align=&quot;center&quot; nameend=&quot;c5&quot; namest=&quot;c3&quot;&gt;Passion
+        &lt;entry align=&quot;center&quot; nameend=&quot;c5&quot; 
+            namest=&quot;c3&quot;&gt;Passion
           Fruits&lt;/entry&gt;
-        &lt;entry&gt;Watermellon&lt;/entry&gt;
+        &lt;entry&gt;Watermelon&lt;/entry&gt;
       &lt;/row&gt;
       &lt;row&gt;
         &lt;entry spanname=&quot;14&quot;&gt;Strawberries&lt;/entry&gt;
-        &lt;entry&gt;Cantalope&lt;/entry&gt;
+        &lt;entry&gt;Cantaloupe&lt;/entry&gt;
         &lt;entry&gt;Tamarind&lt;/entry&gt;
       &lt;/row&gt;
       &lt;row&gt;
-        &lt;entry&gt;Lychee&lt;/entry&gt;
+        &lt;entry&gt;Lichee&lt;/entry&gt;
         &lt;entry spanname=&quot;25&quot;&gt;Boysenberry&lt;/entry&gt;
         &lt;entry&gt;Guava&lt;/entry&gt;
       &lt;/row&gt;

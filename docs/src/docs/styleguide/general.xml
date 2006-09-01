@@ -1,47 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  Licensed to the Apache Software Foundation (ASF) under one
-  or more contributor license agreements. See the NOTICE file
-  distributed with this work for additional information
-  regarding copyright ownership. The ASF licenses this file
-  to you under the Apache License, Version 2.0 (the
-  "License"); you may not use this file except in compliance
-  with the License. You may obtain a copy of the License at
- 
-  http://www.apache.org/licenses/LICENSE-2.0
- 
-  Unless required by applicable law or agreed to in writing,
-  software distributed under the License is distributed on an
-  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, either express or implied. See the License for the
-  specific language governing permissions and limitations
-  under the License.
--->
-<chapter>
-  <title>Genral Elements and Other Elements not Discussed Elsewhere</title>
+<chapter id="general">
+  <title>General Elements and Other Elements not Discussed Elsewhere</title>
   <section>
     <title>Overview</title>
-	<para>Since Docbook was defined to describe a wide range of publishable content, it includes 
+	<para>Since DocBook was defined to describe a wide range of publishable content, it includes 
 	      a number of elements that are used to perform common tasks. These elements include ones 
 		  that specify superscripts and emphasis.</para>
 	<para>It also includes a number of elements that you are unlikely to need when documenting 
 	      CeltiXfire. Among these elements are a large set used to define GUI elements. These 
 		  elements are legal in the CeltiXfire documentation. However, they are not used enough to 
-		  mertit a full discussion.</para>
+		  merit a full discussion.</para>
   </section>
   <section>
-    <title>Formating Elements</title>
-	<para>The following are common formating elements used in Docbook:</para>
+    <title>Formatting Elements</title>
+	<para>The following are common formatting elements used in DocBook:</para>
 	<segmentedlist>
 	  <segtitle>Element</segtitle>
 	  <segtitle>Description</segtitle>
 	  <seglistitem>
 	    <seg><sgmltag class="element">emphasis</sgmltag></seg>
-		<seg>Specifies that the content of the element is to be empasized by either 
-		     <emphasis>itallics</emphasis> or <emphasis role="strong">boldface</emphasis>. The 
-			 default is to use itallics. You specify boldface by setting the 
+		<seg>Specifies that the content of the element is to be emphasized by either 
+		     <emphasis>italics</emphasis> or <emphasis role="strong">boldface</emphasis>. The 
+			 default is to use italics. You specify boldface by setting the 
 			 <sgmltag class="attribute">role</sgmltag> attribute to 
-			 <sgmltag class="attrvalue">strong</sgmltag>.</seg>
+			 <sgmltag class="attvalue">strong</sgmltag>.</seg>
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">literallayout</sgmltag></seg>
@@ -100,7 +82,7 @@
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">errortext</sgmltag></seg>
-		<seg>Specifies that the content is the text generated whan an error occurs.</seg>
+		<seg>Specifies that the content is the text generated when an error occurs.</seg>
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">filename</sgmltag></seg>
@@ -126,7 +108,7 @@
   </section>	
   <section>
     <title>Other General Elements</title>
-	<para>The following are other general use elements used in Docbook:</para>
+	<para>The following are other general use elements used in DocBook:</para>
 	<segmentedlist>
 	  <segtitle>Element</segtitle>
 	  <segtitle>Description</segtitle>
@@ -140,7 +122,7 @@
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">firstterm</sgmltag></seg>
-		<seg>Specifies that the content is the first occurence of a new term or is a term that 
+		<seg>Specifies that the content is the first occurrence of a new term or is a term that 
 		     is used a context specific manner.</seg>
 	  </seglistitem>
 	  <seglistitem>
@@ -154,14 +136,14 @@
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">replaceable</sgmltag></seg>
-		<seg>Specifies that the content represents a value that wil lbe replaced by the user in 
+		<seg>Specifies that the content represents a value that will be replaced by the user in 
 		     using the product.</seg>
 	  </seglistitem>
     </segmentedlist>
   </section>	
   <section>
     <title>GUI Elements</title>
-	<para>The following are Docbook elements used in documenting a GUI:</para>
+	<para>The following are DocBook elements used in documenting a GUI:</para>
 	<segmentedlist>
 	  <segtitle>Element</segtitle>
 	  <segtitle>Description</segtitle>
@@ -175,7 +157,7 @@
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">guilabel</sgmltag></seg>
-		<seg>Specifies that the content is a lable on a GUI element other than a button.</seg>
+		<seg>Specifies that the content is a label on a GUI element other than a button.</seg>
 	  </seglistitem>
 	  <seglistitem>
 	    <seg><sgmltag class="element">guimenu</sgmltag></seg>
@@ -191,7 +173,7 @@
 	  </seglistitem>
       <seglistitem>
 	    <seg><sgmltag class="element">mousebutton</sgmltag></seg>
-	    <seg>Specifies that the content is the name of a mousebutton.</seg>
+	    <seg>Specifies that the content is the name of a mouse button.</seg>
 	  </seglistitem>
     </segmentedlist>
   </section>	
