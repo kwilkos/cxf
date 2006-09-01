@@ -23,8 +23,8 @@
 		<xs:complexContent>
 			<xs:extension base="tns:tExtensibilityElement">
 				<xs:sequence />
-				<xs:attribute name="rootNode" type="xs:string"
-					use="required" />
+				<xs:attribute name="rootNode" type="xs:QName"
+					use="optional" />
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>

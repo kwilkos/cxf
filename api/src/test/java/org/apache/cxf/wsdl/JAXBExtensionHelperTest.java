@@ -33,7 +33,8 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-public class JAXBExtensionHelperTest extends TestCase {
+public class JAXBExtensionHelperTest
+                extends TestCase {
 
     private WSDLFactory wsdlFactory;
 
@@ -64,32 +65,32 @@ public class JAXBExtensionHelperTest extends TestCase {
     public void testAddExtension() throws Exception {
 
         Class extClass = Class.forName("org.apache.cxf.bindings.xformat.XMLBindingMessageFormat");
-        
+
         String file = this.getClass().getResource("/wsdl/hello_world_xml_bare.wsdl").getFile();
-        
+
         wsdlReader.setExtensionRegistry(registry);
-                
+
         wsdlDefinition = wsdlReader.readWSDL(file);
 
         Binding b = wsdlDefinition.getBinding(new QName("http://objectweb.org/hello_world_xml_http/bare",
                         "Greeter_XMLBinding"));
         BindingOperation bo = b.getBindingOperation("sayHi", null, null);
-        BindingInput bi = bo.getBindingInput(); 
+        BindingInput bi = bo.getBindingInput();
         List extList = bi.getExtensibilityElements();
         Object extIns = null;
         for (Object ext : extList) {
             extIns = extClass.cast(ext);
         }
         assertEquals("can't found ext element XMLBindingMessageFormat", true, extIns != null);
-        String rootNode = getRootNode(extIns);
-        assertEquals("get rootNode value back from extension element", "sayHi", rootNode);
+        QName rootNode = getRootNode(extIns);
+        assertEquals("get rootNode value back from extension element", "sayHi", rootNode.getLocalPart());
     }
 
-    private String getRootNode(Object ext) throws Exception {
+    private QName getRootNode(Object ext) throws Exception {
         for (int i = 0; i < ext.getClass().getMethods().length; i++) {
             Method method = ext.getClass().getMethods()[i];
             if (method.getName().equals("getRootNode")) {
-                return (String) method.invoke(ext, new Object[] {});
+                return (QName) method.invoke(ext, new Object[] {});
             }
         }
         return null;
