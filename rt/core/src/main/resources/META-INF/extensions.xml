@@ -19,9 +19,9 @@
 -->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-    <entry key="javax.wsdl.BindingInput">org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
-    <entry key="javax.wsdl.BindingOutput">org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
-    <entry key="javax.wsdl.Port">org.apache.cxf.transports.jms.JMSAddressPolicyType</entry>
-	<entry key="javax.wsdl.Port">org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType</entry>
-	<entry key="javax.wsdl.Port">org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType</entry>
+    <entry key="1">javax.wsdl.BindingInput=org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
+    <entry key="2">javax.wsdl.BindingOutput=org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
+    <entry key="3">javax.wsdl.Port=org.apache.cxf.transports.jms.JMSAddressPolicyType</entry>
+	<entry key="4">javax.wsdl.Port=org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType</entry>
+	<entry key="5">javax.wsdl.Port=org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType</entry>
 </properties>

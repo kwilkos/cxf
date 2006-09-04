@@ -19,12 +19,12 @@
 
 package org.apache.cxf.wsdl11;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,8 +52,8 @@ import org.apache.cxf.wsdl.WSDLManager;
  */
 public class WSDLManagerImpl implements WSDLManager {
 
-    private static final Logger LOG = LogUtils
-            .getL7dLogger(WSDLManagerImpl.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(WSDLManagerImpl.class);
+
     private static final String EXTENSIONS_RESOURCE = "META-INF/extensions.xml";
 
     final ExtensionRegistry registry;
@@ -61,7 +61,7 @@ public class WSDLManagerImpl implements WSDLManager {
     final WSDLFactory factory;
 
     final WeakHashMap<Object, Definition> definitionsMap;
-    
+
     public WSDLManagerImpl() throws BusException {
         try {
             factory = WSDLFactory.newInstance();
@@ -70,7 +70,7 @@ public class WSDLManagerImpl implements WSDLManager {
             throw new BusException(e);
         }
         definitionsMap = new WeakHashMap<Object, Definition>();
-        
+
         registerInitialExtensions();
     }
 
@@ -82,7 +82,7 @@ public class WSDLManagerImpl implements WSDLManager {
      * (non-Javadoc)
      * 
      * XXX - getExtensionRegistry()
-     *
+     * 
      * @see org.apache.cxf.wsdl.WSDLManager#getExtenstionRegistry()
      */
     public ExtensionRegistry getExtenstionRegistry() {
@@ -138,11 +138,11 @@ public class WSDLManagerImpl implements WSDLManager {
     }
 
     public Definition getDefinition(Class<?> sei) throws WSDLException {
-        
+
         if (null == sei.getAnnotation(WebService.class)) {
             return null;
         }
-        
+
         synchronized (definitionsMap) {
             if (definitionsMap.containsKey(sei)) {
                 return definitionsMap.get(sei);
@@ -151,22 +151,22 @@ public class WSDLManagerImpl implements WSDLManager {
         Definition def = null;
         try {
             def = createDefinition(sei);
-        } catch (Exception ex) {            
+        } catch (Exception ex) {
             throw new WSDLException(WSDLException.PARSER_ERROR, ex.getMessage());
         }
-        
+
         synchronized (definitionsMap) {
             definitionsMap.put(sei, def);
         }
         return def;
     }
-    
+
     public void addDefinition(Object key, Definition wsdl) {
         synchronized (definitionsMap) {
             definitionsMap.put(key, wsdl);
         }
     }
-    
+
     private Definition loadDefinition(String url) throws WSDLException {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
@@ -203,7 +203,7 @@ public class WSDLManagerImpl implements WSDLManager {
         try {
             int result = 0;
             org.apache.cxf.tools.java2wsdl.JavaToWSDL.runTool(new String[] {"-o",
-                    tmp.getPath() + "/tmp.wsdl", sei.getName() });            
+                            tmp.getPath() + "/tmp.wsdl", sei.getName() });
             if (0 != result) {
                 LOG.log(Level.SEVERE, "WSDL_GENERATION_BAD_RESULT_MSG", result);
                 return null;
@@ -230,8 +230,7 @@ public class WSDLManagerImpl implements WSDLManager {
                 LOG.severe("WSDL_SCHEMA_GENERATION_FAILURE_MSG");
                 return null;
             } else if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Generated " + wsdl.getPath() + " and "
-                        + schema.getPath());
+                LOG.info("Generated " + wsdl.getPath() + " and " + schema.getPath());
             }
 
             /*
@@ -244,8 +243,8 @@ public class WSDLManagerImpl implements WSDLManager {
              * LOG.log(Level.SEVERE, "WSDL_UNREADABLE_MSG", ex); }
              */
 
-            // definition = org.apache.cxf.tools.java2wsdl.JavaToWSDL.getDefinition();
-
+            // definition =
+            // org.apache.cxf.tools.java2wsdl.JavaToWSDL.getDefinition();
         } finally {
             class Directory {
                 private final File dir;
@@ -272,26 +271,23 @@ public class WSDLManagerImpl implements WSDLManager {
 
         return definition;
     }
-    
+
     private void registerInitialExtensions() throws BusException {
         Properties initialExtensions = null;
         try {
-            initialExtensions = PropertiesLoaderUtils
-                .loadAllProperties(EXTENSIONS_RESOURCE, Thread.currentThread()
-                    .getContextClassLoader());
+            initialExtensions = PropertiesLoaderUtils.loadAllProperties(EXTENSIONS_RESOURCE, Thread
+                            .currentThread().getContextClassLoader());
         } catch (IOException ex) {
             throw new BusException(ex);
         }
-        
+
         for (Iterator it = initialExtensions.keySet().iterator(); it.hasNext();) {
-            String parentType = (String)it.next();
-            String elementType = initialExtensions.getProperty(parentType);
-            
+            StringTokenizer st = new StringTokenizer(initialExtensions.getProperty((String) it.next()), "=");
+            String parentType = st.nextToken();
+            String elementType = st.nextToken();
             try {
-                JAXBExtensionHelper.addExtensions(registry, 
-                                                  parentType, 
-                                                  elementType, 
-                                                  getClass().getClassLoader());
+                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
+                                .getClassLoader());
             } catch (ClassNotFoundException ex) {
                 LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
             } catch (JAXBException ex) {

@@ -77,7 +77,7 @@ public class JAXBExtensionHelperTest extends TestCase {
 
         wsdlDefinition = wsdlReader.readWSDL(file);
 
-        Binding b = wsdlDefinition.getBinding(new QName("http://objectweb.org/hello_world_xml_http/bare",
+        Binding b = wsdlDefinition.getBinding(new QName("http://apache.org/hello_world_xml_http/bare",
                         "Greeter_XMLBinding"));
         BindingOperation bo = b.getBindingOperation("sayHi", null, null);
         BindingInput bi = bo.getBindingInput();
