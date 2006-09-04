@@ -107,7 +107,7 @@ public class JAXBExtensionHelperTest extends TestCase {
                         "org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType", Thread.currentThread()
                                         .getContextClassLoader());
 
-        String file = this.getClass().getResource("/wsdl/jms_test.wsdl").getFile();
+        String file = this.getClass().getResource("/wsdl/jms_wsdlext_test.wsdl").getFile();
 
         wsdlReader.setExtensionRegistry(registry);
 
