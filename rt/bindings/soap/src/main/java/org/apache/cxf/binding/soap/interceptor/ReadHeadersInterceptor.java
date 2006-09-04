@@ -49,6 +49,8 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
 
     public void handleMessage(SoapMessage message) {
         XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
+        
+                
         if (xmlReader == null) {
             InputStream in = (InputStream)message.getContent(InputStream.class);
             if (in == null) {
@@ -75,6 +77,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                         Element element = (Element)envelop.getChildNodes().item(i);
                         if (element.getLocalName().equals(header)) {
                             message.setHeaders(Element.class, element);
+                            message.put(Element.class, element);
                         }
                     }
                 }

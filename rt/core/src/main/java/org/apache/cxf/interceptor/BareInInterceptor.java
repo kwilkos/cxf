@@ -26,6 +26,9 @@ import java.util.List;
 import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamReader;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -33,6 +36,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -53,30 +57,40 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
 
-        //StaxUtils.nextEvent(xmlReader);
         while (StaxUtils.toNextElement(xmlReader)) {
             Object o = dr.read(xmlReader);
             
             parameters.add(o);
         }
 
-        // If we didn't know the operation going into this, lets try to figure
-        // it out
-        if (operation == null) {
-            Endpoint ep = exchange.get(Endpoint.class);
-            Service service = ep.getService();
+        Endpoint ep = exchange.get(Endpoint.class);
+        Service service = ep.getService();
 
+        if (message.get(Element.class) != null) {
+            parameters.addAll(abstractParamsFromHeader(message.get(Element.class), ep, message));
+        }
+        
+        if (operation == null) {
+            
+            // If we didn't know the operation going into this, lets try to figure
+            // it out
+            
             OperationInfo op = findOperation(service.getServiceInfo().getInterface().getOperations(),
-                                             parameters);
+                                             parameters, isRequestor(message));
+            
 
             for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
                 if (bop.getOperationInfo().equals(op)) {
+                    operation = bop;
                     exchange.put(BindingOperationInfo.class, bop);
                     exchange.setOneWay(bop.getOutput() == null);
                     break;
                 }
             }
         }
+        
+        
+        
         List<Object> newParameters = new ArrayList<Object>();
         for (Iterator iter = parameters.iterator(); iter.hasNext();) {
             Object element = (Object)iter.next();
@@ -86,6 +100,44 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             newParameters.add(element);
             
         }
+       
         message.setContent(List.class, newParameters);
+    }
+    
+    private List<Object> abstractParamsFromHeader(Element headerElement, Endpoint ep,  
+                                                  Message message) {
+ 
+        List<Object> paramInHeader = new ArrayList<Object>();
+        List<MessagePartInfo> parts = null;
+        for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
+           
+            if (isRequestor(message)) {
+                parts = bop.getOutput().getMessageInfo().getMessageParts();
+            } else {
+                parts = bop.getInput().getMessageInfo().getMessageParts();
+            }
+                        
+            
+            for (MessagePartInfo mpi : parts) {
+                if (mpi.isInSoapHeader()) {
+                    NodeList nodeList = headerElement.getChildNodes();
+                    if (nodeList != null) {
+                        for (int i = 0; i < nodeList.getLength(); i++) {
+                            if (nodeList.item(i).getNamespaceURI().equals(
+                                mpi.getElementQName().getNamespaceURI()) 
+                                && nodeList.item(i).getLocalName().equals(
+                                    mpi.getElementQName().getLocalPart())) {
+                                Element param = (Element)nodeList.item(i);
+                                paramInHeader.add(getNodeDataReader(message).read(param));
+                            }
+                        }
+                        
+                    }
+                    
+                }
+            }
+        }
+                            
+        return paramInHeader;
     }
 }

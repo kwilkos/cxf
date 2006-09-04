@@ -54,9 +54,8 @@ public class BareInInterceptorTest extends TestBase {
         
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
         assertNotNull(bop);
-        // this doesn't pass yet as we can't introspect the message part type classes to find
-        // the correct operation. One possibility is to try to match QNames instead.
-        // assertEquals("greetMe", bop.getName().getLocalPart());
+        
+        assertEquals("greetMe", bop.getName().getLocalPart());
     }
 
     public void testInterceptorOutbound() throws Exception {
@@ -64,7 +63,7 @@ public class BareInInterceptorTest extends TestBase {
 
         message.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
             .createXMLStreamReader(getTestStream(getClass(), "resources/GreetMeDocLiteralResp.xml")));
-
+        message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         interceptor.handleMessage(message);
 
         List<?> parameters = message.getContent(List.class);

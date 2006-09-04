@@ -20,25 +20,39 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-
 import org.w3c.dom.Element;
+
+
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.databinding.DataWriterFactory;
 
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.StaxUtils;
+
 
 public class SoapOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);
@@ -69,15 +83,14 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             
-            //handleHeaderPart(message);
-
             Element eleHeaders = message.getHeaders(Element.class);
-            
-
             if (eleHeaders != null) {
                 StaxUtils.writeElement(eleHeaders, xtw, true);
-            }
+            } else {
             
+                handleHeaderPart(message);
+            }
+       
             xtw.writeStartElement(soapVersion.getPrefix(), 
                                   soapVersion.getBody().getLocalPart(),
                                   soapVersion.getNamespace());
@@ -98,21 +111,32 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         }
     }
     
-    /*private void handleHeaderPart(SoapMessage message) {
+    private void handleHeaderPart(SoapMessage message) {
         //add MessagePart to soapHeader if necessary
         Exchange exchange = message.getExchange();
         BindingOperationInfo operation = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
                                                                             .getName());
-        Element soapHeaders = message.getHeaders(Element.class);
-         
-         
-         
+        if (operation == null) {
+            return;
+        }
+        XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
+        
+        boolean hasHeader = false;
+                 
         int countParts = 0;
         List<MessagePartInfo> parts = null;
         if (!isRequestor(message)) {
-            parts = operation.getOutput().getMessageInfo().getMessageParts();
+            if (operation.getOperationInfo().hasOutput()) {
+                parts = operation.getOutput().getMessageInfo().getMessageParts();
+            } else {
+                parts = new ArrayList<MessagePartInfo>();
+            }
         } else {
-            parts = operation.getInput().getMessageInfo().getMessageParts();
+            if (operation.getOperationInfo().hasInput()) {
+                parts = operation.getInput().getMessageInfo().getMessageParts();
+            } else {
+                parts = new ArrayList<MessagePartInfo>();
+            }
         }
         countParts = parts.size();
  
@@ -126,40 +150,67 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                    new RuntimeException("The number of arguments is not equal!"));
             }
  
+            SoapVersion soapVersion = message.getVersion();
             for (int idx = 0; idx < countParts; idx++) {
-                //Object arg = args[idx];
+                Object arg = args[idx];
                 MessagePartInfo part = (MessagePartInfo)els[idx];
                 if (!part.isInSoapHeader()) {
-                    //this part should be in header, so write to header
                     continue;
-                }
-                 
-                // todo write to header
-                if (soapHeaders == null) {
-                    DocumentBuilder builder = null;
-                    try {
-                        builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                    } catch (ParserConfigurationException e) {
-                        e.printStackTrace();
+                } else {
+                    if (!hasHeader) {
+                        try {
+                            xtw.writeStartElement(soapVersion.getPrefix(), 
+                                                  soapVersion.getHeader().getLocalPart(),
+                                                  soapVersion.getNamespace());
+                        } catch (XMLStreamException e) {
+                            throw new SoapFault(
+                                new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
+                                e, SoapFault.SENDER);
+                        }
                     }
-                    Document doc = builder.newDocument();
-                    SoapVersion version = message.getVersion();
-                    soapHeaders =
-                        doc.createElementNS(version.getNamespace(), version.getHeader().getLocalPart());
-                    QName headerPartQName = ServiceModelUtil.getPartName(part);
-                    soapHeaders.appendChild(
-                        doc.createElementNS(
-                            headerPartQName.getNamespaceURI(), headerPartQName.getLocalPart()));
+                    QName elName = ServiceModelUtil.getPartName(part);
+                    DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
+                    dataWriter.write(arg, elName, xtw);
+                        
+                    hasHeader = true;
                 }
                  
             }
+            if (hasHeader) {
+                try {
+                    xtw.writeEndElement();
+                } catch (XMLStreamException e) {
+                    throw new SoapFault(
+                        new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
+                        e, SoapFault.SENDER);
+                }
+            }
         }
-        message.setHeaders(Element.class, soapHeaders);
+
 
     }       
     
     protected boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
-    }*/
+    }
 
+    protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
+        Service service = ServiceModelUtil.getService(message.getExchange());
+        DataWriterFactory factory = service.getDataWriterFactory();
+
+        DataWriter<XMLStreamWriter> dataWriter = null;
+        for (Class<?> cls : factory.getSupportedFormats()) {
+            if (cls == XMLStreamWriter.class) {
+                dataWriter = factory.createWriter(XMLStreamWriter.class);
+                break;
+            }
+        }
+
+        if (dataWriter == null) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
+                .getName()));
+        }
+
+        return dataWriter;
+    }
 }

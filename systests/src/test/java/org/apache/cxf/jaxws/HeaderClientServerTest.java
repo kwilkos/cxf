@@ -33,7 +33,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 
-//import org.apache.cxf.systest.common.ClientServerSetupBase;
+
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
@@ -90,8 +90,6 @@ public class HeaderClientServerTest extends ClientServerTestBase {
             }
         };
         
-        
-
     }  
 
     
@@ -112,10 +110,8 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                 assertEquals(TestHeader1.class.getSimpleName(), returnVal.getResponseType());
             }
         } catch (UndeclaredThrowableException ex) {
-            //throw (Exception)ex.getCause();
-        } catch (Exception e) {
-            //should get Exception since Holder is not supported now
-        }
+            throw (Exception)ex.getCause();
+        } 
     } 
 
     /*public void testOutHeader() throws Exception {

@@ -21,6 +21,7 @@ package org.apache.cxf.staxutils;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,12 +36,15 @@ import javax.xml.stream.XMLStreamWriter;
 import org.w3c.dom.*;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.XMLUtils;
 
 public final class StaxUtils {
 
+    private static final Logger LOG = Logger.getLogger(StaxUtils.class.getName());
+    
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final XMLOutputFactory XML_OUTPUT_FACTORY = XMLOutputFactory.newInstance();
-
+    
     private static final String XML_NS = "http://www.w3.org/2000/xmlns/";
     
     private StaxUtils() {
@@ -670,6 +674,16 @@ public final class StaxUtils {
             }
 
             n++;
+        }
+    }
+    
+
+    public static void printXmlFragment(XMLStreamReader reader) {
+        XMLUtils.setIndention(4);
+        try {
+            LOG.info(XMLUtils.toString(StaxUtils.read(reader)));
+        } catch (XMLStreamException e) {
+            LOG.severe(e.getMessage());
         }
     }
 }

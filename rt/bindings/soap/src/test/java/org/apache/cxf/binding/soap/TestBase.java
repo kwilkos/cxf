@@ -56,6 +56,9 @@ public class TestBase extends TestCase {
     protected PhaseInterceptorChain chain;
     protected SoapMessage soapMessage;
 
+    
+    
+    
     public void setUp() throws Exception {
         List<Phase> phases = new ArrayList<Phase>();
         Phase phase1 = new Phase("phase1", 1);

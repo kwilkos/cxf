@@ -19,13 +19,18 @@
 
 package org.apache.cxf.interceptor;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.stream.XMLStreamReader;
+
+import org.w3c.dom.Node;
+
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
@@ -81,16 +86,48 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         }
         return dataReader;
     }
+    
+    protected DataReader<Node> getNodeDataReader(Message message) {
+        Service service = ServiceModelUtil.getService(message.getExchange());
+        DataReaderFactory factory = service.getDataReaderFactory();
+
+        DataReader<Node> dataReader = null;
+        for (Class<?> cls : factory.getSupportedFormats()) {
+            if (cls == Node.class) {
+                dataReader = factory.createReader(Node.class);
+                break;
+            }
+        }
+        if (dataReader == null) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
+                service.getName()));
+        }
+        return dataReader;
+    }
 
     protected DepthXMLStreamReader getXMLStreamReader(Message message) {
         XMLStreamReader xr = message.getContent(XMLStreamReader.class);
         return new DepthXMLStreamReader(xr);
     }
 
-    protected OperationInfo findOperation(Collection<OperationInfo> operations, List<Object> parameters) {
+    protected OperationInfo findOperation(Collection<OperationInfo> operations, 
+                                          List<Object> parameters, boolean isRequestor) {
         // first check for exact matches
         for (OperationInfo o : operations) {
-            List messageParts = o.getInput().getMessageParts();
+            List messageParts = null;
+            if (isRequestor) {
+                if (o.hasOutput()) {
+                    messageParts = o.getOutput().getMessageParts();
+                } else {
+                    messageParts = new ArrayList();
+                }
+            } else {
+                if (o.hasInput()) {
+                    messageParts = o.getInput().getMessageParts();
+                } else {
+                    messageParts = new ArrayList();
+                }
+            }
             if (messageParts.size() == parameters.size() 
                     && checkExactParameters(messageParts, parameters)) {
                 return o;
@@ -122,10 +159,18 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         Iterator messagePartIterator = messageParts.iterator();
         for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
             Object param = parameterIterator.next();
+            JAXBElement paramEl = null;
+            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
             if (param instanceof JAXBElement) {
-                JAXBElement paramEl = (JAXBElement)param;
-                MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
+                paramEl = (JAXBElement)param;
                 if (!mpi.getElementQName().equals(paramEl.getName())) {
+                    return false;
+                }
+            } else {
+                
+                if (!mpi.getElementQName().getLocalPart().equals(
+                    param.getClass().getAnnotation(XmlRootElement.class).name())) {
+               
                     return false;
                 }
             }
