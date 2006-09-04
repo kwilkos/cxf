@@ -20,8 +20,10 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <comment>mapping of configuration namespace - configuration metadata resource name</comment>
-<entry key="http://cxf.apache.org/configuration/bus">config-metadata/bus-config.xml</entry>
-<entry key="http://cxf.apache.org/configuration/transport/http-client">config-metadata/http-client-config.xml</entry>
-<entry key="http://cxf.apache.org/configuration/transport/http-listener">config-metadata/http-listener-config.xml</entry>
-<entry key="http://cxf.apache.org/configuration/transport/http-server">config-metadata/http-server-config.xml</entry>
+	<entry key="http://cxf.apache.org/configuration/bus">config-metadata/bus-config.xml</entry>
+	<entry key="http://cxf.apache.org/configuration/transport/http-client">config-metadata/http-client-config.xml</entry>
+	<entry key="http://cxf.apache.org/configuration/transport/http-listener">config-metadata/http-listener-config.xml</entry>
+	<entry key="http://cxf.apache.org/configuration/transport/http-server">config-metadata/http-server-config.xml</entry>
+	<entry key="http://cxf.apache.org/configuration/transport/jms-client">config-metadata/jms-client-config.xml</entry>
+	<entry key="http://cxf.apache.org/configuration/transport/jms-server">config-metadata/jms-server-config.xml</entry>
 </properties>

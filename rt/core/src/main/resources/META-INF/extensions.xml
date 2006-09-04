@@ -21,4 +21,7 @@
 <properties>
     <entry key="javax.wsdl.BindingInput">org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
     <entry key="javax.wsdl.BindingOutput">org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
+    <entry key="javax.wsdl.Port">org.apache.cxf.transports.jms.JMSAddressPolicyType</entry>
+	<entry key="javax.wsdl.Port">org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType</entry>
+	<entry key="javax.wsdl.Port">org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType</entry>
 </properties>

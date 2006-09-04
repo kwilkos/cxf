@@ -19,13 +19,14 @@
 
 package org.apache.cxf.wsdl;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
@@ -33,8 +34,13 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-public class JAXBExtensionHelperTest
-                extends TestCase {
+import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
+import org.apache.cxf.transports.jms.JMSAddressPolicyType;
+import org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType;
+import org.apache.cxf.transports.jms.JMSNamingPropertyType;
+import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
+
+public class JAXBExtensionHelperTest extends TestCase {
 
     private WSDLFactory wsdlFactory;
 
@@ -53,18 +59,17 @@ public class JAXBExtensionHelperTest
         if (registry == null) {
             registry = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.BindingInput",
-                        "org.apache.cxf.bindings.xformat.XMLBindingMessageFormat", Thread.currentThread()
-                                        .getContextClassLoader());
     }
 
     public void tearDown() {
 
     }
 
-    public void testAddExtension() throws Exception {
+    public void testAddXMLBindingExtension() throws Exception {
 
-        Class extClass = Class.forName("org.apache.cxf.bindings.xformat.XMLBindingMessageFormat");
+        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.BindingInput",
+                        "org.apache.cxf.bindings.xformat.XMLBindingMessageFormat", Thread.currentThread()
+                                        .getContextClassLoader());
 
         String file = this.getClass().getResource("/wsdl/hello_world_xml_bare.wsdl").getFile();
 
@@ -77,22 +82,67 @@ public class JAXBExtensionHelperTest
         BindingOperation bo = b.getBindingOperation("sayHi", null, null);
         BindingInput bi = bo.getBindingInput();
         List extList = bi.getExtensibilityElements();
-        Object extIns = null;
+        XMLBindingMessageFormat extIns = null;
         for (Object ext : extList) {
-            extIns = extClass.cast(ext);
+            if (ext instanceof XMLBindingMessageFormat) {
+                extIns = (XMLBindingMessageFormat) ext;
+            }
         }
         assertEquals("can't found ext element XMLBindingMessageFormat", true, extIns != null);
-        QName rootNode = getRootNode(extIns);
+        QName rootNode = extIns.getRootNode();
         assertEquals("get rootNode value back from extension element", "sayHi", rootNode.getLocalPart());
     }
 
-    private QName getRootNode(Object ext) throws Exception {
-        for (int i = 0; i < ext.getClass().getMethods().length; i++) {
-            Method method = ext.getClass().getMethods()[i];
-            if (method.getName().equals("getRootNode")) {
-                return (QName) method.invoke(ext, new Object[] {});
+    public void testAddJMSExtension() throws Exception {
+
+        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Port",
+                        "org.apache.cxf.transports.jms.JMSAddressPolicyType", Thread.currentThread()
+                                        .getContextClassLoader());
+
+        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Port",
+                        "org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType", Thread.currentThread()
+                                        .getContextClassLoader());
+
+        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Port",
+                        "org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType", Thread.currentThread()
+                                        .getContextClassLoader());
+
+        String file = this.getClass().getResource("/wsdl/jms_test.wsdl").getFile();
+
+        wsdlReader.setExtensionRegistry(registry);
+
+        wsdlDefinition = wsdlReader.readWSDL(file);
+        Service s = wsdlDefinition.getService(new QName("http://cxf.apache.org/hello_world_jms",
+                        "HelloWorldQueueBinMsgService"));
+        Port p = s.getPort("HelloWorldQueueBinMsgPort");
+        List extPortList = p.getExtensibilityElements();
+
+        JMSAddressPolicyType extAddr = null;
+        JMSClientBehaviorPolicyType extClient = null;
+        JMSServerBehaviorPolicyType extServer = null;
+        for (Object ext : extPortList) {
+            if (ext instanceof JMSAddressPolicyType) {
+                extAddr = (JMSAddressPolicyType) ext;
+            }
+            if (ext instanceof JMSClientBehaviorPolicyType) {
+                extClient = (JMSClientBehaviorPolicyType) ext;
+            }
+            if (ext instanceof JMSServerBehaviorPolicyType) {
+                extServer = (JMSServerBehaviorPolicyType) ext;
             }
         }
-        return null;
+        assertEquals("can't found ext element JMSAddress ExtensionElement", true, extAddr != null);
+        assertEquals("can't found ext element JMS Client Behavior", true, extClient != null);
+        assertEquals("can't found ext element JMS Server Behavior", true, extServer != null);
+        assertEquals("can't get JndiDestinationName", "dynamicQueues/test.jmstransport.binary", extAddr
+                        .getJndiDestinationName());
+
+        List<JMSNamingPropertyType> extJmsNamingPropertiesList = null;
+        extJmsNamingPropertiesList = extAddr.getJMSNamingProperty();        
+        assertEquals("can't found ext element extJmsNamingPropertiesList", true,
+                        extJmsNamingPropertiesList != null);
+        assertEquals("can't get 2 element of list", 2, extJmsNamingPropertiesList.size());
+
     }
+
 }

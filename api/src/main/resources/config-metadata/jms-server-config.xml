@@ -23,7 +23,7 @@
     xmlns:jms-conf="http://cxf.apache.org/transports/jms/jms-conf"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    namespace="http://cxf.apache.org/transports/jms/jms-server-config"
+    namespace="http://cxf.apache.org/configuration/transport/jms-server"
 >
 
     <cm:configImport namespace="http://cxf.apache.org/transports/jms" location="schemas/wsdl/jms.xsd"/>
