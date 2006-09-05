@@ -2,7 +2,6 @@
 <chapter id="exclusions">
   <title>Elements Excluded from CeltiXfire Documentation</title>
 
-  <simplesect>
     <para>The CeltiXfire documentation uses a subset of elements defined by
     DocBook. For simplification, the following elements are excluded from the
     set used:</para>
@@ -932,5 +931,4 @@
         </para>
       </listitem>
     </itemizedlist>
-  </simplesect>
-</chapter>
+ </chapter>
