@@ -41,26 +41,6 @@ public class Exception extends java.lang.Exception {
         message = null;
     } 
     
-    // the above constructors should be preferred to the following ones
-    
-    @Deprecated
-    public Exception() {
-        super();
-        message = null;
-    }
-    
-    @Deprecated
-    public Exception(String msg) {
-        super(msg);
-        message = null;
-    }
-    
-    @Deprecated
-    public Exception(String msg, Throwable t) {
-        super(msg, t);
-        message = null;
-    }
-
     public String getCode() {
         if (null != message) {
             return message.getCode();

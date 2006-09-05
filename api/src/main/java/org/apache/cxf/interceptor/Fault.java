@@ -39,8 +39,5 @@ public class Fault extends UncheckedException {
         super(t);
     }
 
-    @SuppressWarnings("deprecation")
-    protected Fault(String message) {
-        super(message);
-    }
+
 }

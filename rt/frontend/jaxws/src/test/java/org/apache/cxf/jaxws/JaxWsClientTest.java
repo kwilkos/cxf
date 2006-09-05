@@ -35,6 +35,7 @@ import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -82,6 +83,21 @@ public class JaxWsClientTest extends AbstractCXFTest {
 
         Destination d = localTransport.getDestination(ei);
         d.setMessageObserver(new EchoObserver());
+    }
+    
+    public void testCreate() throws Exception {
+        javax.xml.ws.Service s =
+            javax.xml.ws.Service.create(new QName("http://apache.org/hello_world_soap_http",
+                                                          "SoapPort"));
+        assertNotNull(s);
+        
+        try {
+            s = javax.xml.ws.Service.create(new URL("file:/does/not/exist.wsdl"),
+                                            new QName("http://apache.org/hello_world_soap_http",
+                                                "SoapPort"));
+        } catch (ServiceConstructionException sce) {
+            //ignore, this is expected
+        }
     }
 
     public void testEndpoint() throws Exception {

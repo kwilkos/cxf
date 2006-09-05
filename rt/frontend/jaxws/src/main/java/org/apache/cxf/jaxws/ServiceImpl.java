@@ -71,8 +71,13 @@ public class ServiceImpl extends ServiceDelegate {
         bus = b;
         wsdlURL = url;
 
-        WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
-        service = sf.create();
+        if (url == null) {
+            ServiceInfo info = new ServiceInfo();
+            service = new org.apache.cxf.service.ServiceImpl(info);
+        } else {
+            WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
+            service = sf.create();
+        }
         handlerResolver = new HandlerResolverImpl(bus, name);
 
         try {
@@ -80,8 +85,9 @@ public class ServiceImpl extends ServiceDelegate {
             service.setDataReaderFactory(dataBinding.getDataReaderFactory());
             service.setDataWriterFactory(dataBinding.getDataWriterFactory());
         } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new WebServiceException(new Message("FAILED_TO_INITIALIZE_JAXBCONTEXT",
+                                                      LOG,
+                                                      cls.getName()).toString(), e);
         }
     }
 

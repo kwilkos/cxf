@@ -20,7 +20,6 @@
 package org.apache.cxf.wsdl11;
 
 import java.net.URL;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -28,10 +27,12 @@ import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl.WSDLManager;
 
@@ -55,7 +56,7 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         try {
             definition = getBus().getExtension(WSDLManager.class).getDefinition(wsdlUrl);
         } catch (WSDLException ex) {
-            LOG.log(Level.SEVERE, "SERVICE_CREATION_MSG", ex);
+            throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
         }
         
         javax.wsdl.Service wsdlService = definition.getService(serviceName);

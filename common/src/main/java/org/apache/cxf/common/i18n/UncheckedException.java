@@ -41,25 +41,6 @@ public class UncheckedException extends java.lang.RuntimeException {
         message = null;
     } 
     
-    // the above constructors should be preferred to the following ones
-    
-    @Deprecated
-    public UncheckedException() {
-        super();
-        message = null;
-    }
-    
-    @Deprecated
-    public UncheckedException(String msg) {
-        super(msg);
-        message = null;
-    }
-    
-    @Deprecated
-    public UncheckedException(String msg, Throwable t) {
-        super(msg, t);
-        message = null;
-    }
 
     public String getCode() {
         if (null != message) {

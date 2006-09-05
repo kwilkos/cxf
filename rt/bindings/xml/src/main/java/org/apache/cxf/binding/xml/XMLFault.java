@@ -37,10 +37,6 @@ public class XMLFault extends Fault {
         super(t);
     }
 
-    @SuppressWarnings("deprecation")
-    protected XMLFault(String message) {
-        super(message);
-    }
 
 
 }

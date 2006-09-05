@@ -21,6 +21,7 @@ package org.apache.cxf.binding.soap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 
@@ -73,7 +74,7 @@ public class SoapFault extends Fault {
     }
 
     public SoapFault(String message, QName faultCode) {
-        super(message);
+        super(new Message(message, (ResourceBundle)null));
         this.faultCode = faultCode;
     }
     
