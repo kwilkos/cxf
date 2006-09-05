@@ -37,6 +37,8 @@ import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -100,9 +102,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             initializeWSDLOperations();
         } else {
+            // If we can't find the wsdlLocation, then we should build a faked service model .            
             ServiceInfo serviceInfo = new ServiceInfo();
             serviceInfo.setName(getServiceQName());
+            
+            BindingInfo bi = new BindingInfo(serviceInfo, getBindingType());          
 
+            EndpointInfo ei = new EndpointInfo(serviceInfo, bi.getBindingId());
+            ei.setName(getPortQName());
+            ei.setBinding(bi);
+            
+            serviceInfo.addEndpoint(ei);
+            
             createInterface(serviceInfo);
 
             ServiceImpl service = new ServiceImpl(serviceInfo);
@@ -243,6 +254,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
 
         return serviceName;
+    }
+    
+    protected QName getPortQName() {
+        // TO be override
+        return null;
+    }
+    
+    protected String getBindingType() {
+        // to be override
+        return null;
     }
 
     protected QName getInterfaceName() {

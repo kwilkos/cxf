@@ -24,7 +24,6 @@ import java.io.IOException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -36,7 +35,7 @@ public class ServerImpl implements Server {
     private MessageObserver messageObserver;
     private Endpoint endpoint;
 
-    public ServerImpl(Bus bus, Endpoint endpoint, ChainInitiationObserver observer) 
+    public ServerImpl(Bus bus, Endpoint endpoint, MessageObserver observer) 
         throws BusException, IOException {
         this.endpoint = endpoint;
         this.messageObserver = observer;

@@ -50,7 +50,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        Service.Mode m = message.getContent(Service.Mode.class);
+        Service.Mode m = message.getExchange().get(Service.Mode.class);
 
         try {
             OutputStream os = message.getContent(OutputStream.class);

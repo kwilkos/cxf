@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
@@ -42,12 +43,13 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
+import org.apache.cxf.transport.MessageObserver;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
-    
+
     private Bus bus;
     // private String bindingURI;
     private Object implementor;
@@ -55,36 +57,43 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Service service;
     private JaxwsEndpointImpl endpoint;
     
+    private JaxwsImplementorInfo implInfo;
+
+    @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;
         implementor = i;
         // bindingURI = uri;
-        
+
+        implInfo = new JaxwsImplementorInfo(implementor.getClass());
         // build up the Service model
-        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
         serviceFactory.setServiceClass(implementor.getClass());
         serviceFactory.setBus(bus);
         service = serviceFactory.create();
-        
-        // create the endpoint
-        JaxwsImplementorInfo implInfo = new JaxwsImplementorInfo(implementor.getClass());
+
+        // create the endpoint        
         QName endpointName = implInfo.getEndpointName();
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-        //TODO - need a jaxws specific invoker for holders and such
-        service.setInvoker(new SimpleMethodInvoker(i));
-        // TODO: use bindigURI
-        endpoint = new JaxwsEndpointImpl(bus, service, ei);                
+
+        if (implInfo.isWebServiceProvider()) {
+            service.setInvoker(new ProviderInvoker((Provider<?>)i));
+        } else {
+            //TODO - need a jaxws specific invoker for holders and such
+            service.setInvoker(new SimpleMethodInvoker(i));
+        }
+        //      TODO: use bindigURI     
+        endpoint = new JaxwsEndpointImpl(bus, service, ei);
     }
-    
-    
+
     public Binding getBinding() {
         return endpoint.getJaxwsBinding();
     }
 
     public void setExecutor(Executor executor) {
-        server.getEndpoint().getService().setExecutor(executor);        
+        server.getEndpoint().getService().setExecutor(executor);
     }
-    
+
     public Executor getExecutor() {
         return server.getEndpoint().getService().getExecutor();
     }
@@ -114,7 +123,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     @Override
     public void publish(Object arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -124,13 +133,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     public void setMetadata(List<Source> arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void setProperties(Map<String, Object> arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -139,18 +148,23 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             server.stop();
         }
     }
-    
+
     public ServerImpl getServer() {
         return server;
-    } 
-    
+    }
+
     protected void doPublish(String address) {
         if (null != address) {
             endpoint.getEndpointInfo().setAddress(address);
         }
-        
+
         try {
-            ChainInitiationObserver observer = new ChainInitiationObserver(endpoint, bus); 
+            MessageObserver observer = null;
+            if (implInfo.isWebServiceProvider()) {
+                observer = new ProviderChainObserver(endpoint, bus, implInfo);
+            } else {
+                observer = new ChainInitiationObserver(endpoint, bus);
+            }       
             server = new ServerImpl(bus, endpoint, observer);
             server.start();
         } catch (BusException ex) {
@@ -158,6 +172,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         } catch (IOException ex) {
             throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
         }
-        
+
     }
 }

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -54,24 +53,30 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
         getExecutor(endpoint).execute(new Runnable() {
 
             public void run() {
-                Object result = invoker.invoke(message.getExchange(), 
-                    message.getContent(List.class));
+
+                Object result = invoker.invoke(message.getExchange(), getInvokee(message));
 
                 if (result != null) {
-                    if (!(result instanceof List)) {
-                        if (result.getClass().isArray()) {
-                            result = Arrays.asList((Object[])result);
-                        } else {
-                            List<Object> o = new ArrayList<Object>();
-                            o.add(result);
-                            result = o;
-                        }
-                    }
-                    exchange.getOutMessage().setContent(List.class, result);
+                    if (result instanceof List) {
+                        exchange.getOutMessage().setContent(List.class, result);
+                    } else if (result.getClass().isArray()) {
+                        result = Arrays.asList((Object[])result);
+                        exchange.getOutMessage().setContent(List.class, result);
+                    } else {
+                        exchange.getOutMessage().setContent(Object.class, result);
+                    }                    
                 }
             }
 
         });
+    }
+    
+    private Object getInvokee(Message message) {
+        Object invokee = message.getContent(List.class);
+        if (invokee == null) {
+            invokee = message.getContent(Object.class);
+        }
+        return invokee;
     }
 
     /**

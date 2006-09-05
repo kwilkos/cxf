@@ -50,18 +50,17 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
 
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        Service.Mode m = message.getContent(Service.Mode.class);
-        
-        Class type = message.getContent(Class.class);
-                
+        Service.Mode m = message.getExchange().get(Service.Mode.class);
+        Class type = message.getExchange().get(Class.class);
+
         try {
             resetContext(message);
-            
+
             InputStream is = message.getContent(InputStream.class);
 
-            if (message instanceof SoapMessage) {               
+            if (message instanceof SoapMessage) {
                 SOAPMessage soapMessage = newSOAPMessage(is, ((SoapMessage)message).getVersion());
-                
+
                 if (m == Service.Mode.MESSAGE) {
                     DataReader<SOAPMessage> dataReader = getDataReader(message, SOAPMessage.class);
                     message.setContent(Object.class, dataReader.read(null, soapMessage, type));
@@ -75,19 +74,19 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
             e.printStackTrace();
         }
     }
-    
+
     private void resetContext(Message message) throws JAXBException {
         JAXBContext context = message.getContent(JAXBContext.class);
         if (context != null) {
-            org.apache.cxf.service.Service service = message.
-            getExchange().get(org.apache.cxf.service.Service.class);
+            org.apache.cxf.service.Service service = message.getExchange()
+                .get(org.apache.cxf.service.Service.class);
             JAXBDataBinding dataBinding = new JAXBDataBinding();
             dataBinding.setContext(context);
             service.setDataReaderFactory(dataBinding.getDataReaderFactory());
             service.setDataWriterFactory(dataBinding.getDataWriterFactory());
         }
     }
-    
+
     private SOAPMessage newSOAPMessage(InputStream is, SoapVersion version) throws Exception {
         // TODO: Get header from message, this interceptor should after
         // readHeadersInterceptor
@@ -99,6 +98,6 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
         } else if (version instanceof Soap12) {
             msgFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
         }
-        return msgFactory.createMessage(headers, is);        
+        return msgFactory.createMessage(headers, is);
     }
 }

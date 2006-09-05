@@ -20,8 +20,14 @@
 package org.apache.cxf.binding.soap;
 
 public class SoapConstants {
-    public static final String STYLE_RPC = "rpc";
-    public static final String STYLE_BARE = "bare";
-    public static final String STYLE_WRAPPED = "wrapped";
+    public static final String BINDING_STYLE_RPC = "rpc";
+    public static final String BINDING_STYLE_DOC = "document";
+    
+    public static final String PARAMETER_STYLE_BARE = "bare";
+    public static final String PARAMETER_STYLE_WRAPPED = "wrapped";
+    
+//    public static final String STYLE_RPC = "rpc";
+//    public static final String STYLE_BARE = "bare";
+//    public static final String STYLE_WRAPPED = "wrapped";
     public static final String ACTION = "action";
 }

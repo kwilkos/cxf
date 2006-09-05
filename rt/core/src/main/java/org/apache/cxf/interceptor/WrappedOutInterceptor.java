@@ -43,7 +43,7 @@ public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-        if (bop.isUnwrapped()) {
+        if (bop != null && bop.isUnwrapped()) {
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
 
             MessageInfo messageInfo = message.get(MessageInfo.class);

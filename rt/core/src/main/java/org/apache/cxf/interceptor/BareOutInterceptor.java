@@ -39,12 +39,15 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         setPhase(Phase.MARSHAL);
     }
 
-    public void handleMessage(Message message) {
-        XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-
+    public void handleMessage(Message message) {      
         Exchange exchange = message.getExchange();
         BindingOperationInfo operation = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
             .getName());
+        
+        if (operation == null) {
+            return;
+        }
+        
         DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
 
         int countParts = 0;
@@ -65,7 +68,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                 message.setContent(Exception.class,
                                    new RuntimeException("The number of arguments is not equal!"));
             }
-
+            XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
             for (int idx = 0; idx < countParts; idx++) {
                 Object arg = args[idx];
                 MessagePartInfo part = (MessagePartInfo)els[idx];

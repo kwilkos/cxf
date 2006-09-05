@@ -93,13 +93,15 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.info("Dispatch: invoke called");
         }
 
-        Message message = endpoint.getBinding().createMessage();
-        message.setContent(Service.Mode.class, mode);
+        Message message = endpoint.getBinding().createMessage();        
+        
         if (context != null) {
             message.setContent(JAXBContext.class, context);
         }
 
         Exchange exchange = new ExchangeImpl();
+        exchange.put(Service.Mode.class, mode);
+        exchange.put(Class.class, cl);
         exchange.put(org.apache.cxf.service.Service.class, endpoint.getService());
 
         exchange.setOutMessage(message);
@@ -179,8 +181,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     public void onMessage(Message message) {
         message = endpoint.getBinding().createMessage(message);
 
-        message.setContent(Service.Mode.class, mode);
-        message.setContent(Class.class, cl);
+        //message.setContent(Service.Mode.class, mode);
+        //message.setContent(Class.class, cl);
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
 
         PhaseManager pm = bus.getExtension(PhaseManager.class);

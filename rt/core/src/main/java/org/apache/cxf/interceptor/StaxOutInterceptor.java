@@ -46,7 +46,10 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
     public void handleMessage(Message message) {
         OutputStream os = message.getContent(OutputStream.class);
 
-        assert os != null;
+        if (os == null) {
+            return;
+        }
+        // assert os != null;
 
         // TODO: where does encoding constant go?
         String encoding = (String)message.get("Encoding");

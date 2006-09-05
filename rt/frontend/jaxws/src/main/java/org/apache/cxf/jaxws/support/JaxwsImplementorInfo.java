@@ -19,15 +19,25 @@
 
 package org.apache.cxf.jaxws.support;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingType;
+import javax.xml.ws.Provider;
+import javax.xml.ws.Service;
+import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServiceProvider;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 
 public class JaxwsImplementorInfo {
 
@@ -38,11 +48,12 @@ public class JaxwsImplementorInfo {
     private Class<?> seiClass;
     private WebService implementorAnnotation;
     private WebService seiAnnotation;
+    private WebServiceProvider wsProviderAnnotation;
 
     public JaxwsImplementorInfo(Class<?> ic) {
         implementorClass = ic;
         initialise();
-    }   
+    }
 
     public Class<?> getSEIClass() {
         return seiClass;
@@ -57,6 +68,8 @@ public class JaxwsImplementorInfo {
             return seiAnnotation.wsdlLocation();
         } else if (null != implementorAnnotation) {
             return implementorAnnotation.wsdlLocation();
+        } else if (null != wsProviderAnnotation) {
+            return wsProviderAnnotation.wsdlLocation();
         }
         return null;
     }
@@ -71,12 +84,16 @@ public class JaxwsImplementorInfo {
         String namespace = null;
         if (implementorAnnotation != null) {
             serviceName = implementorAnnotation.serviceName();
-            if (null == serviceName || "".equals(serviceName)) {
-                serviceName = implementorClass.getName();
-            }
             namespace = implementorAnnotation.targetNamespace();
+        } else {
+            // Must be a provider
+            serviceName = wsProviderAnnotation.serviceName();
+            namespace = wsProviderAnnotation.targetNamespace();
         }
-        if (null != namespace && !"".equals(namespace) && null != serviceName && !"".equals(serviceName)) {
+        if (StringUtils.isEmpty(serviceName)) {
+            serviceName = implementorClass.getName();
+        }
+        if (!StringUtils.isEmpty(namespace) && !StringUtils.isEmpty(serviceName)) {
             return new QName(namespace, serviceName);
         }
         return null;
@@ -92,12 +109,18 @@ public class JaxwsImplementorInfo {
         String namespace = null;
         if (implementorAnnotation != null) {
             portName = implementorAnnotation.portName();
-            if (null == portName || "".equals(portName)) {
-                portName = implementorClass.getSimpleName();
-            }
             namespace = implementorAnnotation.targetNamespace();
+        } else {
+            // Must be a provider
+            portName = wsProviderAnnotation.portName();
+            namespace = wsProviderAnnotation.targetNamespace();
         }
-        if (null != namespace && !"".equals(namespace) && null != portName && !"".equals(portName)) {
+
+        if (StringUtils.isEmpty(portName)) {
+            portName = implementorClass.getSimpleName();
+        }
+
+        if (!StringUtils.isEmpty(namespace) && !StringUtils.isEmpty(portName)) {
             return new QName(namespace, portName);
         }
         return null;
@@ -124,11 +147,45 @@ public class JaxwsImplementorInfo {
                 if ((null != portName && !"".equals(portName))
                     || (null != serviceName && !"".equals(serviceName))
                     || (null != endpointInterface && !"".equals(endpointInterface))) {
-                    throw new WebServiceException(
-                        BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC"));
+                    throw new 
+                    WebServiceException(BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC"));
                 }
             }
+        } else {
+            wsProviderAnnotation = implementorClass.getAnnotation(WebServiceProvider.class);
         }
     }
 
+    public boolean isWebServiceProvider() {
+        return Provider.class.isAssignableFrom(implementorClass);
+    }
+
+    public WebServiceProvider getWsProvider() {
+        return wsProviderAnnotation;
+    }
+
+    public Service.Mode getServiceMode() {
+        return implementorClass.getAnnotation(ServiceMode.class).value();
+    }
+
+    public Class<?> getProviderParameterType() {
+        //The Provider Implementor inherits out of Provier<T>
+        Type intfTypes[] = implementorClass.getGenericInterfaces();
+        for (Type t : intfTypes) {
+            Class<?> clazz = JAXBEncoderDecoder.getClassFromType(t);
+            if (Provider.class == clazz) {
+                Type paramTypes[] = ((ParameterizedType)t).getActualTypeArguments();
+                return JAXBEncoderDecoder.getClassFromType(paramTypes[0]);
+            }
+        }
+        return null;
+    }
+
+    public String getBindingType() {
+        BindingType bType = implementorClass.getAnnotation(BindingType.class);
+        if (bType != null) {
+            return bType.value();
+        }
+        return SOAPBinding.SOAP11HTTP_BINDING;
+    }
 }

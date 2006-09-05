@@ -115,13 +115,7 @@ public final class EndpointReferenceUtils {
                                              String portName) 
         throws WebServiceException {
         if (null != serviceName) {
-            ServiceNameType serviceNameType = new ServiceNameType();
-            serviceNameType.setValue(serviceName);
-            serviceNameType.setEndpointName(portName);
-            org.apache.cxf.ws.addressing.wsdl.ObjectFactory objectFactory = 
-                new org.apache.cxf.ws.addressing.wsdl.ObjectFactory();
-            JAXBElement<ServiceNameType> jaxbElement = objectFactory.createServiceName(serviceNameType);
-
+            JAXBElement<ServiceNameType> jaxbElement = getServiceNameType(serviceName, portName);
             MetadataType mt = ref.getMetadata();
             if (null == mt) {
                 mt = new MetadataType();
@@ -130,6 +124,15 @@ public final class EndpointReferenceUtils {
 
             mt.getAny().add(jaxbElement);
         }
+    }
+    
+    public static JAXBElement<ServiceNameType> getServiceNameType(QName serviceName, String portName) {
+        ServiceNameType serviceNameType = new ServiceNameType();
+        serviceNameType.setValue(serviceName);
+        serviceNameType.setEndpointName(portName);
+        org.apache.cxf.ws.addressing.wsdl.ObjectFactory objectFactory = 
+            new org.apache.cxf.ws.addressing.wsdl.ObjectFactory();
+        return objectFactory.createServiceName(serviceNameType);
     }
     
     /**

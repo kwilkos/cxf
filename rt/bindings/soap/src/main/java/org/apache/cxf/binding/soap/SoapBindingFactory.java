@@ -35,7 +35,6 @@ import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
@@ -51,6 +50,7 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -67,16 +67,16 @@ import org.apache.cxf.service.model.ServiceInfo;
 public class SoapBindingFactory extends AbstractBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
-    
+
     @Resource
     private Bus bus;
-    
+
     @Resource
     private Collection<String> activationNamespaces;
-    
+
     @PostConstruct
     void registerSelf() {
-        if (null == bus) { 
+        if (null == bus) {
             return;
         }
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
@@ -86,24 +86,38 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             }
         }
     }
-     
+
     public Binding createBinding(BindingInfo binding) {
-        
+
         if (cachedBinding.get(binding) != null) {
             return (Binding)cachedBinding.get(binding);
         }
-        
+
+        // TODO what about the mix style/use?
+
+        // The default style should be doc-lit wrapped.
+        String parameterStyle = SoapConstants.PARAMETER_STYLE_WRAPPED;
+        String bindingStyle = SoapConstants.BINDING_STYLE_DOC;
+
         SoapBinding sb = new SoapBinding();
-        SoapBindingInfo sbi = (SoapBindingInfo)binding;
-                
-        for (BindingOperationInfo boi : sbi.getOperations()) {
-            if (boi.getUnwrappedOperation() == null) {
-                sbi.setStyle(SoapConstants.STYLE_BARE);
+        if (binding instanceof SoapBindingInfo) {
+            SoapBindingInfo sbi = (SoapBindingInfo)binding;
+            // Service wide style
+            if (!StringUtils.isEmpty(sbi.getStyle())) {
+                bindingStyle = sbi.getStyle();
+            }
+
+            // Operation wide style, what to do with the mixed style/use?
+            for (BindingOperationInfo boi : sbi.getOperations()) {
+                bindingStyle = sbi.getStyle(boi.getOperationInfo());
+                if (boi.getUnwrappedOperation() == null) {
+                    parameterStyle = SoapConstants.PARAMETER_STYLE_BARE;
+                }
             }
         }
-        
-        sb.getInInterceptors().add(new MultipartMessageInterceptor());        
-        sb.getInInterceptors().add(new ReadHeadersInterceptor());        
+
+        sb.getInInterceptors().add(new MultipartMessageInterceptor());
+        sb.getInInterceptors().add(new ReadHeadersInterceptor());
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());
 
@@ -115,19 +129,19 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
         sb.getOutFaultInterceptors().add(sb.getOutFaultInterceptor());
 
-        if (SoapConstants.STYLE_RPC.equalsIgnoreCase(sbi.getStyle())) {
+        if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
             sb.getInInterceptors().add(new RPCInInterceptor());
             sb.getOutInterceptors().add(new RPCOutInterceptor());
-        } else if (SoapConstants.STYLE_BARE.equalsIgnoreCase(sbi.getStyle())) {
+        } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
+                   && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
             sb.getInInterceptors().add(new BareInInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         } else {
             sb.getInInterceptors().add(new WrappedInInterceptor());
             sb.getOutInterceptors().add(new WrappedOutInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
-        }        
-        
-                
+        }
+
         return sb;
     }
 
@@ -152,7 +166,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
-        
+
         SOAPOperation soapOp = boi.getExtensor(SOAPOperation.class);
         if (soapOp != null) {
             String action = soapOp.getSoapActionURI();
@@ -162,8 +176,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
             soi.setAction(action);
             soi.setStyle(soapOp.getStyle());
-            
-            
+
         }
 
         boi.addExtensor(soi);

@@ -22,6 +22,14 @@ package org.apache.cxf.binding.soap.interceptor;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
 
 public class RPCOutInterceptor extends WrappedOutInterceptor {
+    
+//    public void handleMessage(SoapMessage message) {
+//        BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+//        OperationInfo opInfo = bop.getOperationInfo();
+//        OperationInfo unwrapped = new UnwrappedOperationInfo(opInfo);
+//        opInfo.setUnwrappedOperation(unwrapped);
+//        unwrapped.setInput(opInfo.getInputName(), unwrappedInput);
+//    }
 //    
 //    private NSStack nsStack;
 //    
