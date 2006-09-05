@@ -71,7 +71,7 @@ public class JAXBExtensionHelperTest extends TestCase {
                         "org.apache.cxf.bindings.xformat.XMLBindingMessageFormat", Thread.currentThread()
                                         .getContextClassLoader());
 
-        String file = this.getClass().getResource("/wsdl/hello_world_xml_bare.wsdl").getFile();
+        String file = this.getClass().getResource("/wsdl/hello_world_xml_binding.wsdl").getFile();
 
         wsdlReader.setExtensionRegistry(registry);
 

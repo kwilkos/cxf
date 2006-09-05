@@ -267,6 +267,10 @@ public class WSDLServiceBuilder {
     private void handleHeader(BindingMessageInfo bindingMessageInfo) {
         //mark all message part which should be in header
         List<ExtensibilityElement> extensiblilityElement = bindingMessageInfo.getWSDL11Extensors();
+        //for non-soap binding, the extensiblilityElement could be null
+        if (extensiblilityElement == null) {
+            return;
+        }
         for (ExtensibilityElement element : extensiblilityElement) {
             LOG.info("the extensibility is " + element.getClass().getName());
             if (element instanceof SOAPHeader) {
