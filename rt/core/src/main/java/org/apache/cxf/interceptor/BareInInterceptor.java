@@ -62,7 +62,6 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         if (operation != null) {
             piList = operation.getOperationInfo().getInput().getMessageParts();
         }
-        int seq = 1;
         while (StaxUtils.toNextElement(xmlReader)) {
             QName streamParaQName = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
             Object o = null;
@@ -79,17 +78,17 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                         break;
                     }
                 }
+                if (o == null) {
+                    o = dr.read(xmlReader);                    
+                }
             } else {
                 o = dr.read(xmlReader);
             }
             if (o != null) {
                 parameters.add(o);
-                seq++;
-            } else {
-                throw new RuntimeException("Can't unmarshall parameter No." + seq);
             }
         }
-
+        
         Endpoint ep = exchange.get(Endpoint.class);
         Service service = ep.getService();
 
@@ -97,7 +96,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             parameters.addAll(abstractParamsFromHeader(message.get(Element.class), ep, message));
         }
 
-        if (operation == null) {
+        if (operation == null) {            
             // If we didn't know the operation going into this, lets try to
             // figure
             // it out
