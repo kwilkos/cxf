@@ -54,7 +54,7 @@
       </listitem>
     </itemizedlist>
 
-    <section>
+    <simplesect>
       <title>Basic HelloWorld WSDL contract</title>
 
       <para><xref linkend="Table3" /> shows the HelloWorld WSDL contract. This
@@ -218,10 +218,10 @@
       CeltiXfire wsdl2soap or wsdl2xml utilities. Likewise, the SOAPService
       service can be generated automatically by running the CeltiXfire
       wsdl2service utility.</para>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Generating the Stub Code</title>
+    <simplesect>
+      <title>Generating the stub code</title>
 
       <para>After defining the WSDL contract, you can generate client code
       using the CeltiXfire wsdl2java utility. Enter the following command at a
@@ -306,7 +306,7 @@
           model.</para>
         </listitem>
       </itemizedlist>
-    </section>
+    </simplesect>
   </section>
 
   <section>
@@ -328,8 +328,8 @@
       </listitem>
     </itemizedlist>
 
-    <section>
-      <title>Generated Service Class</title>
+    <simplesect>
+      <title>Generated service class</title>
 
       <para><xref linkend="Table2" /> shows the typical outline a generated
       service class, <classname>ServiceName</classname>, which extends the
@@ -394,10 +394,10 @@
           methods.</para>
         </listitem>
       </itemizedlist>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Service Endpoint Interface</title>
+    <simplesect>
+      <title>Service endpoint interface</title>
 
       <para>For every port type defined in the original WSDL contract, you can
       generate a corresponding service endpoint interface in Java. A service
@@ -446,10 +446,10 @@ public interface Greeter
   public void pingMe() throws PingMeFault;
 }</programlisting>
       </example>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Client Main Function</title>
+    <simplesect>
+      <title>Client main function</title>
 
       <para><xref linkend="Table1" /> shows the Java code that implements the
       HelloWorld client. In summary, the client connects to the SoapPort port
@@ -480,7 +480,7 @@ public final class Client {
   public static void main(String args[]) throws Exception
   {
     if (args.length == 0)
-	{
+    {
       System.out.println("please specify wsdl");
       System.exit(1);
     }
@@ -488,11 +488,11 @@ public final class Client {
     URL wsdlURL;
     File wsdlFile = new File(args[0]);
     if (wsdlFile.exists())
-	{
+    {
       wsdlURL = wsdlFile.toURL();
     }
-	else
-	{
+    else
+    {
       wsdlURL = new URL(args[0]);
     }
 
@@ -573,7 +573,7 @@ Greeter port = ss.getSoapPort();</programlisting>
           <classname>PingMeFault</classname> fault exception.</para>
         </listitem>
       </orderedlist>
-    </section>
+    </simplesect>
   </section>
 
   <section>
@@ -607,8 +607,8 @@ Greeter port = ss.getSoapPort();</programlisting>
       </listitem>
     </itemizedlist>
 
-    <section>
-      <title>Setting a Request Context</title>
+    <simplesect>
+      <title>Setting a request context</title>
 
       <para>To set a particular request context property,
       <replaceable>ContextPropertyName</replaceable>, to the value,
@@ -634,10 +634,10 @@ port.SomeOperation();</programlisting>
       hash map that has keys of <type>String</type> and values of arbitrary
       type. Use <methodname>java.util.Map.put()</methodname> to create a new
       entry in the hash map.</para>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Reading a Response Context</title>
+    <simplesect>
+      <title>Reading a response context</title>
 
       <para>To retrieve a particular response context property,
       <replaceable>ContextPropertyName</replaceable>, use the code shown in
@@ -660,10 +660,10 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
       hash map that has keys <type>String</type> and values of arbitrary type.
       Use <methodname>java.util.Map.get()</methodname> to access an entry in
       the hash map of response context properties.</para>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Contexts Supported by CeltiXfire</title>
+    <simplesect>
+      <title>Supported contexts</title>
 
       <para>CeltiXfire supports the following context properties:</para>
 
@@ -688,7 +688,7 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
           </tbody>
         </tgroup>
       </table>
-    </section>
+    </simplesect>
   </section>
 
   <section>
@@ -722,8 +722,8 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
     <para>Both of these asynchronous invocation approaches are described here
     and illustrated by code examples.</para>
 
-    <section>
-      <title>WSDL Contract for Asynchronous Example</title>
+    <simplesect>
+      <title>Contract for asynchronous example</title>
 
       <para><xref linkend="async1" /> shows the WSDL contract that is used for
       the asynchronous example. The contract defines a single port type,
@@ -744,8 +744,8 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
   &lt;wsdl:types&gt;
     &lt;schema targetNamespace="http://objectweb.org/hello_world_async_soap_http/types"
             xmlns="http://www.w3.org/2001/XMLSchema"
-			xmlns:x1="http://objectweb.org/hello_world_async_soap_http/types"
-			elementFormDefault="qualified"&gt;
+            xmlns:x1="http://objectweb.org/hello_world_async_soap_http/types"
+            elementFormDefault="qualified"&gt;
       &lt;element name="greetMeSometime"&gt;
         &lt;complexType&gt;
           &lt;sequence&gt;
@@ -788,10 +788,10 @@ PropertyType propValue = (PropertyType) responseContext.get(ContextPropertyName)
   &lt;/wsdl:service&gt;
 &lt;/wsdl:definitions&gt;</programlisting>
       </example>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Generating the Asynchronous Stub Code</title>
+    <simplesect>
+      <title>Generating the asynchronous stub code</title>
 
       <para>The asynchronous style of invocation requires extra stub code (for
       example, dedicated asychronous methods defined on the service endpoint
@@ -928,11 +928,11 @@ public interface GreeterAsync {
 
       <para>The details of the callback approach and the polling approach are
       discussed in the following subsections.</para>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Implementing an Asynchronous Client with the Polling
-      Approach</title>
+    <simplesect>
+      <title>Implementing an asynchronous client with the polling
+      approach</title>
 
       <para><xref linkend="async4" /> illustrates the polling approach to
       making an asynchronous operation call. Using this approach, the client
@@ -1022,11 +1022,11 @@ GreetMeSometimeResponse reply = greetMeSomeTimeResp.get(
   );</programlisting>
         </listitem>
       </itemizedlist>
-    </section>
+    </simplesect>
 
-    <section>
-      <title>Implementing an Asynchronous Client with the Callback
-      Approach</title>
+    <simplesect>
+      <title>Implementing an asynchronous client with the callback
+      approach</title>
 
       <para>An alternative approach to making an asynchronous operation
       invocation is to implement a callback class, by deriving from the
@@ -1139,6 +1139,6 @@ public final class Client {
       <methodname>response.isDone()</methodname>. The value of the response is
       only made available to the callback object,
       <classname>testAsyncHandler</classname>.</para>
-    </section>
+    </simplesect>
   </section>
 </article>

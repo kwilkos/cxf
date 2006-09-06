@@ -197,7 +197,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       It also manages the flow of messages between the network and the
       WorkQueue that is responsible for processing the message.</para>
 
-      <section>
+      <simplesect>
         <title>Attributes</title>
 
         <para><xref linkend="Table2" /> lists the managed attributes for the
@@ -255,7 +255,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
     </section>
 
     <section id="workqueue">
@@ -265,7 +265,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       servants implementing the service's business logic. It instantiates
       servants and passes data to and from them.</para>
 
-      <section>
+      <simplesect>
         <title>Attributes</title>
 
         <para><xref linkend="Table3" /> lists the managed attributes for the
@@ -355,7 +355,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
     </section>
 
     <section id="wsdlmgr">
@@ -364,7 +364,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       <para>The WSDLManager component provides a WSDL registry and a numer of
       methods to retrieve WSDL.</para>
 
-      <section>
+      <simplesect>
         <title>Attributes</title>
 
         <para><xref linkend="Table4" /> lists the managed attributes for the
@@ -427,9 +427,9 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Operations</title>
 
         <para><xref linkend="Table5" /> lists the operations supported by the
@@ -469,7 +469,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
     </section>
 
     <section id="endpt">
@@ -479,7 +479,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       the CeltiXfire runtime. It allows you to monitor and control the state
       of an endpoint based on its service name and port name.</para>
 
-      <section>
+      <simplesect>
         <title>Attributes</title>
 
         <para><xref linkend="Table6" /> lists the managed attributes for the
@@ -552,9 +552,9 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Operations</title>
 
         <para><xref linkend="Table7" /> lists the operations provided by the
@@ -599,7 +599,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
     </section>
 
     <section id="http">
@@ -609,7 +609,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       component receives an HTTP address to instantiate. It provides a logical
       view of the HTTP transport for the service side.</para>
 
-      <section>
+      <simplesect>
         <title>Attributes</title>
 
         <para><xref linkend="Table8" /> lists the managed attributes for the
@@ -704,7 +704,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
     </section>
 
     <section id="jms">
@@ -714,7 +714,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       receives a JMS address to instantiate. It provides a logical view of the
       JMS transport for the service side.</para>
 
-      <section>
+      <simplesect>
         <title>Attributes</title>
 
         <para><xref linkend="Table9" /> lists the managed attributes for the
@@ -809,7 +809,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
     </section>
   </section>
 
@@ -853,7 +853,7 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
       be accessible through the same JMX connection as the CeltiXfire internal
       components used by your service.</para>
 
-      <section>
+      <simplesect>
         <title>Creating your custom MBean</title>
 
         <para>When you use the JMX APIs to instrument your service
@@ -931,9 +931,9 @@ Bus.Port=SoapPort,name=Endpoint</programlisting>
   }
 }</programlisting>
         </example>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Registering the MBean</title>
 
         <para>For your MBean to be exposed to a management console, it must be
@@ -1000,7 +1000,7 @@ ObjectName name = new ObjectName("my.demo.instrumentation:type=CustomMBean,Bus="
 mbserver.registerMBean(sName, name);
 ...</programlisting>
         </example>
-      </section>
+      </simplesect>
     </section>
 
     <section id="celtix">
@@ -1043,8 +1043,8 @@ mbserver.registerMBean(sName, name);
         </step>
       </procedure>
 
-      <section id="writeclass">
-        <title>Implementing the Instrumentation Class</title>
+      <simplesect id="writeclass">
+        <title>Implementing the instrumentation class</title>
 
         <para>Like an MBean a CeltiXfire instrumentation class is responsible
         for providing access to the attributes you want to track and implement
@@ -1333,9 +1333,9 @@ public class GreeterInstrumentation implements Instrumentation {
   }
 }</programlisting>
         </example>
-      </section>
+      </simplesect>
 
-      <section id="activate">
+      <simplesect id="activate">
         <title>Activating your custom instrumentation</title>
 
         <para>To make your custom instrumentation available to management
@@ -1381,9 +1381,9 @@ Bus bus = Bus.getCurrent();
 InstrumentationManager im = bus.getInstrumentationManager();
 im.register(in);</programlisting>
         </example>
-      </section>
+      </simplesect>
 
-      <section id="deactivate">
+      <simplesect id="deactivate">
         <title>Deactivating your custom instrumentation</title>
 
         <para>Unlike MBeans created using the JMX APIs, CeltiXfire
@@ -1407,7 +1407,7 @@ Bus bus = Bus.getCurrent();
 InstrumentationManager im = bus.getInstrumentationManager();
 im.unregister(in);</programlisting>
         </example>
-      </section>
+      </simplesect>
     </section>
   </section>
 
@@ -1437,7 +1437,7 @@ im.unregister(in);</programlisting>
 
     <programlisting>xmlns:im="http://celtix.objectweb.org/bus/instrumentation"</programlisting>
 
-    <section id="instrumentcontrol">
+    <simplesect id="instrumentcontrol">
       <title>Configuring the instrumentation event listeners</title>
 
       <para><xref linkend="Table12" /> lists the values for the
@@ -1472,9 +1472,9 @@ im.unregister(in);</programlisting>
           </tbody>
         </tgroup>
       </table>
-    </section>
+    </simplesect>
 
-    <section id="mbserver">
+    <simplesect id="mbserver">
       <title>Configuring the MBean server</title>
 
       <para><xref linkend="Table13" /> lists the values for the
@@ -1533,7 +1533,7 @@ im.unregister(in);</programlisting>
 
       <para>For more information on configuring CeltiXfire see the <ulink
       url="site:config">CeltiXfire Configuration Guide</ulink>.</para>
-    </section>
+    </simplesect>
   </section>
 
   <section>

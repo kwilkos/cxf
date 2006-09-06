@@ -98,8 +98,8 @@
       class="element">jms:JMSNamingProperties</sgmltag> element specifies the
       Java properties used to connect to the JNDI service.</para>
 
-      <section>
-        <title>The address Element</title>
+      <simplesect>
+        <title>The <sgmltag class="element">address</sgmltag> element</title>
 
         <para>The basic configuration for a JMS endpoint is done by using a
         <sgmltag class="element">jms:address</sgmltag> element as the child of
@@ -172,10 +172,10 @@
             </tbody>
           </tgroup>
         </table>
-      </section>
+      </simplesect>
 
-      <section>
-        <title>The JMSNamingProperties Element</title>
+      <simplesect>
+        <title>The <sgmltag class="element">JMSNamingProperties</sgmltag> element</title>
 
         <para>To increase interoperability with JMS and JNDI providers, the
         <sgmltag class="element">jms:address</sgmltag> element has a child
@@ -259,10 +259,10 @@
         <para>For more details on what information to use in these attributes,
         check your JNDI provider’s documentation and consult the Java API
         reference material.</para>
-      </section>
+      </simplesect>
 
-      <section id="ReplyDest">
-        <title>Using a Named Reply Destination</title>
+      <simplesect id="ReplyDest">
+        <title>Using a named reply destination</title>
 
         <para>By default, CeltiXfire endpoints using JMS create a temporary
         queue for sending replies back and forth. You can change this behavior
@@ -276,9 +276,9 @@
         attribute as the location for placing replies if there is no
         destination specified in the request’s <classname>ReplyTo</classname>
         field.</para>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Example</title>
 
         <para><xref linkend="Table3" /> shows an example of an CeltiXfire JMS
@@ -299,7 +299,7 @@
   &lt;/port&gt;
 &lt;/service&gt;</programlisting>
         </example>
-      </section>
+      </simplesect>
     </section>
 
     <section id="BasicConfig">
@@ -309,7 +309,8 @@
       information for a JMS endpoint, you can supply it in the endpoint's
       configuration file. The information in the configuration file will
       override the information in the endpoint's WSDL file.</para>
-
+<simplesect>
+<title>The <classname>jmsAddress</classname> property</title>
       <para>JMS connection information is specified using the
       <classname>jmsAddress</classname> property. The
       <classname>jmsAddress</classname> property has a single value:
@@ -326,8 +327,8 @@
       <para>The <classname>jmsAddress</classname> property can be specified in
       either the client configuration bean or the service configuration
       bean.</para>
-
-      <section>
+</simplesect>
+      <simplesect>
         <title>Example</title>
 
         <para><xref linkend="Table9" /> shows a CeltiXfire configuration entry
@@ -360,15 +361,15 @@
 ...
 &lt;/beans&gt;</programlisting>
         </example>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>More information</title>
 
         <para>For more information on using CeltiXfire configuration see the
         <ulink url="site:config">CeltiXfire Configuration
         Guide</ulink>.</para>
-      </section>
+      </simplesect>
     </section>
   </section>
 
@@ -421,7 +422,8 @@
 
     <section id="ConsumerConfig">
       <title>Using CeltiXfire Configuration</title>
-
+<simplesect>
+<title>Specifying the configuration data</title>
       <para>Consumer endpoint configuration is specified using the
       <classname>org.objectweb.celtix.bus.transports.jms.jms_client_config.spring.JMSClientConfigBean</classname>
       class for the configuration bean. Using this configuration bean, you
@@ -446,8 +448,8 @@
           </tbody>
         </tgroup>
       </table>
-
-      <section>
+</simplesect>
+      <simplesect>
         <title>Example</title>
 
         <para><xref linkend="Table8" /> shows a CeltiXfire configuration entry
@@ -470,9 +472,9 @@
 ...
 &lt;/beans&gt;</programlisting>
         </example>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Adding address information</title>
 
         <para>In addition to specifying the <classname>jmsClient</classname>
@@ -480,15 +482,15 @@
         consumer for contacting a service endpoint. This is done by adding the
         <classname>jmsAddress</classname> property to the consumer endpoint's
         configuration bean.</para>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>More information</title>
 
         <para>For more information on using CeltiXfire configuration see the
         <ulink url="site:config">CeltiXfire Configuration
         Guide</ulink>.</para>
-      </section>
+      </simplesect>
     </section>
 
     <section id="ConsumerWSDL">
@@ -559,7 +561,8 @@
 
     <section id="ServiceConfig">
       <title>Using CeltiXfire Configuration</title>
-
+<simplesect>
+<title>Specifying configuration data</title>
       <para>Service endpoint configuration is specified using the
       <classname>org.objectweb.celtix.bus.transports.jms.jms_server_config.spring.JMSServerConfigBean</classname>
       class for the configuration bean. Using this configuration bean, you
@@ -615,8 +618,8 @@
           </tbody>
         </tgroup>
       </table>
-
-      <section>
+</simplesect>
+      <simplesect>
         <title>Example</title>
 
         <para><xref linkend="Table11" /> shows a CeltiXfire configuration
@@ -642,24 +645,24 @@
 ...
 &lt;/beans&gt;</programlisting>
         </example>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Adding address information</title>
 
         <para>In addition to specifying the <classname>jmsServer</classname>
         property, you can also specify the contact information of the service
         endpoint. This is done by adding the <classname>jmsAddress</classname>
         property to the service endpoint's configuration bean.</para>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>More information</title>
 
         <para>For more information on using CeltiXfire configuration see the
         <ulink url="site:config">CeltiXfire Configuration
         Guide</ulink>.</para>
-      </section>
+      </simplesect>
     </section>
 
     <section id="ServiceWSDL">
@@ -738,7 +741,7 @@
       response context. In addition, you can see how long the client will wait
       for a response before timing out.</para>
 
-      <section>
+      <simplesect>
         <title>JMS Header Properties</title>
 
         <para>The JMS properties table lists the properties in the JMS header
@@ -845,9 +848,9 @@
         optional properties are returned as a <classname>List</classname> of
         <classname>JMSPropertyType</classname>. Optional properties are stored
         as name/value pairs.</para>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Example</title>
 
         <para><xref linkend="Table13" /> shows code for inspecting some of the
@@ -908,7 +911,7 @@ if (handler instanceof BindingProvider)
             <para>Prints some of the message header properties.</para>
           </listitem>
         </orderedlist>
-      </section>
+      </simplesect>
     </section>
 
     <section>
@@ -920,7 +923,8 @@ if (handler instanceof BindingProvider)
       will need to reset them each time you invoke an operation on the service
       proxy.</para>
 
-      <para>JMS Header Properties</para>
+<simplesect>
+      <title>JMS Header Properties</title>
 
       <para><xref linkend="Table14" /> lists the properties in the JMS header
       that you can set using the consumer endpoint's request context.</para>
@@ -989,8 +993,8 @@ if (handler instanceof BindingProvider)
           argument.</para>
         </step>
       </procedure>
-
-      <section>
+</simplesect>
+      <simplesect>
         <title>Optional JMS Header Properties</title>
 
         <para>You can also set optional properties into the JMS header.
@@ -1027,9 +1031,9 @@ if (handler instanceof BindingProvider)
             been added to the message header.</para>
           </step>
         </procedure>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Client Receive Timeout</title>
 
         <para>In addition to the JMS header properties, you can set the amount
@@ -1040,9 +1044,9 @@ if (handler instanceof BindingProvider)
         argument and a <type>long</type> representing the amount of time in
         milliseconds that you want to consumer to wait as the second
         argument.</para>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>Example</title>
 
         <para><xref linkend="settingProps" /> shows code for setting some of
@@ -1131,7 +1135,7 @@ if (handler instanceof BindingProvider)
             <para>Sets the client receive timeout property to 1 second.</para>
           </listitem>
         </orderedlist>
-      </section>
+      </simplesect>
     </section>
   </section>
 </article>

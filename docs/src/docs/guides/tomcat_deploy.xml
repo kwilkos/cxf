@@ -106,7 +106,7 @@
       configuration information specific to the CeltiXfire Web service
       endpoint.</para>
 
-      <section>
+      <simplesect>
         <title>The web.xml File</title>
 
         <para>Although this file contains the standard servlet configuration
@@ -146,9 +146,9 @@
         <para>Also note the <sgmltag class="element">url-pattern</sgmltag>
         entry <literal>/celtix/*</literal>. This will become part the the URL
         that client applications use to invoke on the Web service.</para>
-      </section>
+      </simplesect>
 
-      <section>
+      <simplesect>
         <title>The celtix-servlet.xml File</title>
 
         <para>This file contains content specific to the cXf Web service
@@ -190,7 +190,7 @@
         multiple CeltiXfire Web service endpoints into the same Tomcat
         instance, you can simply add additional <sgmltag
         class="element">endpoint</sgmltag> elements to this XML file.</para>
-      </section>
+      </simplesect>
     </section>
   </section>
 
@@ -308,8 +308,8 @@
       subdirectory (<filename class="directory">webapps/helloworld</filename>)
       holding one of the hello_world deployed applications.</para>
 
-      <section>
-        <title>Removing Unneeded Application Files</title>
+      <simplesect>
+        <title>Removing unneeded application files</title>
 
         <para>Under the <filename
         class="directory">webapps/helloworld/WEB-INF/classes/demo/hw</filename>
@@ -322,15 +322,15 @@
         <filename>Server.class</filename> file from the <filename
         class="directory">webapps/helloworldrpclit/WEB-INF/classes/demo/hwRPCLit/server</filename>
         subdirectory.</para>
-      </section>
+      </simplesect>
 
-      <section>
-        <title>Removing Unneeded CeltiXfire JAR Files</title>
+      <simplesect>
+        <title>Removing unneeded CeltiXfire JAR files</title>
 
         <para>Delete the following JAR files from the <filename
         class="directory">webapps/helloworld/WEB-INF/lib</filename> directory:
         (REVISIT at v1.0 GA.)</para>
-      </section>
+      </simplesect>
     </section>
 
     <section>

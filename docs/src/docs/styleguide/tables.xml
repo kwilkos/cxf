@@ -165,7 +165,7 @@
       table to have multiple tgroup elements. In such a case, each <sgmltag class="element">tgroup</sgmltag> element would define a unique portion
       of table where the columns and spans had different
       specifications.</para>
-      <section>
+      <simplesect>
         <title>Attributes</title>
         <para><xref linkend="tgroupattrs"/> shows the attributes for the
         <sgmltag class="element">tgroup</sgmltag> element. Attributes in the
@@ -218,8 +218,8 @@
           <para>Attributes not listed in <xref linkend="tgroupattrs"/> are
           not used in CXF documentation.</para>
         </note>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Example</title>
         <para><xref linkend="groupexample"/> shows the markup for a <sgmltag class="element">tgroup</sgmltag> element that defines a 3 column
         table.</para>
@@ -230,7 +230,7 @@
   &lt;/tgroup&gt;
 &lt;/table&gt;</programlisting>
         </informalexample>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Specifying Column Properties</title>
@@ -238,7 +238,7 @@
       for the column in a table by adding <sgmltag class="element">colspec</sgmltag> elements to a <sgmltag class="element">tgroup</sgmltag> element. A <sgmltag class="element">colspec</sgmltag> element defines properties for all of
       the entries in one column in a group. You can set different properties
       for each column in a group.</para>
-      <section>
+      <simplesect>
         <title>Attributes</title>
         <para><xref linkend="colattrs"/> shows the attributes for the
         <sgmltag class="element">colspec</sgmltag> element. Attributes in the
@@ -306,8 +306,8 @@
           <para>Attributes not listed in <xref linkend="colattrs"/> are not
           used in CXF documentation.</para>
         </note>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Example</title>
         <para><xref linkend="colspecexample"/> shows the markup for
         specifying a column that is two inches wide and whose content is
@@ -321,7 +321,7 @@
   &lt;/tgroup&gt;
 &lt;/table&gt;</programlisting>
         </informalexample>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Defining Spans</title>
@@ -329,7 +329,7 @@
       columns and name them for use by the cells in the group. To define a
       span you use the <sgmltag class="element">spanspec</sgmltag>
       element.</para>
-      <section>
+      <simplesect>
         <title>Required Attributes</title>
         <para>The <sgmltag class="element">spanspec</sgmltag> element has
         three required attributes as described in <xref linkend="spanreqattrs"/>.</para>
@@ -365,8 +365,8 @@
             </tbody>
           </tgroup>
         </table>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Optional Attributes</title>
         <para>In addition to the required attributes, the <sgmltag class="element">spanspec</sgmltag> element can also have the
         attributes described in <xref linkend="spanoptattrs"/>. Attributes in
@@ -413,8 +413,8 @@
           <para>Attributes not listed in <xref linkend="spanoptattrs"/> are
           not used in CXF documentation.</para>
         </note>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Example</title>
         <para><xref linkend="spanexample"/> shows the markup for a span that
         crosses the second and third column of a five column table. The
@@ -429,7 +429,7 @@
     ...
 &lt;/informaltable&gt;</programlisting>
         </informalexample>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Adding a Heading Row to a Table</title>
@@ -438,7 +438,7 @@
       The <sgmltag class="element">thead</sgmltag> element is a child of a
       <sgmltag>tgroup</sgmltag> element. It must be placed after any <sgmltag class="element">colspec</sgmltag> elements and <sgmltag class="element">spanspec</sgmltag> elements. It should also be placed
       before any <sgmltag class="element">tbody</sgmltag> elements.</para>
-      <section>
+      <simplesect>
         <title>Attributes</title>
         <para><xref linkend="theadattrs"/> lists the attributes of the
         <sgmltag class="element">thead</sgmltag> element.</para>
@@ -464,15 +464,15 @@
             </tbody>
           </tgroup>
         </table>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Adding content</title>
         <para>The content of the heading row is specified using a single
         <sgmltag class="element">row</sgmltag> element and one entry <sgmltag class="element">child</sgmltag> element for each column in the table.
         For more information on the row element and the entry element see
         <xref linkend="rowsect"/> and <xref linkend="entrysect"/>.</para>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Example</title>
         <para><xref linkend="theadexample"/> shows the markup for tables used
         in this chapter.</para>
@@ -497,7 +497,7 @@
   &lt;/tgroup&gt;
 &lt;/informaltable&gt;</programlisting>
         </informalexample>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Adding Rows to a Table</title>
@@ -505,7 +505,7 @@
       <sgmltag class="element">tbody</sgmltag> element. Each row in the table
       is defined using a <sgmltag class="element">row</sgmltag> element. The
       contents of each column in the row is defined using an <sgmltag class="element">entry</sgmltag> element.</para>
-      <section>
+      <simplesect>
         <title>The <sgmltag class="element">tbody</sgmltag> Element</title>
         <para>The <sgmltag class="element">tbody</sgmltag> element is a
         wrapper for all of the rows in the body of a group. It is placed after
@@ -514,8 +514,8 @@
         <sgmltag class="element">thead</sgmltag> element. It has a single
         attribute, <sgmltag class="attribute">valign</sgmltag>, that is
         described in <xref linkend="theadattrs"/>.</para>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title id="rowsect">The <sgmltag class="element">row</sgmltag> Element</title>
         <para>Rows in a table are defined using the <sgmltag>row</sgmltag>
         element. Each <sgmltag>row</sgmltag> element wraps a number of
@@ -566,8 +566,8 @@
             </tbody>
           </tgroup>
         </table>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title id="entrysect">The <sgmltag class="element">entry</sgmltag> Element</title>
         <para>The contents of of a table are specified using
         <sgmltag>entry</sgmltag> elements. <sgmltag>entry</sgmltag> elements
@@ -671,8 +671,8 @@
           <para>Attributes not listed in <xref linkend="entryattrs"/> are not
           used in CXF documentation.</para>
         </note>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Example</title>
         <para><xref linkend="tbodyexample"/> shows the markup for tables used
         in this chapter.</para>
@@ -719,7 +719,7 @@
   &lt;/tgroup&gt;
 &lt;/informaltable&gt;</programlisting>
         </informalexample>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Example</title>

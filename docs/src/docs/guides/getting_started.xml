@@ -130,7 +130,7 @@ title Celtix Shell</programlisting>
       </listitem>
     </itemizedlist>
 
-    <section id="using_eclipse">
+    <simplesect id="using_eclipse">
       <title>Using CeltiXfire with Eclipse</title>
 
       <para>Eclipse provides an excellent Java IDE for CeltiXfire development.
@@ -197,9 +197,9 @@ title Celtix Shell</programlisting>
       <para>After you have created a user library for CeltiXfire, you can add
       it to the Java project build path and Eclipse will auto-compile your
       code.</para>
-    </section>
+    </simplesect>
 
-    <section id="using_ant">
+    <simplesect id="using_ant">
       <title>Using CeltiXfire with Ant</title>
 
       <para>Many Java developers use the Apache Ant build system. It is
@@ -275,7 +275,7 @@ title Celtix Shell</programlisting>
       applications are useful models for building applications using a
       directory structure similar to that used by the CeltiXfire
       samples.</para>
-    </section>
+    </simplesect>
   </section>
 
   <section>

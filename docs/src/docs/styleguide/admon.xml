@@ -100,7 +100,7 @@
       </listitem>
     </itemizedlist>
 
-    <section id="caution">
+    <simplesect id="caution">
       <title>Cautions</title>
 
       <para>Cautions are intended for use when a <link
@@ -113,9 +113,9 @@
       class="element">caution</sgmltag> element. As with warnings elements,
       the <sgmltag class="element">caution</sgmltag> element should contain
       only a single <sgmltag class="element">para</sgmltag> element.</para>
-    </section>
+    </simplesect>
 
-    <section id="important">
+    <simplesect id="important">
       <title>Important Notes</title>
 
       <para>Important notes are used to point out information that is
@@ -129,9 +129,9 @@
       class="element">important</sgmltag> element should contain only a single
       <sgmltag class="element">para</sgmltag> element. However, it is
       allowable to use other block elements in an important note.</para>
-    </section>
+    </simplesect>
 
-    <section id="tip">
+    <simplesect id="tip">
       <title>Tips</title>
 
       <para>Tips are bits of information that may help a user be more
@@ -144,7 +144,7 @@
       class="element">tip</sgmltag> element should contain only a single
       <sgmltag class="element">para</sgmltag> element. However, it is
       allowable to use other block elements in a tip.</para>
-    </section>
+    </simplesect>
   </section>
 
   <section>

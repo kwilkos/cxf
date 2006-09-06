@@ -8,7 +8,7 @@
     simple, in-line tags, and therefore cannot contain sublists, examples,
     code listings or multiple paragraphs. Simple lists are rarely used in CeltiXfire (CXF)
     documentation.</para>
-    <section>
+    <simplesect>
       <title>Specifying a simple list</title>
       <para>A simple list is specified by a <sgmltag class="element">simplelist</sgmltag> element. 
    <sgmltag class="element">simplelist</sgmltag> has two optional attributes:</para>
@@ -42,8 +42,8 @@
       </table>
       <para>The elements of a simple list are specified using a <sgmltag class="element">member</sgmltag> element. The contents of each <sgmltag>member</sgmltag> element can only contain character data and
       inline elements.</para>
-    </section>
-    <section>
+    </simplesect>
+    <simplesect>
       <title>Example</title>
       <para><xref linkend="simpmarkup"/> shows the markup for a simple
       list.</para>
@@ -56,7 +56,7 @@
   &lt;member&gt;Gummy Bears&lt;/member&gt;
 &lt;/simplelist&gt;</programlisting>
       </example>
-    </section>
+    </simplesect>
   </section>
   <section>
     <title>Itemized Lists</title>
@@ -64,8 +64,8 @@
     the list does not matter. They are like bulleted lists or the lists that
     are created by the <sgmltag class="element">ul</sgmltag> tag in
     HTML.</para>
-    <section>
-      <title>Specifying an Itemized List</title>
+    <simplesect>
+      <title>Specifying an itemized list</title>
       <para>An itemized list is specified by an <sgmltag class="element">itemizedlist</sgmltag> element. You can specify an
       <sgmltag class="attribute">id</sgmltag> attribute for itemized lists. If
       the list is going to referenced by an <sgmltag class="element">xref</sgmltag> element, you should also specify a value
@@ -73,8 +73,8 @@
       <para>Each item in an itemized list is specified by a <sgmltag class="element">listitem</sgmltag> element. The <sgmltag class="element">listitem</sgmltag> element is a wrapper element and can
       contain any container elements such as a <sgmltag class="element">para</sgmltag> element. All content within a <sgmltag class="element">listitem</sgmltag> element will be indented to the same
       level. You can also specify sub-lists within a <sgmltag class="element">listitem</sgmltag> element.</para>
-    </section>
-    <section>
+    </simplesect>
+    <simplesect>
       <title>Example</title>
       <para><xref linkend="itemmarkup"/> shows the markup for an itemized
       list.</para>
@@ -97,7 +97,7 @@
   &lt;/listitem&gt;
 &lt;/itemizedlist&gt;</programlisting>
       </example>
-    </section>
+    </simplesect>
   </section>
   <section>
     <title>Ordered List</title>
@@ -105,8 +105,8 @@
     important and made explicit. They are like numbered lists and lists that
     are created using the <sgmltag class="element">ol</sgmltag> tag in
     HTML.</para>
-    <section>
-      <title>Specifying an Ordered List</title>
+    <simplesect>
+      <title>Specifying an ordered list</title>
       <para>Ordered lists are specified by an <sgmltag class="element">orderedlist</sgmltag> element. In addition to the
       <sgmltag class="attribute">id</sgmltag> attribute and <sgmltag class="attribute">xreflabel</sgmltag> attribute, <sgmltag class="element">orderedlist</sgmltag> elements have three optional
       elements.</para>
@@ -148,7 +148,7 @@
       <para>Items in an ordered list are specified using a <sgmltag class="element">listitem</sgmltag> element. The <sgmltag class="element">listitem</sgmltag> element is a wrapper element and can
       contain any container elements such as a <sgmltag class="element">para</sgmltag> element. All content within a <sgmltag class="element">listitem</sgmltag> element will be indented to the same
       level. You can also specify sub-lists within a <sgmltag class="element">listitem</sgmltag> element.</para>
-    </section>
+    </simplesect>
   </section>
   <section>
     <title>Segmented Lists</title>
@@ -191,19 +191,19 @@
       supply a title for a variable list by adding a <sgmltag class="element">title</sgmltag> element as the <sgmltag class="element">variablelist</sgmltag> element&apos;s first child.</para>
       <para>The items in a variable list are specified using a <sgmltag class="element">varlistentry</sgmltag> element. The <sgmltag class="element">varlistentry</sgmltag> element has two children elements
       that specify the contents of the item: <sgmltag class="element">term</sgmltag> and <sgmltag class="element">listitem</sgmltag>.</para>
-      <section>
+      <simplesect>
         <title>Specifying terms</title>
         <para>You can specify one or more <sgmltag class="element">term</sgmltag> elements in a <sgmltag class="element">varlistentry</sgmltag> element. Each <sgmltag class="element">term</sgmltag> element can contain text and inline
         markup elements. Each <sgmltag class="element">term</sgmltag> element
         should contain a single term or phrase that the list item
         describes.</para>
-      </section>
-      <section>
+      </simplesect>
+      <simplesect>
         <title>Describing a term</title>
         <para>You describe the term, or terms, defined by the <sgmltag class="element">term</sgmltag> elements using a single <sgmltag class="element">listitem</sgmltag> element. The <sgmltag class="element">listitem</sgmltag> element is a wrapper element and
         can contain any container elements such as a <sgmltag class="element">para</sgmltag> element. All content within a <sgmltag class="element">listitem</sgmltag> element will be indented to the
         same level. You can also specify sub-lists within a <sgmltag class="element">listitem</sgmltag> element.</para>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Example</title>
@@ -280,8 +280,8 @@
       <para>The entries in a glossary list are specified using a <sgmltag class="element">glossentry</sgmltag> element. The <sgmltag class="element">glossentry</sgmltag> element typically has two children:
       <sgmltag class="element">glossterm</sgmltag> and <sgmltag class="element">glossdef</sgmltag>. You can also use the <sgmltag class="element">glosssee</sgmltag> element to xref with other
       definitions.</para>
-      <section>
-        <title>Specifying a Term</title>
+      <simplesect>
+        <title>Specifying a term</title>
         <para>A <sgmltag class="element">glossentry</sgmltag> element can have
         only one <sgmltag class="element">glossterm</sgmltag> element. This
         element specifies the term being defined by this entry. If you are
@@ -292,9 +292,9 @@
           also be used in text entries to refer to terms defined in a glossary
           entry. When used in this manner, you supply a value for the <sgmltag class="attribute">linkend</sgmltag> attribute.</para>
         </note>
-      </section>
-      <section>
-        <title>Defining a Term</title>
+      </simplesect>
+      <simplesect>
+        <title>Defining a term</title>
         <para>You define a term using either one or more <sgmltag class="element">glossdef</sgmltag> elements or a <sgmltag class="element">glosssee</sgmltag> element. The <sgmltag class="element">glossdef</sgmltag> element is a content element that
         contains markup specifying a definition. If you use more than one
         <sgmltag class="element">glossdef</sgmltag> element, they are treated
@@ -303,7 +303,7 @@
         redirects the reader to a term with the same meaning. It acts like a
         &quot;See&quot; entry in a dictionary. It has one attribute, <sgmltag class="attribute">otherterm</sgmltag>, whose value is the id of the
         term to which the reader is redirected.</para>
-      </section>
+      </simplesect>
     </section>
     <section>
       <title>Example</title>
