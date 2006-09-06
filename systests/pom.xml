@@ -151,6 +151,10 @@
                                 <value>${basedir}/target/test-classes/logging.properties</value>
                             </property>
                         </systemProperties>
+                        <excludes>
+                            <exclude>**/*$*</exclude>
+                            <exclude>**/ProviderClientServer*</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
             </plugins>
