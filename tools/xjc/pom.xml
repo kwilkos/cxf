@@ -21,7 +21,9 @@
     <modules>
         <module>dv</module>
         <module>cfg</module>
+        <!--
         <module>cfg-test</module>
         <module>dv-test</module>
+        -->
     </modules>
 </project>
