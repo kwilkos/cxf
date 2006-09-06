@@ -156,6 +156,7 @@ public class OperationProcessor  extends AbstractProcessor {
         if (method.getSoapStyle() == SOAPBinding.Style.RPC) {
             name = method.getReturn().getName();
             targetNamespace = method.getInterface().getNamespace();
+           
         }
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
             if (method.getReturn().getQName() != null) {
@@ -262,8 +263,9 @@ public class OperationProcessor  extends AbstractProcessor {
         // RULE No.4 and No5:
         // wrapper element should be pure complex type
         //
-        if (ProcessorUtil.getBlock(inputPart, env) == null 
-            || ProcessorUtil.getBlock(outputPart, env) == null) {
+        
+        if (dataBinder.getBlock(inputPart) == null 
+            || dataBinder.getBlock(outputPart) == null) {
             return false;
         }
 
@@ -273,7 +275,8 @@ public class OperationProcessor  extends AbstractProcessor {
             wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
             wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
 
-            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, this.env, this.collector));
+            wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, 
+                                                                     this.env, this.collector, false));
 
         }
         if (outputPart != null) {
@@ -282,7 +285,8 @@ public class OperationProcessor  extends AbstractProcessor {
             wrapperResponse.setType(ProcessorUtil.getPartType(outputPart));
             wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart));
 
-            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, this.env, this.collector));
+            wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, 
+                                                                      this.env, this.collector, false));
 
         }
 

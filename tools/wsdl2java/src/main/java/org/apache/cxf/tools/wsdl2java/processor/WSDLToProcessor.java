@@ -20,13 +20,10 @@
 package org.apache.cxf.tools.wsdl2java.processor;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,31 +46,13 @@ import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import org.xml.sax.InputSource;
-
-import com.sun.codemodel.JCodeModel;
-import com.sun.tools.xjc.BadCommandLineException;
-import com.sun.tools.xjc.ErrorReceiver;
-import com.sun.tools.xjc.Language;
-import com.sun.tools.xjc.ModelLoader;
-import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.api.S2JJAXBModel;
-import com.sun.tools.xjc.api.XJC;
-import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import com.sun.tools.xjc.model.Model;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.WSDLHelper;
+import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.GeneratorPlugin;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
@@ -82,16 +61,12 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
-import org.apache.cxf.tools.util.JAXBUtils;
-import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
-import org.apache.cxf.tools.wsdl2java.processor.internal.ClassNameAllocatorImpl;
-import org.apache.cxf.tools.wsdl2java.processor.internal.JAXBBindingMerger;
-
+import org.apache.cxf.tools.wsdl2java.generator.jaxb.JAXBBindingGenerator;
 import org.apache.velocity.app.Velocity;
 
-public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
+public class WSDLToProcessor implements Processor {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToProcessor.class);
     protected static final String WSDL_FILE_NAME_EXT = ".wsdl";
 
@@ -112,6 +87,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
     //  For process nestedJaxbBinding
     protected boolean nestedJaxbBinding;
     protected Model model;
+    protected DataBindingGenerator bindingGenerator;
 
     protected List<Schema> schemaList = new ArrayList<Schema>();
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
@@ -258,7 +234,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         }
     }
 
-    private void initJAXBModel() {
+    private void initDataModel() {
         schemaTargetNamespaces.clear();
         extractSchema(wsdlDefinition);
         for (Definition def : importedDefinitions) {
@@ -274,97 +250,25 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
 
         schemaTargetNamespaces.clear();
         try {
-            buildJaxbModel();
+            env.put(ToolConstants.WSDL_DEFINITION, wsdlDefinition);
+            env.put(ToolConstants.IMPORTED_DEFENITION, importedDefinitions);
+            env.put(ToolConstants.SCHEMA_LIST, schemaList);
+            env.put(ToolConstants.SCHEMA_TARGET_NAMESPACES, schemaTargetNamespaces);
+            env.put(ToolConstants.PORTTYPE_MAP, getPortTypes(wsdlDefinition));
+            bindingGenerator = (DataBindingGenerator)new JAXBBindingGenerator();
+            bindingGenerator.initialize(env);
+            env.put(ToolConstants.BINDING_GENERATOR, bindingGenerator);
+        
         } catch (Exception e) {
             org.apache.cxf.common.i18n.Message msg =
-                new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_JAXB_MODEL",
+                new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_DATABINDING_MODEL",
                                                              LOG);
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void buildJaxbModel() throws Exception {
-        SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-
-        ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classColletor);
-
-        allocator.setPortTypes(getPortTypes(wsdlDefinition).values(), env.mapPackageName(this.wsdlDefinition
-            .getTargetNamespace()));
-        schemaCompiler.setClassNameAllocator(allocator);
-        schemaCompiler.setErrorListener(this);
-
-        SchemaCompilerImpl schemaCompilerGenCode = schemaCompiler;
-        String excludePackageName = "";
-        if (env.isExcludeNamespaceEnabled()) {
-            schemaCompilerGenCode = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-            schemaCompilerGenCode.setClassNameAllocator(allocator);
-            schemaCompilerGenCode.setErrorListener(this);
-        }
-        List schemaSystemidList = new ArrayList();
-        // this variable for jaxb binding nested in jaxws
-        Options opt = new OptionsEx();
-        int fileIDX = 0;
-        for (Schema schema : schemaList) {
-            String xsdFile = "schema" + (fileIDX++);
-            Element schemaElement = schema.getElement();
-            String targetNamespace = schemaElement.getAttribute("targetNamespace");
-            if (StringUtils.isEmpty(targetNamespace)) {
-                continue;
-            }
-
-            if (env.hasExcludeNamespace(targetNamespace)) {
-                excludePackageName = env.getExcludePackageName(targetNamespace);
-                if (excludePackageName != null) {
-                    excludePkgList.add(excludePackageName);
-                } else {
-                    excludePkgList.add(URIParserUtil.getPackageName(targetNamespace));
-                }
-            }
-            customizeSchema(schemaElement, targetNamespace);
-            String systemid = schema.getDocumentBaseURI();
-            if (schemaSystemidList.contains(systemid)) {
-                systemid = schema.getDocumentBaseURI() + "#" + targetNamespace;
-            }
-            schemaSystemidList.add(systemid);
-            schemaCompiler.parseSchema(systemid, schemaElement);
-            schemaCompilerGenCode.parseSchema(systemid, schemaElement);
-            if (nestedJaxbBinding) {
-                File file = File.createTempFile(xsdFile, ".xsd");
-                Result result = new StreamResult(file);
-                DOMSource source = new DOMSource(schemaElement);
-
-                TransformerFactory.newInstance().newTransformer().transform(source, result);
-                InputSource insource = new InputSource((InputStream)new FileInputStream(file));
-                insource.setSystemId(systemid);
-                opt.setSchemaLanguage(Language.XMLSCHEMA);
-                opt.addGrammar(file);
-
-            }
-
-        }
-
-        Collection<InputSource> jaxbBindingFiles = env.getJaxbBindingFile().values();
-        for (InputSource bindingFile : jaxbBindingFiles) {
-            schemaCompiler.parseSchema(bindingFile);
-            if (env.isExcludeNamespaceEnabled()) {
-                schemaCompilerGenCode.parseSchema(bindingFile);
-            }
-        }
-        rawJaxbModel = schemaCompiler.bind();
-        if (env.isExcludeNamespaceEnabled()) {
-            rawJaxbModelGenCode = schemaCompilerGenCode.bind();
-        } else {
-            rawJaxbModelGenCode = rawJaxbModel;
-        }
-        if (nestedJaxbBinding) {
-            opt.classNameAllocator = allocator;
-            model = ModelLoader.load(opt, new JCodeModel(), new JAXBErrorReceiver());
-            model.generateCode(opt, new JAXBErrorReceiver());
-        }
-
-    }
+    
 
     @SuppressWarnings("unchecked")
     protected Map<QName, PortType> getPortTypes(Definition definition) {
@@ -406,40 +310,8 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
             return true;
         }
     }
-
-    private void customizeSchema(Element schema, String targetNamespace) {
-        String userPackage = env.mapPackageName(targetNamespace);
-        if (env.hasExcludeNamespace(targetNamespace) && env.getExcludePackageName(targetNamespace) != null) {
-            // generate excluded namespace types classes with specified package
-            // name
-            userPackage = env.getExcludePackageName(targetNamespace);
-        }
-        if (!isSchemaParsed(targetNamespace) && !StringUtils.isEmpty(userPackage)) {
-            Node jaxbBindings = JAXBUtils.innerJaxbPackageBinding(schema, userPackage);
-            schema.appendChild(jaxbBindings);
-        }
-
-        int nodeListLen = schema.getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "import").getLength();
-        for (int i = 0; i < nodeListLen; i++) {
-            removeImportElement(schema);
-        }
-        JAXBBindingMerger jaxbBindingMerger = new JAXBBindingMerger();
-        jaxbBindingMerger.mergeJaxwsBinding(schema, env);
-
-        if (jaxbBindingMerger.isMerged()) {
-            nestedJaxbBinding = true;
-        }
-    }
-
-    private void removeImportElement(Element element) {
-        NodeList nodeList = element.getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "import");
-        if (nodeList.getLength() > 0) {
-            Node importNode = nodeList.item(0);
-            Node schemaNode = importNode.getParentNode();
-            schemaNode.removeChild(importNode);
-        }
-    }
-
+    
+    
     private boolean isSchemaImported(Schema schema) {
         return schemaList.contains(schema);
     }
@@ -483,13 +355,11 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         initVelocity();
         classColletor = new ClassCollector();
         env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
-        initJAXBModel();
+        initDataModel();
 
     }
 
-    public S2JJAXBModel getRawJaxbModel() {
-        return this.rawJaxbModel;
-    }
+    
 
     public Definition getWSDLDefinition() {
         return this.wsdlDefinition;
@@ -519,33 +389,7 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         return this.env;
     }
 
-    public void error(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            exception.printStackTrace();
-        } else {
-            System.err.println("Parsing schema error: \n" + exception.toString());
-        }
-    }
-
-    public void fatalError(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            exception.printStackTrace();
-        } else {
-            System.err.println("Parsing schema fatal error: \n" + exception.toString());
-        }
-    }
-
-    public void info(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            System.err.println("Parsing schema info: " + exception.toString());
-        }
-    }
-
-    public void warning(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            System.err.println("Parsing schema warning " + exception.toString());
-        }
-    }
+    
 
     public void checkSupported(Definition def) throws ToolException {
         if (isSOAP12Binding(wsdlDefinition)) {
@@ -607,59 +451,6 @@ public class WSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorLi
         return false;
     }
 
-    static class OptionsEx extends Options {
-
-        protected Mode mode = Mode.CODE;
-
-        protected int parseArgument(String[] args, int i) throws BadCommandLineException {
-
-            return super.parseArgument(args, i);
-        }
-    }
-
-    private static enum Mode {
-        CODE,
-        BGM,
-        SIGNATURE,
-        FOREST,
-        DRYRUN,
-        ZIP,
-    }
-
-    class JAXBErrorReceiver extends ErrorReceiver {
-        public void warning(org.xml.sax.SAXParseException saxEx) throws com.sun.tools.xjc.AbortException {
-            if (env.isVerbose()) {
-                saxEx.printStackTrace();
-            } else {
-                System.err.println("Use jaxb customization binding file to generate types warring "
-                                   + saxEx.getMessage());
-            }
-
-        }
-
-        public void error(org.xml.sax.SAXParseException saxEx) throws com.sun.tools.xjc.AbortException {
-            if (env.isVerbose()) {
-                saxEx.printStackTrace();
-            } else {
-                System.err.println("Use jaxb customization binding file to generate types error "
-                                   + saxEx.getMessage());
-            }
-        }
-
-        public void info(org.xml.sax.SAXParseException saxEx) {
-            if (env.isVerbose()) {
-                saxEx.printStackTrace();
-            }
-        }
-
-        public void fatalError(org.xml.sax.SAXParseException saxEx) throws com.sun.tools.xjc.AbortException {
-            if (env.isVerbose()) {
-                saxEx.printStackTrace();
-            } else {
-                System.err.println("Use jaxb customization binding file to generate types fatal error "
-                                   + saxEx.getMessage());
-            }
-        }
-    }
+    
 
 }

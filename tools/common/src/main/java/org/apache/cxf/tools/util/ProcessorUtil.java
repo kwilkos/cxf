@@ -23,12 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
@@ -41,18 +38,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.sun.tools.xjc.api.Property;
-import com.sun.tools.xjc.api.S2JJAXBModel;
-import com.sun.tools.xjc.api.TypeAndAnnotation;
 import com.sun.xml.bind.api.JAXBRIContext;
 
-import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 
 public final class ProcessorUtil {
-    private static final Logger LOG = LogUtils.getL7dLogger(ProcessorUtil.class);
+    //private static final Logger LOG = LogUtils.getL7dLogger(ProcessorUtil.class);
     private ProcessorUtil() {
     }
 
@@ -75,7 +69,16 @@ public final class ProcessorUtil {
     public static String resolvePartType(Part part) {
         return mangleNameToClassName(getPartType(part));
     }
-
+    
+    public static String getType(Part part, ProcessorEnvironment env, boolean fullname) {
+        DataBindingGenerator dataBinder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
+        String type = dataBinder.getType(getElementName(part), fullname);
+        if (type == null) {
+            type = resolvePartType(part);
+        }
+        return type;
+    }
+    
     public static QName getElementName(Part part) {
         if (part == null) {
             return null;
@@ -104,29 +107,31 @@ public final class ProcessorUtil {
 
     public static String resolvePartType(Part part, ProcessorEnvironment env) {
         if (env != null) {
-            return resolvePartType(part, (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL));
+            return resolvePartType(part, env, false);
         } else {
             return resolvePartType(part);
         }
     }
 
-    public static String resolvePartType(Part part, S2JJAXBModel jaxbModel) {
-        return resolvePartType(part, jaxbModel, false);
-    }
+   /* public static String resolvePartType(Part part, ProcessorEnvironment env) {
+        return resolvePartType(part, env, false);
+    }*/
 
-    public static String resolvePartType(Part part, S2JJAXBModel jaxbModel, boolean fullName) {
-        if (jaxbModel == null) {
+    public static String resolvePartType(Part part, ProcessorEnvironment env, boolean fullName) {
+        DataBindingGenerator binder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
+        if (binder == null) {
             return resolvePartType(part);
         }
-        com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(getElementName(part));
-        if (mapping == null) {
+        String name = binder.getType(getElementName(part), fullName);
+        if (name == null) {
             return resolvePartType(part);
         }
-        if (fullName) {
+        return name;
+        /*if (fullName) {
             return mapping.getType().getTypeClass().fullName();
         } else {
             return mapping.getType().getTypeClass().name();
-        }
+        }*/
     }
 
     public static String resolvePartNamespace(Part part) {
@@ -179,38 +184,6 @@ public final class ProcessorUtil {
         return path.replace('\\', '/');
     }
 
-    //
-    // the wrapper style will get the type info from the properties in the block
-    //
-    public static List<? extends Property> getBlock(Part part, ProcessorEnvironment env)
-        throws ToolException {
-        if (part == null) {
-            return new ArrayList<Property>();
-        }
-
-        S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
-
-        // QName element = getMappedElementName(part, env);
-        QName element = getElementName(part);
-
-        if (element != null && jaxbModel != null) {
-            com.sun.tools.xjc.api.Mapping mapping = jaxbModel.get(element);
-            if (mapping != null) {
-                return mapping.getWrapperStyleDrilldown();
-            } else {
-                org.apache.cxf.common.i18n.Message msg =
-                    new org.apache.cxf.common.i18n.Message("ELEMENT_MISSING",
-                                                                 LOG,
-                                                                 new Object[]{element.toString(),
-                                                                              part.getName()});
-                throw new ToolException(msg);
-                // return new ArrayList<Property>();
-            }
-        } else {
-            return new ArrayList<Property>();
-        }
-    }
-
     public static URL[] pathToURLs(String path) {
         StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
         URL[] urls = new URL[st.countTokens()];
@@ -248,35 +221,42 @@ public final class ProcessorUtil {
     //
     // the non-wrapper style will get the type info from the part directly
     //
-    public static String getFullClzName(Part part, ProcessorEnvironment env, boolean boxify,
-                                        ClassCollector collector) {
-        S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
-
+    public static String getFullClzName(Part part, ProcessorEnvironment env,
+                                        ClassCollector collector, boolean boxify) {
+        DataBindingGenerator dataBindingGenerator = (DataBindingGenerator)env
+            .get(ToolConstants.BINDING_GENERATOR);
+        String jtype = null;
         QName xmlTypeName = getElementName(part);
-        String jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName, jaxbModel, boxify);
+        // if this flag is true , mapping to java Type first;
+        // if not found , findd the primitive type : int ,long 
+        // if not found,  find in the generated class
+       
+        if (boxify) {
+            jtype = dataBindingGenerator.getJavaType(xmlTypeName, true);
+        } else {
+            jtype = dataBindingGenerator.getJavaType(xmlTypeName, true);
+        }
         String namespace = xmlTypeName.getNamespaceURI();
-        String type = resolvePartType(part, jaxbModel);
+        String type = resolvePartType(part, env, true);
         String userPackage = env.mapPackageName(namespace);
 
         if (jtype == null) {
-            jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);
+            jtype = collector.getTypesFullClassName(parsePackageName(namespace, userPackage), type);        
         }
 
         if (jtype == null) {
             if (!type.equals(resolvePartType(part))) {
-                jtype = resolvePartType(part, jaxbModel, true);
+                jtype = resolvePartType(part, env, true);
             } else {
                 jtype = parsePackageName(namespace, userPackage) + "." + type;
-            }
-        }
-
+            }          
+        } 
+        
+        
         return jtype;
     }
 
-    public static String getFullClzName(Part part, ProcessorEnvironment env, ClassCollector collector) {
-        return getFullClzName(part, env, false, collector);
-
-    }
+   
 
     public static String getFileOrURLName(String fileOrURL) {
         try {
@@ -318,13 +298,7 @@ public final class ProcessorUtil {
         return name + "_handler";
     }
 
-    public static String boxify(QName xmlTypeName, S2JJAXBModel jaxbModel) {
-        TypeAndAnnotation typeAndAnnotation = jaxbModel.getJavaType(xmlTypeName);
-        if (typeAndAnnotation == null) {
-            return null;
-        }
-        return typeAndAnnotation.getTypeClass().boxify().fullName();
-    }
+   
 
     @SuppressWarnings("unchecked")
     public static boolean isWrapperStyle(Operation operation, ProcessorEnvironment env) throws ToolException {
@@ -388,8 +362,9 @@ public final class ProcessorUtil {
         // RULE No.4 and No5:
         // wrapper element should be pure complex type
         //
-        if (ProcessorUtil.getBlock(inputPart, env) == null
-            || ProcessorUtil.getBlock(outputPart, env) == null) {
+        DataBindingGenerator databinder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
+        if (databinder.getBlock(inputPart) == null
+            || databinder.getBlock(outputPart) == null) {
             return false;
         }
 

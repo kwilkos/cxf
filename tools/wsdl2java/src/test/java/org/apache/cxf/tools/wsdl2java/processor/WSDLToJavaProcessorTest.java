@@ -1013,7 +1013,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             processor.process();
         } catch (Exception e) {
             assertTrue("Invalid wsdl should be diagnoised", e.getMessage()
-                .indexOf("Invalid WSDL, wsdl:operation") > -1);
+                .indexOf("Invalid WSDL,wsdl:operation") > -1);
         }
 
     }

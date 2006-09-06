@@ -34,9 +34,6 @@ import javax.wsdl.Definition;
 import javax.wsdl.PortType;
 import javax.xml.namespace.QName;
 
-import com.sun.codemodel.JCodeModel;
-import com.sun.tools.xjc.api.S2JJAXBModel;
-
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.PluginProfile;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -50,7 +47,6 @@ import org.apache.cxf.tools.wsdl2java.processor.compiler.Compiler;
 import org.apache.cxf.tools.wsdl2java.processor.internal.PortTypeProcessor;
 import org.apache.cxf.tools.wsdl2java.processor.internal.SEIAnnotationProcessor;
 import org.apache.cxf.tools.wsdl2java.processor.internal.ServiceProcessor;
-import org.apache.cxf.tools.wsdl2java.processor.internal.TypesCodeWriter;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -104,6 +100,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
     }
 
     public void removeExcludeFiles() throws IOException {
+        excludeGenFiles = env.getExcludeFileList();
         if (excludeGenFiles == null) {
             return;
         }
@@ -168,39 +165,20 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
             return;
         }
-        if (rawJaxbModelGenCode == null) {
+        if (bindingGenerator == null) {
             return;
         }
-        try {
-            String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-
-            TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), excludePkgList);
-
-            if (rawJaxbModelGenCode instanceof S2JJAXBModel  && !nestedJaxbBinding) {
-                S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-
-                JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
-                jcodeModel.build(fileCodeWriter);
-                excludeGenFiles = fileCodeWriter.getExcludeFileList();
-            }
-
-            if (rawJaxbModelGenCode instanceof S2JJAXBModel  && nestedJaxbBinding) {
-                model.codeModel.build(fileCodeWriter);
-                excludeGenFiles = fileCodeWriter.getExcludeFileList();
-            }
-
-            return;
-        } catch (IOException e) {
-            Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
-            throw new ToolException(msg);
-        }
+        
+        bindingGenerator.generate();
+        //env.put(ToolConstants.BINDING_GENERATOR, bindingGenerator);
+        
 
     }
 
     private JavaModel wsdlDefinitionToJavaModel(Definition definition) throws ToolException {
 
         JavaModel javaModel = new JavaModel();
-        getEnvironment().put(ToolConstants.RAW_JAXB_MODEL, getRawJaxbModel());
+       /* getEnvironment().put(ToolConstants.RAW_JAXB_MODEL, getRawJaxbModel());*/
 
         javaModel.setJAXWSBinding(customizing(definition));
 

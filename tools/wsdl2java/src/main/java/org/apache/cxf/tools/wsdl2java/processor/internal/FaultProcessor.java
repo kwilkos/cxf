@@ -26,11 +26,7 @@ import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 
-import com.sun.tools.xjc.api.S2JJAXBModel;
-
 import org.apache.cxf.tools.common.ProcessorEnvironment;
-
-import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaException;
 import org.apache.cxf.tools.common.model.JavaExceptionClass;
@@ -95,7 +91,7 @@ public class FaultProcessor extends AbstractProcessor {
         expClass.setName(name);
         expClass.setNamespace(namespace);
         expClass.setPackageName(packageName);
-        S2JJAXBModel jaxbModel = (S2JJAXBModel)env.get(ToolConstants.RAW_JAXB_MODEL);
+      
         for (Part part : faultValues) {
             String fName;
             String fNamespace;
@@ -117,7 +113,7 @@ public class FaultProcessor extends AbstractProcessor {
 
             }
             
-            String fType = ProcessorUtil.resolvePartType(part, jaxbModel);
+            String fType = ProcessorUtil.getType(part, env, false);
             String fPackageName = ProcessorUtil.parsePackageName(fNamespace, env
                                                                  .mapPackageName(fNamespace));
             
@@ -127,10 +123,11 @@ public class FaultProcessor extends AbstractProcessor {
             fField.setQName(ProcessorUtil.getElementName(part));
             
             if (!method.getInterface().getPackageName().equals(fPackageName)) {
-                fField.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));                
+                fField.setClassName(ProcessorUtil.getFullClzName(part, 
+                                                                 env, this.collector, false));                
             }
             if (!fType.equals(ProcessorUtil.resolvePartType(part))) {
-                fField.setClassName(ProcessorUtil.resolvePartType(part, jaxbModel, true));
+                fField.setClassName(ProcessorUtil.getType(part, env, true));
             }
 
             expClass.addField(fField);

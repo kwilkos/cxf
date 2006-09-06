@@ -17,27 +17,17 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.common.model;
+package org.apache.cxf.tools.common;
+import java.util.List;
 
-import java.util.*;
+import javax.wsdl.Part;
+import javax.xml.namespace.QName;
 
-public class JavaClass extends JavaInterface {
-    
-    private final List<JavaField> jfield = new ArrayList<JavaField>();
-
-    public JavaClass() {
-    }
-    
-    public JavaClass(JavaModel model) {
-        super(model);
-    }
-
-    public void addField(JavaField f) {
-        this.jfield.add(f);
-    }
-
-    public List<JavaField> getFields() {
-        return this.jfield;
-    }
-    
+import com.sun.tools.xjc.api.Property;
+public interface DataBindingGenerator { 
+    void initialize(ProcessorEnvironment penv);
+    void generate() throws ToolException;
+    String getType(QName qn, boolean fullName);
+    String getJavaType(QName qn, boolean fullName);
+    List<? extends Property> getBlock(Part part);
 }

@@ -19,10 +19,10 @@
 
 package org.apache.cxf.tools.util;
 
-import java.util.*;
-import javax.xml.namespace.QName;
-import com.sun.tools.xjc.api.S2JJAXBModel;
-import com.sun.tools.xjc.api.TypeAndAnnotation;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public final class BuiltInTypesJavaMappingUtil {
     private static final String XML_SCHEMA_NS = "http://www.w3.org/2000/10/XMLSchema";
@@ -37,6 +37,7 @@ public final class BuiltInTypesJavaMappingUtil {
         nameSpaces.add(NS_XSD.toLowerCase());
         nameSpaces.add(NS_XSI.toLowerCase());
     }
+    
     private static Map<String, String> jTypeMapping = new HashMap<String, String>();
     static {
         jTypeMapping.put("string", "java.lang.String");
@@ -47,7 +48,7 @@ public final class BuiltInTypesJavaMappingUtil {
         jTypeMapping.put("decimal", "java.math.BigDecimal");
         jTypeMapping.put("float", "float");
         jTypeMapping.put("double", "double");
-        jTypeMapping.put("boolean", "java.lang.boolean");
+        jTypeMapping.put("boolean", "boolean");
         jTypeMapping.put("byte", "byte");
         jTypeMapping.put("qname", "javax.xml.namespace.QName");
         jTypeMapping.put("dataTime", "javax.xml.datatype.XMLGregorianCalendar");
@@ -69,26 +70,6 @@ public final class BuiltInTypesJavaMappingUtil {
     private BuiltInTypesJavaMappingUtil() {
     }
 
-    public static String getJType(QName xmlTypeName, S2JJAXBModel jaxbModel) {
-        return getJType(xmlTypeName, jaxbModel, false);
-    }
-
-    public static String getJType(QName xmlTypeName, S2JJAXBModel jaxbModel, boolean boxify) {
-        if (jaxbModel == null) {
-            return getJType(xmlTypeName.getNamespaceURI(), xmlTypeName.getLocalPart());
-        }
-        TypeAndAnnotation typeAndAnnotation = jaxbModel.getJavaType(xmlTypeName);
-        if (typeAndAnnotation == null) {
-            return getJType(xmlTypeName.getNamespaceURI(), xmlTypeName.getLocalPart());
-        }
-        if (boxify) {
-            return typeAndAnnotation.getTypeClass().boxify().fullName();
-        } else {
-            return typeAndAnnotation.getTypeClass().fullName();
-           
-        }
-    }
-    
     public static String getJType(String nameSpace, String type) {
         if (type == null || nameSpace == null || !nameSpaces.contains(nameSpace.toLowerCase())) {
             return null;

@@ -130,7 +130,7 @@ public final class ToolConstants {
     public static final String HANDLER_CHAIN = "handler-chain";
     public static final String HANDLER_CHAINS = "handler-chains";
 
-    public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
+    //public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
 
     // JMS adress
     public static final String NS_JMS_ADDRESS = "http://cxf.apache.org/transports/jms";
@@ -156,5 +156,16 @@ public final class ToolConstants {
     public static final QName  XML_FORMAT = new QName(NS_XML_FORMAT, "body");
     public static final QName  XML_BINDING_FORMAT = new QName(NS_XML_FORMAT, "binding");
 
+    
+    
+    
+    public static final String SCHEMA_LIST = "schemaList";
+    public static final String PORTTYPE_MAP = "portTypeMap";
+    public static final String SCHEMA_TARGET_NAMESPACES = "schemaTargetNameSpaces";
+    public static final String WSDL_DEFINITION = "wsdlDefinition";
+    public static final String IMPORTED_DEFENITION = "importedDefinition";
+    public static final String IMPORTED_PORTTYPE = "importedPortType";
+    public static final String IMPORTED_SERVICE = "importedService";
+    public static final String BINDING_GENERATOR = "BindingGenerator";
 
 }

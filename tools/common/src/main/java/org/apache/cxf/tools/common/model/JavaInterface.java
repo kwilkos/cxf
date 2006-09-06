@@ -45,7 +45,7 @@ public class JavaInterface {
     
     private String webserviceName;
     private Element handlerChains;
-    
+      
     public JavaInterface() {
     }
     
@@ -211,4 +211,6 @@ public class JavaInterface {
     public void setBindingExt(JAXWSBinding pBindingExt) {
         this.bindingExt = pBindingExt;
     }
+    
+    
 }

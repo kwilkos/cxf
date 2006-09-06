@@ -21,6 +21,9 @@ package org.apache.cxf.tools.common;
 
 import java.io.*;
 import java.util.*;
+
+import javax.wsdl.extensions.schema.Schema;
+
 import org.xml.sax.InputSource;
 
 import org.apache.cxf.tools.common.model.JavaModel;
@@ -35,7 +38,9 @@ public class ProcessorEnvironment {
     private Map<String, String> namespacePackageMap = new HashMap<String, String>();
     private Map<String, String> excludeNamespacePackageMap = new HashMap<String, String>();
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
-
+    private List<String> excludePkgList = new java.util.ArrayList<String>();
+    private List<String> excludeFileList = new java.util.ArrayList<String>();
+   
     public ProcessorEnvironment() {
     }
 
@@ -178,4 +183,20 @@ public class ProcessorEnvironment {
     public boolean isExcludeNamespaceEnabled() {
         return excludeNamespacePackageMap.size() > 0;
     }
+    
+    @SuppressWarnings("unchecked")
+    public List<Schema> getSchemaList() {
+        return (List<Schema>)this.get(ToolConstants.SCHEMA_LIST);
+    }
+    
+    public List<String> getExcludePkgList() {
+        return this.excludePkgList;
+    }
+    
+    public List<String> getExcludeFileList() {
+        return this.excludeFileList;
+    }
+    
+    
+    
 }

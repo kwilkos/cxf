@@ -44,9 +44,9 @@ import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class ParameterProcessor extends AbstractProcessor {
-
-    public ParameterProcessor(ProcessorEnvironment penv) {
-        super(penv);
+   
+    public ParameterProcessor(ProcessorEnvironment penv) {      
+           super(penv);
     }
 
     public void process(JavaMethod method, Message inputMessage, Message outputMessage,
@@ -90,12 +90,13 @@ public class ParameterProcessor extends AbstractProcessor {
         parameter.setPartName(part.getName());
         parameter.setQName(ProcessorUtil.getElementName(part));
 
-        parameter.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));
+        parameter.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector, true));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
-            parameter.setHolderClass(ProcessorUtil.getFullClzName(part, env, true, this.collector));
+            
+            parameter.setHolderClass(ProcessorUtil.getFullClzName(part, env, this.collector, true));
         }
         parameter.setStyle(style);
         return parameter;
@@ -145,12 +146,12 @@ public class ParameterProcessor extends AbstractProcessor {
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part, this.env);
  
         String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
-
+              
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setQName(ProcessorUtil.getElementName(part));
         returnType.setStyle(JavaType.Style.OUT);
         if (namespace != null && type != null && !"void".equals(type)) {
-            returnType.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector));
+            returnType.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector, false));
         }
         method.setReturn(returnType);
     }
@@ -175,8 +176,8 @@ public class ParameterProcessor extends AbstractProcessor {
             return;
         }
         Part part = inputParts.iterator().next();
-
-        List<? extends Property> block = ProcessorUtil.getBlock(part, env);
+        
+        List<? extends Property> block = dataBinder.getBlock(part);
         if (block != null) {
             if (block.size() == 0) {
                 // complete
@@ -255,11 +256,11 @@ public class ParameterProcessor extends AbstractProcessor {
         List<? extends Property> outputBlock = null;
         
         if (inputPart != null) {
-            inputBlock = ProcessorUtil.getBlock(inputPart, env);
+            inputBlock = dataBinder.getBlock(inputPart);
         }       
         
         if (outputPart != null) {
-            outputBlock = ProcessorUtil.getBlock(outputPart, env);
+            outputBlock = dataBinder.getBlock(outputPart);
         }
 
         if (outputBlock == null || outputBlock.size() == 0) {
