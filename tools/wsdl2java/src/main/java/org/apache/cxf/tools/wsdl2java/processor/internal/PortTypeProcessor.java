@@ -28,22 +28,19 @@ import javax.wsdl.Operation;
 import javax.wsdl.PortType;
 
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
-
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
-
 import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class PortTypeProcessor extends AbstractProcessor {
     private List<String> operationMap = new ArrayList<String>();
     
-    public PortTypeProcessor(ProcessorEnvironment penv) {
+    public PortTypeProcessor(ToolContext penv) {
         super(penv);
     }
     

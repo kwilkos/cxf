@@ -17,15 +17,30 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.common;
+package org.apache.cxf.tools.wsdl2java.frontend.jaxws;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.cxf.tools.common.FrontEndGenerator;
+import org.apache.cxf.tools.common.FrontEndGeneratorsProfile;
 
 /**
- * Interface for code generators used by the tools
+ * Generates a service interface, service stub, and port accessor.
  *
- * @author codea
  */
-public interface GeneratorPlugin {
+public class JAXWSProfile implements FrontEndGeneratorsProfile {
+    public List<FrontEndGenerator> getPlugins() {
+        List<FrontEndGenerator> plugins = new ArrayList<FrontEndGenerator>();
 
-    void generate(ProcessorEnvironment penv);
+        plugins.add(new SEIGenerator());
+        plugins.add(new FaultGenerator());
+        plugins.add(new ServerGenerator());
+        plugins.add(new ImplGenerator());
+        plugins.add(new ClientGenerator());
+        plugins.add(new ServiceGenerator());
+        plugins.add(new AntGenerator());
+
+        return plugins;
+    }
 }
-

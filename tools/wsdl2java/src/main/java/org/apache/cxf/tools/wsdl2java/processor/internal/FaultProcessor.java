@@ -26,7 +26,7 @@ import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 
-import org.apache.cxf.tools.common.ProcessorEnvironment;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaException;
 import org.apache.cxf.tools.common.model.JavaExceptionClass;
@@ -38,7 +38,7 @@ import org.apache.cxf.tools.util.ProcessorUtil;
 public class FaultProcessor extends AbstractProcessor {
 
    
-    public FaultProcessor(ProcessorEnvironment penv) {
+    public FaultProcessor(ToolContext penv) {
       super(penv);
     }
 

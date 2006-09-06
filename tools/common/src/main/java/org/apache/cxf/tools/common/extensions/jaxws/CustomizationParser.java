@@ -19,9 +19,16 @@
 
 package org.apache.cxf.tools.common.extensions.jaxws;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.wsdl.Binding;
@@ -40,6 +47,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -48,8 +56,8 @@ import org.xml.sax.SAXParseException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ProcessorUtil;
 import org.apache.cxf.tools.util.StAXUtil;
@@ -57,7 +65,7 @@ import org.apache.cxf.tools.util.StAXUtil;
 public final class CustomizationParser {
     private static final Logger LOG = LogUtils.getL7dLogger(CustomizationParser.class);
     private static CustomizationParser parser;
-    private ProcessorEnvironment env;
+    private ToolContext env;
     private final Set<Element> jaxwsBindings = new HashSet<Element>();
     private Definition definition;
     private final Map<BindingsNode, JAXWSBinding>definitionExtensions;
@@ -135,7 +143,7 @@ public final class CustomizationParser {
         return xpathExpression.matches(regex);
     }
     
-    public void parse(ProcessorEnvironment pe, Definition def) {
+    public void parse(ToolContext pe, Definition def) {
         this.env = pe;
         this.definition = def;
         String[] bindingFiles;

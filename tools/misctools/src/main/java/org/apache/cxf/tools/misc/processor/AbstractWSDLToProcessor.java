@@ -40,14 +40,12 @@ import javax.wsdl.xml.WSDLReader;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.Processor;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
-
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 
 public class AbstractWSDLToProcessor implements Processor, com.sun.tools.xjc.api.ErrorListener {
@@ -55,7 +53,7 @@ public class AbstractWSDLToProcessor implements Processor, com.sun.tools.xjc.api
     protected static final String WSDL_FILE_NAME_EXT = ".wsdl";
 
     protected Definition wsdlDefinition;
-    protected ProcessorEnvironment env;
+    protected ToolContext env;
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
 
@@ -212,11 +210,11 @@ public class AbstractWSDLToProcessor implements Processor, com.sun.tools.xjc.api
 
 
 
-    public void setEnvironment(ProcessorEnvironment penv) {
+    public void setEnvironment(ToolContext penv) {
         this.env = penv;
     }
 
-    public ProcessorEnvironment getEnvironment() {
+    public ToolContext getEnvironment() {
         return this.env;
     }
 

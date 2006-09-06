@@ -34,15 +34,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class JAXBBindingMerger {   
     protected static final Logger LOG = LogUtils.getL7dLogger(JAXBBindingMerger.class);
     private boolean merged;
-    public void mergeJaxwsBinding(Element schema, ProcessorEnvironment env) {
+    public void mergeJaxwsBinding(Element schema, ToolContext env) {
         String[] bindingFiles;
         try {
             bindingFiles = (String[])env.get(ToolConstants.CFG_BINDING);

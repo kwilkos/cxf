@@ -47,8 +47,8 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
@@ -86,11 +86,11 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private Object bindingObj;
 
-    public ServiceProcessor(ProcessorEnvironment penv) {
+    public ServiceProcessor(ToolContext penv) {
         super(penv);
     }
 
-    public ServiceProcessor(ProcessorEnvironment penv, Definition def) {
+    public ServiceProcessor(ToolContext penv, Definition def) {
         super(penv);
         this.definition = def;
     }

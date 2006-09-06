@@ -23,15 +23,15 @@ import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.WSDLModel;
 
 public class WSDLGenerator {
     private final WSDLModel wmodel;
 
-    private final ProcessorEnvironment env;
+    private final ToolContext env;
 
     private final Definition definition;
 
@@ -41,7 +41,7 @@ public class WSDLGenerator {
 
     private String portTypeName;
 
-    public WSDLGenerator(WSDLModel model, ProcessorEnvironment penv) {
+    public WSDLGenerator(WSDLModel model, ToolContext penv) {
         wmodel = model;
         env = penv;
         definition = model.getDefinition();

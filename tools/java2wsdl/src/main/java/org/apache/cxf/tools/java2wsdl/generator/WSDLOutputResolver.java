@@ -30,18 +30,18 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.WSDLModel;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
 
 public class WSDLOutputResolver extends SchemaOutputResolver {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
-    private final ProcessorEnvironment env;
+    private final ToolContext env;
     private final WSDLModel wmodel;
 
-    public WSDLOutputResolver(ProcessorEnvironment penv, WSDLModel model) {
+    public WSDLOutputResolver(ToolContext penv, WSDLModel model) {
         this.env = penv;
         this.wmodel = model;
     }

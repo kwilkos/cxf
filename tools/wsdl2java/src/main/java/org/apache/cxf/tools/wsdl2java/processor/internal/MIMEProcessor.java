@@ -28,7 +28,7 @@ import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
 
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
@@ -37,7 +37,7 @@ import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class MIMEProcessor extends AbstractProcessor {
 
-    public MIMEProcessor(ProcessorEnvironment penv) {
+    public MIMEProcessor(ToolContext penv) {
         super(penv);
     }
 

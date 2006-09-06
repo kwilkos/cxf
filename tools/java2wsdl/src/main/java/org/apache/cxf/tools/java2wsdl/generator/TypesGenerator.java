@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.model.WSDLModel;
@@ -50,9 +50,9 @@ public class TypesGenerator {
     private WSDLModel wmodel;
     private Definition definition;
     private ExtensionRegistry extensionRegistry;
-    private ProcessorEnvironment env;
+    private ToolContext env;
     
-    public TypesGenerator(WSDLModel model , ProcessorEnvironment penv) {
+    public TypesGenerator(WSDLModel model , ToolContext penv) {
         this.definition = model.getDefinition();
         this.wmodel = model;
         env = penv;

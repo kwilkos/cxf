@@ -25,13 +25,13 @@ import java.util.Vector;
 import javax.wsdl.Definition;
 import javax.xml.stream.Location;
 
-import org.apache.cxf.tools.common.ProcessorEnvironment;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
 public abstract class AbstractValidator {
     protected List<String> errorMessages = new Vector<String>();
     protected Definition def;
-    protected ProcessorEnvironment env;
+    protected ToolContext env;
 
     public AbstractValidator(Definition definition) {
         this.def = definition;
@@ -40,7 +40,7 @@ public abstract class AbstractValidator {
     public AbstractValidator(String schemaDir) throws ToolException {
     }
 
-    public AbstractValidator(Definition definition, ProcessorEnvironment pEnv) {
+    public AbstractValidator(Definition definition, ToolContext pEnv) {
         this.def = definition;
         this.env = pEnv;
     }

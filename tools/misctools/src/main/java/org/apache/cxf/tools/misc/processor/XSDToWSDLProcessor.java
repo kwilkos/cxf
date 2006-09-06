@@ -41,8 +41,8 @@ import org.w3c.dom.Element;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.Processor;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.dom.ExtendedDocumentBuilder;
@@ -63,7 +63,7 @@ public class XSDToWSDLProcessor implements Processor {
     private String xsdUrl;
     private final ExtendedDocumentBuilder xsdBuilder = new ExtendedDocumentBuilder();
     private Document xsdDoc;
-    private ProcessorEnvironment env;
+    private ToolContext env;
 
     public void process() throws ToolException {
         envParamSetting();
@@ -72,7 +72,7 @@ public class XSDToWSDLProcessor implements Processor {
         addWSDLTypes();
     }
 
-    public void setEnvironment(ProcessorEnvironment newEnv) {
+    public void setEnvironment(ToolContext newEnv) {
         this.env = newEnv;
     }
 

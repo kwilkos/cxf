@@ -34,16 +34,13 @@ import javax.wsdl.OperationType;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
-
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.WSDLModel;
-
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
-
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 
@@ -56,9 +53,9 @@ public class ClassProcessor {
 
     Map<Class, Boolean> useWebMethodClasses = new HashMap<Class, Boolean>();
 
-    private final ProcessorEnvironment env;
+    private final ToolContext env;
 
-    public ClassProcessor(Class clz, ProcessorEnvironment penv) {
+    public ClassProcessor(Class clz, ToolContext penv) {
         seiClass = clz;
         env = penv;
     }

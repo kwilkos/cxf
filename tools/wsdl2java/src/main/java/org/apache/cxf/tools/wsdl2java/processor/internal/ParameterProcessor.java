@@ -34,7 +34,7 @@ import javax.xml.namespace.QName;
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
 
-import org.apache.cxf.tools.common.ProcessorEnvironment;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -45,7 +45,7 @@ import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class ParameterProcessor extends AbstractProcessor {
    
-    public ParameterProcessor(ProcessorEnvironment penv) {      
+    public ParameterProcessor(ToolContext penv) {      
            super(penv);
     }
 

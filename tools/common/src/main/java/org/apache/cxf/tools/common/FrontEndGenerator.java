@@ -19,8 +19,13 @@
 
 package org.apache.cxf.tools.common;
 
-import java.util.List;
+/**
+ * Interface for code generators used by the tools
+ *
+ * @author codea
+ */
+public interface FrontEndGenerator {
 
-public interface PluginProfile {
-    List<GeneratorPlugin> getPlugins();
+    void generate(ToolContext penv);
 }
+

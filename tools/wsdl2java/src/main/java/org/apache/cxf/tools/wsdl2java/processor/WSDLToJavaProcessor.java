@@ -35,14 +35,14 @@ import javax.wsdl.PortType;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.tools.common.PluginProfile;
+import org.apache.cxf.tools.common.FrontEndGeneratorsProfile;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.wsdl2java.generator.jaxws.JAXWSProfile;
+import org.apache.cxf.tools.wsdl2java.frontend.jaxws.JAXWSProfile;
 import org.apache.cxf.tools.wsdl2java.processor.compiler.Compiler;
 import org.apache.cxf.tools.wsdl2java.processor.internal.PortTypeProcessor;
 import org.apache.cxf.tools.wsdl2java.processor.internal.SEIAnnotationProcessor;
@@ -142,9 +142,9 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             profile = JAXWSProfile.class.getName();
         }
 
-        PluginProfile profileObj = null;
+        FrontEndGeneratorsProfile profileObj = null;
         try {
-            profileObj = (PluginProfile) Class.forName(profile).newInstance();
+            profileObj = (FrontEndGeneratorsProfile) Class.forName(profile).newInstance();
         } catch (Exception e) {
             Message msg = new Message("FAIl_TO_CREATE_PLUGINPROFILE", LOG);
             throw new ToolException(msg);

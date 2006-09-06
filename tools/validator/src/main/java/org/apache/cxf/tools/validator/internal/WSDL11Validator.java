@@ -19,12 +19,14 @@
 
 package org.apache.cxf.tools.validator.internal;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.wsdl.Definition;
 
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
 
@@ -37,7 +39,7 @@ public class WSDL11Validator extends AbstractValidator {
         super(definition);
     }
 
-    public WSDL11Validator(Definition definition, ProcessorEnvironment pe) {
+    public WSDL11Validator(Definition definition, ToolContext pe) {
         super(definition, pe);
     }
 

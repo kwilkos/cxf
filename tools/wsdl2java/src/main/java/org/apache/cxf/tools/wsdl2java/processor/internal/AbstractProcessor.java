@@ -23,19 +23,19 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.DataBindingGenerator;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.util.ClassCollector;
 
 public abstract class AbstractProcessor {
     protected static final Logger LOG = LogUtils.getL7dLogger(AbstractProcessor.class);
-    protected ProcessorEnvironment env;
+    protected ToolContext env;
     
     protected ClassCollector  collector;
     
     protected DataBindingGenerator dataBinder;
     
-    public AbstractProcessor(ProcessorEnvironment penv) {
+    public AbstractProcessor(ToolContext penv) {
         this.env = penv;
         this.collector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
         dataBinder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);

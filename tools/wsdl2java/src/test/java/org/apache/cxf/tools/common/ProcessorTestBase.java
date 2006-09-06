@@ -32,7 +32,7 @@ import org.apache.cxf.tools.common.ToolException;*/
 public class ProcessorTestBase extends TestCase {
 
     private static final int RETRY_SLEEP_MILLIS = 10;
-    protected ProcessorEnvironment env = new ProcessorEnvironment();
+    protected ToolContext env = new ToolContext();
     protected File output;
 
     public void setUp() throws Exception {

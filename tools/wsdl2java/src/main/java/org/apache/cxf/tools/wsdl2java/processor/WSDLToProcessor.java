@@ -53,17 +53,17 @@ import com.sun.tools.xjc.model.Model;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.DataBindingGenerator;
-import org.apache.cxf.tools.common.GeneratorPlugin;
+import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
-import org.apache.cxf.tools.wsdl2java.generator.jaxb.JAXBBindingGenerator;
+import org.apache.cxf.tools.wsdl2java.databindings.jaxb.JAXBBindingGenerator;
 import org.apache.velocity.app.Velocity;
 
 public class WSDLToProcessor implements Processor {
@@ -71,7 +71,7 @@ public class WSDLToProcessor implements Processor {
     protected static final String WSDL_FILE_NAME_EXT = ".wsdl";
 
     protected Definition wsdlDefinition;
-    protected ProcessorEnvironment env;
+    protected ToolContext env;
     protected WSDLFactory wsdlFactory;
     protected WSDLReader wsdlReader;
     protected S2JJAXBModel rawJaxbModel;
@@ -82,7 +82,7 @@ public class WSDLToProcessor implements Processor {
     protected List<String> excludeGenFiles;
     protected Map<QName, Service> importedServices = new java.util.HashMap<QName, Service>();
     protected Map<QName, PortType> importedPortTypes = new java.util.HashMap<QName, PortType>();
-    protected List<GeneratorPlugin> generators;
+    protected List<FrontEndGenerator> generators;
 
     //  For process nestedJaxbBinding
     protected boolean nestedJaxbBinding;
@@ -376,16 +376,16 @@ public class WSDLToProcessor implements Processor {
     }
 
     protected void doGeneration() throws ToolException {
-        for (GeneratorPlugin plugin : generators) {
+        for (FrontEndGenerator plugin : generators) {
             plugin.generate(env);
         }
     }
 
-    public void setEnvironment(ProcessorEnvironment penv) {
+    public void setEnvironment(ToolContext penv) {
         this.env = penv;
     }
 
-    public ProcessorEnvironment getEnvironment() {
+    public ToolContext getEnvironment() {
         return this.env;
     }
 

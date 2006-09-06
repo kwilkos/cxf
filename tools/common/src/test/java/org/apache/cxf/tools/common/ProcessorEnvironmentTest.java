@@ -27,7 +27,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testGet() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
         String value = (String)env.get("k1");
         assertEquals("v1", value);
@@ -36,7 +36,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testPut() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
         env.put("k2", "v2");
         String value = (String)env.get("k2");
@@ -46,7 +46,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testRemove() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
         env.put("k2", "v2");
         String value = (String)env.get("k2");
@@ -58,7 +58,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testContainsKey() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
         assertTrue(env.containsKey("k1"));
     }
@@ -66,7 +66,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testGetDefaultValue() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "v1");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
 
         String k1 = (String)env.get("k1", "v2");
@@ -78,7 +78,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testOptionSet() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "true");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
 
         assertTrue(env.optionSet("k1"));
@@ -88,7 +88,7 @@ public class ProcessorEnvironmentTest extends TestCase {
     public void testGetBooleanValue() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("k1", "true");
-        ProcessorEnvironment env = new ProcessorEnvironment();
+        ToolContext env = new ToolContext();
         env.setParameters(map);
 
         Boolean k1 = Boolean.valueOf((String)env.get("k1"));

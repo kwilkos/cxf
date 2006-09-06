@@ -25,7 +25,7 @@ import javax.xml.namespace.QName;
 
 import com.sun.tools.xjc.api.Property;
 public interface DataBindingGenerator { 
-    void initialize(ProcessorEnvironment penv);
+    void initialize(ToolContext penv);
     void generate() throws ToolException;
     String getType(QName qn, boolean fullName);
     String getJavaType(QName qn, boolean fullName);

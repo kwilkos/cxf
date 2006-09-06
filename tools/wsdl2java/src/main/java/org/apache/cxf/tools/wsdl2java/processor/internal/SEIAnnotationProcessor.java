@@ -23,7 +23,7 @@ import java.util.*;
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Definition;
 
-import org.apache.cxf.tools.common.ProcessorEnvironment;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -32,7 +32,7 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class SEIAnnotationProcessor extends AbstractProcessor {
 
-    public SEIAnnotationProcessor(ProcessorEnvironment penv) {
+    public SEIAnnotationProcessor(ToolContext penv) {
         super(penv);
     }
     

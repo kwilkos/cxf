@@ -30,7 +30,7 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.PropertyUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 
-public class ProcessorEnvironment {
+public class ToolContext {
 
     protected JavaModel javaModel;
     private Map<String, Object> paramMap;
@@ -41,7 +41,7 @@ public class ProcessorEnvironment {
     private List<String> excludePkgList = new java.util.ArrayList<String>();
     private List<String> excludeFileList = new java.util.ArrayList<String>();
    
-    public ProcessorEnvironment() {
+    public ToolContext() {
     }
 
 

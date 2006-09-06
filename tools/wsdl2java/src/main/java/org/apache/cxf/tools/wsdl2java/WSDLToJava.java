@@ -27,18 +27,15 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
-
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
-
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.ToolRunner;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
-
 import org.apache.cxf.tools.wsdl2java.processor.WSDLToJavaProcessor;
 
 public class WSDLToJava extends AbstractCXFToolContainer {
@@ -64,7 +61,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
-                ProcessorEnvironment env = new ProcessorEnvironment();
+                ToolContext env = new ToolContext();
                 env.setParameters(getParametersMap(getArrayKeys()));
                 if (env.get(ToolConstants.CFG_OUTPUTDIR) == null) {
                     env.put(ToolConstants.CFG_OUTPUTDIR, ".");
@@ -105,7 +102,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         }
     }
 
-    private void loadDefaultNSPackageMapping(ProcessorEnvironment env) {
+    private void loadDefaultNSPackageMapping(ToolContext env) {
         if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE) 
             && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
             env.loadDefaultNS2Pck(getResourceAsStream("namespace2package.cfg"));
@@ -116,7 +113,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
     }
 
 
-    private void setExcludePackageAndNamespaces(ProcessorEnvironment env) {
+    private void setExcludePackageAndNamespaces(ToolContext env) {
         if (env.get(ToolConstants.CFG_NEXCLUDE) != null) {
             String[] pns = (String[])env.get(ToolConstants.CFG_NEXCLUDE);
             for (int j = 0; j < pns.length; j++) {
@@ -133,7 +130,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         }
     }
     
-    private void setPackageAndNamespaces(ProcessorEnvironment env) {
+    private void setPackageAndNamespaces(ToolContext env) {
         if (env.get(ToolConstants.CFG_PACKAGENAME) != null) {
             String[] pns = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
             for (int j = 0; j < pns.length; j++) {
@@ -150,7 +147,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         }
     }
 
-    private void validate(ProcessorEnvironment env) throws ToolException {
+    private void validate(ToolContext env) throws ToolException {
         String outdir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
         if (outdir != null) {
             File dir = new File(outdir);
@@ -194,7 +191,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         }
     }
 
-    protected void setAntProperties(ProcessorEnvironment env) {
+    protected void setAntProperties(ToolContext env) {
         String installDir = System.getProperty("install.dir");
         if (installDir != null) {
             env.put(ToolConstants.CFG_INSTALL_DIR, installDir);
@@ -203,7 +200,7 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         }
     }
 
-    protected void setLibraryReferences(ProcessorEnvironment env) {
+    protected void setLibraryReferences(ToolContext env) {
         Properties props = loadProperties(getResourceAsStream("wsdltojavalib.properties"));
         if (props != null) {
             for (Iterator keys = props.keySet().iterator(); keys.hasNext();) {

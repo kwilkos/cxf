@@ -41,8 +41,8 @@ import org.w3c.dom.Node;
 import com.sun.xml.bind.api.JAXBRIContext;
 
 import org.apache.cxf.tools.common.DataBindingGenerator;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
 public final class ProcessorUtil {
@@ -70,7 +70,7 @@ public final class ProcessorUtil {
         return mangleNameToClassName(getPartType(part));
     }
     
-    public static String getType(Part part, ProcessorEnvironment env, boolean fullname) {
+    public static String getType(Part part, ToolContext env, boolean fullname) {
         DataBindingGenerator dataBinder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
         String type = dataBinder.getType(getElementName(part), fullname);
         if (type == null) {
@@ -94,7 +94,7 @@ public final class ProcessorUtil {
     // support multiple -p options
     // if user change the package name through -p namespace=package name
     //
-    public static QName getMappedElementName(Part part, ProcessorEnvironment env) {
+    public static QName getMappedElementName(Part part, ToolContext env) {
         QName origin = getElementName(part);
         if (origin == null) {
             return null;
@@ -105,7 +105,7 @@ public final class ProcessorUtil {
         return new QName(env.getCustomizedNS(origin.getNamespaceURI()), origin.getLocalPart());
     }
 
-    public static String resolvePartType(Part part, ProcessorEnvironment env) {
+    public static String resolvePartType(Part part, ToolContext env) {
         if (env != null) {
             return resolvePartType(part, env, false);
         } else {
@@ -117,7 +117,7 @@ public final class ProcessorUtil {
         return resolvePartType(part, env, false);
     }*/
 
-    public static String resolvePartType(Part part, ProcessorEnvironment env, boolean fullName) {
+    public static String resolvePartType(Part part, ToolContext env, boolean fullName) {
         DataBindingGenerator binder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
         if (binder == null) {
             return resolvePartType(part);
@@ -221,7 +221,7 @@ public final class ProcessorUtil {
     //
     // the non-wrapper style will get the type info from the part directly
     //
-    public static String getFullClzName(Part part, ProcessorEnvironment env,
+    public static String getFullClzName(Part part, ToolContext env,
                                         ClassCollector collector, boolean boxify) {
         DataBindingGenerator dataBindingGenerator = (DataBindingGenerator)env
             .get(ToolConstants.BINDING_GENERATOR);
@@ -301,7 +301,7 @@ public final class ProcessorUtil {
    
 
     @SuppressWarnings("unchecked")
-    public static boolean isWrapperStyle(Operation operation, ProcessorEnvironment env) throws ToolException {
+    public static boolean isWrapperStyle(Operation operation, ToolContext env) throws ToolException {
 
         Message inputMessage = operation.getInput() == null ? null : operation.getInput().getMessage();
         Message outputMessage = operation.getOutput() == null ? null : operation.getOutput().getMessage();

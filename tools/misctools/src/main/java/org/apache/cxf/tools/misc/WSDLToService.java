@@ -25,8 +25,8 @@ import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.ToolRunner;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
@@ -53,7 +53,7 @@ public class WSDLToService extends AbstractCXFToolContainer {
         try {
             super.execute(exitOnFinish);
             if (!hasInfoOption()) {
-                ProcessorEnvironment env = new ProcessorEnvironment();
+                ToolContext env = new ToolContext();
                 env.setParameters(getParametersMap(getArrayKeys()));
 
                 if (isVerboseOn()) {
@@ -85,7 +85,7 @@ public class WSDLToService extends AbstractCXFToolContainer {
         }
     }
 
-    private void validate(ProcessorEnvironment env) throws ToolException {
+    private void validate(ToolContext env) throws ToolException {
         String outdir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
         if (outdir != null) {
             File dir = new File(outdir);

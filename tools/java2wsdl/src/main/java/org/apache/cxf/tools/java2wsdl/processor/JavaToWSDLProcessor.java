@@ -25,13 +25,11 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-
 import org.apache.cxf.tools.common.Processor;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.WSDLModel;
-
 import org.apache.cxf.tools.java2wsdl.generator.WSDLGenerator;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ClassProcessor;
 import org.apache.cxf.tools.util.AnnotationUtil;
@@ -40,7 +38,7 @@ import org.apache.cxf.tools.util.AnnotationUtil;
 public class JavaToWSDLProcessor implements Processor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel model;
-    private ProcessorEnvironment penv;
+    private ToolContext penv;
     private Class seiClass;
 
     public void process() throws ToolException {
@@ -63,11 +61,11 @@ public class JavaToWSDLProcessor implements Processor {
         classproc.process(wmodel);
     }
 
-    public void setEnvironment(ProcessorEnvironment env) {
+    public void setEnvironment(ToolContext env) {
         this.penv = env;
     }
 
-    public ProcessorEnvironment getEnvironment() {
+    public ToolContext getEnvironment() {
         return this.penv;
     }
 

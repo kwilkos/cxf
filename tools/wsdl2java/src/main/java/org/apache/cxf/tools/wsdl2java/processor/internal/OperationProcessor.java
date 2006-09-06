@@ -34,8 +34,8 @@ import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
@@ -52,7 +52,7 @@ public class OperationProcessor  extends AbstractProcessor {
     private JavaParameter wrapperRequest;
     private JavaParameter wrapperResponse;
 
-    public OperationProcessor(ProcessorEnvironment penv) {
+    public OperationProcessor(ToolContext penv) {
         super(penv);
     }
 
