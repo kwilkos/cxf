@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<fileset-config file-format-version="1.2.0" simple-config="false">
-    <local-check-config name="cxf" location="C:\celtix\apache-org\trunk\checkstyle.xml" type="external" description="">
-        <additional-data name="protect-config-file" value="false"/>
-    </local-check-config>
-    <fileset name="java" enabled="true" check-config-name="cxf" local="true">
-        <file-match-pattern match-pattern="^src[\\].*java$" include-pattern="true"/>
-    </fileset>
+<?xml version="1.0" encoding="UTF-8"?><fileset-config file-format-version="1.1.0" simple-config="false">
+<fileset name="all" enabled="true" check-config-name="CXF Checks" type="external" description=""><file-match-pattern match-pattern="^src[/\\]." include-pattern="true"/>
+</fileset>
 </fileset-config>
