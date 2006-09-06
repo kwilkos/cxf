@@ -18,6 +18,15 @@
         <topDirectoryLocation>../../..</topDirectoryLocation>
     </properties>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>java.net</id>
+            <name>java.net Maven Repository</name>
+            <url>https://maven-repository.dev.java.net/nonav/repository/</url>
+            <layout>legacy</layout>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -38,7 +47,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>

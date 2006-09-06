@@ -23,6 +23,15 @@
         <jaxb.impl.version>2.0.1</jaxb.impl.version>
     </properties>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>java.net</id>
+            <name>java.net Maven Repository</name>
+            <url>https://maven-repository.dev.java.net/nonav/repository/</url>
+            <layout>legacy</layout>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencies>
 
         <dependency>
