@@ -35,6 +35,7 @@ import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+//import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -49,8 +50,16 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
 
     public void handleMessage(SoapMessage message) {
         XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
+     
+        /*XMLUtils.setIndention(4);
+        System.out.println("the xml frag is ");
+        try {
+            System.out.println(XMLUtils.toString(StaxUtils.read(xmlReader)));
+        } catch (XMLStreamException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }*/
         
-                
         if (xmlReader == null) {
             InputStream in = (InputStream)message.getContent(InputStream.class);
             if (in == null) {

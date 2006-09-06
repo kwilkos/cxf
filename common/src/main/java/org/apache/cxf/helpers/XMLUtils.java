@@ -263,4 +263,17 @@ public final class XMLUtils {
         return new ByteArrayInputStream(buf);
     }
 
+    public static Element fetchElementByNameAttribute(Element parent, String targetName, String nameValue) {
+        Element ret = null;
+        NodeList nodeList = parent.getElementsByTagName(targetName);
+        Node node = null;
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            node = nodeList.item(i);
+            if (node instanceof Element && ((Element)node).getAttribute("name").equals(nameValue)) {
+                ret = (Element)node;
+                break;
+            }
+        }
+        return ret;
+    }
 }

@@ -45,14 +45,17 @@ public class ProxyTest extends TestCase {
         assertNotNull(service);
 
         Greeter greeter = service.getPort(portName, Greeter.class);
+        boolean getException = false;
 
         try {
             String reply = greeter.sayHi();
             System.out.println("Response to sayHi() is: " + reply);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
             // ecpect this as no server is up and running
+            getException = true;
         }
+        assertTrue(getException);
 
     }
 

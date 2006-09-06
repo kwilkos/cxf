@@ -27,12 +27,10 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-//import javax.xml.ws.Holder;
+import javax.xml.ws.Holder;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-
 
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
@@ -42,11 +40,11 @@ import org.apache.header_test.TestHeader;
 import org.apache.header_test.TestHeaderImpl;
 import org.apache.header_test.types.TestHeader1;
 import org.apache.header_test.types.TestHeader1Response;
-/*import org.apache.header_test.types.TestHeader2;
+import org.apache.header_test.types.TestHeader2;
 import org.apache.header_test.types.TestHeader2Response;
 import org.apache.header_test.types.TestHeader3;
 import org.apache.header_test.types.TestHeader3Response;
-import org.apache.header_test.types.TestHeader5;*/
+import org.apache.header_test.types.TestHeader5;
 
 
 public class HeaderClientServerTest extends ClientServerTestBase {
@@ -89,7 +87,7 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(MyServer.class));
             }
         };
-        
+                
     }  
 
     
@@ -111,11 +109,11 @@ public class HeaderClientServerTest extends ClientServerTestBase {
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
-        } 
+        }
     } 
 
-    /*public void testOutHeader() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/soapheader_test.wsdl");
+    public void testOutHeader() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
         
         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
@@ -135,14 +133,13 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                 assertEquals(val, outHeader.value.getResponseType());
             }
         } catch (UndeclaredThrowableException ex) {
-            //throw (Exception)ex.getCause();
-        } catch (Exception e) {
-            //should get Exception since Holder is not supported now
-        }
+            ex.printStackTrace();
+            throw (Exception)ex.getCause();
+        } 
     } 
 
     public void testInOutHeader() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/soapheader_test.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
         
         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
@@ -172,14 +169,12 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                 assertNull(inoutHeader.value.getRequestType());
             }
         } catch (UndeclaredThrowableException ex) {
-            //throw (Exception)ex.getCause();
-        } catch (Exception e) {
-            //should get Exception since Holder is not supported now
-        }
-    } 
+            throw (Exception)ex.getCause();
+        } 
+    }
 
     public void testReturnHeader() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/soapheader_test.wsdl");
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
         
         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
@@ -198,13 +193,11 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                 assertEquals(val, returnVal.getRequestType());
             }
         } catch (UndeclaredThrowableException ex) {
-            //throw (Exception)ex.getCause();
-        } catch (Exception e) {
-            //should get Exception since Holder is not supported now
-        }
+            throw (Exception)ex.getCause();
+        } 
     } 
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HeaderClientServerTest.class);
-    }*/
+    }
 }

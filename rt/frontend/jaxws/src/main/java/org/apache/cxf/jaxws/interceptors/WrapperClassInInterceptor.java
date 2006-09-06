@@ -19,7 +19,11 @@
 
 package org.apache.cxf.jaxws.interceptors;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
+
+import javax.jws.soap.SOAPBinding;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -44,6 +48,37 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
 
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        if (boi == null) {
+            return;
+        }
+        Method method = (Method)boi.getOperationInfo().getProperty(Method.class.getName());
+        if (method == null) {
+            method = message.getContent(Method.class);
+        }
+        try {
+            if (method != null) {
+                Class inter = null;
+                if (method.getDeclaringClass().isInterface()) {
+                    inter = method.getDeclaringClass();
+                } else {
+                    Type[] interfaces = method.getDeclaringClass().getGenericInterfaces();
+                    inter = (Class)interfaces[0];
+                }
+                
+                method = inter.getDeclaredMethod(
+                    method.getName(), (Class[])method.getParameterTypes());
+            }
+        } catch (SecurityException e) {
+            throw new Fault(e);
+
+        } catch (NoSuchMethodException e) {
+            throw new Fault(e);
+        }
+        if (method != null 
+            && method.isAnnotationPresent(SOAPBinding.class)
+            && method.getAnnotation(SOAPBinding.class).parameterStyle() == SOAPBinding.ParameterStyle.BARE) {
+            return;
+        }
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
             OperationInfo op = boi2.getOperationInfo();

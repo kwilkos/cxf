@@ -19,8 +19,11 @@
 
 package org.apache.cxf.interceptor;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.List;
 
+import javax.jws.WebParam;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -65,8 +68,16 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             Object[] els = parts.toArray();
 
             if (args.length != els.length) {
-                message.setContent(Exception.class,
+                int holder = 0;
+                if (args.length > els.length) {
+                    //detect Holder in params
+                    Method method = message.getContent(Method.class);
+                    holder = checkHolder(method);
+                }
+                if ((args.length - holder) != els.length) {
+                    message.setContent(Exception.class,
                                    new RuntimeException("The number of arguments is not equal!"));
+                }
             }
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
             for (int idx = 0; idx < countParts; idx++) {
@@ -82,5 +93,22 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         }
     }
     
-    
+    private int checkHolder(Method method) {
+        int holder = 0;
+        if (method != null) {
+            
+            Annotation[][] paramAnnotations = method.getParameterAnnotations();
+            for (int i = 0; i < paramAnnotations.length; i++) {
+                Annotation[] annotation = paramAnnotations[i];
+                for (int j = 0; j < annotation.length; j++) {
+                    if (annotation[j] instanceof WebParam 
+                        && (((WebParam)annotation[j]).mode().equals(WebParam.Mode.OUT)
+                            || ((WebParam)annotation[j]).mode().equals(WebParam.Mode.INOUT))) {
+                        holder++;
+                    }
+                }
+            }
+        }
+        return holder;
+    }       
 }

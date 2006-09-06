@@ -20,15 +20,19 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
 
 
+import javax.jws.WebParam;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.ws.Holder;
 
 import org.w3c.dom.Element;
 
@@ -146,8 +150,16 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             Object[] els = parts.toArray();
  
             if (args.length != els.length) {
-                message.setContent(Exception.class,
+                int holder = 0;
+                if (args.length > els.length) {
+                    //detect Holder in params
+                    Method method = message.getContent(Method.class);
+                    holder = checkHolder(method);
+                }
+                if ((args.length - holder) != els.length) {
+                    message.setContent(Exception.class,
                                    new RuntimeException("The number of arguments is not equal!"));
+                }
             }
  
             SoapVersion soapVersion = message.getVersion();
@@ -170,6 +182,9 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                     }
                     QName elName = ServiceModelUtil.getPartName(part);
                     DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
+                    if (arg instanceof Holder) {
+                        arg = ((Holder)arg).value;
+                    }
                     dataWriter.write(arg, elName, xtw);
                         
                     hasHeader = true;
@@ -188,6 +203,25 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         }
 
 
+    }
+
+    private int checkHolder(Method method) {
+        int holder = 0;
+        if (method != null) {
+            
+            Annotation[][] paramAnnotations = method.getParameterAnnotations();
+            for (int i = 0; i < paramAnnotations.length; i++) {
+                Annotation[] annotation = paramAnnotations[i];
+                for (int j = 0; j < annotation.length; j++) {
+                    if (annotation[j] instanceof WebParam 
+                        && (((WebParam)annotation[j]).mode().equals(WebParam.Mode.OUT)
+                            || ((WebParam)annotation[j]).mode().equals(WebParam.Mode.INOUT))) {
+                        holder++;
+                    }
+                }
+            }
+        }
+        return holder;
     }       
     
     protected boolean isRequestor(Message message) {
