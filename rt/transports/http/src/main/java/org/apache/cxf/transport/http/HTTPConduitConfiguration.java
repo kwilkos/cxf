@@ -31,10 +31,10 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.bus.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.bus.configuration.security.SSLClientPolicy;
 import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.configuration.CompoundName;
-import org.apache.cxf.configuration.Configuration;
-import org.apache.cxf.configuration.ConfigurationBuilder;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.oldcfg.CompoundName;
+import org.apache.cxf.oldcfg.Configuration;
+import org.apache.cxf.oldcfg.ConfigurationBuilder;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 

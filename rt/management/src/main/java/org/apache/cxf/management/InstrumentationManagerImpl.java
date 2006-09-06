@@ -28,13 +28,13 @@ import java.util.logging.Logger;
 import javax.management.MBeanServer;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.CompoundName;
-import org.apache.cxf.configuration.Configuration;
-import org.apache.cxf.configuration.ConfigurationBuilder;
-import org.apache.cxf.configuration.impl.ConfigurationBuilderImpl;
 import org.apache.cxf.configuration.instrumentation.types.InstrumentationPolicyType;
 import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
 import org.apache.cxf.management.jmx.JMXManagedComponentManager;
+import org.apache.cxf.oldcfg.CompoundName;
+import org.apache.cxf.oldcfg.Configuration;
+import org.apache.cxf.oldcfg.ConfigurationBuilder;
+import org.apache.cxf.oldcfg.impl.ConfigurationBuilderImpl;
 
 
 

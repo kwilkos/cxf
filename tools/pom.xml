@@ -42,5 +42,6 @@
             <module>wsdl2java</module>
             <module>java2wsdl</module>
             <module>misctools</module>            
+            <module>xjc</module>
     </modules>
 </project>

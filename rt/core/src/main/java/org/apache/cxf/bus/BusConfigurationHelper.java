@@ -21,9 +21,9 @@ package org.apache.cxf.bus;
 
 import java.util.Map;
 
-import org.apache.cxf.configuration.CompoundName;
-import org.apache.cxf.configuration.Configuration;
-import org.apache.cxf.configuration.ConfigurationBuilder;
+import org.apache.cxf.oldcfg.CompoundName;
+import org.apache.cxf.oldcfg.Configuration;
+import org.apache.cxf.oldcfg.ConfigurationBuilder;
 
 public class BusConfigurationHelper {
 

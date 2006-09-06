@@ -24,11 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.configuration.Configuration;
-import org.apache.cxf.configuration.ConfigurationBuilder;
-import org.apache.cxf.configuration.impl.ConfigurationBuilderImpl;
 import org.apache.cxf.extension.ExtensionManagerImpl;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
+import org.apache.cxf.oldcfg.Configuration;
+import org.apache.cxf.oldcfg.ConfigurationBuilder;
+import org.apache.cxf.oldcfg.impl.ConfigurationBuilderImpl;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;

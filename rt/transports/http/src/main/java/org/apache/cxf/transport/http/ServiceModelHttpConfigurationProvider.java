@@ -19,7 +19,7 @@
 
 package org.apache.cxf.transport.http;
 
-import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.oldcfg.ConfigurationProvider;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;

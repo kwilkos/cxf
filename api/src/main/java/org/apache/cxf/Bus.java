@@ -19,8 +19,8 @@
 
 package org.apache.cxf;
 
-import org.apache.cxf.configuration.Configuration;
 import org.apache.cxf.interceptor.InterceptorProvider;
+import org.apache.cxf.oldcfg.Configuration;
 
 public interface Bus extends InterceptorProvider {
     

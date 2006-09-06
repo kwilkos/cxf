@@ -35,13 +35,13 @@ import org.xml.sax.InputSource;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.ConfigurationException;
-import org.apache.cxf.configuration.ConfigurationItemMetadata;
-import org.apache.cxf.configuration.ConfigurationMetadata;
-import org.apache.cxf.configuration.impl.ConfigurationMetadataBuilder;
-import org.apache.cxf.configuration.impl.TypeSchema;
-import org.apache.cxf.configuration.impl.TypeSchemaHelper;
 import org.apache.cxf.jaxb.JAXBUtils;
+import org.apache.cxf.oldcfg.ConfigurationException;
+import org.apache.cxf.oldcfg.ConfigurationItemMetadata;
+import org.apache.cxf.oldcfg.ConfigurationMetadata;
+import org.apache.cxf.oldcfg.impl.ConfigurationMetadataBuilder;
+import org.apache.cxf.oldcfg.impl.TypeSchema;
+import org.apache.cxf.oldcfg.impl.TypeSchemaHelper;
 
 public class BeanGenerator {
 

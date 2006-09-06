@@ -20,7 +20,7 @@
 package org.apache.cxf.tools.common;
 
 
-import org.apache.cxf.configuration.AbstractCommandLineConfiguration;
+import org.apache.cxf.oldcfg.AbstractCommandLineConfiguration;
 
 
 public class ToolConfig extends AbstractCommandLineConfiguration {
