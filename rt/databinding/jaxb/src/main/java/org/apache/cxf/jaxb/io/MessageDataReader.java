@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Message;
 
@@ -49,7 +50,7 @@ public class MessageDataReader implements DataReader<Message> {
     
     public Object read(QName name, Message input, Class cls) {
         JAXBAttachmentUnmarshaller au = null;        
-        if (input.get(Message.ATTACHMENT_DESERIALIZER) != null) {
+        if (input.get(AttachmentDeserializer.class) != null) {
             au = new JAXBAttachmentUnmarshaller(input); 
         }
         Object source = null;

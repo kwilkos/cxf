@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb.attachment;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import javax.xml.bind.attachment.AttachmentMarshaller;
 import org.apache.cxf.binding.attachment.AttachmentImpl;
 import org.apache.cxf.binding.attachment.AttachmentUtil;
 import org.apache.cxf.binding.attachment.ByteDataSource;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -49,17 +51,26 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         source.setContentType(mimeType);
         DataHandler handler = new DataHandler(source);
 
-        String id = AttachmentUtil.createContentID(elementNS);
+        String id;
+        try {
+            id = AttachmentUtil.createContentID(elementNS);
+        } catch (UnsupportedEncodingException e) {
+            throw new Fault(e);
+        }
         Attachment att = new AttachmentImpl(id, handler);
         atts.add(att);
 
         return "cid:" + id;
     }
 
-    @Override
     public String addMtomAttachment(DataHandler handler, String elementNS, String elementLocalName) {
 
-        String id = AttachmentUtil.createContentID(elementNS);
+        String id;
+        try {
+            id = AttachmentUtil.createContentID(elementNS);
+        } catch (UnsupportedEncodingException e) {
+            throw new Fault(e);
+        }
         Attachment att = new AttachmentImpl(id, handler);
         atts.add(att);
 

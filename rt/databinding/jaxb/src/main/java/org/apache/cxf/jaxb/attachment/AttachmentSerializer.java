@@ -22,6 +22,7 @@ package org.apache.cxf.jaxb.attachment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -30,10 +31,10 @@ import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.binding.attachment.AttachmentDataSource;
 import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -60,11 +61,16 @@ public class AttachmentSerializer {
      * @throws CxfRioException
      */
 
-    public String serializeMultipartMessage() throws WebServiceException {
+    public String serializeMultipartMessage() {
 
         Session session = Session.getDefaultInstance(new Properties(), null);
         MimeMessage mimeMessage = new MimeMessage(session);
-        String soapPartId = AttachmentUtil.createContentID(null);
+        String soapPartId;
+        try {
+            soapPartId = AttachmentUtil.createContentID(null);
+        } catch (UnsupportedEncodingException e) {
+            throw new Fault(e);
+        }
         String subType = AttachmentUtil.getMimeSubType(message, soapPartId);
         MimeMultipart mimeMP = new MimeMultipart(subType);
 
@@ -92,9 +98,9 @@ public class AttachmentSerializer {
             mimeMessage.setContent(mimeMP);
             mimeMessage.writeTo(out, FILTER);
         } catch (MessagingException me) {
-            throw new WebServiceException(me);
+            throw new Fault(me);
         } catch (IOException ioe) {
-            throw new WebServiceException(ioe);
+            throw new Fault(ioe);
         }
         return mimeMP.getContentType();
     }

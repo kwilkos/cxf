@@ -27,8 +27,6 @@ import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.jaxws.handlers.StreamHandler;
-import org.apache.cxf.jaxws.handlers.StreamMessageContext;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.easymock.classextension.IMocksControl;

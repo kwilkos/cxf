@@ -38,6 +38,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
@@ -69,7 +70,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         this.implInfo = i;
     }
 
-    public void activateEndpoints() throws IOException, WSDLException, BusException {
+    public void activateEndpoints() throws IOException, WSDLException, BusException, EndpointException {
         Service service = getService();
 
         for (EndpointInfo ei : service.getServiceInfo().getEndpoints()) {
@@ -78,7 +79,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
 
     public void activateEndpoint(Service service, EndpointInfo ei) throws BusException, WSDLException,
-        IOException {
+        IOException, EndpointException {
         JaxwsEndpointImpl ep = new JaxwsEndpointImpl(getBus(), service, ei);
         ChainInitiationObserver observer = new ChainInitiationObserver(ep, getBus());
 

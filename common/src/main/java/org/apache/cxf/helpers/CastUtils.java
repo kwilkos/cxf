@@ -20,6 +20,7 @@
 package org.apache.cxf.helpers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +43,13 @@ public final class CastUtils {
     }
     public static <T> Collection<T> cast(Collection<?> p, Class<T> cls) {
         return (Collection<T>)p;
+    }
+    public static <T> List<T> cast(List<?> p) {
+        return (List<T>)p;
+    }
+    
+    public static <T> List<T> cast(List<?> p, Class<T> cls) {
+        return (List<T>)p;
     }
 
     public static <T> Set<T> cast(Set<?> p) {

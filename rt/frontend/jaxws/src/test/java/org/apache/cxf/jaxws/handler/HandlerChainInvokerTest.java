@@ -35,8 +35,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import junit.framework.TestCase;
 
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
-import org.apache.cxf.jaxws.handlers.StreamHandler;
-import org.apache.cxf.jaxws.handlers.StreamMessageContext;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 

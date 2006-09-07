@@ -21,14 +21,12 @@ package org.apache.cxf.service.invoker;
 
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.ws.Holder;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -45,15 +43,13 @@ public class SimpleMethodInvoker implements Invoker {
         this.bean = bean;
     }
     
-    @SuppressWarnings("unchecked")
     public Object invoke(Exchange exchange, Object o) {
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
         
         
         Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
-        List<Object> params = (List<Object>) o;
+        List<Object> params = CastUtils.cast((List<?>)o);
                 
-        checkHolder(m, params, exchange);
         Object res;
         try {
             Object[] paramArray = params.toArray();
@@ -65,51 +61,13 @@ public class SimpleMethodInvoker implements Invoker {
             if (!((Class)m.getReturnType()).getName().equals("void")) {
                 retList.add(res);
             }
-            for (int i = 0; i < paramArray.length; i++) {
-                if (paramArray[i] instanceof Holder) {
-                    retList.add(((Holder)paramArray[i]).value);
-                }
-            }
             return Arrays.asList(retList.toArray());
         } catch (Exception e) {
             throw new Fault(e);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void checkHolder(Method method, List<Object> params, Exchange exchange) {
-        if (method != null) {
-           
-            Type[] para = method.getGenericParameterTypes();
-            for (int i = 0; i < para.length; i++) {
-                if (para[i] instanceof ParameterizedType) {
-                    Object param = null;
-                    ParameterizedType paramType = (ParameterizedType)para[i];
-                    if (((Class)paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
-                        
-                        try {
-                            param = new Holder(
-                                ((Class)paramType.getActualTypeArguments()[0]).newInstance());
-                        } catch (InstantiationException e) {
-                            throw new Fault(e);
-                        } catch (IllegalAccessException e) {
-                            throw new Fault(e);
-                        }
-                        if (i >= params.size()) {
-                            params.add(param);
-                        } else {
-                            params.set(i, new Holder(params.get(i)));
-                        }
-                        
-                    }
-                                       
-                    
-                }
-            }
-            
-        }
-        
-    }
+   
 
     
 }

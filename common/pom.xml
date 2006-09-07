@@ -64,7 +64,7 @@
         <dependency>
             <groupId>javax.jws</groupId>
             <artifactId>jsr181-api</artifactId>
-        </dependency>
+	</dependency>
 
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -74,7 +74,8 @@
         <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
-        </dependency>
+            <scope>provided</scope>
+	</dependency>
 
         <dependency>
             <groupId>stax</groupId>

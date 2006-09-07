@@ -92,7 +92,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
         Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> context = new HashMap<String, Object>();
-        context.put(org.apache.cxf.message.Message.METHOD, method);
+        context.put(Method.class.getName(), method);
         Object rawRet[] = client.invoke(oi, paramsWithOutHolder, context);
 
         if (rawRet != null && rawRet.length != 0) {

@@ -77,6 +77,12 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <scope>provided</scope>
+	    </dependency>  
+
+        <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
             <artifactId>saaj-impl</artifactId>
         </dependency>
@@ -92,7 +98,10 @@
             <scope>test</scope>
         </dependency>
  
-
+        <dependency>
+            <groupId>woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -47,8 +47,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceProvider;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,9 +54,9 @@ import org.w3c.dom.Node;
 
 import org.xml.sax.SAXException;
 
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.MetadataType;
@@ -77,32 +75,30 @@ public final class EndpointReferenceUtils {
 
     private static final QName WSDL_LOCATION = new QName("http://www.w3.org/2006/01/wsdl-instance",
                                                          "wsdlLocation");
-    private static final Transformer XML_TRANSFORMER;
-    static {
-        
+
+    
+    private EndpointReferenceUtils() {
+        // Utility class - never constructed
+    }
+    
+    private static Transformer getTransformer() throws EndpointUtilsException {
         //To Support IBM JDK 
         //If use the default transformFactory ,org.apache.xalan.processor.TransformerFactoryImpl \
         //when transform stuff will lost attributes 
-        
-        
         if (System.getProperty("java.vendor").indexOf("IBM") > -1) {
             System.setProperty("javax.xml.transform.TransformerFactory", 
                                "org.apache.xalan.xsltc.trax.TransformerFactoryImpl");
         }
         
-        Transformer transformer = null;
         try {
-            TransformerFactory tf = TransformerFactory.newInstance();
-            transformer = tf.newTransformer();            
+            return TransformerFactory.newInstance().newTransformer();
         } catch (TransformerConfigurationException tce) {
-            throw new WebServiceException("Could not create transformer", tce);
+            throw new EndpointUtilsException(new Message("COULD_NOT_CREATE_TRANSFORMER", LOG),
+                                                         tce);
         }
-        XML_TRANSFORMER = transformer;
+        
     }
     
-    private EndpointReferenceUtils() {
-        // Utility class - never constructed
-    }
     
     /**
      * Sets the service and port name of the provided endpoint reference. 
@@ -112,8 +108,7 @@ public final class EndpointReferenceUtils {
      */
     public static void setServiceAndPortName(EndpointReferenceType ref, 
                                              QName serviceName, 
-                                             String portName) 
-        throws WebServiceException {
+                                             String portName) {
         if (null != serviceName) {
             JAXBElement<ServiceNameType> jaxbElement = getServiceNameType(serviceName, portName);
             MetadataType mt = ref.getMetadata();
@@ -300,7 +295,9 @@ public final class EndpointReferenceUtils {
      * @param ref the endpoint reference.
      * @param metadata the list of metadata source.
      */
-    public static void setMetadata(EndpointReferenceType ref, List<Source> metadata) {
+    public static void setMetadata(EndpointReferenceType ref, List<Source> metadata)
+        throws EndpointUtilsException {
+        
         if (null != ref) {
             MetadataType mt = ref.getMetadata();
             if (null == mt) {
@@ -328,7 +325,7 @@ public final class EndpointReferenceUtils {
                         DOMResult domResult = new DOMResult();
                         domResult.setSystemId(source.getSystemId());
                         
-                        XML_TRANSFORMER.transform(source, domResult);
+                        getTransformer().transform(source, domResult);
     
                         node = domResult.getNode();
                     }
@@ -347,7 +344,8 @@ public final class EndpointReferenceUtils {
                     }
                 }
             } catch (TransformerException te) {
-                throw new WebServiceException("Populating metadata in EPR failed", te);
+                throw new EndpointUtilsException(new Message("COULD_NOT_POPULATE_EPR", LOG),
+                                                 te);
             }
         }
     }
@@ -384,30 +382,6 @@ public final class EndpointReferenceUtils {
             }
         }
 
-        QName portTypeName = getInterfaceName(ref);
-        if (null != portTypeName) {
-            
-            StringBuffer seiName = new StringBuffer();
-            seiName.append(JAXBUtils.namespaceURIToPackage(portTypeName.getNamespaceURI()));
-            seiName.append(".");
-            seiName.append(JAXBUtils.nameToIdentifier(portTypeName.getLocalPart(),
-                                                      JAXBUtils.IdentifierType.INTERFACE));
-            
-            Class<?> sei = null;
-            try {
-                sei = Class.forName(seiName.toString(), true, 
-                                    manager.getClass().getClassLoader());
-            } catch (ClassNotFoundException ex) {
-                LOG.log(Level.FINE, "SEI_LOAD_FAILURE_MSG", ex);
-                return null;
-            }
-            Definition def = manager.getDefinition(sei);
-            if (def == null && sei.getInterfaces().length > 0) {
-                sei = sei.getInterfaces()[0];
-                def = manager.getDefinition(sei);
-            }
-            return def;
-        }
         return null;
     }
 
@@ -653,103 +627,6 @@ public final class EndpointReferenceUtils {
     public static EndpointReferenceType getEndpointReference(WSDLManager manager,
                                                                  Object implementor) {
         return getEndpointReference(manager, implementor.getClass());
-    }
-
-    /**
-     * Gets an endpoint reference for the provided implementor object.
-     * @param manager - the wsdl manager.
-     * @param implementorClass - the service implementor.
-     * @return EndpointReferenceType - the endpoint reference
-     * @throws WSDLException
-     */
-    public static EndpointReferenceType getEndpointReference(WSDLManager manager,
-                                                                 Class<?> implementorClass) {
-
-        WebService ws = getWebServiceAnnotation(implementorClass);
-
-        WebServiceProvider wsp = null;
-        if (null == ws) {
-            wsp = implementorClass.getAnnotation(WebServiceProvider.class);
-            if (null == wsp) {
-                return null;
-            }
-        }
-
-        EndpointReferenceType reference = new EndpointReferenceType();
-        reference.setMetadata(new MetadataType());
-        String serviceName = (null != ws) ? ws.serviceName() : wsp.serviceName();
-        String targetNamespace = (null != ws) ? ws.targetNamespace() : wsp.targetNamespace();
-        String portName = (null != ws) ? ws.portName() : wsp.portName();
-        String url = (null != ws) ? ws.wsdlLocation() : wsp.wsdlLocation();
-        String className = (null != ws) ? ws.endpointInterface() : null; 
-     
-        QName portTypeName = null;
-        if (null != className && !"".equals(className)) {
-            Class<?> seiClazz = null;
-            try {
-                seiClazz = Class.forName(className);
-            } catch (ClassNotFoundException cnfe) {
-                LOG.log(Level.SEVERE, "SEI_LOAD_FAILURE_MSG", cnfe);
-                throw new WebServiceException("endpointInterface element in WebService annotation invalid", 
-                                              cnfe);
-            }
-            
-            if (!seiClazz.isInterface()) {
-                throw new WebServiceException("endpointInterface element does not refer to a java interface");
-            }
-            
-            WebService seiws = seiClazz.getAnnotation(WebService.class);
-            if (null == seiws) {
-                throw new WebServiceException("SEI should have a WebService Annotation");
-            }
-
-            if ("".equals(url)) {
-                url = seiws.wsdlLocation();
-            }
-
-            //WebService.name maps to wsdl:portType name.
-            portTypeName = new QName(ws.targetNamespace(), seiws.name());
-
-            //ServiceName,portName,endpointInterface not allowed on the WebService annotation
-            // of a SEI, Section 3.2 JSR181.
-            // set interfaceName using WebService.targetNamespace of SEI only.
-        } else {
-
-            if (null != ws) {
-                className = ws.name();
-            }
-            if (null == className || "".equals(className)) {
-                className = implementorClass.getSimpleName();
-            }
-            portTypeName = new QName(targetNamespace, className);
-        }
-
-        setInterfaceName(reference, portTypeName);
-        // set serviceName, portName and targetNamespace
-        if (!"".equals(serviceName)) {
-            setServiceAndPortName(reference, new QName(targetNamespace, serviceName),
-                                  portName);
-        }
-
-        if (null != url && url.length() > 0) {
-            //REVISIT Resolve the url for all cases
-            URL wsdlUrl = implementorClass.getResource(url);
-            if (wsdlUrl != null) {
-                url = wsdlUrl.toExternalForm();
-            }
-        }
-        // set wsdlLocation
-        if (!"".equals(url)) {
-            setWSDLLocation(reference, url);
-        }
-
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("created endpoint reference with");
-            LOG.fine("    service name: " + getServiceName(reference));
-            LOG.fine("    wsdl location: " + getWSDLLocation(reference));
-            LOG.fine("    sei class: " + getInterfaceName(reference));
-        }
-        return reference;
     }
     
     private static String getNameSpaceUri(Node node, String content, String namespaceURI) {

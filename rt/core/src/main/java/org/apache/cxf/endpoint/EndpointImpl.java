@@ -23,8 +23,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.xml.ws.WebServiceException;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
@@ -50,7 +48,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private Bus bus;
     private Interceptor faultInterceptor;
     
-    public EndpointImpl(Bus bus, Service s, EndpointInfo ei) {
+    public EndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
         this.bus = bus;
         service = s;
         endpointInfo = ei;
@@ -93,18 +91,18 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
         this.bus = bus;
     }
 
-    final void createBinding(BindingInfo bi) {
+    final void createBinding(BindingInfo bi) throws EndpointException {
         String namespace = bi.getBindingId();
         BindingFactory bf = null;
         try {
             bf = bus.getExtension(BindingFactoryManager.class).getBindingFactory(namespace);
             binding = bf.createBinding(bi);
         } catch (BusException ex) {
-            throw new WebServiceException(ex);
+            throw new EndpointException(ex);
         }
         if (null == bf) {
             Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
-            throw new WebServiceException(msg.toString());
+            throw new EndpointException(msg);
         }
     }
 

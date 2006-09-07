@@ -33,12 +33,8 @@ public interface Message extends Map<String, Object> {
     String REQUESTOR_ROLE = "org.apache.cxf.client";
     String ONEWAY_MESSAGE = "org.apache.cxf.transport.isOneWayMessage";
 
-    String ATTACHMENT_DESERIALIZER = "org.apache.cxf.databinding.attachments.AttachmentDeserializer";
-    String ATTACHMENT_SERIALIZER = "org.apache.cxf.databinding.attachments.AttachmentSerializer";
-
     String INBOUND_MESSAGE = "org.apache.cxf.message.inbound";
     String INVOCATION_OBJECTS = "org.apache.cxf.invocation.objects";
-    String METHOD = "org.apache.cxf.method";
     
     String MIME_HEADERS = "org.apache.cxf.mime.headers";
 

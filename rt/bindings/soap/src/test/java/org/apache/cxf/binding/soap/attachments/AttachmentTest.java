@@ -58,7 +58,6 @@ import org.apache.cxf.jaxb.attachment.AttachmentSerializer;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Attachment;
-import org.apache.cxf.message.Message;
 
 public class AttachmentTest extends TestBase {
 
@@ -234,8 +233,7 @@ public class AttachmentTest extends TestBase {
                 }
                 assertTrue("Data Root Tag not found in message soap part!", found);
             }
-            AttachmentDeserializer ad = (AttachmentDeserializer)soapMessage
-                .get(Message.ATTACHMENT_DESERIALIZER);
+            AttachmentDeserializer ad = soapMessage.get(AttachmentDeserializer.class);
             ad.processAttachments();
             Collection<Attachment> attachments = soapMessage.getAttachments();
             assertTrue(attachments.size() == 2);

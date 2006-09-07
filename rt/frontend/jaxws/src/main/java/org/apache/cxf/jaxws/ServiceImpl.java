@@ -47,6 +47,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
@@ -103,7 +104,12 @@ public class ServiceImpl extends ServiceDelegate {
         } else {
             ei = si.getEndpoint(portName);
         }
-        return new JaxwsEndpointImpl(bus, service, ei);        
+        
+        try {
+            return new JaxwsEndpointImpl(bus, service, ei);
+        } catch (EndpointException e) {
+            throw new WebServiceException(e);
+        }        
     }
     
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
@@ -195,7 +201,13 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));
         }
 
-        JaxwsEndpointImpl jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
+        JaxwsEndpointImpl jaxwsEndpoint;
+        try {
+            jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
+        } catch (EndpointException e) {
+            throw new WebServiceException(e);
+        }
+        
         Client client = new ClientImpl(bus, jaxwsEndpoint);
 
         InvocationHandler ih = new EndpointInvocationHandler(client, jaxwsEndpoint.getJaxwsBinding());

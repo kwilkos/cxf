@@ -28,8 +28,8 @@ import java.util.zip.GZIPOutputStream;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.MessageContext;
 
-import org.apache.cxf.jaxws.handlers.StreamHandler;
-import org.apache.cxf.jaxws.handlers.StreamMessageContext;
+import org.apache.cxf.jaxws.handler.StreamHandler;
+import org.apache.cxf.jaxws.handler.StreamMessageContext;
 import org.apache.handler_test.PingException;
 
 public class  TestStreamHandler extends TestHandlerBase 

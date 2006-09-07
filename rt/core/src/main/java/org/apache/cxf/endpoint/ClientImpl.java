@@ -178,8 +178,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
     private void setMethod(Map<String, Object> ctx, Message message) {
         if (ctx != null) {
-            message.setContent(Method.class, ctx.get(Message.METHOD));
-            methd = (Method)ctx.get(Message.METHOD);
+            message.setContent(Method.class, ctx.get(Method.class.getName()));
+            methd = (Method)ctx.get(Method.class.getName());
         }
     }
 

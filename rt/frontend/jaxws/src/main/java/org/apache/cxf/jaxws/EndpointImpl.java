@@ -35,6 +35,7 @@ import javax.xml.ws.WebServiceException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
@@ -81,7 +82,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             service.setInvoker(new JAXWSMethodInvoker(i));
         }
         //      TODO: use bindigURI     
-        endpoint = new JaxwsEndpointImpl(bus, service, ei);
+        try {
+            endpoint = new JaxwsEndpointImpl(bus, service, ei);
+        } catch (EndpointException e) {
+            throw new WebServiceException(e);
+        }
     }
 
     public Binding getBinding() {

@@ -18,8 +18,8 @@
   under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-api</artifactId>
@@ -28,9 +28,9 @@
     <version>2.0-incubator-M1-SNAPSHOT</version>
 
     <parent>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf</artifactId>
-	<version>2.0-incubator-M1-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf</artifactId>
+        <version>2.0-incubator-M1-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -86,8 +86,8 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
                                     <dependencies>
-                                    	<dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
-                                    	<dependency>${basedir}/src/main/resources/schemas/wsdl/xml-binding.xsd</dependency>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
+                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/xml-binding.xsd</dependency>
                                         <dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
                                     </dependencies>
                                 </xsdOption>
@@ -121,7 +121,7 @@
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-listener-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>                                
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>
                                 <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
                             </beanfiles>
                         </configuration>

@@ -39,7 +39,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.ws.ProtocolException;
 import javax.xml.ws.RequestWrapper;
 
 import org.w3c.dom.Element;
@@ -47,6 +46,7 @@ import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.testutil.common.TestUtil;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.types.GreetMe;
@@ -100,8 +100,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         Node node;
         try {
             JAXBEncoderDecoder.marshall(context, null, null, inCorrectElName,  elNode);
-            fail("Should have thrown a ProtocolException");
-        } catch (ProtocolException ex) {
+            fail("Should have thrown a Fault");
+        } catch (Fault ex) {
             //expected - not a valid object
         }
 
@@ -130,8 +130,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         try {
             // Marshal with the schema should get an exception.
             JAXBEncoderDecoder.marshall(context, schema, stringStruct, elName,  elNode);
-            fail("Marshal with schema should have thrown a ProtocolException");
-        } catch (ProtocolException ex) {
+            fail("Marshal with schema should have thrown a Fault");
+        } catch (Fault ex) {
             //expected - not a valid object
         }
     }
@@ -234,11 +234,11 @@ public class JAXBEncoderDecoderTest extends TestCase {
         Node n = null;
         try {
             JAXBEncoderDecoder.unmarshall(context, null, n, null, String.class);
-            fail("Should have received a ProtocolException");
-        } catch (ProtocolException pe) {
+            fail("Should have received a Fault");
+        } catch (Fault pe) {
             //Expected Exception
         } catch (Exception ex) {
-            fail("Should have received a ProtocolException, not: " + ex);
+            fail("Should have received a Fault, not: " + ex);
         }
         
         // Now test schema validation during unmarshaling
@@ -261,8 +261,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
             // unmarshal with schema should raise exception.
             obj = JAXBEncoderDecoder.unmarshall(context, schema, elNode,  elName,
                 Class.forName("org.apache.hello_world_soap_http.types.StringStruct"));
-            fail("Should have thrown a ProtocolException");
-        } catch (ProtocolException ex) {
+            fail("Should have thrown a Fault");
+        } catch (Fault ex) {
             // expected - schema validation should fail.
         }
     }

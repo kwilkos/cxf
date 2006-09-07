@@ -26,6 +26,7 @@ import javax.xml.ws.Binding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
@@ -50,7 +51,7 @@ public class JaxwsEndpointImpl extends EndpointImpl {
 
     private Binding binding;
     
-    public JaxwsEndpointImpl(Bus bus, Service s, EndpointInfo ei) {
+    public JaxwsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
         super(bus, s, ei);
 
         createJaxwsBinding();

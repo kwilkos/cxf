@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
-import org.apache.cxf.jaxws.handlers.StreamMessageContext;
 import org.apache.cxf.message.Message;
 
 

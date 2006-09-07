@@ -23,27 +23,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
-import javax.xml.ws.WebServiceException;
 
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(JAXBAttachmentUnmarshaller.class);
+    
     private Message message;
     private AttachmentDeserializer ad;
 
     public JAXBAttachmentUnmarshaller(Message messageParam) {
         super();
         this.message = messageParam;
-        ad = (AttachmentDeserializer)message.get(Message.ATTACHMENT_DESERIALIZER);
+        ad = message.get(AttachmentDeserializer.class);
         if (ad == null) {
-            throw new WebServiceException("Can't find Attachment Deserializer in message"
-                                          + " when doing JAXBAttachmentUnmarshaller");
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_ATTACHMENT_DESERIALIZER", LOG));
         }
     }
 
@@ -60,7 +62,7 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
         try {
             copy(att.getDataHandler().getInputStream(), bos);
         } catch (IOException e) {
-            throw new WebServiceException("Could not read attachment.", e);
+            throw new Fault(new org.apache.cxf.common.i18n.Message("ATTACHMENT_READ_ERROR", LOG), e);
         }
         return bos.toByteArray();
     }
@@ -104,11 +106,11 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
         try {
             att = ad.getAttachment(contentId);
         } catch (MessagingException me) {
-            throw new WebServiceException("Failed in getting attachment " + contentId + ". Cause: "
-                                               + me.getMessage());
+            throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT",
+                                                                   LOG, contentId), me);
         } catch (IOException ioe) {
-            throw new WebServiceException("Failed in getting attachment " + contentId + ". Cause: "
-                                               + ioe.getMessage());
+            throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT",
+                                                                   LOG, contentId), ioe);
         }
         if (att == null) {
             throw new IllegalArgumentException("Attachment " + contentId + " was not found.");

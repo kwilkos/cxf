@@ -45,7 +45,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
         
         AttachmentDeserializer ad = new AttachmentDeserializer(message);
         if (ad.preprocessMessage()) {
-            message.put(Message.ATTACHMENT_DESERIALIZER, ad);
+            message.put(AttachmentDeserializer.class, ad);
         }
     }
 

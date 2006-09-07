@@ -16,18 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.endpoint;
 
-package org.apache.cxf.jaxws.handlers;
+import org.apache.cxf.common.i18n.Exception;
+import org.apache.cxf.common.i18n.Message;
 
-import javax.xml.ws.handler.Handler;
+public class EndpointException extends Exception {
 
+    public EndpointException(Message msg) {
+        super(msg);
+    }
 
+    public EndpointException(Message msg, Throwable t) {
+        super(msg, t);
+    }
 
-/**
- * A StreamHandler provides an interception point which gives access
- * to the data stream immediately before being written to or read from
- * the underlying transport.  The StreamHandler allows transformations
- * on the marshalled data.
- */
-public interface StreamHandler extends Handler<StreamMessageContext> {
+    public EndpointException(Throwable cause) {
+        super(cause);
+    }
+
 }

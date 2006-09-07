@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.xml.ws.WebServiceException;
-
 import org.apache.cxf.message.Message;
 
 public final class AttachmentUtil {
@@ -43,7 +41,7 @@ public final class AttachmentUtil {
      * @param ns
      * @return
      */
-    public static String createContentID(String ns) {
+    public static String createContentID(String ns) throws UnsupportedEncodingException {
         // tend to change
         String cid = "cxf.apache.org";
         String name = UUID.randomUUID() + "@";
@@ -56,11 +54,7 @@ public final class AttachmentUtil {
                 e.printStackTrace();
                 return null;
             } catch (MalformedURLException e) {
-                try {
-                    cid = URLEncoder.encode(ns, "UTF-8");
-                } catch (UnsupportedEncodingException e1) {
-                    throw new WebServiceException("Encoding content id with namespace error", e);
-                }
+                cid = URLEncoder.encode(ns, "UTF-8");
             }
         }
         return name + cid;

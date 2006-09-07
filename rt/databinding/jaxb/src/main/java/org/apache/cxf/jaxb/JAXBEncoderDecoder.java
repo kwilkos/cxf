@@ -26,6 +26,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,9 +34,7 @@ import javax.jws.WebMethod;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.MarshalException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -47,16 +46,17 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
-import javax.xml.ws.Holder;
-import javax.xml.ws.ProtocolException;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebEndpoint;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.interceptor.Fault;
 
 
 /**
@@ -64,8 +64,9 @@ import org.apache.cxf.common.util.StringUtils;
  * @author apaibir
  */
 public final class JAXBEncoderDecoder {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBEncoderDecoder.class);
     
-    static Map<Class<?>, JAXBContext> contextMap = new ConcurrentHashMap<Class<?>, JAXBContext>();
+    private static Map<Class<?>, JAXBContext> contextMap = new ConcurrentHashMap<Class<?>, JAXBContext>();
     
     private JAXBEncoderDecoder() {        
     }
@@ -98,7 +99,7 @@ public final class JAXBEncoderDecoder {
             return getValidClass(cls.getComponentType());
         }
 
-        if (cls == Holder.class || cls == Object.class || cls == String.class) {
+        if (cls == Object.class || cls == String.class) {
             cls = null;
         } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
             cls = null;
@@ -220,19 +221,15 @@ public final class JAXBEncoderDecoder {
     }
     
     private static Marshaller createMarshaller(JAXBContext context,
-                                               Class<?> cls) {
+                                               Class<?> cls) throws JAXBException {
         Marshaller jm = null;
-        try {
-            if (context == null) {
-                context = JAXBContext.newInstance(cls);
-            }
-            
-            jm = context.createMarshaller();
-            jm.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
-            jm.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        } catch (JAXBException je) {
-            throw new ProtocolException("Marshalling Error", je);
+        if (context == null) {
+            context = JAXBContext.newInstance(cls);
         }
+        
+        jm = context.createMarshaller();
+        jm.setProperty(Marshaller.JAXB_ENCODING , "UTF-8");
+        jm.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         
         return jm;
     }
@@ -242,16 +239,16 @@ public final class JAXBEncoderDecoder {
                                 Object source, AttachmentMarshaller am) {
         
         Class<?> cls = null != elValue ? elValue.getClass() : null;
-        Marshaller u = createMarshaller(context, cls);
         try {
-            // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to generate the xml declaration.
-            u.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        } catch (javax.xml.bind.PropertyException e) {
-            // intentionally empty.
-        }
-        Object mObj = elValue;      
+            Marshaller u = createMarshaller(context, cls);
+            try {
+                // The Marshaller.JAXB_FRAGMENT will tell the Marshaller not to generate the xml declaration.
+                u.setProperty(Marshaller.JAXB_FRAGMENT, true);
+            } catch (javax.xml.bind.PropertyException e) {
+                // intentionally empty.
+            }
+            Object mObj = elValue;      
 
-        try {
             if (null != elNname && null != cls 
                 && !cls.isAnnotationPresent(XmlRootElement.class)) {
                 mObj = JAXBElement.class.getConstructor(new Class[] {QName.class, Class.class, Object.class})
@@ -268,19 +265,10 @@ public final class JAXBEncoderDecoder {
             } else if (source instanceof XMLStreamWriter) {
                 u.marshal(mObj, (XMLStreamWriter)source);
             } else {
-                throw new ProtocolException("Marshalling Error, unrecognized source " 
-                                            + source.getClass().getName());
+                throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }
-        } catch (MarshalException me) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Marshalling error ";
-            if (me.getCause() != null) {
-                message += me.getCause();
-            }
-            throw new ProtocolException(message, me);
         } catch (Exception ex) {
-            throw new ProtocolException("Marshalling Error", ex);
+            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE), ex);
         }
     }
 
@@ -295,17 +283,13 @@ public final class JAXBEncoderDecoder {
     }
 
     private static Unmarshaller createUnmarshaller(JAXBContext context,
-                                                   Class<?> cls) {
+                                                   Class<?> cls) throws JAXBException {
         Unmarshaller um = null;
-        try {
-            if (context == null) {
-                context = JAXBContext.newInstance(cls);
-            }
-            
-            um = context.createUnmarshaller();            
-        } catch (JAXBException je) {
-            throw new ProtocolException("Marshalling Error", je);
+        if (context == null) {
+            context = JAXBContext.newInstance(cls);
         }
+        
+        um = context.createUnmarshaller();            
         
         return um;
     }
@@ -345,19 +329,10 @@ public final class JAXBEncoderDecoder {
                 obj = (clazz != null) ? u.unmarshal((XMLEventReader)source, clazz) 
                     : u.unmarshal((XMLEventReader)source);                                
             } else {
-                throw new ProtocolException("Unmarshalling error, unrecognized source " 
-                                            + source.getClass().getName());
+                throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }
-        } catch (UnmarshalException ue) {
-            // It's helpful to include the cause in the case of
-            // schema validation exceptions.
-            String message = "Unmarshalling error ";
-            if (ue.getCause() != null) {
-                message += ue.getCause();
-            }
-            throw new ProtocolException(message, ue);
         } catch (Exception ex) {
-            throw new ProtocolException("Unmarshalling error", ex);
+            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE), ex);
         }
         return (elName == null) ? obj : getElementValue(obj, elName);
     }

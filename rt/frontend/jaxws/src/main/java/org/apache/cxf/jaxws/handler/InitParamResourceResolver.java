@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.handlers;
+package org.apache.cxf.jaxws.handler;
 
 import java.io.InputStream;
 import java.util.Map;
