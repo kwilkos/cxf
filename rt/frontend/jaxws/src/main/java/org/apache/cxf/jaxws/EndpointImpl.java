@@ -40,7 +40,6 @@ import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.invoker.SimpleMethodInvoker;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.MessageObserver;
@@ -79,8 +78,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
         } else {
-            //TODO - need a jaxws specific invoker for holders and such
-            service.setInvoker(new SimpleMethodInvoker(i));
+            service.setInvoker(new JAXWSMethodInvoker(i));
         }
         //      TODO: use bindigURI     
         endpoint = new JaxwsEndpointImpl(bus, service, ei);

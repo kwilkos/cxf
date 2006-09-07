@@ -87,7 +87,7 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(MyServer.class));
             }
         };
-                
+                       
     }  
 
     

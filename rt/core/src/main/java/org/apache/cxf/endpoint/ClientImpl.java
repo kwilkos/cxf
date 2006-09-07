@@ -21,18 +21,12 @@ package org.apache.cxf.endpoint;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.xml.ws.Holder;
-
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -166,12 +160,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
                     throw new RuntimeException(inMsg.getContent(Exception.class));
                 }
                     
-                // handle Holder case
-                List<Object> retList = new ArrayList<Object>();
-                if (message.getContent(Method.class) != null) {
-                    handleHolderReturn(params, message, inMsg, retList);
-                    return retList.toArray();
-                } 
+                
+                
                 return inMsg.getContent(List.class).toArray();
             }
         } 
@@ -193,54 +183,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
     }
 
-    private void handleHolderReturn(Object[] params, Message message, Message inMsg, List<Object> retList) {
-        Object[] rawRet = inMsg.getContent(List.class).toArray(); 
-        
-        int idx = 0;
-        Method method = message.getContent(Method.class);
-        if (method == null) {
-            return;
-        }
-        if (!((Class)method.getReturnType()).getName().equals("void")) {
-            retList.add(rawRet[0]);
-            idx++;
-        }
-        int holderStartIndex = 0;
-        Type[] para = method.getGenericParameterTypes();
-        for (int i = 0; i < para.length; i++) {
-            if (para[i] instanceof ParameterizedType) {
-                ParameterizedType paramType = (ParameterizedType)para[i];
-                if (((Class)paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
-                    break;
-                } else {
-                    holderStartIndex++;
-                }
-            } else {
-                holderStartIndex++;
-            }
-        }
-                    
-        for (int i = idx; i < rawRet.length; i++, holderStartIndex++) {
-            try {
-                ((Holder)params[holderStartIndex]).getClass().getField(
-                    "value").set(params[holderStartIndex], rawRet[i]);
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (SecurityException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (NoSuchFieldException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-        }
-    }
-
+    
 
     public void onMessage(Message message) {
        

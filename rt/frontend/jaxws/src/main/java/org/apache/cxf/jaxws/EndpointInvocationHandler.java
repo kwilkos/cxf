@@ -21,7 +21,11 @@ package org.apache.cxf.jaxws;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -30,6 +34,7 @@ import javax.jws.WebMethod;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
@@ -77,17 +82,40 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             throw new WebServiceException(msg.toString());
         }
 
-        // REVISIT - Holder objects, etc...
+        
 
         Object[] params = args;
         if (null == params) {
             params = new Object[0];
         }
+        
+
+        Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> context = new HashMap<String, Object>();
         context.put(org.apache.cxf.message.Message.METHOD, method);
-        Object obj[] = client.invoke(oi, params, context);
-        
-        return obj == null || obj.length == 0 ? null : obj[0];
+        Object rawRet[] = client.invoke(oi, paramsWithOutHolder, context);
+
+        if (rawRet != null && rawRet.length != 0) {
+            List<Object> retList = new ArrayList<Object>();
+            handleHolderReturn(params, method, rawRet, retList);
+            Object[] obj = retList.toArray();
+            return obj == null || obj.length == 0 ? null : obj[0];
+        } else {
+            return null;
+        }
+    }
+
+    private Object[] handleHolder(Object[] params) {
+        //get value out of Holder
+        Object[] ret = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            if (params[i] instanceof Holder) {
+                ret[i] = ((Holder)params[i]).value;
+            } else {
+                ret[i] = params[i];
+            }
+        }
+        return ret;
     }
 
     BindingOperationInfo getOperationInfo(Object proxy, Method method) {
@@ -142,6 +170,51 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         }
         return boi;
     }
+    
+    
+    private void handleHolderReturn(Object[] params, Method method, Object[] rawRet, List<Object> retList) {
+                
+        int idx = 0;
+        
+        if (method == null) {
+            return;
+        }
+        if (!((Class)method.getReturnType()).getName().equals("void")) {
+            retList.add(rawRet[0]);
+            idx++;
+        }
+        int holderStartIndex = 0;
+        Type[] para = method.getGenericParameterTypes();
+        for (int i = 0; i < para.length; i++) {
+            if (para[i] instanceof ParameterizedType) {
+                ParameterizedType paramType = (ParameterizedType)para[i];
+                if (((Class)paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
+                    break;
+                } else {
+                    holderStartIndex++;
+                }
+            } else {
+                holderStartIndex++;
+            }
+        }
+                    
+        for (int i = idx; i < rawRet.length; i++, holderStartIndex++) {
+            try {
+                ((Holder)params[holderStartIndex]).getClass().getField(
+                    "value").set(params[holderStartIndex], rawRet[i]);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+            
+        }
+    }
+
 
     protected Class getResponseWrapper(Method selected) throws ClassNotFoundException {
         ResponseWrapper rw = selected.getAnnotation(ResponseWrapper.class);

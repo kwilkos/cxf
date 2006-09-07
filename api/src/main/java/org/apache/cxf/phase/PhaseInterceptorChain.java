@@ -125,7 +125,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         while (state == State.EXECUTING && iterator.hasNext()) {
             try {
                 Interceptor currentInterceptor = iterator.next();
-                //System.out.println("Invoking handleMessage on interceptor " + currentInterceptor);
+               
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
