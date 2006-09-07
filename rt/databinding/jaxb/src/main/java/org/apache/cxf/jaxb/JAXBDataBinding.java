@@ -20,6 +20,8 @@
 package org.apache.cxf.jaxb;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -30,10 +32,10 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -45,9 +47,13 @@ import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
@@ -60,16 +66,24 @@ public final class JAXBDataBinding implements DataBinding {
     JAXBDataReaderFactory reader;
     JAXBDataWriterFactory writer;
     JAXBContext context;
+    Service service;
+    Class clazz;
+    // this will be used to call unmarshall to provide the QName and Class
+    Map<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>> typeClassMap;
     
     public JAXBDataBinding() throws JAXBException {
         reader = new JAXBDataReaderFactory();
         writer = new JAXBDataWriterFactory();
     }
-    public JAXBDataBinding(Class<?> cls) throws JAXBException {
+    public JAXBDataBinding(Class<?> cls, Service pService) throws JAXBException {
         this();
+        clazz = cls;
+        service = pService;
+        typeClassMap = new HashMap<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>>();
         context = JAXBEncoderDecoder.createJAXBContextForClass(cls);
         reader.setJAXBContext(context);
         writer.setJAXBContext(context);
+        buildTypeClassMapping();
     }
     
     public void setContext(JAXBContext ctx) {
@@ -144,6 +158,50 @@ public final class JAXBDataBinding implements DataBinding {
             LOG.log(Level.SEVERE, e.getMessage());
             throw new UncheckedException(e);
         }
+    }
+
+    private void buildTypeClassMapping() {
+        for (BindingInfo bi : service.getServiceInfo().getBindings()) {
+            Map<BindingOperationInfo, Map<QName, Class>> biMap = 
+                new HashMap<BindingOperationInfo, Map<QName, Class>>();
+            typeClassMap.put(bi, biMap);
+            for (BindingOperationInfo boi : bi.getOperations()) {
+                Map<QName, Class> boiMap = new HashMap<QName, Class>();
+                biMap.put(boi, boiMap);
+                addTypeClassMapping(clazz, boiMap, boi.getOperationInfo().getInput());
+                addTypeClassMapping(clazz, boiMap, boi.getOperationInfo().getOutput());
+            }
+        }
+    }
+
+    private static void addTypeClassMapping(Class cls, Map<QName, Class> boiMap, MessageInfo msg) {
+        if (msg == null) {
+            return;
+        }
+        for (MessagePartInfo mpi : msg.getMessageParts()) {
+            if (!mpi.isElement()) {
+                String methodName = msg.getOperation().getName().getLocalPart();
+                String paramName = mpi.getTypeQName().getLocalPart();
+                Class paramCls = getParamClass(cls, methodName, paramName);
+                if (paramCls != null) {
+                    boiMap.put(mpi.getTypeQName(), paramCls);
+                }
+            }
+        }
+    }
+    
+    private static Class getParamClass(Class cls, String methodName, String paramName) {
+        Method methods[] = cls.getMethods();
+        for (Method meth : methods) {
+            if (meth.getName().equals(methodName)) {
+                for (Type t : meth.getGenericParameterTypes()) {
+                    if (t.getClass().getSimpleName().equals(paramName)) {
+                        return t.getClass();
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }

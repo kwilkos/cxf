@@ -45,14 +45,13 @@ import static org.easymock.classextension.EasyMock.createNiceControl;
 public class JaxWsServiceFactoryBeanTest extends TestCase {
     public void testEndpoint() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
-        bean.setServiceClass(GreeterImpl.class);
 
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         bean.setWsdlURL(resource);
-
         Bus bus = createBus();
         bean.setBus(bus);
+        bean.setServiceClass(GreeterImpl.class);
 
         SimpleMethodInvoker invoker = new SimpleMethodInvoker(new GreeterImpl());
         bean.setInvoker(invoker);
@@ -72,6 +71,7 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
         assertEquals("sayHi", m.getName());
         
         assertEquals(invoker, service.getInvoker());
+        
     }
 
     Bus createBus() throws Exception {

@@ -104,17 +104,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
-        super.setServiceClass(serviceClass);
-
-        try {
-            dataBinding = new JAXBDataBinding(serviceClass);
-        } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        setDataReaderFactory(dataBinding.getDataReaderFactory());
-        setDataWriterFactory(dataBinding.getDataWriterFactory());
-
         // update wsdl location
         // TODO: replace version in EndpointreferenceUtils?
         String wsdlLocation = null;
@@ -156,6 +145,21 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             }
             setWsdlURL(url);
         }
+
+        super.setServiceClass(serviceClass);
+
+        initializeServiceConfigurations();
+        
+        initializeServiceModel();
+        
+        try {
+            dataBinding = new JAXBDataBinding(serviceClass, getService());
+        } catch (JAXBException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        setDataReaderFactory(dataBinding.getDataReaderFactory());
+        setDataWriterFactory(dataBinding.getDataWriterFactory());
     }
 
     protected QName getServiceQName() {

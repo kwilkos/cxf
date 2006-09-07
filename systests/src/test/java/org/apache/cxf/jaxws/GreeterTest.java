@@ -64,14 +64,11 @@ public class GreeterTest extends AbstractCXFTest {
 
     public void testEndpoint() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
-        bean.setServiceClass(GreeterImpl.class);
-
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
-        assertNotNull(resource);
+        assertNotNull(resource);        
         bean.setWsdlURL(resource);
-
         bean.setBus(bus);
-        
+        bean.setServiceClass(GreeterImpl.class);
         GreeterImpl greeter = new GreeterImpl();
         SimpleMethodInvoker invoker = new SimpleMethodInvoker(greeter);
         bean.setInvoker(invoker);

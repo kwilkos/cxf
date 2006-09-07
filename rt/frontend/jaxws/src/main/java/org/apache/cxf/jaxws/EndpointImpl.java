@@ -67,8 +67,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         implInfo = new JaxwsImplementorInfo(implementor.getClass());
         // build up the Service model
         JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-        serviceFactory.setServiceClass(implementor.getClass());
         serviceFactory.setBus(bus);
+        serviceFactory.setServiceClass(implementor.getClass());
         service = serviceFactory.create();
 
         // create the endpoint        

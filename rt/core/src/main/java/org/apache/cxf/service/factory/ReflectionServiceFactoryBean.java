@@ -46,11 +46,13 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
+
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
 
+    protected URL wsdlURL;
+
     private Class<?> serviceClass;
-    private URL wsdlURL;
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
     private QName serviceName;
@@ -93,7 +95,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void initializeServiceModel() {
         URL url = getWsdlURL();
-
+        if (getService() != null) {
+            return;
+        }
         if (url != null) {
             LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
             WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());

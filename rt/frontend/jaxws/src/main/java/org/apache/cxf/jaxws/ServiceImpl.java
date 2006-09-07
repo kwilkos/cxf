@@ -81,7 +81,7 @@ public class ServiceImpl extends ServiceDelegate {
         handlerResolver = new HandlerResolverImpl(bus, name);
 
         try {
-            JAXBDataBinding dataBinding = new JAXBDataBinding(cls);
+            JAXBDataBinding dataBinding = new JAXBDataBinding(cls, service);
             service.setDataReaderFactory(dataBinding.getDataReaderFactory());
             service.setDataWriterFactory(dataBinding.getDataWriterFactory());
         } catch (JAXBException e) {
