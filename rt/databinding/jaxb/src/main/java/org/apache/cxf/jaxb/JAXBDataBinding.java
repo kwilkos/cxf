@@ -42,6 +42,7 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.databinding.DataBindingContext;
 import org.apache.cxf.databinding.DataReaderFactory;
 import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.helpers.CastUtils;
@@ -60,38 +61,53 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 public final class JAXBDataBinding implements DataBinding {
 
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
+
     private static final Logger LOG = Logger.getLogger(JAXBDataBinding.class.getName());
+
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBDataBinding.class);
 
     JAXBDataReaderFactory reader;
+
     JAXBDataWriterFactory writer;
+
     JAXBContext context;
+
     Service service;
+
     Class clazz;
+
     // this will be used to call unmarshall to provide the QName and Class
-    Map<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>> typeClassMap;
-    
+    JAXBDataBindingContext jaxbDataBindingContext;
+
     public JAXBDataBinding() throws JAXBException {
         reader = new JAXBDataReaderFactory();
         writer = new JAXBDataWriterFactory();
     }
+
     public JAXBDataBinding(Class<?> cls, Service pService) throws JAXBException {
         this();
         clazz = cls;
         service = pService;
-        typeClassMap = new HashMap<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>>();
         context = JAXBEncoderDecoder.createJAXBContextForClass(cls);
         reader.setJAXBContext(context);
         writer.setJAXBContext(context);
-        buildTypeClassMapping();
+
+        Map<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>> typeClassMap;
+        typeClassMap = new HashMap<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>>();        
+        buildTypeClassMapping(typeClassMap);
+        jaxbDataBindingContext = new JAXBDataBindingContext(typeClassMap);
     }
-    
+
+    public DataBindingContext getDataBindingContext() {
+        return jaxbDataBindingContext;
+    }
+
     public void setContext(JAXBContext ctx) {
         context = ctx;
         reader.setJAXBContext(context);
-        writer.setJAXBContext(context);        
+        writer.setJAXBContext(context);
     }
-    
+
     public DataReaderFactory getDataReaderFactory() {
         return reader;
     }
@@ -101,11 +117,10 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo) {
-        Collection<String> schemaResources = 
-            CastUtils.cast(serviceInfo.getProperty(SCHEMA_RESOURCE, List.class), String.class);
-                                                             
-        
-        return loadSchemas(schemaResources); 
+        Collection<String> schemaResources = CastUtils.cast(serviceInfo.getProperty(SCHEMA_RESOURCE,
+                        List.class), String.class);
+
+        return loadSchemas(schemaResources);
     }
 
     private Map<String, SchemaInfo> loadSchemas(Collection<String> schemaResources) {
@@ -121,10 +136,10 @@ public final class JAXBDataBinding implements DataBinding {
                 throw new UncheckedException(new Message("SCHEMA_NOT_RESOLVED", BUNDLE, schema));
             }
             if (resolver.isFile()) {
-                //load schemas from file system
+                // load schemas from file system
                 loadSchemaFromFile(schema, schemas);
             } else {
-                //load schemas from classpath
+                // load schemas from classpath
                 loadSchemaFromClassPath(schema, schemas);
             }
         }
@@ -140,12 +155,12 @@ public final class JAXBDataBinding implements DataBinding {
             XmlSchemaCollection schemaCol = new XmlSchemaCollection();
             URIResolver resolver = new URIResolver(schema);
             schemaCol.setBaseUri(resolver.getFile().getParent());
-                        
+
             Document schemaDoc = DOMUtils.readXml(resolver.getInputStream());
 
             XmlSchema xmlSchema = schemaCol.read(schemaDoc.getDocumentElement());
             SchemaInfo schemaInfo = new SchemaInfo(null, xmlSchema.getTargetNamespace());
-       
+
             schemaInfo.setElement(schemaDoc.getDocumentElement());
             schemas.put(schemaInfo.getNamespaceURI(), schemaInfo);
         } catch (IOException e) {
@@ -160,7 +175,8 @@ public final class JAXBDataBinding implements DataBinding {
         }
     }
 
-    private void buildTypeClassMapping() {
+    private void buildTypeClassMapping(
+                    Map<BindingInfo, Map<BindingOperationInfo, Map<QName, Class>>> typeClassMap) {
         for (BindingInfo bi : service.getServiceInfo().getBindings()) {
             Map<BindingOperationInfo, Map<QName, Class>> biMap = 
                 new HashMap<BindingOperationInfo, Map<QName, Class>>();
@@ -189,7 +205,7 @@ public final class JAXBDataBinding implements DataBinding {
             }
         }
     }
-    
+
     private static Class getParamClass(Class cls, String methodName, String paramName) {
         Method methods[] = cls.getMethods();
         for (Method meth : methods) {
