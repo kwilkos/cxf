@@ -148,13 +148,13 @@
   </section>
 
   <section>
-    <title>Admonisions in Tables</title>
+    <title>Admonitions in Tables</title>
 
-    <para>Admonision elements should not be placed inside tables. Instead use
+    <para>Admonition elements should not be placed inside tables. Instead use
     the mark up shown in <xref linkend="admonTable" />.</para>
 
     <example id="admonTable">
-      <title>Mark-up For Admonisions in Tables</title>
+      <title>Mark-up For Admonitions in Tables</title>
 
       <programlisting>&lt;para&gt;&lt;emphasis role=strong&gt;Note: &lt;/emphasis&gt;Text of note.&lt;/para&gt;</programlisting>
     </example>

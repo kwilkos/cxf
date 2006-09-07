@@ -58,7 +58,7 @@
 
       <para>Block are the smallest structural unit of organization in a
       CeltiXfire document. They divide up the information in a section into
-      managebale chunks of information. There should be no more than five
+      managabale chunks of information. There should be no more than five
       block-sections in a section.</para>
 
       <para>Block-sections are denoted using <sgmltag

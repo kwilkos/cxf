@@ -1,18 +1,18 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<chapter>
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="programming">
   <title>Working with Code</title>
 
   <section>
     <title>Overview</title>
 
-    <para>There are several instances when you will need to code in the
-    CeltiXfire(CXF) documentation. You may need to use a class name, interface
-    name, or element name as part of a sentence. You will also need to provide
-    long code samples in many places. Docbook has a number of elements that
-    are used for placing code in your documentation.</para>
+    <para>There are several instances when you will need to show code in the
+    CeltiXfire (CXF) documentation. You may need to use a class name,
+    interface name, or element name as part of a sentence. You will also need
+    to provide long code samples in many places. DocBook has a number of
+    elements that are used for placing code in your documentation.</para>
 
     <note>
-      <para>XML mark-up, such as WSDL and XMLSchema, are also considered code
+      <para>XML mark-up, such as WSDL and XML Schema, are also considered code
       for the purposes of CXF documentation.</para>
     </note>
   </section>
@@ -30,8 +30,7 @@
       element's <sgmltag class="attribute">id</sgmltag> attribute.</para>
 
       <para>As shown in <xref linkend="example_example" />, the first child of
-      the <sgmltag class="element">example</sgmltag> element is a <sgmltag
-      class="element">title</sgmltag> element. The contents of the title
+      the example element is a title element. The contents of the title
       element will be used as the caption of the example. It will also be used
       as the text for any cross references.</para>
 
@@ -42,10 +41,10 @@
         attribute.</para>
       </note>
 
-      <para>The last child of the <sgmltag class="element">example</sgmltag>
-      element is the <sgmltag class="element">programlisting</sgmltag>
-      element. The <sgmltag class="element">programlisting</sgmltag> element
-      contains the code sample itself. Any text placed inside the <sgmltag
+      <para>The last child of the example element is the <sgmltag
+      class="element">programlisting</sgmltag> element. The <sgmltag
+      class="element">programlisting</sgmltag> element contains the code
+      sample itself. Any text placed inside the <sgmltag
       class="element">programlisting</sgmltag> element is treated literally.
       Therefore, any spacing that you use will be exactly reproduced when the
       document is produced.</para>
@@ -53,19 +52,16 @@
       <warning>
         <para>When using XML inside a <sgmltag
         class="element">programlisting</sgmltag> element you must not use the
-        <literal>&lt;</literal> or <literal>&gt;</literal>characters. Instead
+        <literal>&lt;</literal> or <literal>&gt;</literal> characters. Instead
         use <wordasword>&amp;lt;</wordasword> and
         <wordasword>&amp;gt;</wordasword>.</para>
       </warning>
 
-      <simplesect>
-        <title>Example</title>
+      <example id="example_example">
+        <title>Example Mark-Up</title>
 
-        <example id="example_example">
-          <title>Example Mark-Up</title>
-
-          <programlisting>&lt;example id="example_example"&gt;
-  &lt;title&gt;Example Mark-Up&lt;/title&gt;
+        <programlisting>&lt;example id="example_example"&gt;
+&lt;title&gt;Example Mark-Up&lt;/title&gt;
   &lt;programlisting&gt;public class ServiceName extends javax.xml.ws.Service
 {
   ...
@@ -78,8 +74,15 @@
   .
   .
 }</programlisting>
-        </example>
-      </simplesect>
+      </example>
+
+      <section>
+        <title>Using Callouts</title>
+
+        <para>I need to figure out how to write the mark-up for using
+        callouts. It is complicated and I haven't had time to really try
+        it.</para>
+      </section>
     </section>
 
     <section>
@@ -108,8 +111,7 @@
       class="element">programlisting</sgmltag> element. However, if you feel
       that a code block needs to be wrapped in an <sgmltag
       class="element">informalexample</sgmltag> element, that is fine.</para>
-<simplesect>
-<title>Example</title>
+
       <para><xref linkend="block_example" /> shows the mark-up for a
       standalone block of code.</para>
 
@@ -123,7 +125,6 @@
     'targetNamespace': http://objectweb.org/hello_world_soap_http',
 };&lt;/programlisting&gt;</programlisting>
       </example>
-	  </simplesect>
     </section>
   </section>
 
@@ -132,7 +133,7 @@
 
     <para>There are many instances where you need to place a code artifact in
     a block of text such as when you are referring to a Java class or an XML
-    element. Docbook has a number of specialized elements for placing code
+    element. DocBook has a number of specialized elements for placing code
     artifacts in-line. The ones used in CXF include:</para>
 
     <itemizedlist>
@@ -194,7 +195,7 @@
             </row>
 
             <row>
-              <entry><sgmltag class="attvalue">attrvalue</sgmltag></entry>
+              <entry><sgmltag class="attvalue">attvalue</sgmltag></entry>
 
               <entry>Specifies that the artifact is the value of an XML
               element's attribute.</entry>
@@ -211,10 +212,24 @@
       </table>
     </section>
 
+    <section>
+      <title>Web Addresses, URIs, and E-Mail Addresses</title>
+
+      <para>DocBook 4.2 does not provide a specific element for Web addresses
+      or URIs. To mark up Web addresses and other URIs you use the <sgmltag
+      class="element">literal</sgmltag> element and set its <sgmltag
+      class="attribute">role</sgmltag> attribute to <sgmltag
+      class="attvalue">uri</sgmltag>.</para>
+
+      <para>There is, however, an element for specifying an E-Mail address. To
+      specify an E-Mail address use the <sgmltag
+      class="element">email</sgmltag> element.</para>
+    </section>
+
     <section id="gen_prog_arts">
       <title>General Programming Language Artifacts</title>
 
-      <para>Docbook defines a number of in-line tags for specifying
+      <para>DocBook defines a number of in-line tags for specifying
       programming artifacts. The CXF documentation makes use of the tags
       listed in <xref linkend="progarti" />.</para>
 
@@ -285,7 +300,7 @@
       <title>Object Oriented Programming Language Artifacts</title>
 
       <para>In addition to the elements listed in <xref
-      linkend="gen_prog_arts" />, Docbook defines three elements that are used
+      linkend="gen_prog_arts" />, DocBook defines three elements that are used
       specifically for object-oriented programming artifacts. They are listed
       in <xref linkend="oo_arts" />.</para>
 
