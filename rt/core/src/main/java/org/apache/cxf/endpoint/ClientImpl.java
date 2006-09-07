@@ -133,7 +133,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
         if (message.getContent(Exception.class) != null) {
             //exception trying to send the message
-            throw new RuntimeException(message.get(Exception.class));
+            throw new RuntimeException(message.getContent(Exception.class));
         }
         
         // correlate response        

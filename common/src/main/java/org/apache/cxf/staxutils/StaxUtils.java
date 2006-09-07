@@ -321,7 +321,26 @@ public final class StaxUtils {
      * @param writer
      * @throws XMLStreamException
      */
-    public static void writeElement(Element e, XMLStreamWriter writer, boolean repairing)
+    public static void writeElement(Element e, XMLStreamWriter writer, boolean repairing) 
+        throws XMLStreamException {
+        writeElement(e, writer, repairing, true);
+    }
+
+    /**
+     * Writes an Element to an XMLStreamWriter. The writer must already have
+     * started the doucment (via writeStartDocument()). Also, this probably
+     * won't work with just a fragment of a document. The Element should be the
+     * root element of the document.
+     * 
+     * @param e
+     * @param writer
+     * @param endElement true iff the element should be ended
+     * @throws XMLStreamException
+     */
+    public static void writeElement(Element e,
+                                    XMLStreamWriter writer,
+                                    boolean repairing,
+                                    boolean endElement)
         throws XMLStreamException {
         String prefix = e.getPrefix();
         String ns = e.getNamespaceURI();
@@ -386,7 +405,9 @@ public final class StaxUtils {
             writeNode(n, writer, repairing);
         }
 
-        writer.writeEndElement();
+        if (endElement) {
+            writer.writeEndElement();
+        }
     }
 
     public static void writeNode(Node n, XMLStreamWriter writer, boolean repairing) 

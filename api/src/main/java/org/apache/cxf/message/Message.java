@@ -40,6 +40,11 @@ public interface Message extends Map<String, Object> {
     String INVOCATION_OBJECTS = "org.apache.cxf.invocation.objects";
     String METHOD = "org.apache.cxf.method";
     
+    String MIME_HEADERS = "org.apache.cxf.mime.headers";
+
+    String CORRELATION_OUT = "org.apache.cxf.correlation.out";
+    String CORRELATION_IN = "org.apache.cxf.correlation.in";
+    
     String getId();
     
     InterceptorChain getInterceptorChain();

@@ -122,6 +122,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new StaxInInterceptor());
 
         sb.getOutInterceptors().add(new StaxOutInterceptor());
+        sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
         sb.getOutInterceptors().add(new SoapOutInterceptor());
 
         sb.getOutFaultInterceptors().add(new AttachmentOutInterceptor());
