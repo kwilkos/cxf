@@ -60,11 +60,11 @@ under the License.
     </wsdl:message>
     
     <wsdl:message name="sendReceiveDataRequest">
-	<wsdl:part element="x1:myComplexStruct" name="in"/>
+	<wsdl:part type="x1:myComplexStructType" name="in"/>
     </wsdl:message>
     
     <wsdl:message name="sendReceiveDataResponse">
-	<wsdl:part element="x1:myComplexStruct" name="out"/>
+	<wsdl:part type="x1:myComplexStructType" name="out"/>
     </wsdl:message>
 
     <wsdl:message name="multiParamPartRequest">
