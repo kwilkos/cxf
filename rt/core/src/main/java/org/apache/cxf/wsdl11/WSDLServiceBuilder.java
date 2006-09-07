@@ -292,23 +292,24 @@ public class WSDLServiceBuilder {
         OperationInfo opInfo = inf.addOperation(new QName(inf.getName().getNamespaceURI(), op.getName()));
         opInfo.setProperty(WSDL_OPERATION, op);
         Input input = op.getInput();
+        List paramOrder = op.getParameterOrdering();
         if (input != null) {
             MessageInfo minfo = opInfo.createMessage(input.getMessage().getQName());
             opInfo.setInput(input.getName(), minfo);
-            buildMessage(minfo, input.getMessage());
+            buildMessage(minfo, input.getMessage(), paramOrder);
         }
         Output output = op.getOutput();
         if (output != null) {
             MessageInfo minfo = opInfo.createMessage(output.getMessage().getQName());
             opInfo.setOutput(output.getName(), minfo);
-            buildMessage(minfo, output.getMessage());
+            buildMessage(minfo, output.getMessage(), paramOrder);
         }
         Map<?, ?> m = op.getFaults();
         for (Map.Entry<?, ?> rawentry : m.entrySet()) {
             Map.Entry<String, Fault> entry = cast(rawentry, String.class, Fault.class);
             FaultInfo finfo = opInfo.addFault(new QName(inf.getName().getNamespaceURI(), entry.getKey()),
                                               entry.getValue().getMessage().getQName());
-            buildMessage(finfo, entry.getValue().getMessage());
+            buildMessage(finfo, entry.getValue().getMessage(), paramOrder);
         }
         checkForWrapped(opInfo);
     }
@@ -429,8 +430,8 @@ public class WSDLServiceBuilder {
         return false;
     }
 
-    private void buildMessage(AbstractMessageContainer minfo, Message msg) {
-        for (Part part : cast(msg.getOrderedParts(null), Part.class)) {
+    private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
+        for (Part part : cast(msg.getOrderedParts(paramOrder), Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(part.getName());
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
