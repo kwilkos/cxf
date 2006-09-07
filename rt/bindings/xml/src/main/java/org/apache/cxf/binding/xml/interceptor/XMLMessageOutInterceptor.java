@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.cxf.binding.xml.interceptor;
 
 import java.util.ResourceBundle;
@@ -31,45 +32,55 @@ import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 
-public class XMLMessageOutInterceptor
-                extends AbstractOutDatabindingInterceptor {
+public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
 
     public void handleMessage(Message message) throws Fault {
-
-        MessageInfo mi;
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        MessageInfo mi;
+        BindingMessageInfo bmi;
         if (isRequestor(message)) {
             mi = boi.getOperationInfo().getInput();
+            bmi = boi.getInput();
         } else {
             mi = boi.getOperationInfo().getOutput();
+            bmi = boi.getOutput();
         }
-        if (boi.isUnwrapped()) {
-            if (mi.getMessageParts().size() != 1) {
-                QName rootInModel = ((XMLBindingMessageFormat) mi.getExtensor(XMLBindingMessageFormat.class))
-                                .getRootNode();
-                if (rootInModel == null) {
-                    throw new RuntimeException("Bare style must define the rootNode in this case!");
-                }
-                writeMessage(message, rootInModel);
-            } else {
-                new BareOutInterceptor().handleMessage(message);
-            }
+        XMLBindingMessageFormat xmf = bmi.getExtensor(XMLBindingMessageFormat.class);
+        QName rootInModel = null;
+        if (xmf != null) {
+            rootInModel = xmf.getRootNode();
+        }
+        if (mi.getMessageParts().size() == 1) {
+            // bare-one-param & wrap
+            new BareOutInterceptor().handleMessage(message);
         } else {
-            QName name = mi.getName();
-            writeMessage(message, name);
+            if (rootInModel == null) {
+                rootInModel = boi.getName();
+            }
+            if (mi.getMessageParts().size() == 0) {
+                // write empty operation qname
+                writeMessage(message, rootInModel, false);
+            } else {
+                // multi param, bare mode, needs write root node
+                writeMessage(message, rootInModel, true);
+            }
         }
     }
 
-    private void writeMessage(Message message, QName name) {
+    private void writeMessage(Message message, QName name, boolean executeBare) {
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
         try {
-            xmlWriter.writeStartElement(name.getLocalPart(), name.getNamespaceURI());
-            new BareOutInterceptor().handleMessage(message);
+            StaxUtils.writeStartElement(xmlWriter, "xmlroot", name.getLocalPart(), name.getNamespaceURI());
+            if (executeBare) {
+                new BareOutInterceptor().handleMessage(message);
+            }
             xmlWriter.writeEndElement();
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE, e));

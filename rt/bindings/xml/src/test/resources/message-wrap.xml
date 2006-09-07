@@ -1,1 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<ns2:greetMe xmlns="http://www.w3.org/2005/08/addressing/wsdl"
+	xmlns:ns2="http://apache.org/hello_world_xml_http/wrapped/types">
+	<ns2:requestType>tli</ns2:requestType>
+</ns2:greetMe>
+
