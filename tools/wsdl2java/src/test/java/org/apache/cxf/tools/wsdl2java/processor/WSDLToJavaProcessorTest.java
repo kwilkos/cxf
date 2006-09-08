@@ -1017,6 +1017,18 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         }
 
     }
+    public void testWSDLContainsJavaKeywords() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL, 
+                    getLocation("/wsdl2java_wsdl/hello_world_with_keywords_operation.wsdl"));
+            processor.setEnvironment(env);
+            processor.process();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

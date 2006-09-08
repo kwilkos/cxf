@@ -47,6 +47,8 @@ import org.apache.cxf.tools.common.ToolException;
 
 public final class ProcessorUtil {
     //private static final Logger LOG = LogUtils.getL7dLogger(ProcessorUtil.class);
+    private static final String KEYWORDS_PREFIX = "_";
+    
     private ProcessorUtil() {
     }
 
@@ -151,7 +153,12 @@ public final class ProcessorUtil {
     }
 
     public static String mangleNameToVariableName(String vName) {
-        return JAXBRIContext.mangleNameToVariableName(vName);
+        String result  = JAXBRIContext.mangleNameToVariableName(vName);
+        if (KeyWords.isKeywords(result)) {
+            return KEYWORDS_PREFIX + result;
+        } else {
+            return result;
+        }
     }
 
     public static String parsePackageName(String namespace, String defaultPackageName) {
@@ -231,9 +238,15 @@ public final class ProcessorUtil {
         // if not found , findd the primitive type : int ,long 
         // if not found,  find in the generated class
        
-        if (boxify) {
+        if (boxify && dataBindingGenerator != null) {
             jtype = dataBindingGenerator.getJavaType(xmlTypeName, true);
-        } else {
+        } 
+        
+        if (boxify && dataBindingGenerator == null) {
+            jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName.getNamespaceURI(),
+                                                         xmlTypeName.getLocalPart());
+        }
+        if (!boxify && dataBindingGenerator != null) {
             jtype = dataBindingGenerator.getJavaType(xmlTypeName, true);
         }
         String namespace = xmlTypeName.getNamespaceURI();
