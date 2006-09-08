@@ -58,7 +58,7 @@
         <xs:attribute name="decimalAttr" type="xs:decimal" default="115"/>
         <xs:attribute name="floatAttr" type="xs:float" default="116"/>
         <xs:attribute name="doubleAttr" type="xs:double" default="117"/>
-        <xs:attribute name="byteAttr" type="xs:byte" default="108"/>
+        <xs:attribute name="byteAttr" type="xs:byte" default="118"/>
         <xs:attribute name="qnameAttr" type="xs:QName" default="xs:schema"/>
         <xs:attribute name="base64BinaryAttr" type="xs:base64Binary" default="wxyz"/>
         <xs:attribute name="hexBinaryAttr" type="xs:hexBinary" default="aaaa"/>

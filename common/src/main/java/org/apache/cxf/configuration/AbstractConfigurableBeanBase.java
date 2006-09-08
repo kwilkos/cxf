@@ -23,24 +23,32 @@ import java.util.List;
 
 public abstract class AbstractConfigurableBeanBase implements Configurable {
     
-    private List<ConfigurationProvider> providers;
+    private List<ConfigurationProvider> fallbackProviders;
+    private List<ConfigurationProvider> overwriteProviders;
     
     public String getBeanName() {
         return this.getClass().getName();
     }
 
-    public List<ConfigurationProvider> getProviders() {
-        return providers;
+    public List<ConfigurationProvider> getFallbackProviders() {
+        return fallbackProviders;
+    }
+    
+    public void setFallbackProviders(List<ConfigurationProvider> fallbackProviders) {
+        this.fallbackProviders = fallbackProviders;
     }
 
-    public void setProviders(List<ConfigurationProvider> providers) {
-        this.providers = providers;
+    public List<ConfigurationProvider> getOverwriteProviders() {
+        return overwriteProviders;
     }
-    
-    
-    protected <T> T tryProviders(Class<T> cls, String name) {
-        if (null != providers) {
-            for (ConfigurationProvider p : providers) {
+
+    public void setOverwriteProviders(List<ConfigurationProvider> overwriteProviders) {
+        this.overwriteProviders = overwriteProviders;
+    }
+
+    protected <T> T tryOverwrite(Class<T> cls, String name) {
+        if (null != overwriteProviders) {
+            for (ConfigurationProvider p : overwriteProviders) {
                 Object value = p.getObject(name);
                 if (null != value) {
                     return cls.cast(value);
@@ -48,6 +56,22 @@ public abstract class AbstractConfigurableBeanBase implements Configurable {
             }
         }
         return null;
+    }
+    
+    protected <T> T tryFallback(Class<T> cls, String name) {
+        if (null != fallbackProviders) {
+            for (ConfigurationProvider p : fallbackProviders) {
+                Object value = p.getObject(name);
+                if (null != value) {
+                    return cls.cast(value);
+                }
+            }
+        }
+        return null;
+    }
+    
+    protected void notifyPropertyChange(String propertyName) {
+        // do nothing here for now.
     }
     
     

@@ -46,6 +46,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>jaxme</groupId>
+            <artifactId>jaxme2</artifactId>
+            <version>0.5.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
