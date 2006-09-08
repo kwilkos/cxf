@@ -42,28 +42,15 @@ public class Soap11FaultInInterceptor extends AbstractSoapInterceptor {
         XMLStreamReader reader = message.getContent(XMLStreamReader.class);
 
         try {
-            boolean end = false;
-            while (!end && reader.hasNext()) {
-                int event = reader.next();
-                switch (event) {
-                case XMLStreamReader.END_DOCUMENT:
-                    end = true;
-                    break;
-                case XMLStreamReader.END_ELEMENT:
-                    break;
-                case XMLStreamReader.START_ELEMENT:
-                    if (reader.getLocalName().equals("faultcode")) {
-                        faultCode = StaxUtils.readQName(reader);
-                    } else if (reader.getLocalName().equals("faultstring")) {
-                        exMessage = reader.getElementText();
-                    } else if (reader.getLocalName().equals("faultactor")) {
-                        role = reader.getElementText();
-                    } else if (reader.getLocalName().equals("detail")) {
-                        detail = StaxUtils.read(new FragmentStreamReader(reader)).getDocumentElement();
-                    }
-                    break;
-                default:
-                    break;
+            while (reader.nextTag() == XMLStreamReader.START_ELEMENT) {
+                if (reader.getLocalName().equals("faultcode")) {
+                    faultCode = StaxUtils.readQName(reader);
+                } else if (reader.getLocalName().equals("faultstring")) {
+                    exMessage = reader.getElementText();
+                } else if (reader.getLocalName().equals("faultactor")) {
+                    role = reader.getElementText();
+                } else if (reader.getLocalName().equals("detail")) {
+                    detail = StaxUtils.read(new FragmentStreamReader(reader)).getDocumentElement();
                 }
             }
         } catch (XMLStreamException e) {

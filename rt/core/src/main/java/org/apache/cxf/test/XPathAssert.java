@@ -44,7 +44,7 @@ import org.apache.cxf.helpers.DOMUtils;
 public final class XPathAssert {
     private XPathAssert() {
     }
-    
+
     /**
      * Assert that the following XPath query selects one or more nodes.
      * 
@@ -59,10 +59,7 @@ public final class XPathAssert {
         NodeList nodes = (NodeList)createXPath(namespaces).evaluate(xpath, node, XPathConstants.NODESET);
 
         if (nodes.getLength() == 0) {
-            String value = writeNodeToString(node);
-
-            throw new AssertionFailedError("Failed to select any nodes for expression:.\n" + xpath + "\n"
-                                           + value);
+            throw new AssertionFailedError("Failed to select any nodes for expression:\n" + xpath);
         }
 
         return nodes;

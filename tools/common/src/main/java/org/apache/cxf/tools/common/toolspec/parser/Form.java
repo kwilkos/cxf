@@ -69,18 +69,18 @@ public class Form implements TokenConsumer {
      * options, optionGroups and argument specified in the usage definition.
      */
     public boolean accept(TokenInputStream args, Element result, ErrorVisitor errors) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Accepting token stream for form of usage: " + this + ", tokens are " + args);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Accepting token stream for form of usage: " + this + ", tokens are " + args);
         }
         int oldpos = args.getPosition();
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Position is: " + oldpos);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Position is: " + oldpos);
         }
         boolean hasInfo = hasInfoOption(args);
         args.setPosition(oldpos);
         while (args.available() > 0) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Args is available");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Args is available");
             }
             boolean accepted = false;
             for (int i = 0; i < optionGroups.size(); i++) {
@@ -141,16 +141,16 @@ public class Form implements TokenConsumer {
             } else {
                 errors.add(new ErrorVisitor.UnexpectedArgument(next));
             }
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info(this + " form is returning false as there are more args available"
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine(this + " form is returning false as there are more args available"
                          + " that haven't been consumed");
             }
             args.setPosition(oldpos);
             return false;
         }
         // If we have got here than we have fully consumed all the arguments.
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Form " + this + " is returning true");
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Form " + this + " is returning true");
         }
         return true;
     }

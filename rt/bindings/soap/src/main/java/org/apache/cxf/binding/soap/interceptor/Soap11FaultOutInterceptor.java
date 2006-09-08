@@ -41,7 +41,7 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
 
     public void handleMessage(SoapMessage message) throws Fault {
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
-        SoapFault fault = (SoapFault) message.getContent(Exception.class);
+        SoapFault fault = (SoapFault)message.getContent(Exception.class);
 
         try {
             Map<String, String> namespaces = fault.getNamespaces();
@@ -49,9 +49,10 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
                 writer.writeNamespace(e.getKey(), e.getValue());
             }
 
-            String prefix = message.getVersion().getPrefix();
-            
-            writer.writeStartElement(prefix, "Fault");
+            String ns = message.getVersion().getNamespace();
+            String prefix = StaxUtils.getUniquePrefix(writer, ns, true);
+
+            writer.writeStartElement(prefix, "Fault", ns);
 
             writer.writeStartElement("faultcode");
 
@@ -68,10 +69,10 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
             } else if (faultCode.equals(SoapFault.DATA_ENCODING_UNKNOWN)) {
                 codeString = prefix + ":Client";
             } else {
-                String ns = faultCode.getNamespaceURI();
-                String codePrefix = "";
-                if (ns.length() > 0) {
-                    codePrefix = StaxUtils.getUniquePrefix(writer, ns, true) + ":";
+                String codeNs = faultCode.getNamespaceURI();
+                String codePrefix = faultCode.getPrefix();
+                if (codeNs.length() > 0) {
+                    codePrefix = StaxUtils.getUniquePrefix(writer, codeNs, true) + ":";
                 }
 
                 codeString = codePrefix + faultCode.getLocalPart();
