@@ -94,7 +94,7 @@
             <post>cxf-notifications@incubator.apache.org</post>
             <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-notifications</archive>
         </mailingList>
-            </mailingLists>
+    </mailingLists>
     <ciManagement>
         <system>CruiseControl</system>
         <url>http://pdceltix.boston.amer.iona.com:8080/cruisecontrol</url>
@@ -172,7 +172,7 @@
         <module>api</module>
         <module>rt</module>
         <module>systests</module>
-	<module>integration</module>
+        <module>integration</module>
     </modules>
 
     <build>
@@ -317,10 +317,6 @@
                                 <value>${basedir}/target/test-classes/logging.properties</value>
                             </property>
                             <property>
-                                <name>log4j.configuration</name>
-                                <value>file:///c:/log4j.properties</value>
-                            </property>
-                            <property>
                                 <name>activemq.store.dir</name>
                                 <value>${basedir}/target/ActiveMQ</value>
                             </property>
@@ -451,6 +447,29 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>javax.annotation</groupId>
                 <artifactId>jsr250-api</artifactId>
                 <version>${jsr250.version}</version>
@@ -507,6 +526,12 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>jaxme</groupId>
+                <artifactId>jaxme2</artifactId>
+                <version>0.5.1</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
