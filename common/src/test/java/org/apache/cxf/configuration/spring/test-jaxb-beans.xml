@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:foo="http://cxf.apache.org/configuration/foo"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+  
+    <bean id="complex" class="org.apache.cxf.configuration.spring.JaxbPropertyEditorTest$FooBean" lazy-init="true">
+        <property name="name">
+            <value>foam</value>
+        </property>
+        <property name="position">
+            <value>
+                <foo:point>
+                    <foo:x>12</foo:x>
+                    <foo:y>33</foo:y>
+                </foo:point>
+            </value>
+        </property>
+        <property name="address">
+            <value>
+                <foo:address>
+                    <foo:city>Dublin</foo:city>
+                    <foo:zip>4</foo:zip>
+                    <foo:street>Shelbourne Rd</foo:street>
+                </foo:address>
+            </value>
+        </property>
+    </bean>
+</beans>

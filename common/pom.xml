@@ -34,7 +34,28 @@
 
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
+        <!-- 
+            use the 2.0.1 version of jaxb.impl because that is the version used by the codegenerator 
+            (maven xjc plugin) as opposed to codegen-plugin
+        -->
+        <jaxb.impl.version.test>2.0.1</jaxb.impl.version.test>
+        <!--
+            see comment on build element below
+         -->
+        <checkstyle.excludes>**/build/**/*.java,**/foo/*.java</checkstyle.excludes>
+        <pmd.excludes>**/build/**/*.java,**/foo/*.java</pmd.excludes>
     </properties>
+
+    <!--
+    <pluginRepositories>
+        <pluginRepository>
+            <id>java.net</id>
+            <name>java.net Maven Repository</name>
+            <url>https://maven-repository.dev.java.net/nonav/repository/</url>
+            <layout>legacy</layout>
+        </pluginRepository>
+    </pluginRepositories>
+    -->
 
     <dependencies>
         <dependency>
@@ -55,7 +76,30 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.9</version>
         </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
@@ -69,6 +113,19 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb.impl.version.test}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <version>${jaxb.impl.version.test}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -92,5 +149,50 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>jaxme</groupId>
+            <artifactId>jaxme2</artifactId>
+            <version>0.5.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
+
+    <!-- 
+        asmyth: It seems we cannot code-generate here without extensions and subsequently
+        run the plugin with extensions in cxf-tools-xjc-dv-test, cxf-tools-xjc-cfg-test.
+        Looks like a bug in maven. 
+    -->
+    
+    <!--         
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.sun.tools.xjc.maven2</groupId>
+                <artifactId>maven-jaxb-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <generateDirectory>${basedir}/target/generated/src/test/java</generateDirectory>
+                            <schemaDirectory>${basedir}/src/test/resources/schemas/configuration</schemaDirectory>
+                            <includeSchema>*.xsd</includeSchema>
+                        </configuration>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-dv</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+    -->
+
 </project>

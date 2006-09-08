@@ -317,6 +317,10 @@
                                 <value>${basedir}/target/test-classes/logging.properties</value>
                             </property>
                             <property>
+                                <name>log4j.configuration</name>
+                                <value>file:///c:/log4j.properties</value>
+                            </property>
+                            <property>
                                 <name>activemq.store.dir</name>
                                 <value>${basedir}/target/ActiveMQ</value>
                             </property>

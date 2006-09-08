@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:foo="http://cxf.apache.org/configuration/foo"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 
+    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+        <property name="customEditors">
+            <map>
+                <entry key="org.apache.cxf.configuration.foo.Point">
+                    <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditor">
+                        <property name="packageName" value="org.apache.cxf.configuration.foo"/>
+                    </bean>
+                </entry>
+                <entry key="org.apache.cxf.configuration.foo.Address">
+                    <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditor">
+                        <property name="packageName" value="org.apache.cxf.configuration.foo"/>
+                    </bean>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+</beans>
