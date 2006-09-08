@@ -19,58 +19,71 @@
 
 package org.apache.cxf.jaxb.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
+import javax.activation.DataSource;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimePartDataSource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
+import org.w3c.dom.Document;
+
 import org.xml.sax.InputSource;
 
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.message.XMLMessage;
 
-public class SOAPMessageDataReader implements DataReader<SOAPMessage> {
+public class XMLMessageDataReader implements DataReader<XMLMessage> {
     final JAXBDataReaderFactory factory;
     
-    public SOAPMessageDataReader(JAXBDataReaderFactory cb) {
+    public XMLMessageDataReader(JAXBDataReaderFactory cb) {
         factory = cb;
     }
-
-    public Object read(SOAPMessage input) {
+    
+    public Object read(XMLMessage input) {
         // Complete
         return null;
     }
 
-    public Object read(QName name, SOAPMessage input) {
+    public Object read(QName name, XMLMessage input) {
         // Complete
         return null;
     }
 
-    public Object read(QName name, SOAPMessage input, Class type) {
-        SOAPMessage src = (SOAPMessage)input;
+    public Object read(QName name, XMLMessage input, Class type) {
         Object obj = null;
+        InputStream is = input.getContent(InputStream.class);
+        if (is == null) {
+            // TODO LOG ERROR here
+            return null;
+        }
         try {
-            if (DOMSource.class.isAssignableFrom(type)) {                
-                obj = new DOMSource(src.getSOAPPart());               
+            // Processing Souce type
+            if (DOMSource.class.isAssignableFrom(type)) {
+                Document doc = XMLUtils.parse(is);
+                obj = new DOMSource(doc);               
             } else if (SAXSource.class.isAssignableFrom(type)) {                
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                src.writeTo(baos);
-                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-                InputSource inputSource = new InputSource(bais);
-                obj = new SAXSource(inputSource);                
+                obj = new SAXSource(new InputSource(is));           
             } else if (StreamSource.class.isAssignableFrom(type) || Source.class.isAssignableFrom(type)) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                src.writeTo(baos);
-                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-                obj = new StreamSource(bais);
-            } else if (SOAPMessage.class.isAssignableFrom(type)) {
-                obj = src;
+                obj = new StreamSource(is);
             }
+            
+            // Processing DataSource type            
+            if (MimePartDataSource.class.isAssignableFrom(type)) {
+                // Support JavaMail MimePart DataSource type
+                obj = new MimePartDataSource(new MimeBodyPart(is));
+            } else if (ByteArrayDataSource.class.isAssignableFrom(type) 
+                || DataSource.class.isAssignableFrom(type)) {
+                // Support JavaMail ByteArrayDataSource
+                obj = new ByteArrayDataSource(is, null);
+            }            
         } catch (Exception ex) {
             ex.printStackTrace();
         }

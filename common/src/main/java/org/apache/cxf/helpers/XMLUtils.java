@@ -30,8 +30,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -46,50 +48,47 @@ import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.logging.LogUtils;
 
-
 public final class XMLUtils {
-    
+
     private static final Logger LOG = LogUtils.getL7dLogger(XMLUtils.class);
     private static DocumentBuilderFactory parserFactory;
     private static TransformerFactory transformerFactory;
     private static String omitXmlDecl = "no";
     private static String charset = "utf-8";
     private static int indent = -1;
-    
+
     static {
         parserFactory = DocumentBuilderFactory.newInstance();
         parserFactory.setNamespaceAware(true);
-        
+
         transformerFactory = TransformerFactory.newInstance();
     }
-    
+
     private XMLUtils() {
-        
+
     }
-    
-    public static  Transformer newTransformer() throws TransformerConfigurationException {
+
+    public static Transformer newTransformer() throws TransformerConfigurationException {
         return transformerFactory.newTransformer();
     }
 
     public static DocumentBuilder getParser() throws ParserConfigurationException {
         return parserFactory.newDocumentBuilder();
     }
-    
-    public static Document parse(InputStream in) 
-        throws ParserConfigurationException, SAXException, IOException {
+
+    public static Document parse(InputStream in) throws ParserConfigurationException, SAXException,
+        IOException {
         if (in == null && LOG.isLoggable(Level.FINE)) {
             LOG.fine("XMLUtils trying to parse a null inputstream");
         }
         return getParser().parse(in);
     }
 
-    public static Document parse(String in) 
-        throws ParserConfigurationException, SAXException, IOException {
+    public static Document parse(String in) throws ParserConfigurationException, SAXException, IOException {
         return parse(in.getBytes());
     }
 
-    public static Document parse(byte[] in) 
-        throws ParserConfigurationException, SAXException, IOException {
+    public static Document parse(byte[] in) throws ParserConfigurationException, SAXException, IOException {
         if (in == null && LOG.isLoggable(Level.FINE)) {
             LOG.fine("XMLUtils trying to parse a null bytes");
         }
@@ -101,9 +100,9 @@ public final class XMLUtils {
     }
 
     public static void setOmitXmlDecl(String value) {
-        omitXmlDecl = value;        
+        omitXmlDecl = value;
     }
-    
+
     public static void setCharsetEncoding(String value) {
         charset = value;
     }
@@ -115,16 +114,15 @@ public final class XMLUtils {
     private static boolean indent() {
         return indent != -1;
     }
-    
+
     public static void writeTo(Node node, OutputStream os) {
         try {
             Transformer it = newTransformer();
-            
+
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             if (indent()) {
                 it.setOutputProperty(OutputKeys.INDENT, "yes");
-                it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount",
-                                     Integer.toString(indent));
+                it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", Integer.toString(indent));
             }
             it.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, omitXmlDecl);
             it.setOutputProperty(OutputKeys.ENCODING, charset);
@@ -133,7 +131,25 @@ public final class XMLUtils {
             e.printStackTrace();
         }
     }
-    
+
+    public static String toString(Source source) throws TransformerException, IOException {
+        return toString(source, null);
+    }
+
+    public static String toString(Source source, Properties props) throws TransformerException, IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        StreamResult sr = new StreamResult(bos);
+        Transformer trans = newTransformer();
+        if (props == null) {
+            props = new Properties();
+            props.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        }
+        trans.setOutputProperties(props);
+        trans.transform(source, sr);
+        bos.close();
+        return bos.toString();
+    }
+
     public static String toString(Node node) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writeTo(node, out);
@@ -175,15 +191,15 @@ public final class XMLUtils {
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
             Node node = attributes.item(i);
-            System.err.println("## prefix=" + node.getPrefix() + " localname:"
-                               + node.getLocalName() + " value=" + node.getNodeValue());
+            System.err.println("## prefix=" + node.getPrefix() + " localname:" + node.getLocalName()
+                               + " value=" + node.getNodeValue());
         }
     }
 
     public static QName getNamespace(Map<String, String> namespaces, String str, String defaultNamespace) {
         String prefix = null;
         String localName = null;
-        
+
         StringTokenizer tokenizer = new StringTokenizer(str, ":");
         if (tokenizer.countTokens() == 2) {
             prefix = tokenizer.nextToken();
@@ -202,7 +218,7 @@ public final class XMLUtils {
     public static void generateXMLFile(Element element, Writer writer) {
         try {
             Transformer it = newTransformer();
-            
+
             it.setOutputProperty(OutputKeys.METHOD, "xml");
             it.setOutputProperty(OutputKeys.INDENT, "yes");
             it.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -220,7 +236,7 @@ public final class XMLUtils {
     public static Element createElementNS(Document root, QName name) {
         return createElementNS(root, name.getNamespaceURI(), name.getLocalPart());
     }
-    
+
     public static Element createElementNS(Document root, String namespaceURI, String qualifiedName) {
         return root.createElementNS(namespaceURI, qualifiedName);
     }
@@ -240,7 +256,7 @@ public final class XMLUtils {
             node.removeChild(entry);
         }
     }
-    
+
     public static String writeQName(Definition def, QName qname) {
         return def.getPrefix(qname.getNamespaceURI()) + ":" + qname.getLocalPart();
     }
@@ -250,7 +266,7 @@ public final class XMLUtils {
         DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
         if (impl == null) {
             System.setProperty(DOMImplementationRegistry.PROPERTY,
-                "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+                               "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
             registry = DOMImplementationRegistry.newInstance();
             impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
         }

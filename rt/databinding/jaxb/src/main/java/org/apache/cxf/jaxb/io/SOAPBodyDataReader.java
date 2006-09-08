@@ -66,7 +66,8 @@ public class SOAPBodyDataReader implements DataReader<SOAPBody> {
             } else if (SAXSource.class.isAssignableFrom(type)) {     
                 InputSource inputSource = new InputSource(XMLUtils.getInputStream(doc));
                 obj = new SAXSource(inputSource);
-            } else if (StreamSource.class.isAssignableFrom(type)) {     
+            } else if (StreamSource.class.isAssignableFrom(type) 
+                || Source.class.isAssignableFrom(type)) {     
                 obj = new StreamSource(XMLUtils.getInputStream(doc));
             } else if (Object.class.isAssignableFrom(type)) {
                 JAXBContext context = factory.getJAXBContext();

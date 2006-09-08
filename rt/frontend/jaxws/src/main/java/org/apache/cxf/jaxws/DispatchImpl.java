@@ -53,7 +53,7 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
 
 public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>, MessageObserver {
-    private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(DispatchImpl.class);
 
     private Bus bus;
 
@@ -109,7 +109,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
         message.setContent(Object.class, obj);
 
-        PhaseInterceptorChain chain = getDispatchChain();
+        PhaseInterceptorChain chain = getDispatchOutChain();
         message.setInterceptorChain(chain);
 
         // setup conduit
@@ -154,7 +154,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     }
 
 
-    private PhaseInterceptorChain getDispatchChain() {
+    private PhaseInterceptorChain getDispatchOutChain() {
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
 

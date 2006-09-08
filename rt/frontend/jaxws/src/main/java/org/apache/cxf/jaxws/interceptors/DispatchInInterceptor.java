@@ -34,6 +34,7 @@ import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.binding.xml.XMLMessage;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -68,8 +69,12 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                     DataReader<SOAPBody> dataReader = getDataReader(message, SOAPBody.class);
                     message.setContent(Object.class, dataReader.read(null, soapMessage.getSOAPBody(), type));
                 }
+            } else if (message instanceof XMLMessage) {
+                DataReader<XMLMessage> dataReader = getDataReader(message, XMLMessage.class);
+                message.setContent(Object.class, 
+                                   dataReader.read(null, 
+                                                   (XMLMessage)message, type));                
             }
-            // TODO XMLMessage
         } catch (Exception e) {
             e.printStackTrace();
         }

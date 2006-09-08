@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws.interceptors;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.activation.DataSource;
@@ -33,7 +34,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Service;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.xml.XMLMessage;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -60,24 +63,36 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     if (obj instanceof SOAPMessage) {
                         ((SOAPMessage)obj).writeTo(os);
                     } else if (obj instanceof Source) {
-                        doTransform((Source)obj, os);
+                        doTransform(obj, os);
                     } else if (obj instanceof DataSource) {
-                        throw new RuntimeException("DataSource is not valid in Message mode for SOAP/HTTP");
+                        throw new RuntimeException(obj.getClass() 
+                                                   + " is not valid in Message mode for SOAP/HTTP");
                     }
                 } else if (m == Service.Mode.PAYLOAD) {
                     SOAPMessage msg = initSOAPMessage();
                     DataWriter<SOAPBody> dataWriter = getDataWriter(message, SOAPBody.class);
                     if (obj instanceof Source || obj instanceof Object) {
                         dataWriter.write(obj, msg.getSOAPBody());
-                    } else if (obj instanceof SOAPMessage) {
-                        throw new RuntimeException("SOAPMessage is not valid in PAYLOAD mode for SOAP/HTTP");
-                    } else if (obj instanceof DataSource) {
-                        throw new RuntimeException("DataSource is not valid in PAYLOAD mode for SOAP/HTTP");
+                    } else if (obj instanceof SOAPMessage || obj instanceof DataSource) {
+                        throw new RuntimeException(obj.getClass() 
+                                                   + " is not valid in PAYLOAD mode with SOAP/HTTP");
                     }
                     msg.writeTo(os);
                 }
+            } else if (message instanceof XMLMessage) {
+                if (m == Service.Mode.MESSAGE) {
+                    if (obj instanceof SOAPMessage) {
+                        throw new RuntimeException("SOAPMessage is not valid in MESSAGE mode with XML/HTTP");
+                    }
+                } else if (m == Service.Mode.PAYLOAD) {
+                    if (obj instanceof SOAPMessage || obj instanceof DataSource) {
+                        throw new RuntimeException(obj.getClass() 
+                                                   + " is not valid in PAYLOAD mode with XML/HTTP");
+                    }
+                }
+                doTransform(obj, os);
             }
-            // TODO XMLMessage
+            // Finish the message processing, do flush
             os.flush();
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,9 +110,14 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
         return msg;
     }
 
-    private void doTransform(Source src, OutputStream os) throws TransformerException {
-        Transformer transformer = XMLUtils.newTransformer();
-        transformer.transform(src, new StreamResult(os));
+    private void doTransform(Object obj, OutputStream os) throws TransformerException, IOException {
+        if (obj instanceof Source) {
+            Transformer transformer = XMLUtils.newTransformer();
+            transformer.transform((Source)obj, new StreamResult(os));
+        }
+        if (obj instanceof DataSource) {
+            IOUtils.copy(((DataSource)obj).getInputStream(), os);
+        }
     }
 
 }
