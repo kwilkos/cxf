@@ -32,11 +32,11 @@ public class JMSConduitConfiguration extends JMSConfiguration {
     
     public JMSConduitConfiguration(Bus bus, EndpointInfo endpointInfo) { 
         super(bus, endpointInfo, false);       
-        jmsClientPolicy = getClientPolicy();
+        jmsClientPolicy = getJMSClientBehaviourPolicyType();
         jmsClientConfig = getClientConfig();
     }
      
-    private JMSClientBehaviorPolicyType getClientPolicy() {
+    private JMSClientBehaviorPolicyType getJMSClientBehaviourPolicyType() {
         JMSClientBehaviorPolicyType pol = 
             configuration.getObject(JMSClientBehaviorPolicyType.class, "jmsClient");
         if (pol == null) {
@@ -54,7 +54,7 @@ public class JMSConduitConfiguration extends JMSConfiguration {
         return clientConf;
     }
     
-    public JMSClientBehaviorPolicyType getJMSClientBehaviorPolicyType() {
+    public JMSClientBehaviorPolicyType getJMSClientBehaviorPolicy() {
         return jmsClientPolicy;
     }
     

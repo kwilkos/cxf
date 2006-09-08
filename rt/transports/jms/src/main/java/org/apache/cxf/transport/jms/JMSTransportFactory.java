@@ -79,9 +79,9 @@ public class JMSTransportFactory implements ConduitInitiator, DestinationFactory
         return new JMSConduit(bus, endpointInfo, target);
     }
 
-    public Destination getDestination(EndpointInfo ei) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+    public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
+        //TODO
+        return new JMSDestination(bus, this, endpointInfo);
     }
     
     public Bus getBus() {

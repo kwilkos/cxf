@@ -52,9 +52,9 @@ public class JMSConfiguration {
         return jmsSessionPoolConfig;
     }
     
-    private JMSAddressPolicyType getAddressPolicy() {
-        JMSAddressPolicyType pol = configuration.getObject(JMSAddressPolicyType.class, "jmsAddress");
-        if (pol == null) {
+    private JMSAddressPolicyType getAddressPolicy() {       
+        JMSAddressPolicyType pol = configuration.getObject(JMSAddressPolicyType.class, "jmsAddress");        
+        if (pol == null) {            
             pol = new JMSAddressPolicyType();
         }
         return pol;

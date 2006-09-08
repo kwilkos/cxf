@@ -49,7 +49,7 @@ public class ServiceModelJMSConfigurationProvider implements ConfigurationProvid
             return info.getExtensor(JMSClientBehaviorPolicyType.class);
         }
         
-        if ("jmsAddress".equals(name)) {
+        if ("jmsAddress".equals(name)) {            
             return info.getExtensor(JMSAddressPolicyType.class);
         }
 

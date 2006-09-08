@@ -25,13 +25,16 @@ import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
 import org.apache.cxf.transports.jms.jms_conf.JMSServerConfig;
 
 public class JMSDestinationConfiguration extends JMSConfiguration {
-    
+    private JMSServerBehaviorPolicyType jmsServerPolicy;
+    private JMSServerConfig jmsServerConfig;
     
     public JMSDestinationConfiguration(Bus bus, EndpointInfo endpointInfo) {
         super(bus, endpointInfo, true);
+        jmsServerPolicy = getJMSServerBehaviorPolicyType();
+        jmsServerConfig = getServerConfig();
     }
     
-    public JMSServerBehaviorPolicyType getJMSServerBehaviorPolicy() {
+    private JMSServerBehaviorPolicyType getJMSServerBehaviorPolicyType() {
         JMSServerBehaviorPolicyType pol = 
             configuration.getObject(JMSServerBehaviorPolicyType.class, 
                                     "jmsServer");
@@ -41,13 +44,21 @@ public class JMSDestinationConfiguration extends JMSConfiguration {
         return pol;
     }
           
-    public JMSServerConfig getServerConfig() {
+    private JMSServerConfig getServerConfig() {
         JMSServerConfig serverConf = 
             configuration.getObject(JMSServerConfig.class, "jmsServerConfig");
         if (serverConf == null) {
             serverConf = new JMSServerConfig();
         }
         return serverConf;
+    }
+    
+    public JMSServerBehaviorPolicyType getJMSServerBehaviorPolicy() {
+        return jmsServerPolicy;
+    }
+    
+    public JMSServerConfig getServerConfiguration() {
+        return jmsServerConfig;
     }
     
     

@@ -27,8 +27,10 @@ public final class JMSConstants {
     public static final String TEXT_MESSAGE_TYPE = "text";
     public static final String BINARY_MESSAGE_TYPE = "binary";
 
-
+    public static final String JMS_POOLEDSESSION = "jms.pooled.session";   
     public static final String JMS_SERVER_HEADERS = "org.apache.cxf.jms.server.headers";
+    public static final String JMS_REQUEST_MESSAGE = "org.apache.cxf.jms.request.message";
+    public static final String JMS_RESPONSE_MESSAGE = "org.apache.cxf.jms.reponse.message";
     public static final String JMS_CLIENT_REQUEST_HEADERS = "org.apache.cxf.jms.client.request.headers";
     public static final String JMS_CLIENT_RESPONSE_HEADERS = 
         "org.apache.cxf.jms.client.response.headers";
@@ -36,15 +38,15 @@ public final class JMSConstants {
     public static final String JMS_CLIENT_RECEIVE_TIMEOUT = "org.apache.cxf.jms.client.timeout";
     
     public static final String JMS_SERVER_CONFIGURATION_URI = 
-        "http://cxf.apache.org/bus/transports/jms/jms-server-config";
+        "http://cxf.apache.org/configuration/transport/jms-server";
     public static final String JMS_CLIENT_CONFIGURATION_URI = 
-        "http://cxf.apache.org/bus/transports/jms/jms-client-config";
+        "http://cxf.apache.org/configuration/transport/jms-client";
     public static final String ENDPOINT_CONFIGURATION_URI = 
-        "http://cxf.apache.org/bus/jaxws/endpoint-config";
+        "http://cxf.apache.org/jaxws/endpoint-config";
     public static final String SERVICE_CONFIGURATION_URI = 
-        "http://cxf.apache.org/bus/jaxws/service-config";
+        "http://cxf.apache.org/jaxws/service-config";
     public static final String PORT_CONFIGURATION_URI = 
-        "http://cxf.apache.org/bus/jaxws/port-config";
+        "http://cxf.apache.org/jaxws/port-config";
     
     public static final String JMS_CLIENT_CONFIG_ID = "jms-client";
     public static final String JMS_SERVER_CONFIG_ID = "jms-server";

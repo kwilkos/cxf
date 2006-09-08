@@ -19,8 +19,15 @@
 
 package org.apache.cxf.transport.jms;
 
+import javax.jms.Connection;
+import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.TopicConnectionFactory;
+import javax.naming.Context;
 import javax.naming.NamingException;
+
+import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 
 
 
@@ -53,8 +60,8 @@ public final class JMSProviderHub {
     }
 
   
-    protected static void connect(JMSConduit jmsConduit) throws JMSException, NamingException {
-        /*JMSAddressPolicyType  addrDetails = jmsConduit.getJmsAddressDetails();
+    protected static void connect(JMSTransportBase jmsTransport) throws JMSException, NamingException {
+        JMSAddressPolicyType  addrDetails = jmsTransport.getJmsAddressDetails();
       
         // get JMS connection resources and destination
         //
@@ -81,10 +88,10 @@ public final class JMSProviderHub {
             }
         }
         
-        if (transport instanceof JMSServerTransport) {
+        if (jmsTransport instanceof JMSDestination) {
             String clientID = null;
-            clientID = ((JMSServerTransport) transport).
-            getServerConfiguration().getDurableSubscriptionClientId();
+            clientID = ((JMSDestination) jmsTransport).getJMSDestinationConfiguration().
+                getServerConfiguration().getDurableSubscriptionClientId();
             
             if  (clientID != null) {
                 connection.setClientID(clientID);
@@ -93,8 +100,7 @@ public final class JMSProviderHub {
         connection.start();
 
         Destination requestDestination = 
-                (Destination)context.lookup(
-                                           addrDetails.getJndiDestinationName());
+                (Destination)context.lookup(addrDetails.getJndiDestinationName());
 
         Destination replyDestination = (null != addrDetails.getJndiReplyDestinationName())
             ? (Destination)context.lookup(addrDetails.getJndiReplyDestinationName()) : null;
@@ -106,10 +112,10 @@ public final class JMSProviderHub {
         JMSSessionFactory sf =
             new JMSSessionFactory(connection,
                                   replyDestination,
-                                  transport,
+                                  jmsTransport.getJMSConfiguration(),
                                   context);
 
         // notify transport that connection is complete        
-        transport.connected(requestDestination, replyDestination, sf);*/
+        jmsTransport.connected(requestDestination, replyDestination, sf);
     }
 }

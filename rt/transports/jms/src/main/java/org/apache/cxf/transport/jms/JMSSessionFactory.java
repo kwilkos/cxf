@@ -453,8 +453,7 @@ public class JMSSessionFactory {
     private PooledSession createPointToPointServerSession(Destination destination) throws JMSException {
         QueueSession session =
             ((QueueConnection)theConnection).createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-
-
+        
         return new PooledSession(session, destination, session.createSender(null),
                                  session.createReceiver((Queue)destination, 
                                  jmsServerPolicy.getMessageSelector()));
