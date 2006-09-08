@@ -54,7 +54,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
 
     XMLMessageOutInterceptor out = new XMLMessageOutInterceptor();
 
-    List params = new ArrayList();
+    List<Object> params = new ArrayList<Object>();
 
     QName bareMyComplexStructQName = new QName(bareNsType, "myComplexStructType");
 
