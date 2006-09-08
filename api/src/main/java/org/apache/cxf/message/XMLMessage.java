@@ -18,8 +18,6 @@
  */
 package org.apache.cxf.message;
 
-import org.apache.cxf.message.AbstractWrappedMessage;
-import org.apache.cxf.message.Message;
 
 public class XMLMessage extends AbstractWrappedMessage {
 
