@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
@@ -188,7 +189,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     public Class getRequestWrapper(Method selected) {
         Method m = getDeclaredMethod(selected);
         
-        ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
+        RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
         if (rw == null) {
             return null;
         }

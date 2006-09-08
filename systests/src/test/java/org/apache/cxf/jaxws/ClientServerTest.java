@@ -91,9 +91,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
-                
-        
-        
+         
     }
     
     public void testBasicConnection() throws Exception {
@@ -131,7 +129,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
-    public void xtestBasicConnection() throws Exception {
+    public void testBasicConnectionAndOneway() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
@@ -143,7 +141,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response1 = new String("Hello Milestone-");
         String response2 = new String("Bonjour");
         try {       
-            for (int idx = 0; idx < 5; idx++) {
+            for (int idx = 0; idx < 1; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
                 String exResponse = response1 + idx;
