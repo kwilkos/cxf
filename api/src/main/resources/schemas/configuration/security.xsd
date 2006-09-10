@@ -18,19 +18,13 @@
   under the License.
 -->
 
-<xs:schema targetNamespace="http://cxf.apache.org/bus/configuration/security"
+<xs:schema targetNamespace="http://cxf.apache.org/configuration/security"
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           xmlns:tns="http://cxf.apache.org/bus/configuration/security"
+           xmlns:tns="http://cxf.apache.org/configuration/security"
            jaxb:version="2.0">
-
-    <xs:annotation>
-        <xs:appinfo>
-            <jaxb:globalBindings generateIsSetMethod="true"/>
-        </xs:appinfo>
-    </xs:annotation>
 
     <xs:complexType name="AuthorizationPolicy">
         <xs:annotation>
@@ -81,11 +75,6 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
-    <xs:element name="authorization" type="tns:AuthorizationPolicy"/>
-    
-
-
-
 
     <xs:complexType name="SSLServerPolicy">
         <xs:annotation>
@@ -373,9 +362,5 @@
 
     	</xs:sequence>
     </xs:complexType>
-
-
-    <xs:element name="sslServer" type="tns:SSLServerPolicy"/>
-    <xs:element name="sslClient" type="tns:SSLClientPolicy"/>
 
 </xs:schema>

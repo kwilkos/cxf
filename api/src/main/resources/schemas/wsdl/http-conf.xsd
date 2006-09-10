@@ -136,7 +136,6 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
 
 
     <xs:complexType name="HTTPClientPolicy">
@@ -332,7 +331,6 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
     
     <xs:complexType name="HTTPListenerPolicy">
     	<xs:sequence>
@@ -366,7 +364,6 @@
     		</xs:element>
     	</xs:sequence>
     </xs:complexType>
-    <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
 
   
     <xs:simpleType name="serverCacheControlType">

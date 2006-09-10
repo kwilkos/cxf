@@ -28,9 +28,9 @@ import java.util.Map;
 import javax.xml.ws.BindingProvider;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.bus.configuration.security.SSLClientPolicy;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.oldcfg.CompoundName;
 import org.apache.cxf.oldcfg.Configuration;

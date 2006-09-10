@@ -20,7 +20,7 @@
 package org.apache.cxf.transport.http;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.configuration.security.SSLServerPolicy;
+import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.oldcfg.CompoundName;
 import org.apache.cxf.oldcfg.Configuration;
 import org.apache.cxf.oldcfg.ConfigurationBuilder;
@@ -42,6 +42,9 @@ public class HTTPListenerConfiguration {
     public HTTPListenerConfiguration(Bus bus, String protocol, int port) {
         config = createConfiguration(bus, port);
         policy = config.getObject(HTTPListenerPolicy.class, "httpListener");
+        if (policy == null) {
+            policy = new HTTPListenerPolicy();
+        }
         sslPolicy = config.getObject(SSLServerPolicy.class, "sslServer");
         if (sslPolicy == null && "https".equals(protocol)) {
             sslPolicy = new SSLServerPolicy();

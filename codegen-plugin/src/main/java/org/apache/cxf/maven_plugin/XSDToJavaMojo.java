@@ -21,6 +21,7 @@ package org.apache.cxf.maven_plugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -70,20 +71,9 @@ public class XSDToJavaMojo extends AbstractMojo {
         if (xsdOptions == null) {
             throw new MojoExecutionException("Must specify xsdOptions");           
         }
+     
         for (int x = 0; x < xsdOptions.length; x++) {
-            List list = new ArrayList();
-            if (xsdOptions[x].getPackagename() != null) {
-                list.add("-p");
-                list.add(xsdOptions[x].getPackagename());
-            }
-            if (xsdOptions[x].getBindingFile() != null) {
-                list.add("-b");
-                list.add(xsdOptions[x].getBindingFile());
-            }
-            list.add("-quiet");
-            list.add("-d");
-            list.add(outputDir);
-            list.add(xsdOptions[x].getXsd());
+            String[] args = getArguments(xsdOptions[x], outputDir);
             
             File file = new File(xsdOptions[x].getXsd());
             File doneFile = new File(outputDirFile, "." + file.getName() + ".DONE");
@@ -109,7 +99,7 @@ public class XSDToJavaMojo extends AbstractMojo {
                     try {
                         System.setSecurityManager(new NoExitSecurityManager());
                         
-                        com.sun.tools.xjc.Driver.main((String[])list.toArray(new String[list.size()]));
+                        com.sun.tools.xjc.Driver.main(args);
                        
                     } catch (ExitException e) {
                         if (e.getStatus() == 0) {
@@ -144,6 +134,38 @@ public class XSDToJavaMojo extends AbstractMojo {
         if (project != null && testSourceRoot != null) {
             project.addTestCompileSourceRoot(testSourceRoot);
         }
+    }
+    
+    private String[] getArguments(XsdOption option, String outputDir) {
+        List list = new ArrayList();
+        if (option.getPackagename() != null) {
+            list.add("-p");
+            list.add(option.getPackagename());
+        }
+        if (option.getBindingFile() != null) {
+            list.add("-b");
+            list.add(option.getBindingFile());
+        }
+        if (option.getCatalog() != null) {
+            list.add("-catalog");
+            list.add(option.getCatalog());
+        }
+        if (option.isExtension()) {
+            list.add("-extension");
+        }
+        if (option.getExtensionArgs() != null) {
+            Iterator it = option.getExtensionArgs().iterator();
+            while (it.hasNext()) {
+                list.add(it.next().toString());
+            }
+        }           
+        list.add("-quiet");
+        list.add("-d");
+        list.add(outputDir);
+        list.add(option.getXsd());
+       
+        return (String[])list.toArray(new String[list.size()]);
+        
     }
     
     private boolean deleteDir(File f) {

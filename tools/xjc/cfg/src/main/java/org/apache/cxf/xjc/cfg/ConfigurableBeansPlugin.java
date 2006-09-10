@@ -66,10 +66,10 @@ import org.apache.cxf.configuration.AbstractConfigurableBeanBase;
 public class ConfigurableBeansPlugin extends Plugin {
 
     private static final String CFG_NAMESPACE_URI = "http://cxf.apache.org/configuration/cfg";
-    private static final String CFG_CONFIGURATION_ELEM_NAME = "configuration";
+    private static final String CFG_CONFIGURABLE_ELEM_NAME = "configurable";
 
     public ConfigurableBeansPlugin() {
-    }
+    }    
 
     public String getOptionName() {
         return "Xcfg";
@@ -84,15 +84,14 @@ public class ConfigurableBeansPlugin extends Plugin {
     }
 
     public boolean isCustomizationTagName(String nsUri, String localName) {
-        return nsUri.equals(CFG_NAMESPACE_URI) && localName.equals(CFG_CONFIGURATION_ELEM_NAME);
+        return nsUri.equals(CFG_NAMESPACE_URI) && localName.equals(CFG_CONFIGURABLE_ELEM_NAME);
     }
 
     public boolean run(Outline outline, Options opt, ErrorHandler errorHandler) {
-        System.out.println("Running configurable beans plugin.");
        
         for (ClassOutline co : outline.getClasses()) {
             CPluginCustomization cust = co.target.getCustomizations().find(CFG_NAMESPACE_URI,
-                                                                           CFG_CONFIGURATION_ELEM_NAME);
+                                                                           CFG_CONFIGURABLE_ELEM_NAME);
             if (null == cust) {
                 continue;
             }

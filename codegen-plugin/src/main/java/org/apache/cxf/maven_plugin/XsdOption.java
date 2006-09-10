@@ -20,6 +20,7 @@
 package org.apache.cxf.maven_plugin;
 
 import java.io.File;
+import java.util.List;
 
 public class XsdOption {
     String xsd;
@@ -27,6 +28,9 @@ public class XsdOption {
     String bindingFile;
     File dependencies[];
     File redundantDirs[];
+    boolean extension;    
+    List extensionArgs;
+    String catalog;
     
     public String getPackagename() {
         return packagename;
@@ -45,7 +49,7 @@ public class XsdOption {
     }
     public void setBindingFile(String bf) {
         this.bindingFile = bf;
-    }
+    }    
     public void setDependencies(File files[]) {
         dependencies = files;
     }
@@ -59,4 +63,24 @@ public class XsdOption {
     public File[] getDeleteDirs() {
         return redundantDirs;
     }
+    public List getExtensionArgs() {
+        return extensionArgs;
+    }
+    public void setExtensionArgs(List extensionArgs) {
+        this.extensionArgs = extensionArgs;
+    }    
+    public boolean isExtension() {
+        return extension;
+    }
+    public void setExtension(boolean extension) {
+        this.extension = extension;
+    }
+    public String getCatalog() {
+        return catalog;
+    }
+    public void setCatalogFile(String c) {
+        catalog = c;
+    }
+    
+    
 }
