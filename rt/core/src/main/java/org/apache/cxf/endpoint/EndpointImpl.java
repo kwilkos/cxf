@@ -47,6 +47,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private Executor executor;
     private Bus bus;
     private Interceptor faultInterceptor;
+    private Object implementor;
     
     public EndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
         this.bus = bus;
@@ -104,6 +105,14 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
             Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
             throw new EndpointException(msg);
         }
+    }
+
+    public Object getImplementor() {
+        return implementor;
+    }
+
+    public void setImplementor(Object implementor) {
+        this.implementor = implementor;
     }
 
 }

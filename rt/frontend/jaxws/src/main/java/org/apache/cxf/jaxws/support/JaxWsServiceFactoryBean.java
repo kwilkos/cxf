@@ -53,9 +53,11 @@ import org.apache.cxf.transport.ChainInitiationObserver;
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
+
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     Class<?> seiClass;
+
     JAXBDataBinding dataBinding;
 
     JaxwsImplementorInfo implInfo;
@@ -79,7 +81,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
 
     public void activateEndpoint(Service service, EndpointInfo ei) throws BusException, WSDLException,
-        IOException, EndpointException {
+                    IOException, EndpointException {
         JaxwsEndpointImpl ep = new JaxwsEndpointImpl(getBus(), service, ei);
         ChainInitiationObserver observer = new ChainInitiationObserver(ep, getBus());
 
@@ -105,6 +107,18 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
+
+        super.setServiceClass(serviceClass);
+
+        try {
+            dataBinding = new JAXBDataBinding(serviceClass);
+        } catch (JAXBException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        setDataReaderFactory(dataBinding.getDataReaderFactory());    
+        setDataWriterFactory(dataBinding.getDataWriterFactory());
+
         // update wsdl location
         // TODO: replace version in EndpointreferenceUtils?
         String wsdlLocation = null;
@@ -113,8 +127,10 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             WebServiceProvider wsProvider = implInfo.getWsProvider();
             wsdlLocation = wsProvider.wsdlLocation();
         } else {
+            if (ws == null) {
+                throw new WebServiceException(BUNDLE.getString("SEI_WITHOUT_WEBSERVICE_ANNOTATION_EXC"));
+            }
             wsdlLocation = ws.wsdlLocation();
-
             String sei = ws.endpointInterface();
             if (null != sei && !"".equals(sei)) {
                 try {
@@ -139,7 +155,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
                 url = new URL(wsdlLocation);
             } catch (MalformedURLException ex) {
                 // LOG a warning instead of throw exception.
-                //url = implInfo.getImplementorClass().getResource(wsdlLocation);
+                // url =
+                // implInfo.getImplementorClass().getResource(wsdlLocation);
                 if (url == null) {
                     System.err.println("Can't resolve the wsdl location " + wsdlLocation);
                 }
@@ -147,20 +164,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             setWsdlURL(url);
         }
 
-        super.setServiceClass(serviceClass);
-
-        initializeServiceConfigurations();
-        
-        initializeServiceModel();
-        
-        try {
-            dataBinding = new JAXBDataBinding(serviceClass, getService());
-        } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        setDataReaderFactory(dataBinding.getDataReaderFactory());
-        setDataWriterFactory(dataBinding.getDataWriterFactory());
     }
 
     protected QName getServiceQName() {

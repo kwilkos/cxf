@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.validation.Schema;
 
 public abstract class JAXBDataFactoryBase {
+    
     protected JAXBContext context; 
     protected Schema schema;
 
@@ -40,4 +41,5 @@ public abstract class JAXBDataFactoryBase {
     public JAXBContext getJAXBContext() {
         return context;
     }
+
 }

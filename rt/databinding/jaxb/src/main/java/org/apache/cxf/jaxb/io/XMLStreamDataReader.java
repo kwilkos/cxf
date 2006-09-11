@@ -38,15 +38,13 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     }
 
     public Object read(QName name, XMLStreamReader reader) {
+
         return read(name, reader, null);
+
     }
 
     public Object read(QName name, XMLStreamReader reader, Class cls) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
-                                             factory.getSchema(),
-                                             reader,
-                                             name,
-                                             cls,
-                                             null);
+        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), factory.getSchema(), reader, name,
+                        cls, null);
     }
 }

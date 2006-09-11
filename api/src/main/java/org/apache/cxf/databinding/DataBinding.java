@@ -31,6 +31,5 @@ public interface DataBinding {
     DataWriterFactory getDataWriterFactory();
     
     Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo);
-    
-    DataBindingContext getDataBindingContext();
+        
 }
