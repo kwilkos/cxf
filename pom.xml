@@ -121,9 +121,6 @@
     <properties>
         <topDirectoryLocation>.</topDirectoryLocation>
 
-        <checkstyle.excludes>**/build/**/*.java</checkstyle.excludes>
-        <pmd.excludes>**/build/**/*.java</pmd.excludes>
-
         <surefire.fork.mode>once</surefire.fork.mode>
         <surefire.format>brief</surefire.format>
         <surefire.usefile>false</surefire.usefile>
@@ -248,7 +245,6 @@
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
-                                <excludes>${checkstyle.excludes}</excludes>
                                 <sourceDirectory>${basedir}/src</sourceDirectory>
                                 <propertyExpansion>
                                     apache.header.file=${basedir}/${topDirectoryLocation}/etc/apache-header.txt
@@ -268,9 +264,6 @@
                             <ruleset>${basedir}/.ruleset</ruleset>
                         </rulesets>
                         <linkXRef>false</linkXRef>
-                        <excludes>
-                            <exclude>${pmd.excludes}</exclude>
-                        </excludes>
                     </configuration>
                     <executions>
                         <execution>

@@ -39,11 +39,7 @@
             (maven xjc plugin) as opposed to codegen-plugin
         -->
         <jaxb.impl.version.test>2.0.1</jaxb.impl.version.test>
-        <!--
-            see comment on build element below
-         -->
-        <checkstyle.excludes>**/build/**/*.java,**/foo/*.java</checkstyle.excludes>
-        <pmd.excludes>**/build/**/*.java,**/foo/*.java</pmd.excludes>
+
     </properties>
 
     <!--
