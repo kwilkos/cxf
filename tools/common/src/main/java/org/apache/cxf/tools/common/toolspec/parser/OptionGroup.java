@@ -48,8 +48,8 @@ public class OptionGroup implements TokenConsumer {
     }
 
     public boolean accept(TokenInputStream args, Element result, ErrorVisitor errors) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Accepting token stream for optionGroup: " + this + ", tokens are now " + args
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Accepting token stream for optionGroup: " + this + ", tokens are now " + args
                      + ", running through " + options.size() + " options");
         }
         // Give all the options the chance to exclusively consume the given
@@ -60,16 +60,16 @@ public class OptionGroup implements TokenConsumer {
             Option option = (Option)it.next();
 
             if (option.accept(args, result, errors)) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LOG.info("Option " + option + " accepted the token");
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Option " + option + " accepted the token");
                 }
                 accepted = true;
                 break;
             }
         }
         if (!accepted) {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("No option accepted the token, returning");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("No option accepted the token, returning");
             }
             return false;
         }

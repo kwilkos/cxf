@@ -74,13 +74,13 @@ public class CommandLineParser {
 
     public CommandDocument parseArguments(String[] args) throws BadUsageException {
 
-        if (LOG.isLoggable(Level.INFO)) {
+        if (LOG.isLoggable(Level.FINE)) {
             StringBuffer debugMsg = new StringBuffer("Parsing arguments: ");
 
             for (int i = 0; i < args.length; i++) {
                 debugMsg.append(args[i]).append(" ");
             }
-            LOG.info(debugMsg.toString());
+            LOG.fine(debugMsg.toString());
         }
 
         if (toolspec == null) {
@@ -113,9 +113,9 @@ public class CommandLineParser {
         Element usage = toolspec.getUsage();
 
         NodeList usageForms = toolspec.getUsageForms();
-        if (LOG.isLoggable(Level.INFO)) {
+        if (LOG.isLoggable(Level.FINE)) {
             LOG
-                .info("Found " + usageForms.getLength()
+                .fine("Found " + usageForms.getLength()
                       + " alternative forms of usage, will use default form");
         }
         if (usageForms.getLength() > 0) {

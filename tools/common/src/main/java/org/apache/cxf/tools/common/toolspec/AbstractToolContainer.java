@@ -64,6 +64,7 @@ public abstract class AbstractToolContainer implements ToolContainer {
         if (toolspec != null) {
             parser = new CommandLineParser(toolspec);
             commandDoc = parser.parseArguments(args);
+           
         }
     }
 

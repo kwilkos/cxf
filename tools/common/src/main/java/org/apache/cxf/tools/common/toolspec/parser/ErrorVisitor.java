@@ -173,8 +173,8 @@ public class ErrorVisitor {
     }
 
     public void add(CommandLineError err) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Adding error: " + err);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Adding error: " + err);
         }
         errors.add(err);
     }

@@ -41,8 +41,8 @@ public class Argument implements TokenConsumer {
     }
 
     public boolean accept(TokenInputStream args, Element result, ErrorVisitor errors) {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Accepting token stream for argument: " + this);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Accepting token stream for argument: " + this);
         }
         int minOccurs;
         if ("unbounded".equals(element.getAttribute("minOccurs"))) {

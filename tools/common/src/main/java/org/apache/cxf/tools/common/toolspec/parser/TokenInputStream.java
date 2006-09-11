@@ -63,8 +63,8 @@ public class TokenInputStream {
     }
 
     public String peek() {
-        if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Peeking token " + tokens[pos]);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Peeking token " + tokens[pos]);
         }
         return tokens[pos];
     }
