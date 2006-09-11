@@ -75,7 +75,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         // create the endpoint        
         QName endpointName = implInfo.getEndpointName();
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-        endpoint.setImplementor(implementor);
+        
 
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
@@ -85,6 +85,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         //      TODO: use bindigURI     
         try {
             endpoint = new JaxwsEndpointImpl(bus, service, ei);
+            endpoint.setImplementor(implementor);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }

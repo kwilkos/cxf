@@ -55,6 +55,9 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         if (method == null) {
             method = message.getContent(Method.class);
         }
+        if (method != null && method.getName().endsWith("Async")) {
+            return;
+        }
         try {
             if (method != null) {
                 Class inter = null;

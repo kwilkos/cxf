@@ -91,6 +91,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
+
          
     }
     
@@ -195,7 +196,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     } 
 
-    public void xtestAsyncPollingCall() throws Exception {
+    public void testAsyncPollingCall() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
@@ -218,12 +219,13 @@ public class ClientServerTest extends ClientServerTestBase {
             String s = reply.getResponseType();
             assertEquals(expectedString, s);   
         } catch (UndeclaredThrowableException ex) {
+            ex.printStackTrace();
             throw (Exception)ex.getCause();
         }
         executor.shutdown();
     }
     
-    public void xtestAsyncSynchronousPolling() throws Exception {
+    public void testAsyncSynchronousPolling() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         

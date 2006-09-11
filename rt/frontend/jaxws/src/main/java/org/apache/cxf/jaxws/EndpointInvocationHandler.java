@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
@@ -93,8 +94,22 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> context = new HashMap<String, Object>();
         context.put(Method.class.getName(), method);
-        Object rawRet[] = client.invoke(oi, paramsWithOutHolder, context);
+        
+        
+        boolean isAsync = method.getName().endsWith("Async");
+        if (isAsync) {
+            return invokeAsync(method, oi, params, paramsWithOutHolder, context);
+        } else {
+            return invokeSync(method, oi, params, paramsWithOutHolder, context);
+        }
+    }
 
+    Object invokeSync(Method method, 
+                          BindingOperationInfo oi, 
+                          Object[] params, 
+                          Object[] paramsWithOutHolder, 
+                          Map<String, Object> context) {
+        Object rawRet[] = client.invoke(oi, paramsWithOutHolder, context);
         if (rawRet != null && rawRet.length != 0) {
             List<Object> retList = new ArrayList<Object>();
             handleHolderReturn(params, method, rawRet, retList);
@@ -103,6 +118,23 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         } else {
             return null;
         }
+    }
+
+    private Object invokeAsync(Method method, 
+                               BindingOperationInfo oi, 
+                               Object[] params, 
+                               Object[] paramsWithOutHolder, 
+                               Map<String, Object> context) {
+        
+        FutureTask<Object> f = new FutureTask<Object>(new JAXWSAsyncCallable(this, 
+                                                                             method,
+                                                                             oi,
+                                                                             params,
+                                                                             paramsWithOutHolder,
+                                                                             context
+                                                                             ));
+        endpoint.getService().getExecutor().execute(f);
+        return new AsyncResponse<Object>(f, Object.class);
     }
 
     private Object[] handleHolder(Object[] params) {

@@ -72,6 +72,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return this.endpoint;
     }
 
+        
     public Object[] invoke(BindingOperationInfo oi, Object[] params, Map<String, Object> ctx) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
@@ -146,19 +147,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
         if (oi.getOutput() != null) {
             synchronized (exchange) {
-                Message inMsg = exchange.getInMessage();
-                if (inMsg == null) {
-                    try {
-                        exchange.wait();
-                    } catch (InterruptedException e) {
-                        //TODO - timeout
-                    }
-                    inMsg = exchange.getInMessage();
-                }
-                if (inMsg.getContent(Exception.class) != null) {
-                    //TODO - exceptions 
-                    throw new RuntimeException(inMsg.getContent(Exception.class));
-                }
+                Message inMsg = waitResponse(exchange);
                     
                 
                 
@@ -166,6 +155,23 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             }
         } 
         return null;
+    }
+
+    private Message waitResponse(Exchange exchange) {
+        Message inMsg = exchange.getInMessage();
+        if (inMsg == null) {
+            try {
+                exchange.wait();
+            } catch (InterruptedException e) {
+                //TODO - timeout
+            }
+            inMsg = exchange.getInMessage();
+        }
+        if (inMsg.getContent(Exception.class) != null) {
+            //TODO - exceptions 
+            throw new RuntimeException(inMsg.getContent(Exception.class));
+        }
+        return inMsg;
     }
 
     private void setParameters(Object[] params, Message message) {
