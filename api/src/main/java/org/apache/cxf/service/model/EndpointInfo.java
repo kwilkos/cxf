@@ -19,6 +19,7 @@
 
 package org.apache.cxf.service.model;
 
+import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
 
@@ -66,6 +67,10 @@ public class EndpointInfo extends AbstractPropertiesHolder {
         SOAPAddress sa = getExtensor(SOAPAddress.class);
         if (null != sa) {
             return sa.getLocationURI();
+        }
+        HTTPAddress ha = getExtensor(HTTPAddress.class);
+        if (null != ha) {
+            return ha.getLocationURI();
         }
         AddressType a = getExtensor(AddressType.class);
         if (null != a) {

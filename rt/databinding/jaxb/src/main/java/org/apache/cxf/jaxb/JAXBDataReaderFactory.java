@@ -33,8 +33,11 @@ import org.apache.cxf.jaxb.io.MessageDataReader;
 import org.apache.cxf.jaxb.io.NodeDataReader;
 import org.apache.cxf.jaxb.io.SOAPBodyDataReader;
 import org.apache.cxf.jaxb.io.SOAPMessageDataReader;
+import org.apache.cxf.jaxb.io.XMLMessageDataReader;
 import org.apache.cxf.jaxb.io.XMLStreamDataReader;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.XMLMessage;
+
 
 
 public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {
@@ -43,7 +46,8 @@ public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements 
                                                                         XMLEventReader.class,
                                                                         XMLStreamReader.class,
                                                                         SOAPBody.class,
-                                                                        SOAPMessage.class};
+                                                                        SOAPMessage.class,
+                                                                        XMLMessage.class};
     
     public JAXBDataReaderFactory() {
         
@@ -65,6 +69,8 @@ public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements 
             dr = (DataReader<T>)new SOAPBodyDataReader(this);
         } else if (cls == SOAPMessage.class) {
             dr = (DataReader<T>)new SOAPMessageDataReader(this);
+        } else if (cls == XMLMessage.class) {
+            return (DataReader<T>)new XMLMessageDataReader(this);
         }
         // TODO Auto-generated method stub
         return dr;

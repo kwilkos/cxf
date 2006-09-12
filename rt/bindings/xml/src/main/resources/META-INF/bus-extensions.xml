@@ -19,10 +19,8 @@
 -->
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
-    <extension class="org.apache.cxf.transport.http.HTTPTransportFactory" deferred="true">
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
-        <namespace>http://cxf.apache.org/transports/http/configuration</namespace>
+    <extension class="org.apache.cxf.binding.xml.XMLBindingFactory" deferred="true">
+        <namespace>http://cxf.apache.org/bindings/xmlformat</namespace>       
     </extension>
+    
 </extensions>

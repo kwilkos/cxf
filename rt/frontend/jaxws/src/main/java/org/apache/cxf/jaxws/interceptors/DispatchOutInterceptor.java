@@ -34,13 +34,13 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Service;
 
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.binding.xml.XMLMessage;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.wsdl.WSDLConstants;
 
@@ -65,7 +65,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     } else if (obj instanceof Source) {
                         doTransform(obj, os);
                     } else if (obj instanceof DataSource) {
-                        throw new RuntimeException(obj.getClass() 
+                        throw new RuntimeException(obj.getClass()
                                                    + " is not valid in Message mode for SOAP/HTTP");
                     }
                 } else if (m == Service.Mode.PAYLOAD) {
@@ -74,7 +74,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     if (obj instanceof Source || obj instanceof Object) {
                         dataWriter.write(obj, msg.getSOAPBody());
                     } else if (obj instanceof SOAPMessage || obj instanceof DataSource) {
-                        throw new RuntimeException(obj.getClass() 
+                        throw new RuntimeException(obj.getClass()
                                                    + " is not valid in PAYLOAD mode with SOAP/HTTP");
                     }
                     msg.writeTo(os);
@@ -86,7 +86,7 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     }
                 } else if (m == Service.Mode.PAYLOAD) {
                     if (obj instanceof SOAPMessage || obj instanceof DataSource) {
-                        throw new RuntimeException(obj.getClass() 
+                        throw new RuntimeException(obj.getClass()
                                                    + " is not valid in PAYLOAD mode with XML/HTTP");
                     }
                 }

@@ -34,6 +34,7 @@ import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -45,6 +46,11 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
+    
+    public XMLMessageInInterceptor() {
+        super();
+        setPhase(Phase.UNMARSHAL);
+    }
 
     public void handleMessage(Message message) throws Fault {
 
@@ -71,7 +77,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                     new BareInInterceptor().handleMessage(message);
                     break;
                 } else {
-                    if (!boi.isUnwrapped()) {
+                    if (!boi.isUnwrappedCapable()) {
                         // it's bare with one part and part name equals
                         // operation name (not support yet)
                         if (rootInModel.equals(startQName)) {

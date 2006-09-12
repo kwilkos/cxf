@@ -181,8 +181,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     public void onMessage(Message message) {
         message = endpoint.getBinding().createMessage(message);
 
-        //message.setContent(Service.Mode.class, mode);
-        //message.setContent(Class.class, cl);
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
 
         PhaseManager pm = bus.getExtension(PhaseManager.class);

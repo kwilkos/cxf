@@ -23,6 +23,5 @@
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://cxf.apache.org/transports/jms</namespace>
-    </extension>
-    
+    </extension>    
 </extensions>

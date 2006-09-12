@@ -28,6 +28,7 @@ import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.message.XMLMessage;
 
 public class XMLBinding extends AbstractBasicInterceptorProvider implements Binding {
 
@@ -51,7 +52,7 @@ public class XMLBinding extends AbstractBasicInterceptorProvider implements Bind
     }
 
     public Message createMessage(Message m) {
-        return m;
+        return new XMLMessage(m);
     }
 
     public List<Interceptor> getFaultInterceptors() {

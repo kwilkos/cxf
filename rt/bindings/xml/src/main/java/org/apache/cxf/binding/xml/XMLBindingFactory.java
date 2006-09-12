@@ -18,11 +18,17 @@
  */
 package org.apache.cxf.binding.xml;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -32,6 +38,24 @@ import org.apache.cxf.service.model.BindingInfo;
 public class XMLBindingFactory extends AbstractBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
+    @Resource
+    private Bus bus;
+    
+    @Resource
+    private Collection<String> activationNamespaces;
+    
+    @PostConstruct
+    void registerSelf() {
+        if (null == bus) {
+            return;
+        }
+        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
+        if (null != bfm) {
+            for (String ns : activationNamespaces) {
+                bfm.registerBindingFactory(ns, this);
+            }
+        }
+    }
 
     public Binding createBinding(BindingInfo binding) {
 

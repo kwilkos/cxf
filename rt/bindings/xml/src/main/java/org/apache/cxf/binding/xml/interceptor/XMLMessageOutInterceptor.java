@@ -32,6 +32,7 @@ import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
@@ -40,6 +41,11 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
+    
+    public XMLMessageOutInterceptor() {
+        super();
+        setPhase(Phase.MARSHAL);
+    }
 
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
@@ -71,6 +77,13 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
                 // multi param, bare mode, needs write root node
                 writeMessage(message, rootInModel, true);
             }
+        }
+        // in the end we do flush ;)
+        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
+        try {
+            writer.flush();
+        } catch (XMLStreamException e) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE, e));
         }
     }
 
