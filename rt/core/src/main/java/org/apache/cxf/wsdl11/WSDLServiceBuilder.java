@@ -186,6 +186,7 @@ public class WSDLServiceBuilder {
                     }
                 }
                 if (schemaElem != null) {
+                    schemaCol.setBaseUri(def.getDocumentBaseURI());
                     XmlSchema xmlSchema = schemaCol.read(schemaElem);
                     SchemaInfo schemaInfo = new SchemaInfo(typeInfo, xmlSchema.getTargetNamespace());
                     schemaInfo.setElement(schemaElem);

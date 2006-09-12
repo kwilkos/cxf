@@ -139,7 +139,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 if (isValidMethod(m)) {
                     QName opName = getOperationName(intf, m);
 
-                    if (o.getName().equals(opName)) {
+                    if (o.getName().getNamespaceURI().equals(opName.getNamespaceURI())
+                        && isMatchOperation(o.getName().getLocalPart(), opName.getLocalPart())) {
+                    //if (o.getName().equals(opName)) {
                         selected = m;
                         o.setProperty(Method.class.getName(), m);
                         break;
@@ -305,6 +307,18 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return true;
     }
 
+    protected boolean isMatchOperation(String methodNameInClass, String methodNameInWsdl) {
+        boolean ret = false;
+        String initOfMethodInClass = methodNameInClass.substring(0, 1);
+        String initOfMethodInWsdl = methodNameInWsdl.substring(0, 1);
+        if (initOfMethodInClass.equalsIgnoreCase(initOfMethodInWsdl)
+            && methodNameInClass.substring(1, methodNameInClass.length()).equals(
+                methodNameInWsdl.substring(1, methodNameInWsdl.length()))) {
+            ret = true;
+        }
+        return ret;
+    }
+    
     protected boolean isOutParam(Method method, int j) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
@@ -556,4 +570,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public void setExecutor(Executor executor) {
         this.executor = executor;
     }
+    
+    
 }

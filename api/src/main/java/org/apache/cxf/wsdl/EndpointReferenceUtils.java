@@ -48,6 +48,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -640,4 +641,6 @@ public final class EndpointReferenceUtils {
     private static String getService(String content) {
         return content.substring(content.indexOf(":") + 1, content.length());
     }    
+    
+    
 }
