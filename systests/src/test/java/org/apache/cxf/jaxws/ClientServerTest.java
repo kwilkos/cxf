@@ -91,6 +91,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
+        
 
          
     }
@@ -305,7 +306,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
-    public void xtestAsyncCallWithHandler() throws Exception {
+    public void testAsyncCallWithHandler() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
@@ -334,7 +335,7 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals(1, MyHandler.invocationCount);       
         executor.shutdown();
     }
-    public void xtestAsyncCallWithHandlerAndMultipleClients() throws Exception {
+    public void testAsyncCallWithHandlerAndMultipleClients() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         

@@ -33,10 +33,12 @@ import java.util.logging.Logger;
 
 import javax.jws.WebMethod;
 import javax.xml.namespace.QName;
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
+import javax.xml.ws.Response;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
 
@@ -134,7 +136,17 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                                                                              context
                                                                              ));
         endpoint.getService().getExecutor().execute(f);
-        return new AsyncResponse<Object>(f, Object.class);
+        
+        Response<?> r = new AsyncResponse<Object>(f, Object.class); 
+        if (params.length > 0 && params[params.length - 1] instanceof AsyncHandler) {
+            //          callback style
+            AsyncCallbackFuture callback = new AsyncCallbackFuture(r, 
+                (AsyncHandler)params[params.length - 1]);
+            endpoint.getService().getExecutor().execute(callback);
+            return callback;
+        } else {
+            return r;
+        }
     }
 
     private Object[] handleHolder(Object[] params) {
