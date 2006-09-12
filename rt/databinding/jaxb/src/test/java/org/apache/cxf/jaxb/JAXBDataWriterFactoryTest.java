@@ -35,6 +35,7 @@ import org.apache.cxf.jaxb.io.EventDataWriter;
 import org.apache.cxf.jaxb.io.NodeDataWriter;
 import org.apache.cxf.jaxb.io.SOAPBodyDataWriter;
 import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
+import org.apache.cxf.message.Message;
 
 public class JAXBDataWriterFactoryTest extends TestCase {
     JAXBDataWriterFactory factory;
@@ -46,9 +47,10 @@ public class JAXBDataWriterFactoryTest extends TestCase {
     public void testSupportedFormats() {
         List<Class<?>> cls = Arrays.asList(factory.getSupportedFormats());
         assertNotNull(cls);
-        assertEquals(4, cls.size());
+        assertEquals(5, cls.size());
         assertTrue(cls.contains(XMLStreamWriter.class));
         assertTrue(cls.contains(XMLEventWriter.class));
+        assertTrue(cls.contains(Message.class));
         assertTrue(cls.contains(Node.class));
         assertTrue(cls.contains(SOAPBody.class));
     }

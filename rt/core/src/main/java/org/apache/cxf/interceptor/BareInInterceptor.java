@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -55,7 +54,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
 
         BindingOperationInfo operation = exchange.get(BindingOperationInfo.class);
 
-        DataReader<XMLStreamReader> dr = getDataReader(message);
+        DataReader<Message> dr = getMessageDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
 
         List<MessagePartInfo> piList = null;
@@ -74,15 +73,15 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                         paraQName = mpi.getTypeQName();
                     }
                     if (streamParaQName.equals(paraQName)) {
-                        o = dr.read(paraQName, xmlReader);
+                        o = dr.read(paraQName, message);
                         break;
                     }
                 }
                 if (o == null) {
-                    o = dr.read(xmlReader);                    
+                    o = dr.read(message);                    
                 }
             } else {
-                o = dr.read(xmlReader);
+                o = dr.read(message);
             }
             if (o != null) {
                 parameters.add(o);

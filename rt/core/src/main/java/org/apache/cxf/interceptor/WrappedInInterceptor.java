@@ -80,13 +80,13 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             message.put(BindingMessageInfo.class, operation.getInput());
         }
         
-        DataReader<XMLStreamReader> dr = getDataReader(message);
+        DataReader<Message> dr = getMessageDataReader(message);
         List<Object> objects;
         
         // Determine if there is a wrapper class
         if (Boolean.TRUE.equals(operation.getOperationInfo().getProperty(SINGLE_WRAPPED_PART))) {
             objects = new ArrayList<Object>();
-            Object wrappedObject = dr.read(xmlReader);
+            Object wrappedObject = dr.read(message);
             objects.add(wrappedObject);
         } else {
             // Unwrap each part individually if we don't have a wrapper
@@ -95,7 +95,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             
             try {
                 while (xmlReader.nextTag() == XMLStreamReader.START_ELEMENT && xmlReader.getDepth() > depth) {
-                    objects.add(dr.read(xmlReader));
+                    objects.add(dr.read(message));
                 }
             } catch (XMLStreamException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE), e);

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
@@ -77,7 +76,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         }
         findMethod(message);
         MessageInfo msg;
-        DataReader<XMLStreamReader> dr = getDataReader(message);
+        DataReader<Message> dr = getMessageDataReader(message);
 
         if (!isRequestor(message)) {
             msg = operation.getInput().getMessageInfo();
@@ -102,7 +101,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 String expMessage = "Parameter " + name + " does not equal to the name in the servicemodel!";
                 message.setContent(Exception.class, new RuntimeException(expMessage));
             }
-            Object param = dr.read(elName, xmlReader, getParameterTypeClass(message, idx));
+            Object param = dr.read(elName, message, getParameterTypeClass(message, idx));
             parameters.add(param);
         }
         message.setContent(List.class, parameters);

@@ -41,6 +41,8 @@ public interface Message extends Map<String, Object> {
     String CORRELATION_OUT = "org.apache.cxf.correlation.out";
     String CORRELATION_IN = "org.apache.cxf.correlation.in";
     
+    String MTOM_ENABLED = "org.apache.cxf.isMtomEnabled";
+    
     String getId();
     
     InterceptorChain getInterceptorChain();

@@ -252,6 +252,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     
     protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+        // when configuration is ready, using config bean instead
+        message.put(Message.MTOM_ENABLED, Boolean.TRUE);
         message.put(BindingMessageInfo.class, boi.getInput());
         message.put(MessageInfo.class, boi.getOperationInfo().getInput());
     }

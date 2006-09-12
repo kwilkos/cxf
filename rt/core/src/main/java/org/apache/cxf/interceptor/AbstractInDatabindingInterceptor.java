@@ -68,7 +68,25 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         }
         return dataReader;        
     }
-    
+
+    protected DataReader<Message> getMessageDataReader(Message message) {
+        Service service = ServiceModelUtil.getService(message.getExchange());
+        DataReaderFactory factory = service.getDataReaderFactory();
+
+        DataReader<Message> dataReader = null;
+        for (Class<?> cls : factory.getSupportedFormats()) {
+            if (cls == Message.class) {
+                dataReader = factory.createReader(Message.class);
+                break;
+            }
+        }
+        if (dataReader == null) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
+                service.getName()));
+        }
+        return dataReader;
+    }
+
     protected DataReader<XMLStreamReader> getDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReaderFactory factory = service.getDataReaderFactory();

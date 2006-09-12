@@ -28,12 +28,15 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.jaxb.io.EventDataWriter;
+import org.apache.cxf.jaxb.io.MessageDataWriter;
 import org.apache.cxf.jaxb.io.NodeDataWriter;
 import org.apache.cxf.jaxb.io.SOAPBodyDataWriter;
 import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
+import org.apache.cxf.message.Message;
 
 public final class JAXBDataWriterFactory extends JAXBDataFactoryBase implements DataWriterFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
+                                                                        Message.class,
                                                                         XMLEventWriter.class,
                                                                         XMLStreamWriter.class,
                                                                         SOAPBody.class};
@@ -50,6 +53,8 @@ public final class JAXBDataWriterFactory extends JAXBDataFactoryBase implements 
             return (DataWriter<T>)new XMLStreamDataWriter(this);
         } else if (cls == XMLEventWriter.class) {
             return (DataWriter<T>)new EventDataWriter(this);            
+        } else if (cls == Message.class) {
+            return (DataWriter<T>)new MessageDataWriter(this);
         } else if (cls == Node.class) {
             return (DataWriter<T>)new NodeDataWriter(this);
         } else if (cls == SOAPBody.class) {

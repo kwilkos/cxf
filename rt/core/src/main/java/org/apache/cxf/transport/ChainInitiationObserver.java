@@ -44,26 +44,36 @@ public class ChainInitiationObserver implements MessageObserver {
         Exchange exchange = new ExchangeImpl();
         exchange.setInMessage(message);
         message.setExchange(exchange);
-        
-        exchange.put(Endpoint.class, endpoint);
-        exchange.put(Service.class, endpoint.getService());
-        exchange.put(Binding.class, endpoint.getBinding());
-        exchange.put(Bus.class, bus);
-        exchange.setDestination(m.getDestination());
+        setMessageProperties(message);
+        setExchangProperties(exchange, message);
         
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
             .getInPhases());
         
         message.setInterceptorChain(chain);
+        
         chain.add(bus.getInInterceptors());
         chain.add(endpoint.getInInterceptors());
         chain.add(endpoint.getBinding().getInInterceptors());
         chain.add(endpoint.getService().getInInterceptors());
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());   
-        
+        chain.setFaultInterceptor(endpoint.getFaultInterceptor());           
 
         
         chain.doIntercept(message);        
     }
+    
+    protected void setMessageProperties(Message m) {
+        // when configuration is ready, using config bean instead
+        m.put(Message.MTOM_ENABLED, Boolean.TRUE);
+    }
+    
+    protected void setExchangProperties(Exchange exchange, Message m) {
+        exchange.put(Endpoint.class, endpoint);
+        exchange.put(Service.class, endpoint.getService());
+        exchange.put(Binding.class, endpoint.getBinding());
+        exchange.put(Bus.class, bus);
+        exchange.setDestination(m.getDestination());
+    }
+    
 }

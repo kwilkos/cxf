@@ -37,6 +37,7 @@ import org.apache.cxf.jaxb.io.NodeDataReader;
 import org.apache.cxf.jaxb.io.SOAPBodyDataReader;
 import org.apache.cxf.jaxb.io.SOAPMessageDataReader;
 import org.apache.cxf.jaxb.io.XMLStreamDataReader;
+import org.apache.cxf.message.Message;
 
 public class JAXBDataReaderFactoryTest extends TestCase {
     JAXBDataReaderFactory factory;
@@ -48,9 +49,10 @@ public class JAXBDataReaderFactoryTest extends TestCase {
     public void testSupportedFormats() {
         List<Class<?>> cls = Arrays.asList(factory.getSupportedFormats());
         assertNotNull(cls);
-        assertEquals(5, cls.size());
+        assertEquals(6, cls.size());
         assertTrue(cls.contains(XMLStreamReader.class));
         assertTrue(cls.contains(XMLEventReader.class));
+        assertTrue(cls.contains(Message.class));
         assertTrue(cls.contains(Node.class));
         assertTrue(cls.contains(SOAPBody.class));
         assertTrue(cls.contains(SOAPMessage.class));

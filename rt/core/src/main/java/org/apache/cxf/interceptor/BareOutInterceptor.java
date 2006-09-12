@@ -21,7 +21,6 @@ package org.apache.cxf.interceptor;
 import java.util.List;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Exchange;
@@ -47,7 +46,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             return;
         }
         
-        DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
+        DataWriter<Message> dataWriter = getMessageDataWriter(message);
 
         int countParts = 0;
         List<MessagePartInfo> parts = null;
@@ -68,8 +67,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                 message.setContent(Exception.class,
                     new RuntimeException("The number of arguments is not equal!"));
             }*/
-            
-            XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
+                        
             for (int idx = 0; idx < countParts; idx++) {
                 Object arg = args[idx];
                 MessagePartInfo part = (MessagePartInfo)els[idx];
@@ -78,7 +76,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                     continue;
                 }
                 QName elName = ServiceModelUtil.getPartName(part);
-                dataWriter.write(arg, elName, xmlWriter);
+                dataWriter.write(arg, elName, message);
             }
         }
     }

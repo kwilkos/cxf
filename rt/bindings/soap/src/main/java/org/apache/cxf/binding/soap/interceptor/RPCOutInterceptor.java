@@ -59,7 +59,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             assert operation.getName() != null;
 
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-            DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
+            DataWriter<Message> dataWriter = getMessageDataWriter(message);
 
             addOperationNode(message, xmlWriter);
 
@@ -87,7 +87,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                     Object arg = args[idx];
                     MessagePartInfo part = (MessagePartInfo) els[idx];
                     QName elName = getPartName(part);
-                    dataWriter.write(arg, elName, xmlWriter);
+                    dataWriter.write(arg, elName, message);
                 }
             }
             // Finishing the writing.

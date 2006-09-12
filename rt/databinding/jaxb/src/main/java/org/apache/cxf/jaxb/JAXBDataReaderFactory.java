@@ -29,14 +29,17 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataReaderFactory;
 import org.apache.cxf.jaxb.io.EventDataReader;
+import org.apache.cxf.jaxb.io.MessageDataReader;
 import org.apache.cxf.jaxb.io.NodeDataReader;
 import org.apache.cxf.jaxb.io.SOAPBodyDataReader;
 import org.apache.cxf.jaxb.io.SOAPMessageDataReader;
 import org.apache.cxf.jaxb.io.XMLStreamDataReader;
+import org.apache.cxf.message.Message;
 
 
 public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements DataReaderFactory {
     private static final Class<?> SUPPORTED_FORMATS[] = new Class<?>[] {Node.class,
+                                                                        Message.class,
                                                                         XMLEventReader.class,
                                                                         XMLStreamReader.class,
                                                                         SOAPBody.class,
@@ -49,19 +52,22 @@ public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements 
     
     @SuppressWarnings("unchecked")
     public <T> DataReader<T> createReader(Class<T> cls) {
+        DataReader<T> dr = null;
         if (cls == XMLStreamReader.class) {
-            return (DataReader<T>)new XMLStreamDataReader(this);
+            dr = (DataReader<T>)new XMLStreamDataReader(this);
         } else if (cls == XMLEventReader.class) {
-            return (DataReader<T>)new EventDataReader(this);            
+            dr = (DataReader<T>)new EventDataReader(this);
+        } else if (cls == Message.class) {
+            dr = (DataReader<T>)new MessageDataReader(this);            
         } else if (cls == Node.class) {
-            return (DataReader<T>)new NodeDataReader(this);
+            dr = (DataReader<T>)new NodeDataReader(this);
         } else if (cls == SOAPBody.class) {
-            return (DataReader<T>)new SOAPBodyDataReader(this);
+            dr = (DataReader<T>)new SOAPBodyDataReader(this);
         } else if (cls == SOAPMessage.class) {
-            return (DataReader<T>)new SOAPMessageDataReader(this);
+            dr = (DataReader<T>)new SOAPMessageDataReader(this);
         }
         // TODO Auto-generated method stub
-        return null;
+        return dr;
     }
 
     public Class<?>[] getSupportedFormats() {
