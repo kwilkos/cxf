@@ -98,7 +98,7 @@ public class DispatchXMLClientServerTest extends ClientServerTestBase {
                 
         String streamString = XMLUtils.toString(source); 
         Document doc = XMLUtils.parse(streamString);
-        assertEquals("ns2:greetMeResponse", doc.getFirstChild().getNodeName());
+        assertEquals("greetMeResponse", doc.getFirstChild().getLocalName());
         assertEquals("Hello tli", doc.getFirstChild().getTextContent());
     }
     
@@ -119,7 +119,7 @@ public class DispatchXMLClientServerTest extends ClientServerTestBase {
         assertNotNull(result);
               
         Node respDoc = result.getNode();
-        assertEquals("ns2:greetMeResponse", respDoc.getFirstChild().getNodeName());
+        assertEquals("greetMeResponse", respDoc.getFirstChild().getLocalName());
         assertEquals("Hello tli", respDoc.getFirstChild().getTextContent());
     }
 }
