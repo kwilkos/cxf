@@ -19,16 +19,20 @@
 
 package org.apache.cxf.management.jmx;
 
+import javax.management.ObjectName;
+
 import junit.framework.TestCase;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.configuration.instrumentation.types.JMXConnectorPolicyType;
 import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
+import org.apache.cxf.management.jmx.export.AnnotationTestInstrumentation;
 
 
 public class JMXManagedComponentManagerTest extends TestCase {
-   
-    private JMXManagedComponentManager manager;    
+       
+    private static final String NAME_ATTRIBUTE = "Name";    
+    private JMXManagedComponentManager manager;
     
     public void setUp() throws BusException {
         manager = new JMXManagedComponentManager(); 
@@ -49,6 +53,34 @@ public class JMXManagedComponentManagerTest extends TestCase {
             assertTrue("JMX Manager init with NewMBeanServer error", false);
             ex.printStackTrace();
         }
+    }
+    
+    public void testRegisterInstrumentation() {
+        MBServerPolicyType policy = new MBServerPolicyType();
+        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
+        policy.setJMXConnector(connector);        
+        connector.setDaemon(false);
+        connector.setThreaded(false);
+        connector.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
+        manager.init(policy);
+        // setup the fack instrumentation
+        AnnotationTestInstrumentation im = new AnnotationTestInstrumentation();
+        ObjectName name = JMXUtils.getObjectName(im.getUniqueInstrumentationName(), 
+                                                 im.getInstrumentationName());
+       
+        im.setName("John Smith");          
+        manager.registerMBean(im);
+        
+        try {            
+            Object val = manager.getMBeanServer().getAttribute(name, NAME_ATTRIBUTE);
+            assertEquals("Incorrect result", "John Smith", val);
+            Thread.sleep(300);
+        } catch (Exception ex) {            
+            ex.printStackTrace();
+            assertTrue("get instrumentation attribute error", false);
+        }
+        manager.unregisterMBean(im);
+        manager.shutdown();
     }
 
 }

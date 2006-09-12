@@ -29,5 +29,7 @@
            interface="org.apache.cxf.wsdl.WSDLManager"/>
     <extension class="org.apache.cxf.phase.PhaseManagerImpl"
            interface="org.apache.cxf.phase.PhaseManager"/>
+    <extension class="org.apache.cxf.workqueue.WorkQueueManagerImpl"
+       	   interface="org.apache.cxf.workqueue.WorkQueueManager"/>
     
 </extensions>

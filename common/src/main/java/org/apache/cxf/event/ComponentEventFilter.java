@@ -16,20 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.event;
 
+public class ComponentEventFilter implements EventFilter {
+    public static final String COMPONENT_CREATED_EVENT = "cxf.component.created.event";
+    public static final String COMPONENT_REMOVED_EVENT = "cxf.component.removed.event";
 
+    public boolean isEventEnabled(Event e) {        
+        if (e.getID().getLocalPart().compareTo(COMPONENT_CREATED_EVENT) == 0) {
+            return true;
+        } else if (e.getID().getLocalPart().compareTo(COMPONENT_REMOVED_EVENT) == 0) {
+            return true;
+        }
+        return false;
+    }
 
-/**
- * Should be implemented by an object that wants to receive events.
- */
-public interface EventListener extends java.util.EventListener {
-    /**
-     * Invoked when an event occurs.
-     * The implementation of this method should return as soon as possible,
-     * to avoid blocking its event processor.
-     * @param e The <code>Event</code> to be processed.
-     */
-    void processEvent(Event e);
 }

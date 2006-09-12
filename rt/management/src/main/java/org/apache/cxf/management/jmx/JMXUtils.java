@@ -65,8 +65,7 @@ public final class JMXUtils {
      */
  
     public static ObjectName getObjectName(String type, String name) {        
-        String objectName = ":type=" + type + ",name=" + name;
-        
+        String objectName = ":type=" + type + ",name=" + name;        
         try {
             return new ObjectName(DOMAIN_STRING + objectName);
         } catch (Exception ex) {

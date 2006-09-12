@@ -16,20 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.workqueue;
 
-package org.apache.cxf.event;
-
-
-
-/**
- * Should be implemented by an object that wants to receive events.
- */
-public interface EventListener extends java.util.EventListener {
+public interface AutomaticWorkQueue extends WorkQueue {
     /**
-     * Invoked when an event occurs.
-     * The implementation of this method should return as soon as possible,
-     * to avoid blocking its event processor.
-     * @param e The <code>Event</code> to be processed.
+     * Initiates an orderly shutdown. 
+     * If <code>processRemainingWorkItems</code>
+     * is true, waits for all active items to finish execution before returning, otherwise returns 
+     * immediately after removing all non active items from the queue.
+     * 
+     * @param processRemainingWorkItems
      */
-    void processEvent(Event e);
+    void shutdown(boolean processRemainingWorkItems);
+    
+    /**
+     * Returns true if this object has been shut down.
+     * @return true if this object has been shut down.
+     */
+    boolean isShutdown();
 }

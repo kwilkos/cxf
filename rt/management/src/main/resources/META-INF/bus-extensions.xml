@@ -18,10 +18,10 @@
   under the License.
 -->
 <extensions xmlns="http://cxf.apache.org/bus/extension">
-
-    <extension class="org.apache.cxf.management.InstrumentationManagerImpl"
-           interface="org.apache.cxf.management.InstrumentationManager"/>
+   
     <extension class="org.apache.cxf.event.EventProcessorImpl"
            interface="org.apache.cxf.event.EventProcessor"/>
+    <extension class="org.apache.cxf.management.InstrumentationManagerImpl"
+           interface="org.apache.cxf.management.InstrumentationManager"/>       
     
 </extensions>

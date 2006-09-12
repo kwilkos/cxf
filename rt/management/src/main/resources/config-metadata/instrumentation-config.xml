@@ -36,7 +36,7 @@
         <!-- attribute values are defaulted -->
         <im:instrumentation>
         <im:InstrumentationEnabled>true</im:InstrumentationEnabled>
-        <im:JMXEnabled>false</im:JMXEnabled>
+        <im:JMXEnabled>true</im:JMXEnabled>
         </im:instrumentation>
     </cm:configItem>
     

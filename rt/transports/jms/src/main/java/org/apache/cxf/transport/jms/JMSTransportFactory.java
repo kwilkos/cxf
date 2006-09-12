@@ -53,24 +53,7 @@ public class JMSTransportFactory implements ConduitInitiator, DestinationFactory
             dfm.registerDestinationFactory(ns, this);
         }
     }
-    
-    /*
-    public ServerTransport createServerTransport(EndpointReferenceType address) 
-        throws WSDLException, IOException {
-        return new JMSServerTransport(theBus, address);
-    }
-     
-    public ServerTransport createTransientServerTransport(EndpointReferenceType address)
-        throws WSDLException {
-        return null;
-    }
-     
-    public ClientTransport createClientTransport(EndpointReferenceType address,
-                                                 ClientBinding binding) 
-        throws WSDLException, IOException {
-        return new JMSClientTransport(theBus, address, binding);
-    }*/
-
+   
     public Conduit getConduit(EndpointInfo targetInfo) throws IOException {
         return new JMSConduit(bus, targetInfo);
     }

@@ -31,6 +31,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +55,7 @@ import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
+import org.apache.cxf.workqueue.WorkQueueManager;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
@@ -167,9 +170,9 @@ public class JMSDestination extends JMSTransportBase implements Destination {
             }
             sessionFactory.shutdown();
         } catch (InterruptedException e) {
-            //Don't do anything...
+            //Do nothing here
         } catch (JMSException ex) {
-            //
+            //Do nothing here
         }
     }
 
@@ -273,11 +276,13 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                     }
                     while (message != null) {
                         //REVISIT  to get the thread pool                        
-                        /*
-                        Executor executor = jmsDestination.callback.getExecutor();
+                        //Executor executor = jmsDestination.callback.getExecutor();
+                        Executor executor = null;
                         if (executor == null) {
-                            executor = jmsDestination.bus
-                                .getWorkQueueManager().getAutomaticWorkQueue();
+                            WorkQueueManager wqm = jmsDestination.bus.getExtension(WorkQueueManager.class);
+                            if (null != wqm) {
+                                executor = wqm.getAutomaticWorkQueue();
+                            }    
                         }
                         if (executor != null) {
                             try {
@@ -289,14 +294,13 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                                 //although we could just dispatch on this thread.
                             }                            
                         } else {
-                            //shouldn't ever get here....
-                            
-                        }*/
-                        try {
-                            jmsDestination.incoming(message);
-                        } catch (IOException ex) {
-                            LOG.log(Level.WARNING, "Failed to process incoming message : ", ex);
-                        }
+                            LOG.log(Level.INFO, "handle the incoming message in listener thread");
+                            try {
+                                jmsDestination.incoming(message);
+                            } catch (IOException ex) {
+                                LOG.log(Level.WARNING, "Failed to process incoming message : ", ex);
+                            }                            
+                        }                        
                         message = null;
                     }
                 }
@@ -320,6 +324,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         }
 
         public void run() {
+            LOG.log(Level.INFO, "run the incoming message in the threadpool");
             try {
                 jmsDestination.incoming(message);
             } catch (IOException ex) {
