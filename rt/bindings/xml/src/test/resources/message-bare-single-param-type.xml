@@ -1,7 +1,0 @@
-<myComplexStructType
-	xmlns="http://apache.org/hello_world_xml_http/bare/types"
-	xmlns:ns2="http://www.w3.org/2005/08/addressing/wsdl">
-	<elem1>this is element 1</elem1>
-	<elem2>this is element 2</elem2>
-	<elem3>42</elem3>
-</myComplexStructType>

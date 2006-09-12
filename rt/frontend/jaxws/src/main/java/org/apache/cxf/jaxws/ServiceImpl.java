@@ -204,6 +204,7 @@ public class ServiceImpl extends ServiceDelegate {
         JaxwsEndpointImpl jaxwsEndpoint;
         try {
             jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
+            jaxwsEndpoint.setImplementor(serviceEndpointInterface);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }

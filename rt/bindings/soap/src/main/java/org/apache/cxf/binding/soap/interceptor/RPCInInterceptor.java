@@ -72,6 +72,8 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             operation = getOperation(message, xmlReader);            
             // Store operation into the message.
             message.getExchange().put(BindingOperationInfo.class, operation);
+        } else {
+            operation = message.getExchange().get(BindingOperationInfo.class);
         }
         findMethod(message);
         MessageInfo msg;
@@ -109,7 +111,12 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
     private void findMethod(Message message) {
         Endpoint ep = message.getExchange().get(Endpoint.class);
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
-        Class implementorClass = ep.getImplementor().getClass();
+        Class implementorClass = null;
+        if (!isRequestor(message)) {
+            implementorClass = ep.getImplementor().getClass();
+        } else {
+            implementorClass = (Class)ep.getImplementor();
+        }
         for (Method meth : implementorClass.getDeclaredMethods()) {
             String opName = boi.getOperationInfo().getName().getLocalPart();
             if (ProcessorUtil.mangleNameToVariableName(meth.getName()).equals(opName)) {
