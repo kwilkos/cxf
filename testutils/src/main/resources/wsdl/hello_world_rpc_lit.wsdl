@@ -71,7 +71,7 @@
         </wsdl:operation>
         <wsdl:operation name="sendReceiveData">
             <wsdl:input message="tns:sendReceiveDataRequest" name="SendReceiveDataRequest"/>
-        <wsdl:output message="tns:sendReceiveDataResponse" name="SendReceiveDataResponse"/>
+        	<wsdl:output message="tns:sendReceiveDataResponse" name="SendReceiveDataResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     
