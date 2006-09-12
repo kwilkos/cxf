@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 
 import com.sun.xml.bind.api.JAXBRIContext;
 
+import org.apache.cxf.helpers.JavaUtils;
 import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -154,7 +155,7 @@ public final class ProcessorUtil {
 
     public static String mangleNameToVariableName(String vName) {
         String result  = JAXBRIContext.mangleNameToVariableName(vName);
-        if (KeyWords.isKeywords(result)) {
+        if (JavaUtils.isJavaKeyword(result)) {
             return KEYWORDS_PREFIX + result;
         } else {
             return result;
