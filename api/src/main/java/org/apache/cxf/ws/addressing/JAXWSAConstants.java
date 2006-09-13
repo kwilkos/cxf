@@ -50,7 +50,7 @@ public final class JAXWSAConstants {
      * Used by AddressingBuilder factory method.
      */
     public static final String DEFAULT_ADDRESSING_BUILDER =
-        "org.objectweb.celtix.ws.addressing.AddressingBuilderImpl";
+        "org.apache.cxf.ws.addressing.AddressingBuilderImpl";
 
     /**
      * Prevents instantiation. 

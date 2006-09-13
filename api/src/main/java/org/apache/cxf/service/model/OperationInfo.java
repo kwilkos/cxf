@@ -35,7 +35,7 @@ import org.apache.cxf.common.logging.LogUtils;
  */
 public class OperationInfo extends AbstractPropertiesHolder {
     private static final Logger LOG = LogUtils.getL7dLogger(OperationInfo.class);
-    final InterfaceInfo intf;
+    InterfaceInfo intf;
     QName opName;
     String inName;
     MessageInfo inputMessage;
@@ -44,6 +44,9 @@ public class OperationInfo extends AbstractPropertiesHolder {
     Map<QName, FaultInfo> faults;
     
     OperationInfo unwrappedOperation;
+    
+    public OperationInfo() {
+    }
     
     OperationInfo(InterfaceInfo it, QName n) { 
         intf = it;

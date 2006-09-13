@@ -31,16 +31,19 @@ import javax.xml.namespace.QName;
  * 
  */
 public class BindingOperationInfo extends AbstractPropertiesHolder {
-    
-    final BindingInfo bindingInfo;
-    OperationInfo opInfo;
 
-    final BindingMessageInfo inputMessage;
-    final BindingMessageInfo outputMessage;
+    protected OperationInfo opInfo;
+
+    BindingInfo bindingInfo;
+
+    BindingMessageInfo inputMessage;
+    BindingMessageInfo outputMessage;
     Map<QName, BindingFaultInfo> faults;
 
     BindingOperationInfo opHolder;
 
+    public BindingOperationInfo() {
+    }
     
     BindingOperationInfo(BindingInfo bi, OperationInfo opinfo) { 
         bindingInfo = bi;
