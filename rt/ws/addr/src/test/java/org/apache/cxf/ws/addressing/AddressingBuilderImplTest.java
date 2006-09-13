@@ -17,14 +17,10 @@
  * under the License.
  */
 
-package org.apache.cxf.ws;
-
+package org.apache.cxf.ws.addressing;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.ws.addressing.AddressingBuilderImpl;
-import org.apache.cxf.ws.addressing.AddressingConstants;
-import org.apache.cxf.ws.addressing.AddressingProperties;
 
 public class AddressingBuilderImplTest extends TestCase {
     private AddressingBuilderImpl builder;
