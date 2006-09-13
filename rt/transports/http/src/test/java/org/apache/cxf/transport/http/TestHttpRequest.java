@@ -137,4 +137,9 @@ class TestHttpRequest extends HttpRequest {
     int getParametersCallCount() {
         return callCounts[7];
     }
+    
+    public org.mortbay.util.URI getURI() {
+        return new org.mortbay.util.URI("http://localhost/" + path +  query);
+    }
+
 }

@@ -67,7 +67,6 @@ public class JettyHTTPDestinationTest extends TestCase {
 
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
     private static final String PAYLOAD = "message payload";
-    private static final String QUERY = "?name";
     private static final String CHALLENGE_HEADER = "WWW-Authenticate";
     private static final String BASIC_CHALLENGE = "Basic realm=terra";
     private static final String DIGEST_CHALLENGE = "Digest realm=luna";
@@ -153,6 +152,24 @@ public class JettyHTTPDestinationTest extends TestCase {
         verifyDoService();
     }
     
+    public void testDoServiceWithHttpGET() throws Exception {
+        destination = setUpDestination(false);
+        setUpDoService(false, false, false, "GET", "?customerId=abc&cutomerAdd=def");
+        destination.doService(request, response);
+        
+        assertNotNull("unexpected null message", inMessage);
+        assertEquals("unexpected method",
+                     inMessage.get(MessageContext.HTTP_REQUEST_METHOD),
+                     "GET");
+        assertEquals("unexpected path",
+                     inMessage.get(MessageContext.PATH_INFO),
+                     "bar/foo");
+        assertEquals("unexpected query",
+                     inMessage.get(MessageContext.QUERY_STRING),
+                     "?customerId=abc&cutomerAdd=def");
+
+    }
+
     public void testGetAnonBackChannel() throws Exception {
         destination = setUpDestination(false);
         setUpDoService(false);
@@ -280,10 +297,20 @@ public class JettyHTTPDestinationTest extends TestCase {
                        sendResponse,
                        false);
     }        
-    
+
+    private void setUpDoService(boolean setRedirectURL,
+            boolean sendResponse,
+            boolean decoupled) throws Exception {
+        String method = "POST";
+        String query = "?name";
+        setUpDoService(setRedirectURL, sendResponse, decoupled, method, query);
+    }
+
     private void setUpDoService(boolean setRedirectURL,
                                 boolean sendResponse,
-                                boolean decoupled) throws Exception {
+                                boolean decoupled,
+                                String method,
+                                String query) throws Exception {
 
         control.verify();
         control.reset();
@@ -297,7 +324,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         //
         //request = EasyMock.createMock(HttpRequest.class);
         //response = EasyMock.createMock(HttpResponse.class);
-        request = new TestHttpRequest("POST", is, "bar/foo", QUERY);
+        request = new TestHttpRequest(method, is, "bar/foo", query);
         response = new TestHttpResponse(os);
         
         config.getPolicy();
@@ -378,7 +405,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                      "bar/foo");
         assertEquals("unexpected query",
                      inMessage.get(MessageContext.QUERY_STRING),
-                     QUERY);
+                     "?name");
         verifyRequestHeaders();
         
         
