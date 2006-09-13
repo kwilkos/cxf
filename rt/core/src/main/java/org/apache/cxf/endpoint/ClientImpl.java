@@ -78,7 +78,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
         }
         Message message = endpoint.getBinding().createMessage();
-        setMethod(ctx, message);
+        
+        //setMethod(ctx, message);
         setParameters(params, message);
         Exchange exchange = new ExchangeImpl();
         if (null != ctx) {
@@ -182,12 +183,12 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
     }
 
-    private void setMethod(Map<String, Object> ctx, Message message) {
-        if (ctx != null) {
-            message.setContent(Method.class, ctx.get(Method.class.getName()));
-            methd = (Method)ctx.get(Method.class.getName());
-        }
-    }
+//    private void setMethod(Map<String, Object> ctx, Message message) {
+//        if (ctx != null) {
+//            message.setContent(Method.class, ctx.get(Method.class.getName()));
+//            methd = (Method)ctx.get(Method.class.getName());
+//        }
+//    }
 
     
 

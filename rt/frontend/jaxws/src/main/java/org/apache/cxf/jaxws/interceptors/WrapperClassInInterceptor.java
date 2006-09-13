@@ -37,8 +37,6 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
-
-
 public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public WrapperClassInInterceptor() {
@@ -52,8 +50,8 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             return;
         }
         Method method = (Method)boi.getOperationInfo().getProperty(Method.class.getName());
-        if (method == null) {
-            method = message.getContent(Method.class);
+        if (method == null) {             
+            method = (Method)boi.getOperationInfo().getProperty(Method.class.getName());
         }
         if (method != null && method.getName().endsWith("Async")) {
             return;
@@ -113,7 +111,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                         
                             CastUtils.cast(lst, Object.class).add(obj);
                         } catch (Exception e) {
-                            //TODO - fault
+                            // TODO - fault
                             throw new Fault(e);
                         }
                     }
@@ -124,5 +122,4 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         }
     }
 
-    
 }

@@ -71,7 +71,6 @@ public class ClientServerRPCLitTest extends TestCase {
     }
     
     public void testBasicConnection() throws Exception {
-
         SOAPServiceRPCLit service = new SOAPServiceRPCLit();
         assertNotNull(service);
 

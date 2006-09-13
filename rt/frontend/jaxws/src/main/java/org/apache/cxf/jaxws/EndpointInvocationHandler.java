@@ -95,7 +95,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
         Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> context = new HashMap<String, Object>();
-        context.put(Method.class.getName(), method);
+        //context.put(Method.class.getName(), method);
         
         
         boolean isAsync = method.getName().endsWith("Async");
@@ -200,6 +200,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                             oi.setProperty(WrapperClassOutInterceptor.SINGLE_WRAPPED_PART, requestWrapper);
                             boi2.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
                                             Boolean.TRUE);
+                            boi3.getOperationInfo().setProperty(Method.class.getName(), method);
                             infoMap.put(method, boi3);
                             return boi3;
                         }
@@ -208,7 +209,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                         // TODO - exception
                     }
                 }
-                infoMap.put(method, boi2);
+                boi2.getOperationInfo().setProperty(Method.class.getName(), method);
+                infoMap.put(method, boi2);                
                 return boi2;
             }
         }

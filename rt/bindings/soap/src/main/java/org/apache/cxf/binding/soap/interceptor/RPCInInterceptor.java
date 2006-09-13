@@ -26,7 +26,6 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -36,7 +35,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
-import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
@@ -68,19 +66,20 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
         BindingOperationInfo operation = null;
         if (message.getExchange().get(BindingOperationInfo.class) == null) {
-            operation = getOperation(message, xmlReader);            
+            operation = getOperation(message, xmlReader);
             // Store operation into the message.
             message.getExchange().put(BindingOperationInfo.class, operation);
         } else {
             operation = message.getExchange().get(BindingOperationInfo.class);
         }
-        findMethod(message);
         MessageInfo msg;
         DataReader<Message> dr = getMessageDataReader(message);
 
         if (!isRequestor(message)) {
+            System.out.println("Server");
             msg = operation.getInput().getMessageInfo();
         } else {
+            System.out.println("Client");
             msg = operation.getOutput().getMessageInfo();
         }
 
@@ -101,44 +100,11 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 String expMessage = "Parameter " + name + " does not equal to the name in the servicemodel!";
                 message.setContent(Exception.class, new RuntimeException(expMessage));
             }
-            Object param = dr.read(elName, message, getParameterTypeClass(message, idx));
+            Method meth = (Method) operation.getOperationInfo().getProperty(Method.class.getName());
+            System.out.println("meth is null = " + (meth == null));
+            Object param = dr.read(elName, message, meth.getParameterTypes()[idx]);
             parameters.add(param);
         }
         message.setContent(List.class, parameters);
-    }
-
-    private void findMethod(Message message) {
-        Endpoint ep = message.getExchange().get(Endpoint.class);
-        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
-        Class implementorClass = null;
-        if (!isRequestor(message)) {
-            implementorClass = ep.getImplementor().getClass();
-        } else {
-            implementorClass = (Class)ep.getImplementor();
-        }
-        for (Method meth : implementorClass.getDeclaredMethods()) {
-            String opName = boi.getOperationInfo().getName().getLocalPart();
-            if (ProcessorUtil.mangleNameToVariableName(meth.getName()).equals(opName)) {
-                message.put(Method.class, meth);
-                break;
-            }
-        }
-    }
-
-    private Class getParameterTypeClass(Message message, int idx) {
-        Method method = message.get(Method.class);
-        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
-        MessageInfo mi;
-        if (!isRequestor(message)) {
-            mi = boi.getOperationInfo().getInput();
-        } else {
-            mi = boi.getOperationInfo().getOutput();
-        }
-        MessagePartInfo mpi = mi.getMessagePartByIndex(idx);
-        if (!mpi.isElement()) {
-            return method.getParameterTypes()[idx];
-        } else {
-            return null;
-        }
     }
 }

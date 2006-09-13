@@ -84,8 +84,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         //      TODO: use bindigURI     
         try {
-            endpoint = new JaxwsEndpointImpl(bus, service, ei);
-            endpoint.setImplementor(implementor);
+            endpoint = new JaxwsEndpointImpl(bus, service, ei);            
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }

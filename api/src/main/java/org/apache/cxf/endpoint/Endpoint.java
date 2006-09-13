@@ -44,8 +44,5 @@ public interface Endpoint extends InterceptorProvider {
     Executor getExecutor();
     
     Interceptor getFaultInterceptor();
-    
-    Object getImplementor();
-    
-    void setImplementor(Object impl);
+
 }
