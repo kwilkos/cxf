@@ -47,13 +47,13 @@ public class DispatchXMLClientServerTest extends ClientServerTestBase {
     private final QName serviceName = new QName("http://apache.org/hello_world_xml_http/wrapped", 
                                                 "XMLService");
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", 
-                                             "XMLPort");
+                                             "XMLDispatchPort");
 
     public static class Server extends TestServerBase {
 
         protected void run() {
             Object implementor = new GreeterImpl();
-            String address = "http://localhost:9000/XMLService/XMLPort";
+            String address = "http://localhost:9007/XMLService/XMLDispatchPort";
             Endpoint.publish(address, implementor);
 
         }
