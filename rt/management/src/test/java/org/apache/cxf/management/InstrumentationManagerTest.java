@@ -57,8 +57,7 @@ public class InstrumentationManagerTest extends TestCase {
         wqm.setBus(bus);
         EventProcessor ep = bus.getExtension(EventProcessor.class);
         QName eventID = new QName(ComponentEventFilter.COMPONENT_CREATED_EVENT);
-        if (null != ep) {
-            System.out.println("send automaticWorkQueue created event");
+        if (null != ep) {         
             ep.sendEvent(new Event(wqm, eventID));
         }        
         

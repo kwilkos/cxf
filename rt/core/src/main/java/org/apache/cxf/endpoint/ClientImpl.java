@@ -61,6 +61,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     Bus bus;
     Endpoint endpoint;
     Method methd;
+    Conduit initedConduit;
     public ClientImpl(Bus b, Endpoint e) {
         bus = b;
         endpoint = e;
@@ -233,22 +234,23 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
     }
 
-    private Conduit getConduit() {
-        EndpointInfo ei = endpoint.getEndpointInfo();
-        String transportID = ei.getTransportId();
-        try {
-            ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
-                .getConduitInitiator(transportID);
-            return ci.getConduit(ei);
-        } catch (BusException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
+    private Conduit getConduit() {        
+        if (null == initedConduit) {
+            EndpointInfo ei = endpoint.getEndpointInfo();
+            String transportID = ei.getTransportId();
+            try {
+                ConduitInitiator ci = bus.getExtension(ConduitInitiatorManager.class)
+                    .getConduitInitiator(transportID);
+                initedConduit = ci.getConduit(ei);
+            } catch (BusException ex) {
+                // TODO: wrap in runtime exception
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                // TODO: wrap in runtime exception
+                ex.printStackTrace();
+            }
         }
-        
-        return null;
+        return initedConduit;
     }
     
     protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {

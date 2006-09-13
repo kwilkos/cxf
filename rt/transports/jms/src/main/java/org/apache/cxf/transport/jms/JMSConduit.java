@@ -39,6 +39,7 @@ import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -57,16 +58,13 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
     
       
     protected JMSSessionPoolConfigPolicy sessionPoolConfig;    
-    protected JMSConduitConfiguration jmsCondConf;
+    protected JMSConduitConfiguration jmsCondConf;   
     
-       
-    //private final Bus bus;
     private MessageObserver incomingObserver;
     private EndpointReferenceType target;
-    //private DecoupledDestination decoupledDestination;
-    private boolean textPayload;
+   
+    private boolean textPayload;    
     
-    //NOTE need to define the JMSConduit to be server or client
     public JMSConduit(Bus b, EndpointInfo endpointInfo) {
         this(b, endpointInfo, null);
     }
@@ -81,9 +79,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
     public JMSConduit(Bus b,
                       EndpointInfo endpointInfo,
                       EndpointReferenceType target,
-                      JMSConduitConfiguration conf) {
-        //bus = b;
-        /*port = EndpointReferenceUtils.getPort(bus.getWSDLManager(), epr);*/
+                      JMSConduitConfiguration conf) {           
         super(b, endpointInfo, false, conf);        
         jmsCondConf = conf;          
         queueDestinationStyle =
@@ -116,8 +112,14 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
         }
 
         try {
+            boolean isOneWay = false;        
+            //test if the message is oneway message
+            Exchange ex = message.getExchange();
+            if (null != ex) {
+                isOneWay = ex.isOneWay();
+            }    
             //get the pooledSession with response expected 
-            PooledSession pooledSession = sessionFactory.get(true);
+            PooledSession pooledSession = sessionFactory.get(!isOneWay);            
             // put the PooledSession into the outMessage
             message.put(JMSConstants.JMS_POOLEDSESSION, pooledSession);
             
@@ -220,7 +222,8 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
                 commitOutputMessage();
                 if (!isOneWay) {
                     handleResponse();
-                }    
+                }
+                sessionFactory.recycle(pooledSession);
             } catch (JMSException jmsex) {
                 LOG.log(Level.WARNING, "JMS connect failed with JMSException : ", jmsex);            
                 throw new IOException(jmsex.toString());
@@ -322,7 +325,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             }  
             
             LOG.log(Level.FINE, "The Response Message is : [" + response + "]");
-            sessionFactory.recycle(pooledSession);
+            
             // setup the inMessage response stream
             byte[] bytes = null;
             if (response instanceof String) {
