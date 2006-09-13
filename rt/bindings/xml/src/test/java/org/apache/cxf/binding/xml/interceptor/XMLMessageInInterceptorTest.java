@@ -27,6 +27,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
+import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
 
 public class XMLMessageInInterceptorTest extends TestBase {
 
@@ -46,46 +47,38 @@ public class XMLMessageInInterceptorTest extends TestBase {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-multi-param.xml");
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"),
-               org.apache.hello_world_xml_http.bare.Greeter.class);
+                        org.apache.hello_world_xml_http.bare.Greeter.class);
         in.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 2 param", 2, list.size());
         assertEquals("method input in2 is MyComplexStructType", true,
-                     list.get(0) instanceof MyComplexStructType);
-        assertEquals("method input in1 is String tli", true, ((String)list.get(1)).indexOf("tli") >= 0);
+                        list.get(0) instanceof MyComplexStructType);
+        assertEquals("method input in1 is String tli", true, ((String) list.get(1)).indexOf("tli") >= 0);
     }
 
     public void testHandleMessageOnBareSingleChild() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-single-param-element.xml");
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"),
-               org.apache.hello_world_xml_http.bare.Greeter.class);
+                        org.apache.hello_world_xml_http.bare.Greeter.class);
         in.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 1 param", 1, list.size());
-        assertEquals("method input me is String tli", true, ((String)list.get(0)).indexOf("tli") >= 0);
-        // prepareMessage("/message-bare-single-param-type.xml");
-        // common();
-        // assertNotNull(list);
-        // assertEquals("expect 1 param", 1, list.size());
-        // assertEquals("method input in2 is MyComplexStructType", true,
-        // list.get(0) instanceof MyComplexStructType);
+        assertEquals("method input me is String tli", true, ((String) list.get(0)).indexOf("tli") >= 0);
     }
 
     public void testHandleMessageWrapped() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/wrapped";
         prepareMessage("/message-wrap.xml");
         common("/wsdl/hello_world_xml_wrapped.wsdl", new QName(ns, "XMLPort"),
-               org.apache.hello_world_xml_http.wrapped.Greeter.class);
-
-        // FIXME
-        //        in.handleMessage(xmlMessage);
-        //        List list = xmlMessage.getContent(List.class);
-        //        assertNotNull(list);
-        //        assertEquals("expect 1 param", 1, list.size());
-        //        assertEquals("method input me is String tli", true, list.get(0) instanceof GreetMe);        
+                        org.apache.hello_world_xml_http.wrapped.Greeter.class);
+        in.handleMessage(xmlMessage);
+        List list = xmlMessage.getContent(List.class);
+        assertNotNull(list);
+        assertEquals("expect 1 param", 1, list.size());
+        assertEquals("method input me is String tli", true, list.get(0) instanceof GreetMe);
     }
 
     private void prepareMessage(String messageFileName) throws Exception {

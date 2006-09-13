@@ -46,7 +46,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
-    
+
     public XMLMessageInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
@@ -88,6 +88,8 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                     } else {
                         // processing wrap here
                         message.getExchange().put(BindingOperationInfo.class, boi);
+                        boi.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
+                                        Boolean.TRUE);
                         new WrappedInInterceptor().handleMessage(message);
                         break;
                     }
@@ -125,7 +127,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
         }
         QName paramFirst = null;
         if (mi.getMessageParts().size() > 0) {
-            MessagePartInfo mpiFirst = mi.getMessagePartByIndex(0);            
+            MessagePartInfo mpiFirst = mi.getMessagePartByIndex(0);
             if (mpiFirst.isElement()) {
                 paramFirst = mpiFirst.getElementQName();
             } else {
