@@ -76,10 +76,8 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         DataReader<Message> dr = getMessageDataReader(message);
 
         if (!isRequestor(message)) {
-            System.out.println("Server");
             msg = operation.getInput().getMessageInfo();
         } else {
-            System.out.println("Client");
             msg = operation.getOutput().getMessageInfo();
         }
 
@@ -101,9 +99,26 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 message.setContent(Exception.class, new RuntimeException(expMessage));
             }
             Method meth = (Method) operation.getOperationInfo().getProperty(Method.class.getName());
-            System.out.println("meth is null = " + (meth == null));
-            Object param = dr.read(elName, message, meth.getParameterTypes()[idx]);
-            parameters.add(param);
+            Object param = null;
+            if (!isRequestor(message)) {                
+                if (meth.getParameterTypes() != null && meth.getParameterTypes().length > idx) {
+                    param = dr.read(elName, message, meth.getParameterTypes()[idx]);
+                } else {
+                    throw new RuntimeException("can't match the method param no." + idx
+                                    + " with message part " + p.getName());
+                }
+            } else {
+                if (idx == 0 && meth.getReturnType() != null) {
+                    param = dr.read(elName, message, meth.getReturnType());
+                } else {
+                    // to do, handle holder
+                }
+            }
+            if (param != null) {
+                parameters.add(param);
+            } else {
+                throw new RuntimeException(p.getName() + " can not be unmarshalled");                
+            }
         }
         message.setContent(List.class, parameters);
     }

@@ -71,6 +71,30 @@ public class ClientServerRPCLitTest extends TestCase {
     }
     
     public void testBasicConnection() throws Exception {
+        
+        SOAPServiceRPCLit service = new SOAPServiceRPCLit();
+        assertNotNull(service);
+        
+        String response1 = new String("Hello Milestone-");
+        String response2 = new String("Bonjour");
+        try {
+            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
+            for (int idx = 0; idx < 5; idx++) {
+                String greeting = greeter.greetMe("Milestone-" + idx);
+                assertNotNull("no response received from service", greeting);
+                String exResponse = response1 + idx;
+                assertEquals(exResponse, greeting);
+
+                String reply = greeter.sayHi();
+                assertNotNull("no response received from service", reply);
+                assertEquals(response2, reply);
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+    
+    public void testComplexType() throws Exception {
         SOAPServiceRPCLit service = new SOAPServiceRPCLit();
         assertNotNull(service);
 
