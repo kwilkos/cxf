@@ -147,8 +147,8 @@ public class JaxwsImplementorInfo {
                 if ((null != portName && !"".equals(portName))
                     || (null != serviceName && !"".equals(serviceName))
                     || (null != endpointInterface && !"".equals(endpointInterface))) {
-                    throw new 
-                    WebServiceException(BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC"));
+                    String expString = BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC");
+                    throw new WebServiceException(expString);
                 }
             }
         } else {
@@ -165,7 +165,11 @@ public class JaxwsImplementorInfo {
     }
 
     public Service.Mode getServiceMode() {
-        return implementorClass.getAnnotation(ServiceMode.class).value();
+        ServiceMode m = implementorClass.getAnnotation(ServiceMode.class);
+        if (m != null && m.value() != null) {
+            return m.value();
+        }
+        return Service.Mode.PAYLOAD;
     }
 
     public Class<?> getProviderParameterType() {

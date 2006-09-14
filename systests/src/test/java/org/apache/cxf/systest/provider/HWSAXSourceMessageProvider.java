@@ -37,7 +37,7 @@ import org.xml.sax.InputSource;
 
 //The following wsdl file is used.
 //wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
-@WebServiceProvider(portName = "SoapPortRPCLit3", serviceName = "SOAPServiceRPCLit3",
+@WebServiceProvider(portName = "SoapPortProviderRPCLit4", serviceName = "SOAPServiceProviderRPCLit",
                     targetNamespace = "http://apache.org/hello_world_rpclit",
 wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
 @ServiceMode(value = Service.Mode.MESSAGE)

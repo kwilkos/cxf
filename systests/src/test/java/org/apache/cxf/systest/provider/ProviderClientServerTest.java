@@ -40,31 +40,7 @@ public class ProviderClientServerTest extends ClientServerTestBase {
         protected void run() {
             Object implementor = new HWSoapMessageDocProvider();
             String address = "http://localhost:9003/SoapContext/SoapProviderPort";
-            Endpoint.publish(address, implementor);
-                        
-//            implementor = new HWDOMSourceMessageProvider();
-//            address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort1");
-//            Endpoint.publish(address, implementor);
-//            
-//            implementor = new HWDOMSourcePayloadProvider();
-//            address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort2");
-//            Endpoint.publish(address, implementor); 
-//            
-//            implementor = new HWSAXSourceMessageProvider();
-//            address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort3");
-//            Endpoint.publish(address, implementor); 
-//            
-//            implementor = new HWStreamSourceMessageProvider();
-//            address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort4");
-//            Endpoint.publish(address, implementor); 
-//            
-//            implementor = new HWSAXSourcePayloadProvider();
-//            address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort5");
-//            Endpoint.publish(address, implementor); 
-//            
-//            implementor = new HWStreamSourcePayloadProvider();
-//            address = new String("http://localhost:9002/SOAPServiceRPCLit/SoapPort6");
-//            Endpoint.publish(address, implementor);             
+            Endpoint.publish(address, implementor);                                 
         }
 
         public static void main(String[] args) {
@@ -88,37 +64,6 @@ public class ProviderClientServerTest extends ClientServerTestBase {
             }
         };
     }
-
-//    public void testSOAPMessageModeRPC() throws Exception {
-//        
-//        QName serviceName = 
-//            new QName("http://apache.org/hello_world_rpclit", "SOAPServiceRPCLit");
-//        QName portName = 
-//            new QName("http://apache.org/hello_world_rpclit", "SoapPortRPCLit");
-//
-//        URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
-//        assertNotNull(wsdl);
-//
-//        SOAPServiceRPCLit service = new SOAPServiceRPCLit(wsdl, serviceName);
-//        assertNotNull(service);
-//
-//        String response1 = new String("TestGreetMeResponse");
-//        String response2 = new String("TestSayHiResponse");
-//        try {
-//            GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
-//            for (int idx = 0; idx < 2; idx++) {
-//                String greeting = greeter.greetMe("Milestone-" + idx);
-//                assertNotNull("no response received from service", greeting);
-//                assertEquals(response1, greeting);
-//
-//                String reply = greeter.sayHi();
-//                assertNotNull("no response received from service", reply);
-//                assertEquals(response2, reply);
-//            }
-//        } catch (UndeclaredThrowableException ex) {
-//            throw (Exception)ex.getCause();
-//        }
-//    }
 
     public void testSOAPMessageModeDocLit() throws Exception {
         

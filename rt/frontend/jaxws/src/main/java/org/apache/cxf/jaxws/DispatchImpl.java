@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,28 +75,29 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         endpoint = ep;
     }
 
-    DispatchImpl(Bus b,                 
-                 Service.Mode m, 
-                 JAXBContext ctx, 
-                 Class<T> clazz, 
-                 Executor e, 
-                 Endpoint ep) {
+    DispatchImpl(Bus b, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e, Endpoint ep) {
         bus = b;
         executor = e;
         context = ctx;
         cl = clazz;
         mode = m;
-        
+
         endpoint = ep;
     }
 
     public T invoke(T obj) {
+        return invoke(obj, false);
+    }
+
+    public T invoke(T obj, boolean isOneWay) {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Dispatch: invoke called");
         }
 
-        Message message = endpoint.getBinding().createMessage();        
-        
+        System.err.println("INVOKING...");
+
+        Message message = endpoint.getBinding().createMessage();
+
         if (context != null) {
             message.setContent(JAXBContext.class, context);
         }
@@ -132,27 +135,33 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
         }
 
-        synchronized (exchange) {
-            Message inMsg = exchange.getInMessage();
-            if (inMsg == null) {
-                try {
-                    exchange.wait();
-                } catch (InterruptedException e) {
-                    //TODO - timeout
-                }
-                inMsg = exchange.getInMessage();
+        if (!isOneWay) {
+            synchronized (exchange) {
+                Message inMsg = waitResponse(exchange);
+                return cl.cast(inMsg.getContent(Object.class));
             }
-            if (inMsg.getContent(Exception.class) != null) {
-                //TODO - exceptions 
-                throw new RuntimeException(inMsg.getContent(Exception.class));
-            }
-            // TODO, just assume it's soap message, should handle the DOMSouce, SAXSource etc.
-            return cl.cast(inMsg.getContent(Object.class));
         }
+        return null;
         //         populateResponseContext(objMsgContext);
         //         return cl.cast(objMsgContext.getReturn());
     }
 
+    private Message waitResponse(Exchange exchange) {
+        Message inMsg = exchange.getInMessage();
+        if (inMsg == null) {
+            try {
+                exchange.wait();
+            } catch (InterruptedException e) {
+                //TODO - timeout
+            }
+            inMsg = exchange.getInMessage();
+        }
+        if (inMsg.getContent(Exception.class) != null) {
+            //TODO - exceptions 
+            throw new RuntimeException(inMsg.getContent(Exception.class));
+        }
+        return inMsg;
+    }
 
     private PhaseInterceptorChain getDispatchOutChain() {
         PhaseManager pm = bus.getExtension(PhaseManager.class);
@@ -231,19 +240,36 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         return null;
     }
 
-    public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
-        // TODO
-        return null;
+    private Executor getExecutor() {
+        if (executor == null) {
+            executor = endpoint.getService().getExecutor();
+        }
+        if (executor == null) {
+            executor = Executors.newFixedThreadPool(5);
+        }
+        if (executor == null) {
+            System.err.println("Can't not get executor");
+        }
+        return executor;
     }
 
+    public Future<?> invokeAsync(T obj, AsyncHandler<T> asyncHandler) {
+        Response<?> r = invokeAsync(obj);
+        AsyncCallbackFuture callback = new AsyncCallbackFuture(r, asyncHandler);
+
+        getExecutor().execute(callback);
+        return callback;
+    }
+
+    @SuppressWarnings("unchecked")
     public Response<T> invokeAsync(T obj) {
-        Response<T> response = null;
-        executor.execute(null);
-        // TODO
-        return response;
+        FutureTask<T> f = new FutureTask<T>(new DispatchAsyncCallable<T>(this, obj));
+
+        getExecutor().execute(f);
+        return new AsyncResponse<T>(f, cl);
     }
 
     public void invokeOneWay(T obj) {
-        // TODO
+        invoke(obj, true);
     }
 }

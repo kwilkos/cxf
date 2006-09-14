@@ -31,11 +31,11 @@ import javax.xml.ws.Response;
 
 public class AsyncResponse<T> implements Response<T> {
 
-    private final Future<Object> obj;
+    private final Future<T> obj;
     private T result;
     private Class<T> cls;
     
-    public AsyncResponse(Future<Object> object, Class<T> c) {
+    public AsyncResponse(Future<T> object, Class<T> c) {
         obj = object;
         cls = c;
     }

@@ -33,7 +33,7 @@ import org.w3c.dom.Node;
 
 //The following wsdl file is used.
 //wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
-@WebServiceProvider(portName = "SoapPortRPCLit2", serviceName = "SOAPServiceRPCLit2",
+@WebServiceProvider(portName = "SoapPortProviderRPCLit3", serviceName = "SOAPServiceProviderRPCLit",
                       targetNamespace = "http://apache.org/hello_world_rpclit",
  wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
 public class HWDOMSourcePayloadProvider implements Provider<DOMSource> {
@@ -45,7 +45,6 @@ public class HWDOMSourcePayloadProvider implements Provider<DOMSource> {
     private MessageFactory factory;
 
     public HWDOMSourcePayloadProvider() {
-
         try {
             factory = MessageFactory.newInstance();
             InputStream is = getClass().getResourceAsStream("resources/sayHiRpcLiteralResp.xml");

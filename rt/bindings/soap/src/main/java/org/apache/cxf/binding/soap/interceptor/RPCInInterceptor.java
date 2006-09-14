@@ -43,29 +43,26 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         setPhase(Phase.UNMARSHAL);
     }
 
-    private BindingOperationInfo getOperation(Message message, DepthXMLStreamReader xmlReader) {
-        if (!StaxUtils.toNextElement(xmlReader)) {
-            message.setContent(Exception.class, new RuntimeException("There must be a method name element."));
-        }
-
-        String opName = xmlReader.getLocalName();
-        if (isRequestor(message) && opName.endsWith("Response")) {
-            opName = opName.substring(0, opName.length() - 8);
-        }
-
-        BindingOperationInfo operation = ServiceModelUtil.getOperation(message.getExchange(), new QName(
-                        xmlReader.getNamespaceURI(), opName));
-        return operation;
+    private BindingOperationInfo getOperation(Message message, QName opName) {
+        return ServiceModelUtil.getOperation(message.getExchange(), opName);
     }
 
     public void handleMessage(Message message) {
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
 
         BindingOperationInfo operation = null;
+        if (!StaxUtils.toNextElement(xmlReader)) {
+            message.setContent(Exception.class, new RuntimeException("There must be a method name element."));
+        }
+        String opName = xmlReader.getLocalName();
+        if (isRequestor(message) && opName.endsWith("Response")) {
+            opName = opName.substring(0, opName.length() - 8);
+        }
+
         if (message.getExchange().get(BindingOperationInfo.class) == null) {
-            operation = getOperation(message, xmlReader);
+            operation = getOperation(message, new QName(xmlReader.getNamespaceURI(), opName));
             if (operation == null) {
-                // it's doc-lit-bare 
+                // it's doc-lit-bare
                 new BareInInterceptor().handleMessage(message);
             }
             message.getExchange().put(BindingOperationInfo.class, operation);
@@ -89,21 +86,22 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             MessagePartInfo p = msg.getMessageParts().get(idx);
             if (p == null) {
                 message.setContent(Exception.class, new RuntimeException("Parameter " + xmlReader.getName()
-                                + " does not exist!"));
+                                                                         + " does not exist!"));
             }
             QName name = xmlReader.getName();
             QName elName = ServiceModelUtil.getRPCPartName(p);
 
             if (!elName.getLocalPart().equals(name.getLocalPart())) {
-                String expMessage = "Parameter " + name + " does not equal to the name in the servicemodel!";
+                String expMessage = "Parameter " + name + " does not equal to the name ["
+                                    + elName.getLocalPart() + "] in the servicemodel!";
                 message.setContent(Exception.class, new RuntimeException(expMessage));
-            }            
+            }
             Object param = null;
-            param = dr.read(elName, message, (Class)p.getProperty(Class.class.getName()));                
+            param = dr.read(elName, message, (Class)p.getProperty(Class.class.getName()));
             if (param != null) {
                 parameters.add(param);
             } else {
-                throw new RuntimeException(p.getName() + " can not be unmarshalled");                
+                throw new RuntimeException(p.getName() + " can not be unmarshalled");
             }
         }
         message.setContent(List.class, parameters);
