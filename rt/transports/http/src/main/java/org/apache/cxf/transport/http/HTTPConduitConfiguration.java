@@ -25,8 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.ws.BindingProvider;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -94,12 +92,17 @@ public class HTTPConduitConfiguration {
     }
 
     void setPolicies(Message message, Map<String, List<String>> headers) {
-        String userName = (String)message.get(BindingProvider.USERNAME_PROPERTY);
+        AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
+        String userName = null;
+        String passwd = null;
+        if (null != newPolicy) {
+            userName = newPolicy.getUserName();
+            passwd = newPolicy.getPassword();
+        }
         if (userName == null && authPolicy.isSetUserName()) {
             userName = authPolicy.getUserName();
         }
         if (userName != null) {
-            String passwd = (String)message.get(BindingProvider.PASSWORD_PROPERTY);
             if (passwd == null && authPolicy.isSetPassword()) {
                 passwd = authPolicy.getPassword();
             }
@@ -120,7 +123,7 @@ public class HTTPConduitConfiguration {
         if (proxyAuthPolicy.isSetUserName()) {
             userName = proxyAuthPolicy.getUserName();
             if (userName != null) {
-                String passwd = "";
+                passwd = "";
                 if (proxyAuthPolicy.isSetPassword()) {
                     passwd = proxyAuthPolicy.getPassword();
                 }

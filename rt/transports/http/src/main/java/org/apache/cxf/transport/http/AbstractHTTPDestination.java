@@ -26,15 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.xml.ws.BindingProvider;
-
-import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -122,7 +118,7 @@ public abstract class AbstractHTTPDestination  implements Destination {
     protected void setHeaders(Message message) {
         Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>();
         copyRequestHeaders(message, requestHeaders);
-        message.put(HTTP_REQUEST_HEADERS, requestHeaders);
+        message.put(Message.PROTOCOL_HEADERS, requestHeaders);
 
         if (requestHeaders.containsKey("Authorization")) {
             List<String> authorizationLines = requestHeaders.get("Authorization"); 
@@ -135,17 +131,29 @@ public abstract class AbstractHTTPDestination  implements Destination {
                     String authInfo[] = authDecoded.split(":");
                     String username = authInfo[0];
                     String password = authInfo[1];
-                    message.put(BindingProvider.USERNAME_PROPERTY, username);
-                    message.put(BindingProvider.PASSWORD_PROPERTY, password);
+                    
+                    AuthorizationPolicy policy = new AuthorizationPolicy();
+                    policy.setUserName(username);
+                    policy.setPassword(password);
+                    
+                    message.put(AuthorizationPolicy.class, policy);
                 } catch (Base64Exception ex) {
                     //ignore, we'll leave things alone.  They can try decoding it themselves
                 }
             }
         }
-        
-        Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
+           
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected void updateResponseHeaders(Message message) {
+        Map<String, List<String>> responseHeaders =
+            (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
+        if (responseHeaders == null) {
+            responseHeaders = new HashMap<String, List<String>>();
+            message.put(Message.PROTOCOL_HEADERS, responseHeaders);         
+        }
         config.setPolicies(responseHeaders);
-        message.put(HTTP_RESPONSE_HEADERS, responseHeaders);         
     }
     
     /** 

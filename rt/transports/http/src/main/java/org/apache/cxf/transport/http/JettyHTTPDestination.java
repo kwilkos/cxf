@@ -35,9 +35,6 @@ import java.util.logging.Level;
 import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
-import javax.xml.ws.handler.MessageContext;
-
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.message.Message;
@@ -167,7 +164,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         } else {
             if (partialResponse != null) {
                 // setup the outbound message to for 202 Accepted
-                partialResponse.put(HTTP_RESPONSE_CODE,
+                partialResponse.put(Message.RESPONSE_CODE,
                                     HttpURLConnection.HTTP_ACCEPTED);
                 backChannel = new BackChannelConduit(address, response);
             } else {
@@ -228,7 +225,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param headers the current set of headers
      */
     protected void copyResponseHeaders(Message message, HttpResponse response) {
-        Map<?, ?> headers = (Map<?, ?>)message.get(MessageContext.HTTP_RESPONSE_HEADERS);
+        Map<?, ?> headers = (Map<?, ?>)message.get(Message.PROTOCOL_HEADERS);
         if (null != headers) {
             for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
                 String header = (String)iter.next();
@@ -288,9 +285,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.setContent(InputStream.class, req.getInputStream());
             inMessage.put(HTTP_REQUEST, req);
             inMessage.put(HTTP_RESPONSE, resp);
-            inMessage.put(MessageContext.HTTP_REQUEST_METHOD, req.getMethod());
-            inMessage.put(MessageContext.PATH_INFO, req.getPath());
-            inMessage.put(MessageContext.QUERY_STRING, req.getQuery());
+            inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
+            inMessage.put(Message.PATH_INFO, req.getPath());
+            inMessage.put(Message.QUERY_STRING, req.getQuery());
 
             setHeaders(inMessage);
             
@@ -308,12 +305,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     protected OutputStream flushHeaders(Message outMessage) throws IOException {
+        updateResponseHeaders(outMessage);
         Object responseObj = outMessage.get(HTTP_RESPONSE);
         OutputStream responseStream = null;
         if (responseObj instanceof HttpResponse) {
             HttpResponse response = (HttpResponse)responseObj;
                 
-            Integer i = (Integer)outMessage.get(HTTP_RESPONSE_CODE);
+            Integer i = (Integer)outMessage.get(Message.RESPONSE_CODE);
             if (i != null) {
                 int status = i.intValue();
                 if (status == HttpURLConnection.HTTP_INTERNAL_ERROR) {

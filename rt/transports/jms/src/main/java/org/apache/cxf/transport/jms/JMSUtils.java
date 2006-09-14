@@ -31,7 +31,6 @@ import javax.jms.Message;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
@@ -79,41 +78,7 @@ public final class JMSUtils {
                 env.setProperty(propertyPair.getName(), propertyPair.getValue());
             }
         }
-    }
-    
-    public static JMSMessageHeadersType populateIncomingContext(Message message, MessageContext context,
-                                                            String headerType) throws JMSException {
-        JMSMessageHeadersType headers = null;
-
-        headers = (JMSMessageHeadersType)context.get(headerType);
-
-        if (headers == null) {
-            headers = new JMSMessageHeadersType();
-            context.put(headerType, headers);
-        }
-
-        headers.setJMSCorrelationID(message.getJMSCorrelationID());
-        headers.setJMSDeliveryMode(new Integer(message.getJMSDeliveryMode()));
-        headers.setJMSExpiration(new Long(message.getJMSExpiration()));
-        headers.setJMSMessageID(message.getJMSMessageID());
-        headers.setJMSPriority(new Integer(message.getJMSPriority()));
-        headers.setJMSRedelivered(Boolean.valueOf(message.getJMSRedelivered()));
-        headers.setJMSTimeStamp(new Long(message.getJMSTimestamp()));
-        headers.setJMSType(message.getJMSType());
-
-        List<JMSPropertyType> props = headers.getProperty();
-        Enumeration enm = message.getPropertyNames();
-        while (enm.hasMoreElements()) {
-            String name = (String)enm.nextElement();
-            String val = message.getStringProperty(name);
-            JMSPropertyType prop = new JMSPropertyType();
-            prop.setName(name);
-            prop.setValue(val);
-            props.add(prop);
-        }
-
-        return headers;
-    }
+    }   
 
     public static int getJMSDeliveryMode(JMSMessageHeadersType headers) {
         int deliveryMode = Message.DEFAULT_DELIVERY_MODE;

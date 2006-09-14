@@ -26,20 +26,15 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.MessageContext;
-
-import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -113,7 +108,6 @@ public class JettyHTTPDestinationTest extends TestCase {
         os = null;
         destination = null;
     }
-    
     public void testGetAddress() throws Exception {
         destination = setUpDestination();
         EndpointReferenceType ref = destination.getAddress();
@@ -122,7 +116,6 @@ public class JettyHTTPDestinationTest extends TestCase {
                      EndpointReferenceUtils.getAddress(ref),
                      EndpointReferenceUtils.getAddress(address));
     }
-    
     public void testRemoveServant() throws Exception {
         destination = setUpDestination();
         setUpRemoveServant();
@@ -159,13 +152,13 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         assertNotNull("unexpected null message", inMessage);
         assertEquals("unexpected method",
-                     inMessage.get(MessageContext.HTTP_REQUEST_METHOD),
+                     inMessage.get(Message.HTTP_REQUEST_METHOD),
                      "GET");
         assertEquals("unexpected path",
-                     inMessage.get(MessageContext.PATH_INFO),
+                     inMessage.get(Message.PATH_INFO),
                      "bar/foo");
         assertEquals("unexpected query",
-                     inMessage.get(MessageContext.QUERY_STRING),
+                     inMessage.get(Message.QUERY_STRING),
                      "?customerId=abc&cutomerAdd=def");
 
     }
@@ -194,7 +187,6 @@ public class JettyHTTPDestinationTest extends TestCase {
         backChannel.send(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 200);
     }
-
     public void testGetBackChannelSendFault() throws Exception {
         destination = setUpDestination(false);
         setUpDoService(false, true);
@@ -205,6 +197,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         backChannel.send(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 500);
     }
+
     
     public void testGetBackChannelSendOneway() throws Exception {
         destination = setUpDestination(false);
@@ -228,7 +221,7 @@ public class JettyHTTPDestinationTest extends TestCase {
             destination.getBackChannel(inMessage, partialResponse, replyTo);
         assertEquals("unexpected response code",
                      202,
-                     partialResponse.get(HTTP_RESPONSE_CODE));
+                     partialResponse.get(Message.RESPONSE_CODE));
         partialBackChannel.send(partialResponse);
         verifyBackChannelSend(partialBackChannel, partialResponse, 202);
 
@@ -240,7 +233,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                    decoupledBackChannel);
         fullBackChannel.send(outMessage);
     }
-
+    
     private JettyHTTPDestination setUpDestination()
         throws Exception {
         return setUpDestination(false);
@@ -375,12 +368,13 @@ public class JettyHTTPDestinationTest extends TestCase {
     private Message setUpOutMessage() {
         Message outMsg = new MessageImpl();
         outMsg.putAll(inMessage);
+        outMsg.put(Message.PROTOCOL_HEADERS, new HashMap<String, List<String>>());
         return outMsg;
     }
     
     private void setUpResponseHeaders(Message outMsg) {
         Map<String, List<String>> responseHeaders =
-            CastUtils.cast((Map<?, ?>)outMsg.get(HTTP_RESPONSE_HEADERS));
+            CastUtils.cast((Map<?, ?>)outMsg.get(Message.PROTOCOL_HEADERS));
         assertNotNull("expected response headers", responseHeaders);
         List<String> challenges = new ArrayList<String>();
         challenges.add(BASIC_CHALLENGE);
@@ -398,13 +392,13 @@ public class JettyHTTPDestinationTest extends TestCase {
                    inMessage.get(JettyHTTPDestination.HTTP_RESPONSE),
                    response);
         assertEquals("unexpected method",
-                     inMessage.get(MessageContext.HTTP_REQUEST_METHOD),
+                     inMessage.get(Message.HTTP_REQUEST_METHOD),
                      "POST");
         assertEquals("unexpected path",
-                     inMessage.get(MessageContext.PATH_INFO),
+                     inMessage.get(Message.PATH_INFO),
                      "bar/foo");
         assertEquals("unexpected query",
-                     inMessage.get(MessageContext.QUERY_STRING),
+                     inMessage.get(Message.QUERY_STRING),
                      "?name");
         verifyRequestHeaders();
         
@@ -428,7 +422,7 @@ public class JettyHTTPDestinationTest extends TestCase {
 
     private void verifyRequestHeaders() throws Exception {
         Map<String, List<String>> requestHeaders =
-            CastUtils.cast((Map<?, ?>)inMessage.get(HTTP_REQUEST_HEADERS));
+            CastUtils.cast((Map<?, ?>)inMessage.get(Message.PROTOCOL_HEADERS));
         assertNotNull("expected request headers",
                       requestHeaders);
         assertEquals("expected getFieldNames",
@@ -443,17 +437,20 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertNotNull("expected field", values);
         assertEquals("unexpected values", 1, values.size());
         assertTrue("expected value", values.contains(BASIC_AUTH));
+        
+        AuthorizationPolicy authpolicy = inMessage.get(AuthorizationPolicy.class);
+        assertNotNull("Expected some auth tokens", policy);
         assertEquals("expected user",
                      USER,
-                     inMessage.get(BindingProvider.USERNAME_PROPERTY));
+                     authpolicy.getUserName());
         assertEquals("expected passwd",
                      PASSWD,
-                     inMessage.get(BindingProvider.PASSWORD_PROPERTY));
+                     authpolicy.getPassword());
     }
     
     private void verifyResponseHeaders(Message outMsg) throws Exception {
         Map<String, List<String>> responseHeaders =
-            CastUtils.cast((Map<?, ?>)outMsg.get(HTTP_RESPONSE_HEADERS));
+            CastUtils.cast((Map<?, ?>)outMsg.get(Message.PROTOCOL_HEADERS));
         assertNotNull("expected response headers",
                       responseHeaders);
         assertEquals("expected addField",
@@ -494,7 +491,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                      1,
                      response.getCommitCallCount());
         
-        outMsg.put(HTTP_RESPONSE_CODE, status);          
+        outMsg.put(Message.RESPONSE_CODE, status);          
         responseOS.write(PAYLOAD.getBytes());
         
         setUpResponseHeaders(outMsg);

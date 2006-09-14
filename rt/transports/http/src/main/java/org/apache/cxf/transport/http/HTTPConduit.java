@@ -34,11 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
-import javax.xml.ws.BindingProvider;
-
-import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -154,7 +149,7 @@ public class HTTPConduit implements Conduit {
     public void send(Message message) throws IOException {
         Map<String, List<String>> headers = setHeaders(message);
         
-        String value = (String)message.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+        String value = (String)message.get(Message.ENDPOINT_ADDRESS);
         URL currentURL = value != null ? new URL(value) : url;
 
         URLConnection connection = 
@@ -292,10 +287,10 @@ public class HTTPConduit implements Conduit {
      */
     private Map<String, List<String>> setHeaders(Message message) {
         Map<String, List<String>> headers =
-            CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
+            CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
         if (null == headers) {
             headers = new HashMap<String, List<String>>();
-            message.put(HTTP_REQUEST_HEADERS, headers);
+            message.put(Message.PROTOCOL_HEADERS, headers);
         }
         return headers;
     }
@@ -308,7 +303,7 @@ public class HTTPConduit implements Conduit {
      */
     protected void flushHeaders(Message message) throws IOException {
         Map<String, List<String>> headers = 
-            CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
+            CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
         URLConnection connection = (URLConnection)message.get(HTTP_CONNECTION);
         if (null != headers) {
             for (String header : headers.keySet()) {
@@ -333,9 +328,9 @@ public class HTTPConduit implements Conduit {
             HttpURLConnection hc = (HttpURLConnection)connection;
             responseCode = hc.getResponseCode();
         } else {
-            if (connection.getHeaderField(HTTP_RESPONSE_CODE) != null) {
+            if (connection.getHeaderField(Message.RESPONSE_CODE) != null) {
                 responseCode =
-                    Integer.parseInt(connection.getHeaderField(HTTP_RESPONSE_CODE));
+                    Integer.parseInt(connection.getHeaderField(Message.RESPONSE_CODE));
             }
         }
         return responseCode;
@@ -420,8 +415,8 @@ public class HTTPConduit implements Conduit {
             Message inMessage = new MessageImpl();
             inMessage.setExchange(exchange);
             InputStream in = null;
-            inMessage.put(HTTP_RESPONSE_HEADERS, connection.getHeaderFields());
-            inMessage.put(HTTP_RESPONSE_CODE, getResponseCode(connection));
+            inMessage.put(Message.PROTOCOL_HEADERS, connection.getHeaderFields());
+            inMessage.put(Message.RESPONSE_CODE, getResponseCode(connection));
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)connection;
                 in = hc.getErrorStream();
@@ -520,8 +515,8 @@ public class HTTPConduit implements Conduit {
                            HttpRequest req,
                            HttpResponse resp) throws IOException {
             Message inMessage = new MessageImpl();
-            inMessage.put(HTTP_RESPONSE_HEADERS, req.getParameters());
-            inMessage.put(HTTP_RESPONSE_CODE, HttpURLConnection.HTTP_OK);
+            inMessage.put(Message.PROTOCOL_HEADERS, req.getParameters());
+            inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
             InputStream is = new WrapperInputStream(req, resp);
             inMessage.setContent(InputStream.class, is);
 

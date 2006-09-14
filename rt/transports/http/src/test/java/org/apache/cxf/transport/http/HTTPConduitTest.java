@@ -33,10 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static javax.xml.ws.handler.MessageContext.HTTP_REQUEST_HEADERS;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_CODE;
-import static javax.xml.ws.handler.MessageContext.HTTP_RESPONSE_HEADERS;
-
 import junit.framework.TestCase;
 
 import org.apache.cxf.helpers.CastUtils;
@@ -149,7 +145,7 @@ public class HTTPConduitTest extends TestCase {
         contentTypes.add("text/xml");
         contentTypes.add("charset=utf8");
         headers.put("content-type", contentTypes);
-        message.put(HTTP_REQUEST_HEADERS, headers);
+        message.put(Message.PROTOCOL_HEADERS, headers);
     }
 
     private HTTPConduit setUpConduit(boolean send) throws Exception {
@@ -310,14 +306,14 @@ public class HTTPConduitTest extends TestCase {
         
         assertNotNull("expected in message", inMessage);
         assertSame("unexpected response headers",
-                   inMessage.get(HTTP_RESPONSE_HEADERS), 
+                   inMessage.get(Message.PROTOCOL_HEADERS), 
                    Collections.EMPTY_MAP);
         Integer expectedResponseCode = decoupled 
                                        ? HttpURLConnection.HTTP_ACCEPTED
                                        : HttpURLConnection.HTTP_OK;
         assertEquals("unexpected response code",
                      expectedResponseCode,
-                     inMessage.get(HTTP_RESPONSE_CODE));
+                     inMessage.get(Message.RESPONSE_CODE));
         assertTrue("unexpected content formats",
                    inMessage.getContentFormats().contains(InputStream.class));
         assertSame("unexpected content", is, inMessage.getContent(InputStream.class));
@@ -337,7 +333,7 @@ public class HTTPConduitTest extends TestCase {
     private OutputStream verifyRequestHeaders(Message message, boolean expectHeaders)
         throws IOException {
         Map<String, List<String>> headers =
-            CastUtils.cast((Map<?, ?>)message.get(HTTP_REQUEST_HEADERS));
+            CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
         assertNotNull("expected request headers set", headers);
         assertTrue("expected output stream format",
                    message.getContentFormats().contains(OutputStream.class));
@@ -370,7 +366,7 @@ public class HTTPConduitTest extends TestCase {
             ((HttpURLConnection)connection).getErrorStream();
             EasyMock.expectLastCall().andReturn(null);
         } else {
-            connection.getHeaderField(HTTP_RESPONSE_CODE);
+            connection.getHeaderField(Message.RESPONSE_CODE);
             String responseString = Integer.toString(responseCode);
             EasyMock.expectLastCall().andReturn(responseString).times(2);
         }
@@ -392,10 +388,10 @@ public class HTTPConduitTest extends TestCase {
                                 decoupledResponse);
         assertNotNull("expected decoupled in message", inMessage);
         assertNotNull("expected response headers",
-                      inMessage.get(HTTP_RESPONSE_HEADERS));
+                      inMessage.get(Message.PROTOCOL_HEADERS));
         assertEquals("unexpected response code",
                      HttpURLConnection.HTTP_OK,
-                     inMessage.get(HTTP_RESPONSE_CODE));
+                     inMessage.get(Message.RESPONSE_CODE));
 
         assertEquals("unexpected getInputStream count",
                      1,
