@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.extension.ExtensionManagerImpl;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.oldcfg.Configuration;
@@ -45,6 +46,7 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
 
     private Map<Class, Object> extensions;
     private Configuration configuration;
+    private BusLifeCycleManager lifeCycleManager;
     private String id;
     private State state;
     
@@ -92,11 +94,16 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
                                                     resourceManager);
         
         state = State.INITIAL;
+        
+        lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
+        if (null != lifeCycleManager) {
+            lifeCycleManager.initComplete();
+        }
 
     }
 
       
-    public <T> T getExtension(Class<T> extensionType) {
+    public final <T> T getExtension(Class<T> extensionType) {
         Object obj = extensions.get(extensionType);
         if (null != obj) {
             return extensionType.cast(obj);
@@ -136,10 +143,16 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
     }
 
     public void shutdown(boolean wait) {
-        // TODO: invoke PreDestroy on all resources
+        lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
+        if (null != lifeCycleManager) {
+            lifeCycleManager.preShutdown();
+        }
         synchronized (this) {
             state = State.SHUTDOWN;
             notifyAll();
+        }
+        if (null != lifeCycleManager) {
+            lifeCycleManager.postShutdown();
         }
     }
     

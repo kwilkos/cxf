@@ -47,20 +47,20 @@ public class CXFBusLifeCycleManager implements BusLifeCycleManager {
         listeners.remove(listener);      
     }
     
-    void initComplete() {
+    public void initComplete() {
         for (BusLifeCycleListener listener : listeners) {
             listener.initComplete();
         }
     }
     
-    void preShutdown() {
+    public void preShutdown() {
         // TODO inverse order of registration?
         for (BusLifeCycleListener listener : listeners) {
             listener.preShutdown();
         }
     }
     
-    void postShutdown() {
+    public void postShutdown() {
         // TODO inverse order of registration?
         for (BusLifeCycleListener listener : listeners) {
             listener.postShutdown();

@@ -133,14 +133,23 @@ public class JMSDestination extends JMSTransportBase implements Destination {
 
   
     public void setMessageObserver(MessageObserver observer) {
-        // to handle the incomming message
+        // to handle the incomming message        
+        if (null != observer) {
+            try {
+                activate();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            LOG.log(Level.FINE, "JMSDestination shutdown()");
+            try {
+                deactivate();
+            } catch (IOException e) {
+                //Ignore for now.
+            }
+        }
         incomingObserver = observer;
-        try {
-            activate();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } 
     }
     
     private void activate() throws IOException {

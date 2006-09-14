@@ -27,6 +27,8 @@ import junit.framework.TestCase;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.CXFBus.State;
+import org.apache.cxf.buslifecycle.BusLifeCycleListener;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.event.EventProcessor;
 import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.oldcfg.Configuration;
@@ -142,6 +144,20 @@ public class CXFBusTest extends TestCase {
         
     }
     
-    
+    public void testShutdownWithBusLifecycle() {
+        final CXFBus bus = new CXFBus();
+        BusLifeCycleManager lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
+        BusLifeCycleListener listener = EasyMock.createMock(BusLifeCycleListener.class);
+        EasyMock.reset(listener);
+        listener.preShutdown();
+        EasyMock.expectLastCall();
+        listener.postShutdown();
+        EasyMock.expectLastCall();        
+        EasyMock.replay(listener);        
+        lifeCycleManager.registerLifeCycleListener(listener);
+        bus.shutdown(true);
+        EasyMock.verify(listener);
+        
+    }
 
 }

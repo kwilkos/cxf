@@ -31,5 +31,9 @@
            interface="org.apache.cxf.phase.PhaseManager"/>
     <extension class="org.apache.cxf.workqueue.WorkQueueManagerImpl"
        	   interface="org.apache.cxf.workqueue.WorkQueueManager"/>
+    <extension class="org.apache.cxf.buslifecycle.CXFBusLifeCycleManager"
+       	   interface="org.apache.cxf.buslifecycle.BusLifeCycleManager"/>   	   
+    <extension class="org.apache.cxf.endpoint.ServerRegistryImpl"
+       	   interface="org.apache.cxf.endpoint.ServerRegistry"/>
     
 </extensions>

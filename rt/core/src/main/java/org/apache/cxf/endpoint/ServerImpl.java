@@ -20,6 +20,7 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -31,19 +32,22 @@ import org.apache.cxf.transport.MessageObserver;
 
 public class ServerImpl implements Server {
     
+    private static final Logger LOG = Logger.getLogger(ServerImpl.class.getName());
     private Destination destination;
     private MessageObserver messageObserver;
     private Endpoint endpoint;
-
+    private ServerRegistry serverRegistry;
+    
     public ServerImpl(Bus bus, Endpoint endpoint, MessageObserver observer) 
         throws BusException, IOException {
         this.endpoint = endpoint;
-        this.messageObserver = observer;
+        this.messageObserver = observer;       
 
         EndpointInfo ei = endpoint.getEndpointInfo();
         DestinationFactory destinationFactory = bus.getExtension(DestinationFactoryManager.class)
             .getDestinationFactory(ei.getTransportId());
         destination = destinationFactory.getDestination(ei);
+        serverRegistry = bus.getExtension(ServerRegistry.class);
     }
     
     public Destination getDestination() {
@@ -54,13 +58,18 @@ public class ServerImpl implements Server {
         this.destination = destination;
     }
 
-    public void start() {
+    public void start() {        
         getDestination().setMessageObserver(messageObserver);
+        //regist the active server to run
+        if (null != serverRegistry) {
+            LOG.fine("register the server to serverRegistry ");
+            serverRegistry.register(this);
+        }
     }
 
     public void stop() {
-        getDestination().setMessageObserver(null);
-        
+        System.out.println("server to be stopped!");
+        getDestination().setMessageObserver(null);        
     }
 
     public MessageObserver getMessageObserver() {

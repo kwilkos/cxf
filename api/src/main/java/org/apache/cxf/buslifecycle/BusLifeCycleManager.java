@@ -26,7 +26,7 @@ package org.apache.cxf.buslifecycle;
  * registered or unregistered to receive notification of <code>Bus</code>
  * lifecycle events.
  */
-public interface BusLifeCycleManager {
+public interface BusLifeCycleManager extends BusLifeCycleListener {
 
     /**
      * Register a listener to receive <code>Bus</code> lifecycle notification.
