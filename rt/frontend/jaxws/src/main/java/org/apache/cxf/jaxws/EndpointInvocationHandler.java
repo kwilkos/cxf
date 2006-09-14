@@ -49,6 +49,7 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
+import org.apache.cxf.jaxws.support.JaxWsUtils;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -85,14 +86,11 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             throw new WebServiceException(msg.toString());
         }
 
-        
-
         Object[] params = args;
         if (null == params) {
             params = new Object[0];
         }
-        
-
+        JaxWsUtils.setClassInfo(oi.getOperationInfo(), null, method);
         Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> context = new HashMap<String, Object>();
         //context.put(Method.class.getName(), method);

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
+import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -55,9 +55,6 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
         BindingOperationInfo operation = ServiceModelUtil.getOperation(message.getExchange(), new QName(
                         xmlReader.getNamespaceURI(), opName));
-        if (operation == null) {
-            message.setContent(Exception.class, new RuntimeException("Could not find operation:" + opName));
-        }
         return operation;
     }
 
@@ -67,7 +64,10 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         BindingOperationInfo operation = null;
         if (message.getExchange().get(BindingOperationInfo.class) == null) {
             operation = getOperation(message, xmlReader);
-            // Store operation into the message.
+            if (operation == null) {
+                // it's doc-lit-bare 
+                new BareInInterceptor().handleMessage(message);
+            }
             message.getExchange().put(BindingOperationInfo.class, operation);
         } else {
             operation = message.getExchange().get(BindingOperationInfo.class);
@@ -76,9 +76,9 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
         DataReader<Message> dr = getMessageDataReader(message);
 
         if (!isRequestor(message)) {
-            msg = operation.getInput().getMessageInfo();
+            msg = operation.getOperationInfo().getInput();
         } else {
-            msg = operation.getOutput().getMessageInfo();
+            msg = operation.getOperationInfo().getOutput();
         }
 
         List<Object> parameters = new ArrayList<Object>();
@@ -97,23 +97,9 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             if (!elName.getLocalPart().equals(name.getLocalPart())) {
                 String expMessage = "Parameter " + name + " does not equal to the name in the servicemodel!";
                 message.setContent(Exception.class, new RuntimeException(expMessage));
-            }
-            Method meth = (Method) operation.getOperationInfo().getProperty(Method.class.getName());
+            }            
             Object param = null;
-            if (!isRequestor(message)) {                
-                if (meth.getParameterTypes() != null && meth.getParameterTypes().length > idx) {
-                    param = dr.read(elName, message, meth.getParameterTypes()[idx]);
-                } else {
-                    throw new RuntimeException("can't match the method param no." + idx
-                                    + " with message part " + p.getName());
-                }
-            } else {
-                if (idx == 0 && meth.getReturnType() != null) {
-                    param = dr.read(elName, message, meth.getReturnType());
-                } else {
-                    // to do, handle holder
-                }
-            }
+            param = dr.read(elName, message, (Class)p.getProperty(Class.class.getName()));                
             if (param != null) {
                 parameters.add(param);
             } else {

@@ -52,9 +52,11 @@ import org.apache.cxf.transport.ChainInitiationObserver;
 
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
+    public static final String HOLDER = "messagepart.isholer";
+    
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
 
-    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();      
 
     Class<?> seiClass;
 
@@ -102,7 +104,9 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         Class<?> requestWrapper = getRequestWrapper(selected);
         if (requestWrapper != null) {
             o.setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
-        }
+        }        
+        // rpc out-message-part-info class mapping
+        JaxWsUtils.setClassInfo(o, selected, null);
     }
 
     @Override
