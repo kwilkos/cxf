@@ -78,8 +78,10 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                     }
                     if (streamParaQName.equals(paraQName)) {
                         Class cls = (Class)mpi.getProperty(Class.class.getName());
-                        if (!cls.getName().equals("void")) {
+                        if (cls != null && !cls.getName().equals("void")) {
                             o = dr.read(paraQName, message, cls);
+                        } else {
+                            o = dr.read(paraQName, message, null);
                         }
                         break;
                     }
