@@ -20,10 +20,7 @@
 package org.apache.cxf.tools.wsdl2java.databindings.jaxb;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +32,6 @@ import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
-import javax.xml.transform.Result;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -50,16 +46,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.sun.codemodel.JCodeModel;
-import com.sun.tools.xjc.BadCommandLineException;
-import com.sun.tools.xjc.Language;
-import com.sun.tools.xjc.ModelLoader;
-import com.sun.tools.xjc.Options;
 import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.TypeAndAnnotation;
 import com.sun.tools.xjc.api.XJC;
 import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
-import com.sun.tools.xjc.model.Model;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
@@ -78,12 +69,12 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
     protected S2JJAXBModel rawJaxbModel;
     protected S2JJAXBModel rawJaxbModelGenCode;
     private boolean nestedJaxbBinding;
-    private Model model;
+    //private Model model;
     private ToolContext env;
     private int fileIDX;
 
     @SuppressWarnings("unchecked")
-    public void initialize(ToolContext penv) {
+    public void initialize(ToolContext penv) throws ToolException {
         env = penv;
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
@@ -99,6 +90,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         schemaCompiler.setClassNameAllocator(allocator);
         JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
         schemaCompiler.setErrorListener(listener);
+        
 
         SchemaCompilerImpl schemaCompilerGenCode = schemaCompiler;
         String excludePackageName = "";
@@ -109,7 +101,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         }
         List schemaSystemidList = new ArrayList();
 
-        Options opt = new OptionsEx();
+        //Options opt = new OptionsEx();
         List<Schema> schemaList = env.getSchemaList();
         for (Schema schema : schemaList) {
 
@@ -133,11 +125,14 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
                 systemid = schema.getDocumentBaseURI() + "#" + targetNamespace;
             }
             schemaSystemidList.add(systemid);
-            schemaCompiler.parseSchema(systemid, schemaElement);
-            schemaCompilerGenCode.parseSchema(systemid, schemaElement);
+           
             if (nestedJaxbBinding) {
-                processNestedBinding(schemaElement, systemid, opt);
-
+                InputSource ins = processNestedBinding(schemaElement, systemid);
+                schemaCompiler.parseSchema(ins);
+                schemaCompilerGenCode.parseSchema(ins);
+            } else {
+                schemaCompiler.parseSchema(systemid, schemaElement);
+                schemaCompilerGenCode.parseSchema(systemid, schemaElement);
             }
 
         }
@@ -149,54 +144,92 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
                 schemaCompilerGenCode.parseSchema(bindingFile);
             }
         }
-        rawJaxbModel = schemaCompiler.bind();
+        try {
+            rawJaxbModel = schemaCompiler.bind();
+
+        } catch (ToolException e) {
+            throw e;
+        }
         if (env.isExcludeNamespaceEnabled()) {
             rawJaxbModelGenCode = schemaCompilerGenCode.bind();
         } else {
             rawJaxbModelGenCode = rawJaxbModel;
         }
-        if (nestedJaxbBinding) {
+        
+        /*if (nestedJaxbBinding) {
             opt.classNameAllocator = allocator;
             model = ModelLoader.load(opt, new JCodeModel(), new JAXBErrorReceiver(env));
             model.generateCode(opt, new JAXBErrorReceiver(env));
+        }   */    
+        addedEnumClassToCollector(schemaList, allocator);
+    }
+  
+    
+    //Jaxb's bug . Jaxb ClassNameCollecotr may not be invoked when generated class is an enum.
+    //So we need use this method to add the missed file to classCollector
+    
+    private void addedEnumClassToCollector(List<Schema> schemaList, ClassNameAllocatorImpl allocator) {
+        for (Schema schema : schemaList) {
+            Element schemaElement = schema.getElement();
+            String targetNamespace = schemaElement.getAttribute("targetNamespace");
+            if (StringUtils.isEmpty(targetNamespace)) {
+                continue;
+            }
+            String packageName = ProcessorUtil.parsePackageName(targetNamespace, null);
+            if (!addedToClassCollector(packageName)) {
+                allocator.assignClassName(packageName, "*");
+            }
         }
-
+    }
+    
+    private boolean addedToClassCollector(String packageName) {
+        ClassCollector classCollector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
+        List<String> files = (List<String>)classCollector.getGeneratedFileInfo();
+        for (String file : files) {
+            int dotIndex = file.lastIndexOf(".");
+            String sub = file.substring(0, dotIndex - 1);
+            if (sub.equals(packageName)) {
+                return true;
+            }
+        }
+        return false;
+        
     }
 
-    private void processNestedBinding(Element schemaElement, String systemid, Options opt) {
+    private InputSource processNestedBinding(Element schemaElement, String systemid) {
         String xsdFile = "schema" + (fileIDX++);
         File file = null;
         try {
             file = File.createTempFile(xsdFile, ".xsd");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        Result result = new StreamResult(file);
+
+        StreamResult result = new StreamResult(file);
+        
         DOMSource source = new DOMSource(schemaElement);
 
         try {
             TransformerFactory.newInstance().newTransformer().transform(source, result);
         } catch (TransformerConfigurationException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (TransformerException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (TransformerFactoryConfigurationError e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
         InputSource insource = null;
-        try {
-            insource = new InputSource((InputStream)new FileInputStream(file));
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        insource.setSystemId(systemid);
-        opt.setSchemaLanguage(Language.XMLSCHEMA);
-        opt.addGrammar(file);
+       
+        insource = new InputSource(result.getSystemId());
+            //insource.setByteStream((InputStream)new FileInputStream(file));
+        System.err.println(result.getSystemId());
+           // insource.setSystemId(result.getSystemId());
+        
+        
+        return insource;
+        /*opt.setSchemaLanguage(Language.XMLSCHEMA);
+        opt.addGrammar(file);*/
     }
 
     public void generate() throws ToolException {
@@ -211,9 +244,9 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
 
             TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), env.getExcludePkgList());
 
-            if (rawJaxbModelGenCode instanceof S2JJAXBModel && !nestedJaxbBinding) {
+            if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-
+                
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
                 jcodeModel.build(fileCodeWriter);
                 for (String str : fileCodeWriter.getExcludeFileList()) {
@@ -221,12 +254,12 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
                 }
             }
 
-            if (rawJaxbModelGenCode instanceof S2JJAXBModel && nestedJaxbBinding) {
+           /* if (rawJaxbModelGenCode instanceof S2JJAXBModel && nestedJaxbBinding) {
                 model.codeModel.build(fileCodeWriter);
                 for (String str : fileCodeWriter.getExcludeFileList()) {
                     env.getExcludeFileList().add(str);
                 }
-            }
+            }*/
 
             return;
         } catch (IOException e) {
@@ -273,7 +306,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
             if (boxify) {           
                 jtypeClass = jtype.getTypeClass().boxify().fullName();
             } else {
-                jtypeClass = jtype.getTypeClass().name();
+                jtypeClass = jtype.getTypeClass().fullName();
             }
         }
         
@@ -351,7 +384,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         return new ArrayList<Property>();
     }
 
-    private class OptionsEx extends Options {
+    /*private class OptionsEx extends Options {
 
         protected Mode mode = Mode.CODE;
 
@@ -359,10 +392,10 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
 
             return super.parseArgument(args, i);
         }
-    }
+    }*/
 
-    private enum Mode {
+   /* private enum Mode {
         CODE, BGM, SIGNATURE, FOREST, DRYRUN, ZIP,
-    }
+    }*/
 
 }

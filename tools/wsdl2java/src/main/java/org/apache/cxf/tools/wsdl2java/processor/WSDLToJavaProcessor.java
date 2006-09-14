@@ -248,13 +248,14 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         }
 
         String outPutDir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-
+       
         Set<String> dirSet = new HashSet<String>();
         Iterator ite = classCollector.getGeneratedFileInfo().iterator();
         while (ite.hasNext()) {
             String fileName = (String)ite.next();
             fileName = fileName.replace('.', File.separatorChar);
             String dirName = fileName.substring(0, fileName.lastIndexOf(File.separator) + 1);
+            
             String path = outPutDir + File.separator + dirName;
             if (!dirSet.contains(path)) {
 
@@ -282,6 +283,11 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             }
 
         }
+        //Jaxb's bug . Jaxb ClassNameCollecotr may not be invoked when generated class is an enum.
+        //So we need recheck whether we add all generated source files to  fileList
+        
+       
+        
 
         String[] arguments = new String[argList.size() + fileList.size() + 1];
         arguments[0] = "javac";
@@ -294,7 +300,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         for (Object o : fileList.toArray()) {
             String file = (String)o;
-
             arguments[i] = file;
             i++;
         }

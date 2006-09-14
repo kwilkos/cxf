@@ -262,7 +262,7 @@ public class WSDLToProcessor implements Processor {
         } catch (Exception e) {
             org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_DATABINDING_MODEL",
-                                                             LOG);
+                                                             LOG, new Object[] {e.getLocalizedMessage()});
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
@@ -318,6 +318,7 @@ public class WSDLToProcessor implements Processor {
 
     @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
+   
         Map<String, List> imports = schema.getImports();
         if (imports != null && imports.size() > 0) {
             Collection<String> importKeys = imports.keySet();

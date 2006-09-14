@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import com.sun.xml.bind.api.JAXBRIContext;
 
 import org.apache.cxf.helpers.JavaUtils;
+import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -235,21 +236,38 @@ public final class ProcessorUtil {
             .get(ToolConstants.BINDING_GENERATOR);
         String jtype = null;
         QName xmlTypeName = getElementName(part);
-        // if this flag is true , mapping to java Type first;
+        if (xmlTypeName == null) {
+            xmlTypeName = part.getTypeName();
+           
+        }
+
+        // if this flag  is true , mapping to java Type first;
         // if not found , findd the primitive type : int ,long 
         // if not found,  find in the generated class
        
+            
         if (boxify && dataBindingGenerator != null) {
             jtype = dataBindingGenerator.getJavaType(xmlTypeName, true);
         } 
         
         if (boxify && dataBindingGenerator == null) {
-            jtype = BuiltInTypesJavaMappingUtil.getJType(xmlTypeName.getNamespaceURI(),
-                                                         xmlTypeName.getLocalPart());
+            jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());           
         }
+        
         if (!boxify && dataBindingGenerator != null) {
-            jtype = dataBindingGenerator.getJavaType(xmlTypeName, true);
+            jtype = dataBindingGenerator.getJavaType(xmlTypeName, false);
         }
+        
+        if (!boxify && dataBindingGenerator == null) {
+            Class holderClass = JAXBUtils.holderClass(xmlTypeName.getLocalPart());
+            jtype = holderClass == null ? null : holderClass.getName();
+            if (jtype == null) {
+                jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());
+            }
+        }
+        
+        
+        
         String namespace = xmlTypeName.getNamespaceURI();
         String type = resolvePartType(part, env, true);
         String userPackage = env.mapPackageName(namespace);

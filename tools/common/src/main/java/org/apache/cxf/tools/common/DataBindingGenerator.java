@@ -25,9 +25,9 @@ import javax.xml.namespace.QName;
 
 import com.sun.tools.xjc.api.Property;
 public interface DataBindingGenerator { 
-    void initialize(ToolContext penv);
+    void initialize(ToolContext penv) throws ToolException;
     void generate() throws ToolException;
     String getType(QName qn, boolean fullName);
-    String getJavaType(QName qn, boolean fullName);
+    String getJavaType(QName qn, boolean boxify);
     List<? extends Property> getBlock(Part part);
 }

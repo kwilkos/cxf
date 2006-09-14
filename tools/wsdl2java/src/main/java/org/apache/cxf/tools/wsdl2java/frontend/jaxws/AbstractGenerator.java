@@ -109,6 +109,11 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
 
     protected Writer parseOutputName(String packageName, String filename) throws ToolException {
         ClassCollector collector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
+        
+        if (ToolConstants.SEI_GENERATOR.equals(name)) {
+            collector.addSeiClassName(packageName , filename , packageName + "." + filename);
+        }
+        
         if (ToolConstants.CLT_GENERATOR.equals(name)) {
             collector.addClientClassName(packageName , filename , packageName + "." + filename);
         }

@@ -18,10 +18,10 @@
  */
 
 package org.apache.cxf.tools.wsdl2java.databindings.jaxb;
-
 import com.sun.tools.xjc.api.ErrorListener;
-
 import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.common.ToolException;
+
 
 public class JAXBBindErrorListener implements ErrorListener {
     private ToolContext env;
@@ -31,25 +31,16 @@ public class JAXBBindErrorListener implements ErrorListener {
     }
 
     public void error(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            exception.printStackTrace();
-        } else {
-            System.err.println("Parsing schema error: \n" + exception.toString());
-        }
+        throw new ToolException(exception.getLocalizedMessage());
+
     }
 
     public void fatalError(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            exception.printStackTrace();
-        } else {
-            System.err.println("Parsing schema fatal error: \n" + exception.toString());
-        }
+        throw new ToolException(exception.getLocalizedMessage());
     }
 
     public void info(org.xml.sax.SAXParseException exception) {
-        if (this.env.isVerbose()) {
-            System.err.println("Parsing schema info: " + exception.toString());
-        }
+
     }
 
     public void warning(org.xml.sax.SAXParseException exception) {
