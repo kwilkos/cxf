@@ -127,7 +127,7 @@ under the License.
     
     <wsdl:service name="XMLService">
 	<wsdl:port binding="tns:Greeter_XMLBinding" name="XMLPort">
-	    <http:address location="http://localhost:9090/XMLService/XMLPort"/>
+	    <http:address location="http://localhost:9031/XMLService/XMLPort"/>
 	</wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

@@ -17,36 +17,38 @@
  * under the License.
  */
 
-package org.apache.hello_world_xml_http.wrapped;
+package org.apache.hello_world_xml_http.bare;
 
-import org.apache.hello_world_xml_http.wrapped.types.FaultDetail;
+import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 
 @javax.jws.WebService(serviceName = "XMLService", 
-                      portName = "XMLPort",
-                      endpointInterface = "org.apache.hello_world_xml_http.wrapped.Greeter",
-                      targetNamespace = "http://apache.org/hello_world_xml_http/wrapped")
+                portName = "XMLPort",
+                endpointInterface = "org.apache.hello_world_xml_http.bare.Greeter",
+                targetNamespace = "http://apache.org/hello_world_xml_http/bare")
 
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 
 public class GreeterImpl implements Greeter {
 
-    public String greetMe(String me) {        
-        return "Hello " + me;
-    }
-
-    public void greetMeOneWay(String me) {
-        System.out.println("Executing operation greetMeOneWay\n");
-        System.out.println("Hello there " + me);
+    public String greetMe(String me) {
+        // TODO Auto-generated method stub
+        return "Hello " + me;        
     }
 
     public String sayHi() {
+        // TODO Auto-generated method stub
         return "Bonjour";
     }
 
-    public void pingMe() throws PingMeFault {
-        FaultDetail faultDetail = new FaultDetail();
-        faultDetail.setMajor((short)2);
-        faultDetail.setMinor((short)1);
-        throw new PingMeFault("PingMeFault raised by server", faultDetail);
+    public MyComplexStructType sendReceiveData(MyComplexStructType in) {
+        // TODO Auto-generated method stub        
+        return in;
     }
+
+    public String testMultiParamPart(MyComplexStructType in2, String in1) {
+        // TODO Auto-generated method stub
+        in2.setElem1(in1);
+        return "Bonjour";
+    }
+
 }

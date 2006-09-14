@@ -59,7 +59,11 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
 
         List<MessagePartInfo> piList = null;
         if (operation != null) {
-            piList = operation.getOperationInfo().getInput().getMessageParts();
+            if (isRequestor(message)) {
+                piList = operation.getOperationInfo().getOutput().getMessageParts();
+            } else {
+                piList = operation.getOperationInfo().getInput().getMessageParts();
+            }
         }
         while (StaxUtils.toNextElement(xmlReader)) {
             QName streamParaQName = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
@@ -73,7 +77,10 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                         paraQName = mpi.getTypeQName();
                     }
                     if (streamParaQName.equals(paraQName)) {
-                        o = dr.read(paraQName, message);
+                        Class cls = (Class)mpi.getProperty(Class.class.getName());
+                        if (!cls.getName().equals("void")) {
+                            o = dr.read(paraQName, message, cls);
+                        }
                         break;
                     }
                 }

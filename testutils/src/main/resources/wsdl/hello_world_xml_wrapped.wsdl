@@ -24,7 +24,7 @@
 	xmlns:tns="http://apache.org/hello_world_xml_http/wrapped"
 	xmlns:x1="http://apache.org/hello_world_xml_http/wrapped/types"
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-	xmlns:xformat="http://cxf.apache.org/bindings/xmlformat"
+	xmlns:xformat="http://cxf.apache.org/bindings/xformat"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<wsdl:types>
 		<schema
@@ -161,7 +161,7 @@
 	<wsdl:service name="XMLService">
 		<wsdl:port binding="tns:Greeter_XMLBinding" name="XMLPort">
 			<http:address
-				location="http://localhost:9000/XMLService/XMLPort" />
+				location="http://localhost:9032/XMLService/XMLPort" />
 		</wsdl:port>
 		
 		<wsdl:port binding="tns:Greeter_XMLBinding" name="XMLDispatchPort">

@@ -24,6 +24,6 @@
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
         <namespace>http://cxf.apache.org/transports/http/configuration</namespace>
-        <namespace>http://cxf.apache.org/bindings/xmlformat</namespace>
+        <namespace>http://cxf.apache.org/bindings/xformat</namespace>
     </extension>
 </extensions>

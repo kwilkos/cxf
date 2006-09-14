@@ -4,7 +4,7 @@
     xmlns:xalan="http://xml.apache.org/xslt"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-    xmlns:xformat="http://cxf.apache.org/bindings/xmlformat"
+    xmlns:xformat="http://cxf.apache.org/bindings/xformat"
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
     xmlns:x1="http://apache.org/type_test/types1"
     xmlns:x2="http://apache.org/type_test/types2"

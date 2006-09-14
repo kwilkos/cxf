@@ -97,7 +97,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
             } else {
                 // bare with one part and part name not equal operation name,
                 // check param match
-                if (!boi.isUnwrapped()) {
+                if (!boi.isUnwrappedCapable()) {
                     if (mi.getMessageParts().size() != 1) {
                         continue;
                     }

@@ -38,7 +38,7 @@ import org.w3c.dom.Document;
         targetNamespace = "http://apache.org/hello_world_rpclit",
         wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
-@javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xmlformat")
+@javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 public class HWDOMSourcePayloadXMLBindingProvider implements
         Provider<DOMSource> {
 

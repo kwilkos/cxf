@@ -20,7 +20,7 @@
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
     <extension class="org.apache.cxf.binding.xml.XMLBindingFactory" deferred="true">
-        <namespace>http://cxf.apache.org/bindings/xmlformat</namespace>       
+        <namespace>http://cxf.apache.org/bindings/xformat</namespace>       
     </extension>
     
 </extensions>
