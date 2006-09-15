@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws;
+package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
@@ -30,20 +30,20 @@ import junit.framework.TestSuite;
 
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.TestServerBase;
-import org.apache.hello_world_xml_http.wrapped.Greeter;
-import org.apache.hello_world_xml_http.wrapped.GreeterImpl;
-import org.apache.hello_world_xml_http.wrapped.XMLService;
+import org.apache.hello_world_xml_http.bare.Greeter;
+import org.apache.hello_world_xml_http.bare.GreeterImpl;
+import org.apache.hello_world_xml_http.bare.XMLService;
+import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 
+public class ClientServerXMLBareTest extends TestCase {
 
-public class ClientServerXMLWrapTest extends TestCase {
-    
-    private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
+    private final QName portName = new QName("http://apache.org/hello_world_xml_http/bare", "XMLPort");
 
     public static class Server extends TestServerBase {
 
         protected void run() {
             Object implementor = new GreeterImpl();
-            String address = "http://localhost:9032/XMLService/XMLPort";
+            String address = "http://localhost:9031/XMLService/XMLPort";
             Endpoint.publish(address, implementor);
         }
 
@@ -61,7 +61,7 @@ public class ClientServerXMLWrapTest extends TestCase {
     }
 
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerXMLWrapTest.class);
+        TestSuite suite = new TestSuite(ClientServerXMLBareTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
@@ -88,11 +88,24 @@ public class ClientServerXMLWrapTest extends TestCase {
             assertNotNull("no response received from service", reply);
             assertEquals(response2, reply);
             
-            greeter.greetMeOneWay(System.getProperty("user.name"));
+            MyComplexStructType argument = new MyComplexStructType();
+            MyComplexStructType retVal = null;
+
+            String str1 = "this is element 1";
+            String str2 = "this is element 2";
+            int int1 = 42;
+            argument.setElem1(str1);
+            argument.setElem2(str2);
+            argument.setElem3(int1);            
+            retVal = greeter.sendReceiveData(argument);
+            
+            assertEquals(str1, retVal.getElem1());
+            assertEquals(str2, retVal.getElem2());
+            assertEquals(int1, retVal.getElem3());
             
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
     }
-    
+
 }

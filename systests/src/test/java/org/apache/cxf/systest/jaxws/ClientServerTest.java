@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws;
+package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;

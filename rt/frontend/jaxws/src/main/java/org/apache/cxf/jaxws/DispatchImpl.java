@@ -94,8 +94,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.info("Dispatch: invoke called");
         }
 
-        System.err.println("INVOKING...");
-
         Message message = endpoint.getBinding().createMessage();
 
         if (context != null) {
