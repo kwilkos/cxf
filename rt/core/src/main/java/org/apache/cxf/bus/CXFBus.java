@@ -87,7 +87,9 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
         
         ResourceResolver busResolver = new SinglePropertyResolver(BUS_PROPERTY_NAME, this);
         resourceManager.addResourceResolver(busResolver);
-   
+        
+        extensions.put(ResourceManager.class, resourceManager);
+
         new ExtensionManagerImpl(BUS_EXTENSION_RESOURCE, 
                                                     Thread.currentThread().getContextClassLoader(),
                                                     extensions,

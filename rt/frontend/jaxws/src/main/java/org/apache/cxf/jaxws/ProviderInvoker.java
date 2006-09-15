@@ -20,7 +20,10 @@
 package org.apache.cxf.jaxws;
 
 import javax.xml.ws.Provider;
+import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.jaxws.context.WebServiceContextImpl;
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.Invoker;
 
@@ -35,7 +38,9 @@ public class ProviderInvoker<T> implements Invoker {
 
     @SuppressWarnings("unchecked")
     public Object invoke(Exchange exchange, Object o) {
-
+        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage());
+        WebServiceContextImpl.setMessageContext(ctx);
+ 
         if (provider != null) {
             return (T)provider.invoke((T)o);
         } else {

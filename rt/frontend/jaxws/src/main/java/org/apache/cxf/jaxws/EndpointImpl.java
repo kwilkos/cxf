@@ -34,21 +34,26 @@ import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
+import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.MessageObserver;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
-
+ 
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
+
+    protected boolean doInit;
 
     private Bus bus;
     // private String bindingURI;
@@ -58,7 +63,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private JaxwsEndpointImpl endpoint;
     
     private JaxwsImplementorInfo implInfo;
-
+    
     @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;
@@ -87,6 +92,41 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             endpoint = new JaxwsEndpointImpl(bus, service, ei);            
         } catch (EndpointException e) {
             throw new WebServiceException(e);
+        }
+        
+        doInit = true;
+    }
+
+    private synchronized void init() {
+        if (doInit) {
+            try {
+                injectResources(implementor);
+    
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                if (ex instanceof WebServiceException) { 
+                    throw (WebServiceException)ex; 
+                }
+                throw new WebServiceException("Creation of Endpoint failed", ex);
+            }
+        }
+        doInit = false;
+    }
+
+    /**
+     * inject resources into servant.  The resources are injected
+     * according to @Resource annotations.  See JSR 250 for more
+     * information.
+     */
+    /**
+     * @param instance
+     */
+    protected void injectResources(Object instance) {
+        if (instance != null) {
+            ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+            resourceManager.addResourceResolver(new WebContextResourceResolver());
+            ResourceInjector injector = new ResourceInjector(resourceManager);
+            injector.inject(instance);
         }
     }
 
@@ -158,10 +198,12 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
     protected void doPublish(String address) {
+        init();
+        
         if (null != address) {
             endpoint.getEndpointInfo().setAddress(address);
         }
-
+        
         try {
             MessageObserver observer = null;
             if (implInfo.isWebServiceProvider()) {
