@@ -1029,6 +1029,13 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     }
     
+    
+    public void testWSDLWithEnumType() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_with_enum_type.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+    }
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
