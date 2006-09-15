@@ -17,14 +17,25 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.service.invoker;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
+import org.apache.cxf.message.Exchange;
 
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
+/**
+ * Invoker for externally created service objects.
+ * 
+ * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
+ * @author <a href="mailto:ajoo.email@gmail.com">Ben Yu</a>
+ * @since Feb 9, 2005
+ */
+public class BeanInvoker extends AbstractInvoker {
+    private Object proxy;
 
-    Message createMessage(Message m);
+    public BeanInvoker(Object proxy) {
+        this.proxy = proxy;
+    }
+
+    public Object getServiceObject(Exchange ex) {
+        return proxy;
+    }
 }

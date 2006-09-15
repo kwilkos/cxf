@@ -25,8 +25,6 @@ import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Element;
-
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 
@@ -60,7 +58,6 @@ public class SoapFault extends Fault {
     private QName faultCode;
     private QName subCode;
     private String role;
-    private Element detail;
     private Map<String, String> namespaces = new HashMap<String, String>();
     
     public SoapFault(Message message, Throwable throwable, QName type) {
@@ -76,25 +73,6 @@ public class SoapFault extends Fault {
     public SoapFault(String message, QName faultCode) {
         super(new Message(message, (ResourceBundle)null));
         this.faultCode = faultCode;
-    }
-    
-    /**
-     * Returns the detail node. If no detail node has been set, an empty
-     * <code>&lt;detail&gt;</code> is created.
-     * 
-     * @return the detail node.
-     */
-    public Element getDetail() {
-        return detail;
-    }
-
-    /**
-     * Sets a details <code>Node</code> on this fault.
-     * 
-     * @param details the detail node.
-     */
-    public void setDetail(Element details) {
-        detail = details;
     }
 
     /**
@@ -154,22 +132,23 @@ public class SoapFault extends Fault {
     public void setSubCode(QName subCode) {
         this.subCode = subCode;
     }
-
-    /**
-     * Indicates whether this fault has a detail message.
-     * 
-     * @return <code>true</code> if this fault has a detail message;
-     *         <code>false</code> otherwise.
-     */
-    public boolean hasDetails() {
-        return detail == null ? false : true;
-    }
-
+    
     public Map<String, String> getNamespaces() {
         return namespaces;
     }
 
     public void setNamespaces(Map<String, String> namespaces) {
         this.namespaces = namespaces;
+    }
+
+    public static SoapFault createFault(Fault f) {
+        if (f instanceof SoapFault) {
+            return (SoapFault) f;
+        }
+        
+        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null), f
+            .getCause(), RECEIVER);
+        
+        return soapFault;
     }
 }

@@ -20,7 +20,9 @@
 package org.apache.cxf.interceptor;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
 
+import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -28,9 +30,9 @@ import org.apache.cxf.transport.Conduit;
 
 /**
  * Takes the Conduit from the exchange and sends the message through it.
- *
  */
 public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(MessageSenderInterceptor.class);
 
     public MessageSenderInterceptor() {
         super();
@@ -42,16 +44,15 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
         if (conduit == null) {
             conduit = message.getExchange().getConduit();
         }
-        
+
         try {
             conduit.send(message);
-            
+
             message.getInterceptorChain().doIntercept(message);
-            
+
             conduit.close(message);
         } catch (IOException ex) {
-            // TODO: wrap in runtime exception
-            ex.printStackTrace();
+            throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_SEND", BUNDLE), ex);
         }
     }
 }

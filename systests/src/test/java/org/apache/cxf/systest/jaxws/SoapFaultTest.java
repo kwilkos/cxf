@@ -27,7 +27,12 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.test.AbstractCXFTest;
@@ -36,16 +41,17 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
-public class GreeterTest extends AbstractCXFTest {
+public class SoapFaultTest extends AbstractCXFTest {
 
     private Bus bus;
+    private Service service;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        
+
         bus = getBus();
-        
+
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
 
         bus.getExtension(BindingFactoryManager.class)
@@ -60,37 +66,56 @@ public class GreeterTest extends AbstractCXFTest {
 
         ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
         extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
-    }
-
-    public void testEndpoint() throws Exception {
+        
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
-        assertNotNull(resource);        
+        assertNotNull(resource);
         bean.setWsdlURL(resource);
         bean.setBus(bus);
         bean.setServiceClass(GreeterImpl.class);
+
         GreeterImpl greeter = new GreeterImpl();
         BeanInvoker invoker = new BeanInvoker(greeter);
         bean.setInvoker(invoker);
-        
-        Service service = bean.create();
 
-        assertEquals("SOAPService", service.getName().getLocalPart());
-        assertEquals("http://apache.org/hello_world_soap_http", service.getName().getNamespaceURI());
+        service = bean.create();
 
         bean.activateEndpoints();
+    }
+
+    public void testInterceptorThrowingSoapFault() throws Exception {
+        service.getInInterceptors().add(new FaultThrowingInterceptor());
 
         Node response = invoke("http://localhost:9000/SoapContext/SoapPort",
-                           LocalTransportFactory.TRANSPORT_ID,
-                           "GreeterMessage.xml");
-        
-        assertEquals(1, greeter.getInvocationCount());
-        
+                               LocalTransportFactory.TRANSPORT_ID, "GreeterMessage.xml");
+
         assertNotNull(response);
-        
-        addNamespace("h", "http://apache.org/hello_world_soap_http/types");
-        
-        assertValid("/s:Envelope/s:Body", response);
-        assertValid("//h:sayHiResponse", response);
+
+        assertValid("/s:Envelope/s:Body/s:Fault/faultstring[text()='I blame Hadrian.']", response);
+    }
+
+
+    /**
+     * We need to get the jaxws fault -> soap fault conversion working for this
+     * @throws Exception
+     */
+    public void xtestWebServiceException() throws Exception {
+        Node response = invoke("http://localhost:9000/SoapContext/SoapPort",
+                               LocalTransportFactory.TRANSPORT_ID, "GreeterGetFaultMessage.xml");
+
+        assertNotNull(response);
+
+        assertValid("/s:Envelope/s:Body/s:Fault/faultstring[text()='I blame Hadrian.']", response);
+    }
+
+    public class FaultThrowingInterceptor extends AbstractSoapInterceptor {
+        public FaultThrowingInterceptor() {
+            setPhase(Phase.USER_LOGICAL);
+        }
+
+        public void handleMessage(SoapMessage message) throws Fault {
+            throw new SoapFault("I blame Hadrian.", SoapFault.SENDER);
+        }
+
     }
 }

@@ -17,14 +17,25 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.service.invoker;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
+import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.message.Exchange;
 
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
+/**
+ * This scope policy implements one servant instance per request.
+ * <p>
+ * 
+ * @author Ben Yu Feb 6, 2006 11:38:08 AM
+ */
+public class RequestScopePolicy implements ScopePolicy {
+    private static final RequestScopePolicy SINGLETON = new RequestScopePolicy();
 
-    Message createMessage(Message m);
+    public Factory applyScope(Factory f, Exchange ex) {
+        return f;
+    }
+
+    public static ScopePolicy instance() {
+        return SINGLETON;
+    }
 }

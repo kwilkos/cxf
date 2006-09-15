@@ -95,12 +95,14 @@ public class AbstractCXFTest extends TestCase {
 
         OutputStream os = m.getContent(OutputStream.class);
         InputStream is = getResourceAsStream(message);
+        if (is == null) {
+            throw new RuntimeException("Could not find resource " + message);
+        }
+        
         copy(is, os, 8096);
 
         byte[] bs = obs.getResponseStream().toByteArray();
-        if (bs.length == 0) {
-            throw new RuntimeException("No response was received!");
-        }
+        
         ByteArrayInputStream input = new ByteArrayInputStream(bs);
         return DOMUtils.readXml(input);
     }

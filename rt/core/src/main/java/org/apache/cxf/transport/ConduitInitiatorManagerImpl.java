@@ -36,7 +36,6 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConduitInitiatorManager.class);
 
-
     final Map<String, ConduitInitiator> conduitInitiators;
     Properties factoryNamespaceMappings;
     

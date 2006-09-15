@@ -97,9 +97,7 @@ public interface Message extends Map<String, Object> {
     /**
      * @return the set of currently encapsulated content formats
      */
-    Set<Class<?>> getContentFormats();   
-    
-    
+    Set<Class<?>> getContentFormats();
     
     /**
      * Convienience method for storing/retrieving typed objects from the map.
@@ -114,5 +112,7 @@ public interface Message extends Map<String, Object> {
      * @param <T> key
      * @return
      */
-    <T> void put(Class<T> key, T value);    
+    <T> void put(Class<T> key, T value);
+    
+    Object getContextualProperty(String key);
 }

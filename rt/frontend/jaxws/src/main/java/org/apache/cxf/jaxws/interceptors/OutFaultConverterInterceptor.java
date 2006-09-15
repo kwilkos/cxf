@@ -17,14 +17,23 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.jaxws.interceptors;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
+import javax.xml.ws.WebFault;
+
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
+public class OutFaultConverterInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    Message createMessage(Message m);
+    public void handleMessage(Message message) throws Fault {
+        Fault f = (Fault)message.getContent(Exception.class);
+
+        Throwable cause = f.getCause();
+        if (cause instanceof Exception && cause.getClass().isAnnotationPresent(WebFault.class)) {
+            // serialize to details
+        }
+    }
+
 }

@@ -19,11 +19,13 @@
 
 package org.apache.cxf.test;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
@@ -59,15 +61,21 @@ public final class XPathAssert {
         NodeList nodes = (NodeList)createXPath(namespaces).evaluate(xpath, node, XPathConstants.NODESET);
 
         if (nodes.getLength() == 0) {
-            throw new AssertionFailedError("Failed to select any nodes for expression:\n" + xpath);
+            throw new AssertionFailedError("Failed to select any nodes for expression:\n" + xpath
+                                           + "From document:\n" + writeNodeToString(node));
         }
 
         return nodes;
     }
 
     private static String writeNodeToString(Node node) {
-        // TODO Auto-generated method stub
-        return null;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            DOMUtils.writeXml(node, bos);
+        } catch (TransformerException e) {
+            throw new RuntimeException(e);
+        }
+        return bos.toString();
     }
 
     /**

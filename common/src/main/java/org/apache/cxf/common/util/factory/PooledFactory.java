@@ -17,14 +17,27 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.common.util.factory;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
+/**
+ * This class decorates a Factory object that uses a Pool strategy to cache the
+ * factory result;
+ * <p>
+ * 
+ * @author Ben Yu Feb 2, 2006 11:57:12 AM
+ */
+public class PooledFactory implements Factory {
+    private final Factory factory;
 
-public interface Binding extends InterceptorProvider {
+    private final Pool pool;
+
+    public PooledFactory(Factory factory, Pool pool) {
+        this.factory = factory;
+        this.pool = pool;
+    }
     
-    Message createMessage();
+    public Object create() throws Throwable {
+        return pool.getInstance(factory);
+    }
 
-    Message createMessage(Message m);
 }

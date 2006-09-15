@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.Session;
 
 public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
@@ -32,7 +33,9 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
     
     private Message inMessage;
     private Message outMessage;
+    private Message faultMessage;
     
+    private Session session;
     
     public Destination getDestination() {
         return destination;
@@ -48,6 +51,15 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
 
     public Message getOutMessage() {
         return outMessage;
+    }
+
+    public Message getFaultMessage() {
+        return faultMessage;
+    }
+
+    public void setFaultMessage(Message m) {
+        this.faultMessage = m;
+        m.setExchange(this);
     }
 
     public void setDestination(Destination d) {
@@ -84,4 +96,11 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
         oneWay = b;
     }
 
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
 }

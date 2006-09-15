@@ -19,6 +19,8 @@
 
 package org.apache.cxf.interceptor;
 
+import org.w3c.dom.Element;
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
 
@@ -26,6 +28,8 @@ import org.apache.cxf.common.i18n.UncheckedException;
  * A Fault that occurs during invocation processing.
  */
 public class Fault extends UncheckedException {
+
+    private Element detail;
     
     public Fault(Message message, Throwable throwable) {
         super(message, throwable);
@@ -39,5 +43,34 @@ public class Fault extends UncheckedException {
         super(t);
     }
 
+    
+    /**
+     * Returns the detail node. If no detail node has been set, an empty
+     * <code>&lt;detail&gt;</code> is created.
+     * 
+     * @return the detail node.
+     */
+    public Element getDetail() {
+        return detail;
+    }
+
+    /**
+     * Sets a details <code>Node</code> on this fault.
+     * 
+     * @param details the detail node.
+     */
+    public void setDetail(Element details) {
+        detail = details;
+    }
+
+    /**
+     * Indicates whether this fault has a detail message.
+     * 
+     * @return <code>true</code> if this fault has a detail message;
+     *         <code>false</code> otherwise.
+     */
+    public boolean hasDetails() {
+        return detail == null ? false : true;
+    }
 
 }

@@ -17,14 +17,27 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.transport;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
+/**
+ * A Session which can be bound to HTTP, WS-Adddressing, etc.
+ * 
+ * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
+ */
+public interface Session {
+    /**
+     * Get a variable from the session by the key.
+     * 
+     * @param key
+     * @return Value
+     */
+    Object get(Object key);
 
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
-
-    Message createMessage(Message m);
+    /**
+     * Put a variable into the session with a key.
+     * 
+     * @param key
+     * @param value
+     */
+    void put(Object key, Object value);
 }

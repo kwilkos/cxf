@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
@@ -107,4 +110,37 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
     public <T> void put(Class<T> key, T value) {
         put(key.getName(), value);
     }
+
+    public Object getContextualProperty(String key) {
+        Object val = get(key);
+        
+        if (val == null) {
+            val = getExchange().get(key);
+        }
+        
+        if (val == null) {
+            OperationInfo ep = get(OperationInfo.class); 
+            if (ep != null) {
+                val = ep.getProperty(key);
+            }
+        }
+        
+        if (val == null) {
+            EndpointInfo ep = get(EndpointInfo.class); 
+            if (ep != null) {
+                val = ep.getProperty(key);
+            }
+        }
+        
+        if (val == null) {
+            Service ep = get(Service.class); 
+            if (ep != null) {
+                val = ep.get(key);
+            }
+        }
+        
+        return val;
+    }
+    
+    
 }

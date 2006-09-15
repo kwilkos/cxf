@@ -36,7 +36,7 @@ import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
-import org.apache.cxf.service.invoker.SimpleMethodInvoker;
+import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
@@ -108,7 +108,7 @@ public class JaxWsClientTest extends AbstractCXFTest {
         bean.setBus(bus);        
         bean.setServiceClass(GreeterImpl.class);        
         GreeterImpl greeter = new GreeterImpl();
-        SimpleMethodInvoker invoker = new SimpleMethodInvoker(greeter);
+        BeanInvoker invoker = new BeanInvoker(greeter);
         bean.setInvoker(invoker);
         
         Service service = bean.create();

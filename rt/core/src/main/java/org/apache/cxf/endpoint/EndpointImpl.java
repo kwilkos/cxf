@@ -31,6 +31,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
+import org.apache.cxf.interceptor.FaultChainIntiatorInterceptor;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
@@ -52,6 +53,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
         this.bus = bus;
         service = s;
         endpointInfo = ei;
+        faultInterceptor = new FaultChainIntiatorInterceptor(this, bus);
         createBinding(endpointInfo.getBinding());
     }
 

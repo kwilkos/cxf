@@ -25,6 +25,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -51,6 +52,7 @@ public class OutgoingChainInterceptorTest extends TestCase {
     private MessageInfo mInfo;
     private List<Phase> phases;
     private List<Interceptor> empty;
+    private Binding binding;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -68,6 +70,11 @@ public class OutgoingChainInterceptorTest extends TestCase {
 
         service = control.createMock(Service.class);
         endpoint = control.createMock(Endpoint.class);
+        binding = control.createMock(Binding.class);
+        EasyMock.expect(endpoint.getBinding()).andStubReturn(binding);
+        MessageImpl m = new MessageImpl();
+        EasyMock.expect(binding.createMessage()).andStubReturn(m);
+        
         EasyMock.expect(endpoint.getService()).andReturn(service);
         EasyMock.expect(endpoint.getOutInterceptors()).andReturn(empty);
         EasyMock.expect(service.getOutInterceptors()).andReturn(empty);
@@ -95,10 +102,10 @@ public class OutgoingChainInterceptorTest extends TestCase {
         MessageImpl m = new MessageImpl();
         Exchange exchange = new ExchangeImpl();
         m.setExchange(exchange);
-        exchange.setOutMessage(m);
         exchange.put(Bus.class, bus);
         exchange.put(Endpoint.class, endpoint);
         exchange.put(BindingOperationInfo.class, bopInfo);
+        exchange.setOutMessage(m);
         setupIntc.handleMessage(m);
         intc.handleMessage(m);
     }

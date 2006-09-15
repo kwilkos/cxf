@@ -17,14 +17,26 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.service.invoker;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
+import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.message.Exchange;
 
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
-
-    Message createMessage(Message m);
+/**
+ * This interface represents a scoping policy that caches servant instances
+ * created by a Factory.
+ * <p>
+ * 
+ * @author Ben Yu Feb 6, 2006 12:47:38 PM
+ */
+public interface ScopePolicy {
+    /**
+     * Apply scope policy to a Factory object so that the instance created by
+     * the Factory object can be cached properly.
+     * 
+     * @param f the Factory object.
+     * @param exchange The message exchange which the scope is applied to.
+     * @return the Factory object that honors the scope.
+     */
+    Factory applyScope(Factory f, Exchange exchange);
 }

@@ -34,14 +34,22 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Soap11FaultOutInterceptor.class);
 
+    public Soap11FaultOutInterceptor() {
+        super();
+        setPhase(Phase.MARSHAL);
+    }
+
     public void handleMessage(SoapMessage message) throws Fault {
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
-        SoapFault fault = (SoapFault)message.getContent(Exception.class);
+        Fault f = (Fault)message.getContent(Exception.class);
+
+        SoapFault fault = SoapFault.createFault(f);
 
         try {
             Map<String, String> namespaces = fault.getNamespaces();
@@ -82,7 +90,11 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
             writer.writeEndElement();
 
             writer.writeStartElement("faultstring");
-            writer.writeCharacters(fault.getMessage());
+            if (fault.getMessage() != null) {
+                writer.writeCharacters(fault.getMessage());
+            } else {
+                writer.writeCharacters("Fault occurred while processing.");
+            }
             writer.writeEndElement();
 
             if (fault.hasDetails()) {

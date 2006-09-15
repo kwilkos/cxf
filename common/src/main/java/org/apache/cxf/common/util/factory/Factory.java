@@ -16,15 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.common.util.factory;
 
-package org.apache.cxf.binding;
-
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
-
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
-
-    Message createMessage(Message m);
+/**
+ * Represents an object factory.
+ * <p>
+ * 
+ * @author Ben Yu Jan 6, 2006 12:38:18 AM
+ */
+public interface Factory {
+    Object create() throws Throwable;
 }

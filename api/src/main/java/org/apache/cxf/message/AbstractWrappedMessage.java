@@ -149,5 +149,9 @@ public abstract class AbstractWrappedMessage implements Message {
     public <T> void put(Class<T> key, T value) {
         message.put(key, value);
     }
+
+    public Object getContextualProperty(String key) {
+        return message.getContextualProperty(key);
+    }
     
 }

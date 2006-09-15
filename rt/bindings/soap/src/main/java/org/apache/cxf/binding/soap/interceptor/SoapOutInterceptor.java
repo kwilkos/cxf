@@ -67,6 +67,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             message.setContent(XMLStreamWriter.class, xtw);
             SoapVersion soapVersion = message.getVersion();
             
+            xtw.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
             xtw.writeStartElement(soapVersion.getPrefix(), 
                                   soapVersion.getEnvelope().getLocalPart(),
                                   soapVersion.getNamespace());
@@ -92,7 +93,6 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
             xtw.flush();
         } catch (XMLStreamException e) {
-            //e.printStackTrace();
             throw new SoapFault(
                 new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, SoapFault.SENDER);
         }
@@ -129,6 +129,10 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
  
         if (countParts > 0) {
             List<?> objs = message.getContent(List.class);
+            if (objs == null) {
+                return;
+            }
+            
             Object[] args = objs.toArray();
             Object[] els = parts.toArray();
  

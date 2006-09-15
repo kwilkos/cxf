@@ -47,7 +47,13 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(SoapMessage message) throws Fault {
         // Calling for soap out interceptor        
         message.getInterceptorChain().doIntercept(message);
-        AbstractCachedOutputStream ops = (AbstractCachedOutputStream)message.getContent(OutputStream.class);
+        OutputStream os = message.getContent(OutputStream.class);
+        
+        if (!(os instanceof AbstractCachedOutputStream)) {
+            return;
+        }
+        
+        AbstractCachedOutputStream ops = (AbstractCachedOutputStream) os;
         try {
             Collection<Attachment> attachments = message.getAttachments();
             if (attachments.size() > 0) {
@@ -61,6 +67,4 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
                                 SoapFault.ATTACHMENT_IO);
         }
     }
-
-
 }

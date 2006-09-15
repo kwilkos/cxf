@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.Session;
 
 public interface Exchange extends Map<String, Object> {
     Message getInMessage();
@@ -30,6 +31,11 @@ public interface Exchange extends Map<String, Object> {
     
     Message getOutMessage();
     void setOutMessage(Message m);
+    
+    Message getFaultMessage();
+    void setFaultMessage(Message m);
+    
+    Session getSession();
     
     /**
      * @return the associated incoming Destination (may be anonymous)

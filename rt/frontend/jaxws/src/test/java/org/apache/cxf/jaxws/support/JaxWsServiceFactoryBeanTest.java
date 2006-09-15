@@ -31,7 +31,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.BindingFactoryManagerImpl;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.invoker.SimpleMethodInvoker;
+import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl.WSDLManager;
@@ -53,7 +53,7 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
         bean.setBus(bus);
         bean.setServiceClass(GreeterImpl.class);
 
-        SimpleMethodInvoker invoker = new SimpleMethodInvoker(new GreeterImpl());
+        BeanInvoker invoker = new BeanInvoker(new GreeterImpl());
         bean.setInvoker(invoker);
         
         Service service = bean.create();

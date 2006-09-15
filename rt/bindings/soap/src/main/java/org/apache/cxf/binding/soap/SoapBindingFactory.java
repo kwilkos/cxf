@@ -45,6 +45,8 @@ import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
+import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
+import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -122,6 +124,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());
 
+        sb.getInFaultInterceptors().add(new Soap11FaultInInterceptor());
+        
         sb.getOutInterceptors().add(new AttachmentOutInterceptor());
         sb.getOutInterceptors().add(new StaxOutInterceptor());
         sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
@@ -129,8 +133,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
-        sb.getOutFaultInterceptors().add(sb.getOutFaultInterceptor());
-
+        sb.getOutFaultInterceptors().add(new Soap11FaultOutInterceptor());
+        
         if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
             sb.getInInterceptors().add(new RPCInInterceptor());
             sb.getOutInterceptors().add(new RPCOutInterceptor());

@@ -44,7 +44,6 @@ public class ChainInitiationObserver implements MessageObserver {
         Exchange exchange = new ExchangeImpl();
         exchange.setInMessage(message);
         message.setExchange(exchange);
-        setMessageProperties(message);
         setExchangProperties(exchange, message);
         
         // setup chain
@@ -57,15 +56,10 @@ public class ChainInitiationObserver implements MessageObserver {
         chain.add(endpoint.getInInterceptors());
         chain.add(endpoint.getBinding().getInInterceptors());
         chain.add(endpoint.getService().getInInterceptors());
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());           
 
-        
+        chain.setFaultInterceptor(endpoint.getFaultInterceptor());
+       
         chain.doIntercept(message);        
-    }
-    
-    protected void setMessageProperties(Message m) {
-        // when configuration is ready, using config bean instead
-        m.put(Message.MTOM_ENABLED, Boolean.TRUE);
     }
     
     protected void setExchangProperties(Exchange exchange, Message m) {

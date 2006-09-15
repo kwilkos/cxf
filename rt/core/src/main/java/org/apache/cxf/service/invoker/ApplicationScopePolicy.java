@@ -17,14 +17,33 @@
  * under the License.
  */
 
-package org.apache.cxf.binding;
+package org.apache.cxf.service.invoker;
 
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.message.Message;
+import org.apache.cxf.common.util.factory.CachingPool;
+import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.common.util.factory.Pool;
+import org.apache.cxf.common.util.factory.PooledFactory;
+import org.apache.cxf.message.Exchange;
 
-public interface Binding extends InterceptorProvider {
-    
-    Message createMessage();
+/**
+ * This scope policy implements one servant instance per service.
+ * <p>
+ * 
+ * @author Ben Yu Feb 6, 2006 11:38:08 AM
+ */
+public class ApplicationScopePolicy implements ScopePolicy {
 
-    Message createMessage(Message m);
+    private final Pool pool = new CachingPool();
+
+    public Factory applyScope(Factory f, Exchange ex) {
+        return new PooledFactory(f, pool);
+    }
+
+    public String toString() {
+        return "application scope";
+    }
+
+    public static ScopePolicy instance() {
+        return new ApplicationScopePolicy();
+    }
 }
