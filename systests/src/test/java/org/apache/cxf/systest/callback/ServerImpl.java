@@ -37,7 +37,7 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
                       portName = "SOAPPort",
                       targetNamespace = "http://apache.org/callback",
                       endpointInterface = "org.apache.callback.ServerPortType") 
-                      //wsdlLocation = "file:./wsdl/basic_callback.wsdl")
+                      
                   
 public class ServerImpl implements ServerPortType  {
 
@@ -89,5 +89,7 @@ public class ServerImpl implements ServerPortType  {
         
         return "registerCallback called";     
     }
+
     
+        
 }    

@@ -50,7 +50,7 @@ public final class JAXBDataReaderFactory extends JAXBDataFactoryBase implements 
                                                                         XMLMessage.class};
     
     public JAXBDataReaderFactory() {
-        
+    
     }
 
     

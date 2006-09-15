@@ -29,17 +29,28 @@ import junit.framework.TestSuite;
 
 import org.apache.callback.SOAPService;
 import org.apache.callback.ServerPortType;
+
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
+
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 public class CallbackClientServerTest extends ClientServerTestBase {
     private static final QName SERVICE_NAME 
         = new QName("http://apache.org/callback", "SOAPService");
+    private static final QName SERVICE_NAME_CALLBACK 
+        = new QName("http://apache.org/callback", "CallbackService");
 
+    private static final QName PORT_NAME 
+        = new QName("http://apache.org/callback", "SOAPPort");
 
+    private static final QName PORT_NAME_CALLBACK 
+        = new QName("http://apache.org/callback", "CallbackPort");
+    
+    private static final QName PORT_TYPE_CALLBACK
+        = new QName("http://apache.org/callback", "CallbackPortType");
+    
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(CallbackClientServerTest.class);
         return new ClientServerSetupBase(suite) {
@@ -48,25 +59,28 @@ public class CallbackClientServerTest extends ClientServerTestBase {
             }
         };
         
+                
     }
 
-    public void xtestCallback() {
+    public void testCallback() throws Exception {
 
                     
         Object implementor = new CallbackImpl();
         String address = "http://localhost:9005/CallbackContext/CallbackPort";
         Endpoint.publish(address, implementor);
     
-        URL wsdlURL = getClass().getResource("/wsdl/basic_callback.wsdl");
+        URL wsdlURL = getClass().getResource("/wsdl/basic_callback_test.wsdl");
     
         SOAPService ss = new SOAPService(wsdlURL, SERVICE_NAME);
-        ServerPortType port = ss.getSOAPPort();
+        ServerPortType port = ss.getPort(PORT_NAME, ServerPortType.class);
    
         EndpointReferenceType ref = null;
         try {
-            ref = EndpointReferenceUtils.getEndpointReference(new WSDLManagerImpl(), implementor);
+            ref = EndpointReferenceUtils.getEndpointReference(wsdlURL, 
+                                                              SERVICE_NAME_CALLBACK, 
+                                                              PORT_NAME_CALLBACK.getLocalPart());
+            EndpointReferenceUtils.setInterfaceName(ref, PORT_TYPE_CALLBACK);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     
@@ -76,8 +90,5 @@ public class CallbackClientServerTest extends ClientServerTestBase {
             
     }
     
-    public void testDummyCallback() throws Exception {
-        assertTrue(true);
-    }
-
+    
 }

@@ -20,7 +20,6 @@
 package org.apache.cxf.tools.common.extensions.jms;
 
 import java.io.*;
-import java.lang.reflect.*;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;

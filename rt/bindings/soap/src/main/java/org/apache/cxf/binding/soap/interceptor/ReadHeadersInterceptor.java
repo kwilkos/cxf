@@ -35,6 +35,7 @@ import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+//import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -50,7 +51,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(SoapMessage message) {
         XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
      
-  
+        
         
         if (xmlReader == null) {
             InputStream in = (InputStream)message.getContent(InputStream.class);
@@ -61,6 +62,8 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
 
         try {
+            /*System.out.println("the xml fragment is ");
+            System.out.println(XMLUtils.toString(StaxUtils.read(xmlReader)));*/
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);

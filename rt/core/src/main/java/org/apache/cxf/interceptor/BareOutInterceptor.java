@@ -62,11 +62,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             Object[] args = objs.toArray();
             Object[] els = parts.toArray();
 
-            //should not have this assertion since jaxws-Holder may exist
-            /*if (args.length != els.length) {
-                message.setContent(Exception.class,
-                    new RuntimeException("The number of arguments is not equal!"));
-            }*/
+
                         
             for (int idx = 0; idx < countParts; idx++) {
                 Object arg = args[idx];

@@ -203,7 +203,7 @@
                                 </wsdlOption>
 
                                 <wsdlOption>
-                                    <wsdl>${basedir}/src/main/resources/wsdl/basic_callback.wsdl</wsdl>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/basic_callback_test.wsdl</wsdl>
                                 </wsdlOption>
                                 
                                 <wsdlOption>

@@ -22,17 +22,14 @@ package org.apache.cxf.wsdl;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.wsdl.Definition;
-import javax.wsdl.Import;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
-import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBElement;
@@ -55,9 +52,13 @@ import org.w3c.dom.Node;
 
 import org.xml.sax.SAXException;
 
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+//import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.service.model.SchemaInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.MetadataType;
@@ -70,7 +71,7 @@ import org.apache.cxf.ws.addressing.wsdl.ServiceNameType;
  */
 public final class EndpointReferenceUtils {
 
-    static WeakHashMap<Definition, Schema> schemaMap = new WeakHashMap<Definition, Schema>();
+    static WeakHashMap<ServiceInfo, Schema> schemaMap = new WeakHashMap<ServiceInfo, Schema>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
 
@@ -386,56 +387,24 @@ public final class EndpointReferenceUtils {
         return null;
     }
 
-    private static List<javax.wsdl.extensions.schema.Schema> getSchemas(Definition definition) {
-        Types types = definition.getTypes();
-        List<javax.wsdl.extensions.schema.Schema> schemaList = 
-            new ArrayList<javax.wsdl.extensions.schema.Schema>();
-        if (types != null) {
-            for (Object o : types.getExtensibilityElements()) {
-                if (o instanceof javax.wsdl.extensions.schema.Schema) {
-                    javax.wsdl.extensions.schema.Schema s =
-                        (javax.wsdl.extensions.schema.Schema)o;
-                    schemaList.add(s);
-                }
-            }
-        }
-
-        Map wsdlImports = definition.getImports();
-        for (Object o : wsdlImports.values()) {
-            if (o instanceof List) {
-                for (Object p : (List)o) {
-                    if (p instanceof Import) {
-                        schemaList.addAll(getSchemas(((Import)p).getDefinition()));
-                    }
-                }
-            }
-        }
-        return schemaList;
-    }
-
-    public static Schema getSchema(WSDLManager manager, EndpointReferenceType ref) {
-        Definition definition;
-        try {
-            definition = getWSDLDefinition(manager, ref);
-        } catch (javax.wsdl.WSDLException wsdlEx) {
-            return null;
-        }
-        if (definition == null) {
+    
+    
+    public static Schema getSchema(ServiceInfo serviceInfo) {
+        if (serviceInfo == null) {
             return null;
         }
         synchronized (schemaMap) {
-            if (schemaMap.containsKey(definition)) {
-                return schemaMap.get(definition);
+            if (schemaMap.containsKey(serviceInfo)) {
+                return schemaMap.get(serviceInfo);
             }
         }
-        Schema schema = schemaMap.get(definition);
+        Schema schema = schemaMap.get(serviceInfo);
         if (schema == null) {
-            List<javax.wsdl.extensions.schema.Schema> schemas = getSchemas(definition);
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);
             List<Source> schemaSources = new ArrayList<Source>();
-            for (javax.wsdl.extensions.schema.Schema s : schemas) {
-                Source source = new DOMSource(s.getElement());
+            for (SchemaInfo schemaInfo : serviceInfo.getTypeInfo().getSchemas()) {
+                Source source = new DOMSource(schemaInfo.getElement());
                 if (source != null) {
                     schemaSources.add(source);
                 }
@@ -445,9 +414,9 @@ public final class EndpointReferenceUtils {
                     new Source[schemaSources.size()]));
                 if (schema != null) {
                     synchronized (schemaMap) {
-                        schemaMap.put(definition, schema);
+                        schemaMap.put(serviceInfo, schema);
                     }
-                    LOG.log(Level.FINE, "Obtained schema from wsdl definition");
+                    LOG.log(Level.FINE, "Obtained schema from ServiceInfo");
                 }
             } catch (SAXException ex) {
                 // Something not right with the schema from the wsdl.
@@ -455,8 +424,10 @@ public final class EndpointReferenceUtils {
             }
         }
         return schema;
+
     }
     
+
     /**
      * Gets the WSDL port for the provided endpoint reference.
      * @param manager - the WSDL manager 
