@@ -66,8 +66,7 @@ public class ServerRegistryImpl implements ServerRegistry, BusLifeCycleListener 
 
     public void preShutdown() {
         // Shutdown the service       
-        for (Server server : serversList) {
-            System.out.println("call the server stop");
+        for (Server server : serversList) {            
             server.stop();
         }
     }
