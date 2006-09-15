@@ -222,14 +222,9 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         InputSource insource = null;
        
         insource = new InputSource(result.getSystemId());
-            //insource.setByteStream((InputStream)new FileInputStream(file));
-        System.err.println(result.getSystemId());
-           // insource.setSystemId(result.getSystemId());
-        
         
         return insource;
-        /*opt.setSchemaLanguage(Language.XMLSCHEMA);
-        opt.addGrammar(file);*/
+        
     }
 
     public void generate() throws ToolException {
@@ -383,19 +378,5 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         }
         return new ArrayList<Property>();
     }
-
-    /*private class OptionsEx extends Options {
-
-        protected Mode mode = Mode.CODE;
-
-        protected int parseArgument(String[] args, int i) throws BadCommandLineException {
-
-            return super.parseArgument(args, i);
-        }
-    }*/
-
-   /* private enum Mode {
-        CODE, BGM, SIGNATURE, FOREST, DRYRUN, ZIP,
-    }*/
 
 }
