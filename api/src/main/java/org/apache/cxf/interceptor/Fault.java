@@ -19,10 +19,12 @@
 
 package org.apache.cxf.interceptor;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
+import org.apache.cxf.helpers.DOMUtils;
 
 /**
  * A Fault that occurs during invocation processing.
@@ -30,20 +32,31 @@ import org.apache.cxf.common.i18n.UncheckedException;
 public class Fault extends UncheckedException {
 
     private Element detail;
+    private String message;
     
     public Fault(Message message, Throwable throwable) {
         super(message, throwable);
+        this.message = message.toString();
     }
     
     public Fault(Message message) {
         super(message);
+        this.message = message.toString();
     }
 
     public Fault(Throwable t) {
         super(t);
+        message = super.getMessage();
     }
 
-    
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     /**
      * Returns the detail node. If no detail node has been set, an empty
      * <code>&lt;detail&gt;</code> is created.
@@ -70,7 +83,13 @@ public class Fault extends UncheckedException {
      *         <code>false</code> otherwise.
      */
     public boolean hasDetails() {
-        return detail == null ? false : true;
+        return this.detail != null;
     }
 
+    public Element getOrCreateDetail() {
+        Document d = DOMUtils.createDocument();
+        Element element = d.createElement("Fault");
+        this.detail = element;
+        return element;
+    }
 }

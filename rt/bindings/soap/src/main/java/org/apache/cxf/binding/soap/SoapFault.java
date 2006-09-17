@@ -59,7 +59,7 @@ public class SoapFault extends Fault {
     private QName subCode;
     private String role;
     private Map<String, String> namespaces = new HashMap<String, String>();
-    
+
     public SoapFault(Message message, Throwable throwable, QName type) {
         super(message, throwable);
         this.faultCode = type;
@@ -132,7 +132,7 @@ public class SoapFault extends Fault {
     public void setSubCode(QName subCode) {
         this.subCode = subCode;
     }
-    
+
     public Map<String, String> getNamespaces() {
         return namespaces;
     }
@@ -143,12 +143,12 @@ public class SoapFault extends Fault {
 
     public static SoapFault createFault(Fault f) {
         if (f instanceof SoapFault) {
-            return (SoapFault) f;
+            return (SoapFault)f;
         }
-        
-        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null), f
-            .getCause(), RECEIVER);
-        
+
+        SoapFault soapFault = new SoapFault(new Message(f.getMessage(), (ResourceBundle)null), f.getCause(),
+                                            RECEIVER);
+        soapFault.setDetail(f.getDetail());
         return soapFault;
     }
 }

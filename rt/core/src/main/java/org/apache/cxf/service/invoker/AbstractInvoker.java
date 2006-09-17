@@ -19,6 +19,7 @@
 
 package org.apache.cxf.service.invoker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -60,6 +61,12 @@ public abstract class AbstractInvoker implements Invoker {
                 retList.add(res);
             }
             return Arrays.asList(retList.toArray());
+        } catch (InvocationTargetException e) {
+            Throwable t = e.getCause();
+            if (t == null) {
+                t = e;
+            }
+            throw new Fault(t);
         } catch (Exception e) {
             throw new Fault(e);
         }

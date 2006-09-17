@@ -42,6 +42,7 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
@@ -72,6 +73,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     public JaxWsServiceFactoryBean(JaxwsImplementorInfo i) {
         this();
         this.implInfo = i;
+    }
+
+    @Override
+    protected void initializeDefaultInterceptors() {
+        super.initializeDefaultInterceptors();
+        
+        getService().getOutFaultInterceptors().add(new WebFaultOutInterceptor());
     }
 
     public void activateEndpoints() throws IOException, WSDLException, BusException, EndpointException {

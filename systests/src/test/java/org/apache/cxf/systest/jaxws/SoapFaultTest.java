@@ -99,13 +99,14 @@ public class SoapFaultTest extends AbstractCXFTest {
      * We need to get the jaxws fault -> soap fault conversion working for this
      * @throws Exception
      */
-    public void xtestWebServiceException() throws Exception {
+    public void testWebServiceException() throws Exception {
         Node response = invoke("http://localhost:9000/SoapContext/SoapPort",
                                LocalTransportFactory.TRANSPORT_ID, "GreeterGetFaultMessage.xml");
 
         assertNotNull(response);
 
-        assertValid("/s:Envelope/s:Body/s:Fault/faultstring[text()='I blame Hadrian.']", response);
+        assertValid("/s:Envelope/s:Body/s:Fault/faultstring[text()='TestBadRecordLit']", response);
+        assertValid("/s:Envelope/s:Body/s:Fault/detail", response);
     }
 
     public class FaultThrowingInterceptor extends AbstractSoapInterceptor {

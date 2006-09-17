@@ -99,7 +99,6 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
 
             if (fault.hasDetails()) {
                 Element detail = fault.getDetail();
-
                 writer.writeStartElement("detail");
 
                 NodeList details = detail.getChildNodes();
