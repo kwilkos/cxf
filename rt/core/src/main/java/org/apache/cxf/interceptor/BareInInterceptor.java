@@ -134,9 +134,9 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     private List<Object> abstractParamsFromHeader(Element headerElement, Endpoint ep, Message message) {
-
         List<Object> paramInHeader = new ArrayList<Object>();
         List<MessagePartInfo> parts = null;
+        List<Element> elemInHeader = new ArrayList<Element>();
         for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
 
             if (isRequestor(message)) {
@@ -155,7 +155,9 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                                             && nodeList.item(i).getLocalName().equals(
                                                             mpi.getElementQName().getLocalPart())) {
                                 Element param = (Element) nodeList.item(i);
-                                paramInHeader.add(getNodeDataReader(message).read(param));
+                                if (!elemInHeader.contains(param)) {
+                                    elemInHeader.add(param);
+                                }
                             }
                         }
 
@@ -165,6 +167,10 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             }
         }
 
+        for (Iterator iter = elemInHeader.iterator(); iter.hasNext();) {
+            Element element = (Element)iter.next();
+            paramInHeader.add(getNodeDataReader(message).read(element));
+        }
         return paramInHeader;
     }
 }
