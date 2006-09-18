@@ -291,13 +291,17 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         String[] arguments = new String[argList.size() + fileList.size() + 1];
         arguments[0] = "javac";
+        
         int i = 1;
+        
         for (Object obj : argList.toArray()) {
             String arg = (String)obj;
             arguments[i] = arg;
             i++;
         }
-
+        
+        int srcFileIndex = i; 
+        
         for (Object o : fileList.toArray()) {
             String file = (String)o;
             arguments[i] = file;
@@ -306,7 +310,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         Compiler compiler = new Compiler();
 
-        if (!compiler.internalCompile(arguments)) {
+        if (!compiler.internalCompile(arguments, srcFileIndex)) {
             Message msg = new Message("FAIL_TO_COMPILE_GENERATE_CODES", LOG);
             throw new ToolException(msg);
         }
