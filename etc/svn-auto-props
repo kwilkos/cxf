@@ -45,6 +45,7 @@ COPYING = svn:eol-style=native;svn:mime-type=text/plain
 Makefile = svn:eol-style=native
 *.css = svn:eol-style=native
 *.js = svn:eol-style=native
+*.jsx = svn:eol-style=native
 #Tuscany/SCA work should also have:
 *.wsdd = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
 *.scdl = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
