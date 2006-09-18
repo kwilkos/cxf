@@ -186,6 +186,33 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+		    <execution>
+		        <id>add-jars</id>
+			<phase>package</phase>
+			<goals>
+			    <goal>copy</goal>
+			</goals>
+                        <configuration>
+			    <outputDirectory>${project.build.directory}/additional-libs</outputDirectory>
+			    <artifactItems>
+			        <artifactItem>
+				    <groupId>${pom.groupId}</groupId>
+				    <artifactId>cxf-rt-frontend-js</artifactId>
+				    <version>${pom.version}</version>
+				</artifactItem>
+				<artifactItem>
+				    <groupId>xmlbeans</groupId>
+				    <artifactId>xbean</artifactId>
+				    <version>2.1.0</version>
+				</artifactItem>
+				<artifactItem>
+				    <groupId>rhino</groupId>
+				    <artifactId>js</artifactId>
+				    <version>1.6R2</version>
+				</artifactItem>
+		            </artifactItems>
+			</configuration>
+	            </execution>
                 </executions>
             </plugin>
             <plugin>

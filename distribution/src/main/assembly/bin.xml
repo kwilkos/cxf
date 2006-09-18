@@ -101,6 +101,13 @@
 	        <include>activemq/**/*</include>
             </includes>
 	</fileSet>
+	<fileSet>
+	    <directory>target/additional-libs</directory>
+	    <outputDirectory>celtixfire/lib</outputDirectory>
+	    <includes>
+	        <include>**/*</include>
+            </includes>
+	</fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
