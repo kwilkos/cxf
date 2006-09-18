@@ -16,7 +16,7 @@ To build and run the demos provided in the celtixfire binary
 distribution using either ant or wsdl2java, javac and java,
 you need to set the environment so that the file cxf.jar
 is on the CLASSPATH and to insure that the JDK, ant and
-Celtix bin directories are on the PATH.
+celtixfire bin directories are on the PATH.
 
 To build and run the demos provided in the celtixfire source distribution
 using ant you will need to edit the common_build.xml file.
@@ -38,7 +38,7 @@ For UNIX:
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
   export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$CXF_HOME/bin:$PATH
-  export CLASSPATH=.:$CELTIX_HOME/lib/cxf.jar:./build/classes
+  export CLASSPATH=.:$CXF_HOME/lib/cxf.jar:./build/classes
 
 For Windows:
   set CXF_HOME=C:\<installation_directory>\celtixfire
@@ -55,7 +55,7 @@ script prior to building and running the demos.
 Basic Setup for Building and Running the Demos in a Servlet Container
 =====================================================================
 
-Since Celtix requires JDK/JRE 5.0, you must use a servlet container
+Since celtixfire requires JDK/JRE 5.0, you must use a servlet container
 that is compatible with this JDK/JRE.  A suitable servlet container is
 Tomcat 5.5 or above.
 

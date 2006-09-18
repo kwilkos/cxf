@@ -16,7 +16,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="Celtix common build file" default="build">
+<project name="celtixfire  build file" default="build">
 
 
     <property environment="env"/>
@@ -56,16 +56,16 @@
         <equals arg1="${ant.java.version}" arg2="1.5"/>
     </condition>
 
-    <fail message="Celtix requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
+    <fail message="celtixfire requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
         unless="is.java.version.15"/>
 
 
 
-    <!-- Determine cxf.home, either from the environment variable CELTIX_HOME
+    <!-- Determine cxf.home, either from the environment variable CXF_HOME
        - or using ../..
        -->
-    <condition property="cxf.home" value="${env.CELTIX_HOME}">
-        <isset property="env.CELTIX_HOME"/>
+    <condition property="cxf.home" value="${env.CXF_HOME}">
+        <isset property="env.CXF_HOME"/>
     </condition>
     <property name="cxf.home" location="../.."/>
     <property name="activemq.home" location="${cxf.home}/lib/activemq/3.2"/>

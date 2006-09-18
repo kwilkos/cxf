@@ -41,7 +41,7 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes celtix.jar on the
+If your environment already includes cxf.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
 it is not necessary to run the environment script described in
 the samples directory README.  If your environment is not
@@ -96,12 +96,12 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf.jar:./build/classes
   javac -d build/classes src/demo/hw/client/*.java
   javac -d build/classes src/demo/hw/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf.jar;.\build\classes
   javac -d build\classes src\demo\hw\client\*.java
   javac -d build\classes src\demo\hw\server\*.java
 
@@ -114,10 +114,10 @@ From the samples/hello_world_async directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hw.server.Server &
 
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hw.client.Client ./wsdl/hello_world_async.wsdl
 
 The server process starts in the background.  After running the client,
@@ -125,10 +125,10 @@ use the kill command to terminate the server process.
 
 For Windows (may use either forward or back slashes):
   start 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
          demo.hw.server.Server
 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
        demo.hw.client.Client .\wsdl\hello_world_async.wsdl
 
 A new command windows opens for the server process.  After running the

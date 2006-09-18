@@ -64,12 +64,12 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/cxf.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf.jar:./build/classes
   javac -d build/classes src/demo/hw/client/*.java
   javac -d build/classes src/demo/hw/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CELTIX_HOME%\lib\cxf.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf.jar;.\build\classes
   javac -d build\classes src\demo\hw\client\*.java
   javac -d build\classes src\demo\hw\server\*.java
 
@@ -82,10 +82,10 @@ From the samples/hello_world directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hw.server.Server &
 
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hw.client.Client ./wsdl/hello_world.wsdl
 
 The server process starts in the background.  After running the client,
@@ -93,10 +93,10 @@ use the kill command to terminate the server process.
 
 For Windows (may use either forward or back slashes):
   start 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
          demo.hw.server.Server
 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
        demo.hw.client.Client .\wsdl\hello_world.wsdl
 
 A new command windows opens for the server process.  After running the
@@ -139,12 +139,12 @@ Using java, run the client application with the command:
 
   For UNIX:
     
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hw.client.Client http://localhost:#/helloworld/cxf/hello_world
 
   For Windows:
 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
        demo.hw.client.Client http://localhost:#/helloworld/cxf/hello_world
 
 Where # is the TCP/IP port used by the servlet container,
