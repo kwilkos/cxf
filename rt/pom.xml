@@ -42,6 +42,7 @@
         <module>transports/local</module>
         <module>databinding/jaxb</module>
         <module>frontend/jaxws</module>
+        <module>frontend/js</module>
         <module>bindings</module>
         <module>transports/http</module>
         <module>transports/jms</module>
