@@ -42,11 +42,11 @@ import org.apache.cxf.message.XMLMessage;
 
 public class XMLMessageDataReader implements DataReader<XMLMessage> {
     final JAXBDataReaderFactory factory;
-    
+
     public XMLMessageDataReader(JAXBDataReaderFactory cb) {
         factory = cb;
     }
-    
+
     public Object read(XMLMessage input) {
         // Complete
         return null;
@@ -57,37 +57,46 @@ public class XMLMessageDataReader implements DataReader<XMLMessage> {
         return null;
     }
 
+    /**
+     * @param name
+     * @param input
+     * @param type
+     * @return
+     */
     public Object read(QName name, XMLMessage input, Class type) {
         Object obj = null;
         InputStream is = input.getContent(InputStream.class);
-        if (is == null) {
-            // TODO LOG ERROR here
-            return null;
-        }
+
         try {
+            // Tolerate empty InputStream in order to deal with HTTP GET
+            if (is == null || is.available() == 0) {
+                // TODO LOG ERROR here
+                return null;
+            }
+
             // Processing Souce type
             if (DOMSource.class.isAssignableFrom(type)) {
                 Document doc = XMLUtils.parse(is);
-                obj = new DOMSource(doc);               
-            } else if (SAXSource.class.isAssignableFrom(type)) {                
-                obj = new SAXSource(new InputSource(is));           
+                obj = new DOMSource(doc);
+            } else if (SAXSource.class.isAssignableFrom(type)) {
+                obj = new SAXSource(new InputSource(is));
             } else if (StreamSource.class.isAssignableFrom(type) || Source.class.isAssignableFrom(type)) {
                 obj = new StreamSource(is);
             }
-            
-            // Processing DataSource type            
+
+            // Processing DataSource type
             if (MimePartDataSource.class.isAssignableFrom(type)) {
                 // Support JavaMail MimePart DataSource type
                 obj = new MimePartDataSource(new MimeBodyPart(is));
-            } else if (ByteArrayDataSource.class.isAssignableFrom(type) 
-                || DataSource.class.isAssignableFrom(type)) {
+            } else if (ByteArrayDataSource.class.isAssignableFrom(type)
+                       || DataSource.class.isAssignableFrom(type)) {
                 // Support JavaMail ByteArrayDataSource
                 obj = new ByteArrayDataSource(is, null);
-            }            
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return obj;        
+        return obj;
     }
 
 }
