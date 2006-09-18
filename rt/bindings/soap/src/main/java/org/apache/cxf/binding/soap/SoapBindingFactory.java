@@ -112,7 +112,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
             // Operation wide style, what to do with the mixed style/use?
             for (BindingOperationInfo boi : sbi.getOperations()) {
-                bindingStyle = sbi.getStyle(boi.getOperationInfo());
+                if (sbi.getStyle(boi.getOperationInfo()) != null) {
+                    bindingStyle = sbi.getStyle(boi.getOperationInfo());
+                }
                 if (boi.getUnwrappedOperation() == null) {
                     parameterStyle = SoapConstants.PARAMETER_STYLE_BARE;
                 }

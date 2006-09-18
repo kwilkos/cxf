@@ -100,7 +100,7 @@
     </binding>
     <wsdl:service name="SOAPService">
         <wsdl:port name="SoapPort" binding="tns:PutLastTradedPriceSoapBinding">
-            <soap:address location="http://localhost:9003/SOAPDocLitBareService/SoapPort"/>
+            <soap:address location="http://localhost:9107/SOAPDocLitBareService/SoapPort"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
