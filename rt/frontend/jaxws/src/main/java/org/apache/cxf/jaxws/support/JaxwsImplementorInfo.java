@@ -117,13 +117,14 @@ public class JaxwsImplementorInfo {
         }
 
         if (StringUtils.isEmpty(portName)) {
-            portName = implementorClass.getSimpleName();
+            portName = implementorClass.getSimpleName() + "Port";
         }
 
-        if (!StringUtils.isEmpty(namespace) && !StringUtils.isEmpty(portName)) {
+        if (!StringUtils.isEmpty(portName)) {
             return new QName(namespace, portName);
-        }
-        return null;
+        } else {
+            return new QName(namespace, "NoNamedPort");
+        }        
     }
 
     private void initialise() {

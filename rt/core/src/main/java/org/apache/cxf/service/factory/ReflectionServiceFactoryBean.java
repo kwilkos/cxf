@@ -98,7 +98,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (getService() != null) {
             return;
         }
-        if (url != null) {
+        if (url != null && doInitWSDLOperations()) {
             LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
             WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
 
@@ -127,6 +127,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
+    protected boolean doInitWSDLOperations() {
+        return true;
+    }
+    
     protected void initializeWSDLOperations() {
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
@@ -254,7 +258,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         // initializeFaults(intf, op, method);
     }
 
-    protected QName getServiceQName() {
+    protected QName getServiceQName() { 
         if (serviceName == null) {
             serviceName = new QName(getServiceNamespace(), getServiceName());
         }

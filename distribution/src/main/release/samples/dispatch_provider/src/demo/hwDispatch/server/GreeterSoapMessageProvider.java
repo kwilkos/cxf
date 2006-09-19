@@ -29,7 +29,7 @@ import javax.xml.ws.WebServiceProvider;
 
 @WebServiceProvider(portName = "SoapPort1", serviceName = "SOAPService1",
                       targetNamespace = "http://apache.org/hello_world_soap_http",
-                      wsdlLocation = "file:./wsdl/hello_world.wsdl")
+                      wsdlLocation = "wsdl/hello_world.wsdl")
 @ServiceMode(value = Service.Mode.MESSAGE)            
 public class GreeterSoapMessageProvider implements Provider<SOAPMessage> {
 

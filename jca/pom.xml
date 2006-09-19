@@ -5,7 +5,7 @@
     <artifactId>cxf-jca</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-M1-SNAPSHOT</version>
-    <name>CeltiXfire JCA Connection</name>
+    <name>CXF JCA Connection</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>

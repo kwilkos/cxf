@@ -100,6 +100,13 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         server.start();
     }
 
+    public boolean doInitWSDLOperations() {
+        if (implInfo != null) {
+            return !implInfo.isWebServiceProvider();
+        }
+        return true;
+    }
+
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method selected) {
         super.initializeWSDLOperation(intf, o, selected);
@@ -166,11 +173,10 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             try {
                 url = new URL(wsdlLocation);
             } catch (MalformedURLException ex) {
-                // LOG a warning instead of throw exception.
-                // url =
-                // implInfo.getImplementorClass().getResource(wsdlLocation);
                 if (url == null) {
-                    System.err.println("Can't resolve the wsdl location " + wsdlLocation);
+                    LOG.info("Can't resolve the wsdl location:" 
+                             + wsdlLocation 
+                             + " (the WSProvider may not need wsdl location)");
                 }
             }
             setWsdlURL(url);

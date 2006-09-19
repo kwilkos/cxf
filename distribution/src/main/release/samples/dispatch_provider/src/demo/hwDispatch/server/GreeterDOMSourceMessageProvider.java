@@ -28,9 +28,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
 
-@WebServiceProvider(portName = "SoapPort2", serviceName = "SOAPService2",
-                    targetNamespace = "http://apache.org/hello_world_soap_http",
-                    wsdlLocation = "file:./wsdl/hello_world.wsdl")
+@WebServiceProvider()
 @ServiceMode(value = Service.Mode.MESSAGE)            
 public class GreeterDOMSourceMessageProvider implements Provider<DOMSource> {
 

@@ -30,9 +30,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceProvider;
 
-@WebServiceProvider(portName = "SoapPort3", serviceName = "SOAPService3",
-                    targetNamespace = "http://apache.org/hello_world_soap_http",
-                    wsdlLocation = "file:./wsdl/hello_world.wsdl")
+@WebServiceProvider()
 public class GreeterDOMSourcePayloadProvider implements Provider<DOMSource> {
 
     public GreeterDOMSourcePayloadProvider() {
