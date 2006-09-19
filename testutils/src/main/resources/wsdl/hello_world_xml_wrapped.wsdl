@@ -176,7 +176,7 @@
 		
 		<wsdl:port binding="tns:Greeter_XMLBinding" name="RestProviderPort">
 			<http:address
-				location="http://localhost:9023/XMLService/RestProviderPort" />
+				location="http://localhost:9023/XMLService/RestProviderPort/Customer" />
 		</wsdl:port>		
 	</wsdl:service>
 </wsdl:definitions>

@@ -36,17 +36,16 @@ import org.w3c.dom.Document;
 
 import org.apache.cxf.message.Message;
 
-
-//The following wsdl file is used.
-//wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
-@WebServiceProvider(portName = "XMLProviderPort",
-        serviceName = "SOAPServiceRPCLit2",
-        targetNamespace = "http://apache.org/hello_world_rpclit",
-        wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
+// The following wsdl file is used.
+// wsdlLocation =
+// "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
+@WebServiceProvider(portName = "XMLProviderPort", 
+                    serviceName = "SOAPServiceRPCLit2", 
+                    targetNamespace = "http://apache.org/hello_world_rpclit", 
+                    wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
-public class RestSourcePayloadProvider implements
-        Provider<DOMSource> {
+public class RestSourcePayloadProvider implements Provider<DOMSource> {
 
     @Resource
     protected WebServiceContext wsContext;
@@ -56,17 +55,41 @@ public class RestSourcePayloadProvider implements
 
     public DOMSource invoke(DOMSource request) {
         MessageContext mc = wsContext.getMessageContext();
-        //String path1 = (String) mc.get(MessageContext.PATH_INFO);
-        String path = (String) mc.get(Message.PATH_INFO);
+        String path = (String)mc.get(Message.PATH_INFO);
+        String query = (String)mc.get(Message.QUERY_STRING);
+        String httpMethod = (String)mc.get(Message.HTTP_REQUEST_METHOD);
 
-        if (path.equals("/XMLService/RestProviderPort")) {
+        /*
+         * System.out.println("--path--- " + path);
+         * System.out.println("--query--- " + query);
+         * System.out.println("--httpMethod--- " + httpMethod);
+         */
+        if (httpMethod.equalsIgnoreCase("POST")) {
+            // TBD: parse query info from DOMSource
+            // System.out.println("--POST: getAllCustomers--- ");
             return getCustomer(null);
+        } else if (httpMethod.equalsIgnoreCase("GET")) {
+            if (path.equals("/XMLService/RestProviderPort/Customer") && query == null) {
+                // System.out.println("--GET:getAllCustomers--- ");
+                return getAllCustomers();
+            } else if (path.equals("/XMLService/RestProviderPort/Customer") && query != null) {
+                // System.out.println("--GET:getCustomer--- ");
+                return getCustomer(query);
+            }
         }
 
         return null;
     }
-    
+
+    private DOMSource getAllCustomers() {
+        return createDOMSource("resources/CustomerAllResp.xml");
+    }
+
     private DOMSource getCustomer(String customerID) {
+        return createDOMSource("resources/CustomerJohnResp.xml");
+    }
+
+    private DOMSource createDOMSource(String fileName) {
         DocumentBuilderFactory factory;
         DocumentBuilder builder;
         Document document = null;
@@ -76,14 +99,13 @@ public class RestSourcePayloadProvider implements
             factory = DocumentBuilderFactory.newInstance();
             factory.setValidating(true);
             builder = factory.newDocumentBuilder();
-            InputStream greetMeResponse = getClass().getResourceAsStream(
-                    "resources/CustomerJohnResp.xml");
+            InputStream greetMeResponse = getClass().getResourceAsStream(fileName);
 
             document = builder.parse(greetMeResponse);
             response = new DOMSource(document);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return response;   
+        return response;
     }
 }
