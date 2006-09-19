@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.generators.spring;
+package org.apache.cxf.spring;
 
 import java.io.File;
 import java.io.FileOutputStream;

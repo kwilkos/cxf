@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.apache.cxf.resource.ClassLoaderResolver;
 import org.apache.cxf.resource.DefaultResourceManager;
-import org.apache.cxf.tools.generators.spring.BeanGenerator;
+import org.apache.cxf.spring.BeanGenerator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;

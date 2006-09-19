@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-common-metacode</artifactId>
+    <packaging>jar</packaging>
+    <name>CXF Common Metacode</name>
+    <version>2.0-incubator-M1-SNAPSHOT</version>
+
+    <parent>
+	<groupId>org.apache.cxf</groupId>
+	<artifactId>cxf-common</artifactId>
+	<version>2.0-incubator-M1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+	<topDirectoryLocation>../../</topDirectoryLocation>
+    </properties>
+
+    <dependencies>
+	<dependency>
+	    <groupId>junit</groupId>
+	    <artifactId>junit</artifactId>
+	    <scope>test</scope>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.apache.cxf</groupId>
+	    <artifactId>cxf-common-utilities</artifactId>
+	    <version>${project.version}</version>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.apache.cxf</groupId>
+	    <artifactId>cxf-common-xsd</artifactId>
+	    <version>${project.version}</version>
+	</dependency>
+
+    </dependencies>
+
+    <build>
+	<plugins>
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-javadoc-plugin</artifactId>
+		<version>${javadoc.version}</version>
+		<executions>
+		    <execution>
+			<id>package</id>
+			<phase>package</phase>
+			<goals>
+			    <goal>jar</goal>
+			</goals>
+		    </execution>
+		</executions>
+		<configuration>
+		    <attach>true</attach>
+		    <quiet>true</quiet>
+		    <bottom>-</bottom>
+		    <header>CeltiXfire API</header>
+		    <footer>CeltiXfire API</footer>
+		    <sourcepath>${basedir}/target/generated/src/main/java</sourcepath>
+		    <subpackages>org.apache.cxf</subpackages>
+		</configuration>
+	    </plugin>
+	    <plugin>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-common-xsd</artifactId>
+		<version>${project.version}</version>
+		<executions>
+		    <execution>
+			<id>generate-sources</id>
+			<phase>generate-sources</phase>
+			<configuration>
+			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+			    <!-- REVISIT: generate schemas and configuration beans in projects where needed first -->
+			    <!-- may need to modify bean generator so it can pick up schemas from jars -->
+			    <xsdOptions>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
+				    <dependencies>
+					<dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
+					<dependency>${basedir}/src/main/resources/schemas/wsdl/xml-binding.xsd</dependency>
+					<dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
+				    </dependencies>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
+				    <packagename>org.apache.cxf.ws.addressing</packagename>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
+				    <packagename>org.apache.cxf.ws.addressing.wsdl</packagename>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl/addressing.xsd</xsd>
+				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
+				    <bindingFile>${basedir}/src/main/resources/schemas/configuration/security.xjb</bindingFile>
+				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>
+				</xsdOption>
+			    </xsdOptions>
+                            <beanfiles>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/bus-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/http-listener-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>
+                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
+                            </beanfiles>
+			    
+			</configuration>
+			<goals>
+			    <goal>xsdtojava</goal>
+                            <goal>beangen</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
+	</plugins>
+    </build>
+</project>

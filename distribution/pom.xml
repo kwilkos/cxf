@@ -41,7 +41,12 @@
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-common</artifactId>
+            <artifactId>cxf-common-utilities</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-common-metacode</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>

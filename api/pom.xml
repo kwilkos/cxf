@@ -55,10 +55,15 @@
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-common</artifactId>
+            <artifactId>cxf-common-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-metacode</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -92,69 +97,6 @@
 		    <sourcepath>${basedir}/src/main/java${path.separator}${basedir}/target/generated/src/main/java</sourcepath>
 		    <subpackages>org.apache.cxf</subpackages>
 		</configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-                            <!-- REVISIT: generate schemas and configuration beans in projects where needed first -->
-                            <!-- may need to modify bean generator so it can pick up schemas from jars -->
-                            <xsdOptions>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/wsdl.xsd</xsd>
-                                    <dependencies>
-                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/jms.xsd</dependency>
-                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/xml-binding.xsd</dependency>
-                                        <dependency>${basedir}/src/main/resources/schemas/wsdl/http-conf.xsd</dependency>
-                                    </dependencies>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr.xsd</xsd>
-                                    <packagename>org.apache.cxf.ws.addressing</packagename>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/ws-addr-wsdl.xsd</xsd>
-                                    <packagename>org.apache.cxf.ws.addressing.wsdl</packagename>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/addressing.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/configuration/security.xjb</bindingFile>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>
-                                </xsdOption>
-                            </xsdOptions>
-                            <beanfiles>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/bus-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/http-client-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/http-listener-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/http-server-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-client-config.xml</beanfile>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/jms-server-config.xml</beanfile>
-                            </beanfiles>
-                        </configuration>
-                        <goals>
-                            <goal>xsdtojava</goal>
-                            <goal>beangen</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

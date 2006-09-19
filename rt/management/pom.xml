@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-common</artifactId>
+            <artifactId>cxf-common-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -75,7 +75,7 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
+                <artifactId>cxf-common-xsd</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
@@ -99,6 +99,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
