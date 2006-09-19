@@ -18,51 +18,51 @@
  */
 package org.apache.cxf.jca.cxf;
 
-// import java.io.File;
-// import java.io.IOException;
-// import java.io.InputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 //import java.lang.reflect.Method;
-// import java.lang.reflect.Proxy;
-// import java.net.URL;
+import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.util.ArrayList;
-// import java.util.Enumeration;
-// import java.util.Iterator;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
-// import java.util.Map;
-// import java.util.Properties;
-// import java.util.StringTokenizer;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import javax.naming.InitialContext;
-// import javax.naming.NamingException;
+import javax.naming.NamingException;
 import javax.resource.ResourceException;
-// import javax.wsdl.Binding;
-// import javax.wsdl.Definition;
-// import javax.wsdl.Port;
-// import javax.wsdl.PortType;
-// import javax.wsdl.Service;
-// import javax.wsdl.extensions.ExtensibilityElement;
-// import javax.wsdl.extensions.soap.SOAPAddress;
-// import javax.wsdl.factory.WSDLFactory;
-// import javax.wsdl.xml.WSDLReader;
-// import javax.xml.namespace.QName;
+import javax.wsdl.Binding;
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.PortType;
+import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLReader;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
-// import org.xml.sax.InputSource;
+import org.xml.sax.InputSource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-// import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.jaxws.EndpointImpl;
 //import org.apache.cxf.endpoint.EndpointImpl;
 //import org.apache.cxf.jaxws.EndpointRegistry;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.core.resourceadapter.UriHandlerInit;
-//import org.apache.cxf.jca.core.servant.CXFConnectEJBServant;
-//import org.apache.cxf.jca.core.servant.EJBServant;
-// import org.apache.cxf.tools.util.ProcessorUtil;
+import org.apache.cxf.jca.servant.CXFConnectEJBServant;
+import org.apache.cxf.jca.servant.EJBServant;
+import org.apache.cxf.tools.util.ProcessorUtil;
 //import org.apache.cxf.ws.addressing.EndpointReferenceType;
 //import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
-// import org.xmlsoap.schemas.wsdl.http.AddressType;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 
 public class JCABusFactory {
@@ -76,7 +76,7 @@ public class JCABusFactory {
     private ClassLoader appserverClassLoader;
     private ManagedConnectionFactoryImpl mcf;
     private Object raBootstrapContext;
-//     private String nameSpace;
+    private String nameSpace;
 
     public JCABusFactory(ManagedConnectionFactoryImpl aMcf) {
         this.mcf = aMcf;
@@ -93,7 +93,7 @@ public class JCABusFactory {
         return busArgs;
     }
 
-    private Bus initBus(ClassLoader loader) throws ResourceException {
+    protected Bus initBus(ClassLoader loader) throws ResourceException {
         try {
             Class busClazz = Class.forName(getBusClassName(), true, loader);
             bf = (org.apache.cxf.BusFactory) busClazz.newInstance();
@@ -120,7 +120,7 @@ public class JCABusFactory {
             //TODO Check for the managed connection factory properties
             //mcf.validateProperties();            
             bus = initBus(cl);
-//             initialiseServants();
+            initialiseServants();
         } catch (Exception ex) {
             if (ex instanceof ResourceAdapterInternalException) {
                 throw (ResourceException)ex;
@@ -132,7 +132,7 @@ public class JCABusFactory {
         }
     }
 
-    /*    
+    
     void initialiseServants() throws ResourceException {
         if (isMonitorEJBServicePropertiesEnabled()) {            
             LOG.info("ejb service properties update enabled. ");
@@ -144,7 +144,7 @@ public class JCABusFactory {
             }
         }
     }
-
+    
     void initialiseServantsFromProperties(Properties ejbServants, boolean abortOnFailure)
         throws ResourceException {
 
@@ -186,7 +186,7 @@ public class JCABusFactory {
             }
         }
     }
-
+    
     void initialiseServant(String jndiName, String serviceName) throws ResourceException {
         Endpoint ei = null;
         QName serviceQName = null;
@@ -232,12 +232,12 @@ public class JCABusFactory {
     private Endpoint processWSDL(String jndiName, QName serviceQName, String wsdlLocation, String portName)
         throws Exception {
         Endpoint ei = null;
-        System.out.println("************************************************");
-        System.out.println("              jndiName: " + jndiName);
-        System.out.println("              serviceQName: " + serviceQName.toString());
-        System.out.println("              wsdlLocation: " + wsdlLocation);
-        System.out.println("              portName: " + portName);
-        System.out.println("************************************************");
+//         System.out.println("************************************************");
+//         System.out.println("              jndiName: " + jndiName);
+//         System.out.println("              serviceQName: " + serviceQName.toString());
+//         System.out.println("              wsdlLocation: " + wsdlLocation);
+//         System.out.println("              portName: " + portName);
+//         System.out.println("************************************************");
         URL wsdlUrl = new URL(wsdlLocation);
         WSDLFactory factory = WSDLFactory.newInstance();
         WSDLReader reader = factory.newWSDLReader();
@@ -295,8 +295,9 @@ public class JCABusFactory {
 //                                                                                 portName);
 
         EJBServant servant = new CXFConnectEJBServant(this, wsdlLocation, jndiName, null);
-        servant.getTargetObject();
 
+        servant.getTargetObject();
+        
         String interfaceClassPackage = ProcessorUtil.parsePackageName(nameSpace, null);
         String interfaceClassString = interfaceClassPackage + "." + portTypeQName.getLocalPart();
         Class seiClass = Class.forName(interfaceClassString);
@@ -466,7 +467,7 @@ public class JCABusFactory {
         }
         return wloc;
     }
-    */
+    
     
     private String getBusClassName() {
         return System.getProperty("test.bus.class", "org.apache.cxf.bus.CXFBusFactory");
@@ -505,7 +506,7 @@ public class JCABusFactory {
         this.raBootstrapContext = context;
         init();
     }
-    /*
+    
     class EJBServicePropertiesMonitorRunnable implements Runnable {
         private long previousModificationTime;
         private final int pollIntervalSeconds;
@@ -549,7 +550,7 @@ public class JCABusFactory {
             return fileModified;
         }
     }
-    */
+
     // for unit test
     protected void setBootstrapContext(Object ctx) {
         raBootstrapContext = ctx;
