@@ -24,7 +24,7 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.ProtocolException;
 import org.apache.hello_world_soap_http.Greeter;
-import org.apache.hello_world_soap_http.PingMeFault;
+//import org.apache.hello_world_soap_http.PingMeFault;
 import org.apache.hello_world_soap_http.SOAPService;
 
 public final class Client {
@@ -80,12 +80,12 @@ public final class Client {
         System.out.println("No response from server as method is OneWay");
         System.out.println();
 
-        try {
+        /*try {
             System.out.println("Invoking pingMe, expecting exception...");
             port.pingMe();
         } catch (PingMeFault ex) {
             System.out.println("Expected exception: PingMeFault has occurred: " + ex.getMessage());
-        }          
+        }*/          
         System.exit(0); 
     }
 

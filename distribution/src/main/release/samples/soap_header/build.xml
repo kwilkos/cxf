@@ -35,6 +35,14 @@
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java file="soap_header.wsdl"/>
     </target>
-    
+
+    <target name="war" depends="build">
+        <cxfwar wsdl="soap_header.wsdl" filename="soapheader.war"/>
+	</target>
+
+    <target name="client-servlet" description="run demo client hitting servlet" depends="build">
+        <property name="param" value=""/>
+        <cxfrun classname="demo.soap_header.client.Client" param1="${base.url}/soapheader/cxf/soap_header" param2="${op}" param3="${param}"/>
+    </target>     
     
 </project>
