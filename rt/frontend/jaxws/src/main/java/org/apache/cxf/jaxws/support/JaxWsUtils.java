@@ -22,6 +22,9 @@ package org.apache.cxf.jaxws.support;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 
+import javax.xml.ws.WebFault;
+
+import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
@@ -82,7 +85,7 @@ public final class JaxWsUtils {
                 if (selected == seiMethod) {
                     Object[] paraType = selected.getGenericParameterTypes();
                     ParameterizedType paramType = (ParameterizedType) paraType[idx];
-                    if (((Class)paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
+                    if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
                         mpiOut.setProperty(Class.class.getName(),
                                         (Class) paramType.getActualTypeArguments()[0]);
                         mpiInHolder.setProperty(Class.class.getName(), (Class) paramType
@@ -101,6 +104,15 @@ public final class JaxWsUtils {
                 mpiOut.setProperty(Class.class.getName(), selected.getReturnType());
             }
         }
-
+        for (FaultInfo fi : o.getFaults()) {
+            int i = 0;
+            Class cls = selected.getExceptionTypes()[i];
+            fi.getMessagePartByIndex(0).setProperty(Class.class.getName(), cls);                
+            if (cls.isAnnotationPresent(WebFault.class)) {
+                fi.getMessagePartByIndex(i).setProperty(WebFault.class.getName(), Boolean.TRUE);
+            }
+            i++;
+        }
     }
+    
 }

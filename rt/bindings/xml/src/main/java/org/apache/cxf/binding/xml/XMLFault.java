@@ -18,111 +18,54 @@
  */
 package org.apache.cxf.binding.xml;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ResourceBundle;
+
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
 
 public class XMLFault extends Fault {
 
-    static final long serialVersionUID = 100000;
+    public static final String XML_FAULT_PREFIX = "xfns";
 
-    private Node faultRoot;
+    public static final QName XML_FAULT_ROOT = new QName(XMLConstants.NS_XML_FORMAT, "XMLFault");
 
-    // private QNname faultCode;
-    private String faultString;
+    public static final QName XML_FAULT_STRING = new QName(XMLConstants.NS_XML_FORMAT, "faultstring");
 
-    private Node faultDetail;
+    public static final QName XML_FAULT_DETAIL = new QName(XMLConstants.NS_XML_FORMAT, "detail");
 
-    private Node detailRoot;
+    public static final QName XML_FAULT_CODE_SERVER = new QName(XMLConstants.NS_XML_FORMAT, "SERVER");
+
+    public static final QName XML_FAULT_CODE_CLIENT = new QName(XMLConstants.NS_XML_FORMAT, "CLIENT");
 
     
+    static final long serialVersionUID = 100000;
 
     public XMLFault(Message message, Throwable throwable) {
-        super(message, throwable);
+        super(message, throwable);        
     }
 
     public XMLFault(Message message) {
-        super(message);
+        super(message);        
     }
 
-    public XMLFault(Throwable t) {
-        super(t);
+    public XMLFault(String message) {
+        super(new Message(message, (ResourceBundle) null));        
     }
 
-    public void setFaultString(String str) {
-        this.faultString = str;
-    }
-
-    public void addFaultString(String str) {
-        assert faultRoot != null;
-
-        Text text = XMLUtils.createTextNode(this.faultRoot, str);
-        Node faultStringNode = XMLUtils.createElementNS(this.faultRoot, XMLConstants.XML_FAULT_STRING);
-        faultStringNode.appendChild(text);
-        this.faultRoot.appendChild(faultStringNode);
-
-        this.faultString = str;
-    }
-
-    public void setFaultDetail(Node detail) {
-        this.detailRoot = detail;
-
-        NodeList list = detail.getChildNodes();
-        for (int i = 0; i < list.getLength(); i++) {
-            Node entry = list.item(i);
-            if (entry.getNodeType() != Node.ELEMENT_NODE) {
-                continue;
-            }
-            this.faultDetail = detail;
+    public static XMLFault createFault(Fault f) {
+        if (f instanceof XMLFault) {
+            return (XMLFault) f;
         }
-    }
-
-    public void appendFaultDetail(Node detail) {
-        assert faultRoot != null;
-        assert detailRoot != null;
-
-        this.detailRoot.appendChild(detail);
-        this.faultDetail = detail;
-    }
-
-    public Node addFaultDetail() {
-        assert faultRoot != null;
-
-        this.detailRoot = XMLUtils.createElementNS(this.faultRoot, XMLConstants.XML_FAULT_DETAIL);
-        this.faultRoot.appendChild(this.detailRoot);
-        return this.detailRoot;
-    }
-
-    public String getFaultString() {
-        return this.faultString;
-    }
-
-    public Node getFaultDetail() {
-        return this.faultDetail;
-    }
-
-    public Node getFaultDetailRoot() {
-        return this.detailRoot;
-    }
-
-    public Node getFaultRoot() {
-        return this.faultRoot;
-    }
-
-    protected void setFaultRoot(Node root) {
-        this.faultRoot = root;
-    }
-
-    public void removeChild(Node node) {
-        this.faultRoot.removeChild(node);
-    }
-
-    public boolean hasChildNodes() {
-        return this.faultRoot.hasChildNodes();
+        Throwable th = f.getCause();
+        if (f.getCause() instanceof InvocationTargetException) {
+            th = th.getCause();
+        }
+        XMLFault xmlFault = new XMLFault(new Message(f.getMessage(), (ResourceBundle) null), th);
+        xmlFault.setDetail(f.getDetail());
+        return xmlFault;
     }
 
 }

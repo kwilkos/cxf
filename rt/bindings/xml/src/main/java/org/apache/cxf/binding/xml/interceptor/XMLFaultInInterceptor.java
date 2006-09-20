@@ -19,33 +19,13 @@
 
 package org.apache.cxf.binding.xml.interceptor;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
-
-import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.staxutils.DepthXMLStreamReader;
-import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLFaultInInterceptor extends AbstractInDatabindingInterceptor {
 
     public void handleMessage(Message message) throws Fault {
 
-        XMLStreamReader reader = message.getContent(XMLStreamReader.class);
-        DepthXMLStreamReader dr = new DepthXMLStreamReader(reader);
-        // List<Exception> exlist = new ArrayList<Exception>();
-
-        StaxUtils.nextEvent(dr);
-        if (StaxUtils.toNextElement(dr)) {
-            QName startQName = new QName(dr.getNamespaceURI(), dr.getLocalName());
-            if (startQName.equals(XMLConstants.XML_FAULT_ROOT)) {
-                while (StaxUtils.toNextElement(dr)) {
-                    // marshall exception detail by jaxb, and add into exList
-
-                }
-            }
-        }
     }
 }

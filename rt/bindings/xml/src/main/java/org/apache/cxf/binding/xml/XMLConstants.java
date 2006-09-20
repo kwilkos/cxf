@@ -19,16 +19,8 @@
 
 package org.apache.cxf.binding.xml;
 
-import javax.xml.namespace.QName;
 
 public final class XMLConstants {
     public static final String NS_XML_FORMAT = "http://celtix.objectweb.org/bindings/xformat";
 
-    public static final QName XML_FAULT_ROOT = new QName(NS_XML_FORMAT, "XMLFault");
-    public static final QName XML_FAULT_CODE = new QName(NS_XML_FORMAT, "faultcode");
-    public static final QName XML_FAULT_STRING = new QName(NS_XML_FORMAT, "faultstring");
-    public static final QName XML_FAULT_DETAIL = new QName(NS_XML_FORMAT, "detail");
-
-    public static final QName XML_FAULT_CODE_SERVER = new QName(NS_XML_FORMAT, "SERVER");
-    public static final QName XML_FAULT_CODE_CLIENT = new QName(NS_XML_FORMAT, "CLIENT");
 }
