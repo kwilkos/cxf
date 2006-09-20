@@ -29,6 +29,9 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.mime.MIMEContent;
+import javax.wsdl.extensions.mime.MIMEMultipartRelated;
+import javax.wsdl.extensions.mime.MIMEPart;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
 import javax.wsdl.extensions.soap.SOAPHeader;
@@ -93,7 +96,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     public Binding createBinding(BindingInfo binding) {
 
         if (cachedBinding.get(binding) != null) {
-            return (Binding)cachedBinding.get(binding);
+            return (Binding) cachedBinding.get(binding);
         }
 
         // TODO what about the mix style/use?
@@ -104,7 +107,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         SoapBinding sb = new SoapBinding();
         if (binding instanceof SoapBindingInfo) {
-            SoapBindingInfo sbi = (SoapBindingInfo)binding;
+            SoapBindingInfo sbi = (SoapBindingInfo) binding;
             // Service wide style
             if (!StringUtils.isEmpty(sbi.getStyle())) {
                 bindingStyle = sbi.getStyle();
@@ -127,7 +130,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new StaxInInterceptor());
 
         sb.getInFaultInterceptors().add(new Soap11FaultInInterceptor());
-        
+
         sb.getOutInterceptors().add(new AttachmentOutInterceptor());
         sb.getOutInterceptors().add(new StaxOutInterceptor());
         sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
@@ -136,12 +139,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
         sb.getOutFaultInterceptors().add(new Soap11FaultOutInterceptor());
-        
+
         if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
             sb.getInInterceptors().add(new RPCInInterceptor());
             sb.getOutInterceptors().add(new RPCOutInterceptor());
         } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
-                   && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
+                        && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
             sb.getInInterceptors().add(new BareInInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         } else {
@@ -154,8 +157,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     }
 
     public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding) {
-        String ns = ((ExtensibilityElement)binding.getExtensibilityElements().get(0)).getElementType()
-            .getNamespaceURI();
+        String ns = ((ExtensibilityElement) binding.getExtensibilityElements().get(0)).getElementType()
+                        .getNamespaceURI();
         SoapBindingInfo bi = new SoapBindingInfo(service, ns, Soap11.getInstance());
 
         // Copy all the extensors
@@ -211,7 +214,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 headerInfo.setUse(header.getUse());
 
                 MessagePartInfo part = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
-                    .getPart()));
+                                .getPart()));
                 if (part != null) {
                     part.setInSoapHeader(true);
                 }
@@ -222,19 +225,44 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             }
         }
 
-        SOAPBody soapBody = bmsg.getExtensor(SOAPBody.class);
         SoapBodyInfo bodyInfo = new SoapBodyInfo();
-        bodyInfo.setUse(soapBody.getUse());
+        SOAPBody soapBody = bmsg.getExtensor(SOAPBody.class);
+        List parts = null;
+        if (soapBody == null) {
+            // MultipartRelatedType ext
+            MIMEMultipartRelated mmr = bmsg.getExtensor(MIMEMultipartRelated.class);
+            parts = mmr.getMIMEParts();
+        } else {
 
+            bodyInfo.setUse(soapBody.getUse());
+            parts = soapBody.getParts();
+        }
         // Initialize the body parts.
-        if (soapBody.getParts() != null) {
+        if (parts != null) {
             List<MessagePartInfo> bodyParts = new ArrayList<MessagePartInfo>();
-            for (Iterator itr = soapBody.getParts().iterator(); itr.hasNext();) {
-                String partName = (String)itr.next();
-
-                MessagePartInfo part = msg
-                    .getMessagePart(new QName(msg.getName().getNamespaceURI(), partName));
-                bodyParts.add(part);
+            for (Iterator itr = parts.iterator(); itr.hasNext();) {
+                Object part = itr.next();
+                String partName = null;
+                if (part instanceof MIMEPart) {
+                    MIMEPart mpart = (MIMEPart) part;
+                    if (mpart.getExtensibilityElements().size() == 1) {
+                        Object content = mpart.getExtensibilityElements().get(0);
+                        if (content instanceof MIMEContent) {
+                            partName = ((MIMEContent) content).getPart();
+                        } else {
+                            if (((SOAPBody) content).getParts().size() == 1) {
+                                partName = (String) ((SOAPBody) content).getParts().get(0);
+                            }
+                        }
+                    }
+                } else {
+                    partName = (String) itr.next();
+                }
+                if (partName != null) {
+                    MessagePartInfo mpi = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
+                                    partName));
+                    bodyParts.add(mpi);
+                }
             }
             bodyInfo.setParts(bodyParts);
         } else {
