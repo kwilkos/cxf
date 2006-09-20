@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.rest;
+package demo.restful.server;
 
 import java.io.InputStream;
 
@@ -53,21 +53,20 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
         String query = (String)mc.get(Message.QUERY_STRING);
         String httpMethod = (String)mc.get(Message.HTTP_REQUEST_METHOD);
 
-        /*
-         * System.out.println("--path--- " + path);
-         * System.out.println("--query--- " + query);
-         * System.out.println("--httpMethod--- " + httpMethod);
-         */
+        System.out.println("--path--- " + path);
+        System.out.println("--query--- " + query);
+        System.out.println("--httpMethod--- " + httpMethod);
+
         if (httpMethod.equalsIgnoreCase("POST")) {
             // TBD: parse query info from DOMSource
-            // System.out.println("--POST: getAllCustomers--- ");
-            return getCustomer(null);
+            System.out.println("---Invoking updateCustomer---");
+            return updateCustomer(request);
         } else if (httpMethod.equalsIgnoreCase("GET")) {
-            if (path.equals("/XMLService/RestProviderPort/Customer") && query == null) {
-                // System.out.println("--GET:getAllCustomers--- ");
+            if (path.equals("/customerservice/customer") && query == null) {
+                System.out.println("---Invoking getAllCustomers---");
                 return getAllCustomers();
-            } else if (path.equals("/XMLService/RestProviderPort/Customer") && query != null) {
-                // System.out.println("--GET:getCustomer--- ");
+            } else if (path.equals("/customerservice/customer") && query != null) {
+                System.out.println("---Invoking getCustomer---");
                 return getCustomer(query);
             }
         }
@@ -76,11 +75,16 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
     }
 
     private DOMSource getAllCustomers() {
-        return createDOMSource("resources/CustomerAllResp.xml");
+        return createDOMSource("CustomerAllResp.xml");
     }
 
     private DOMSource getCustomer(String customerID) {
-        return createDOMSource("resources/CustomerJohnResp.xml");
+        return createDOMSource("CustomerJohnResp.xml");
+    }
+
+    private DOMSource updateCustomer(DOMSource request) {
+        // TBD: returned update customer info
+        return createDOMSource("CustomerJohnResp.xml");
     }
 
     private DOMSource createDOMSource(String fileName) {

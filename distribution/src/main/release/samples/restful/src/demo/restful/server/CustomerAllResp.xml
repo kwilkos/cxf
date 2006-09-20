@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Customers>
+  <Customer href="http://localhost/customerservice/customer?id=1234">
+      <id>1234</id>
+  </Customer>
+  <Customer href="http://localhost/customerservice/customer?id=1235"> 
+      <id>1235</id>
+  </Customer>
+  <Customer href="http://localhost/customerservice/customer?id=1236"> 
+      <id>1236</id>
+  </Customer>
+</Customers>
