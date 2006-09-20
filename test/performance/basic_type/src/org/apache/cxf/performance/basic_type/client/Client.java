@@ -21,7 +21,7 @@ public final class Client extends TestCaseBase {
 
     private static int opid;
     
-    private  byte[] inputBase64 = new byte[100 * 1024];
+    private  byte[] inputBase64;
     private  String inputString = new String();
 
     private final int asciiCount = 1 * 1024;
@@ -40,6 +40,7 @@ public final class Client extends TestCaseBase {
 
     public void initTestData() {
         String temp = "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+?><[]/0123456789";
+        inputBase64 = new byte[1024 * packetSize];
         for (int idx = 0; idx < 4 * packetSize; idx++) {
             for (int jdx = 0; jdx < 256; jdx++) {
                 inputBase64[idx * 256 + jdx] = (byte)(jdx - 128);
