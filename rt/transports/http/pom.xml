@@ -108,6 +108,7 @@
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
+                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
                                     </deleteDirs>
                                 </xsdOption>
                                 <xsdOption>
@@ -119,6 +120,7 @@
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
+                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
                                     </deleteDirs>
                                 </xsdOption>
                                 <xsdOption>
@@ -130,6 +132,7 @@
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
+                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/configuration/security</deleteDir>
                                     </deleteDirs>
                                 </xsdOption>
                             </xsdOptions>

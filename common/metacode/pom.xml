@@ -116,6 +116,10 @@ under the License.
 				<xsdOption>
 				    <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>
 				</xsdOption>
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/configuration/security.xsd</xsd>
+				    <bindingFile>${basedir}/src/main/resources/schemas/configuration/security.xjb</bindingFile>
+				</xsdOption>
 			    </xsdOptions>
 			</configuration>
 			<goals>
