@@ -25,6 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,6 +41,7 @@ import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -47,57 +50,41 @@ import org.apache.cxf.transport.AbstractCachedOutputStream;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-
-
+import org.apache.cxf.transport.jms.conduit.JMSConduitConfigBean;
+import org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
+import org.apache.cxf.transports.jms.jms_conf.JMSClientConfig;
+
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class JMSConduit extends JMSTransportBase implements Conduit {
     private static final Logger LOG = LogUtils.getL7dLogger(JMSConduit.class);
     
       
-    protected JMSSessionPoolConfigPolicy sessionPoolConfig;    
-    protected JMSConduitConfiguration jmsCondConf;   
+    protected JMSConduitConfigBean jmsConduitConfigBean;   
     
     private MessageObserver incomingObserver;
     private EndpointReferenceType target;
    
-    private boolean textPayload;    
-    
     public JMSConduit(Bus b, EndpointInfo endpointInfo) {
         this(b, endpointInfo, null);
     }
     
     public JMSConduit(Bus b,
                       EndpointInfo endpointInfo,
-                      EndpointReferenceType target) {
-        this(b, endpointInfo, target, 
-             new JMSConduitConfiguration(b, endpointInfo));
-    }
-    
-    public JMSConduit(Bus b,
-                      EndpointInfo endpointInfo,
-                      EndpointReferenceType target,
-                      JMSConduitConfiguration conf) {           
-        super(b, endpointInfo, false, conf);        
-        jmsCondConf = conf;          
-        queueDestinationStyle =
-            JMSConstants.JMS_QUEUE.equals(jmsAddressPolicy.getDestinationStyle().value());
-        jmsAddressPolicy = conf.getJmsAddressDetails();
-        textPayload = 
-            JMSConstants.TEXT_MESSAGE_TYPE.equals(
-                jmsCondConf.getJMSClientBehaviorPolicy().getMessageType().value());
-        
+                      EndpointReferenceType target) {           
+        super(b, endpointInfo, false);        
+
+        initConfig();
     } 
-     
-    // perpare the message for send out , not actually send out the message
+
+    // prepare the message for send out , not actually send out the message
     public void send(Message message) throws IOException {        
         LOG.log(Level.FINE, "JMSConduit send message");
 
         try {
             if (null == sessionFactory) {
-                JMSProviderHub.connect(this);
+                JMSProviderHub.connect(this, null);
             }
         } catch (JMSException jmsex) {
             LOG.log(Level.WARNING, "JMS connect failed with JMSException : ", jmsex);            
@@ -174,7 +161,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
         
         Object result = null;
         
-        long timeout = jmsCondConf.getClientConfiguration().getClientReceiveTimeout();
+        long timeout = jmsConduitConfigBean.getClientConfig().getClientReceiveTimeout();
 
         Long receiveTimeout = (Long)outMessage.get(JMSConstants.JMS_CLIENT_RECEIVE_TIMEOUT);
 
@@ -199,6 +186,41 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             throw new JMSException(error);
             
         }
+    }
+
+    private void initConfig() {
+        JMSConduitConfigBean bean = new JMSConduitConfigBean();
+        if (!bean.isSetClient()) {
+            bean.setClient(new JMSClientBehaviorPolicyType());
+        }
+        if (!bean.isSetClientConfig()) {
+            bean.setClientConfig(new JMSClientConfig());
+        }
+
+        ConfigurationProvider p = new ServiceModelJMSConfigurationProvider(endpointInfo);
+        List<ConfigurationProvider> providers = getOverwriteProviders();
+        if (null == providers) {
+            providers = new ArrayList<ConfigurationProvider>();
+        }
+        providers.add(p);
+        setOverwriteProviders(providers);
+        
+        // providers = bean.getFallbackProviders();
+        providers = bean.getOverwriteProviders();
+        if (null == providers) {
+            providers = new ArrayList<ConfigurationProvider>();
+        }
+        providers.add(p);
+        // bean.setFallbackProviders(providers);
+        bean.setOverwriteProviders(providers);
+
+        jmsConduitConfigBean = bean;
+
+    }
+
+    private boolean isTextPayload() {
+        return JMSConstants.TEXT_MESSAGE_TYPE.equals(
+            jmsConduitConfigBean.getClient().getMessageType().value());
     }
     
     private class JMSOutputStream extends AbstractCachedOutputStream {
@@ -237,7 +259,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
         private void commitOutputMessage() throws JMSException {
             Object request = null;            
             
-            if (textPayload) {
+            if (isTextPayload()) {
                 request = currentStream.toString();
             } else {
                 request = ((ByteArrayOutputStream)currentStream).toByteArray();
@@ -252,12 +274,12 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             //We don't want to send temp queue in
             //replyTo header for oneway calls
             if (isOneWay
-                && (jmsAddressPolicy.getJndiReplyDestinationName() == null)) {
+                && (getAddressPolicy().getJndiReplyDestinationName() == null)) {
                 replyTo = null;
             }
 
             jmsMessage = marshal(request, pooledSession.session(), replyTo,
-                jmsCondConf.getJMSClientBehaviorPolicy().getMessageType().value());
+                jmsConduitConfigBean.getClient().getMessageType().value());
             
             JMSMessageHeadersType headers =
                 (JMSMessageHeadersType)outMessage.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
@@ -267,7 +289,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             String correlationID = getCorrelationId(headers);
             long ttl = getTimeToLive(headers);
             if (ttl <= 0) {
-                ttl = jmsCondConf.getClientConfiguration().getMessageTimeToLive();
+                ttl = jmsConduitConfigBean.getClientConfig().getMessageTimeToLive();
             }
             
             setMessageProperties(headers, jmsMessage);           
@@ -295,7 +317,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
 
             LOG.log(Level.FINE, "client sending request: ",  jmsMessage);
             //getting  Destination Style
-            if (queueDestinationStyle) {
+            if (isDestinationStyleQueue()) {
                 QueueSender sender = (QueueSender)pooledSession.producer();
                 sender.setTimeToLive(ttl);
                 sender.send((Queue)targetDestination, jmsMessage, deliveryMode, priority, ttl);
@@ -378,6 +400,5 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             return decoupledMessageObserver;
         }
     }     
-   
- 
+
 }

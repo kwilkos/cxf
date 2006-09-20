@@ -32,43 +32,35 @@ import javax.jms.TextMessage;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
 import org.apache.cxf.transports.jms.context.JMSPropertyType;
+import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 
-public class JMSTransportBase {    
+public class JMSTransportBase extends JMSTransportBaseConfigBean {    
     
-    protected boolean queueDestinationStyle;
     protected Destination targetDestination;
     protected Destination replyDestination;
     protected JMSSessionFactory sessionFactory;    
-    protected JMSAddressPolicyType jmsAddressPolicy;
     protected Bus bus;
-    protected JMSConfiguration jmsConf;
     //protected EndpointReferenceType targetEndpoint;
     protected EndpointInfo endpointInfo;
     
     
     //--Constructors------------------------------------------------------------
-    public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer, JMSConfiguration conf) {
+    public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer) {
         bus = b;
-        jmsConf = conf;
-        jmsAddressPolicy = jmsConf.getJmsAddressDetails();
-        //sessionPoolConfig = getSessionPoolPolicy(configuration);
         endpointInfo = endpoint;
-        queueDestinationStyle =
-            JMSConstants.JMS_QUEUE.equals(jmsAddressPolicy.getDestinationStyle().value());
+        if (!isSetSessionPoolConfig()) {
+            setSessionPoolConfig(new JMSSessionPoolConfigPolicy());
+        }
+        if (!isSetAddressPolicy()) {
+            setAddressPolicy(new JMSAddressPolicyType());
+        }
     }
 
-    public final JMSAddressPolicyType  getJmsAddressDetails() {
-        return jmsAddressPolicy;
-    }
-    
-    public final JMSConfiguration getJMSConfiguration() {
-        return jmsConf;
-    }
-    
     /**
      * Callback from the JMSProviderHub indicating the ClientTransport has
      * been sucessfully connected.
@@ -212,6 +204,7 @@ public class JMSTransportBase {
     }
     
     protected String getAddrUriFromJMSAddrPolicy() {
+        JMSAddressPolicyType jmsAddressPolicy = getAddressPolicy();
         return "jms:" 
                         + jmsAddressPolicy.getJndiConnectionFactoryName() 
                         + "#"
@@ -219,10 +212,15 @@ public class JMSTransportBase {
     }
     
     protected String getReplyTotAddrUriFromJMSAddrPolicy() {
+        JMSAddressPolicyType jmsAddressPolicy = getAddressPolicy();
         return "jms:" 
                         + jmsAddressPolicy.getJndiConnectionFactoryName() 
                         + "#"
                         + jmsAddressPolicy.getJndiReplyDestinationName();
     }
 
+    protected boolean isDestinationStyleQueue() {
+        return JMSConstants.JMS_QUEUE.equals(
+            getAddressPolicy().getDestinationStyle().value());
+    }
 }

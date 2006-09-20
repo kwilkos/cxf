@@ -42,7 +42,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
@@ -56,8 +55,6 @@ public class HTTPConduitTest extends TestCase {
     private static final String PAYLOAD = "message payload";
     private EndpointReferenceType target;
     private EndpointInfo endpointInfo;
-    private HTTPConduitConfiguration config;
-    private HTTPClientPolicy policy;
     private URLConnectionFactory connectionFactory;
     private URLConnection connection;
     private Proxy proxy;
@@ -78,8 +75,6 @@ public class HTTPConduitTest extends TestCase {
         // calls by mocking up only class data members (no local variables)
         // and explicitly making available for GC post-verify
         finalVerify();
-        config = null;
-        policy = null;
         connectionFactory = null;
         connection = null;
         proxy = null;
@@ -126,7 +121,7 @@ public class HTTPConduitTest extends TestCase {
     }
 
     public void testSendHttpConnectionAutoRedirect() throws Exception {
-        HTTPConduit conduit = setUpConduit(true, true, false);
+        HTTPConduit conduit = setUpConduit(true, true, true);
         Message message = new MessageImpl();
         conduit.send(message);
         verifySentMessage(conduit, message);
@@ -165,13 +160,11 @@ public class HTTPConduitTest extends TestCase {
         endpointInfo = control.createMock(EndpointInfo.class);
         target = getEPR("bar/foo");
         connectionFactory = control.createMock(URLConnectionFactory.class);
-        config = control.createMock(HTTPConduitConfiguration.class);
-        config.getAddress();
+        endpointInfo.getAddress();
         EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(2);
         if (send) {
-            proxy = control.createMock(Proxy.class);
-            config.getProxy();
-            EasyMock.expectLastCall().andReturn(proxy);
+            //proxy = control.createMock(Proxy.class);
+            proxy =  null;
             connection =
                 control.createMock(httpConnection ? HttpURLConnection.class : URLConnection.class);
             connectionFactory.createConnection(
@@ -185,26 +178,17 @@ public class HTTPConduitTest extends TestCase {
                 ((HttpURLConnection)connection).setRequestMethod("POST");
             }
             
-            policy = new HTTPClientPolicy();
-            config.getPolicy();
-            EasyMock.expectLastCall().andReturn(policy).times(2);
-            policy.setConnectionTimeout(303030);
             connection.setConnectTimeout(303030);
             EasyMock.expectLastCall();
-            policy.setReceiveTimeout(404040);
             connection.setReadTimeout(404040);
             EasyMock.expectLastCall();
             connection.setUseCaches(false);
             EasyMock.expectLastCall();
 
             if (httpConnection) {
-                config.getPolicy();
-                EasyMock.expectLastCall().andReturn(policy).times(2);
-                policy.setAutoRedirect(autoRedirect);
                 ((HttpURLConnection)connection).setInstanceFollowRedirects(autoRedirect);
                 EasyMock.expectLastCall();
                 if (!autoRedirect) {
-                    policy.setAllowChunking(true);
                     ((HttpURLConnection)connection).setChunkedStreamingMode(2048);
                     EasyMock.expectLastCall();
                 }
@@ -222,8 +206,28 @@ public class HTTPConduitTest extends TestCase {
                                               endpointInfo,
                                               null,
                                               connectionFactory,
-                                              decoupledEngine,
-                                              config);
+                                              decoupledEngine);
+
+        if (send) {
+            conduit.getClient().setConnectionTimeout(303030);
+            conduit.getClient().setReceiveTimeout(404040);
+            if (httpConnection) {
+                conduit.getClient().setAutoRedirect(autoRedirect);
+                if (!autoRedirect) {
+                    conduit.getClient().setAllowChunking(true);
+                } 
+            }
+        }
+
+        if (decoupled) {
+            URL decoupledURL = null;
+            if (decoupled) {
+                decoupledURL = new URL(NOWHERE + "response");
+                conduit.getClient().setDecoupledEndpoint(decoupledURL.toString());
+            } 
+        }
+       
+
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
@@ -261,13 +265,9 @@ public class HTTPConduitTest extends TestCase {
         os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
         EasyMock.expectLastCall();
 
-        config.getPolicy();
-        EasyMock.expectLastCall().andReturn(policy).times(decoupled ? 2 : 1);
-
         URL decoupledURL = null;
         if (decoupled) {
             decoupledURL = new URL(NOWHERE + "response");
-            policy.setDecoupledEndpoint(decoupledURL.toString());
         } 
         
         os.flush();

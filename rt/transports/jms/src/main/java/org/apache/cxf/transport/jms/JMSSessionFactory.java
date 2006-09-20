@@ -42,8 +42,8 @@ import javax.naming.NamingException;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.AbstractTwoStageCache;
-import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
+import org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean;
+import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
 import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 
@@ -115,11 +115,9 @@ public class JMSSessionFactory {
     private AbstractTwoStageCache<PooledSession> replyCapableSessionCache;
     private AbstractTwoStageCache<PooledSession> sendOnlySessionCache;
     private final Destination theReplyDestination;
-    private final boolean isQueueConnection;
+    private final JMSTransportBaseConfigBean jmsBaseConfigBean;
+    private final JMSDestinationConfigBean jmsDestConfigBean;
  
-    private final  JMSAddressPolicyType addressExtensor;
-    private final  JMSServerBehaviorPolicyType jmsServerPolicy;
-
     /**
      * Constructor.
      *
@@ -127,31 +125,25 @@ public class JMSSessionFactory {
      */
     public JMSSessionFactory(Connection connection, 
                              Destination replyDestination,
-                             JMSConfiguration jmsConfiguration,
-                             Context context) {
+                             Context context,
+                             JMSTransportBaseConfigBean tbb,
+                             JMSDestinationConfigBean db) {
         theConnection = connection;
         theReplyDestination = replyDestination;
-        addressExtensor = jmsConfiguration.getJmsAddressDetails();
+        initialContext = context;
+        jmsBaseConfigBean = tbb;
+        jmsDestConfigBean = db;
         
-        // if the jmsConduit is client then retrun null
-        if (jmsConfiguration instanceof JMSDestinationConfiguration) {
-            jmsServerPolicy = ((JMSDestinationConfiguration)jmsConfiguration).getJMSServerBehaviorPolicy();
-        } else {
-            jmsServerPolicy = null;
-        }
-       
-        
-        JMSSessionPoolConfigPolicy sessionPoolConfig = jmsConfiguration.getSessionPoolConfig();
+        JMSSessionPoolConfigPolicy sessionPoolConfig = jmsBaseConfigBean.getSessionPoolConfig();
         
         lowWaterMark = sessionPoolConfig.getLowWaterMark();
         highWaterMark = sessionPoolConfig.getHighWaterMark();
          
-        isQueueConnection = addressExtensor.getDestinationStyle().value().equals(JMSConstants.JMS_QUEUE);
-        initialContext = context;
 
         // create session caches (REVISIT sizes should be configurable)
         //
-        if (isQueueConnection) {
+
+        if (isDestinationStyleQueue()) {
             // the reply capable cache is only required in the point-to-point
             // domain
             //
@@ -327,7 +319,7 @@ public class JMSSessionFactory {
         // the destination is only specified on the server receive side,
         // in which case a new session is always created
         //
-        if (isQueueConnection) {
+        if (isDestinationStyleQueue()) {
             ret = createPointToPointServerSession(destination);
         } else {
             ret = createPubSubSession(false, true, destination);
@@ -456,7 +448,7 @@ public class JMSSessionFactory {
         
         return new PooledSession(session, destination, session.createSender(null),
                                  session.createReceiver((Queue)destination, 
-                                 jmsServerPolicy.getMessageSelector()));
+                                 jmsDestConfigBean.getServer().getMessageSelector()));
     }
 
 
@@ -475,8 +467,8 @@ public class JMSSessionFactory {
                                                                                    Session.AUTO_ACKNOWLEDGE);
         TopicSubscriber sub = null;
         if (consumer) {
-            String messageSelector =  jmsServerPolicy.getMessageSelector();
-            String durableName = jmsServerPolicy.getDurableSubscriberName();
+            String messageSelector =  jmsDestConfigBean.getServer().getMessageSelector();
+            String durableName = jmsDestConfigBean.getServer().getDurableSubscriberName();
             if (durableName != null) {
                 sub = session.createDurableSubscriber((Topic)destination,
                                                       durableName,
@@ -509,5 +501,10 @@ public class JMSSessionFactory {
         return host + "_" 
             + System.getProperty("user.name") + "_" 
             + obj + time;    
+    }
+
+    private boolean isDestinationStyleQueue() {
+        return JMSConstants.JMS_QUEUE.equals(
+            jmsBaseConfigBean.getAddressPolicy().getDestinationStyle().value());
     }
 }

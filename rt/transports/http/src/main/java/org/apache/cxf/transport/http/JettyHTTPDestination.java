@@ -62,7 +62,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected MessageObserver incomingObserver;
 
     /**
-     * Constructor, using real configuration and Jetty server engine.
+     * Constructor, using Jetty server engine.
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
@@ -73,27 +73,25 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                                 ConduitInitiator ci,
                                 EndpointInfo endpointInfo)
         throws IOException {
-        this(b, ci, endpointInfo, null, new HTTPDestinationConfiguration(b, endpointInfo));
+        this(b, ci, endpointInfo, null);
     }
 
     /**
-     * Constructor, allowing subsititution of configuration.
+     * Constructor, allowing subsititution of server engine.
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
      * @param endpointInfo the endpoint info of the destination
      * @param eng the server engine
-     * @param cfg the configuration
      * @throws IOException
      */
 
     public JettyHTTPDestination(Bus b,
                                 ConduitInitiator ci,
                                 EndpointInfo endpointInfo,
-                                ServerEngine eng,
-                                HTTPDestinationConfiguration cfg)
+                                ServerEngine eng)
         throws IOException {
-        super(b, ci, endpointInfo, cfg);
+        super(b, ci, endpointInfo);
         engine = eng != null 
                  ? eng
                  : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
@@ -108,8 +106,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         if (null != observer) {
             LOG.info("registering incoming observer: " + observer);
             try {
-                URL url = new URL(config.getAddress());
-                if (config.contextMatchOnStem()) {
+                URL url = new URL(getAddressValue());
+                if (contextMatchOnStem()) {
                     engine.addServant(url, new AbstractHttpHandler() {
                             public void handle(String pathInContext, String pathParams,
                                                HttpRequest req, HttpResponse resp)
@@ -239,8 +237,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     
     protected void doService(HttpRequest req, HttpResponse resp)
         throws IOException {
-        if (config.getPolicy().isSetRedirectURL()) {
-            resp.sendRedirect(config.getPolicy().getRedirectURL());
+        if (getServer().isSetRedirectURL()) {
+            resp.sendRedirect(getServer().getRedirectURL());
             resp.commit();
             req.setHandled(true);
             return;

@@ -27,8 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
@@ -46,6 +48,7 @@ import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -54,7 +57,10 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
+import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
+import org.apache.cxf.transports.jms.jms_conf.JMSServerConfig;
 import org.apache.cxf.workqueue.WorkQueueManager;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -66,34 +72,24 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     final EndpointInfo endpointInfo;
     final EndpointReferenceType reference;
     final ConduitInitiator conduitInitiator;
-    final JMSDestinationConfiguration jmsDestConfig;
+    JMSDestinationConfigBean jmsDestinationConfigBean;
     PooledSession listenerSession;
     JMSListenerThread listenerThread;
     MessageObserver incomingObserver;
     
     public JMSDestination(Bus b,
                           ConduitInitiator ci,
-                          EndpointInfo endpointInfo) throws IOException {
-        this(b, ci, endpointInfo, new JMSDestinationConfiguration(b, endpointInfo));
-    }
-    
-    public JMSDestination(Bus b,
-                          ConduitInitiator ci,
-                          EndpointInfo info,
-                          JMSDestinationConfiguration cfg) throws IOException {
-        super(b, info, true, cfg);
+                          EndpointInfo info) throws IOException {
+        super(b, info, true);
         endpointInfo = info;
+        initConfig();
         conduitInitiator = ci;
-        jmsDestConfig = cfg;        
         reference = new EndpointReferenceType();
         AttributedURIType address = new AttributedURIType();
-        address.setValue(jmsDestConfig.getAddress());
+        address.setValue(endpointInfo.getAddress());
         reference.setAddress(address);        
     }
     
-    public final JMSDestinationConfiguration getJMSDestinationConfiguration() {
-        return jmsDestConfig;
-    }
     public EndpointReferenceType getAddress() {       
         return reference;
     }
@@ -157,7 +153,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
 
         try {
             LOG.log(Level.FINE, "establishing JMS connection");
-            JMSProviderHub.connect(this);
+            JMSProviderHub.connect(this, jmsDestinationConfigBean);
             //Get a non-pooled session. 
             listenerSession = sessionFactory.get(targetDestination);
             listenerThread = new JMSListenerThread(listenerSession, this);
@@ -217,7 +213,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         
         if (correlationID == null
             || "".equals(correlationID)
-            && jmsDestConfig.getJMSServerBehaviorPolicy().isUseMessageIDAsCorrelationID()) {
+            && jmsDestinationConfigBean.getServer().isUseMessageIDAsCorrelationID()) {
             correlationID = request.getJMSMessageID();
         }
     
@@ -263,6 +259,33 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         } 
     }
     
+    private void initConfig() {
+        JMSDestinationConfigBean bean = new JMSDestinationConfigBean();
+        if (!bean.isSetServer()) {
+            bean.setServer(new JMSServerBehaviorPolicyType());
+        }
+        if (!bean.isSetServerConfig()) {
+            bean.setServerConfig(new JMSServerConfig());
+        }
+        
+        ConfigurationProvider p = new ServiceModelJMSConfigurationProvider(endpointInfo);
+        List<ConfigurationProvider> providers = getOverwriteProviders();
+        if (null == providers) {
+            providers = new ArrayList<ConfigurationProvider>();
+        }
+        providers.add(p);
+        setOverwriteProviders(providers);
+        
+        providers = bean.getOverwriteProviders();
+        if (null == providers) {
+            providers = new ArrayList<ConfigurationProvider>();
+        }
+        providers.add(p);
+        bean.setOverwriteProviders(providers);
+
+        jmsDestinationConfigBean = bean;
+    }
+
     class JMSListenerThread extends Thread {
         final JMSDestination jmsDestination;
         private final PooledSession listenSession;
@@ -434,7 +457,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
             
             PooledSession replySession = null;          
             
-            if (jmsDestination.queueDestinationStyle) {
+            if (jmsDestination.isDestinationStyleQueue()) {
                 try {
                     //setup the reply message                
                     replyTo = getReplyToDestination(inMessage);
@@ -507,7 +530,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
             long ttl = getTimeToLive(headers);
             
             if (ttl <= 0) {
-                ttl = jmsDestConfig.getServerConfiguration().getMessageTimeToLive();
+                ttl = jmsDestinationConfigBean.getServerConfig().getMessageTimeToLive();
             }
             
             long timeToLive = 0;

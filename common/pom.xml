@@ -39,7 +39,7 @@
     <modules>
 	<module>common</module>	        
 	<module>xsd</module>
-	<module>metacode</module>
+	<!--module>metacode</module-->
     </modules>
     <dependencies>
 	<dependency>

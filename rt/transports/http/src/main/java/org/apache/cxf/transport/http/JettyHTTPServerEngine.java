@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
+import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpServer;
@@ -33,7 +36,8 @@ import org.mortbay.http.handler.AbstractHttpHandler;
 import org.mortbay.util.InetAddrPort;
 
 
-public final class JettyHTTPServerEngine implements ServerEngine {
+
+public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implements ServerEngine {
     private static final long serialVersionUID = 1L;
     
     private static Map<Integer, JettyHTTPServerEngine> portMap =
@@ -42,12 +46,11 @@ public final class JettyHTTPServerEngine implements ServerEngine {
     private int servantCount;
     private HttpServer server;
     private SocketListener listener;
-    private final HTTPListenerConfiguration config;
     private final int port;
     
     JettyHTTPServerEngine(Bus bus, String protocol, int p) {
         port = p;
-        config = new HTTPListenerConfiguration(bus, protocol, port);
+        init();
     }
     
     static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {
@@ -92,19 +95,19 @@ public final class JettyHTTPServerEngine implements ServerEngine {
             
             // REVISIT creare SSL listener if neccessary
             listener = new SocketListener(new InetAddrPort(port));
-            
-            if (config.getPolicy().isSetMinThreads()) {
-                listener.setMinThreads(config.getPolicy().getMinThreads());
+           
+            if (getListener().isSetMinThreads()) {
+                listener.setMinThreads(getListener().getMinThreads());
             }
-            if (config.getPolicy().isSetMaxThreads()) {
-                listener.setMaxThreads(config.getPolicy().getMaxThreads());            
+            if (getListener().isSetMaxThreads()) {
+                listener.setMaxThreads(getListener().getMaxThreads());            
             }
-            if (config.getPolicy().isSetMaxIdleTimeMs()) {
-                listener.setMaxIdleTimeMs(config.getPolicy().getMaxIdleTimeMs().intValue());
+            if (getListener().isSetMaxIdleTimeMs()) {
+                listener.setMaxIdleTimeMs(getListener().getMaxIdleTimeMs().intValue());
             }
-            if (config.getPolicy().isSetLowResourcePersistTimeMs()) {
+            if (getListener().isSetLowResourcePersistTimeMs()) {
                 int lowResourcePersistTime = 
-                    config.getPolicy().getLowResourcePersistTimeMs().intValue();
+                    getListener().getLowResourcePersistTimeMs().intValue();
                 listener.setLowResourcePersistTimeMs(lowResourcePersistTime);
             }
 
@@ -234,5 +237,14 @@ public final class JettyHTTPServerEngine implements ServerEngine {
             }
         }
         return ret;
+    }
+
+    private void init() {
+        if (!isSetListener()) {
+            setListener(new HTTPListenerPolicy());
+        }
+        if (!isSetSslServer()) {
+            setSslServer(new SSLServerPolicy());
+        }
     }
 }

@@ -75,6 +75,7 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
+    <xs:element name="authorization" type="tns:AuthorizationPolicy"/>
 
     <xs:complexType name="SSLServerPolicy">
         <xs:annotation>
@@ -217,6 +218,7 @@
 
     	</xs:sequence>
     </xs:complexType>
+    <xs:element name="sslServer" type="tns:SSLServerPolicy"/>
 
 
 
@@ -362,5 +364,6 @@
 
     	</xs:sequence>
     </xs:complexType>
+    <xs:element name="sslClient" type="tns:SSLClientPolicy"/>
 
 </xs:schema>

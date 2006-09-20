@@ -27,6 +27,7 @@ import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
+import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 
 
@@ -60,8 +61,11 @@ public final class JMSProviderHub {
     }
 
   
-    protected static void connect(JMSTransportBase jmsTransport) throws JMSException, NamingException {
-        JMSAddressPolicyType  addrDetails = jmsTransport.getJmsAddressDetails();
+    protected static void connect(JMSTransportBase jmsTransport,
+                                  JMSDestinationConfigBean jmsDestConfigBean)
+        throws JMSException, NamingException {
+
+        JMSAddressPolicyType  addrDetails = jmsTransport.getAddressPolicy();
       
         // get JMS connection resources and destination
         //
@@ -88,10 +92,8 @@ public final class JMSProviderHub {
             }
         }
         
-        if (jmsTransport instanceof JMSDestination) {
-            String clientID = null;
-            clientID = ((JMSDestination) jmsTransport).getJMSDestinationConfiguration().
-                getServerConfiguration().getDurableSubscriptionClientId();
+        if (null != jmsDestConfigBean) {
+            String clientID = jmsDestConfigBean.getServerConfig().getDurableSubscriptionClientId();
             
             if  (clientID != null) {
                 connection.setClientID(clientID);
@@ -112,8 +114,9 @@ public final class JMSProviderHub {
         JMSSessionFactory sf =
             new JMSSessionFactory(connection,
                                   replyDestination,
-                                  jmsTransport.getJMSConfiguration(),
-                                  context);
+                                  context,
+                                  jmsTransport,
+                                  jmsDestConfigBean);
 
         // notify transport that connection is complete        
         jmsTransport.connected(requestDestination, replyDestination, sf);

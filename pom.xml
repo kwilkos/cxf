@@ -164,6 +164,7 @@
     <modules>
         <module>common</module>
         <module>tools</module>
+        <module>common/metacode</module>
         <module>codegen-plugin</module>
         <module>testutils</module>
         <module>api</module>

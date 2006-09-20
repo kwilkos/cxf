@@ -24,7 +24,6 @@
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified" 
            jaxb:version="2.0">
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
     
     <xs:complexType name="JMSSessionPoolConfigPolicy">
         <xs:annotation>

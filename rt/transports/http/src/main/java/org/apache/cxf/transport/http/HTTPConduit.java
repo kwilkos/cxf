@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,9 @@ import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -45,6 +50,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.http.conduit.HTTPConduitConfigBean;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
@@ -55,79 +62,75 @@ import org.mortbay.http.handler.AbstractHttpHandler;
 /**
  * HTTP Conduit implementation.
  */
-public class HTTPConduit implements Conduit {
+public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
 
     public static final String HTTP_CONNECTION = "http.connection";
     
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     private final Bus bus;
-    private final HTTPConduitConfiguration config;
     private final URLConnectionFactory connectionFactory;
     private URL url;
     private MessageObserver incomingObserver;
     private EndpointReferenceType target;
-
+    
     private ServerEngine decoupledEngine;
     private URL decoupledURL;
     private DecoupledDestination decoupledDestination;
+    private EndpointInfo endpointInfo;
 
     /**
-     * Constructor, using real configuration.
+     * Constructor
      * 
      * @param b the associated Bus
-     * @param endpointInfo the endpoint info of the initiator
+     * @param ei the endpoint info of the initiator
      * @throws IOException
      */
-    public HTTPConduit(Bus b, EndpointInfo endpointInfo) throws IOException {
+    public HTTPConduit(Bus b, EndpointInfo ei) throws IOException {
         this(b,
-             endpointInfo,
+             ei,
              null);
     }
 
     /**
-     * Constructor, using real configuration.
+     * Constructor
      * 
      * @param b the associated Bus
-     * @param endpointInfo the endpoint info of the initiator
-     * @param target the endpoint reference of the target
+     * @param ei the endpoint info of the initiator
+     * @param t the endpoint reference of the target
      * @throws IOException
      */
-    public HTTPConduit(Bus b,
-                       EndpointInfo endpointInfo,
-                       EndpointReferenceType target) throws IOException {
+    public HTTPConduit(Bus b, EndpointInfo ei, EndpointReferenceType t) throws IOException {
         this(b,
-             endpointInfo,
-             target,
+             ei,
+             t,
              null,
-             null,
-             new HTTPConduitConfiguration(b, endpointInfo));
+             null);
     }
 
     /**
-     * Constructor, allowing subsititution of configuration, 
-     * connnection factory ang decoupled engine.
+     * Constructor, allowing subsititution of
+     * connnection factory and decoupled engine.
      * 
      * @param b the associated Bus
-     * @param endpointInfo the endpoint info of the initiator
-     * @param target the endpoint reference of the target
+     * @param ei the endpoint info of the initiator
+     * @param t the endpoint reference of the target
      * @param factory the URL connection factory
      * @param eng the decoupled engine
-     * @param cfg the configuration
      * @throws IOException
      */
     public HTTPConduit(Bus b,
-                       EndpointInfo endpointInfo,
+                       EndpointInfo ei,
                        EndpointReferenceType t,
                        URLConnectionFactory factory,
-                       ServerEngine eng,
-                       HTTPConduitConfiguration cfg) throws IOException {
+                       ServerEngine eng) throws IOException {
+        init();
         bus = b;
-        config = cfg;
+        endpointInfo = ei;
         connectionFactory = factory != null
                             ? factory
                             : getDefaultConnectionFactory();
         decoupledEngine = eng;
-        url = new URL(config.getAddress());
+        url = new URL(getAddress());
         target = getTargetReference(t);
     }
     
@@ -151,9 +154,8 @@ public class HTTPConduit implements Conduit {
         
         String value = (String)message.get(Message.ENDPOINT_ADDRESS);
         URL currentURL = value != null ? new URL(value) : url;
-
         URLConnection connection = 
-            connectionFactory.createConnection(config.getProxy(), currentURL);
+            connectionFactory.createConnection(getProxy(), currentURL);
         connection.setDoOutput(true);
 
         if (connection instanceof HttpURLConnection) {
@@ -161,25 +163,25 @@ public class HTTPConduit implements Conduit {
             hc.setRequestMethod("POST");
         }
 
-        connection.setConnectTimeout((int)config.getPolicy().getConnectionTimeout());
-        connection.setReadTimeout((int)config.getPolicy().getReceiveTimeout());
+        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
+        connection.setReadTimeout((int)getClient().getReceiveTimeout());
 
         connection.setUseCaches(false);
         if (connection instanceof HttpURLConnection) {
             HttpURLConnection hc = (HttpURLConnection)connection;
-            if (config.getPolicy().isAutoRedirect()) {
+            if (getClient().isAutoRedirect()) {
                 //cannot use chunking if autoredirect as the request will need to be
                 //completely cached locally and resent to the redirect target
                 hc.setInstanceFollowRedirects(true);
             } else {
                 hc.setInstanceFollowRedirects(false);
-                if (config.getPolicy().isAllowChunking()) {
+                if (getClient().isAllowChunking()) {
                     hc.setChunkedStreamingMode(2048);
                 }
             }
         }
 
-        config.setPolicies(message, headers);
+        setPolicies(message, headers);
      
         message.setContent(OutputStream.class,
                            new WrappedOutputStream(message, connection));
@@ -200,7 +202,7 @@ public class HTTPConduit implements Conduit {
      */
     public synchronized Destination getBackChannel() {
         if (decoupledDestination == null
-            && config.getPolicy().getDecoupledEndpoint() != null) {
+            && getClient().getDecoupledEndpoint() != null) {
             decoupledDestination = setUpDecoupledDestination(); 
         }
         return decoupledDestination;
@@ -252,7 +254,7 @@ public class HTTPConduit implements Conduit {
         return new URLConnectionFactory() {
             public URLConnection createConnection(Proxy proxy, URL u)
                 throws IOException {
-                return config.getProxy() != null 
+                return getProxy() != null 
                         ? u.openConnection(proxy)
                         : u.openConnection();
             }
@@ -271,7 +273,7 @@ public class HTTPConduit implements Conduit {
         if (null == t) {
             ref = new EndpointReferenceType();
             AttributedURIType address = new AttributedURIType();
-            address.setValue(config.getAddress());
+            address.setValue(getAddress());
             ref.setAddress(address);
         } else {
             ref = t;
@@ -343,7 +345,7 @@ public class HTTPConduit implements Conduit {
      */
     private DecoupledDestination setUpDecoupledDestination() {        
         EndpointReferenceType reference =
-            EndpointReferenceUtils.getEndpointReference(config.getPolicy().getDecoupledEndpoint());
+            EndpointReferenceUtils.getEndpointReference(getClient().getDecoupledEndpoint());
         if (reference != null) {
             String decoupledAddress = reference.getAddress().getValue();
             LOG.info("creating decoupled endpoint: " + decoupledAddress);
@@ -523,4 +525,130 @@ public class HTTPConduit implements Conduit {
             decoupledDestination.getMessageObserver().onMessage(inMessage);
         }
     }    
+
+    private void init() {
+        if (!isSetClient()) {
+            setClient(new HTTPClientPolicy());
+        }
+        if (!isSetAuthorization()) {
+            setAuthorization(new AuthorizationPolicy());
+        }
+        if (!isSetProxyAuthorization()) {
+            setProxyAuthorization(new AuthorizationPolicy());
+        }
+        if (!isSetSslClient()) {
+            setSslClient(new SSLClientPolicy());
+        }
+    }
+
+    private String getAddress() {
+        return endpointInfo.getAddress();
+    }
+
+    private Proxy getProxy() {
+        Proxy proxy = null;
+        HTTPClientPolicy policy = getClient(); 
+        if (policy.isSetProxyServer()) {
+            proxy = new Proxy(Proxy.Type.valueOf(policy.getProxyServerType().toString()),
+                              new InetSocketAddress(policy.getProxyServer(),
+                                                    policy.getProxyServerPort()));
+        }
+        return proxy;
+    }
+
+    private void setPolicies(Message message, Map<String, List<String>> headers) {
+        AuthorizationPolicy authPolicy = getAuthorization();
+        AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
+        String userName = null;
+        String passwd = null;
+        if (null != newPolicy) {
+            userName = newPolicy.getUserName();
+            passwd = newPolicy.getPassword();
+        }
+        if (userName == null && authPolicy.isSetUserName()) {
+            userName = authPolicy.getUserName();
+        }
+        if (userName != null) {
+            if (passwd == null && authPolicy.isSetPassword()) {
+                passwd = authPolicy.getPassword();
+            }
+            userName += ":";
+            if (passwd != null) {
+                userName += passwd;
+            }
+            userName = Base64Utility.encode(userName.getBytes());
+            headers.put("Authorization",
+                        Arrays.asList(new String[] {"Basic " + userName}));
+        } else if (authPolicy.isSetAuthorizationType() && authPolicy.isSetAuthorization()) {
+            String type = authPolicy.getAuthorizationType();
+            type += " ";
+            type += authPolicy.getAuthorization();
+            headers.put("Authorization",
+                        Arrays.asList(new String[] {type}));
+        }
+        AuthorizationPolicy proxyAuthPolicy = getProxyAuthorization();
+        if (proxyAuthPolicy.isSetUserName()) {
+            userName = proxyAuthPolicy.getUserName();
+            if (userName != null) {
+                passwd = "";
+                if (proxyAuthPolicy.isSetPassword()) {
+                    passwd = proxyAuthPolicy.getPassword();
+                }
+                userName += ":";
+                if (passwd != null) {
+                    userName += passwd;
+                }
+                userName = Base64Utility.encode(userName.getBytes());
+                headers.put("Proxy-Authorization",
+                            Arrays.asList(new String[] {"Basic " + userName}));
+            } else if (proxyAuthPolicy.isSetAuthorizationType() && proxyAuthPolicy.isSetAuthorization()) {
+                String type = proxyAuthPolicy.getAuthorizationType();
+                type += " ";
+                type += proxyAuthPolicy.getAuthorization();
+                headers.put("Proxy-Authorization",
+                            Arrays.asList(new String[] {type}));
+            }
+        }
+        HTTPClientPolicy policy = getClient();
+        if (policy.isSetCacheControl()) {
+            headers.put("Cache-Control",
+                        Arrays.asList(new String[] {policy.getCacheControl().value()}));
+        }
+        if (policy.isSetHost()) {
+            headers.put("Host",
+                        Arrays.asList(new String[] {policy.getHost()}));
+        }
+        if (policy.isSetConnection()) {
+            headers.put("Connection",
+                        Arrays.asList(new String[] {policy.getConnection().value()}));
+        }
+        if (policy.isSetAccept()) {
+            headers.put("Accept",
+                        Arrays.asList(new String[] {policy.getAccept()}));
+        }
+        if (policy.isSetAcceptEncoding()) {
+            headers.put("Accept-Encoding",
+                        Arrays.asList(new String[] {policy.getAcceptEncoding()}));
+        }
+        if (policy.isSetAcceptLanguage()) {
+            headers.put("Accept-Language",
+                        Arrays.asList(new String[] {policy.getAcceptLanguage()}));
+        }
+        if (policy.isSetContentType()) {
+            headers.put("Content-Type",
+                        Arrays.asList(new String[] {policy.getContentType()}));
+        }
+        if (policy.isSetCookie()) {
+            headers.put("Cookie",
+                        Arrays.asList(new String[] {policy.getCookie()}));
+        }
+        if (policy.isSetBrowserType()) {
+            headers.put("BrowserType",
+                        Arrays.asList(new String[] {policy.getBrowserType()}));
+        }
+        if (policy.isSetReferer()) {
+            headers.put("Referer",
+                        Arrays.asList(new String[] {policy.getReferer()}));
+        }
+    }
 }

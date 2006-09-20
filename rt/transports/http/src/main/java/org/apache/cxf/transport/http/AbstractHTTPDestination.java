@@ -21,6 +21,7 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
+import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
@@ -44,62 +47,42 @@ import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
 /**
  * Common base for HTTP Destination implementations.
  */
-public abstract class AbstractHTTPDestination  implements Destination {
+public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean  implements Destination {
     static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
     
     private static final long serialVersionUID = 1L;        
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
-    protected final HTTPDestinationConfiguration config;
     protected final EndpointInfo endpointInfo;
     protected final EndpointReferenceType reference;
     protected String name;
     protected URL nurl;
 
     /**
-     * Constructor, using real configuration.
-     * 
-     * @param b the associated Bus
-     * @param ci the associated conduit initiator
-     * @param endpointInfo the endpoint info of the destination 
-     * @throws IOException
-     */
-    public AbstractHTTPDestination(Bus b,
-                                   ConduitInitiator ci,
-                                   EndpointInfo endpointInfo)
-        throws IOException {
-        this(b,
-             ci,
-             endpointInfo,
-             new HTTPDestinationConfiguration(b, endpointInfo));
-    }
-
-    /**
-     * Constructor, allowing subsititution of configuration.
+     * Constructor
      * 
      * @param b the associated Bus
      * @param ci the associated conduit initiator
      * @param ei the endpoint info of the destination 
-     * @param cfg the configuration
      * @throws IOException
      */    
     public AbstractHTTPDestination(Bus b,
                                    ConduitInitiator ci,
-                                   EndpointInfo ei,
-                                   HTTPDestinationConfiguration cfg)
+                                   EndpointInfo ei)
         throws IOException {
         bus = b;
         conduitInitiator = ci;
         endpointInfo = ei;
-        config = cfg;
         
-        nurl = new URL(config.getAddress());
+        init();
+ 
+        nurl = new URL(getAddressValue());
         name = nurl.getPath();
 
         reference = new EndpointReferenceType();
         AttributedURIType address = new AttributedURIType();
-        address.setValue(config.getAddress());
+        address.setValue(getAddressValue());
         reference.setAddress(address);
     }
 
@@ -153,7 +136,7 @@ public abstract class AbstractHTTPDestination  implements Destination {
             responseHeaders = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, responseHeaders);         
         }
-        config.setPolicies(responseHeaders);
+        setPolicies(responseHeaders);
     }
     
     /** 
@@ -173,4 +156,53 @@ public abstract class AbstractHTTPDestination  implements Destination {
      */
     protected abstract void copyRequestHeaders(Message message,
                                                Map<String, List<String>> headers);
+
+    protected final String getAddressValue() {
+        return endpointInfo.getAddress();
+    }
+
+    private void init() {
+        if (!isSetServer()) {
+            setServer(new HTTPServerPolicy());
+        }
+    }
+
+    void setPolicies(Map<String, List<String>> headers) {
+        HTTPServerPolicy policy = getServer(); 
+        if (policy.isSetCacheControl()) {
+            headers.put("Cache-Control",
+                        Arrays.asList(new String[] {policy.getCacheControl().value()}));
+        }
+        if (policy.isSetContentLocation()) {
+            headers.put("Content-Location",
+                        Arrays.asList(new String[] {policy.getContentLocation()}));
+        }
+        if (policy.isSetContentEncoding()) {
+            headers.put("Content-Encoding",
+                        Arrays.asList(new String[] {policy.getContentEncoding()}));
+        }
+        if (policy.isSetContentType()) {
+            headers.put("Content-Type",
+                        Arrays.asList(new String[] {policy.getContentType()}));
+        }
+        if (policy.isSetServerType()) {
+            headers.put("Server",
+                        Arrays.asList(new String[] {policy.getServerType()}));
+        }
+        if (policy.isSetHonorKeepAlive() && !policy.isHonorKeepAlive()) {
+            headers.put("Connection",
+                        Arrays.asList(new String[] {"close"}));
+        }
+        
+    /*
+     * TODO - hook up these policies
+    <xs:attribute name="SuppressClientSendErrors" type="xs:boolean" use="optional" default="false">
+    <xs:attribute name="SuppressClientReceiveErrors" type="xs:boolean" use="optional" default="false">
+    */
+    }
+
+    boolean contextMatchOnStem() {
+        return "stem".equals(getContextMatchStrategy());
+    }
+    
 }

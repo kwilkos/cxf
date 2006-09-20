@@ -27,7 +27,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:version="2.0">
 
-    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="../../../../../../../../common/metacode/src/main/resources/schemas/wsdl/wsdl.xsd"/>
 
     <xs:complexType name="HTTPServerPolicy">
         <xs:annotation>
@@ -136,6 +136,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
 
 
     <xs:complexType name="HTTPClientPolicy">
@@ -331,6 +332,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
     
     <xs:complexType name="HTTPListenerPolicy">
     	<xs:sequence>
@@ -364,6 +366,7 @@
     		</xs:element>
     	</xs:sequence>
     </xs:complexType>
+    <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
 
   
     <xs:simpleType name="serverCacheControlType">

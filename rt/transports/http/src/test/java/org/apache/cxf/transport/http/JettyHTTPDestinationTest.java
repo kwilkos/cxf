@@ -73,7 +73,6 @@ public class JettyHTTPDestinationTest extends TestCase {
     private EndpointReferenceType address;
     private EndpointReferenceType replyTo;
     private ServerEngine engine;
-    private HTTPDestinationConfiguration config;
     private HTTPServerPolicy policy;
     private JettyHTTPDestination destination;
     private TestHttpRequest request;
@@ -99,7 +98,6 @@ public class JettyHTTPDestinationTest extends TestCase {
         address = null;
         replyTo = null;
         engine = null;
-        config = null;
         request = null;
         response = null;
         inMessage = null;
@@ -246,23 +244,19 @@ public class JettyHTTPDestinationTest extends TestCase {
         conduitInitiator = control.createMock(ConduitInitiator.class);
         endpointInfo = control.createMock(EndpointInfo.class);
         engine = control.createMock(ServerEngine.class);
-        config = control.createMock(HTTPDestinationConfiguration.class);
-        config.getAddress();
+        endpointInfo.getAddress();
         EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(3);
        
-        config.contextMatchOnStem();
-        EasyMock.expectLastCall().andReturn(contextMatchOnStem);
         engine.addServant(EasyMock.eq(new URL(NOWHERE + "bar/foo")),
                           EasyMock.isA(AbstractHttpHandler.class));
         
-        policy = new HTTPServerPolicy();   
         control.replay();
         
         JettyHTTPDestination dest = new JettyHTTPDestination(bus,
                                                              conduitInitiator,
                                                              endpointInfo,
-                                                             engine,
-                                                             config);
+                                                             engine);
+        policy = dest.getServer();
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
@@ -320,13 +314,8 @@ public class JettyHTTPDestinationTest extends TestCase {
         request = new TestHttpRequest(method, is, "bar/foo", query);
         response = new TestHttpResponse(os);
         
-        config.getPolicy();
-        EasyMock.expectLastCall().andReturn(policy);
-
         if (setRedirectURL) {
             policy.setRedirectURL(NOWHERE + "foo/bar");
-            config.getPolicy();
-            EasyMock.expectLastCall().andReturn(policy);
             //response.sendRedirect(EasyMock.eq(NOWHERE + "foo/bar"));
             //EasyMock.expectLastCall();
             //response.commit();

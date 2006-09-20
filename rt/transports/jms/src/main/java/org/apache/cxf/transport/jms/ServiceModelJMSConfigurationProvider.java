@@ -20,7 +20,7 @@
 package org.apache.cxf.transport.jms;
 
 
-import org.apache.cxf.oldcfg.ConfigurationProvider;
+import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 import org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType;
@@ -36,20 +36,20 @@ public class ServiceModelJMSConfigurationProvider implements ConfigurationProvid
     }
     
     public Object getObject(String name) {
-             
+
         if (null == info) {
             return null;
         }
 
-        if ("jmsServer".equals(name)) {
+        if ("server".equals(name)) {
             return info.getExtensor(JMSServerBehaviorPolicyType.class);
         }
         
-        if ("jmsClient".equals(name)) {
+        if ("client".equals(name)) {
             return info.getExtensor(JMSClientBehaviorPolicyType.class);
         }
         
-        if ("jmsAddress".equals(name)) {            
+        if ("addressPolicy".equals(name)) {            
             return info.getExtensor(JMSAddressPolicyType.class);
         }
 

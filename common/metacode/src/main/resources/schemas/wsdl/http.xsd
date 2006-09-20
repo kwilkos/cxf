@@ -53,7 +53,7 @@ No other rights are granted by implication, estoppel or otherwise.
         xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
         targetNamespace="http://schemas.xmlsoap.org/wsdl/http/">
 
-	<import namespace = "http://schemas.xmlsoap.org/wsdl/" />
+	<import namespace = "http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 
    	<element name="address" type="http:addressType"/>
 
