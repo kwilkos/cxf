@@ -229,11 +229,11 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         SOAPBody soapBody = bmsg.getExtensor(SOAPBody.class);
         List parts = null;
         if (soapBody == null) {
-            // MultipartRelatedType ext
             MIMEMultipartRelated mmr = bmsg.getExtensor(MIMEMultipartRelated.class);
-            parts = mmr.getMIMEParts();
+            if (mmr != null) {
+                parts = mmr.getMIMEParts();
+            }
         } else {
-
             bodyInfo.setUse(soapBody.getUse());
             parts = soapBody.getParts();
         }
@@ -256,7 +256,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                         }
                     }
                 } else {
-                    partName = (String) itr.next();
+                    partName = (String)part;
                 }
                 if (partName != null) {
                     MessagePartInfo mpi = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(),
