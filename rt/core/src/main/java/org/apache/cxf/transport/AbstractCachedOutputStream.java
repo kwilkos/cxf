@@ -91,10 +91,30 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      *            the real output stream
      * @throws IOException
      */
-    public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
-        ByteArrayOutputStream bout = (ByteArrayOutputStream) currentStream;
-        if (copyOldContent && bout.size() > 0) {
-            bout.writeTo(out);
+    public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {        
+        if (inmem) {
+            ByteArrayOutputStream byteOut = (ByteArrayOutputStream) currentStream;           
+            if (copyOldContent && byteOut.size() > 0) {                
+                byteOut.writeTo(out);
+            }
+        } else {
+            //read the file 
+            currentStream.close();
+            FileInputStream fin = new FileInputStream(tempFile);
+            if (copyOldContent) {
+                byte[] buffer = new byte[4096];
+                int len = 0;
+                int pos = 0;
+                while (true) {                    
+                    len = fin.read(buffer, 0, 4096);
+                    if (len != -1) {    
+                        out.write(buffer, 0, len);
+                        pos += len;
+                    } else {
+                        break;
+                    }
+                } 
+            }
         }
         currentStream = out;
     }
