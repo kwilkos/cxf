@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
+import javax.xml.validation.Schema;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceException;
@@ -38,6 +39,8 @@ import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
@@ -47,6 +50,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
  
@@ -81,6 +85,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         QName endpointName = implInfo.getEndpointName();
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
         
+        // revisit: should get enableSchemaValidation from configuration
+        if (false) {
+            addSchemaValidation();
+        }
 
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
@@ -95,6 +103,18 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         
         doInit = true;
+    }
+
+    private void addSchemaValidation() {
+        Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
+        
+        if (service.getDataReaderFactory() instanceof JAXBDataReaderFactory) {
+            ((JAXBDataReaderFactory)service.getDataReaderFactory()).setSchema(schema);
+        }
+        
+        if (service.getDataWriterFactory() instanceof JAXBDataWriterFactory) {
+            ((JAXBDataWriterFactory)service.getDataWriterFactory()).setSchema(schema);
+        }
     }
 
     private synchronized void init() {

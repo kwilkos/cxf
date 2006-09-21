@@ -22,7 +22,9 @@ package org.apache.cxf.binding.attachment;
 import java.io.IOException;
 import java.io.PipedInputStream;
 
-import org.apache.cxf.transport.AbstractCachedOutputStream;
+import org.apache.cxf.io.AbstractCachedOutputStream;
+
+
 
 public class CachedOutputStream extends AbstractCachedOutputStream {
 

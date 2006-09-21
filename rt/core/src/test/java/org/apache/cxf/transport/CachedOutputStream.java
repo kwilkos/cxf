@@ -20,6 +20,8 @@ package org.apache.cxf.transport;
 
 import java.io.IOException;
 
+import org.apache.cxf.io.AbstractCachedOutputStream;
+
 public class CachedOutputStream extends AbstractCachedOutputStream {
     CachedOutputStream() {
         super();

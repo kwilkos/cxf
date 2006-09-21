@@ -17,9 +17,7 @@
  * under the License.
  */
 
-
-package org.apache.cxf.jaxws.servlet;
-
+package org.apache.cxf.io;
 
 import org.apache.cxf.message.Message;
 
@@ -28,7 +26,7 @@ public abstract class AbstractWrappedOutputStream extends AbstractCachedOutputSt
     protected Message outMessage;
     private boolean flushed;
     
-    AbstractWrappedOutputStream(Message m) {
+    protected AbstractWrappedOutputStream(Message m) {
         super();
         outMessage = m;
     }

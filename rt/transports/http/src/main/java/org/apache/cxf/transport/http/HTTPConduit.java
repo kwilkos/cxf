@@ -43,6 +43,7 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;

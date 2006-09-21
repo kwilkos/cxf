@@ -30,10 +30,11 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxb.attachment.AttachmentSerializer;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.transport.AbstractCachedOutputStream;
+
 
 public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
 

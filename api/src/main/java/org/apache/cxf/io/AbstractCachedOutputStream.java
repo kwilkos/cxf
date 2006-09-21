@@ -17,8 +17,7 @@
  * under the License.
  */
 
-
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.io;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -88,14 +87,33 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      * AttachmentSerializer Or Copy the cached output stream to the "real"
      * output stream, i.e. onto the wire.
      * 
-     * @param realOS
-     *            the real output stream
+     * @param realOS the real output stream
      * @throws IOException
      */
     public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
-        ByteArrayOutputStream bout = (ByteArrayOutputStream) currentStream;
-        if (copyOldContent && bout.size() > 0) {
-            bout.writeTo(out);
+        if (inmem) {
+            ByteArrayOutputStream byteOut = (ByteArrayOutputStream)currentStream;
+            if (copyOldContent && byteOut.size() > 0) {
+                byteOut.writeTo(out);
+            }
+        } else {
+            // read the file
+            currentStream.close();
+            FileInputStream fin = new FileInputStream(tempFile);
+            if (copyOldContent) {
+                byte[] buffer = new byte[4096];
+                int len = 0;
+                int pos = 0;
+                while (true) {
+                    len = fin.read(buffer, 0, 4096);
+                    if (len != -1) {
+                        out.write(buffer, 0, len);
+                        pos += len;
+                    } else {
+                        break;
+                    }
+                }
+            }
         }
         currentStream = out;
     }
@@ -145,7 +163,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     }
 
     private void createFileOutputStream() throws IOException {
-        byte[] bytes = ((ByteArrayOutputStream) currentStream).toByteArray();
+        byte[] bytes = ((ByteArrayOutputStream)currentStream).toByteArray();
         if (outputDir == null) {
             tempFile = File.createTempFile("att", "tmp");
         } else {
@@ -165,7 +183,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
             if (currentStream instanceof ByteArrayOutputStream) {
                 return new ByteArrayInputStream(((ByteArrayOutputStream)currentStream).toByteArray());
             } else if (currentStream instanceof PipedOutputStream) {
-                return new PipedInputStream((PipedOutputStream)currentStream);                
+                return new PipedInputStream((PipedOutputStream)currentStream);
             } else {
                 return null;
             }

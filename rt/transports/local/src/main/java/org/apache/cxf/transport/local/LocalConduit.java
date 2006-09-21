@@ -25,10 +25,10 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 
 import org.apache.cxf.binding.attachment.CachedOutputStream;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.transport.AbstractCachedOutputStream;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;

@@ -37,6 +37,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
