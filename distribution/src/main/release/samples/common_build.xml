@@ -71,6 +71,11 @@
     <property name="activemq.home" location="${cxf.home}/lib/activemq/3.2"/>
     <property name="cxf.etc.dir" location="${cxf.home}/etc"/>
 
+     <path id="activeMQ.classpath">
+        <pathelement location="${activemq.home}/lib/spring-core-1.2.5.jar"/>
+        <pathelement location="${activemq.home}/lib/spring-beans-1.2.5.jar"/>
+        <pathelement location="${cxf.home}/lib/cxf.jar"/>
+    </path>
 
     <path id="cxf.classpath">
         <pathelement location="${build.classes.dir}"/>
@@ -128,7 +133,7 @@
 
         <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
             <classpath>
-                <path refid="cxf.classpath"/>
+                <path refid="activeMQ.classpath"/>
             </classpath>
             <arg value="${activemq.home}/conf/activemq.xml"/>
             <jvmarg value="-Dactivemq.home=${activemq.home}"/>
