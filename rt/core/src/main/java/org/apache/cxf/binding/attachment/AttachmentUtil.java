@@ -71,6 +71,9 @@ public final class AttachmentUtil {
 
     public static String getSoapPartHeader(Message message, String soapPartId, String action) {
         StringBuffer buffer = new StringBuffer(200);
+        if (System.getProperty("file.separator").equals("/")) {
+            buffer.append("\n");
+        }
         buffer.append("Content-Type: application/xop+xml; charset=utf-8; ");
         buffer.append("type=\"" + message.getAttachmentMimeType());
         if (action != null) {
@@ -85,6 +88,9 @@ public final class AttachmentUtil {
 
     public static String getAttchmentPartHeader(Attachment att) {
         StringBuffer buffer = new StringBuffer(200);
+        if (System.getProperty("file.separator").equals("/")) {
+            buffer.append("\n");
+        }
         buffer.append("Content-Type: " + att.getDataHandler().getContentType() + ";\n");
         if (att.isXOP()) {
             buffer.append("Content-Transfer-Encoding: binary\n");
