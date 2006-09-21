@@ -31,8 +31,6 @@ import org.apache.cxf.BusException;
 //import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.oldcfg.Configuration;
-//import org.apache.cxf.configuration.ConfigurationBuilder;
 //import org.apache.cxf.jaxws.EndpointRegistry;
 //import org.apache.cxf.management.InstrumentationManager;
 //import org.apache.cxf.plugins.PluginManager;
@@ -112,19 +110,6 @@ public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {
 //         return null;
 //     }
 
-//     @Override
-//     public ConfigurationBuilder getConfigurationBuilder() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public Configuration getConfiguration() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
 
 //     @Override
 //     public TransportFactoryManager getTransportFactoryManager() {
@@ -189,11 +174,6 @@ public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {
     //    @Override
     public <T> void setExtension(T extension, Class<T> extensionType) {
 
-    }
-    
-    //    @Override
-    public Configuration getConfiguration() {
-        return null;
     }
     
     //    @Override

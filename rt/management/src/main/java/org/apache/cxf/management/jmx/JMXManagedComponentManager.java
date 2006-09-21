@@ -42,8 +42,8 @@ import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
 import org.apache.cxf.management.Instrumentation;
+import org.apache.cxf.management.JMXConnectorPolicyType;
 import org.apache.cxf.management.jmx.export.runtime.ModelMBeanAssembler;
 
 
@@ -63,7 +63,7 @@ public class JMXManagedComponentManager {
     }
     
        
-    public void init(MBServerPolicyType mbpt) {
+    public void init(JMXConnectorPolicyType cp) {
         
         // get the init information from configuration
         
@@ -74,9 +74,9 @@ public class JMXManagedComponentManager {
         mbs = MBeanServerFactory.createMBeanServer(JMXUtils.DOMAIN_STRING);            
         mcf = MBServerConnectorFactory.getInstance();
         mcf.setMBeanServer(mbs);
-        mcf.setThreaded(mbpt.getJMXConnector().isThreaded());
-        mcf.setDaemon(mbpt.getJMXConnector().isDaemon());
-        mcf.setServiceUrl(mbpt.getJMXConnector().getJMXServiceURL());
+        mcf.setThreaded(cp.isThreaded());
+        mcf.setDaemon(cp.isDaemon());
+        mcf.setServiceUrl(cp.getJMXServiceURL());
         try {            
             mcf.createConnector();
         } catch (IOException ex) {

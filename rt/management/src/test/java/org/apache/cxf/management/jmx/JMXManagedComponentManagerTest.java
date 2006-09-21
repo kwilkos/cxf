@@ -24,8 +24,7 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.BusException;
-import org.apache.cxf.configuration.instrumentation.types.JMXConnectorPolicyType;
-import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
+import org.apache.cxf.management.JMXConnectorPolicyType;
 import org.apache.cxf.management.jmx.export.AnnotationTestInstrumentation;
 
 
@@ -39,14 +38,12 @@ public class JMXManagedComponentManagerTest extends TestCase {
     }
         
     public void testJMXManagerInit() {
-        MBServerPolicyType policy = new MBServerPolicyType();
         JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
-        policy.setJMXConnector(connector);        
         connector.setDaemon(false);
         connector.setThreaded(true);
         connector.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
         try {
-            manager.init(policy); 
+            manager.init(connector); 
             Thread.sleep(300);
             manager.shutdown();
         } catch (Exception ex) {
@@ -56,13 +53,11 @@ public class JMXManagedComponentManagerTest extends TestCase {
     }
     
     public void testRegisterInstrumentation() {
-        MBServerPolicyType policy = new MBServerPolicyType();
         JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
-        policy.setJMXConnector(connector);        
         connector.setDaemon(false);
         connector.setThreaded(false);
         connector.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
-        manager.init(policy);
+        manager.init(connector);
         // setup the fack instrumentation
         AnnotationTestInstrumentation im = new AnnotationTestInstrumentation();
         ObjectName name = JMXUtils.getObjectName(im.getUniqueInstrumentationName(), 

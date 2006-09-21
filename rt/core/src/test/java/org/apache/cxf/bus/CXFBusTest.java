@@ -31,7 +31,6 @@ import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.event.EventProcessor;
 import org.apache.cxf.management.InstrumentationManager;
-import org.apache.cxf.oldcfg.Configuration;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -91,13 +90,6 @@ public class CXFBusTest extends TestCase {
         String extension = "CXF";
         bus.setExtension(extension, String.class);
         assertSame(extension, bus.getExtension(String.class));
-    }
-    
-    public void testConfiguration() {
-        CXFBus bus = new CXFBus();
-        Configuration c = bus.getConfiguration();
-        assertTrue("Unexpected value for servicesMonitoring property.",
-                   !c.getBoolean("servicesMonitoring"));
     }
     
     public void testRun() {

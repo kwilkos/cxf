@@ -45,8 +45,7 @@ public class CXFBusFactory implements BusFactory {
     }
     
     public Bus createBus(Map<Class, Object> e) {
-        return createBus(e, null);
-        
+        return createBus(e, new HashMap<String, Object>());
     }
     
     public Bus createBus(Map<Class, Object> e, Map<String, Object> properties) {

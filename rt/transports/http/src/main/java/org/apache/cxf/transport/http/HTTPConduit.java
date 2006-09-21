@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import javax.wsdl.WSDLException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
@@ -540,6 +542,14 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         if (!isSetSslClient()) {
             setSslClient(new SSLClientPolicy());
         }
+
+        List <ConfigurationProvider> providers = getOverwriteProviders();
+        if (null == providers) {
+            providers = new ArrayList<ConfigurationProvider>();
+        }
+        ConfigurationProvider p = new ServiceModelHttpConfigurationProvider(endpointInfo, false);
+        providers.add(p);
+        setOverwriteProviders(providers);
     }
 
     private String getAddress() {

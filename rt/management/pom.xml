@@ -86,18 +86,35 @@
                             <xsdOptions>
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/instrumentation.xsd</xsd>
+                                    <extension>true</extension>
+                                    <extensionArgs>
+                                        <extensionArg>-Xcfg</extensionArg>
+                                    </extensionArgs>
                                 </xsdOption>
                             </xsdOptions>
-                            <beanfiles>
-                                <beanfile>${basedir}/src/main/resources/config-metadata/instrumentation-config.xml</beanfile>
-                            </beanfiles>
                         </configuration>
                         <goals>
                             <goal>xsdtojava</goal>
-                            <goal>beangen</goal>
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-cfg</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-dv</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-common-utilities</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>

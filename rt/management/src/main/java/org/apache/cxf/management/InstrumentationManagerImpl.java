@@ -30,45 +30,32 @@ import javax.management.MBeanServer;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.instrumentation.types.InstrumentationPolicyType;
-import org.apache.cxf.configuration.instrumentation.types.MBServerPolicyType;
 import org.apache.cxf.event.ComponentEventFilter;
 import org.apache.cxf.event.Event;
 import org.apache.cxf.event.EventListener;
 import org.apache.cxf.event.EventProcessor;
 import org.apache.cxf.management.jmx.JMXManagedComponentManager;
-import org.apache.cxf.oldcfg.CompoundName;
-import org.apache.cxf.oldcfg.Configuration;
-import org.apache.cxf.oldcfg.ConfigurationBuilder;
-import org.apache.cxf.oldcfg.impl.ConfigurationBuilderImpl;
 
 
 
 
-public class InstrumentationManagerImpl implements InstrumentationManager, EventListener {
+public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
+    implements InstrumentationManager, EventListener {
     static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
-    static final String INSTRUMENTATION_CONFIGURATION_URI = 
-        "http://cxf.apache.org/configuration/instrumentation";
 
-    // TODO: avoid clashes with bus id
-
-    static final String INSTRUMENTATION_CONFIGURATION_ID = 
-        "instrumentation";
     Bus bus;
     
-    private Configuration configuration;
     private List <Instrumentation> instrumentations;
     private JMXManagedComponentManager jmxManagedComponentManager;
     
-    
+   
     public InstrumentationManagerImpl() {
-        this(new ConfigurationBuilderImpl());
-    }
-
-    public InstrumentationManagerImpl(ConfigurationBuilder builder) {
-        
-        configuration = getConfiguration(builder);
-        
+        if (null == getInstrumentation()) {
+            setInstrumentation(new InstrumentationType());
+        }      
+        if (null == getJMXConnectorPolicy()) {
+            setJMXConnectorPolicy(new JMXConnectorPolicyType());
+        }      
     }
     
     public Bus getBus() {
@@ -83,10 +70,8 @@ public class InstrumentationManagerImpl implements InstrumentationManager, Event
     
     public void initInstrumentationManagerImpl() {
         LOG.info("Setting up InstrumentationManager");
-        InstrumentationPolicyType ip = 
-            configuration.getObject(InstrumentationPolicyType.class, "InstrumentationControl");   
         
-        if (ip.isInstrumentationEnabled()) {
+        if (getInstrumentation().isEnabled()) {
             instrumentations = new LinkedList<Instrumentation>();
             //regist to the event process
             ComponentEventFilter componentEventFilter = new ComponentEventFilter();
@@ -96,19 +81,12 @@ public class InstrumentationManagerImpl implements InstrumentationManager, Event
             }    
         }
             
-        if (ip.isJMXEnabled()) {           
+        if (getInstrumentation().isJMXEnabled()) {           
             jmxManagedComponentManager = new JMXManagedComponentManager();
-            MBServerPolicyType mbsp = configuration.getObject(MBServerPolicyType.class, "MBServer");
-            jmxManagedComponentManager.init(mbsp);
+            jmxManagedComponentManager.init(getJMXConnectorPolicy());
         }
     }
     
-    private Configuration getConfiguration(ConfigurationBuilder cb) {
-        
-        CompoundName id = new CompoundName(INSTRUMENTATION_CONFIGURATION_ID); 
-        return cb.getConfiguration(INSTRUMENTATION_CONFIGURATION_URI,  id);
-    }
-
     public void shutdown() {
         if (LOG.isLoggable(Level.INFO)) {
             LOG.info("Shutdown InstrumentationManager ");

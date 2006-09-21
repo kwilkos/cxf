@@ -25,11 +25,10 @@ import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
+import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.apache.cxf.extension.ExtensionManagerImpl;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.oldcfg.Configuration;
-import org.apache.cxf.oldcfg.ConfigurationBuilder;
-import org.apache.cxf.oldcfg.impl.ConfigurationBuilderImpl;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;
@@ -39,13 +38,14 @@ import org.apache.cxf.resource.SinglePropertyResolver;
 public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
     
     public static final String BUS_PROPERTY_NAME = "bus";
+    private static final String BUS_ID_PROPERTY_NAME = "org.apache.cxf.bus.id";
+    private static final String DEFAULT_BUS_ID = "cxf";
     
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
     
     enum State { INITIAL, RUNNING, SHUTDOWN };
 
     private Map<Class, Object> extensions;
-    private Configuration configuration;
     private BusLifeCycleManager lifeCycleManager;
     private String id;
     private State state;
@@ -55,31 +55,25 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
     }
 
     protected CXFBus(Map<Class, Object> e) {
-        this(e, null);
+        this(e, new HashMap<String, Object>());
     }
     
     protected CXFBus(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
-     
-        BusConfigurationHelper helper = new BusConfigurationHelper();
         
-        id = helper.getBusId(properties);
- 
-        ConfigurationBuilder builder = (ConfigurationBuilder)extensions.get(ConfigurationBuilder.class);
-        if (null == builder) {
-            builder = new ConfigurationBuilderImpl();
-            extensions.put(ConfigurationBuilder.class, builder);
+        Configurer configurer = (Configurer)extensions.get(Configurer.class);
+        if (null == configurer) {
+            String cfgFile = (String)properties.get(Configurer.USER_CFG_FILE_PROPERTY_NAME);
+            configurer = new ConfigurerImpl(cfgFile);
+            extensions.put(Configurer.class, configurer);
         }
-        configuration = helper.getConfiguration(builder, id);
+ 
+        id = getBusId(properties);
         
         ResourceManager resourceManager = new DefaultResourceManager();
         
-        if (properties == null) {
-            properties = new HashMap<String, Object>();
-        }
-        
-        properties.put(BusConfigurationHelper.BUS_ID_PROPERTY, BUS_PROPERTY_NAME);
+        properties.put(BUS_ID_PROPERTY_NAME, BUS_PROPERTY_NAME);
         properties.put(BUS_PROPERTY_NAME, this);
         
         ResourceResolver propertiesResolver = new PropertiesResolver(properties);
@@ -91,9 +85,9 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
         extensions.put(ResourceManager.class, resourceManager);
 
         new ExtensionManagerImpl(BUS_EXTENSION_RESOURCE, 
-                                                    Thread.currentThread().getContextClassLoader(),
-                                                    extensions,
-                                                    resourceManager);
+                                 Thread.currentThread().getContextClassLoader(),
+                                 extensions,
+                                 resourceManager);
         
         state = State.INITIAL;
         
@@ -115,10 +109,6 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
 
     public <T> void setExtension(T extension, Class<T> extensionType) {
         extensions.put(extensionType, extension);
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
     }
 
     public String getId() {
@@ -160,5 +150,27 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
     
     protected State getState() {
         return state;
+    }
+    
+    private String getBusId(Map<String, Object> properties) {
+
+        String busId = null;
+
+        // first check properties
+        if (null != properties) {
+            busId = (String)properties.get(BUS_ID_PROPERTY_NAME);
+            if (null != busId && !"".equals(busId)) {
+                return busId;
+            }
+        }
+
+        // next check system properties
+        busId = System.getProperty(BUS_ID_PROPERTY_NAME);
+        if (null != busId && !"".equals(busId)) {
+            return busId;
+        }
+
+        // otherwise use default
+        return DEFAULT_BUS_ID;
     }
 }

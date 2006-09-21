@@ -41,9 +41,9 @@
         <module>core</module>
         <module>transports/local</module>
         <module>databinding/jaxb</module>
+        <module>bindings</module>
         <module>frontend/jaxws</module>
         <module>frontend/js</module>
-        <module>bindings</module>
         <module>transports/http</module>
         <module>transports/jms</module>
         <module>ws/addr</module>

@@ -167,6 +167,9 @@ public class WSDLManagerImpl implements WSDLManager {
             String parentType = st.nextToken();
             String elementType = st.nextToken();
             try {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Registering extension: " + elementType + " for parent: " + parentType);
+                }
                 JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
                                 .getClassLoader());
             } catch (ClassNotFoundException ex) {

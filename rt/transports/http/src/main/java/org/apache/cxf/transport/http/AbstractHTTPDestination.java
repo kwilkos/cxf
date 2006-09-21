@@ -21,6 +21,7 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -165,6 +167,13 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
         if (!isSetServer()) {
             setServer(new HTTPServerPolicy());
         }
+        List <ConfigurationProvider> providers = getOverwriteProviders();
+        if (null == providers) {
+            providers = new ArrayList<ConfigurationProvider>();
+        }
+        ConfigurationProvider p = new ServiceModelHttpConfigurationProvider(endpointInfo, true);
+        providers.add(p);
+        setOverwriteProviders(providers);
     }
 
     void setPolicies(Map<String, List<String>> headers) {
