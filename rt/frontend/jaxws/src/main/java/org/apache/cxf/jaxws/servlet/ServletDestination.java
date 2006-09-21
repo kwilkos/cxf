@@ -77,7 +77,6 @@ public class ServletDestination implements Destination {
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
-    //protected final HTTPDestinationConfiguration config;
     protected final EndpointInfo endpointInfo;
     protected final EndpointReferenceType reference;
     protected String name;
@@ -105,13 +104,7 @@ public class ServletDestination implements Destination {
         
         reference = ref;
         
-        // get url (publish address) from endpoint reference
-        /*nurl = new URL(EndpointReferenceUtils.getAddress(ref));
-        
-        
-        name = nurl.getPath();*/
-
-        
+             
     }
 
     /**
@@ -252,7 +245,7 @@ public class ServletDestination implements Destination {
     protected void doService(HttpServletRequest req, HttpServletResponse resp)
         throws IOException {
           
-         
+             
         if ("GET".equals(req.getMethod())) {
             doGet(req, resp);
         } else {
@@ -296,7 +289,7 @@ public class ServletDestination implements Destination {
     private void doGet(HttpServletRequest req, HttpServletResponse resp) {
         try {
                         
-            
+                        
             resp.setHeader("Content-Type", "text/xml");
             
             OutputStream os = resp.getOutputStream();
@@ -437,9 +430,9 @@ public class ServletDestination implements Destination {
             if (i != null) {
                 int status = i.intValue();
                 if (status == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    response.setStatus(status, "Fault Occurred");
+                    response.sendError(status, "Fault Occurred");
                 } else if (status == HttpURLConnection.HTTP_ACCEPTED) {
-                    response.setStatus(status, "Accepted");
+                    response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 } else {
                     response.setStatus(status);
                 }

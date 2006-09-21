@@ -249,40 +249,21 @@ public class CXFServlet extends HttpServlet {
     }
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        System.out.println("do post is invoked");
         try {
             ((ServletDestination)ep.getServer().getDestination()).doService(request, response);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*ServletServerTransport tp = servantMap.get(request.getPathInfo());
-        if (tp == null) {
-            throw new ServletException("Unknown servlet mapping " + request.getPathInfo());
-        }
-        try {
-            tp.doPost(request, response);
-        } catch (IOException ex) {
-            throw new ServletException(ex.getMessage());
-        }*/
+      
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        System.out.println("do get is invoked");
         try {
             ((ServletDestination)servletTransportFactory.
                 getDestination(ei)).doService(request, response);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*ServletServerTransport tp = servantMap.get(request.getPathInfo());
-        if (tp == null) {
-            throw new ServletException("Unknown servlet mapping " + request.getPathInfo());
-        }
-        try {
-            tp.doGet(request, response);
-        } catch (IOException ex) {
-            throw new ServletException(ex.getMessage());
-        }*/
     }
 
 }
