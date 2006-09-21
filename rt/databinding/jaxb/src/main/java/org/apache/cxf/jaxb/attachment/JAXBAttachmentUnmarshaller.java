@@ -36,8 +36,9 @@ import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBAttachmentUnmarshaller.class);
-    
+
     private Message message;
+
     private AttachmentDeserializer ad;
 
     public JAXBAttachmentUnmarshaller(Message messageParam) {
@@ -81,36 +82,36 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     @Override
     public boolean isXOPPackage() {
-        String contentTypeOfSoapBodyPart;
-        String typeOfSoapBodyPart;
+        String contentTypeOfSoapBodyPart;        
         Attachment primaryMimePart = message.getContent(Attachment.class);
         if (primaryMimePart == null) {
             return false;
         } else {
             contentTypeOfSoapBodyPart = primaryMimePart.getHeader("Content-Type");
         }
-        if ("application/xop+xml".equals(contentTypeOfSoapBodyPart)) {
-            typeOfSoapBodyPart = primaryMimePart.getHeader("type");
-            if (typeOfSoapBodyPart.indexOf("application/soap+xml") >= 0) {
+        if (contentTypeOfSoapBodyPart != null
+                        && contentTypeOfSoapBodyPart.indexOf("application/xop+xml") >= 0) {
+
+            if (contentTypeOfSoapBodyPart.indexOf("application/soap+xml") >= 0) {
                 return true;
-            } else if (typeOfSoapBodyPart.indexOf("text/xml") >= 0) {
+            } else if (contentTypeOfSoapBodyPart.indexOf("text/xml") >= 0) {
                 return true;
             }
         }
         return false;
 
     }
-    
+
     private Attachment getAttachment(String contentId) {
         Attachment att = null;
         try {
             att = ad.getAttachment(contentId);
         } catch (MessagingException me) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT",
-                                                                   LOG, contentId), me);
+            throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT", LOG,
+                            contentId), me);
         } catch (IOException ioe) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT",
-                                                                   LOG, contentId), ioe);
+            throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT", LOG,
+                            contentId), ioe);
         }
         if (att == null) {
             throw new IllegalArgumentException("Attachment " + contentId + " was not found.");

@@ -175,6 +175,9 @@
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/mtom_xop.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_bare.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>

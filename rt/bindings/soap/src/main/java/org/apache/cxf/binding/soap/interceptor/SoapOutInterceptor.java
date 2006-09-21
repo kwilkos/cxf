@@ -86,12 +86,12 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
             // Calling for Wrapped/RPC/Doc/ Interceptor for writing SOAP body
             message.getInterceptorChain().doIntercept(message);
-            xtw.writeEndElement();
-            
+            xtw.writeEndElement();            
             // Write Envelop end element
             xtw.writeEndElement();
             
             xtw.flush();
+            
         } catch (XMLStreamException e) {
             throw new SoapFault(
                 new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, SoapFault.SENDER);

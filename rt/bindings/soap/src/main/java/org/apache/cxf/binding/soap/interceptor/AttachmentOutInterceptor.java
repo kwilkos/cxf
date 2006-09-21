@@ -42,7 +42,7 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
 
     public AttachmentOutInterceptor() {
         super();
-        setPhase(Phase.WRITE);
+        setPhase(Phase.PRE_STREAM);
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
@@ -56,6 +56,7 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
         
         AbstractCachedOutputStream ops = (AbstractCachedOutputStream) os;
         try {
+            ops.getOut().flush();
             Collection<Attachment> attachments = message.getAttachments();
             if (attachments.size() > 0) {
                 CachedOutputStream cos = new CachedOutputStream();
@@ -63,6 +64,7 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
                 as.serializeMultipartMessage();
                 ops.resetOut(cos, false);
             }           
+            ops.flush();       
         } catch (IOException ioe) {
             throw new SoapFault(new Message("ATTACHMENT_IO", BUNDLE, ioe.toString()), 
                                 SoapFault.ATTACHMENT_IO);

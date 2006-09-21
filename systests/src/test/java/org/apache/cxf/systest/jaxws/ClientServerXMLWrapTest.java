@@ -87,12 +87,23 @@ public class ClientServerXMLWrapTest extends TestCase {
             reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
             assertEquals(response2, reply);
-            
+
             greeter.greetMeOneWay(System.getProperty("user.name"));
-            
+
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
     }
     
+// public void testXMLFault() throws Exception {
+//        XMLService service = new XMLService();
+//        assertNotNull(service);
+//        try {
+//            Greeter greeter = service.getPort(portName, Greeter.class);            
+//            greeter.pingMe();            
+//        } catch (UndeclaredThrowableException ex) {
+//            System.out.println(ex.getMessage());
+//            throw (Exception) ex.getCause();
+//        }
+//    }
 }

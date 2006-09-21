@@ -34,7 +34,6 @@ import javax.activation.DataSource;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
-import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.binding.attachment.AttachmentDataSource;
 import org.apache.cxf.binding.attachment.AttachmentImpl;
@@ -42,17 +41,22 @@ import org.apache.cxf.binding.attachment.CachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
-
 public class AttachmentDeserializer {
 
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
+
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
+
     public static final int THRESHHOLD = 1024 * 100;
 
     private PushbackInputStream stream;
-    private String boundary;    
+
+    private String boundary;
+
     private String contentType;
+
     private List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
+
     private Message message;
 
     public AttachmentDeserializer(Message messageParam) {
@@ -64,17 +68,17 @@ public class AttachmentDeserializer {
         Map httpHeaders;
         // processing message if its multi-part/form-related
         try {
-            httpHeaders = (Map)message.get(MessageContext.HTTP_REQUEST_HEADERS);
+            httpHeaders = (Map)message.get(Message.PROTOCOL_HEADERS);
             if (httpHeaders == null) {
                 return false;
             } else {
-                List ctList = (List)httpHeaders.get("Content-Type");
+                List ctList = (List) httpHeaders.get("Content-Type");
                 if (ctList != null) {
                     for (int x = 0; x < ctList.size(); x++) {
                         if (x == 0) {
-                            contentType = (String)ctList.get(x);
+                            contentType = (String) ctList.get(x);
                         } else {
-                            contentType += "; " + (String)ctList.get(x);
+                            contentType += "; " + (String) ctList.get(x);
                         }
                     }
                 }
@@ -162,7 +166,7 @@ public class AttachmentDeserializer {
             }
         }
         Attachment att = readMimePart();
-        while (att != null && att.getId() != null) {            
+        while (att != null && att.getId() != null) {
             attachments.add(att);
             if (att.getId().equals(cid)) {
                 return att;
@@ -180,30 +184,28 @@ public class AttachmentDeserializer {
      * @param boundary
      * @throws MessagingException
      */
-    private static boolean readTillFirstBoundary(PushbackInputStream pushbackInStream, byte[] boundaryParam)
-        throws IOException {
+    private static boolean readTillFirstBoundary(PushbackInputStream pbs, byte[] bp) throws IOException {
 
         // work around a bug in PushBackInputStream where the buffer isn't
         // initialized
         // and available always returns 0.
-        int value = pushbackInStream.read();
-        pushbackInStream.unread(value);
+        int value = pbs.read();
+        pbs.unread(value);
         while (value != -1) {
-            value = pushbackInStream.read();
-            if ((byte)value == boundaryParam[0]) {
+            value = pbs.read();
+            if ((byte) value == bp[0]) {
                 int boundaryIndex = 0;
-                while (value != -1 && (boundaryIndex < boundaryParam.length)
-                       && ((byte)value == boundaryParam[boundaryIndex])) {
+                while (value != -1 && (boundaryIndex < bp.length) && ((byte) value == bp[boundaryIndex])) {
 
-                    value = pushbackInStream.read();
+                    value = pbs.read();
                     if (value == -1) {
                         throw new IOException("Unexpected End while searching for first Mime Boundary");
                     }
                     boundaryIndex++;
                 }
-                if (boundaryIndex == boundaryParam.length) {
+                if (boundaryIndex == bp.length) {
                     // boundary found
-                    pushbackInStream.read();
+                    pbs.read();
                     return true;
                 }
             }
@@ -234,8 +236,11 @@ public class AttachmentDeserializer {
         }
         AttachmentImpl att = new AttachmentImpl(id, dh);
         for (Enumeration<?> e = headers.getAllHeaders(); e.hasMoreElements();) {
-            Header header = (Header)e.nextElement();
+            Header header = (Header) e.nextElement();
             att.setHeader(header.getName(), header.getValue());
+        }
+        if (ct.indexOf("xop+xml") > 0) {
+            att.setXOP(true);
         }
         return att;
     }
@@ -257,7 +262,9 @@ public class AttachmentDeserializer {
     private class MimeBodyPartInputStream extends InputStream {
 
         PushbackInputStream inStream;
+
         boolean boundaryFound;
+
         byte[] boundary;
 
         public MimeBodyPartInputStream(PushbackInputStream inStreamParam, byte[] boundaryParam) {
@@ -284,19 +291,19 @@ public class AttachmentDeserializer {
                     return 13;
                 } else {
                     value = inStream.read();
-                    if ((byte)value != boundary[0]) {
+                    if ((byte) value != boundary[0]) {
                         inStream.unread(value);
                         inStream.unread(10);
                         return 13;
                     }
                 }
-            } else if ((byte)value != boundary[0]) {
+            } else if ((byte) value != boundary[0]) {
                 return value;
             }
             // read value is the first byte of the boundary. Start matching the
             // next characters to find a boundary
             int boundaryIndex = 0;
-            while ((boundaryIndex < boundary.length) && ((byte)value == boundary[boundaryIndex])) {
+            while ((boundaryIndex < boundary.length) && ((byte) value == boundary[boundaryIndex])) {
                 value = inStream.read();
                 boundaryIndex++;
             }
@@ -323,4 +330,10 @@ public class AttachmentDeserializer {
         }
     }
 
+//    private static void printStream(InputStream in) throws IOException {
+//        for (int i = in.read(); i != -1; i = in.read()) {
+//            System.out.write(i);
+//        }
+//        System.out.println("print stream");
+//    }
 }

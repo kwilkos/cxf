@@ -80,7 +80,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public boolean equals(Object obj) {
         return currentStream.equals(obj);
     }
-
+    
     /**
      * Replace the original stream with the new one, when with Attachment, needs
      * to replace the xml writer stream with the stream used by
@@ -91,31 +91,42 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      * @throws IOException
      */
     public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
-        if (inmem) {
-            ByteArrayOutputStream byteOut = (ByteArrayOutputStream)currentStream;
-            if (copyOldContent && byteOut.size() > 0) {
-                byteOut.writeTo(out);
-            }
+        ByteArrayOutputStream byteOut = null;
+        if (currentStream instanceof AbstractCachedOutputStream) {
+            AbstractCachedOutputStream ac = (AbstractCachedOutputStream) currentStream;
+            InputStream in = ac.getInputStream();
+            copyStream(in, out);
         } else {
-            // read the file
-            currentStream.close();
-            FileInputStream fin = new FileInputStream(tempFile);
-            if (copyOldContent) {
-                byte[] buffer = new byte[4096];
-                int len = 0;
-                int pos = 0;
-                while (true) {
-                    len = fin.read(buffer, 0, 4096);
-                    if (len != -1) {
-                        out.write(buffer, 0, len);
-                        pos += len;
-                    } else {
-                        break;
-                    }
+            if (inmem) {
+                byteOut = (ByteArrayOutputStream) currentStream;
+                if (copyOldContent && byteOut.size() > 0) {
+                    byteOut.writeTo(out);
+                }
+            } else {
+                // read the file
+                currentStream.close();
+                FileInputStream fin = new FileInputStream(tempFile);
+                if (copyOldContent) {
+                    copyStream(fin, out);
                 }
             }
         }
         currentStream = out;
+    }
+
+    private void copyStream(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[4096];
+        int len = 0;
+        int pos = 0;
+        while (true) {
+            len = in.read(buffer, 0, 4096);
+            if (len != -1) {
+                out.write(buffer, 0, len);
+                pos += len;
+            } else {
+                break;
+            }
+        }
     }
 
     /**

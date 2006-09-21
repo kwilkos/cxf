@@ -20,8 +20,10 @@
 package org.apache.cxf.interceptor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -43,6 +45,13 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class BareInInterceptor extends AbstractInDatabindingInterceptor {
 
+    private static Set<String> filter = new HashSet<String>();
+    
+    static {
+        filter.add("void");
+        filter.add("javax.activation.DataHandler");
+    }
+    
     public BareInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
@@ -78,7 +87,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                     }
                     if (streamParaQName.equals(paraQName)) {
                         Class cls = (Class)mpi.getProperty(Class.class.getName());
-                        if (cls != null && !cls.getName().equals("void")) {
+                        if (cls != null && !filter.contains(cls.getName())) {
                             o = dr.read(paraQName, message, cls);
                         } else {
                             o = dr.read(paraQName, message, null);

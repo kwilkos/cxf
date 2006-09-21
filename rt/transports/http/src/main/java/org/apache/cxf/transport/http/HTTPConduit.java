@@ -181,7 +181,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                 }
             }
         }
-
+        message.put(HTTP_CONNECTION, connection);
         setPolicies(message, headers);
      
         message.setContent(OutputStream.class,
