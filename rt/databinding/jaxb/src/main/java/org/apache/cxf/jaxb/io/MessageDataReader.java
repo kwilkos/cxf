@@ -51,7 +51,7 @@ public class MessageDataReader implements DataReader<Message> {
     public Object read(QName name, Message input, Class cls) {
         JAXBAttachmentUnmarshaller au = null;        
         if (input.get(AttachmentDeserializer.class) != null) {
-            au = new JAXBAttachmentUnmarshaller(input); 
+            au = new JAXBAttachmentUnmarshaller(input);            
         }
         Object source = null;
         XMLStreamReader xsr = (XMLStreamReader)input.getContent(XMLStreamReader.class);

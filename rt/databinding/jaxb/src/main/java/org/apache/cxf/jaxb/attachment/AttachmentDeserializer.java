@@ -68,7 +68,7 @@ public class AttachmentDeserializer {
         Map httpHeaders;
         // processing message if its multi-part/form-related
         try {
-            httpHeaders = (Map)message.get(Message.PROTOCOL_HEADERS);
+            httpHeaders = (Map) message.get(Message.PROTOCOL_HEADERS);
             if (httpHeaders == null) {
                 return false;
             } else {
@@ -87,6 +87,7 @@ public class AttachmentDeserializer {
                     return false;
                 }
             }
+            //printStream(input);
             if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
                 int i = contentType.indexOf("boundary=\"");
                 int end;
@@ -143,8 +144,7 @@ public class AttachmentDeserializer {
     public void processSoapBody() throws MessagingException, IOException {
 
         Attachment soapMimePart = readMimePart();
-        message.setContent(Attachment.class, soapMimePart);
-
+        message.setContent(Attachment.class, soapMimePart);        
         InputStream in = soapMimePart.getDataHandler().getInputStream();
         message.setContent(InputStream.class, in);
     }
@@ -237,10 +237,11 @@ public class AttachmentDeserializer {
         AttachmentImpl att = new AttachmentImpl(id, dh);
         for (Enumeration<?> e = headers.getAllHeaders(); e.hasMoreElements();) {
             Header header = (Header) e.nextElement();
+            if (header.getName().equalsIgnoreCase("Content-Transfer-Encoding")
+                            && header.getValue().equalsIgnoreCase("binary")) {
+                att.setXOP(true);
+            }
             att.setHeader(header.getName(), header.getValue());
-        }
-        if (ct.indexOf("xop+xml") > 0) {
-            att.setXOP(true);
         }
         return att;
     }
@@ -330,10 +331,10 @@ public class AttachmentDeserializer {
         }
     }
 
-//    private static void printStream(InputStream in) throws IOException {
-//        for (int i = in.read(); i != -1; i = in.read()) {
-//            System.out.write(i);
-//        }
-//        System.out.println("print stream");
-//    }
+    protected static void printStream(InputStream in) throws IOException {
+        for (int i = in.read(); i != -1; i = in.read()) {
+            System.out.write(i);
+        }
+        System.out.println("print stream");
+    }
 }

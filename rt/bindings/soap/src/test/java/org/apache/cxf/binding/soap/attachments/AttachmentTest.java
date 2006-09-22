@@ -19,14 +19,17 @@
 
 package org.apache.cxf.binding.soap.attachments;
 
+import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.mail.MessagingException;
 import javax.xml.bind.JAXBContext;
@@ -104,7 +107,7 @@ public class AttachmentTest extends TestBase {
 
             JAXBAttachmentUnmarshaller jau = new JAXBAttachmentUnmarshaller(soapMessage);
             u.setAttachmentUnmarshaller(jau);
-
+            System.out.println(jau.isXOPPackage());
             XMLStreamReader r = (XMLStreamReader) soapMessage.getContent(XMLStreamReader.class);
             while (r.hasNext()) {
                 r.nextTag();
@@ -136,8 +139,8 @@ public class AttachmentTest extends TestBase {
         assertTrue(obj instanceof DetailType);
         DetailType detailType = (DetailType) obj;
         assertTrue(detailType.getSName().equals("hello world"));
-        // needs futhur investigation
-        // assertTrue(detailType.getPhoto() instanceof Image);
+        //needs futhur investigation
+        assertTrue(detailType.getPhoto() instanceof Image);
         assertTrue(detailType.getSound().length > 0);
     }
 
@@ -200,7 +203,12 @@ public class AttachmentTest extends TestBase {
 
             Map<String, List<String>> mimeHttpHeaders = new HashMap<String, List<String>>();
             soapMessage.put(Message.PROTOCOL_HEADERS, mimeHttpHeaders);
-            mimeHttpHeaders.put("Content-Type", Arrays.asList(contentType));
+            StringTokenizer stk = new StringTokenizer(contentType, ";");
+            List<String> headers = new ArrayList<String>(); 
+            while (stk.hasMoreTokens()) {
+                headers.add(stk.nextToken().trim());
+            }
+            mimeHttpHeaders.put("Content-Type", headers);
             mimeHttpHeaders.put("Content-Description", Arrays.asList("XML document Multi-Media attachment"));
 
             soapMessage.getInterceptorChain().doIntercept(soapMessage);

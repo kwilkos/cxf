@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
-import org.apache.cxf.binding.attachment.CachedOutputStream;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -34,7 +33,6 @@ import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxb.attachment.AttachmentSerializer;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.phase.Phase;
-
 
 public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
 
@@ -46,28 +44,41 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
-        // Calling for soap out interceptor        
-        message.getInterceptorChain().doIntercept(message);
+        
         OutputStream os = message.getContent(OutputStream.class);
+        CachedStream cs = new CachedStream();
+        message.setContent(OutputStream.class, cs);
         
-        if (!(os instanceof AbstractCachedOutputStream)) {
-            return;
-        }
-        
-        AbstractCachedOutputStream ops = (AbstractCachedOutputStream) os;
+        // Calling for soap out interceptor
+        message.getInterceptorChain().doIntercept(message);
+        // Set back the output stream
+        message.setContent(OutputStream.class, os);        
         try {
-            ops.getOut().flush();
             Collection<Attachment> attachments = message.getAttachments();
+            cs.flush();
             if (attachments.size() > 0) {
-                CachedOutputStream cos = new CachedOutputStream();
-                AttachmentSerializer as = new AttachmentSerializer(message, ops.getInputStream(), cos);
+                AttachmentSerializer as = new AttachmentSerializer(message, cs.getInputStream(), os);
                 as.serializeMultipartMessage();
-                ops.resetOut(cos, false);
-            }           
-            ops.flush();       
+            } else {
+                // get wire connection, and copy xml infoset directly into it
+                os.flush();
+                AbstractCachedOutputStream.copyStream(cs.getInputStream(), os, 64 * 1024);                
+            }
         } catch (IOException ioe) {
             throw new SoapFault(new Message("ATTACHMENT_IO", BUNDLE, ioe.toString()), 
-                                SoapFault.ATTACHMENT_IO);
+                            SoapFault.ATTACHMENT_IO);
+        }
+    }
+
+    private class CachedStream extends AbstractCachedOutputStream {
+        protected void doFlush() throws IOException {
+            currentStream.flush();
+        }
+
+        protected void doClose() throws IOException {
+        }
+
+        protected void onWrite() throws IOException {
         }
     }
 }

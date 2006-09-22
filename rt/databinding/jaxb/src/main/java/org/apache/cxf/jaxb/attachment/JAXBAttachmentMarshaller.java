@@ -37,7 +37,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
     private Message message;
     private Collection<Attachment> atts;
-    private boolean isXop = true;
+    private boolean isXop;
 
     public JAXBAttachmentMarshaller(Message messageParam) {
         super();
@@ -57,7 +57,8 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         } catch (UnsupportedEncodingException e) {
             throw new Fault(e);
         }
-        Attachment att = new AttachmentImpl(id, handler);
+        AttachmentImpl att = new AttachmentImpl(id, handler);
+        att.setXOP(this.isXop);
         atts.add(att);
 
         return "cid:" + id;
@@ -72,7 +73,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
             throw new Fault(e);
         }
         AttachmentImpl att = new AttachmentImpl(id, handler);
-        att.setXOP(true);
+        att.setXOP(this.isXop);
         atts.add(att);
 
         return "cid:" + id;
@@ -82,7 +83,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
     public String addSwaRefAttachment(DataHandler handler) {
         String id = UUID.randomUUID() + "@apache.org";
         AttachmentImpl att = new AttachmentImpl(id, handler);
-        att.setXOP(true);
+        att.setXOP(this.isXop);
         atts.add(att);
         return id;
     }

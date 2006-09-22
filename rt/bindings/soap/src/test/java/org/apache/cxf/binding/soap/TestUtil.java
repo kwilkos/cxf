@@ -51,7 +51,7 @@ public final class TestUtil {
         detailObj.setSName("hello world");        
                 
         URL url1 = clazz.getResource("my.wav");
-        URL url2 = clazz.getResource("me.jpg");
+        URL url2 = clazz.getResource("me.bmp");
         Image image = ImageIO.read(new File(url2.getFile()));
         detailObj.setPhoto(image);
         File file = new File(url1.getFile());
@@ -76,8 +76,8 @@ public final class TestUtil {
 
         // setup the message attachments
         Collection<Attachment> attachments = soapMessage.getAttachments();
-        String cidAtt1 = "cid:http://cxf.apache.org/me.jpg";
-        bads = new ByteArrayDataSource(clazz.getResourceAsStream("me.jpg"), "image/jpg");
+        String cidAtt1 = "cid:http://cxf.apache.org/me.bmp";
+        bads = new ByteArrayDataSource(clazz.getResourceAsStream("me.bmp"), "image/bmp");
         AttachmentImpl att1 = new AttachmentImpl(cidAtt1, new DataHandler(bads));
         att1.setXOP(true);
         attachments.add(att1);

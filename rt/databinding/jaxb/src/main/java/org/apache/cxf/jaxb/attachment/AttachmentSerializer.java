@@ -19,27 +19,25 @@
 
 package org.apache.cxf.jaxb.attachment;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.binding.attachment.AttachmentUtil;
-import org.apache.cxf.common.util.Base64Exception;
-import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
 public class AttachmentSerializer {
 
+    private static final String LINE_SEP = System.getProperty("line.separator");
+    
     private Message message;
 
     private InputStream in;
@@ -72,9 +70,8 @@ public class AttachmentSerializer {
             throw new Fault(e);
         }
         try {
-            PrintWriter pw = new PrintWriter(out);
-            Map<String, List<String>> headers = (Map<String, List<String>>) message
-                            .get(Message.PROTOCOL_HEADERS);
+            Map<String, List<String>> headers = CastUtils.cast((Map<?, ?>) message
+                            .get(Message.PROTOCOL_HEADERS));
             if (headers == null) {
                 // this is the case of server out (response)
                 headers = new HashMap<String, List<String>>();
@@ -82,53 +79,50 @@ public class AttachmentSerializer {
             }
             AttachmentUtil.setMimeRequestHeader(headers, message, soapPartId,
                             "soap message with attachments", boundary);
-
+            //finish prepare header, call flush to flush headers and resetOut to get wire stream
+            out.flush();
+            
             String soapHeader = AttachmentUtil.getSoapPartHeader(message, soapPartId, "");
-            pw.println("--" + boundary);
-            pw.println(soapHeader);
-            LineNumberReader lnr = new LineNumberReader(new InputStreamReader(in));
-            for (String s = lnr.readLine(); s != null; s = lnr.readLine()) {
-                pw.println(s);
-            }
-            pw.println();
+            out.write(("--" + boundary + LINE_SEP).getBytes());
+            out.write(soapHeader.getBytes());            
+            out.write(LINE_SEP.getBytes());            
+            AbstractCachedOutputStream.copyStream(in, out, 64 * 1024);
+            if (!System.getProperty("file.separator").equals("/")) {
+                out.write(LINE_SEP.getBytes());
+            }            
             for (Attachment att : message.getAttachments()) {
                 soapHeader = AttachmentUtil.getAttchmentPartHeader(att);
-                pw.println("--" + boundary);
-                pw.println(soapHeader);
+                out.write(("--" + boundary + LINE_SEP).getBytes());
+                out.write(soapHeader.getBytes());                
+                out.write(LINE_SEP.getBytes());                
                 Object content = att.getDataHandler().getContent();
                 if (content instanceof InputStream) {
-                    InputStream ins = (InputStream) content;
+                    InputStream insAtt = (InputStream) content;
                     if (!att.isXOP()) {
-                        byte[] buffer = new byte[4096];
-                        int pos = 0;
-                        for (int len = ins.read(buffer); len != -1; len = ins.read(buffer)) {
-                            Base64Utility.encode(buffer, pos, len, pw);
-                            pos = pos + len;
-                        }
+                        AbstractCachedOutputStream.copyStreamWithBase64Encoding(insAtt, out, 64 * 1024);
                     } else {
-                        for (int i = ins.read(); i != -1; i = ins.read()) {
-                            pw.write(i);
-                        }
+                        AbstractCachedOutputStream.copyStream(insAtt, out, 64 * 1024);
                     }
-                } else {
-                    pw.flush();
+                } else {                    
                     ObjectOutputStream oos = new ObjectOutputStream(out);
                     oos.writeObject(content);
                 }
-                pw.println();
+                if (!System.getProperty("file.separator").equals("/")) {
+                    out.write(LINE_SEP.getBytes());
+                }
             }
-            pw.println("--" + boundary);
-            pw.flush();
+            out.write(("--" + boundary).getBytes());
+            out.write(LINE_SEP.getBytes());
+            out.flush();            
+            // build contentType string for return
             List<String> contentType = (List<String>) headers.get("Content-Type");
             StringBuffer sb = new StringBuffer(120);
             for (String s : contentType) {
                 sb.append(s);
             }
             return sb.toString();
-        } catch (IOException ioe) {
-            throw new Fault(ioe);
-        } catch (Base64Exception be) {
-            throw new Fault(be);
+        } catch (Exception e) {
+            throw new Fault(e);
         }
 
     }

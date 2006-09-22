@@ -54,7 +54,6 @@ public class XMLMessageDataReaderTest extends TestCase {
 
         Object source = reader.read(null, xmlMsg, DOMSource.class);
         assertNotNull(source);
-        System.out.println(XMLUtils.toString((Source)source));
         assertTrue(XMLUtils.toString((Source)source).contains(expected));
     }
 

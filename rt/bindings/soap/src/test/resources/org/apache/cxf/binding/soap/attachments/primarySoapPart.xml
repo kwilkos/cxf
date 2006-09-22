@@ -22,9 +22,9 @@
 	<soap:Body>
 		<Detail xmlns:m='http://example.org/stuff'>
 			<sName>hello world</sName>
-			<photo xmlmime:contentType='image/png'>
+			<photo xmlmime:contentType='image/bmp'>
 				<xop:Include xmlns:xop='http://www.w3.org/2004/08/xop/include'
-					href='cid:http://cxf.apache.org/me.jpg'/>
+					href='cid:http://cxf.apache.org/me.bmp'/>
 			</photo>
 			<sound xmlmime:contentType='audio/x-wav'>
 				<xop:Include xmlns:xop='http://www.w3.org/2004/08/xop/include'

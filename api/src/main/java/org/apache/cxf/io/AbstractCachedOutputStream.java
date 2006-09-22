@@ -29,14 +29,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+
+import org.apache.cxf.common.util.Base64Utility;
 
 public abstract class AbstractCachedOutputStream extends OutputStream {
 
     protected OutputStream currentStream;
 
-    private long threshold = 8 * 1024;
+    private long threshold = 64 * 1024;
 
     private int totalLength;
 
@@ -80,48 +83,72 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public boolean equals(Object obj) {
         return currentStream.equals(obj);
     }
-    
+
     /**
      * Replace the original stream with the new one, when with Attachment, needs
      * to replace the xml writer stream with the stream used by
      * AttachmentSerializer Or Copy the cached output stream to the "real"
      * output stream, i.e. onto the wire.
      * 
-     * @param realOS the real output stream
+     * @param realOS
+     *            the real output stream
      * @throws IOException
      */
-    public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
-        ByteArrayOutputStream byteOut = null;
+    public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {        
         if (currentStream instanceof AbstractCachedOutputStream) {
             AbstractCachedOutputStream ac = (AbstractCachedOutputStream) currentStream;
             InputStream in = ac.getInputStream();
-            copyStream(in, out);
+            copyStream(in, out, (int) threshold);
         } else {
             if (inmem) {
-                byteOut = (ByteArrayOutputStream) currentStream;
-                if (copyOldContent && byteOut.size() > 0) {
-                    byteOut.writeTo(out);
+                if (currentStream instanceof ByteArrayOutputStream) {
+                    ByteArrayOutputStream byteOut = (ByteArrayOutputStream) currentStream;
+                    if (copyOldContent && byteOut.size() > 0) {
+                        byteOut.writeTo(out);
+                    }
+                } else if (currentStream instanceof PipedOutputStream) {
+                    PipedOutputStream pipeOut = (PipedOutputStream) currentStream;
+                    copyStream(new PipedInputStream(pipeOut), out, (int) threshold);
+                } else {
+                    throw new IOException("Unknown format of currentStream");
                 }
             } else {
                 // read the file
                 currentStream.close();
                 FileInputStream fin = new FileInputStream(tempFile);
                 if (copyOldContent) {
-                    copyStream(fin, out);
+                    copyStream(fin, out, (int) threshold);
                 }
             }
         }
         currentStream = out;
     }
 
-    private void copyStream(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[4096];
+    public static void copyStream(InputStream in, OutputStream out, int bufferSize) throws IOException {
+        byte[] buffer = new byte[bufferSize];
         int len = 0;
         int pos = 0;
         while (true) {
-            len = in.read(buffer, 0, 4096);
+            len = in.read(buffer, 0, bufferSize);
             if (len != -1) {
                 out.write(buffer, 0, len);
+                pos += len;
+            } else {
+                break;
+            }
+        }
+    }
+
+    public static void copyStreamWithBase64Encoding(InputStream in, OutputStream out, 
+                    int bufferSize) throws Exception {
+        OutputStreamWriter osw = new OutputStreamWriter(out);
+        byte[] buffer = new byte[bufferSize];
+        int len = 0;
+        int pos = 0;
+        while (true) {
+            len = in.read(buffer, 0, bufferSize);
+            if (len != -1) {
+                Base64Utility.encode(buffer, pos, len, osw);
                 pos += len;
             } else {
                 break;
@@ -149,7 +176,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public void write(byte[] b, int off, int len) throws IOException {
         onWrite();
         this.totalLength += len;
-        if (inmem && totalLength > threshold) {
+        if (inmem && totalLength > threshold && currentStream instanceof ByteArrayOutputStream) {
             createFileOutputStream();
         }
         currentStream.write(b, off, len);
@@ -158,7 +185,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public void write(byte[] b) throws IOException {
         onWrite();
         this.totalLength += b.length;
-        if (inmem && totalLength > threshold) {
+        if (inmem && totalLength > threshold && currentStream instanceof ByteArrayOutputStream) {
             createFileOutputStream();
         }
         currentStream.write(b);
@@ -167,14 +194,14 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public void write(int b) throws IOException {
         onWrite();
         this.totalLength++;
-        if (inmem && totalLength > threshold) {
+        if (inmem && totalLength > threshold && currentStream instanceof ByteArrayOutputStream) {
             createFileOutputStream();
         }
         currentStream.write(b);
     }
 
     private void createFileOutputStream() throws IOException {
-        byte[] bytes = ((ByteArrayOutputStream)currentStream).toByteArray();
+        byte[] bytes = ((ByteArrayOutputStream) currentStream).toByteArray();
         if (outputDir == null) {
             tempFile = File.createTempFile("att", "tmp");
         } else {
@@ -192,9 +219,9 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public InputStream getInputStream() throws IOException {
         if (inmem) {
             if (currentStream instanceof ByteArrayOutputStream) {
-                return new ByteArrayInputStream(((ByteArrayOutputStream)currentStream).toByteArray());
+                return new ByteArrayInputStream(((ByteArrayOutputStream) currentStream).toByteArray());
             } else if (currentStream instanceof PipedOutputStream) {
-                return new PipedInputStream((PipedOutputStream)currentStream);
+                return new PipedInputStream((PipedOutputStream) currentStream);
             } else {
                 return null;
             }
