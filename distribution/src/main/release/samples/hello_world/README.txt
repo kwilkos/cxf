@@ -128,6 +128,9 @@ with Tomcat copy the war file into the directory
 <installationDirectory>/webapps.  The servlet container will
 extract the war and deploy the application.
 
+Make sure already copy all jars from CXF_HOME/lib to
+<TomcatInstallationDirectory>/shared/lib
+
 Using ant, run the client application with the command:
 
   ant client-servlet -Dbase.url=http://localhost:#

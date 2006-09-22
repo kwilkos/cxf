@@ -238,9 +238,6 @@
                 <webinf dir="${wsdl.dir}/..">
                     <include name="wsdl/@{wsdl}"/>
                 </webinf>
-                <lib dir="${cxf.home}/lib">
-                    <include name="*.jar"/>
-                </lib>
             </war>
         </sequential>
     </macrodef>

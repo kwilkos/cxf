@@ -62,3 +62,6 @@ Tomcat 5.5 or above.
 Be certain to start the servlet container under an environment in which
 the JAVA_HOME environment variable points to the JDK/JRE 5.0 installation
 and the JAVA_HOME bin directory is included in the system PATH.
+
+Make sure copy all jars from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
+.
