@@ -19,17 +19,19 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.message.Message;
 
 public class SpringBusFactoryTest extends TestCase {
 
-    public void testCustom() {
-       
-    }
     
     public void testDefault() {
         Bus bus = new SpringBusFactory().createBus();
@@ -42,5 +44,57 @@ public class SpringBusFactoryTest extends TestCase {
         } catch (BusException ex) {
             // expected
         }
+        
+        assertNull("Unexpected interceptors", bus.getInInterceptors());
+        assertNull("Unexpected interceptors", bus.getInFaultInterceptors());
+        assertNull("Unexpected interceptors", bus.getOutInterceptors());
+        assertNull("Unexpected interceptors", bus.getOutFaultInterceptors());
+        
     }
+    
+    public void testCustom() {
+        String cfgFile = "org/apache/cxf/bus/spring/resources/bus-overwrite.xml";
+        Bus bus = new SpringBusFactory().createBus(cfgFile, true);
+        assertNotNull(bus);
+        List<Interceptor> interceptors = bus.getInInterceptors();
+        assertEquals("Unexpected number of interceptors", 2, interceptors.size());
+        assertEquals("Unexpected interceptor", "in-a", interceptors.get(0).toString());
+        assertEquals("Unexpected interceptor", "in-b", interceptors.get(0).toString());
+        interceptors = bus.getInFaultInterceptors();
+        assertEquals("Unexpected number of interceptors", 1, interceptors.size());
+        assertEquals("Unexpected interceptor", "in-fault", interceptors.get(0).toString());
+        interceptors = bus.getOutFaultInterceptors();
+        assertEquals("Unexpected number of interceptors", 1, interceptors.size());
+        assertEquals("Unexpected interceptor", "out-fault", interceptors.get(0).toString());
+        interceptors = bus.getOutInterceptors();
+        assertEquals("Unexpected number of interceptors", 1, interceptors.size());
+        assertEquals("Unexpected interceptor", "out", interceptors.get(0).toString());
+        
+    }
+    
+    static class TestInterceptor implements Interceptor {
+
+        private String name;
+        
+        public TestInterceptor() {            
+        }
+        
+        public void setName(String n) {
+            name = n;
+        }
+               
+        @Override
+        public String toString() {
+            return name;
+        }
+        
+        public void handleFault(Message message) {  
+        }
+
+        public void handleMessage(Message message) throws Fault {   
+        }
+        
+    }
+     
+    
 }

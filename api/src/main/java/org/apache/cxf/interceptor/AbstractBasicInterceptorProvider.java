@@ -44,4 +44,22 @@ public abstract class AbstractBasicInterceptorProvider implements InterceptorPro
     public List<Interceptor> getOutInterceptors() {
         return out;
     }
+
+    public void setInInterceptors(List<Interceptor> interceptors) {
+        in = interceptors;
+    }
+
+    public void setInFaultInterceptors(List<Interceptor> interceptors) {
+        inFault = interceptors;
+    }
+
+    public void setOutInterceptors(List<Interceptor> interceptors) {
+        out = interceptors;
+    }
+
+    public void setOutFaultInterceptors(List<Interceptor> interceptors) {
+        outFault = interceptors;
+    }
+    
+    
 }

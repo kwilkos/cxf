@@ -71,6 +71,19 @@ public class SpringBusFactory implements BusFactory {
         
         List<String> cfgFileLocations = new ArrayList<String>();
         
+        if (null == cfgFile) {
+            cfgFile = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
+        }
+        if (null == cfgFile) {
+            cfgFile = Configurer.DEFAULT_USER_CFG_FILE;
+        }
+        ClassPathResource cpr = new ClassPathResource(cfgFile);
+        if (cpr.exists()) {
+            cfgFileLocations.add(cfgFile);
+        } else {
+            LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
+        }
+        
         if (includeDefaults) {
             try {
                 Enumeration<URL> resources = Thread.currentThread().getContextClassLoader()
@@ -88,18 +101,7 @@ public class SpringBusFactory implements BusFactory {
             }  
         }
         
-        if (null == cfgFile) {
-            cfgFile = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
-        }
-        if (null == cfgFile) {
-            cfgFile = Configurer.DEFAULT_USER_CFG_FILE;
-        }
-        ClassPathResource cpr = new ClassPathResource(cfgFile);
-        if (cpr.exists()) {
-            cfgFileLocations.add(cfgFile);
-        } else {
-            LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
-        }
+        
         
         String[] locations = new String[cfgFileLocations.size()];
         locations = cfgFileLocations.toArray(locations);
