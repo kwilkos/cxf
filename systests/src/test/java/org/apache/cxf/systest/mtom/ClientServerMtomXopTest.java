@@ -72,6 +72,12 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
         HelloService hs = new HelloService();
         Hello hello = hs.getPort(Hello.class);
         try {
+            InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
+            long fileSize = 0;
+            for (int i = pre.read(); i != -1; i = pre.read()) {
+                fileSize++;
+            }
+            
             ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(
                             "/wsdl/mtom_xop.wsdl"), "application/oct-stream");
             DataHandler dh = new DataHandler(bads);
@@ -82,7 +88,7 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
             for (int i = in.read(); i != -1; i = in.read()) {
                 count++;
             }
-            assertEquals("attachemnt length different", 5531, count);
+            assertEquals("attachemnt length different", fileSize, count);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
