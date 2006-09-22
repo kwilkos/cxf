@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.extension;
+package org.apache.cxf.bus.cxf.extension;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;

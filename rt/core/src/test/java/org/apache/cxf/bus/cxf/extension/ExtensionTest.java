@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.extension;
+package org.apache.cxf.bus.cxf.extension;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

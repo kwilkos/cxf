@@ -28,7 +28,7 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.EndpointImpl;

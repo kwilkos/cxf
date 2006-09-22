@@ -24,8 +24,10 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
@@ -37,12 +39,27 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     
     final Map<String, BindingFactory> bindingFactories;
     Properties factoryNamespaceMappings;
-    
-    @Resource
+       
     ExtensionManager extensionManager;
-   
+    Bus bus;
+     
     public BindingFactoryManagerImpl() throws BusException {
         bindingFactories = new ConcurrentHashMap<String, BindingFactory>();
+    }
+    
+    @Resource
+    public void setExtensionManager(ExtensionManager em) {
+        extensionManager = em;
+    }
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @PostConstruct
+    public void register() {
+        bus.setExtension(this, BindingFactoryManager.class);
     }
     
     BindingFactory loadBindingFactory(String className, String ...namespaceURIs) throws BusException {

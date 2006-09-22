@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.bus;
+package org.apache.cxf.bus.cxf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.bus.CXFBus.State;
+import org.apache.cxf.bus.BusState;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.event.EventProcessor;
@@ -38,12 +38,12 @@ import org.apache.cxf.wsdl.WSDLManager;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
-public class CXFBusTest extends TestCase {
+public class CXFBusImplTest extends TestCase {
 
     
     public void testConstructionWithoutExtensions() throws BusException {
         
-        CXFBus bus = new CXFBus();
+        CXFBusImpl bus = new CXFBusImpl();
         assertNotNull(bus.getExtension(BindingFactoryManager.class));
         assertNotNull(bus.getExtension(ConduitInitiatorManager.class));   
         assertNotNull(bus.getExtension(DestinationFactoryManager.class));
@@ -75,7 +75,7 @@ public class CXFBusTest extends TestCase {
         properties.put(InstrumentationManager.class, instrumentationManager);
         properties.put(PhaseManager.class, phaseManager);
         
-        CXFBus bus = new CXFBus(properties);
+        CXFBusImpl bus = new CXFBusImpl(properties);
         
         assertSame(bindingFactoryManager, bus.getExtension(BindingFactoryManager.class));
         assertSame(wsdlManager, bus.getExtension(WSDLManager.class));
@@ -86,14 +86,14 @@ public class CXFBusTest extends TestCase {
     }
 
     public void testExtensions() {
-        CXFBus bus = new CXFBus();
+        CXFBusImpl bus = new CXFBusImpl();
         String extension = "CXF";
         bus.setExtension(extension, String.class);
         assertSame(extension, bus.getExtension(String.class));
     }
     
     public void testRun() {
-        final CXFBus bus = new CXFBus();
+        final CXFBusImpl bus = new CXFBusImpl();
         Thread t = new Thread() {
             public void run() {
                 bus.run();
@@ -110,11 +110,11 @@ public class CXFBusTest extends TestCase {
         } catch (InterruptedException ex) {
             // ignore
         }
-        assertEquals(State.RUNNING, bus.getState());
+        assertEquals(BusState.RUNNING, bus.getState());
     }
     
     public void testShutdown() {
-        final CXFBus bus = new CXFBus();
+        final CXFBusImpl bus = new CXFBusImpl();
         Thread t = new Thread() {
             public void run() {
                 bus.run();
@@ -132,12 +132,12 @@ public class CXFBusTest extends TestCase {
         } catch (InterruptedException ex) {
             // ignore
         }
-        assertEquals(State.SHUTDOWN, bus.getState());
+        assertEquals(BusState.SHUTDOWN, bus.getState());
         
     }
     
     public void testShutdownWithBusLifecycle() {
-        final CXFBus bus = new CXFBus();
+        final CXFBusImpl bus = new CXFBusImpl();
         BusLifeCycleManager lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
         BusLifeCycleListener listener = EasyMock.createMock(BusLifeCycleListener.class);
         EasyMock.reset(listener);

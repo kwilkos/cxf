@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.extension;
+package org.apache.cxf.bus.cxf.extension;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -68,6 +68,11 @@ public class ResourceInjector implements AnnotationVisitor {
 
         invokePostConstruct();
     }
+    
+    public void construct(Object o) {
+        setTarget(o);
+        invokePostConstruct();
+    }
 
 
 
@@ -264,7 +269,7 @@ public class ResourceInjector implements AnnotationVisitor {
     } 
 
 
-    private void invokePostConstruct() {
+    public void invokePostConstruct() {
         
         boolean accessible = false; 
         for (Method method : getPostConstructMethods()) {

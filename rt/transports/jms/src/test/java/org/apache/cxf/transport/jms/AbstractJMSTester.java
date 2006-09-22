@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;

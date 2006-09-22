@@ -37,8 +37,8 @@
     </properties>
 
     <modules>
-        <module>management</module>
         <module>core</module>
+        <module>management</module>
         <module>transports/local</module>
         <module>databinding/jaxb</module>
         <module>bindings</module>

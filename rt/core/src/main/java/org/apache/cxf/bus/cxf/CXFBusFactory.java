@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.bus;
+package org.apache.cxf.bus.cxf;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class CXFBusFactory implements BusFactory {
 
     public synchronized Bus getDefaultBus() {
         if (null == defaultBus) {
-            defaultBus = new CXFBus();
+            defaultBus = new CXFBusImpl();
         }
         return defaultBus;
     }
@@ -49,7 +49,7 @@ public class CXFBusFactory implements BusFactory {
     }
     
     public Bus createBus(Map<Class, Object> e, Map<String, Object> properties) {
-        return new CXFBus(e, properties);
+        return new CXFBusImpl(e, properties);
     }
     
 }

@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
 
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;

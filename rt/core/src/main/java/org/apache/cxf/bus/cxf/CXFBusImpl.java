@@ -17,17 +17,18 @@
  * under the License.
  */
 
-package org.apache.cxf.bus;
+package org.apache.cxf.bus.cxf;
 
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.BusState;
+import org.apache.cxf.bus.cxf.extension.ExtensionManagerImpl;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
-import org.apache.cxf.extension.ExtensionManagerImpl;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.PropertiesResolver;
@@ -35,30 +36,28 @@ import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;
 
-public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
+public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus {
     
     public static final String BUS_PROPERTY_NAME = "bus";
     private static final String BUS_ID_PROPERTY_NAME = "org.apache.cxf.bus.id";
     private static final String DEFAULT_BUS_ID = "cxf";
     
     private static final String BUS_EXTENSION_RESOURCE = "META-INF/bus-extensions.xml";
-    
-    enum State { INITIAL, RUNNING, SHUTDOWN };
 
     private Map<Class, Object> extensions;
     private BusLifeCycleManager lifeCycleManager;
     private String id;
-    private State state;
+    private BusState state;
     
-    protected CXFBus() {
+    protected CXFBusImpl() {
         this(new HashMap<Class, Object>());
     }
 
-    protected CXFBus(Map<Class, Object> e) {
+    protected CXFBusImpl(Map<Class, Object> e) {
         this(e, new HashMap<String, Object>());
     }
     
-    protected CXFBus(Map<Class, Object> e, Map<String, Object> properties) {
+    protected CXFBusImpl(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
         
@@ -89,7 +88,7 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
                                  extensions,
                                  resourceManager);
         
-        state = State.INITIAL;
+        state = BusState.INITIAL;
         
         lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
         if (null != lifeCycleManager) {
@@ -117,13 +116,13 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
 
     public void run() {
         synchronized (this) {
-            if (state == State.RUNNING) {
+            if (state == BusState.RUNNING) {
                 // REVISIT
                 return;
             }
-            state = State.RUNNING;
+            state = BusState.RUNNING;
 
-            while (state == State.RUNNING) {
+            while (state == BusState.RUNNING) {
 
                 try {
                     wait();
@@ -140,7 +139,7 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
             lifeCycleManager.preShutdown();
         }
         synchronized (this) {
-            state = State.SHUTDOWN;
+            state = BusState.SHUTDOWN;
             notifyAll();
         }
         if (null != lifeCycleManager) {
@@ -148,7 +147,7 @@ public class CXFBus extends AbstractBasicInterceptorProvider implements Bus {
         }
     }
     
-    protected State getState() {
+    protected BusState getState() {
         return state;
     }
     

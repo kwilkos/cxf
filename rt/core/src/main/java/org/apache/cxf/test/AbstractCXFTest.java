@@ -36,7 +36,7 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;

@@ -34,7 +34,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptor.WrappedInInterceptor;

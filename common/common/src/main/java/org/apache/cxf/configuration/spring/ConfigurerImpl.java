@@ -59,7 +59,7 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
                 ApplicationContext ac = new ClassPathXmlApplicationContext(cfgFile);
                 setApplicationContext(ac);
             } catch (BeansException ex) {
-                LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, null);
+                LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
             }
         } else {
             LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());

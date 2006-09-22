@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.extension;
+package org.apache.cxf.bus.cxf.extension;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.extension.ExtensionManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;

@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.event.ComponentEventFilter;
 import org.apache.cxf.event.Event;
 import org.apache.cxf.event.EventProcessor;

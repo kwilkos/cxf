@@ -22,7 +22,7 @@ package org.apache.cxf.systest.common;
 import junit.framework.Test;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.testutil.common.AbstractClientServerSetupBase;
 
 public abstract class ClientServerSetupBase extends AbstractClientServerSetupBase {
