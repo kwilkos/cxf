@@ -335,10 +335,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             
             //TODO if outMessage need to get the response
             Message inMessage = new MessageImpl();
-            inMessage.setExchange(outMessage.getExchange());
-            //set the message header back to the incomeMessage
-            inMessage.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
-                          outMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS));
+            inMessage.setExchange(outMessage.getExchange());            
                         
             try {
                 response = receive(pooledSession, outMessage);
@@ -346,7 +343,9 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
                 LOG.log(Level.FINE, "JMS connect failed with JMSException : ", jmsex);            
                 throw new IOException(jmsex.toString());
             }  
-            
+            //set the message header back to the incomeMessage
+            inMessage.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
+                          outMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS));
             LOG.log(Level.FINE, "The Response Message is : [" + response + "]");
             
             // setup the inMessage response stream

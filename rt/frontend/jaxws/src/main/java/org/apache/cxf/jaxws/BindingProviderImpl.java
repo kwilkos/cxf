@@ -22,17 +22,20 @@ package org.apache.cxf.jaxws;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 public class BindingProviderImpl implements BindingProvider {
-    
+   
+    protected AtomicReference<Map<String, Object>> requestContext =
+            new AtomicReference<Map<String, Object>>();
+    protected Map<String, Object> responseContext;
     private final Binding binding;
-    private ThreadLocal<Map<String, Object>> requestContext;
-    private Map<String, Object> responseContext;
-    
+       
     public BindingProviderImpl() {
         binding = null;
     }
@@ -42,13 +45,9 @@ public class BindingProviderImpl implements BindingProvider {
     }
     
     public Map<String, Object> getRequestContext() {
-        if (requestContext == null) {
-            requestContext = new ThreadLocal<Map<String, Object>>() {
-                protected synchronized Map<String, Object> initialValue() {
-                    return new HashMap<String, Object>();
-                }
-            };
-        }
+        if (null == requestContext.get()) {
+            requestContext.compareAndSet(null, new ConcurrentHashMap<String, Object>(4));
+        }      
         return (Map<String, Object>)requestContext.get();
     }
     

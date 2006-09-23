@@ -26,15 +26,15 @@ public class Server extends TestServerBase {
 
 
     protected void run()  {
-        //Object implementor = new GreeterImplTwoWayJMS();        
-        //Object impl2 =  new GreeterImplQueueOneWay();
-        //Object impl3  = new GreeterImplTopicOneWay();
+        Object implementor = new GreeterImplTwoWayJMS();        
+        Object impl2 =  new GreeterImplQueueOneWay();
+        Object impl3  = new GreeterImplTopicOneWay();
         Object impleDoc = new GreeterImplDoc();
         Endpoint.publish(null, impleDoc);
-        //String address = "http://localhost:9000/SoapContext/SoapPort";
-        //Endpoint.publish(address, implementor);
-        //Endpoint.publish("http://testaddr.not.required/", impl2);
-        //Endpoint.publish("http://testaddr.not.required.topic/", impl3);
+        String address = "http://localhost:9000/SoapContext/SoapPort";
+        Endpoint.publish(address, implementor);
+        Endpoint.publish("http://testaddr.not.required/", impl2);
+        Endpoint.publish("http://testaddr.not.required.topic/", impl3);
     }
 
 

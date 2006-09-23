@@ -30,12 +30,14 @@ public interface Client extends InterceptorProvider {
      * Invokes an operation syncronously
      * @param oi  The operation to be invoked
      * @param params  The params that matches the parts of the input message of the operation
-     * @param context  Optional (can be null) contextual information for the invocation
+     * @param requestContext  Optional (can be null) request contextual information for the invocation
+     * @param responseContext Optional (can be null) response contextual information for the invocation
      * @return The return values that matche the parts of the output message of the operation
      */
     Object[] invoke(BindingOperationInfo oi,
                     Object[] params,
-                    Map<String, Object> context);
+                    Map<String, Object> requestContext,
+                    Map<String, Object> responseContext);
 
     Endpoint getEndpoint();
    

@@ -93,13 +93,11 @@ public class JMSConduitTest extends AbstractJMSTester {
         }
         String reponse = new String(bytes);
         assertEquals("The reponse date should be equals", reponse, "HelloWorld");
-        JMSMessageHeadersType outHeader =
-            (JMSMessageHeadersType)message.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
-        
+                
         JMSMessageHeadersType inHeader =
             (JMSMessageHeadersType)inMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS); 
         
-        assertEquals("The inMessage and outMessage JMS Header should be equals", outHeader, inHeader);
+        assertTrue("The inMessage JMS Header should not be null", inHeader != null);
         
                
     }

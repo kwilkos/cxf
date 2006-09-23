@@ -74,17 +74,20 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
         
-    public Object[] invoke(BindingOperationInfo oi, Object[] params, Map<String, Object> ctx) {
+    public Object[] invoke(BindingOperationInfo oi, Object[] params, 
+                           Map<String, Object> requestContext, Map<String, Object> responseContext) {
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
         }
         Message message = endpoint.getBinding().createMessage();
         
+        //setup the message context
+        setContext(requestContext, message);
         //setMethod(ctx, message);
         setParameters(params, message);
         Exchange exchange = new ExchangeImpl();
-        if (null != ctx) {
-            exchange.putAll(ctx);
+        if (null != requestContext) {
+            exchange.putAll(requestContext);
         }
         exchange.setOneWay(oi.getOutput() == null);
 
@@ -94,7 +97,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         // message.setContent(List.class, Arrays.asList(params));
         
         setOutMessageProperties(message, oi);
-        setExchangeProperties(exchange, ctx, oi);
+        setExchangeProperties(exchange, requestContext, oi);
         
 
         // setup chain
@@ -123,7 +126,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
         chain.add(il);        
         
-        modifyChain(chain, ctx);
+        modifyChain(chain, requestContext);
         
         // setup conduit
         Conduit conduit = getConduit();
@@ -150,13 +153,22 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (oi.getOutput() != null) {
             synchronized (exchange) {
                 Message inMsg = waitResponse(exchange);
-                    
-                
-                
+                //set the inMsg context to response context                
+                if (null != responseContext && null != inMsg) {                   
+                    responseContext.putAll(inMsg);
+                    LOG.info("set responseContext to be" + responseContext);
+                }
                 return inMsg.getContent(List.class).toArray();
             }
         } 
         return null;
+    }
+
+    private void setContext(Map<String, Object> ctx, Message message) {
+        if (ctx != null) {            
+            message.putAll(ctx);
+            LOG.info("set requestContext to message be" + ctx);
+        }        
     }
 
     private Message waitResponse(Exchange exchange) {
@@ -276,5 +288,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {
         // no-op
     }
+   
 
 }

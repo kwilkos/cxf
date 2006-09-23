@@ -106,7 +106,7 @@ public final class JaxWsUtils {
         }
         for (FaultInfo fi : o.getFaults()) {
             int i = 0;
-            Class cls = selected.getExceptionTypes()[i];
+            Class<?> cls = selected.getExceptionTypes()[i];
             fi.getMessagePartByIndex(0).setProperty(Class.class.getName(), cls);                
             if (cls.isAnnotationPresent(WebFault.class)) {
                 fi.getMessagePartByIndex(i).setProperty(WebFault.class.getName(), Boolean.TRUE);
