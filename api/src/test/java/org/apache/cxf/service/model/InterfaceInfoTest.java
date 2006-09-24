@@ -28,7 +28,7 @@ public class InterfaceInfoTest extends TestCase {
     private InterfaceInfo interfaceInfo;
 
     public void setUp() throws Exception {
-        interfaceInfo = new InterfaceInfo(null, new QName(
+        interfaceInfo = new InterfaceInfo(new ServiceInfo(), new QName(
             "http://apache.org/hello_world_soap_http", "interfaceTest"));
     }
     

@@ -36,15 +36,22 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
+import org.apache.cxf.service.invoker.ApplicationScopePolicy;
+import org.apache.cxf.service.invoker.FactoryInvoker;
 import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.invoker.LocalFactory;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
+/**
+ * Introspects a class and builds a {@link Service} from it. If a WSDL URL is specified, 
+ * a Service model will be directly from the WSDL and then metadata will be filled in 
+ * from the service class. If no WSDL URL is specified, the Service will be constructed
+ * directly from the class structure. 
+ */
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
@@ -52,15 +59,24 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected URL wsdlURL;
 
-    private Class<?> serviceClass;
+    protected Class<?> serviceClass;
+    
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
     private QName serviceName;
     private Invoker invoker;
     private Executor executor;
-
+    private List<String> ignoredClasses = new ArrayList<String>();
+    
     public ReflectionServiceFactoryBean() {
-        getServiceConfigurations().add(new DefaultServiceConfiguration());
+        getServiceConfigurations().add(0, new DefaultServiceConfiguration());
+        
+        ignoredClasses.add("java.lang.Object");
+        ignoredClasses.add("java.lang.Throwable");
+        ignoredClasses.add("org.omg.CORBA_2_3.portable.ObjectImpl");
+        ignoredClasses.add("org.omg.CORBA.portable.ObjectImpl");
+        ignoredClasses.add("javax.ejb.EJBObject");
+        ignoredClasses.add("javax.rmi.CORBA.Stub");
     }
 
     @Override
@@ -73,7 +89,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         initializeDefaultInterceptors();
 
-        getService().setInvoker(getInvoker());
+        if (invoker != null) {
+            getService().setInvoker(getInvoker());
+        } else {
+            getService().setInvoker(createInvoker());
+        }
+        
         if (getExecutor() != null) {
             getService().setExecutor(getExecutor());
         } else {
@@ -95,9 +116,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     protected void initializeServiceModel() {
         URL url = getWsdlURL();
-        if (getService() != null) {
-            return;
-        }
+
         if (url != null && doInitWSDLOperations()) {
             LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
             WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
@@ -106,25 +125,23 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             initializeWSDLOperations();
         } else {
+            LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
             // If we can't find the wsdlLocation, then we should build a faked service model .            
             ServiceInfo serviceInfo = new ServiceInfo();
             serviceInfo.setName(getServiceQName());
-            
-            BindingInfo bi = new BindingInfo(serviceInfo, getBindingType());          
-
-            EndpointInfo ei = new EndpointInfo(serviceInfo, bi.getBindingId());
-            ei.setName(getPortQName());
-            ei.setBinding(bi);
-            
-            serviceInfo.addEndpoint(ei);
             
             createInterface(serviceInfo);
 
             ServiceImpl service = new ServiceImpl(serviceInfo);
             setService(service);
 
-            // TODO Add hooks to create default bindings
+            createBindings(service);
         }
+    }
+
+    protected void createBindings(ServiceImpl service) {
+        // TODO Auto-generated method stub
+        
     }
 
     protected boolean doInitWSDLOperations() {
@@ -166,6 +183,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     }
 
+    protected Invoker createInvoker() {
+        return new FactoryInvoker(new LocalFactory(getServiceClass()), 
+                                  new ApplicationScopePolicy());
+    }
+    
     protected ServiceInfo createServiceInfo(InterfaceInfo intf) {
         ServiceInfo svcInfo = new ServiceInfo();
         svcInfo.setInterface(intf);
@@ -183,8 +205,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         // so we have to append numbers to the name. Different JVMs sort methods
         // differently.
         // We need to keep them ordered so if we have overloaded methods, the
-        // wsdl is
-        // generated the same every time across JVMs and across client/servers.
+        // wsdl is generated the same every time across JVMs and across
+        // client/servers.
         Arrays.sort(methods, new MethodComparator());
 
         for (Method m : serviceClass.getMethods()) {
@@ -192,6 +214,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 createOperation(serviceInfo, intf, m);
             }
         }
+        
         return intf;
     }
 
@@ -267,18 +290,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
     
     protected QName getPortQName() {
-        // TO be override
-        return null;
-    }
-    
-    protected String getBindingType() {
-        // to be override
-        return null;
-    }
-
-    protected QName getInterfaceName() {
-        // TODO Auto-generated method stub
-        return null;
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            QName name = c.getInterfaceName();
+            if (name != null) {
+                return name;
+            }
+        }
+        throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
     protected String getServiceName() {
@@ -301,6 +319,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
+    protected QName getInterfaceName() {
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            QName name = c.getInterfaceName();
+            if (name != null) {
+                return name;
+            }
+        }
+        throw new IllegalStateException("ServiceConfiguration must provide a value!");
+    }
+
     protected boolean isValidMethod(final Method method) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Boolean b = c.isOperation(method);
@@ -312,6 +340,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected boolean isMatchOperation(String methodNameInClass, String methodNameInWsdl) {
+        // TODO: This seems wrong and not sure who put it here. Will revisit - DBD
         boolean ret = false;
         String initOfMethodInClass = methodNameInClass.substring(0, 1);
         String initOfMethodInWsdl = methodNameInWsdl.substring(0, 1);
@@ -574,6 +603,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public void setExecutor(Executor executor) {
         this.executor = executor;
     }
-    
-    
+
+    public List<String> getIgnoredClasses() {
+        return ignoredClasses;
+    }
+
+    public void setIgnoredClasses(List<String> ignoredClasses) {
+        this.ignoredClasses = ignoredClasses;
+    }
 }

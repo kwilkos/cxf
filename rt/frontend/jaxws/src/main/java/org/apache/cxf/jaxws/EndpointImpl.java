@@ -45,8 +45,10 @@ import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
+import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.MessageObserver;
@@ -65,7 +67,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private ServerImpl server;
     private Service service;
     private JaxwsEndpointImpl endpoint;
-    
     private JaxwsImplementorInfo implInfo;
     
     @SuppressWarnings("unchecked")
@@ -73,28 +74,36 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         bus = b;
         implementor = i;
         // bindingURI = uri;
-
-        implInfo = new JaxwsImplementorInfo(implementor.getClass());
         // build up the Service model
-        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
+        implInfo = new JaxwsImplementorInfo(implementor.getClass());
+        
+        AbstractServiceFactoryBean serviceFactory;
+        if (implInfo.isWebServiceProvider()) {
+            serviceFactory = new ProviderServiceFactoryBean(implInfo);
+        } else {
+            serviceFactory = new JaxWsServiceFactoryBean(implInfo);
+        }
         serviceFactory.setBus(bus);
-        serviceFactory.setServiceClass(implementor.getClass());
         service = serviceFactory.create();
 
-        // create the endpoint        
+        // create the endpoint       
         QName endpointName = implInfo.getEndpointName();
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-        
+        if (ei == null) {
+            throw new NullPointerException("Could not find endpoint " + endpointName + " in Service.");
+        }
+ 
         // revisit: should get enableSchemaValidation from configuration
         if (false) {
             addSchemaValidation();
         }
-
+        
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
         } else {
             service.setInvoker(new JAXWSMethodInvoker(i));
         }
+        
         //      TODO: use bindigURI     
         try {
             endpoint = new JaxwsEndpointImpl(bus, service, ei);            
@@ -108,12 +117,12 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private void addSchemaValidation() {
         Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
         
-        if (service.getDataReaderFactory() instanceof JAXBDataReaderFactory) {
-            ((JAXBDataReaderFactory)service.getDataReaderFactory()).setSchema(schema);
+        if (service.getDataBinding().getDataReaderFactory() instanceof JAXBDataReaderFactory) {
+            ((JAXBDataReaderFactory)service.getDataBinding().getDataReaderFactory()).setSchema(schema);
         }
         
-        if (service.getDataWriterFactory() instanceof JAXBDataWriterFactory) {
-            ((JAXBDataWriterFactory)service.getDataWriterFactory()).setSchema(schema);
+        if (service.getDataBinding().getDataWriterFactory() instanceof JAXBDataWriterFactory) {
+            ((JAXBDataWriterFactory)service.getDataBinding().getDataWriterFactory()).setSchema(schema);
         }
     }
 
@@ -225,12 +234,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         
         try {
-            MessageObserver observer = null;
+            MessageObserver observer;
             if (implInfo.isWebServiceProvider()) {
                 observer = new ProviderChainObserver(endpoint, bus, implInfo);
             } else {
                 observer = new ChainInitiationObserver(endpoint, bus);
-            }       
+            }
+     
             server = new ServerImpl(bus, endpoint, observer);
             server.start();
         } catch (BusException ex) {
@@ -238,6 +248,5 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         } catch (IOException ex) {
             throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
         }
-
     }
 }

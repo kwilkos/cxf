@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -50,7 +49,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.hello_world_soap_http.Greeter;
-
 import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
@@ -88,11 +86,10 @@ public class TestBase extends TestCase {
         service = factory.create();
         endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "SoapPort"));
         endpoint = new EndpointImpl(bus, service, endpointInfo);
-        service.setDataReaderFactory(getTestReaderFactory(Greeter.class));
-        service.setDataWriterFactory(getTestWriterFactory(Greeter.class));
+        service.setDataBinding(new JAXBDataBinding(Greeter.class));
 
         operation = endpointInfo.getBinding().getOperation(new QName(ns, "greetMe"));
-        operation.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART, Boolean.TRUE);
+        operation.getOperationInfo().setProperty(WrappedInInterceptor.WRAPPER_CLASS, Boolean.TRUE);
 
         message = new MessageImpl();
         Exchange exchange = new ExchangeImpl();
@@ -126,19 +123,5 @@ public class TestBase extends TestCase {
             }
         }
         return null;
-    }
-
-    protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
-        readerFacotry.setJAXBContext(ctx);
-        return readerFacotry;
-    }
-
-    protected JAXBDataWriterFactory getTestWriterFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFacotry = new JAXBDataWriterFactory();
-        writerFacotry.setJAXBContext(ctx);
-        return writerFacotry;
     }
 }

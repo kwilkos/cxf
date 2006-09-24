@@ -158,6 +158,12 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertTrue(greetMeOneWay.hasInput());
         assertFalse(greetMeOneWay.hasOutput());
 
+        OperationInfo greetMeOneWayUnwrapped = greetMeOneWay.getUnwrappedOperation();
+        assertNotNull(greetMeOneWayUnwrapped);
+        assertNotNull(greetMeOneWayUnwrapped.getInput());
+        assertNull(greetMeOneWayUnwrapped.getOutput());
+        assertEquals("wrapped part not set", 1, greetMeOneWayUnwrapped.getInput().size());
+        
         name = new QName(serviceInfo.getName().getNamespaceURI(), "pingMe");
         OperationInfo pingMe = serviceInfo.getInterface().getOperation(name);
         assertNotNull(pingMe);

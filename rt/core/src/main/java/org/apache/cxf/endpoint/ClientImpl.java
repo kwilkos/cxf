@@ -20,7 +20,6 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -60,8 +59,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     
     Bus bus;
     Endpoint endpoint;
-    Method methd;
     Conduit initedConduit;
+    
     public ClientImpl(Bus b, Endpoint e) {
         bus = b;
         endpoint = e;
@@ -195,21 +194,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             message.setContent(List.class, Arrays.asList(params));
         }
     }
-
-//    private void setMethod(Map<String, Object> ctx, Message message) {
-//        if (ctx != null) {
-//            message.setContent(Method.class, ctx.get(Method.class.getName()));
-//            methd = (Method)ctx.get(Method.class.getName());
-//        }
-//    }
-
     
-
     public void onMessage(Message message) {
-       
         message = endpoint.getBinding().createMessage(message);
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
-        message.setContent(Method.class, methd);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getInPhases());
         message.setInterceptorChain(chain);

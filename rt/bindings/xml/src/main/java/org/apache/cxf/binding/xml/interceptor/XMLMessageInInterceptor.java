@@ -88,8 +88,6 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                     } else {
                         // processing wrap here
                         message.getExchange().put(BindingOperationInfo.class, boi);
-                        boi.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
-                                        Boolean.TRUE);
                         new WrappedInInterceptor().handleMessage(message);
                         break;
                     }

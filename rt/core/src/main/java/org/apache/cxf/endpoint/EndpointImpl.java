@@ -23,6 +23,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
@@ -49,7 +51,15 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private Bus bus;
     private Interceptor faultInterceptor;
     
+    public EndpointImpl(Bus bus, Service s, QName endpointName) throws EndpointException {
+        this(bus, s, s.getServiceInfo().getEndpoint(endpointName));
+    }
+    
     public EndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
+        if (ei == null) {
+            throw new NullPointerException("EndpointInfo can not be null!");
+        }
+        
         this.bus = bus;
         service = s;
         endpointInfo = ei;

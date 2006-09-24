@@ -120,6 +120,16 @@ public class BindingInfo extends AbstractPropertiesHolder {
     public Collection<BindingOperationInfo> getOperations() {
         return Collections.unmodifiableCollection(operations.values());
     }
+
+    public BindingOperationInfo getOperation(OperationInfo oi) {
+        for (BindingOperationInfo b : operations.values()) {
+            if (b.getOperationInfo() == oi || b.getUnwrappedOperation().getOperationInfo() == oi) {
+                return b;
+            }
+        }
+        
+        return null;
+    }
 }
 
 

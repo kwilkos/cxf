@@ -21,6 +21,6 @@ package org.apache.cxf.binding.xml;
 
 
 public final class XMLConstants {
-    public static final String NS_XML_FORMAT = "http://celtix.objectweb.org/bindings/xformat";
+    public static final String NS_XML_FORMAT = "http://cxf.apache.org/bindings/xformat";
 
 }

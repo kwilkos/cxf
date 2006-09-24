@@ -152,7 +152,9 @@ public final class JAXBEncoderDecoder {
             }
         } else if (cls instanceof GenericArrayType) {
             GenericArrayType gt = (GenericArrayType)cls;
-            addType(gt.getGenericComponentType(), classes);
+            Class ct = (Class) gt.getGenericComponentType();
+            ct = Array.newInstance(ct, 0).getClass();
+            addType(ct, classes);
         }
     }
 

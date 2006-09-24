@@ -17,33 +17,23 @@
  * under the License.
  */
 
-package org.apache.cxf.service;
+package org.apache.cxf.jaxws.support;
 
-import java.util.Map;
-import java.util.concurrent.Executor;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.Provider;
+import javax.xml.ws.Service;
+import javax.xml.ws.ServiceMode;
+import javax.xml.ws.WebServiceProvider;
 
-import javax.xml.namespace.QName;
+@WebServiceProvider()
+@ServiceMode(value = Service.Mode.PAYLOAD)
+@javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
+public class SourcePayloadProvider implements Provider<DOMSource> {
 
-import org.apache.cxf.databinding.DataBinding;
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.service.model.ServiceInfo;
+    public SourcePayloadProvider() {
+    }
 
-public interface Service extends Map<String, Object>, InterceptorProvider {
-    
-    QName getName();
-    
-    ServiceInfo getServiceInfo();
-
-    DataBinding getDataBinding();
-
-    void setDataBinding(DataBinding dataBinding);
-    
-    Executor getExecutor();
-
-    void setExecutor(Executor executor);
-    
-    Invoker getInvoker();
-    
-    void setInvoker(Invoker invoker);
+    public DOMSource invoke(DOMSource request) {
+        return null;
+    }
 }

@@ -22,6 +22,7 @@ package org.apache.cxf.interceptor;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 
@@ -37,7 +38,19 @@ public class FaultChainIntiatorInterceptor implements Interceptor<Message> {
 
     public void handleMessage(Message m) {
         Message message = m.getExchange().getFaultMessage();
-        message.setContent(Exception.class, m.getContent(Exception.class));
+        if (message == null) {
+            message = new MessageImpl();
+            m.getExchange().setFaultMessage(message);
+        }
+        
+        Exception e = m.getContent(Exception.class);
+        Fault f;
+        if (e instanceof Fault) {
+            f = (Fault) e;
+        } else {
+            f = new Fault(e);
+        }
+        message.setContent(Exception.class, f);
         
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)

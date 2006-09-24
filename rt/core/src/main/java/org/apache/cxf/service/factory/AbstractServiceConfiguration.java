@@ -119,7 +119,7 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public QName getPortType(Class clazz) {
+    public QName getInterfaceName() {
         return null;
     }
 

@@ -43,6 +43,7 @@ public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+
         if (bop != null && bop.isUnwrapped()) {
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
 
@@ -54,7 +55,7 @@ public class WrappedOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 message.getInterceptorChain().doIntercept(message);
                 xmlWriter.writeEndElement();
             } catch (XMLStreamException e) {
-                throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE, e));
+                throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
             }
         }
     }

@@ -23,10 +23,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import javax.jws.soap.SOAPBinding;
-
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.WrapperHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -49,10 +48,9 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         if (boi == null) {
             return;
         }
-        Method method = (Method)boi.getOperationInfo().getProperty(Method.class.getName());
-        if (method == null) {             
-            method = (Method)boi.getOperationInfo().getProperty(Method.class.getName());
-        }
+        
+        Method method = message.getExchange().get(Method.class);
+
         if (method != null && method.getName().endsWith("Async")) {
             Class<?> retType = method.getReturnType();
             if (retType.getName().equals("java.util.concurrent.Future") 
@@ -79,13 +77,17 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         } catch (NoSuchMethodException e) {
             throw new Fault(e);
         }
-        if (method != null 
-            && method.isAnnotationPresent(SOAPBinding.class)
-            && method.getAnnotation(SOAPBinding.class).parameterStyle() == SOAPBinding.ParameterStyle.BARE) {
-            return;
-        }
+
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
+            
+            // Sometimes, an uperation can be unwrapped according to WSDLServiceFactory,
+            // but not according to JAX-WS. We should unify these at some point, but
+            // for now check for the wrapper class.
+            if (boi2.getOperationInfo().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS) == null) {
+                return;
+            }
+            
             OperationInfo op = boi2.getOperationInfo();
             MessageInfo messageInfo = message.get(MessageInfo.class);
             BindingMessageInfo bmi;

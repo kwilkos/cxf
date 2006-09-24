@@ -33,9 +33,10 @@ import org.w3c.dom.Node;
 
 //The following wsdl file is used.
 //wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
-@WebServiceProvider(portName = "SoapPortProviderRPCLit1", serviceName = "SOAPServiceProviderRPCLit",
-                      targetNamespace = "http://apache.org/hello_world_rpclit",
- wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
+@WebServiceProvider(portName = "SoapPortProviderRPCLit1", 
+                    serviceName = "SOAPServiceProviderRPCLit",
+                    targetNamespace = "http://apache.org/hello_world_rpclit",
+                    wsdlLocation = "wsdl/hello_world_rpc_lit.wsdl")
 @ServiceMode(value = Service.Mode.MESSAGE)            
 public class HWSoapMessageProvider implements Provider<SOAPMessage> {
 

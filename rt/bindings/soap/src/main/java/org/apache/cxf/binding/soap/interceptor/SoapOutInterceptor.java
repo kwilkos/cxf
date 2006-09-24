@@ -135,8 +135,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
             Object[] args = objs.toArray();
             Object[] els = parts.toArray();
- 
-             
+            
             SoapVersion soapVersion = message.getVersion();
             for (int idx = 0; idx < countParts; idx++) {
                 Object arg = args[idx];
@@ -181,7 +180,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
 
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataWriterFactory();
+        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
 
         DataWriter<XMLStreamWriter> dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {

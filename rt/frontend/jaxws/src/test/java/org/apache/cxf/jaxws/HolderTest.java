@@ -16,34 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.jaxws;
 
-package org.apache.cxf.service;
+import org.apache.cxf.Bus;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.mtom_xop.HelloImpl;
 
-import java.util.Map;
-import java.util.concurrent.Executor;
+public class HolderTest extends AbstractJaxWsTest {
+    public void testInvocation() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
-import javax.xml.namespace.QName;
+        Bus bus = getBus();
+        bean.setBus(bus);
+        bean.setServiceClass(HelloImpl.class);
+        
+        bean.create();
+        
+        bean.activateEndpoints();
+//
+//        Node response = invoke("http://localhost:9036/mime-test",
+//                               LocalTransportFactory.TRANSPORT_ID, 
+//                               "echoData.xml");
+//
+//        assertNotNull(response);
 
-import org.apache.cxf.databinding.DataBinding;
-import org.apache.cxf.interceptor.InterceptorProvider;
-import org.apache.cxf.service.invoker.Invoker;
-import org.apache.cxf.service.model.ServiceInfo;
-
-public interface Service extends Map<String, Object>, InterceptorProvider {
-    
-    QName getName();
-    
-    ServiceInfo getServiceInfo();
-
-    DataBinding getDataBinding();
-
-    void setDataBinding(DataBinding dataBinding);
-    
-    Executor getExecutor();
-
-    void setExecutor(Executor executor);
-    
-    Invoker getInvoker();
-    
-    void setInvoker(Invoker invoker);
+    }
 }

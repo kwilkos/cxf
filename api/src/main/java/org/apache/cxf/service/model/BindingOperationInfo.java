@@ -126,5 +126,4 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
     public BindingOperationInfo getWrappedOperation() {
         return opHolder;
     }
-
 }

@@ -42,6 +42,7 @@ public class InterfaceInfo extends AbstractPropertiesHolder {
     public InterfaceInfo(ServiceInfo info, QName q) {
         name = q;
         service = info;
+        info.setInterface(this);
     }
     
     public ServiceInfo getService() {

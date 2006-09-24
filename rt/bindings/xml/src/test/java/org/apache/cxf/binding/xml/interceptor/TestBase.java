@@ -42,6 +42,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.xml.XMLBindingFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
@@ -181,8 +182,7 @@ public class TestBase extends TestCase {
 
         control.reset();
         org.apache.cxf.service.Service service = control.createMock(ServiceImpl.class);
-        EasyMock.expect(service.getDataReaderFactory()).andReturn(getTestReaderFactory(seiClazz));
-        EasyMock.expect(service.getDataWriterFactory()).andReturn(getTestWriterFactory(seiClazz));
+        EasyMock.expect(service.getDataBinding()).andStubReturn(new JAXBDataBinding(seiClazz));
 
         Endpoint endpoint = control.createMock(EndpointImpl.class);
         EasyMock.expect(endpoint.getEndpointInfo()).andReturn(epi);

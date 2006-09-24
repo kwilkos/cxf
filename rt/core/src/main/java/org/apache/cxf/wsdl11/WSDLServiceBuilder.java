@@ -349,7 +349,7 @@ public class WSDLServiceBuilder {
         }
 
         // RULE No.3:
-        // The output message part refers to a global element decalration
+        // The output message part refers to a global element declaration
         MessagePartInfo outputPart = null;
         if (outputMessage != null && outputMessage.size() == 1) {
             outputPart = outputMessage.getMessagePartByIndex(0);

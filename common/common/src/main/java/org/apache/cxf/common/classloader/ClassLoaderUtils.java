@@ -61,6 +61,10 @@ public final class ClassLoaderUtils {
             }
         }
 
+        if (url == null) {
+            url = callingClass.getResource(resourceName);
+        }
+        
         if ((url == null) && (resourceName != null) && (resourceName.charAt(0) != '/')) {
             return getResource('/' + resourceName, callingClass);
         }

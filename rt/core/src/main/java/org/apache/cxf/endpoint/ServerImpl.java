@@ -68,7 +68,7 @@ public class ServerImpl implements Server {
     }
 
     public void stop() {
-        System.out.println("server to be stopped!");
+        LOG.fine("Server is stopping.");
         getDestination().setMessageObserver(null);        
     }
 

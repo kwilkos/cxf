@@ -1,0 +1,6 @@
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
+  <s:Body>
+    <body xmlns="http://cxf.apache.org/mime/types">Hi</body>
+    <data xmlns="http://cxf.apache.org/mime">foo</data>
+  </s:Body>
+</s:Envelope>

@@ -23,8 +23,7 @@ import java.util.concurrent.Executor;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.databinding.DataReaderFactory;
-import org.apache.cxf.databinding.DataWriterFactory;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -32,8 +31,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service {
 
     private ServiceInfo serviceInfo;
-    private DataReaderFactory dataReaderFactory;
-    private DataWriterFactory dataWriterFactory;
+    private DataBinding dataBinding;
     private Executor executor;
     private Invoker invoker;
     
@@ -47,22 +45,6 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
 
     public ServiceInfo getServiceInfo() {
         return serviceInfo;
-    }
-
-    public DataReaderFactory getDataReaderFactory() {
-        return dataReaderFactory;
-    }
-
-    public void setDataReaderFactory(DataReaderFactory dataReaderFactory) {
-        this.dataReaderFactory = dataReaderFactory;
-    }
-
-    public DataWriterFactory getDataWriterFactory() {
-        return dataWriterFactory;
-    }
-
-    public void setDataWriterFactory(DataWriterFactory dataWriterFactory) {
-        this.dataWriterFactory = dataWriterFactory;
     }
 
     public Executor getExecutor() {
@@ -80,4 +62,13 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     public void setInvoker(Invoker invoker) {
         this.invoker = invoker;
     }
+
+    public DataBinding getDataBinding() {
+        return dataBinding;
+    }
+
+    public void setDataBinding(DataBinding dataBinding) {
+        this.dataBinding = dataBinding;
+    }
+    
 }

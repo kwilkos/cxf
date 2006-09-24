@@ -39,7 +39,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
-    public static final String SINGLE_WRAPPED_PART = "single.wrapped.in.part";
+    public static final String WRAPPER_CLASS = "wrapper.class";
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
     
     public WrappedInInterceptor() {
@@ -57,6 +57,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         BindingOperationInfo operation = message.getExchange().get(BindingOperationInfo.class);
         boolean requestor = isRequestor(message);
         
+        MessageInfo msgInfo;
         if (operation == null) {
             String opName = xmlReader.getLocalName();
             if (requestor && opName.endsWith("Response")) {
@@ -73,18 +74,19 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             message.getExchange().setOneWay(operation.getOutput() == null);
         }
         if (requestor) {
-            message.put(MessageInfo.class, operation.getOperationInfo().getOutput());
+            msgInfo = operation.getOperationInfo().getOutput();
             message.put(BindingMessageInfo.class, operation.getOutput());            
         } else {
-            message.put(MessageInfo.class, operation.getOperationInfo().getInput());
+            msgInfo = operation.getOperationInfo().getInput();
             message.put(BindingMessageInfo.class, operation.getInput());
         }
+        message.put(MessageInfo.class, msgInfo);
         
         DataReader<Message> dr = getMessageDataReader(message);
         List<Object> objects;
         
         // Determine if there is a wrapper class
-        if (Boolean.TRUE.equals(operation.getOperationInfo().getProperty(SINGLE_WRAPPED_PART))) {
+        if (operation.isUnwrapped() || operation.isUnwrappedCapable()) {
             objects = new ArrayList<Object>();
             Object wrappedObject = dr.read(message);
             objects.add(wrappedObject);

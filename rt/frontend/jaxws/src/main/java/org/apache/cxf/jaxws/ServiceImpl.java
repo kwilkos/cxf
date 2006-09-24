@@ -37,7 +37,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebServiceException;
-
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
@@ -50,6 +49,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -64,54 +64,65 @@ public class ServiceImpl extends ServiceDelegate {
     private Bus bus;
     private URL wsdlURL;
 
-    private Service service;
     private HandlerResolver handlerResolver;
     private final Collection<QName> ports = new HashSet<QName>();
+    private Executor executor;
+    private QName serviceName;
+    private Service dispatchService;
 
     public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
         wsdlURL = url;
+        this.serviceName = name;
 
-        if (url == null) {
-            ServiceInfo info = new ServiceInfo();
-            service = new org.apache.cxf.service.ServiceImpl(info);
-        } else {
+        // TODO: shouldn't this also get set up when there is no WSDL?
+        // Dispatches should really use JaxWsServiceFactoryBean instead.
+        if (url != null) {
             WSDLServiceFactory sf = new WSDLServiceFactory(bus, url, name);
-            service = sf.create();
+            dispatchService = sf.create();
+            try {
+                dispatchService.setDataBinding(new JAXBDataBinding(cls));
+            } catch (JAXBException e) {
+                throw new WebServiceException(e);
+            }
         }
+        
         handlerResolver = new HandlerResolverImpl(bus, name);
-
-        try {
-            JAXBDataBinding dataBinding = new JAXBDataBinding(cls);
-            service.setDataReaderFactory(dataBinding.getDataReaderFactory());
-            service.setDataWriterFactory(dataBinding.getDataWriterFactory());
-        } catch (JAXBException e) {
-            throw new WebServiceException(new Message("FAILED_TO_INITIALIZE_JAXBCONTEXT",
-                                                      LOG,
-                                                      cls.getName()).toString(), e);
-        }
     }
 
     public void addPort(QName portName, String bindingId, String address) {
         throw new WebServiceException(new Message("UNSUPPORTED_API_EXC", LOG, "addPort").toString());
     }
 
+    // public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode
+    // mode) {
+    // DispatchServiceFactory sf = new DispatchServiceFactory();
+    // sf.setPayloadClass(type);
+    // sf.setPayloadMode(mode);
+    //        
+    // Service service = sf.create();
+    // EndpointImpl ep = new EndpointImpl(bus, service, portName);
+    // ClientImpl client = new ClientImpl(bus, ep);
+    //        
+    // return new ClientProxyFactory(bus).create(service, portName, type);
+    // }
+
     private Endpoint getJaxwsEndpoint(QName portName) {
-        ServiceInfo si = service.getServiceInfo();
+        ServiceInfo si = dispatchService.getServiceInfo();
         EndpointInfo ei = null;
         if (portName == null) {
             ei = si.getEndpoints().iterator().next();
         } else {
             ei = si.getEndpoint(portName);
         }
-        
+
         try {
-            return new JaxwsEndpointImpl(bus, service, ei);
+            return new JaxwsEndpointImpl(bus, dispatchService, ei);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
-        }        
+        }
     }
-    
+
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
         Dispatch<T> disp = new DispatchImpl<T>(bus, 
             mode, 
@@ -135,7 +146,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public Executor getExecutor() {
-        return service.getExecutor();
+        return executor;
     }
 
     public HandlerResolver getHandlerResolver() {
@@ -158,7 +169,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public QName getServiceName() {
-        return service.getName();
+        return serviceName;
     }
 
     public URL getWSDLDocumentLocation() {
@@ -166,7 +177,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public void setExecutor(Executor e) {
-        service.setExecutor(e);
+        this.executor = e;
     }
 
     public void setHandlerResolver(HandlerResolver hr) {
@@ -177,14 +188,20 @@ public class ServiceImpl extends ServiceDelegate {
         return bus;
     }
 
-    public Service getService() {
-        return service;
-    }
-
     protected <T> T createPort(QName portName, Class<T> serviceEndpointInterface) {
-
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
+
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(bus);
+        serviceFactory.setServiceName(serviceName);
+        serviceFactory.setServiceClass(serviceEndpointInterface);
+
+        if (wsdlURL != null) {
+            serviceFactory.setWsdlURL(wsdlURL);
+        }
+
+        Service service = serviceFactory.create();
 
         QName pn = portName;
         ServiceInfo si = service.getServiceInfo();
@@ -203,17 +220,18 @@ public class ServiceImpl extends ServiceDelegate {
 
         JaxwsEndpointImpl jaxwsEndpoint;
         try {
-            jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);            
+            jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
-        
+
         Client client = new ClientImpl(bus, jaxwsEndpoint);
 
         InvocationHandler ih = new EndpointInvocationHandler(client, jaxwsEndpoint.getJaxwsBinding());
 
-        // configuration stuff 
-        // createHandlerChainForBinding(serviceEndpointInterface, portName, endpointHandler.getBinding());
+        // configuration stuff
+        // createHandlerChainForBinding(serviceEndpointInterface, portName,
+        // endpointHandler.getBinding());
 
         Object obj = Proxy
             .newProxyInstance(serviceEndpointInterface.getClassLoader(),

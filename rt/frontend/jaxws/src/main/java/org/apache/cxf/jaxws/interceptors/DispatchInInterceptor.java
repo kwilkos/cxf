@@ -87,8 +87,7 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
                 .get(org.apache.cxf.service.Service.class);
             JAXBDataBinding dataBinding = new JAXBDataBinding();
             dataBinding.setContext(context);
-            service.setDataReaderFactory(dataBinding.getDataReaderFactory());
-            service.setDataWriterFactory(dataBinding.getDataWriterFactory());
+            service.setDataBinding(dataBinding);
         }
     }
 

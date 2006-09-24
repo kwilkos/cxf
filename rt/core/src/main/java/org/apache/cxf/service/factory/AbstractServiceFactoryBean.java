@@ -20,8 +20,7 @@
 package org.apache.cxf.service.factory;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.databinding.DataReaderFactory;
-import org.apache.cxf.databinding.DataWriterFactory;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.interceptor.OutgoingChainInterceptor;
 import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
@@ -30,8 +29,7 @@ import org.apache.cxf.service.Service;
 
 public abstract class AbstractServiceFactoryBean {
     private Bus bus;
-    private DataReaderFactory dataReaderFactory;
-    private DataWriterFactory dataWriterFactory;
+    private DataBinding dataBinding;
     private Service service;
     
     public abstract Service create();
@@ -45,8 +43,7 @@ public abstract class AbstractServiceFactoryBean {
     }
     
     protected void initializeDataBindings() {
-        service.setDataReaderFactory(dataReaderFactory);
-        service.setDataWriterFactory(dataWriterFactory);
+        service.setDataBinding(dataBinding);
     }
     
     public Bus getBus() {
@@ -57,20 +54,12 @@ public abstract class AbstractServiceFactoryBean {
         this.bus = bus;
     }
 
-    public DataReaderFactory getDataReaderFactory() {
-        return dataReaderFactory;
+    public DataBinding getDataBinding() {
+        return dataBinding;
     }
 
-    public void setDataReaderFactory(DataReaderFactory dataReaderFactory) {
-        this.dataReaderFactory = dataReaderFactory;
-    }
-
-    public DataWriterFactory getDataWriterFactory() {
-        return dataWriterFactory;
-    }
-
-    public void setDataWriterFactory(DataWriterFactory dataWriterFactory) {
-        this.dataWriterFactory = dataWriterFactory;
+    public void setDataBinding(DataBinding dataBinding) {
+        this.dataBinding = dataBinding;
     }
 
     public Service getService() {

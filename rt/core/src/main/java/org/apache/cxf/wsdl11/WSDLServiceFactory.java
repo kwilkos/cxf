@@ -60,6 +60,9 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         }
         
         javax.wsdl.Service wsdlService = definition.getService(serviceName);
+        if (wsdlService == null) {
+            throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE", LOG, serviceName));
+        }
         ServiceInfo si = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
         
         ServiceImpl service = new ServiceImpl(si);

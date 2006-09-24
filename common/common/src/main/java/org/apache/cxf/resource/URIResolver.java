@@ -55,6 +55,10 @@ public class URIResolver {
     }
 
     public URIResolver(String baseUriStr, String uriStr) throws IOException {
+        this(baseUriStr, uriStr, null);
+    }
+
+    public URIResolver(String baseUriStr, String uriStr, Class callingClass) throws IOException {
         try {
             URI relative;
             File uriFile = new File(uriStr);
@@ -99,8 +103,12 @@ public class URIResolver {
                 throw new RuntimeException("File was deleted! " + uriStr, e);
             }
         } else if (is == null) {
-            URL url = ClassLoaderUtils.getResource(uriStr, getClass());
-
+            if (callingClass == null) {
+                callingClass = getClass();
+            }
+            
+            URL url = ClassLoaderUtils.getResource(uriStr, callingClass);
+            
             if (url == null) {
                 try {
                     url = new URL(uriStr);
@@ -112,13 +120,13 @@ public class URIResolver {
                     // Do nothing
                 }
             } else {
+                try {
+                    uri = new URI(url.toString());
+                } catch (URISyntaxException e) {
+                    // do nothing?
+                }
                 is = url.openStream();
             }
-        }
-
-        if (is == null) {
-            throw new IOException("Could not find resource '" + uriStr
-                                  + "' relative to '" + baseUriStr + "'");
         }
     }
 

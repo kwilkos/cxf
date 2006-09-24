@@ -26,32 +26,22 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
-import javax.jws.WebMethod;
-import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
-import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.Response;
-import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
-import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.apache.cxf.jaxws.support.JaxWsUtils;
+import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.InterfaceInfo;
-import org.apache.cxf.service.model.OperationInfo;
 
 public final class EndpointInvocationHandler extends BindingProviderImpl implements InvocationHandler {
 
@@ -63,8 +53,6 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
     private Client client;
 
-    private Map<Method, BindingOperationInfo> infoMap = new ConcurrentHashMap<Method, BindingOperationInfo>();
-
     EndpointInvocationHandler(Client c, Binding b) {
         super(b);
         endpoint = c.getEndpoint();
@@ -72,29 +60,31 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-        BindingOperationInfo oi = getOperationInfo(proxy, method);
+        MethodDispatcher dispatcher = 
+            (MethodDispatcher)endpoint.getService().get(MethodDispatcher.class.getName());
+        BindingOperationInfo oi = dispatcher.getBindingOperation(method, endpoint);
         if (oi == null) {
-            //check for method on BindingProvider
+            // check for method on BindingProvider
             if (method.getDeclaringClass().equals(BindingProvider.class)
                 || method.getDeclaringClass().equals(BindingProviderImpl.class)) {
                 return method.invoke(this);
             }
-            
+
             Message msg = new Message("NO_OPERATION_INFO", LOG, method.getName());
             throw new WebServiceException(msg.toString());
         }
-
+       
         Object[] params = args;
         if (null == params) {
             params = new Object[0];
         }
-        JaxWsUtils.setClassInfo(oi.getOperationInfo(), null, method);
+
         Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> requestContext = this.getRequestContext();
         Map<String, Object> responseContext = this.getResponseContext();
-        
-        
+
+        requestContext.put(Method.class.getName(), method);
+
         boolean isAsync = method.getName().endsWith("Async");
         if (isAsync) {
             return invokeAsync(method, oi, params, paramsWithOutHolder, requestContext, responseContext);
@@ -103,6 +93,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         }
     }
 
+
     Object invokeSync(Method method, 
                           BindingOperationInfo oi, 
                           Object[] params, 
@@ -110,6 +101,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                           Map<String, Object> requestContext,
                           Map<String, Object> responseContext) {
         Object rawRet[] = client.invoke(oi, paramsWithOutHolder, requestContext, responseContext);
+
         if (rawRet != null && rawRet.length != 0) {
             List<Object> retList = new ArrayList<Object>();
             handleHolderReturn(params, method, rawRet, retList);
@@ -135,13 +127,14 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                                                                              requestContext,
                                                                              responseContext
                                                                              ));
+
         endpoint.getService().getExecutor().execute(f);
-        
-        Response<?> r = new AsyncResponse<Object>(f, Object.class); 
+
+        Response<?> r = new AsyncResponse<Object>(f, Object.class);
         if (params.length > 0 && params[params.length - 1] instanceof AsyncHandler) {
-            //          callback style
-            AsyncCallbackFuture callback = new AsyncCallbackFuture(r, 
-                (AsyncHandler)params[params.length - 1]);
+            // callback style
+            AsyncCallbackFuture callback = 
+                new AsyncCallbackFuture(r, (AsyncHandler)params[params.length - 1]);
             endpoint.getService().getExecutor().execute(callback);
             return callback;
         } else {
@@ -150,7 +143,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     }
 
     private Object[] handleHolder(Object[] params) {
-        //get value out of Holder
+        // get value out of Holder
         Object[] ret = new Object[params.length];
         for (int i = 0; i < params.length; i++) {
             if (params[i] instanceof Holder) {
@@ -162,66 +155,10 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         return ret;
     }
 
-    BindingOperationInfo getOperationInfo(Object proxy, Method method) {
-        // TODO: We can't really just associate a method with the operationInfo
-        // by its name. The operation name in the wsdl might be something
-        // different.
-        // For instance, if we have two methods named Foo, there might bee Foo1
-        // and Foo2 since the WS-I BP disallows operations with the same name.
-
-        BindingOperationInfo boi = infoMap.get(method);
-
-        if (null == boi) {
-            WebMethod wma = method.getAnnotation(WebMethod.class);
-            String operationName = null;
-            if (null != wma && !"".equals(wma.operationName())) {
-                operationName = wma.operationName();
-            } else {
-                operationName = method.getName();
-            }
-
-            InterfaceInfo ii = endpoint.getService().getServiceInfo().getInterface();
-            QName oiQName = new QName(endpoint.getService().getName().getNamespaceURI(), operationName);
-            OperationInfo oi = ii.getOperation(oiQName);
-            if (null == oi) {
-                return null;
-            }
-            // found the OI in the Interface, now find it in the binding
-            BindingOperationInfo boi2 = endpoint.getEndpointInfo().getBinding().getOperation(oiQName);
-            if (boi2.getOperationInfo() == oi) {
-                if (boi2.isUnwrappedCapable()) {
-                    try {
-                        Class requestWrapper = getRequestWrapper(method);
-                        Class responseWrapper = getResponseWrapper(method);
-
-                        if (requestWrapper != null || responseWrapper != null) {
-                            BindingOperationInfo boi3 = boi2.getUnwrappedOperation();
-                            oi = boi3.getOperationInfo();
-                            oi.setProperty(WrapperClassOutInterceptor.SINGLE_WRAPPED_PART, requestWrapper);
-                            boi2.getOperationInfo().setProperty(WrappedInInterceptor.SINGLE_WRAPPED_PART,
-                                            Boolean.TRUE);
-                            boi3.getOperationInfo().setProperty(Method.class.getName(), method);
-                            infoMap.put(method, boi3);
-                            return boi3;
-                        }
-                    } catch (ClassNotFoundException cnfe) {
-                        cnfe.printStackTrace();
-                        // TODO - exception
-                    }
-                }
-                boi2.getOperationInfo().setProperty(Method.class.getName(), method);
-                infoMap.put(method, boi2);                
-                return boi2;
-            }
-        }
-        return boi;
-    }
-    
-    
     private void handleHolderReturn(Object[] params, Method method, Object[] rawRet, List<Object> retList) {
-                
+
         int idx = 0;
-        
+
         if (method == null) {
             return;
         }
@@ -243,11 +180,11 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                 holderStartIndex++;
             }
         }
-                    
+
         for (int i = idx; i < rawRet.length; i++, holderStartIndex++) {
             try {
-                ((Holder)params[holderStartIndex]).getClass().getField(
-                    "value").set(params[holderStartIndex], rawRet[i]);
+                ((Holder)params[holderStartIndex]).getClass().getField("value").set(params[holderStartIndex],
+                                                                                    rawRet[i]);
             } catch (IllegalArgumentException e) {
                 e.printStackTrace();
             } catch (SecurityException e) {
@@ -257,27 +194,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             } catch (NoSuchFieldException e) {
                 e.printStackTrace();
             }
-            
+
         }
     }
-
-
-    protected Class getResponseWrapper(Method selected) throws ClassNotFoundException {
-        ResponseWrapper rw = selected.getAnnotation(ResponseWrapper.class);
-        if (rw == null) {
-            return null;
-        }
-        String cn = rw.className();
-        return ClassLoaderUtils.loadClass(cn, selected.getDeclaringClass());
-    }
-
-    protected Class getRequestWrapper(Method selected) throws ClassNotFoundException {
-        RequestWrapper rw = selected.getAnnotation(RequestWrapper.class);
-        if (rw == null) {
-            return null;
-        }
-        String cn = rw.className();
-        return ClassLoaderUtils.loadClass(cn, selected.getDeclaringClass());
-    }
-
 }

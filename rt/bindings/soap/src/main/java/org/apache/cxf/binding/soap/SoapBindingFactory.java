@@ -152,7 +152,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getOutInterceptors().add(new WrappedOutInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         }
-
+        
         return sb;
     }
 
@@ -270,5 +270,5 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
 
         bmsg.addExtensor(bodyInfo);
-    }
+    }    
 }

@@ -34,9 +34,9 @@ import org.w3c.dom.Document;
 //The following wsdl file is used.
 //wsdlLocation = "/trunk/testutils/src/main/resources/wsdl/hello_world_rpc_lit.wsdl"
 @WebServiceProvider(portName = "XMLProviderPort",
-        serviceName = "SOAPServiceRPCLit2",
-        targetNamespace = "http://apache.org/hello_world_rpclit",
-        wsdlLocation = "/wsdl/hello_world_rpc_lit.wsdl")
+        serviceName = "XMLService",
+        targetNamespace = "http://apache.org/hello_world_xml_http/wrapped",
+        wsdlLocation = "/wsdl/hello_world_xml_wrapped.wsdl")
 @ServiceMode(value = Service.Mode.PAYLOAD)
 @javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 public class HWDOMSourcePayloadXMLBindingProvider implements

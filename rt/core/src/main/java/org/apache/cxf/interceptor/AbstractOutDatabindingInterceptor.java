@@ -41,7 +41,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     
     protected DataWriter getDataWriter(Message message, Class<?> output) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataWriterFactory();
+        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
 
         DataWriter dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
@@ -62,7 +62,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     protected DataWriter<Message> getMessageDataWriter(Message message) {
         
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataWriterFactory();
+        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
 
         DataWriter<Message> dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
@@ -82,7 +82,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
 
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataWriterFactory();
+        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
 
         DataWriter<XMLStreamWriter> dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {

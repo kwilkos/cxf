@@ -19,37 +19,30 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.BindingFactoryManagerImpl;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.interceptor.WrappedInInterceptor;
+import org.apache.cxf.jaxws.AbstractJaxWsTest;
+import org.apache.cxf.mtom_xop.HelloImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.hello_world_soap_http.GreeterImpl;
-import org.easymock.IMocksControl;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.classextension.EasyMock.createNiceControl;
-
-public class JaxWsServiceFactoryBeanTest extends TestCase {
+public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
     public void testEndpoint() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         bean.setWsdlURL(resource);
-        Bus bus = createBus();
+        Bus bus = getBus();
         bean.setBus(bus);
         bean.setServiceClass(GreeterImpl.class);
 
@@ -66,29 +59,52 @@ public class JaxWsServiceFactoryBeanTest extends TestCase {
         OperationInfo op = intf.getOperation(
             new QName("http://apache.org/hello_world_soap_http", "sayHi"));
         
-        Method m = (Method) op.getProperty(Method.class.getName());
-        assertNotNull(m);
-        assertEquals("sayHi", m.getName());
+        Class wrapper = (Class) 
+            op.getUnwrappedOperation().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS);
+        assertNotNull(wrapper);
         
+        wrapper = (Class) 
+            op.getUnwrappedOperation().getOutput().getProperty(WrappedInInterceptor.WRAPPER_CLASS);
+        assertNotNull(wrapper);
+    
         assertEquals(invoker, service.getInvoker());
-        
     }
+    
+    public void testHolder() throws Exception {
+        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
-    Bus createBus() throws Exception {
-        IMocksControl control = createNiceControl();
-        Bus bus = control.createMock(Bus.class);
+        Bus bus = getBus();
+        bean.setBus(bus);
+        bean.setServiceClass(HelloImpl.class);
 
-        SoapBindingFactory bindingFactory = new SoapBindingFactory();
-        BindingFactoryManager bfm = new BindingFactoryManagerImpl();
-        bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
+        Service service = bean.create();
+        InterfaceInfo intf = service.getServiceInfo().getInterface();
+        
+        OperationInfo op = intf.getOperation(
+            new QName("http://cxf.apache.org/mime", "echoData"));
+        assertNotNull(op);
+        
+        // test setup of input parts
+        Iterator<MessagePartInfo> itr = op.getInput().getMessageParts().iterator();
+        assertTrue(itr.hasNext());
+        MessagePartInfo part = itr.next();
+        assertEquals("body", part.getName().getLocalPart());
+        assertEquals(String.class, part.getProperty(Class.class.getName(), Class.class));
+        
+        assertTrue(itr.hasNext());
+        part = itr.next();
+        assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.HOLDER));
+        assertEquals(byte[].class, part.getProperty(Class.class.getName(), Class.class));
+        
+        assertFalse(itr.hasNext());
+        
+        // test output setup
+        itr = op.getOutput().getMessageParts().iterator();
 
-        expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm).anyTimes();
-
-        WSDLManagerImpl wsdlMan = new WSDLManagerImpl();
-        expect(bus.getExtension(WSDLManager.class)).andReturn(wsdlMan);
-
-        control.replay();
-
-        return bus;
+        assertTrue(itr.hasNext());
+        part = itr.next();
+        assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.HOLDER));
+        
+        assertFalse(itr.hasNext());
     }
 }

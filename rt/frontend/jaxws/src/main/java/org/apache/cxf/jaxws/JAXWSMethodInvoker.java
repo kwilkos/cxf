@@ -21,6 +21,7 @@
 
 package org.apache.cxf.jaxws;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -32,6 +33,8 @@ import javax.xml.ws.Holder;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
@@ -48,8 +51,9 @@ public class JAXWSMethodInvoker implements Invoker {
     public Object invoke(Exchange exchange, Object o) {
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
         
-        
-        Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
+        MethodDispatcher md = (MethodDispatcher) 
+            exchange.get(Service.class).get(MethodDispatcher.class.getName());
+        Method m = md.getMethod(bop);
         List<Object> params = (List<Object>) o;
                 
         checkHolder(m, params, exchange);
@@ -70,8 +74,16 @@ public class JAXWSMethodInvoker implements Invoker {
                 }
             }
             return Arrays.asList(retList.toArray());
-        } catch (Exception e) {
+        } catch (IllegalAccessException e) {
             throw new Fault(e);
+        } catch (IllegalArgumentException e) {
+            throw new Fault(e);
+        } catch (InvocationTargetException e) {
+            Throwable target = e;
+            if (e.getCause() instanceof Exception) {
+                target = e.getCause();
+            }
+            throw new Fault(target);
         }
     }
 

@@ -58,7 +58,7 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
                 Service service = message.getExchange().get(Service.class);
 
-                DataWriterFactory writerFactory = service.getDataWriterFactory();
+                DataWriterFactory writerFactory = service.getDataBinding().getDataWriterFactory();
                 DataWriter<Node> writer = writerFactory.createWriter(Node.class);
 
                 QName faultName = getFaultName(ex);

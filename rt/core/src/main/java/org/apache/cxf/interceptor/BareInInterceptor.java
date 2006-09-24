@@ -115,8 +115,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
 
         if (operation == null) {            
             // If we didn't know the operation going into this, lets try to
-            // figure
-            // it out
+            // figure it out
             OperationInfo op = findOperation(service.getServiceInfo().getInterface().getOperations(),
                             parameters, isRequestor(message));
             for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {

@@ -31,7 +31,6 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
 
-
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataReaderFactory;
@@ -53,7 +52,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
 
     protected DataReader getDataReader(Message message, Class<?> input) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataReaderFactory();
+        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
 
         DataReader dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
@@ -71,7 +70,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
 
     protected DataReader<Message> getMessageDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataReaderFactory();
+        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
 
         DataReader<Message> dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
@@ -89,7 +88,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
 
     protected DataReader<XMLStreamReader> getDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataReaderFactory();
+        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
 
         DataReader<XMLStreamReader> dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
@@ -107,7 +106,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     
     protected DataReader<Node> getNodeDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataReaderFactory();
+        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
 
         DataReader<Node> dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {

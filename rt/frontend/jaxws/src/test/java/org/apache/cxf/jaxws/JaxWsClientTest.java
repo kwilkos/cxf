@@ -126,8 +126,6 @@ public class JaxWsClientTest extends AbstractCXFTest {
         Object ret[] = client.invoke(bop, new Object[0], null, null);
         assertNotNull(ret);
         assertEquals("Wrong number of return objects", 1, ret.length);
-        //right now, no message string is returned by the echoer
-        assertNull(ret[0]);
     }
 
     static class EchoObserver implements MessageObserver {
