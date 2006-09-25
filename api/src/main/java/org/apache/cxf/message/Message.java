@@ -31,15 +31,11 @@ public interface Message extends Map<String, Object> {
     
     String TRANSPORT = "org.apache.cxf.transport";    
     String REQUESTOR_ROLE = "org.apache.cxf.client";
-    String ONEWAY_MESSAGE = "org.apache.cxf.transport.isOneWayMessage";
 
     String INBOUND_MESSAGE = "org.apache.cxf.message.inbound";
     String INVOCATION_OBJECTS = "org.apache.cxf.invocation.objects";
     
     String MIME_HEADERS = "org.apache.cxf.mime.headers";
-
-    String CORRELATION_OUT = "org.apache.cxf.correlation.out";
-    String CORRELATION_IN = "org.apache.cxf.correlation.in";
     
     String PROTOCOL_HEADERS = Message.class.getName() + ".PROTOCOL_HEADERS";
     String RESPONSE_CODE = Message.class.getName() + ".RESPONSE_CODE";

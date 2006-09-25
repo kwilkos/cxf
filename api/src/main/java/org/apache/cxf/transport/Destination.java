@@ -21,7 +21,6 @@ package org.apache.cxf.transport;
 
 import java.io.IOException;
 
-import javax.wsdl.WSDLException;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -53,7 +52,7 @@ public interface Destination extends Observable {
     Conduit getBackChannel(Message inMessage,
                            Message partialResponse,
                            EndpointReferenceType address)
-        throws WSDLException, IOException;
+        throws IOException;
 
     /**
      * Shutdown the Destination, i.e. stop accepting incoming messages.

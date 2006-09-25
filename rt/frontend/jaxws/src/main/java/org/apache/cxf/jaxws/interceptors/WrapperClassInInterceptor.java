@@ -98,14 +98,17 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 messageInfo = op.getOutput();
                 bmi = boi2.getOutput();
             }
-            
-            message.put(MessageInfo.class, messageInfo);
-            message.put(BindingMessageInfo.class, bmi);
-            message.getExchange().put(BindingOperationInfo.class, boi2);
-            message.getExchange().put(OperationInfo.class, op);
-            
+                        
             List<?> lst = message.getContent(List.class);
-            if (lst.size() == 1) {
+            
+            if (lst != null) {
+                message.put(MessageInfo.class, messageInfo);
+                message.put(BindingMessageInfo.class, bmi);
+                message.getExchange().put(BindingOperationInfo.class, boi2);
+                message.getExchange().put(OperationInfo.class, op);
+            }
+            
+            if (lst != null && lst.size() == 1) {
                 if (messageInfo.getMessageParts().size() > 0) {
                     Object wrappedObject = lst.get(0);
                     lst.clear();

@@ -58,7 +58,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private final Map<String, List<Interceptor>> nameMap = new HashMap<String, List<Interceptor>>();
 
     private State state;
-    private ListIterator<Interceptor<? extends Message>> iterator;
+    private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
     private Interceptor faultInterceptor;
     
@@ -149,6 +149,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
             pausedMessage = message;
         }
         return state == State.COMPLETE;
+    }
+    
+    public void reset() {
+        if (state == State.COMPLETE) {
+            state = State.EXECUTING;
+            iterator.reset();
+        }
     }
     
     @SuppressWarnings("unchecked")
@@ -308,7 +315,15 @@ public class PhaseInterceptorChain implements InterceptorChain {
         public void set(Interceptor o) {
             throw new UnsupportedOperationException();
         }
-        
+
+        protected void reset() {
+            phases = interceptors.values().iterator();
+            if (phases.hasNext()) {
+                currentPhase = phases.next();
+                currentPhaseIterator = currentPhase.iterator();
+                last = null;
+            }
+        }
     }
 
     public Interceptor getFaultInterceptor() {

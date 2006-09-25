@@ -458,8 +458,7 @@ public class ServletDestination implements Destination {
     }
     
     protected boolean isOneWay(Message message) {
-        Boolean oneway = (Boolean)message.get(org.apache.cxf.message.Message.ONEWAY_MESSAGE);
-        return oneway != null && oneway.booleanValue();
+        return message.getExchange() != null && message.getExchange().isOneWay();
     }
 
 }

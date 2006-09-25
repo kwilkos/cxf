@@ -49,7 +49,8 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
         HandlerChainInvoker invoker = 
             message.getExchange().get(HandlerChainInvoker.class);
         if (null == invoker) {
-            invoker = new HandlerChainInvoker(binding.getHandlerChain());
+            invoker = new HandlerChainInvoker(binding.getHandlerChain(),
+                                              isOutbound(message));
             message.getExchange().put(HandlerChainInvoker.class, invoker);
         }
         return invoker;

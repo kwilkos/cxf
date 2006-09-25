@@ -52,7 +52,8 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
 
         // Trying to find the operation name from the XML.
         if (!StaxUtils.toNextElement(xmlReader)) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
+            // body may be empty for partial response to decoupled request
+            return;
         }
         BindingOperationInfo operation = message.getExchange().get(BindingOperationInfo.class);
         boolean requestor = isRequestor(message);

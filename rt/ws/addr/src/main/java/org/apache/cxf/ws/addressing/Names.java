@@ -149,6 +149,7 @@ public final class Names {
         "http://www.w3.org/2003/05/soap-envelope?addressing=ms";
     
     public static final String SOAP_ACTION_HEADER = "SOAPAction";
+    
     /**
      * The set of headers understood by the protocol binding.
      */

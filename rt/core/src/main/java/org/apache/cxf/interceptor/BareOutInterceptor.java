@@ -50,8 +50,14 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         int countParts = 0;
         List<MessagePartInfo> parts = null;
+
         if (!isRequestor(message)) {
-            parts = operation.getOutput().getMessageInfo().getMessageParts();
+            if (operation.getOutput() != null) {
+                parts = operation.getOutput().getMessageInfo().getMessageParts();
+            } else {
+                // partial response to oneway
+                return;
+            }
         } else {
             parts = operation.getInput().getMessageInfo().getMessageParts();
         }
@@ -59,18 +65,20 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         if (countParts > 0) {
             List<?> objs = message.getContent(List.class);
-            Object[] args = objs.toArray();
-            Object[] els = parts.toArray();
+            if (objs != null) {
+                Object[] args = objs.toArray();
+                Object[] els = parts.toArray();
                         
-            for (int idx = 0; idx < countParts; idx++) {
-                Object arg = args[idx];
-                MessagePartInfo part = (MessagePartInfo)els[idx];
-                if (part.isInSoapHeader()) {
-                    //this part should be in header, should donot write to soap body
-                    continue;
+                for (int idx = 0; idx < countParts; idx++) {
+                    Object arg = args[idx];
+                    MessagePartInfo part = (MessagePartInfo)els[idx];
+                    if (part.isInSoapHeader()) {
+                        //this part should be in header, should donot write to soap body
+                        continue;
+                    }
+                    QName elName = ServiceModelUtil.getPartName(part);
+                    dataWriter.write(arg, elName, message);
                 }
-                QName elName = ServiceModelUtil.getPartName(part);
-                dataWriter.write(arg, elName, message);
             }
         }
     }

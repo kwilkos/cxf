@@ -38,6 +38,7 @@ import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -46,6 +47,7 @@ import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
@@ -58,6 +60,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         JettyHTTPDestination.class.getName() + ".REQUEST";
     public static final String HTTP_RESPONSE =
         JettyHTTPDestination.class.getName() + ".RESPONSE";
+    
+    protected static final String ANONYMOUS_ADDRESS =
+        "http://www.w3.org/2005/08/addressing/anonymous";
     
     protected ServerEngine engine;
     protected MessageObserver incomingObserver;
@@ -158,16 +163,21 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         throws IOException {
         HttpResponse response = (HttpResponse)inMessage.get(HTTP_RESPONSE);
         Conduit backChannel = null;
-        if (address == null) {
-            backChannel = new BackChannelConduit(address, response);
+        Exchange ex = inMessage.getExchange();
+        EndpointReferenceType target = address != null
+                                       ? address
+                                       : ex.get(EndpointReferenceType.class);
+        if (target == null) {
+            backChannel = new BackChannelConduit(response);
         } else {
             if (partialResponse != null) {
                 // setup the outbound message to for 202 Accepted
                 partialResponse.put(Message.RESPONSE_CODE,
                                     HttpURLConnection.HTTP_ACCEPTED);
-                backChannel = new BackChannelConduit(address, response);
+                backChannel = new BackChannelConduit(response);
+                ex.put(EndpointReferenceType.class, target);
             } else {
-                backChannel = conduitInitiator.getConduit(endpointInfo, address);
+                backChannel = conduitInitiator.getConduit(endpointInfo, target);
                 // ensure decoupled back channel input stream is closed
                 backChannel.setMessageObserver(new MessageObserver() {
                     public void onMessage(Message m) {
@@ -349,9 +359,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         protected HttpResponse response;
         protected EndpointReferenceType target;
         
-        BackChannelConduit(EndpointReferenceType ref, HttpResponse resp) {
+        BackChannelConduit(HttpResponse resp) {
             response = resp;
-            target = ref;
+            target =
+                EndpointReferenceUtils.getEndpointReference(ANONYMOUS_ADDRESS);
         }
         public void close(Message msg) throws IOException {
             msg.getContent(OutputStream.class).close();        

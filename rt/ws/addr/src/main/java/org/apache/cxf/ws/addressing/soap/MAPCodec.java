@@ -20,6 +20,8 @@
 package org.apache.cxf.ws.addressing.soap;
 
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +48,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
@@ -66,9 +69,16 @@ public class MAPCodec extends AbstractSoapInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(MAPCodec.class);
     private static SOAPFactory soapFactory;
-    
-    private VersionTransformer transformer;
 
+    /**
+     * REVISIT: map usage that the *same* interceptor instance 
+     * is used in all chains.
+     */
+    protected final Map<String, Exchange> uncorrelatedExchanges =
+        Collections.synchronizedMap(new HashMap<String, Exchange>());
+
+    private VersionTransformer transformer;
+    
     /**
      * Constructor.
      */
@@ -125,6 +135,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
     private void encode(SoapMessage message, 
                         AddressingProperties maps) {
         if (maps != null) { 
+            cacheExchange(message, maps);
             LOG.log(Level.INFO, "encoding MAPs in SOAP headers");
             try {
                 Element header = message.getHeaders(Element.class);
@@ -263,6 +274,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                         }
                     }
                 }
+                restoreExchange(message, maps);
             }
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
@@ -280,15 +292,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
     private AddressingProperties decode(SoapMessage message) {
         // REVISIT generate MessageAddressingHeaderRequired fault if an
         // expected header is missing 
-        AddressingProperties maps = null;
-        boolean isRequestor = ContextUtils.isRequestor(message);
-        maps = unmarshalMAPs(message);
-        if (isRequestor && null != maps.getRelatesTo()) {
-            ContextUtils.storeCorrelationID(maps.getRelatesTo(),
-                                            false,
-                                            message);
-        }
-        return maps;
+        return unmarshalMAPs(message);
     }
 
     /**
@@ -423,6 +427,39 @@ public class MAPCodec extends AbstractSoapInterceptor {
         fault.setFaultString(reason);
         return new SOAPFaultException(fault);
     }
+    
+    /**
+     * Cache exchange for correlated response
+     * 
+     * @param message the current message
+     * @param maps the addressing properties
+     */
+    private void cacheExchange(SoapMessage message, AddressingProperties maps) {
+        if (maps.getRelatesTo() == null) {
+            uncorrelatedExchanges.put(maps.getMessageID().getValue(),
+                                      message.getExchange());
+        }
+    }
+    
+    /**
+     * Restore exchange for correlated response
+     * 
+     * @param message the current message
+     * @param maps the addressing properties
+     */
+    private void restoreExchange(SoapMessage message, AddressingProperties maps) {
+        if (maps.getRelatesTo() != null) {
+            // REVISIT remove if not partial response
+            Exchange correlatedExchange =
+                uncorrelatedExchanges.get(maps.getRelatesTo().getValue());
+            if (correlatedExchange != null) {
+                synchronized (correlatedExchange) {
+                    message.setExchange(correlatedExchange);
+                }
+            }
+        }
+    }
+
 }
 
 

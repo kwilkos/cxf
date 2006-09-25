@@ -42,6 +42,8 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     
     void resume();
     
+    void reset();
+    
     ListIterator<Interceptor<? extends Message>> getIterator();
 
     Interceptor getFaultInterceptor();

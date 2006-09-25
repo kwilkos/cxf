@@ -19,10 +19,6 @@
 
 package org.apache.cxf.interceptor;
 
-import java.io.IOException;
-
-import javax.wsdl.WSDLException;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -49,17 +45,7 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             return;
         }
         
-        Bus bus = ex.get(Bus.class);
-        PhaseManager pm = bus.getExtension(PhaseManager.class);
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
-        
         Endpoint ep = ex.get(Endpoint.class);
-        chain.add(ep.getOutInterceptors());
-        chain.add(ep.getService().getOutInterceptors());
-        chain.add(bus.getOutInterceptors());        
-        if (ep.getBinding() != null) {
-            chain.add(ep.getBinding().getOutInterceptors());
-        }
         
         Message outMessage = message.getExchange().getOutMessage();
         if (outMessage == null) {
@@ -73,19 +59,22 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             ex.setFaultMessage(faultMessage);
         }
         
-        if (outMessage.getConduit() == null
-            && ex.getConduit() == null
-            && ex.getDestination() != null) {
-            try {
-                ex.setConduit(ex.getDestination().getBackChannel(message, null, null));
-            } catch (WSDLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        outMessage.setInterceptorChain(getOutInterceptorChain(ex));
+    }
+    
+    public static InterceptorChain getOutInterceptorChain(Exchange ex) {
+        Bus bus = ex.get(Bus.class);
+        PhaseManager pm = bus.getExtension(PhaseManager.class);
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
+        
+        Endpoint ep = ex.get(Endpoint.class);
+        chain.add(ep.getOutInterceptors());
+        chain.add(ep.getService().getOutInterceptors());
+        chain.add(bus.getOutInterceptors());        
+        if (ep.getBinding() != null) {
+            chain.add(ep.getBinding().getOutInterceptors());
         }
-        outMessage.setInterceptorChain(chain);
+        
+        return chain;
     }
 }

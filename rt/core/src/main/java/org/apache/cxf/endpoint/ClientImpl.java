@@ -89,7 +89,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }    
         //setup the message context
         setContext(requestContext, message);
-        //setMethod(ctx, message);
         setParameters(params, message);
         Exchange exchange = new ExchangeImpl();
         if (null != requestContext) {
@@ -178,20 +177,18 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     private Message waitResponse(Exchange exchange) {
-        Message inMsg = exchange.getInMessage();
-        if (inMsg == null) {
+        while (exchange.getInMessage() == null) {
             try {
                 exchange.wait();
             } catch (InterruptedException e) {
                 //TODO - timeout
             }
-            inMsg = exchange.getInMessage();
         }
-        if (inMsg.getContent(Exception.class) != null) {
+        if (isException(exchange)) {
             //TODO - exceptions 
-            throw new RuntimeException(inMsg.getContent(Exception.class));
+            throw new RuntimeException(exchange.getInMessage().getContent(Exception.class));
         }
-        return inMsg;
+        return exchange.getInMessage();
     }
 
     private void setParameters(Object[] params, Message message) {
@@ -205,6 +202,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     public void onMessage(Message message) {
         message = endpoint.getBinding().createMessage(message);
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+        message.put(Message.INBOUND_MESSAGE, Boolean.TRUE);
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getInPhases());
         message.setInterceptorChain(chain);
@@ -235,8 +233,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             chain.doIntercept(message);
         } finally {
             synchronized (message.getExchange()) {
-                message.getExchange().setInMessage(message);
-                message.getExchange().notifyAll();
+                if (!isPartialResponse(message)) {
+                    message.getExchange().setInMessage(message);
+                    message.getExchange().notifyAll();
+                }
             }
         }
     }
@@ -260,8 +260,23 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return initedConduit;
     }
     
+    private boolean isPartialResponse(Message in) {
+        //Message in = exchange.getInMessage();
+        boolean partial = in.getContent(List.class) == null
+                          && in.getContent(Exception.class) == null;
+        //if (partial) {
+            //exchange.setInMessage(null);
+        //}
+        return partial;
+    }
+
+    private boolean isException(Exchange exchange) {
+        return exchange.getInMessage().getContent(Exception.class) != null;
+    }
+    
     protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+        message.put(Message.INBOUND_MESSAGE, Boolean.FALSE);
         message.put(BindingMessageInfo.class, boi.getInput());
         message.put(MessageInfo.class, boi.getOperationInfo().getInput());
     }

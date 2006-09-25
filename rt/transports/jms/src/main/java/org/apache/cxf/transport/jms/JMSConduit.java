@@ -37,7 +37,6 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.naming.NamingException;
-import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -336,6 +335,9 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             //TODO if outMessage need to get the response
             Message inMessage = new MessageImpl();
             inMessage.setExchange(outMessage.getExchange());            
+            //set the message header back to the incomeMessage
+            //inMessage.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
+            //              outMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS));
                         
             try {
                 response = receive(pooledSession, outMessage);
@@ -343,9 +345,11 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
                 LOG.log(Level.FINE, "JMS connect failed with JMSException : ", jmsex);            
                 throw new IOException(jmsex.toString());
             }  
+
             //set the message header back to the incomeMessage
             inMessage.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
                           outMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS));
+
             LOG.log(Level.FINE, "The Response Message is : [" + response + "]");
             
             // setup the inMessage response stream
@@ -383,7 +387,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
         public Conduit getBackChannel(Message inMessage,
                                       Message partialResponse,
                                       EndpointReferenceType addr)
-            throws WSDLException, IOException {
+            throws IOException {
             // shouldn't be called on decoupled endpoint
             return null;
         }

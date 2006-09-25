@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -40,10 +41,15 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
     }
 
     public void handleMessage(Message message) {
-        Conduit conduit = message.getConduit();
-        if (conduit == null) {
-            conduit = message.getExchange().getConduit();
-        }
+        Exchange exchange = message.getExchange();
+        Conduit conduit =
+            message.getConduit() != null
+            ? message.getConduit()
+            : exchange.getConduit() != null
+              ? exchange.getConduit()
+              : exchange.getOutMessage() != null
+                ? OutgoingChainInterceptor.getBackChannelConduit(exchange)
+                : null;
 
         try {
             conduit.send(message);

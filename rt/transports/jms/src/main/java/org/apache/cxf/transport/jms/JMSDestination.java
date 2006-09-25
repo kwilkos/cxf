@@ -44,7 +44,6 @@ import javax.jms.QueueSender;
 
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
-import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -96,7 +95,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
 
     public Conduit getBackChannel(Message inMessage, 
                                   Message partialResponse, 
-                                  EndpointReferenceType address) throws WSDLException, IOException {
+                                  EndpointReferenceType address) throws IOException {
                 
         Conduit backChannel = null;
         if (address == null) {

@@ -33,14 +33,15 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.namespace.QName;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.AttributedURIType;
@@ -73,6 +74,8 @@ public class MAPCodecTest extends TestCase {
     private int expectedIndex;
     private String expectedNamespaceURI;
     private Map<String, List<String>> mimeHeaders;
+    private Exchange correlatedExchange;
+    private boolean expectRelatesTo;
 
     public void setUp() {
         codec = new MAPCodec();
@@ -86,6 +89,7 @@ public class MAPCodecTest extends TestCase {
         expectedIndex = 0;
         expectedNamespaceURI = null;
         mimeHeaders = null;
+        correlatedExchange = null;
     }
 
     public void testGetHeaders() throws Exception {
@@ -275,17 +279,19 @@ public class MAPCodecTest extends TestCase {
                                      String exposeAs) 
         throws Exception {
         SoapMessage message = new SoapMessage(new MessageImpl());
-        message.put(MESSAGE_OUTBOUND_PROPERTY, Boolean.valueOf(outbound));
+        setUpOutbound(message, outbound);
+        expectRelatesTo = (requestor && !outbound) || (!requestor && outbound);
         message.put(REQUESTOR_ROLE, Boolean.valueOf(requestor));
         String mapProperty = getMAPProperty(requestor, outbound);
-        AddressingPropertiesImpl maps = getMAPs(exposeAs, outbound);
+        AddressingPropertiesImpl maps = getMAPs(requestor, outbound, exposeAs);
         Element header = control.createMock(Element.class);
         message.setHeaders(Element.class, header);
         JAXBContext jaxbContext = control.createMock(JAXBContext.class);
         ContextUtils.setJAXBContext(jaxbContext);
         VersionTransformer.Names200408.setJAXBContext(jaxbContext);
         if (outbound) {
-            setUpEncode(message,
+            setUpEncode(requestor,
+                        message,
                         header,
                         maps,
                         mapProperty,
@@ -298,7 +304,8 @@ public class MAPCodecTest extends TestCase {
         return message;
     }
 
-    private void setUpEncode(SoapMessage message,
+    private void setUpEncode(boolean requestor,
+                             SoapMessage message,
                              Element header,
                              AddressingPropertiesImpl maps,
                              String mapProperty,
@@ -321,7 +328,10 @@ public class MAPCodecTest extends TestCase {
         marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
         EasyMock.expectLastCall();
         IArgumentMatcher matcher = new JAXBEltMatcher();
-        for (int i = 0; i < expectedValues.length; i++) {
+        int expectedMarshals = requestor 
+                               ? expectedValues.length - 1
+                               : expectedValues.length;
+        for (int i = 0; i < expectedMarshals; i++) {
             EasyMock.reportMatcher(matcher);
             EasyMock.eq(header);
             marshaller.marshal(null, header);
@@ -431,6 +441,12 @@ public class MAPCodecTest extends TestCase {
         unmarshaller.unmarshal(headerElement, clz);
         EasyMock.expectLastCall().andReturn(jaxbElement);
     }
+    
+    private void setUpOutbound(Message message, boolean outbound) {
+        Exchange exchange = new ExchangeImpl();
+        exchange.setOutMessage(outbound ? message : new MessageImpl());
+        message.setExchange(exchange);
+    }
 
     private String getMAPProperty(boolean requestor, boolean outbound) { 
         return requestor
@@ -442,7 +458,9 @@ public class MAPCodecTest extends TestCase {
                  : SERVER_ADDRESSING_PROPERTIES_INBOUND;
     }
 
-    private AddressingPropertiesImpl getMAPs(String uri, boolean outbound) {
+    private AddressingPropertiesImpl getMAPs(boolean requestor,
+                                             boolean outbound,
+                                             String uri) {
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
         boolean exposeAsNative = Names.WSA_NAMESPACE_NAME.equals(uri);
         boolean exposeAs200408 = 
@@ -469,9 +487,15 @@ public class MAPCodecTest extends TestCase {
         faultTo.setAddress(
             ContextUtils.getAttributedURI(anonymous));
         maps.setFaultTo(faultTo);
-        RelatesToType relatesTo = new RelatesToType(); 
-        relatesTo.setValue("urn:uuid:67890");
-        maps.setRelatesTo(relatesTo);
+        RelatesToType relatesTo = null;
+        if (expectRelatesTo) {
+            String correlationID = "urn:uuid:67890";
+            relatesTo = new RelatesToType(); 
+            relatesTo.setValue(correlationID);
+            maps.setRelatesTo(relatesTo);
+            correlatedExchange = new ExchangeImpl();
+            codec.uncorrelatedExchanges.put(correlationID, correlatedExchange);
+        }
         AttributedURIType action = 
             ContextUtils.getAttributedURI("http://foo/bar/SEI/opRequest");
         maps.setAction(action);
@@ -529,6 +553,9 @@ public class MAPCodecTest extends TestCase {
             Object value = expectedValues[expectedIndex];
             boolean ret = false;
             expectedIndex++;
+            if (expectedIndex == 5 && !expectRelatesTo) {
+                return true;
+            }
             if (obj instanceof JAXBElement) {
                 JAXBElement other = (JAXBElement)obj;
                 ret = name.equals(other.getName()) 
@@ -597,10 +624,6 @@ public class MAPCodecTest extends TestCase {
                 ? ((EndpointReferenceType)expectedValues[2]).getAddress().getValue()
                 : (VersionTransformer.Names200408.EPR_TYPE.cast(expectedValues[2])).
                     getAddress().getValue();
-            String expectedRelatesTo = 
-                exposedAsNative
-                ? ((RelatesToType)expectedValues[4]).getValue()
-                : ((Relationship)expectedValues[4]).getValue();
             String expectedAction =                    
                 exposedAsNative
                 ? ((AttributedURIType)expectedValues[5]).getValue()
@@ -609,10 +632,17 @@ public class MAPCodecTest extends TestCase {
             ret = expectedMessageID.equals(other.getMessageID().getValue())
                   && expectedTo.equals(other.getTo().getValue())
                   && expectedReplyTo.equals(
-                         other.getReplyTo().getAddress().getValue())
-                  && expectedRelatesTo.equals(other.getRelatesTo().getValue())
+                        other.getReplyTo().getAddress().getValue())
                   && expectedAction.equals(other.getAction().getValue())
                   && expectedNamespaceURI.equals(other.getNamespaceURI());
+            if (expectRelatesTo) {
+                String expectedRelatesTo = 
+                    exposedAsNative
+                    ? ((RelatesToType)expectedValues[4]).getValue()
+                    : ((Relationship)expectedValues[4]).getValue();
+                ret = ret
+                      && expectedRelatesTo.equals(other.getRelatesTo().getValue());
+            }
         } 
         return ret;
     }
@@ -632,13 +662,21 @@ public class MAPCodecTest extends TestCase {
                                boolean requestor,
                                boolean outbound,
                                boolean exposedAsNative) {
-        if (requestor && !outbound) {
-            String relatesTo = (String)message.get("org.apache.cxf.correlation.in");
-            assertEquals("unexpected relates to",
-                         exposedAsNative
-                         ? ((RelatesToType)expectedValues[4]).getValue()
-                         : ((Relationship)expectedValues[4]).getValue(),
-                         relatesTo);
+        if (requestor) {
+            if (outbound) {
+                String id = expectedValues[0] instanceof AttributedURIType
+                            ? ((AttributedURIType)expectedValues[0]).getValue()
+                            : ((AttributedURI)expectedValues[0]).getValue();
+                //assertTrue("expected correlationID : " + id + " in map: " + codec.uncorrelatedExchanges,
+                //           codec.uncorrelatedExchanges.containsKey(id));
+                assertSame("unexpected correlated exchange",
+                           codec.uncorrelatedExchanges.get(id),
+                           message.getExchange());
+            } else {
+                assertSame("unexpected correlated exchange",
+                           correlatedExchange,
+                           message.getExchange());
+            }
         }
         assertTrue("unexpected MAPs",
                    verifyMAPs(message.get(getMAPProperty(requestor, outbound))));

@@ -34,6 +34,7 @@ import javax.wsdl.extensions.ExtensibilityElement;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -53,6 +54,10 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
     
 
+    /**
+     * REVISIT: map usage implies that the *same* interceptor instance 
+     * is used in all chains.
+     */
     protected final Map<String, String> messageIDs = 
         new HashMap<String, String>();
     
@@ -171,13 +176,14 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             // responder validates incoming MAPs
             AddressingPropertiesImpl maps = getMAPs(message, false, false);
             setUsingAddressing(true);
-            continueProcessing = validateIncomingMAPs(maps, message); 
+            boolean isOneway = message.getExchange().isOneWay();
+            continueProcessing = validateIncomingMAPs(maps, message);
             if (continueProcessing) {
-                if (ContextUtils.isOneway(message)
+                if (isOneway
                     || !ContextUtils.isGenericAddress(maps.getReplyTo())) {
-                    ContextUtils.rebaseTransport(maps.getReplyTo(),
-                                                 maps.getNamespaceURI(),
-                                                 message);
+                    ContextUtils.rebaseResponse(maps.getReplyTo(),
+                                                maps,
+                                                message);
                 }            
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
@@ -204,7 +210,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         // b) message is currently inbound, but we are about to abort dispatch
         //    due to an incoming MAPs validation failure, so the dispatch
         //    will shortly traverse the outbound path
-        ContextUtils.storeMAPs(maps, message, true, isRequestor, true);
+        ContextUtils.storeMAPs(maps, message, true, isRequestor);
     }
 
     /**
@@ -215,20 +221,10 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      */
     private AddressingPropertiesImpl assembleGeneric(Message message) {
         AddressingPropertiesImpl maps = getMAPs(message, true, true);
-        // MessageID
+        // MessageID        
         if (maps.getMessageID() == null) {
             String messageID = ContextUtils.generateUUID();
             maps.setMessageID(ContextUtils.getAttributedURI(messageID));
-        }
-        // To
-        if (maps.getTo() == null) {
-            Conduit conduit = message.getConduit();
-            EndpointReferenceType reference = conduit != null
-                                              ? conduit.getTarget()
-                                              : null;
-            maps.setTo(reference != null 
-                       ? reference.getAddress()
-                       : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
         }
         // Action
         if (ContextUtils.hasEmptyAction(maps)) {
@@ -251,16 +247,34 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                                  boolean isRequestor,
                                  boolean isFault) {
         if (isRequestor) {
+            Exchange exchange = message.getExchange();
+            
             // add request-specific MAPs
-            boolean isOneway = ContextUtils.isOneway(message);
+            boolean isOneway = exchange.isOneWay();
+            boolean isOutbound = ContextUtils.isOutbound(message);
+            Conduit conduit = null;
+            
+            // To
+            if (maps.getTo() == null) {
+                if (isOutbound) {
+                    conduit = ContextUtils.getConduit(conduit, message);
+                }
+                EndpointReferenceType reference = conduit != null
+                                                  ? conduit.getTarget()
+                                                  : null;
+                maps.setTo(reference != null 
+                           ? reference.getAddress()
+                           : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
+            }
+
             // ReplyTo, set if null in MAPs or if set to a generic address
             // (anonymous or none) that may not be appropriate for the
             // current invocation
             EndpointReferenceType replyTo = maps.getReplyTo();
             if (ContextUtils.isGenericAddress(replyTo)) {
-                Conduit conduit = message.getConduit();
+                conduit = ContextUtils.getConduit(conduit, message);
                 if (conduit != null) {
-                    Destination backChannel = message.getConduit().getBackChannel();
+                    Destination backChannel = conduit.getBackChannel();
                     if (backChannel != null) {
                         replyTo = backChannel.getAddress();
                     }
@@ -279,10 +293,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             if (!isOneway) {
                 // REVISIT FaultTo if cached by transport in message
             }
-            // cache correlation ID
-            if (ContextUtils.isOutbound(message)) {
-                ContextUtils.storeCorrelationID(maps.getMessageID(), true, message);
-            }
         } else {
             // add response-specific MAPs
             AddressingPropertiesImpl inMAPs = getMAPs(message, false, false);
@@ -299,9 +309,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
 
             if (isFault
                 && !ContextUtils.isGenericAddress(inMAPs.getFaultTo())) {
-                ContextUtils.rebaseTransport(inMAPs.getFaultTo(),
-                                             inMAPs.getNamespaceURI(),
-                                             message);
+                ContextUtils.rebaseResponse(inMAPs.getFaultTo(),
+                                            inMAPs,
+                                            message);
             }
         }
     }

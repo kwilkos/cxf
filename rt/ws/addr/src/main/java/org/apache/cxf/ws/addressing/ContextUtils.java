@@ -33,20 +33,18 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
-import static javax.xml.ws.handler.MessageContext.MESSAGE_OUTBOUND_PROPERTY;
-
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
-import static org.apache.cxf.message.Message.CORRELATION_IN;
-import static org.apache.cxf.message.Message.CORRELATION_OUT;
-import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
 import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
 
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
@@ -106,8 +104,10 @@ public final class ContextUtils {
     * @return true iff the message direction is outbound
     */
     public static boolean isOutbound(Message message) {
-        Boolean outbound = (Boolean)message.get(MESSAGE_OUTBOUND_PROPERTY);
-        return outbound != null && outbound.booleanValue();
+        Exchange exchange = message.getExchange();
+        return message != null
+               && exchange != null
+               && message == exchange.getOutMessage();
     }
 
    /**
@@ -119,17 +119,6 @@ public final class ContextUtils {
     public static boolean isRequestor(Message message) {
         Boolean requestor = (Boolean)message.get(REQUESTOR_ROLE);
         return requestor != null && requestor.booleanValue();
-    }
-
-    /**
-     * Determine if current invocation is oneway.
-     *
-     * @param message the current Message
-     * @return true iff the current invocation is oneway
-     */
-    public static boolean isOneway(Message message) {
-        Boolean oneway = (Boolean)message.get(ONEWAY_MESSAGE);
-        return oneway != null && oneway.booleanValue();
     }
 
     /**
@@ -156,18 +145,6 @@ public final class ContextUtils {
                  ? SERVER_ADDRESSING_PROPERTIES_OUTBOUND
                  : SERVER_ADDRESSING_PROPERTIES_INBOUND;
     }
-    
-    /**
-     * Get appropriate context property name for correlation ID.
-     *
-     * @param isOutbound true iff the message is outbound
-     * @return the property name to use when caching the 
-     * correlation ID in the context
-     */
-    public static String getCorrelationIDProperty(boolean isOutbound) {
-        return isOutbound ? CORRELATION_OUT : CORRELATION_IN;
-    }
-
 
     /**
      * Store MAPs in the message.
@@ -178,7 +155,7 @@ public final class ContextUtils {
     public static void storeMAPs(AddressingProperties maps,
                                  Message message,
                                  boolean isOutbound) {
-        storeMAPs(maps, message, isOutbound, isRequestor(message), true, false);
+        storeMAPs(maps, message, isOutbound, isRequestor(message), false);
     }
 
     /**
@@ -194,9 +171,8 @@ public final class ContextUtils {
     public static void storeMAPs(AddressingProperties maps,
                                  Message message,
                                  boolean isOutbound, 
-                                 boolean isRequestor,
-                                 boolean handler) {
-        storeMAPs(maps, message, isOutbound, isRequestor, handler, false);
+                                 boolean isRequestor) {
+        storeMAPs(maps, message, isOutbound, isRequestor, false);
     }
     
     /**
@@ -214,7 +190,6 @@ public final class ContextUtils {
                                  Message message,
                                  boolean isOutbound, 
                                  boolean isRequestor,
-                                 boolean handler,
                                  boolean isProviderContext) {
         if (maps != null) {
             String mapProperty = getMAPProperty(isRequestor, isProviderContext, isOutbound);
@@ -315,41 +290,89 @@ public final class ContextUtils {
     }
     
     /**
-     * Rebase server transport on replyTo
+     * Rebase response on replyTo
      * 
      * @param reference the replyTo reference
      * @param namespaceURI determines the WS-A version
      * @param inMessage the current message
      */
-    public static void rebaseTransport(EndpointReferenceType reference,
-                                       String namespaceURI,
-                                       Message inMessage) {
+    public static void rebaseResponse(EndpointReferenceType reference,
+                                      AddressingProperties inMAPs,
+                                      Message inMessage) {
+        String namespaceURI = inMAPs.getNamespaceURI();
         if (!retrievePartialResponseSent(inMessage)) {
-            // ensure there is a MAPs instance available for the outbound
-            // partial response that contains appropriate To and ReplyTo
-            // properties (i.e. anonymous & none respectively)
-            AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-            maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
-            maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
-            maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
-            maps.setAction(getAttributedURI(""));
-            maps.exposeAs(namespaceURI);
-            Message partialResponse = new MessageImpl();
-            storeMAPs(maps, partialResponse, true, true, true, true);
-
+            Exchange exchange = inMessage.getExchange();
+            Message fullResponse = exchange.getOutMessage();
+            Endpoint endpoint = exchange.get(Endpoint.class);
+            Message partialResponse = endpoint.getBinding().createMessage();
+            ensurePartialResponseMAPs(partialResponse, namespaceURI);
+            
+            // ensure the inbound MAPs are available in both the full, fault
+            // and partial response messages (used to determine relatesTo etc.)
+            propogateReceivedMAPs(inMAPs, partialResponse);
+            propogateReceivedMAPs(inMAPs, fullResponse);
+            propogateReceivedMAPs(inMAPs, exchange.getFaultMessage());
+            
             try {
                 Destination target = inMessage.getDestination();
                 Conduit backChannel = target.getBackChannel(inMessage,
                                                             partialResponse,
                                                             reference);
                 if (backChannel != null) {
-                    // REVISIT set up interceptor chains and send message
+                    // set up interceptor chains and send message
+
+                    exchange.setOutMessage(partialResponse);
+                    InterceptorChain chain =
+                        fullResponse != null
+                        ? fullResponse.getInterceptorChain()
+                        : OutgoingChainSetupInterceptor.getOutInterceptorChain(exchange);
+                    partialResponse.setInterceptorChain(chain);
+                    exchange.setConduit(backChannel);
                     
+                    partialResponse.getInterceptorChain().doIntercept(partialResponse);
+                    
+                    partialResponse.getInterceptorChain().reset();
+                    exchange.setConduit(null);
+                    exchange.setOutMessage(fullResponse);
                 }
             } catch (Exception e) {
                 LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);
             }
         } 
+    }
+    
+    /**
+     * Propogate inbound MAPs onto reponse message if applicable
+     * (not applicable for oneways).
+     * 
+     * @param inMAPs the inbound MAPs
+     * @param responseMessage
+     */
+    private static void propogateReceivedMAPs(AddressingProperties inMAPs,
+                                               Message responseMessage) {
+        if (responseMessage != null) {
+            storeMAPs(inMAPs, responseMessage, false, false, false);
+        }
+    }
+    
+    /**
+     * Construct and store MAPs for partial response.
+     * 
+     * @param partialResponse the partial response message
+     * @param namespaceURI the current namespace URI
+     */
+    private static void ensurePartialResponseMAPs(Message partialResponse,
+                                                 String namespaceURI) {
+        // ensure there is a MAPs instance available for the outbound
+        // partial response that contains appropriate To and ReplyTo
+        // properties (i.e. anonymous & none respectively)
+        AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
+        maps.setTo(ContextUtils.getAttributedURI(Names.WSA_ANONYMOUS_ADDRESS));
+        maps.setReplyTo(WSA_OBJECT_FACTORY.createEndpointReferenceType());
+        maps.getReplyTo().setAddress(getAttributedURI(Names.WSA_NONE_ADDRESS));
+        maps.setAction(getAttributedURI(""));
+        maps.exposeAs(namespaceURI);
+        storeMAPs(maps, partialResponse, true, true, false);
     }
 
     /**
@@ -392,57 +415,6 @@ public final class ContextUtils {
      */
     public static String retrieveMAPFaultReason(Message message) {
         return (String)message.get(MAP_FAULT_REASON_PROPERTY);
-    }
-
-    /**
-     * Store correlation ID in the context
-     *
-     * @param id the correlation ID
-     * @param isOutbound true if message is outbound
-     * @param message the current message
-     */   
-    public static void storeCorrelationID(RelatesToType id, 
-                                          boolean isOutbound,
-                                          Message message) {
-        storeCorrelationID(id.getValue(), isOutbound, message);
-    }
-    
-    /**
-     * Store correlation ID in the context
-     *
-     * @param id the correlation ID
-     * @param isOutbound true if message is outbound
-     * @param message the current message
-     */   
-    public static void storeCorrelationID(AttributedURIType id, 
-                                          boolean isOutbound,
-                                          Message message) {
-        storeCorrelationID(id.getValue(), isOutbound, message);
-    }
-    
-    /**
-     * Store correlation ID in the context
-     *
-     * @param id the correlation ID
-     * @param isOutbound true if message is outbound
-     * @param message the current message
-     */   
-    protected static void storeCorrelationID(String id, 
-                                           boolean isOutbound,
-                                           Message message) {
-        message.put(getCorrelationIDProperty(isOutbound), id);
-    }
-    
-    /**
-     * Retrieve correlation ID from the message.
-     *
-     * @param message the current message
-     * @param isOutbound true if message is outbound
-     * @returned the retrieved correlation ID
-     */
-    public static String retrieveCorrelationID(Message message, 
-                                               boolean isOutbound) {
-        return (String)message.get(getCorrelationIDProperty(isOutbound));
     }
     
     /**
@@ -506,6 +478,21 @@ public final class ContextUtils {
     }
     
     /**
+     * Retreive Conduit from Exchange if not already available
+     * 
+     * @param conduit the current value for the Conduit
+     * @param message the current message
+     * @return the Conduit if available
+     */
+    public static Conduit getConduit(Conduit conduit, Message message) {
+        if (conduit == null) {
+            Exchange exchange = message.getExchange();
+            conduit = exchange != null ? exchange.getConduit() : null;
+        }
+        return conduit;
+    }
+    
+    /**
      * Construct the Action URI.
      * 
      * @param message the current message
@@ -522,10 +509,12 @@ public final class ContextUtils {
         if (method != null) {
             if (fault != null) {
                 WebFault webFault = fault.getClass().getAnnotation(WebFault.class);
-                action = getAction(webFault.targetNamespace(),
-                                   method, 
-                                   webFault.name(),
-                                   true);
+                if (webFault != null) {
+                    action = getAction(webFault.targetNamespace(),
+                                       method, 
+                                       webFault.name(),
+                                       true);
+                }
             } else {
                 if (ContextUtils.isRequestor(message)) {
                     RequestWrapper requestWrapper =
@@ -558,17 +547,18 @@ public final class ContextUtils {
                         WebService wsAnnotation = method.getDeclaringClass().getAnnotation(WebService.class);
                         WebMethod wmAnnotation = method.getAnnotation(WebMethod.class);
                         
-                        action = getAction(wsAnnotation.targetNamespace(),
-                                           method,
-                                           wmAnnotation.operationName(),
-                                           false);
+                        if (wsAnnotation != null && wmAnnotation != null) {
+                            action = getAction(wsAnnotation.targetNamespace(),
+                                               method,
+                                               wmAnnotation.operationName(),
+                                               false);
+                        }
                     }
                 }
             }
         }
         return action != null ? getAttributedURI(action) : null;
     }
-        
 
     /**
      * Construct the Action string.

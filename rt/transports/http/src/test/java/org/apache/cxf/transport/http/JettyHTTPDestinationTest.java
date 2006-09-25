@@ -37,6 +37,7 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -49,9 +50,6 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.mortbay.http.handler.AbstractHttpHandler;
-
-import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
-
 
 public class JettyHTTPDestinationTest extends TestCase {
     protected static final String AUTH_HEADER = "Authorization";
@@ -145,7 +143,11 @@ public class JettyHTTPDestinationTest extends TestCase {
     
     public void testDoServiceWithHttpGET() throws Exception {
         destination = setUpDestination(false);
-        setUpDoService(false, false, false, "GET", "?customerId=abc&cutomerAdd=def");
+        setUpDoService(false,
+                       false,
+                       false,
+                       "GET",
+                       "?customerId=abc&cutomerAdd=def");
         destination.doService(request, response);
         
         assertNotNull("unexpected null message", inMessage);
@@ -165,42 +167,46 @@ public class JettyHTTPDestinationTest extends TestCase {
         destination = setUpDestination(false);
         setUpDoService(false);
         destination.doService(request, response);
+        setUpInMessage();
         Conduit backChannel = destination.getBackChannel(inMessage, null, null);
         
         assertNotNull("expected back channel", backChannel);
         assertNull("unexpected backchannel-backchannel",
                    backChannel.getBackChannel());
-        assertSame("unexpected target",
-                   replyTo,
-                   backChannel.getTarget());
+        assertEquals("unexpected target",
+                     JettyHTTPDestination.ANONYMOUS_ADDRESS,
+                     backChannel.getTarget().getAddress().getValue());
     }
     
     public void testGetBackChannelSend() throws Exception {
         destination = setUpDestination(false);
         setUpDoService(false, true);
         destination.doService(request, response);
+        setUpInMessage();
         Conduit backChannel =
             destination.getBackChannel(inMessage, null, null);
         outMessage = setUpOutMessage();
         backChannel.send(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 200);
     }
+
     public void testGetBackChannelSendFault() throws Exception {
         destination = setUpDestination(false);
         setUpDoService(false, true);
         destination.doService(request, response);
+        setUpInMessage();
         Conduit backChannel =
             destination.getBackChannel(inMessage, null, null);
         outMessage = setUpOutMessage();
         backChannel.send(outMessage);
         verifyBackChannelSend(backChannel, outMessage, 500);
     }
-
     
     public void testGetBackChannelSendOneway() throws Exception {
         destination = setUpDestination(false);
         setUpDoService(false, true);
         destination.doService(request, response);
+        setUpInMessage();
         Conduit backChannel =
             destination.getBackChannel(inMessage, null, null);
         outMessage = setUpOutMessage();
@@ -213,6 +219,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         replyTo = getEPR(NOWHERE + "response/foo");
         setUpDoService(false, true, true);
         destination.doService(request, response);
+        setUpInMessage();
         
         Message partialResponse = setUpOutMessage();
         Conduit partialBackChannel =
@@ -354,10 +361,16 @@ public class JettyHTTPDestinationTest extends TestCase {
         control.replay();
     }
     
+    private void setUpInMessage() {
+        inMessage.setExchange(new ExchangeImpl());
+    }
+    
     private Message setUpOutMessage() {
         Message outMsg = new MessageImpl();
         outMsg.putAll(inMessage);
-        outMsg.put(Message.PROTOCOL_HEADERS, new HashMap<String, List<String>>());
+        outMsg.setExchange(new ExchangeImpl());
+        outMsg.put(Message.PROTOCOL_HEADERS,
+                   new HashMap<String, List<String>>());
         return outMsg;
     }
     
@@ -427,7 +440,8 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertEquals("unexpected values", 1, values.size());
         assertTrue("expected value", values.contains(BASIC_AUTH));
         
-        AuthorizationPolicy authpolicy = inMessage.get(AuthorizationPolicy.class);
+        AuthorizationPolicy authpolicy =
+            inMessage.get(AuthorizationPolicy.class);
         assertNotNull("Expected some auth tokens", policy);
         assertEquals("expected user",
                      USER,
@@ -492,9 +506,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertEquals("expected getOutputStream",
                      0,
                      response.getOutputStreamCallCount());
-        if (oneway) {
-            outMsg.put(ONEWAY_MESSAGE, Boolean.TRUE);
-        }
+        outMsg.getExchange().setOneWay(oneway);
         responseOS.flush();
         assertEquals("expected setStatus",
                      1,
@@ -512,7 +524,8 @@ public class JettyHTTPDestinationTest extends TestCase {
                      1,
                      response.getOutputStreamCallCount());
         underlyingOS = ((AbstractCachedOutputStream)responseOS).getOut();
-        assertFalse("unexpected underlying output stream type: " + underlyingOS.getClass(),
+        assertFalse("unexpected underlying output stream type: "
+                    + underlyingOS.getClass(),
                     underlyingOS instanceof ByteArrayOutputStream);
         assertEquals("expected commit",
                      oneway ? 2 : 1,

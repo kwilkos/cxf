@@ -43,8 +43,6 @@ import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
-import static org.apache.cxf.message.Message.ONEWAY_MESSAGE;
-
 
 /**
  * Common base for HTTP Destination implementations.
@@ -146,8 +144,7 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
      * @return true iff the message has been marked as oneway
      */    
     protected boolean isOneWay(Message message) {
-        Boolean oneway = (Boolean)message.get(ONEWAY_MESSAGE);
-        return oneway != null && oneway.booleanValue();
+        return message.getExchange() != null && message.getExchange().isOneWay();
     }
 
     /**

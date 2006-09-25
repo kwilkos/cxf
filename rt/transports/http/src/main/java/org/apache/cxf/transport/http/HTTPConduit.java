@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.wsdl.WSDLException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -47,6 +46,7 @@ import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -68,6 +68,13 @@ import org.mortbay.http.handler.AbstractHttpHandler;
 public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
 
     public static final String HTTP_CONNECTION = "http.connection";
+    
+    /**
+     * REVISIT: temporary mechanism to allow decoupled response endpoint
+     * to be configured, pending the maturation on the real config model
+     */
+    public static final String HTTP_DECOUPLED_ENDPOINT =
+        "http.decoupled.endpoint";
     
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     private final Bus bus;
@@ -133,7 +140,9 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                             ? factory
                             : getDefaultConnectionFactory();
         decoupledEngine = eng;
-        url = new URL(getAddress());
+        url = t == null
+              ? new URL(getAddress())
+              : new URL(t.getAddress().getValue());
         target = getTargetReference(t);
     }
     
@@ -205,7 +214,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      */
     public synchronized Destination getBackChannel() {
         if (decoupledDestination == null
-            && getClient().getDecoupledEndpoint() != null) {
+            && getConfiguredDecoupledEndpoint() != null) {
             decoupledDestination = setUpDecoupledDestination(); 
         }
         return decoupledDestination;
@@ -348,7 +357,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      */
     private DecoupledDestination setUpDecoupledDestination() {        
         EndpointReferenceType reference =
-            EndpointReferenceUtils.getEndpointReference(getClient().getDecoupledEndpoint());
+            EndpointReferenceUtils.getEndpointReference(getConfiguredDecoupledEndpoint());
         if (reference != null) {
             String decoupledAddress = reference.getAddress().getValue();
             LOG.info("creating decoupled endpoint: " + decoupledAddress);
@@ -373,6 +382,16 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             }
         }
         return new DecoupledDestination(reference, incomingObserver);
+    }
+    
+    /**
+     * REVISIT: temporary mechanism to allow decoupled response endpoint
+     * to be configured, pending the maturation on the real config model
+     */
+    private String getConfiguredDecoupledEndpoint() {
+        return getClient().getDecoupledEndpoint() != null
+               ? getClient().getDecoupledEndpoint()
+               : System.getProperty(HTTP_DECOUPLED_ENDPOINT);
     }
 
     /**
@@ -410,10 +429,9 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         }
 
         private void handleResponse() throws IOException {
-            // REVISIT distinguish decoupled case
             Exchange exchange = outMessage.getExchange();
             if (exchange != null && exchange.isOneWay()) {
-                //onway operation
+                //oneway operation
                 connection.getInputStream().close();
                 return;
             }
@@ -445,18 +463,23 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
     private class WrapperInputStream extends FilterInputStream {
         HttpRequest request;
         HttpResponse response;
+        boolean closed;
         
-        WrapperInputStream(HttpRequest req,
+        WrapperInputStream(InputStream is,
+                           HttpRequest req,
                            HttpResponse resp) {
-            super(req.getInputStream());
+            super(is);
             request = req;
             response = resp;
         }
         
         public void close() throws IOException {
-            super.close();            
-            response.commit();
-            request.setHandled(true);
+            if (!closed) {
+                closed = true;
+                response.commit();
+                request.setHandled(true);
+                super.close();            
+            }
         }
     }
     
@@ -480,7 +503,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         public Conduit getBackChannel(Message inMessage,
                                       Message partialResponse,
                                       EndpointReferenceType addr)
-            throws WSDLException, IOException {
+            throws IOException {
             // shouldn't be called on decoupled endpoint
             return null;
         }
@@ -519,13 +542,22 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                            String pathParams,
                            HttpRequest req,
                            HttpResponse resp) throws IOException {
+            InputStream responseStream = req.getInputStream();
             Message inMessage = new MessageImpl();
-            inMessage.put(Message.PROTOCOL_HEADERS, req.getParameters());
+            // disposable exchange, swapped with real Exchange on correlation
+            inMessage.setExchange(new ExchangeImpl());
+            // REVISIT: how to get response headers?
+            //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
+            setHeaders(inMessage);
             inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
-            InputStream is = new WrapperInputStream(req, resp);
+            InputStream is = new WrapperInputStream(responseStream, req, resp);
             inMessage.setContent(InputStream.class, is);
 
-            decoupledDestination.getMessageObserver().onMessage(inMessage);
+            try {
+                decoupledDestination.getMessageObserver().onMessage(inMessage);    
+            } finally {
+                is.close();
+            }
         }
     }    
 
