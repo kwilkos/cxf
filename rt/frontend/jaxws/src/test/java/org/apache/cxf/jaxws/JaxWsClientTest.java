@@ -123,7 +123,7 @@ public class JaxWsClientTest extends AbstractCXFTest {
         assertNotNull(bop);
         bop = bop.getUnwrappedOperation();
         assertNotNull(bop);
-        Object ret[] = client.invoke(bop, new Object[0], null, null);
+        Object ret[] = client.invoke(bop, new Object[0], null);
         assertNotNull(ret);
         assertEquals("Wrong number of return objects", 1, ret.length);
     }

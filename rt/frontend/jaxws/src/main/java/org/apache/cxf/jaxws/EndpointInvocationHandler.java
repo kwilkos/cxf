@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.FutureTask;
@@ -82,14 +83,17 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         Object[] paramsWithOutHolder = handleHolder(params);
         Map<String, Object> requestContext = this.getRequestContext();
         Map<String, Object> responseContext = this.getResponseContext();
+        Map<String, Object> context = new HashMap<String, Object>();
+        context.put(Client.REQUEST_CONTEXT, requestContext);
+        context.put(Client.RESPONSE_CONTEXT, responseContext);
 
         requestContext.put(Method.class.getName(), method);
 
         boolean isAsync = method.getName().endsWith("Async");
         if (isAsync) {
-            return invokeAsync(method, oi, params, paramsWithOutHolder, requestContext, responseContext);
+            return invokeAsync(method, oi, params, paramsWithOutHolder, context);
         } else {
-            return invokeSync(method, oi, params, paramsWithOutHolder, requestContext, responseContext);
+            return invokeSync(method, oi, params, paramsWithOutHolder, context);
         }
     }
 
@@ -98,9 +102,8 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                           BindingOperationInfo oi, 
                           Object[] params, 
                           Object[] paramsWithOutHolder, 
-                          Map<String, Object> requestContext,
-                          Map<String, Object> responseContext) {
-        Object rawRet[] = client.invoke(oi, paramsWithOutHolder, requestContext, responseContext);
+                          Map<String, Object> context) {
+        Object rawRet[] = client.invoke(oi, paramsWithOutHolder, context);
 
         if (rawRet != null && rawRet.length != 0) {
             List<Object> retList = new ArrayList<Object>();
@@ -116,16 +119,14 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                                BindingOperationInfo oi, 
                                Object[] params, 
                                Object[] paramsWithOutHolder, 
-                               Map<String, Object> requestContext,
-                               Map<String, Object> responseContext) {
+                               Map<String, Object> context) {
         
         FutureTask<Object> f = new FutureTask<Object>(new JAXWSAsyncCallable(this, 
                                                                              method,
                                                                              oi,
                                                                              params,
                                                                              paramsWithOutHolder,
-                                                                             requestContext,
-                                                                             responseContext
+                                                                             context
                                                                              ));
 
         endpoint.getService().getExecutor().execute(f);

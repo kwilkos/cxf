@@ -32,23 +32,20 @@ public class JAXWSAsyncCallable implements Callable<Object> {
     private BindingOperationInfo oi; 
     private Object[] params;
     private Object[] paramsWithOutHolder; 
-    private Map<String, Object> requestContext;
-    private Map<String, Object> responseContext;
+    private Map<String, Object> context;
     
     public JAXWSAsyncCallable(EndpointInvocationHandler endPointInvocationHandler,
                               Method method,
                               BindingOperationInfo oi,
                               Object[] params,
                               Object[] paramsWithOutHolder,
-                              Map<String, Object> reqCxt,
-                              Map<String, Object> respCxt) {
+                              Map<String, Object> cxt) {
         this.endPointInvocationHandler = endPointInvocationHandler;
         this.method = method;
         this.oi = oi;
         this.params = params;
         this.paramsWithOutHolder = paramsWithOutHolder;
-        this.requestContext = reqCxt;
-        this.responseContext = respCxt;
+        this.context = cxt;        
     }
     
     public Object call() throws Exception {
@@ -56,8 +53,7 @@ public class JAXWSAsyncCallable implements Callable<Object> {
                                                 oi, 
                                                 params, 
                                                 paramsWithOutHolder,
-                                                requestContext,
-                                                responseContext);
+                                                context);
     }
 
 }

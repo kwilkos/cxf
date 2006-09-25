@@ -73,13 +73,20 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
         
+    
+    @SuppressWarnings("unchecked")
     public Object[] invoke(BindingOperationInfo oi, Object[] params, 
-                           Map<String, Object> requestContext, Map<String, Object> responseContext) {
+                           Map<String, Object> context) {
+        Map<String, Object> requestContext = null;
+        Map<String, Object> responseContext = null;
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Invoke, operation info: " + oi + ", params: " + params);
         }
         Message message = endpoint.getBinding().createMessage();
-        
+        if (null != context) {
+            requestContext = (Map<String, Object>) context.get(REQUEST_CONTEXT);
+            responseContext = (Map<String, Object>) context.get(RESPONSE_CONTEXT);
+        }    
         //setup the message context
         setContext(requestContext, message);
         //setMethod(ctx, message);
