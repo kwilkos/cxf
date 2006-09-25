@@ -154,7 +154,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         initalizeClassInfo(o, method);
     }
 
-    private void intializeWrapping(OperationInfo o, Method selected) {
+    void intializeWrapping(OperationInfo o, Method selected) {
         Class responseWrapper = getResponseWrapper(selected);
         if (responseWrapper != null) {
             o.getUnwrappedOperation().getOutput().setProperty(WrapperClassOutInterceptor.WRAPPER_CLASS,
