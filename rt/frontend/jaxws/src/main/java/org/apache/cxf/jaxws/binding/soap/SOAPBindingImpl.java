@@ -32,10 +32,11 @@ import org.apache.cxf.jaxws.binding.BindingImpl;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
 
+    private SoapBinding soapBinding;
     // private SoapBinding soapBinding;
 
     public SOAPBindingImpl(SoapBinding sb) {
-        // soapBinding = sb;
+        soapBinding = sb;
     }
     
     public Set<String> getRoles() {
@@ -47,7 +48,7 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     }
 
     public boolean isMTOMEnabled() {
-        return false;
+        return soapBinding.isMtomEnabled();
     }
 
     public void setMTOMEnabled(boolean flag) {

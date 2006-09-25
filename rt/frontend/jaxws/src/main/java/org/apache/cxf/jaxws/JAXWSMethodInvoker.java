@@ -17,10 +17,10 @@
  * under the License.
  */
 
-
-
 package org.apache.cxf.jaxws;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -41,21 +41,21 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 public class JAXWSMethodInvoker implements Invoker {
 
     private Object bean;
-    
+
     public JAXWSMethodInvoker(Object bean) {
         super();
         this.bean = bean;
     }
-    
+
     @SuppressWarnings("unchecked")
     public Object invoke(Exchange exchange, Object o) {
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
-        
-        MethodDispatcher md = (MethodDispatcher) 
-            exchange.get(Service.class).get(MethodDispatcher.class.getName());
+
+        MethodDispatcher md = (MethodDispatcher) exchange.get(Service.class).get(
+                        MethodDispatcher.class.getName());
         Method m = md.getMethod(bop);
         List<Object> params = (List<Object>) o;
-                
+
         checkHolder(m, params, exchange);
         Object res;
         try {
@@ -65,12 +65,12 @@ public class JAXWSMethodInvoker implements Invoker {
                 return null;
             }
             List<Object> retList = new ArrayList<Object>();
-            if (!((Class)m.getReturnType()).getName().equals("void")) {
+            if (!((Class) m.getReturnType()).getName().equals("void")) {
                 retList.add(res);
             }
             for (int i = 0; i < paramArray.length; i++) {
                 if (paramArray[i] instanceof Holder) {
-                    retList.add(((Holder)paramArray[i]).value);
+                    retList.add(((Holder) paramArray[i]).value);
                 }
             }
             return Arrays.asList(retList.toArray());
@@ -90,38 +90,34 @@ public class JAXWSMethodInvoker implements Invoker {
     @SuppressWarnings("unchecked")
     private void checkHolder(Method method, List<Object> params, Exchange exchange) {
         if (method != null) {
-           
+
             Type[] para = method.getGenericParameterTypes();
             for (int i = 0; i < para.length; i++) {
                 if (para[i] instanceof ParameterizedType) {
                     Object param = null;
-                    ParameterizedType paramType = (ParameterizedType)para[i];
-                    if (((Class)paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
-                        
-                        try {
-                            param = new Holder(
-                                ((Class)paramType.getActualTypeArguments()[0]).newInstance());
-                        } catch (InstantiationException e) {
-                            throw new Fault(e);
-                        } catch (IllegalAccessException e) {
-                            throw new Fault(e);
+                    ParameterizedType paramType = (ParameterizedType) para[i];
+                    if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
+                        Object rawType = paramType.getActualTypeArguments()[0];
+                        Class rawClass;
+                        if (rawType instanceof GenericArrayType) {
+                            rawClass = (Class) ((GenericArrayType) rawType).getGenericComponentType();
+                            rawClass = Array.newInstance(rawClass, 0).getClass();
+                        } else {
+                            rawClass = (Class) rawType;
                         }
+                        param = new Holder((Class) rawClass);
                         if (i >= params.size()) {
                             params.add(param);
                         } else {
                             params.set(i, new Holder(params.get(i)));
                         }
-                        
                     }
-                                       
-                    
+
                 }
             }
-            
-        }
-        
-    }
 
-    
+        }
+
+    }
 
 }

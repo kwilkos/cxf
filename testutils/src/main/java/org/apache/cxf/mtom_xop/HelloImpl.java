@@ -36,13 +36,15 @@ public class HelloImpl implements Hello {
         return data;
     }
 
-    public void detail(Holder<String> name, Holder<String> address) {
+    public void detail(Holder<String> name, Holder<byte[]> attachinfo) {
+        name.value = "return detail + " + name.value;        
     }
 
     public void echoData(String body, Holder<byte[]> data) {
     }
 
     public void echoDataWithEnableMIMEContent(String body, Holder<byte[]> data) {
+        System.out.println(body);
     }
 
 }

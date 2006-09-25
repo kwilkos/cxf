@@ -35,6 +35,7 @@ import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
+    private static final int THRESH_HOLD = 64 * 1024;
     private Message message;
     private Collection<Attachment> atts;
     private boolean isXop;
@@ -47,8 +48,16 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
     public String addMtomAttachment(byte[] data, int offset, int length, String mimeType, String elementNS,
                                     String elementLocalName) {
+        
+        if (!isXop && length < THRESH_HOLD) {
+            return null;
+        }        
         ByteDataSource source = new ByteDataSource(data, offset, length);
-        source.setContentType(mimeType);
+        if (mimeType == null) {
+            source.setContentType(mimeType);
+        } else {
+            source.setContentType("application/octet-stream");
+        }
         DataHandler handler = new DataHandler(source);
 
         String id;
@@ -66,6 +75,9 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
     public String addMtomAttachment(DataHandler handler, String elementNS, String elementLocalName) {
 
+        if (!isXop) {
+            return null;
+        }        
         String id;
         try {
             id = AttachmentUtil.createContentID(elementNS);

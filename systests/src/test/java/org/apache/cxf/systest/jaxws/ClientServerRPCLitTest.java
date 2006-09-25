@@ -79,7 +79,7 @@ public class ClientServerRPCLitTest extends TestCase {
         String response2 = new String("Bonjour");
         try {
             GreeterRPCLit greeter = service.getPort(portName, GreeterRPCLit.class);
-            for (int idx = 0; idx < 5; idx++) {
+            for (int idx = 0; idx < 1; idx++) {
                 String greeting = greeter.greetMe("Milestone-" + idx);
                 assertNotNull("no response received from service", greeting);
                 String exResponse = response1 + idx;

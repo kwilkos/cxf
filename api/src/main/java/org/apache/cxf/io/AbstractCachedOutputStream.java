@@ -94,7 +94,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
      *            the real output stream
      * @throws IOException
      */
-    public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {        
+    public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
         if (currentStream instanceof AbstractCachedOutputStream) {
             AbstractCachedOutputStream ac = (AbstractCachedOutputStream) currentStream;
             InputStream in = ac.getInputStream();
@@ -126,33 +126,29 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     public static void copyStream(InputStream in, OutputStream out, int bufferSize) throws IOException {
         byte[] buffer = new byte[bufferSize];
-        int len = 0;
-        int pos = 0;
-        while (true) {
-            len = in.read(buffer, 0, bufferSize);
-            if (len != -1) {
-                out.write(buffer, 0, len);
-                pos += len;
-            } else {
-                break;
+        try {
+            int n = in.read(buffer);
+            while (n > 0) {
+                out.write(buffer, 0, n);
+                n = in.read(buffer);
             }
+        } finally {
+            in.close();
         }
     }
 
-    public static void copyStreamWithBase64Encoding(InputStream in, OutputStream out, 
-                    int bufferSize) throws Exception {
+    public static void copyStreamWithBase64Encoding(InputStream in, OutputStream out, int bufferSize)
+        throws Exception {
         OutputStreamWriter osw = new OutputStreamWriter(out);
         byte[] buffer = new byte[bufferSize];
-        int len = 0;
-        int pos = 0;
-        while (true) {
-            len = in.read(buffer, 0, bufferSize);
-            if (len != -1) {
-                Base64Utility.encode(buffer, pos, len, osw);
-                pos += len;
-            } else {
-                break;
+        try {
+            int n = in.read(buffer, 0, bufferSize);
+            while (n > 0) {
+                Base64Utility.encode(buffer, 0, n, osw);
+                n = in.read(buffer, 0, bufferSize);
             }
+        } finally {
+            in.close();
         }
     }
 

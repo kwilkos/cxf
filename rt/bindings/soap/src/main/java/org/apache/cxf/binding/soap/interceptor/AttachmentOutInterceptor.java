@@ -44,8 +44,6 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
-        // TODO: We shouldn't be running this interceptor if MTOM isn't enabled
-        // as caching everything is going to slow us down
         
         OutputStream os = message.getContent(OutputStream.class);
         CachedStream cs = new CachedStream();
@@ -57,7 +55,7 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
         message.setContent(OutputStream.class, os);        
         try {
             Collection<Attachment> attachments = message.getAttachments();
-            cs.flush();
+            cs.flush();            
             if (attachments.size() > 0) {
                 AttachmentSerializer as = new AttachmentSerializer(message, cs.getInputStream(), os);
                 as.serializeMultipartMessage();

@@ -21,7 +21,6 @@ package org.apache.cxf.jaxb.attachment;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +37,7 @@ import javax.mail.internet.InternetHeaders;
 import org.apache.cxf.binding.attachment.AttachmentDataSource;
 import org.apache.cxf.binding.attachment.AttachmentImpl;
 import org.apache.cxf.binding.attachment.CachedOutputStream;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -168,7 +168,8 @@ public class AttachmentDeserializer {
         Attachment att = readMimePart();
         while (att != null && att.getId() != null) {
             attachments.add(att);
-            if (att.getId().equals(cid)) {
+            String convertId = cid.substring(0, 4).equals("cid:") ? cid.substring(4) : cid;
+            if (att.getId().equals(convertId)) {
                 return att;
             }
             att = readMimePart();
@@ -225,7 +226,8 @@ public class AttachmentDeserializer {
         MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary.getBytes());
         final CachedOutputStream cos = new CachedOutputStream();
         cos.setThreshold(THRESHHOLD);
-        copy(partStream, cos);
+        AbstractCachedOutputStream.copyStream(partStream, cos, THRESHHOLD);
+        cos.close();
         final String ct = headers.getHeader("Content-Type", null);
         cache.add(cos);
         DataSource source = new AttachmentDataSource(ct, cos);
@@ -244,20 +246,6 @@ public class AttachmentDeserializer {
             att.setHeader(header.getName(), header.getValue());
         }
         return att;
-    }
-
-    private static void copy(InputStream input, OutputStream output) throws IOException {
-        try {
-            final byte[] buffer = new byte[8096];
-            int n = input.read(buffer);
-            while (n > 0) {
-                output.write(buffer, 0, n);
-                n = input.read(buffer);
-            }
-        } finally {
-            input.close();
-            output.close();
-        }
     }
 
     private class MimeBodyPartInputStream extends InputStream {

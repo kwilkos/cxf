@@ -25,6 +25,7 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Holder;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -68,7 +69,7 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
         };
     }
 
-    public void testMtomBasic() throws Exception {
+    public void testMtomSWA() throws Exception {
         HelloService hs = new HelloService();
         Hello hello = hs.getPort(Hello.class);
         try {
@@ -77,7 +78,7 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
             for (int i = pre.read(); i != -1; i = pre.read()) {
                 fileSize++;
             }
-            
+
             ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(
                             "/wsdl/mtom_xop.wsdl"), "application/oct-stream");
             DataHandler dh = new DataHandler(bads);
@@ -89,6 +90,28 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
                 count++;
             }
             assertEquals("attachemnt length different", fileSize, count);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception) ex.getCause();
+        }
+    }
+
+    public void testMtomXop() throws Exception {
+        HelloService hs = new HelloService();
+        Hello hello = hs.getPort(Hello.class);
+        try {
+            InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
+            long fileSize = 0;
+            for (int i = pre.read(); i != -1; i = pre.read()) {
+                fileSize++;
+            }
+            Holder<byte[]> param = new Holder<byte[]>();
+            param.value = new byte[(int) fileSize];
+            this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(param.value);
+            String target = new String(param.value);
+            Holder<String> name = new Holder<String>("call echoDataWithEnableMIMEContent");
+            hello.detail(name, param);
+            assertEquals("name unchanged", "return detail + call echoDataWithEnableMIMEContent", name.value);
+            assertEquals("attachinfo changed", target, new String(param.value));
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
