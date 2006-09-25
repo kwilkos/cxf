@@ -23,9 +23,11 @@ package org.apache.cxf.bus.spring.extension;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.extension.ExtensionManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.springframework.beans.BeansException;
@@ -37,6 +39,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 public class ExtensionManagerImpl implements ExtensionManager, BeanFactoryPostProcessor {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(ExtensionManagerImpl.class);
     private static final String ACTIVATION_NAMESPACES_PROPERTY_NAME = "activationNamespaces";
     
     private Map<String, Collection<String>> deferred;
@@ -50,7 +53,12 @@ public class ExtensionManagerImpl implements ExtensionManager, BeanFactoryPostPr
         Collection<String> beanNames = deferred.get(namespace);
         if (null != beanNames) {
             for (String n : beanNames) {
-                factory.getBean(n);
+                try {
+                    factory.getBean(n);
+                } catch (BeansException ex) {
+                    LogUtils.log(LOG, Level.WARNING, "EXTENSION_ACTIVATION_EXC", ex, namespace);
+                    throw ex;
+                }
             }
             beanNames = null;
             deferred.remove(namespace);
@@ -73,14 +81,18 @@ public class ExtensionManagerImpl implements ExtensionManager, BeanFactoryPostPr
             if (null == pv) {
                 continue;
             }
-            List<String> activationNamespaces = null;
+            Collection<String> activationNamespaces = null;
             try {     
-                List<?> values = (List<?>)pv.getValue();
+                Collection<?> values = (Collection<?>)pv.getValue();
                 activationNamespaces = CastUtils.cast(values);
             } catch (ClassCastException ex) {
+                ex.printStackTrace();
                 continue;
             }
             for (String ns : activationNamespaces) {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("registering bean " + n + " for deferred activation in namespace " + ns);
+                }
                 addDeferred(ns, n);
             }  
         }

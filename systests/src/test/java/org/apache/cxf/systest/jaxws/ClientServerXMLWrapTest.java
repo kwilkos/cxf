@@ -40,6 +40,7 @@ public class ClientServerXMLWrapTest extends TestCase {
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
 
     public static class Server extends TestServerBase {
+        
 
         protected void run() {
             Object implementor = new GreeterImpl();

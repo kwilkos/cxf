@@ -37,13 +37,25 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class JMSTransportFactory implements ConduitInitiator, DestinationFactory  {
 
-    Bus bus;
+    private Bus bus;
+    private Collection<String> activationNamespaces;
     
     @Resource
-    Collection<String> activationNamespaces;
+    public void setBus(Bus b) {
+        bus = b;
+    }
     
+    public Bus getBus() {
+        return bus;
+    }
+    
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
+    }
+        
     @PostConstruct
-    void registerWithBindingManager() {
+    void register() {
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
         for (String ns : activationNamespaces) {
             cim.registerConduitInitiator(ns, this);
@@ -66,13 +78,5 @@ public class JMSTransportFactory implements ConduitInitiator, DestinationFactory
         //TODO
         return new JMSDestination(bus, this, endpointInfo);
     }
-    
-    public Bus getBus() {
-        return bus;
-    }
-    
-    @Resource
-    public void setBus(Bus bus) {
-        this.bus = bus;
-    }
+   
 }

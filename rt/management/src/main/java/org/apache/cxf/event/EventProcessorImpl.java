@@ -23,10 +23,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
+
 
 public class EventProcessorImpl implements EventProcessor {      
     protected List<EventListenerInfo> listenerList;
     protected EventCache cache;
+    private Bus bus;
     
     public EventProcessorImpl() {
         this(null);
@@ -35,6 +41,18 @@ public class EventProcessorImpl implements EventProcessor {
     public EventProcessorImpl(EventCache eventCache) {
         listenerList = new ArrayList<EventListenerInfo>();
         cache = eventCache == null ? new EventCacheImpl() : eventCache;
+    }
+    
+    @Resource
+    public void setBus(Bus bus) {        
+        this.bus = bus;
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, EventProcessor.class);
+        }
     }
     
     public void addEventListener(EventListener l) {

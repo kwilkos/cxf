@@ -39,7 +39,7 @@ public class ClientServerXMLBareTest extends TestCase {
 
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/bare", "XMLPort");
 
-    public static class Server extends TestServerBase {
+    public static class Server extends TestServerBase {        
 
         protected void run() {
             Object implementor = new GreeterImpl();

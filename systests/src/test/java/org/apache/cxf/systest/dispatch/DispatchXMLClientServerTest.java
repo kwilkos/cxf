@@ -49,7 +49,7 @@ public class DispatchXMLClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", 
                                              "XMLDispatchPort");
 
-    public static class Server extends TestServerBase {
+    public static class Server extends TestServerBase {        
 
         protected void run() {
             Object implementor = new GreeterImpl();

@@ -38,7 +38,7 @@ import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.apache.hello_world_doc_lit_bare.SOAPService;
 import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
 
-public class DOCBareClientServerTest extends ClientServerTestBase {
+public class DOCBareClientServerTest extends ClientServerTestBase {    
 
     private final QName serviceName = new QName("http://apache.org/hello_world_doc_lit_bare",
                                                 "SOAPService");

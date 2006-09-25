@@ -40,7 +40,7 @@ public class ClientServerRPCLitTest extends TestCase {
 
     private final QName portName = new QName("http://apache.org/hello_world_rpclit", "SoapPortRPCLit");
 
-    public static class Server extends TestServerBase {
+    public static class Server extends TestServerBase {        
 
         protected void run()  {
             Object implementor = new RPCLitGreeterImpl();

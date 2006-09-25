@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
 
@@ -43,7 +44,7 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
     implements InstrumentationManager, EventListener {
     static final Logger LOG = LogUtils.getL7dLogger(InstrumentationManagerImpl.class);
 
-    Bus bus;
+    private Bus bus;
     
     private List <Instrumentation> instrumentations;
     private JMXManagedComponentManager jmxManagedComponentManager;
@@ -66,6 +67,13 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
     public void setBus(Bus bus) {        
         this.bus = bus;
         initInstrumentationManagerImpl();
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, InstrumentationManager.class);
+        }
     }
     
     public void initInstrumentationManagerImpl() {

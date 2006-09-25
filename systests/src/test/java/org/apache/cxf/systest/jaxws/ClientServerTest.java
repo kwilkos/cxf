@@ -60,6 +60,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 "SoapPort2");
 
     public static class Server extends TestServerBase {
+        
 
         protected void run()  {
             Object implementor = new GreeterImpl();

@@ -51,7 +51,7 @@ public class CallbackClientServerTest extends ClientServerTestBase {
     private static final QName PORT_TYPE_CALLBACK
         = new QName("http://apache.org/callback", "CallbackPortType");
     
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception {        
         TestSuite suite = new TestSuite(CallbackClientServerTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {

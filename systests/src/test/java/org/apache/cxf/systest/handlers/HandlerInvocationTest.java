@@ -52,7 +52,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     private HandlerTest handlerTest;
 
 
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception {        
         TestSuite suite = new TestSuite(HandlerInvocationTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {

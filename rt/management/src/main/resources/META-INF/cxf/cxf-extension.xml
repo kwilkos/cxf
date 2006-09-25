@@ -15,12 +15,24 @@
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
   KIND, either express or implied. See the License for the
   specific language governing permissions and limitations
-  under the License.cf
+  under the License.
 -->
-<extensions xmlns="http://cxf.apache.org/bus/extension">
-
-    <extension class="org.apache.cxf.binding.xml.XMLBindingFactory" deferred="true">
-        <namespace>http://cxf.apache.org/bindings/xformat</namespace>       
-    </extension>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:foo="http://cxf.apache.org/configuration/foo"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-</extensions>
+    <bean id="org.apache.cxf.event.EventProcessor" class="org.apache.cxf.event.EventProcessorImpl">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.management.InstrumentationManager" class="org.apache.cxf.management.InstrumentationManagerImpl">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+</beans>

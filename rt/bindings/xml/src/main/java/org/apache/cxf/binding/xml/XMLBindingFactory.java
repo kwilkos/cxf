@@ -38,14 +38,22 @@ import org.apache.cxf.service.model.BindingInfo;
 public class XMLBindingFactory extends AbstractBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
-    @Resource
+
     private Bus bus;
-    
-    @Resource
     private Collection<String> activationNamespaces;
     
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
+    }
+    
     @PostConstruct
-    void registerSelf() {
+    void register() {
         if (null == bus) {
             return;
         }

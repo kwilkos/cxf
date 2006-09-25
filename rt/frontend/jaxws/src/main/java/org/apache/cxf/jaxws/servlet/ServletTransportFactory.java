@@ -38,31 +38,51 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class ServletTransportFactory implements ConduitInitiator, DestinationFactory {
 
-    Bus bus;
     EndpointReferenceType reference;
-    @Resource
-    Collection<String> activationNamespaces;
+    
+    private Bus bus;    
+    private Collection<String> activationNamespaces;
+    
     
     
     public ServletTransportFactory(Bus b, EndpointReferenceType ref) {
-        bus = b;
-            
+        bus = b;      
         reference = ref;
     }
 
     public ServletTransportFactory() {
-        // TODO Auto-generated constructor stub
+    }
+    
+    public Bus getBus() {
+        return bus;
+    }
+
+    @Resource
+    public void setBus(Bus bus) {
+        this.bus = bus;
+    }
+    
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
     }
 
     @PostConstruct
-    void registerWithBindingManager() {
+    void register() {
+        if (null == bus) {
+            return;
+        }
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
-        for (String ns : activationNamespaces) {
-            cim.registerConduitInitiator(ns, this);
+        if (null != cim) {
+            for (String ns : activationNamespaces) {
+                cim.registerConduitInitiator(ns, this);
+            }
         }
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        for (String ns : activationNamespaces) {
-            dfm.registerDestinationFactory(ns, this);
+        if (null != dfm) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
         }
     }
 
@@ -79,15 +99,6 @@ public class ServletTransportFactory implements ConduitInitiator, DestinationFac
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
         return new ServletDestination(bus, null, endpointInfo, reference);
-    }
-
-    public Bus getBus() {
-        return bus;
-    }
-
-    @Resource
-    public void setBus(Bus bus) {
-        this.bus = bus;
     }
 
 }

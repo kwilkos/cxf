@@ -38,20 +38,39 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory {
     
-    Bus bus;
+    private Bus bus;
+    private Collection<String> activationNamespaces;
     
     @Resource
-    Collection<String> activationNamespaces;
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    public Bus getBus() {
+        return bus;
+    }
+    
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
+    }
     
     @PostConstruct
     void registerWithBindingManager() {
+        if (null == bus) {
+            return;
+        }
         ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
-        for (String ns : activationNamespaces) {
-            cim.registerConduitInitiator(ns, this);
+        if (null != cim) {
+            for (String ns : activationNamespaces) {
+                cim.registerConduitInitiator(ns, this);
+            }
         }
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        for (String ns : activationNamespaces) {
-            dfm.registerDestinationFactory(ns, this);
+        if (null != dfm) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
         }
     }
 
@@ -68,14 +87,5 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
         return new JettyHTTPDestination(bus, this, endpointInfo);
-    }
-
-    public Bus getBus() {
-        return bus;
-    }
-
-    @Resource
-    public void setBus(Bus bus) {
-        this.bus = bus;
     }
 }

@@ -56,7 +56,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
                                                 "SOAPDispatchService");
     private final QName portName = new QName("http://apache.org/hello_world_soap_http", "SoapDispatchPort");
 
-    public static class Server extends TestServerBase {
+    public static class Server extends TestServerBase {        
 
         protected void run() {
             Object implementor = new GreeterImpl();
