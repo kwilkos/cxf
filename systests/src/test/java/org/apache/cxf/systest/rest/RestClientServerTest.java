@@ -138,7 +138,7 @@ public class RestClientServerTest extends ClientServerTestBase {
      * Source result = d.invoke(null); printSource(result); }
      */
 
-    private void printSource(Source source) {
+    void printSource(Source source) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             StreamResult sr = new StreamResult(bos);

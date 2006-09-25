@@ -63,10 +63,10 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
             // System.out.println("--POST: getAllCustomers--- ");
             return getCustomer(null);
         } else if (httpMethod.equalsIgnoreCase("GET")) {
-            if (path.equals("/XMLService/RestProviderPort/Customer") && query == null) {
+            if ("/XMLService/RestProviderPort/Customer".equals(path) && query == null) {
                 // System.out.println("--GET:getAllCustomers--- ");
                 return getAllCustomers();
-            } else if (path.equals("/XMLService/RestProviderPort/Customer") && query != null) {
+            } else if ("/XMLService/RestProviderPort/Customer".equals(path) && query != null) {
                 // System.out.println("--GET:getCustomer--- ");
                 return getCustomer(query);
             }
