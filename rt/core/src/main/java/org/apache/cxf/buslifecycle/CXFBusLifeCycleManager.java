@@ -22,12 +22,30 @@ package org.apache.cxf.buslifecycle;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
+
 public class CXFBusLifeCycleManager implements BusLifeCycleManager {
 
     private final List<BusLifeCycleListener> listeners;
+    private Bus bus;
     
     public CXFBusLifeCycleManager() {
         listeners = new ArrayList<BusLifeCycleListener>();
+    }
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, BusLifeCycleManager.class);
+        }
     }
     
     /* (non-Javadoc)

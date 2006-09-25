@@ -37,5 +37,55 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             <ref bean="cxf"/>
         </property>
     </bean>
+    
+    <bean id="org.apache.cxf.transport.DestinationFactoryManager" class="org.apache.cxf.transport.DestinationFactoryManagerImpl">
+        <property name="extensionManager">
+            <ref bean="org.apache.cxf.extension.ExtensionManager"/>
+        </property>
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.transport.ConduitInitiatorManager" class="org.apache.cxf.transport.ConduitInitiatorManagerImpl">
+        <property name="extensionManager">
+            <ref bean="org.apache.cxf.extension.ExtensionManager"/>
+        </property>
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.wsdl.WSDLManager" class="org.apache.cxf.wsdl11.WSDLManagerImpl">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.phase.PhaseManager" class="org.apache.cxf.phase.PhaseManagerImpl">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.workqueue.WorkQueueManager" class="org.apache.cxf.workqueue.WorkQueueManagerImpl">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.buslifecycle.BusLifeCycleManager" class="org.apache.cxf.buslifecycle.CXFBusLifeCycleManager">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    <bean id="org.apache.cxf.endpoint.ServerRegistry" class="org.apache.cxf.endpoint.ServerRegistryImpl">
+        <property name="bus">
+            <ref bean="cxf"/>
+        </property>
+    </bean>
+    
+    
 
 </beans>

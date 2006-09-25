@@ -59,7 +59,9 @@ public final class BindingFactoryManagerImpl implements BindingFactoryManager {
     
     @PostConstruct
     public void register() {
-        bus.setExtension(this, BindingFactoryManager.class);
+        if (null != bus) {
+            bus.setExtension(this, BindingFactoryManager.class);
+        }
     }
     
     BindingFactory loadBindingFactory(String className, String ...namespaceURIs) throws BusException {

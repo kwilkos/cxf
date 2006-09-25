@@ -21,6 +21,7 @@ package org.apache.cxf.workqueue;
 
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
@@ -41,10 +42,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
     AutomaticWorkQueue autoQueue;
     boolean inShutdown;
     Bus bus;  
-
-    /*public WorkQueueManagerImpl(Bus b) {
-        bus = b;
-    }*/
     
     public Bus getBus() {
         return bus;
@@ -54,6 +51,14 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
     public void setBus(Bus bus) {        
         this.bus = bus;
     }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, WorkQueueManager.class);
+        }
+    }
+
 
     /*
      * (non-Javadoc)

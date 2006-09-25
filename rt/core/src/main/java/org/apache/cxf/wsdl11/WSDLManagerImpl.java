@@ -28,6 +28,8 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
@@ -37,6 +39,7 @@ import javax.xml.bind.JAXBException;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
@@ -55,10 +58,9 @@ public class WSDLManagerImpl implements WSDLManager {
     private static final String EXTENSIONS_RESOURCE = "META-INF/extensions.xml";
 
     final ExtensionRegistry registry;
-
     final WSDLFactory factory;
-
     final WeakHashMap<Object, Definition> definitionsMap;
+    private Bus bus;
 
     public WSDLManagerImpl() throws BusException {
         try {
@@ -70,6 +72,18 @@ public class WSDLManagerImpl implements WSDLManager {
         definitionsMap = new WeakHashMap<Object, Definition>();
 
         registerInitialExtensions();
+    }
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, WSDLManager.class);
+        }
     }
 
     public WSDLFactory getWSDLFactory() {

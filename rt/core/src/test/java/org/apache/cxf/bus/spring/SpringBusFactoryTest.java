@@ -26,9 +26,16 @@ import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
+import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.workqueue.WorkQueueManager;
+import org.apache.cxf.wsdl.WSDLManager;
 
 public class SpringBusFactoryTest extends TestCase {
 
@@ -38,6 +45,13 @@ public class SpringBusFactoryTest extends TestCase {
         assertNotNull(bus);
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);  
         assertNotNull("No binding factory manager", bfm);
+        assertNotNull("No destination factory manager", bus.getExtension(DestinationFactoryManager.class));
+        assertNotNull("No conduit initiator manager", bus.getExtension(ConduitInitiatorManager.class));
+        assertNotNull("No wsdl manager", bus.getExtension(WSDLManager.class));
+        assertNotNull("No phase manager", bus.getExtension(PhaseManager.class));
+        assertNotNull("No workqueue manager", bus.getExtension(WorkQueueManager.class));
+        assertNotNull("No lifecycle manager", bus.getExtension(BusLifeCycleManager.class));
+        assertNotNull("No service registry", bus.getExtension(ServerRegistry.class));
         
         try {
             bfm.getBindingFactory("http://cxf.apache.org/unknown");

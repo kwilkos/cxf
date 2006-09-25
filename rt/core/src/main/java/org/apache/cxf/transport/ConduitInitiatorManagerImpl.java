@@ -24,9 +24,11 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
@@ -39,11 +41,28 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     final Map<String, ConduitInitiator> conduitInitiators;
     Properties factoryNamespaceMappings;
     
-    @Resource
     private ExtensionManager extensionManager;
+    private Bus bus;
 
     public ConduitInitiatorManagerImpl() {
         conduitInitiators = new ConcurrentHashMap<String, ConduitInitiator>();
+    }
+    
+    @Resource
+    public void setExtensionManager(ExtensionManager em) {
+        extensionManager = em;
+    }
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, ConduitInitiatorManager.class);
+        }
     }
 
     /*

@@ -22,8 +22,14 @@ package org.apache.cxf.phase;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
+
 public class PhaseManagerImpl implements PhaseManager {
  
+    private Bus bus;
     private  List<Phase> inPhases;
     private  List<Phase> outPhases;
     
@@ -31,6 +37,18 @@ public class PhaseManagerImpl implements PhaseManager {
         createInPhases();
         createOutPhases();
     } 
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, PhaseManager.class);
+        }
+    }
 
     public List<Phase> getInPhases() {
         return inPhases;

@@ -22,6 +22,7 @@ package org.apache.cxf.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
@@ -44,10 +45,17 @@ public class ServerRegistryImpl implements ServerRegistry, BusLifeCycleListener 
     
     @Resource
     public void setBus(Bus bus) {        
-        this.bus = bus;
-        lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
-        if (null != lifeCycleManager) {
-            lifeCycleManager.registerLifeCycleListener(this);
+        this.bus = bus;        
+    }
+    
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, ServerRegistry.class);
+            lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
+            if (null != lifeCycleManager) {
+                lifeCycleManager.registerLifeCycleListener(this);
+            }
         }
     }
     
