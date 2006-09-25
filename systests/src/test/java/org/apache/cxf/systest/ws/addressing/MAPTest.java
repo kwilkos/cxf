@@ -134,7 +134,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
 
     //--Tests
     
-    public void testImplicitMAPs() throws Exception {
+    public void xtestImplicitMAPs() throws Exception {
         try {
             String greeting = greeter.greetMe("implicit1");
             assertEquals("unexpected response received from service", 
@@ -249,7 +249,7 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
         }
     }
 
-    public void testVersioning() throws Exception {
+    public void xtestVersioning() throws Exception {
         try {
             // expect two MAPs instances versioned with 200408, i.e. for both 
             // the partial and full responses
