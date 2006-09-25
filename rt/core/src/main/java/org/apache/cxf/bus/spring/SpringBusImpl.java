@@ -20,13 +20,11 @@
 package org.apache.cxf.bus.spring;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.BusState;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptor.Interceptor;
 
 public class SpringBusImpl extends AbstractBasicInterceptorProvider implements Bus {
     
@@ -46,26 +44,6 @@ public class SpringBusImpl extends AbstractBasicInterceptorProvider implements B
     
     public void setId(String i) {
         id = i;
-    }
-
-    public List<Interceptor> getInFaultInterceptors() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<Interceptor> getInInterceptors() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<Interceptor> getOutFaultInterceptors() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public List<Interceptor> getOutInterceptors() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public final <T> T getExtension(Class<T> extensionType) {
