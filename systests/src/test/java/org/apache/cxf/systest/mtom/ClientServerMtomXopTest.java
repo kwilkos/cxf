@@ -80,7 +80,7 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
             }
 
             ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(
-                            "/wsdl/mtom_xop.wsdl"), "application/oct-stream");
+                            "/wsdl/mtom_xop.wsdl"), "application/octet-stream");
             DataHandler dh = new DataHandler(bads);
             DataHandler dhResp = hello.claimForm(dh);
             DataSource ds = dhResp.getDataSource();
@@ -108,9 +108,9 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
             param.value = new byte[(int) fileSize];
             this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(param.value);
             String target = new String(param.value);
-            Holder<String> name = new Holder<String>("call echoDataWithEnableMIMEContent");
+            Holder<String> name = new Holder<String>("call detail");
             hello.detail(name, param);
-            assertEquals("name unchanged", "return detail + call echoDataWithEnableMIMEContent", name.value);
+            assertEquals("name unchanged", "return detail + call detail", name.value);
             assertEquals("attachinfo changed", target, new String(param.value));
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
