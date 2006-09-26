@@ -37,6 +37,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
@@ -85,6 +86,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         serviceFactory.setBus(bus);
         service = serviceFactory.create();
+        configureObject(service);
 
         // create the endpoint       
         QName endpointName = implInfo.getEndpointName();
@@ -110,53 +112,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
+        configureObject(endpoint);
         
         doInit = true;
-    }
-
-    private void addSchemaValidation() {
-        Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
-        
-        if (service.getDataBinding().getDataReaderFactory() instanceof JAXBDataReaderFactory) {
-            ((JAXBDataReaderFactory)service.getDataBinding().getDataReaderFactory()).setSchema(schema);
-        }
-        
-        if (service.getDataBinding().getDataWriterFactory() instanceof JAXBDataWriterFactory) {
-            ((JAXBDataWriterFactory)service.getDataBinding().getDataWriterFactory()).setSchema(schema);
-        }
-    }
-
-    private synchronized void init() {
-        if (doInit) {
-            try {
-                injectResources(implementor);
-    
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                if (ex instanceof WebServiceException) { 
-                    throw (WebServiceException)ex; 
-                }
-                throw new WebServiceException("Creation of Endpoint failed", ex);
-            }
-        }
-        doInit = false;
-    }
-
-    /**
-     * inject resources into servant.  The resources are injected
-     * according to @Resource annotations.  See JSR 250 for more
-     * information.
-     */
-    /**
-     * @param instance
-     */
-    protected void injectResources(Object instance) {
-        if (instance != null) {
-            ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
-            resourceManager.addResourceResolver(new WebContextResourceResolver());
-            ResourceInjector injector = new ResourceInjector(resourceManager);
-            injector.inject(instance);
-        }
     }
 
     public Binding getBinding() {
@@ -225,6 +183,24 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public ServerImpl getServer() {
         return server;
     }
+    
+
+    /**
+     * inject resources into servant.  The resources are injected
+     * according to @Resource annotations.  See JSR 250 for more
+     * information.
+     */
+    /**
+     * @param instance
+     */
+    protected void injectResources(Object instance) {
+        if (instance != null) {
+            ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+            resourceManager.addResourceResolver(new WebContextResourceResolver());
+            ResourceInjector injector = new ResourceInjector(resourceManager);
+            injector.inject(instance);
+        }
+    }
 
     protected void doPublish(String address) {
         init();
@@ -248,5 +224,44 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         } catch (IOException ex) {
             throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
         }
+    }
+    
+    org.apache.cxf.endpoint.Endpoint getEndpoint() {
+        return endpoint;
+    }
+    
+    private void configureObject(Object instance) {
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(instance);
+        }
+    }
+    
+    private void addSchemaValidation() {
+        Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
+        
+        if (service.getDataBinding().getDataReaderFactory() instanceof JAXBDataReaderFactory) {
+            ((JAXBDataReaderFactory)service.getDataBinding().getDataReaderFactory()).setSchema(schema);
+        }
+        
+        if (service.getDataBinding().getDataWriterFactory() instanceof JAXBDataWriterFactory) {
+            ((JAXBDataWriterFactory)service.getDataBinding().getDataWriterFactory()).setSchema(schema);
+        }
+    }
+
+    private synchronized void init() {
+        if (doInit) {
+            try {
+                injectResources(implementor);
+    
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                if (ex instanceof WebServiceException) { 
+                    throw (WebServiceException)ex; 
+                }
+                throw new WebServiceException("Creation of Endpoint failed", ex);
+            }
+        }
+        doInit = false;
     }
 }

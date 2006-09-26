@@ -70,13 +70,17 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         setApplicationContext(ac);
     }
     
-    public void configureBean(Configurable beanInstance) {
+    public void configureBean(Object beanInstance) {
 
         if (null == appContext) {
             return;
         }
-
-        final String beanName = beanInstance.getBeanName();
+        
+        if (!(beanInstance instanceof Configurable)) {
+            return;
+        }
+        
+        final String beanName = ((Configurable)beanInstance).getBeanName();
         
         setBeanWiringInfoResolver(new BeanWiringInfoResolver() {
             public BeanWiringInfo resolveWiringInfo(Object instance) {

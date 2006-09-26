@@ -48,8 +48,6 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointInvocationHandler.class);
 
-    // private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
-
     private Endpoint endpoint;
 
     private Client client;
@@ -113,6 +111,10 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         } else {
             return null;
         }
+    }
+    
+    Client getClient() {
+        return client;
     }
 
     private Object invokeAsync(Method method, 

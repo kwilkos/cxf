@@ -25,5 +25,5 @@ public interface Configurer {
 
     String USER_CFG_FILE_PROPERTY_NAME = "cxf.config.file";
 
-    void configureBean(Configurable beanInstance);
+    void configureBean(Object beanInstance);
 }

@@ -32,6 +32,7 @@ import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.FaultChainIntiatorInterceptor;
 import org.apache.cxf.interceptor.Interceptor;
@@ -39,7 +40,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 
-public class EndpointImpl extends AbstractBasicInterceptorProvider implements Endpoint {
+public class EndpointImpl extends AbstractBasicInterceptorProvider implements Endpoint, Configurable {
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
@@ -50,6 +51,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private Executor executor;
     private Bus bus;
     private Interceptor faultInterceptor;
+    private boolean validating;
     
     public EndpointImpl(Bus bus, Service s, QName endpointName) throws EndpointException {
         this(bus, s, s.getServiceInfo().getEndpoint(endpointName));
@@ -65,6 +67,18 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
         endpointInfo = ei;
         faultInterceptor = new FaultChainIntiatorInterceptor(this, bus);
         createBinding(endpointInfo.getBinding());
+    }
+
+    public String getBeanName() {
+        return endpointInfo.getName().toString();
+    }
+    
+    public boolean getValidating() {
+        return validating;
+    }
+
+    public void setValidating(boolean v) {
+        validating = v;
     }
 
     public Interceptor getFaultInterceptor() {

@@ -43,6 +43,7 @@ import javax.xml.ws.spi.ServiceDelegate;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
@@ -85,6 +86,8 @@ public class ServiceImpl extends ServiceDelegate {
             } catch (JAXBException e) {
                 throw new WebServiceException(e);
             }
+            
+            configureObject(dispatchService);
         }
         
         handlerResolver = new HandlerResolverImpl(bus, name);
@@ -129,6 +132,8 @@ public class ServiceImpl extends ServiceDelegate {
             type, 
             getExecutor(), 
             getJaxwsEndpoint(portName));
+        
+        configureObject(disp);
 
         return disp;
     }
@@ -141,6 +146,8 @@ public class ServiceImpl extends ServiceDelegate {
             Object.class, 
             getExecutor(),
             getJaxwsEndpoint(portName));
+        
+        configureObject(disp);
 
         return disp;
     }
@@ -202,7 +209,8 @@ public class ServiceImpl extends ServiceDelegate {
         }
 
         Service service = serviceFactory.create();
-
+        configureObject(service);
+        
         QName pn = portName;
         ServiceInfo si = service.getServiceInfo();
         EndpointInfo ei = null;
@@ -224,6 +232,7 @@ public class ServiceImpl extends ServiceDelegate {
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
+        configureObject(jaxwsEndpoint);
 
         Client client = new ClientImpl(bus, jaxwsEndpoint);
 
@@ -241,6 +250,13 @@ public class ServiceImpl extends ServiceDelegate {
 
         ports.add(pn);
         return serviceEndpointInterface.cast(obj);
+    }
+    
+    private void configureObject(Object instance) {
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(instance);
+        }
     }
 
 }

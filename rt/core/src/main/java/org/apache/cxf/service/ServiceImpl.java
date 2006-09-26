@@ -23,12 +23,13 @@ import java.util.concurrent.Executor;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
 
-public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service {
+public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service, Configurable {
 
     private ServiceInfo serviceInfo;
     private DataBinding dataBinding;
@@ -37,6 +38,10 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     
     public ServiceImpl(ServiceInfo si) {
         serviceInfo = si;
+    }
+    
+    public String getBeanName() {
+        return getName().toString();
     }
 
     public QName getName() {
