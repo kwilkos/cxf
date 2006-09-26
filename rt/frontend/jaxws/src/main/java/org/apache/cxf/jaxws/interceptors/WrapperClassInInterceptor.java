@@ -20,7 +20,6 @@
 package org.apache.cxf.jaxws.interceptors;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
@@ -57,26 +56,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 || retType.getName().equals("javax.xml.ws.Response")) {
                 return;
             }
-        }
-        try {
-            if (method != null) {
-                Class inter = null;
-                if (method.getDeclaringClass().isInterface()) {
-                    inter = method.getDeclaringClass();
-                } else {
-                    Type[] interfaces = method.getDeclaringClass().getGenericInterfaces();
-                    inter = (Class)interfaces[0];
-                }
-                
-                method = inter.getDeclaredMethod(
-                    method.getName(), (Class[])method.getParameterTypes());
-            }
-        } catch (SecurityException e) {
-            throw new Fault(e);
-
-        } catch (NoSuchMethodException e) {
-            throw new Fault(e);
-        }
+        }        
 
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
