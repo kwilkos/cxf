@@ -20,14 +20,15 @@
 package org.apache.cxf.jaxws;
 
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Client;
@@ -46,7 +47,7 @@ public class ConfiguredEndpointTest extends TestCase {
     private static final QName PORT_NAME = 
         new QName("http://apache.org/hello_world_soap_http", "SoapPort");
 
-    private BusFactory factory;
+    private CXFBusFactory factory;
     
     public void setUp() {
         factory = new CXFBusFactory();
@@ -58,17 +59,16 @@ public class ConfiguredEndpointTest extends TestCase {
     }
     
     public void tearDown() {
-        System.clearProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
         Bus bus = factory.getDefaultBus();
         if (null != bus) {
             bus.shutdown(true);
             factory.setDefaultBus(null);
         }
     }
-    
-    
-    
-    public void testDefaultClientEndpoint() {
+     
+    public void testDefaultClientEndpoint() {        
+        factory.setDefaultBus(factory.createBus());
+        
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
         
@@ -101,8 +101,10 @@ public class ConfiguredEndpointTest extends TestCase {
     
     @SuppressWarnings("unchecked")
     public void testConfiguredClientEndpoint() {
-        System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-            "org/apache/cxf/jaxws/configured-endpoints.xml");
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
+                       "org/apache/cxf/jaxws/configured-endpoints.xml");
+        factory.setDefaultBus(factory.createBus(null, properties));
         
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
@@ -150,6 +152,7 @@ public class ConfiguredEndpointTest extends TestCase {
     }
     
     public void testDefaultServerEndpoint() {
+        factory.setDefaultBus(factory.createBus());
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
@@ -181,8 +184,10 @@ public class ConfiguredEndpointTest extends TestCase {
     
     @SuppressWarnings("unchecked")
     public void testConfiguredServerEndpoint() {
-        System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-            "org/apache/cxf/jaxws/configured-endpoints.xml");
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
+                       "org/apache/cxf/jaxws/configured-endpoints.xml");
+        factory.setDefaultBus(factory.createBus(null, properties));
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));

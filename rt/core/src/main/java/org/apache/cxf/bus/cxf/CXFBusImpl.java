@@ -60,6 +60,12 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
     protected CXFBusImpl(Map<Class, Object> e, Map<String, Object> properties) {
         
         extensions = e;
+        if (null == extensions) {
+            extensions = new HashMap<Class, Object>();
+        }
+        if (null == properties) {
+            properties = new HashMap<String, Object>();
+        }
         
         Configurer configurer = (Configurer)extensions.get(Configurer.class);
         if (null == configurer) {
