@@ -478,7 +478,6 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                 closed = true;
                 response.commit();
                 request.setHandled(true);
-                super.close();            
             }
         }
     }
