@@ -71,7 +71,7 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public Boolean hasOutMessage(String mep) {
+    public Boolean hasOutMessage(Method m) {
         return null;
     }
 
@@ -110,12 +110,12 @@ public abstract class AbstractServiceConfiguration {
     }
 
     public QName getInParameterName(final OperationInfo op, final Method method,
-                                    final int paramNumber, final boolean doc) {
+                                    final int paramNumber) {
         return null;
     }
 
     public QName getOutParameterName(final OperationInfo op, final Method method,
-                                     final int paramNumber, final boolean doc) {
+                                     final int paramNumber) {
         return null;
     }
 

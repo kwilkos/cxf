@@ -43,7 +43,7 @@ import org.apache.cxf.service.model.InterfaceInfo;
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
 
-    private JaxwsImplementorInfo implInfo;
+    private JaxWsImplementorInfo implInfo;
 
     @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {

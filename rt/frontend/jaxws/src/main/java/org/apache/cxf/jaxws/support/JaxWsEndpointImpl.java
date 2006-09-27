@@ -47,11 +47,11 @@ import org.apache.cxf.service.model.EndpointInfo;
  * CXF {@link org.apache.cxf.binding.Binding}. 
  *
  */
-public class JaxwsEndpointImpl extends EndpointImpl {
+public class JaxWsEndpointImpl extends EndpointImpl {
 
     private Binding binding;
     
-    public JaxwsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
+    public JaxWsEndpointImpl(Bus bus, Service s, EndpointInfo ei) throws EndpointException {
         super(bus, s, ei);
 
         createJaxwsBinding();

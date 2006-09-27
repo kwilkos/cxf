@@ -59,7 +59,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private JaxWsServiceConfiguration jaxWsConfiguration;
 
-    private JaxwsImplementorInfo jaxWsImplementorInfo;
+    private JaxWsImplementorInfo jaxWsImplementorInfo;
     
     private JaxWsMethodDispatcher methodDispatcher = new JaxWsMethodDispatcher();
     
@@ -67,9 +67,8 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         jaxWsConfiguration = new JaxWsServiceConfiguration();
         getServiceConfigurations().add(0, jaxWsConfiguration);
     }
-
     
-    public JaxWsServiceFactoryBean(JaxwsImplementorInfo implInfo) {
+    public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
         this();
         this.jaxWsImplementorInfo = implInfo;
         this.serviceClass = implInfo.getImplementorClass();
@@ -88,7 +87,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (jaxWsImplementorInfo == null) {
-            jaxWsImplementorInfo = new JaxwsImplementorInfo(serviceClass);
+            jaxWsImplementorInfo = new JaxWsImplementorInfo(serviceClass);
         }
         
         super.setServiceClass(serviceClass);
@@ -112,7 +111,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     public void activateEndpoint(Service service, EndpointInfo ei) throws BusException, WSDLException,
                     IOException, EndpointException {
-        JaxwsEndpointImpl ep = new JaxwsEndpointImpl(getBus(), service, ei);
+        JaxWsEndpointImpl ep = new JaxWsEndpointImpl(getBus(), service, ei);
         ChainInitiationObserver observer = new ChainInitiationObserver(ep, getBus());
 
         ServerImpl server = new ServerImpl(getBus(), ep, observer);
@@ -252,11 +251,11 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         }
     }
 
-    public JaxwsImplementorInfo getJaxWsImplementorInfo() {
+    public JaxWsImplementorInfo getJaxWsImplementorInfo() {
         return jaxWsImplementorInfo;
     }
 
-    public void setJaxWsImplementorInfo(JaxwsImplementorInfo jaxWsImplementorInfo) {
+    public void setJaxWsImplementorInfo(JaxWsImplementorInfo jaxWsImplementorInfo) {
         this.jaxWsImplementorInfo = jaxWsImplementorInfo;
     }
 

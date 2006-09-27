@@ -31,8 +31,8 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -115,7 +115,7 @@ public class JaxWsClientTest extends AbstractCXFTest {
 
         String namespace = "http://apache.org/hello_world_soap_http";
         EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName(namespace, "SoapPort"));
-        JaxwsEndpointImpl endpoint = new JaxwsEndpointImpl(bus, service, ei);
+        JaxWsEndpointImpl endpoint = new JaxWsEndpointImpl(bus, service, ei);
         
         ClientImpl client = new ClientImpl(bus, endpoint);
         

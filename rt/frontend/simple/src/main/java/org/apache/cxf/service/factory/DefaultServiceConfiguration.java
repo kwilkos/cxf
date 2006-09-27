@@ -24,6 +24,7 @@ import java.lang.reflect.Modifier;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.util.ParamReader;
 import org.apache.cxf.helpers.ServiceUtils;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -49,15 +50,14 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getInParameterName(OperationInfo op, Method method, int paramNumber, boolean doc) {
-        // TODO Auto-generated method stub
-        return super.getInParameterName(op, method, paramNumber, doc);
+    public QName getInParameterName(OperationInfo op, Method method, int paramNumber) {
+        return new QName(op.getName().getNamespaceURI(), createName(method, paramNumber, op.getInput()
+            .getMessageParts().size(), false, "in"));
     }
 
     @Override
     public QName getInputMessageName(OperationInfo op) {
-        // TODO Auto-generated method stub
-        return super.getInputMessageName(op);
+        return new QName(op.getName().getNamespaceURI(), op.getName() + "Request");
     }
 
     @Override
@@ -67,15 +67,37 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getOutParameterName(OperationInfo op, Method method, int paramNumber, boolean doc) {
-        // TODO Auto-generated method stub
-        return super.getOutParameterName(op, method, paramNumber, doc);
+    public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {
+        return new QName(op.getName().getNamespaceURI(), createName(method, paramNumber, op.getOutput()
+            .getMessageParts().size(), false, "out"));
+    }
+
+    private String createName(final Method method, final int paramNumber, final int currentSize,
+                              boolean addMethodName, final String flow) {
+        String paramName = "";
+
+        if (paramNumber != -1) {
+            String[] names = ParamReader.getParameterNamesFromDebugInfo(method);
+
+            // get the spcific parameter name from the parameter Number
+            if (names != null && names[paramNumber] != null) {
+                paramName = names[paramNumber];
+                addMethodName = false;
+            } else {
+                paramName = flow + currentSize;
+            }
+        } else {
+            paramName = flow;
+        }
+
+        paramName = addMethodName ? method.getName() + paramName : paramName;
+
+        return paramName;
     }
 
     @Override
     public QName getOutputMessageName(OperationInfo op) {
-        // TODO Auto-generated method stub
-        return super.getOutputMessageName(op);
+        return new QName(op.getName().getNamespaceURI(), op.getName() + "R");
     }
 
     @Override
@@ -95,9 +117,8 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public Boolean hasOutMessage(String mep) {
-        // TODO Auto-generated method stub
-        return super.hasOutMessage(mep);
+    public Boolean hasOutMessage(Method m) {
+        return true;
     }
 
     @Override

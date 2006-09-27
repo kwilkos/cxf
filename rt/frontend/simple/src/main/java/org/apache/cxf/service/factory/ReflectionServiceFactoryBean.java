@@ -30,10 +30,12 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.helpers.MethodComparator;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.invoker.ApplicationScopePolicy;
@@ -42,6 +44,8 @@ import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.invoker.LocalFactory;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
@@ -63,6 +67,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
+    private List<AbstractBindingInfoFactoryBean> bindingFactories = 
+        new ArrayList<AbstractBindingInfoFactoryBean>();
     private QName serviceName;
     private Invoker invoker;
     private Executor executor;
@@ -70,6 +76,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
+        
+        bindingFactories.add(new SoapBindingInfoFactoryBean());
         
         ignoredClasses.add("java.lang.Object");
         ignoredClasses.add("java.lang.Throwable");
@@ -86,7 +94,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         initializeServiceModel();
 
         initializeDataBindings();
-
+        
         initializeDefaultInterceptors();
 
         if (invoker != null) {
@@ -108,6 +116,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return getService();
     }
 
+    protected void initializeBindings() {
+        for (AbstractBindingInfoFactoryBean b : getBindingFactories()) {
+            b.setServiceFactory(this);
+            getService().getServiceInfo().addBinding(b.create());
+        }
+    }
+
     protected void initializeServiceConfigurations() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             c.setServiceFactory(this);
@@ -117,7 +132,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeServiceModel() {
         URL url = getWsdlURL();
 
-        if (url != null && doInitWSDLOperations()) {
+        if (url != null) {
             LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
             WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
 
@@ -126,28 +141,23 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             initializeWSDLOperations();
         } else {
             LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
-            // If we can't find the wsdlLocation, then we should build a faked service model .            
+            // If we can't find the wsdlLocation, then we should build a service model from the class.
             ServiceInfo serviceInfo = new ServiceInfo();
             serviceInfo.setName(getServiceQName());
             
             createInterface(serviceInfo);
 
+            if (getDataBinding() != null) {
+                getDataBinding().initialize(serviceInfo);
+            }
+            
             ServiceImpl service = new ServiceImpl(serviceInfo);
             setService(service);
 
-            createBindings(service);
+            initializeBindings();
         }
     }
 
-    protected void createBindings(ServiceImpl service) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    protected boolean doInitWSDLOperations() {
-        return true;
-    }
-    
     protected void initializeWSDLOperations() {
         Method[] methods = serviceClass.getMethods();
         Arrays.sort(methods, new MethodComparator());
@@ -227,58 +237,43 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void createMessageParts(InterfaceInfo intf, OperationInfo op, Method method) {
-        //        
-        // final Class[] paramClasses = method.getParameterTypes();
-        //        
-        // // Setup the input message
-        // MessageInfo inMsg = op.createMessage(getInputMessageName(op));
-        // op.setInput(inMsg.getName().getLocalPart(), inMsg);
-        //        
-        // for (int j = 0; j < paramClasses.length; j++)
-        // {
-        // if (!paramClasses[j].equals(MessageContext.class) &&
-        // !isHeader(method, j) &&
-        // isInParam(method, j))
-        // {
-        // final QName q = getInParameterName(endpoint, op, method, j, isDoc);
-        // MessagePartInfo part = inMsg.addMessagePart(q, paramClasses[j]);
-        // part.setIndex(j);
-        // part.setSchemaElement(isDoc ||
-        // endpoint.getServiceInfo().isWrapped());
-        // }
-        // }
-        //        
-        // if (hasOutMessage(mep))
-        // {
-        // // Setup the output message
-        // MessageInfo outMsg = op.createMessage(createOutputMessageName(op));
-        // op.setOutput(outMsg.getName().getLocalPart(), outMsg);
-        //
-        // final Class returnType = method.getReturnType();
-        // if (!returnType.isAssignableFrom(void.class) && !isHeader(method,
-        // -1))
-        // {
-        // final QName q = getOutParameterName(endpoint, op, method, -1, isDoc);
-        // MessagePartInfo part = outMsg.addMessagePart(q,
-        // method.getReturnType());
-        // }
-        //            
-        // for (int j = 0; j < paramClasses.length; j++)
-        // {
-        // if (!paramClasses[j].equals(MessageContext.class) &&
-        // !isHeader(method, j) &&
-        // isOutParam(method, j))
-        // {
-        // final QName q = getInParameterName(endpoint, op, method, j, isDoc);
-        // MessagePartInfo part = outMsg.addMessagePart(q, paramClasses[j]);
-        // part.setIndex(j);
-        // part.setSchemaElement(isDoc ||
-        // endpoint.getServiceInfo().isWrapped());
-        // }
-        // }
-        // }
-        //
-        // initializeFaults(intf, op, method);
+        final Class[] paramClasses = method.getParameterTypes();
+
+        // Setup the input message
+        MessageInfo inMsg = op.createMessage(getInputMessageName(op));
+        op.setInput(inMsg.getName().getLocalPart(), inMsg);
+
+        for (int j = 0; j < paramClasses.length; j++) {
+            if (!isHeader(method, j) && isInParam(method, j)) {
+                final QName q = getInParameterName(op, method, j);
+                MessagePartInfo part = inMsg.addMessagePart(q);
+                part.setProperty(Class.class.getName(), paramClasses[j]);
+            }
+        }
+
+        if (hasOutMessage(method)) {
+            // Setup the output message
+            MessageInfo outMsg = op.createMessage(createOutputMessageName(op));
+            op.setOutput(outMsg.getName().getLocalPart(), outMsg);
+
+            final Class<?> returnType = method.getReturnType();
+            if (!returnType.isAssignableFrom(void.class) && !isHeader(method, -1)) {
+                final QName q = getOutParameterName(op, method, -1);
+                MessagePartInfo part = outMsg.addMessagePart(q);
+                part.setProperty(Class.class.getName(), method.getReturnType());
+            }
+
+            for (int j = 0; j < paramClasses.length; j++) {
+                if (!paramClasses[j].equals(MessageContext.class) && !isHeader(method, j)
+                    && isOutParam(method, j)) {
+                    final QName q = getInParameterName(op, method, j);
+                    MessagePartInfo part = outMsg.addMessagePart(q);
+                    part.setProperty(Class.class.getName(), paramClasses[j]);
+                }
+            }
+        }
+
+        initializeFaults(intf, op, method);
     }
 
     protected QName getServiceQName() { 
@@ -396,10 +391,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-    protected boolean hasOutMessage(String mep) {
+    protected boolean hasOutMessage(Method m) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            Boolean b = c.hasOutMessage(mep);
+            Boolean b = c.hasOutMessage(m);
             if (b != null) {
                 return b.booleanValue();
             }
@@ -416,7 +411,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             Class exClazz = exceptionClasses[i];
 
             // Ignore XFireFaults because they don't need to be declared
-            if (exClazz.equals(Exception.class) || exClazz.equals(RuntimeException.class)
+            if (exClazz.equals(Exception.class) 
+                || exClazz.equals(Fault.class)
+                || exClazz.equals(RuntimeException.class)
                 || exClazz.equals(Throwable.class)) {
                 continue;
             }
@@ -495,14 +492,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return true;
     }
 
-    protected QName getInParameterName(final Service service, final OperationInfo op, final Method method,
-                                       final int paramNumber, final boolean doc) {
+    protected QName getInParameterName(final OperationInfo op, 
+                                       final Method method,
+                                       final int paramNumber) {
         if (paramNumber == -1) {
             throw new RuntimeException();
         }
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            QName q = c.getInParameterName(op, method, paramNumber, doc);
+            QName q = c.getInParameterName(op, method, paramNumber);
             if (q != null) {
                 return q;
             }
@@ -510,11 +508,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-    protected QName getOutParameterName(final Service service, final OperationInfo op, final Method method,
-                                        final int paramNumber, final boolean doc) {
+    protected QName getOutParameterName(final OperationInfo op, 
+                                        final Method method,
+                                        final int paramNumber) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            QName q = c.getOutParameterName(op, method, paramNumber, doc);
+            QName q = c.getOutParameterName(op, method, paramNumber);
             if (q != null) {
                 return q;
             }
@@ -610,5 +609,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public void setIgnoredClasses(List<String> ignoredClasses) {
         this.ignoredClasses = ignoredClasses;
+    }
+
+    public List<AbstractBindingInfoFactoryBean> getBindingFactories() {
+        return bindingFactories;
+    }
+
+    public void setBindingFactories(List<AbstractBindingInfoFactoryBean> bindingFactories) {
+        this.bindingFactories = bindingFactories;
     }
 }

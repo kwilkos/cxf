@@ -43,9 +43,9 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
-import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
 import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.service.Service;
@@ -67,8 +67,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Object implementor;
     private ServerImpl server;
     private Service service;
-    private JaxwsEndpointImpl endpoint;
-    private JaxwsImplementorInfo implInfo;
+    private JaxWsEndpointImpl endpoint;
+    private JaxWsImplementorInfo implInfo;
     
     @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri) {
@@ -76,7 +76,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         implementor = i;
         // bindingURI = uri;
         // build up the Service model
-        implInfo = new JaxwsImplementorInfo(implementor.getClass());
+        implInfo = new JaxWsImplementorInfo(implementor.getClass());
         
         AbstractServiceFactoryBean serviceFactory;
         if (implInfo.isWebServiceProvider()) {
@@ -108,7 +108,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         
         //      TODO: use bindigURI     
         try {
-            endpoint = new JaxwsEndpointImpl(bus, service, ei);            
+            endpoint = new JaxWsEndpointImpl(bus, service, ei);            
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }

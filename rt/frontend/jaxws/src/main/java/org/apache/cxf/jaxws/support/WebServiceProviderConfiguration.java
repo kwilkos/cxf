@@ -36,7 +36,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 public class WebServiceProviderConfiguration extends AbstractServiceConfiguration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WebServiceProviderConfiguration.class);
 
-    private JaxwsImplementorInfo implInfo;
+    private JaxWsImplementorInfo implInfo;
     private WebServiceProvider wsProvider;
     
     @Override

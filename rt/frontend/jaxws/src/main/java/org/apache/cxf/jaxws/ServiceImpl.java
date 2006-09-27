@@ -50,8 +50,8 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -120,7 +120,7 @@ public class ServiceImpl extends ServiceDelegate {
         }
 
         try {
-            return new JaxwsEndpointImpl(bus, dispatchService, ei);
+            return new JaxWsEndpointImpl(bus, dispatchService, ei);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
@@ -226,9 +226,9 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));
         }
 
-        JaxwsEndpointImpl jaxwsEndpoint;
+        JaxWsEndpointImpl jaxwsEndpoint;
         try {
-            jaxwsEndpoint = new JaxwsEndpointImpl(bus, service, ei);
+            jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }

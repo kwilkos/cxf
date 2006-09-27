@@ -39,7 +39,6 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-
 public class LogicalHandlerInterceptorTest extends TestCase {
     
     private IMocksControl control;

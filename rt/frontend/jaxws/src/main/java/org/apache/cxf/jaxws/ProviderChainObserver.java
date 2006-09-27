@@ -24,7 +24,7 @@ import org.apache.cxf.binding.Binding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
-import org.apache.cxf.jaxws.support.JaxwsImplementorInfo;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -37,9 +37,9 @@ public class ProviderChainObserver implements MessageObserver {
 
     Endpoint endpoint;
     Bus bus;
-    JaxwsImplementorInfo implInfo;
+    JaxWsImplementorInfo implInfo;
 
-    public ProviderChainObserver(Endpoint endpoint, Bus bus, JaxwsImplementorInfo implInfo) {
+    public ProviderChainObserver(Endpoint endpoint, Bus bus, JaxWsImplementorInfo implInfo) {
         super();
         this.endpoint = endpoint;
         this.bus = bus;

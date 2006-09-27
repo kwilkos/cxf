@@ -39,9 +39,9 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 
-public class JaxwsImplementorInfo {
+public class JaxWsImplementorInfo {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(JaxwsImplementorInfo.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(JaxWsImplementorInfo.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     private Class<?> implementorClass;
@@ -50,7 +50,7 @@ public class JaxwsImplementorInfo {
     private WebService seiAnnotation;
     private WebServiceProvider wsProviderAnnotation;
 
-    public JaxwsImplementorInfo(Class<?> ic) {
+    public JaxWsImplementorInfo(Class<?> ic) {
         implementorClass = ic;
         initialise();
     }

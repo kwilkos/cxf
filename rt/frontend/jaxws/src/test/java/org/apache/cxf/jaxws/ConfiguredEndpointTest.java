@@ -34,7 +34,7 @@ import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxws.support.JaxwsEndpointImpl;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.hello_world_soap_http.Greeter;
@@ -74,7 +74,7 @@ public class ConfiguredEndpointTest extends TestCase {
         
         EndpointInvocationHandler eih = (EndpointInvocationHandler)Proxy.getInvocationHandler(greeter);
         Client client = eih.getClient();
-        JaxwsEndpointImpl endpoint = (JaxwsEndpointImpl)client.getEndpoint();
+        JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
         assertTrue("Unexpected value for property validating", !endpoint.getValidating());
    
@@ -111,7 +111,7 @@ public class ConfiguredEndpointTest extends TestCase {
 
         EndpointInvocationHandler eih = (EndpointInvocationHandler)Proxy.getInvocationHandler(greeter);
         Client client = eih.getClient();
-        JaxwsEndpointImpl endpoint = (JaxwsEndpointImpl)client.getEndpoint();
+        JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
         // assertTrue("Unexpected value for property validating", endpoint.getValidating());
         List<Interceptor> interceptors = endpoint.getInInterceptors();
@@ -157,7 +157,7 @@ public class ConfiguredEndpointTest extends TestCase {
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
         
-        JaxwsEndpointImpl endpoint = (JaxwsEndpointImpl)ei.getEndpoint();
+        JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
         assertTrue("Unexpected value for property validating", !endpoint.getValidating());
    
@@ -192,7 +192,7 @@ public class ConfiguredEndpointTest extends TestCase {
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
         
-        JaxwsEndpointImpl endpoint = (JaxwsEndpointImpl)ei.getEndpoint();
+        JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
         assertTrue("Unexpected value for property validating", endpoint.getValidating());
         List<Interceptor> interceptors = endpoint.getInInterceptors();

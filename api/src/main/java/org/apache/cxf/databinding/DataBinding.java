@@ -31,5 +31,12 @@ public interface DataBinding {
     DataWriterFactory getDataWriterFactory();
     
     Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo);
-        
+
+    /**
+     * Initialize the service info (i.e. type & element names) with 
+     * information from the databinding.
+     * @param serviceInfo
+     */
+    void initialize(ServiceInfo serviceInfo);
+
 }

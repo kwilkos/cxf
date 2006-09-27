@@ -20,10 +20,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-rt-frontend-jaxws</artifactId>
+    <artifactId>cxf-rt-frontend-simple</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-M1-SNAPSHOT</version>
-    <name>CXF Runtime JAX-WS Frontend</name>
+    <name>CXF Runtime Simple Frontend</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>
@@ -82,11 +82,6 @@
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-simple</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-local</artifactId>
             <version>${project.version}</version>
             <optional>true</optional>
@@ -100,33 +95,5 @@
             <artifactId>saaj-api</artifactId>
         </dependency>        
     </dependencies>
-
-    <build>
-	<plugins>
-	    <plugin>
-		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-common-xsd</artifactId>
-		<version>${project.version}</version>
-		<executions>
-		    <execution>
-			<id>generate-sources</id>
-			<phase>generate-sources</phase>
-			<configuration>
-			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-			    <xsdOptions>
-				<xsdOption>
-				    <xsd>${basedir}/src/main/resources/schemas/configuration/javaee_web_services_1_2.xsd</xsd>
-				    <bindingFile>${basedir}/src/main/resources/schemas/configuration/javaee_5.xjb</bindingFile>
-				</xsdOption>
-			    </xsdOptions>
-			</configuration>
-			<goals>
-			    <goal>xsdtojava</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-	</plugins>
-    </build>
 
 </project>

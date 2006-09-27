@@ -33,6 +33,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -151,5 +152,10 @@ public final class JAXBDataBinding implements DataBinding {
         }
     }
 
-
+    public void initialize(ServiceInfo serviceInfo) {
+        JAXBServiceModelInitializer initializer = new JAXBServiceModelInitializer(serviceInfo);
+        initializer.walk();
+    }
+    
+    
 }

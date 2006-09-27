@@ -58,8 +58,6 @@ import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-
-
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 

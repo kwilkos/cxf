@@ -35,7 +35,6 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
-
 public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     
     private IMocksControl control;

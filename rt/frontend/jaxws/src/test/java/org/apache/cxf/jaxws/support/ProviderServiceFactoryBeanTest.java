@@ -44,7 +44,7 @@ public class ProviderServiceFactoryBeanTest extends TestCase {
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         
-        JaxwsImplementorInfo implInfo = new JaxwsImplementorInfo(HWSoapMessageProvider.class);
+        JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(HWSoapMessageProvider.class);
         ProviderServiceFactoryBean bean = new ProviderServiceFactoryBean(implInfo);
 
         // We should not have to do this, but otherwise Maven can't find the WSDL.
@@ -67,7 +67,7 @@ public class ProviderServiceFactoryBeanTest extends TestCase {
     }
     
     public void testXMLBindingFromCode() throws Exception {
-        JaxwsImplementorInfo implInfo = new JaxwsImplementorInfo(SourcePayloadProvider.class);
+        JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(SourcePayloadProvider.class);
         ProviderServiceFactoryBean bean = new ProviderServiceFactoryBean(implInfo);
 
         Bus bus = createBus();

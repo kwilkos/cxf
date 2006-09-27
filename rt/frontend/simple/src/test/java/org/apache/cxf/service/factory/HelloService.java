@@ -16,28 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.service.factory;
 
-package org.apache.cxf.jaxws.context;
-
-import java.io.InputStream;
-
-import javax.xml.ws.WebServiceContext;
-
-import org.apache.cxf.resource.ResourceResolver;
-
-
-public class WebContextResourceResolver implements ResourceResolver {
-
-    // Implementation of org.objectweb.celtix.resource.ResourceResolver
-
-    public final InputStream getAsStream(final String string) {
-        return null;
-    }
-
-    public final <T> T resolve(final String string, final Class<T> clz) {
-        if (WebServiceContext.class.isAssignableFrom(clz)) {
-            return clz.cast(new WebServiceContextImpl());
-        }
-        return null;
-    }
+public interface HelloService {
+    String sayHello();
+    void ping();
+    String echo(String text);
 }
