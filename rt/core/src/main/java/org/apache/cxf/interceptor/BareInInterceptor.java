@@ -49,7 +49,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
     
     static {
         filter.add("void");
-        filter.add("javax.activation.DataHandler");
+        filter.add("javax.activation.DataHandler");        
     }
     
     public BareInInterceptor() {
@@ -87,7 +87,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                     }
                     if (streamParaQName.equals(paraQName)) {
                         Class cls = (Class)mpi.getProperty(Class.class.getName());
-                        if (cls != null && !filter.contains(cls.getName())) {
+                        if (cls != null && !filter.contains(cls.getName()) && !cls.isArray()) {
                             o = dr.read(paraQName, message, cls);
                         } else {
                             o = dr.read(paraQName, message, null);

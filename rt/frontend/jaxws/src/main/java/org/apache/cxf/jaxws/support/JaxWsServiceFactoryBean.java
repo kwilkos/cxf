@@ -52,22 +52,24 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
 
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
+    
+    public static final String MODE_OUT = "messagepart.mode.out";
 
-    public static final String HOLDER = "messagepart.isholder";
+    public static final String MODE_INOUT = "messagepart.mode.inout";
 
     private JAXBDataBinding dataBinding;
 
     private JaxWsServiceConfiguration jaxWsConfiguration;
 
     private JaxWsImplementorInfo jaxWsImplementorInfo;
-    
+
     private JaxWsMethodDispatcher methodDispatcher = new JaxWsMethodDispatcher();
-    
+
     public JaxWsServiceFactoryBean() {
         jaxWsConfiguration = new JaxWsServiceConfiguration();
         getServiceConfigurations().add(0, jaxWsConfiguration);
     }
-    
+
     public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
         this();
         this.jaxWsImplementorInfo = implInfo;
@@ -77,27 +79,25 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     @Override
     public Service create() {
         Service service = super.create();
-        
+
         service.put(MethodDispatcher.class.getName(), methodDispatcher);
-        
+
         return service;
     }
 
-    
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (jaxWsImplementorInfo == null) {
             jaxWsImplementorInfo = new JaxWsImplementorInfo(serviceClass);
         }
-        
+
         super.setServiceClass(serviceClass);
     }
-
 
     @Override
     protected void initializeDefaultInterceptors() {
         super.initializeDefaultInterceptors();
-        
+
         getService().getOutFaultInterceptors().add(new WebFaultOutInterceptor());
     }
 
@@ -110,7 +110,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
 
     public void activateEndpoint(Service service, EndpointInfo ei) throws BusException, WSDLException,
-                    IOException, EndpointException {
+            IOException, EndpointException {
         JaxWsEndpointImpl ep = new JaxWsEndpointImpl(getBus(), service, ei);
         ChainInitiationObserver observer = new ChainInitiationObserver(ep, getBus());
 
@@ -123,24 +123,22 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = jaxWsConfiguration.getDeclaredMethod(method);
-        
+
         super.initializeWSDLOperation(intf, o, method);
 
         intializeWrapping(o, method);
-        
+
         try {
             // Find the Async method which returns a Response
-            Method responseMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async", 
-                                                                              method.getParameterTypes());
+            Method responseMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async",
+                    method.getParameterTypes());
 
-            
             // Find the Async method whic has a Future & AsyncResultHandler
             List<Class<?>> asyncHandlerParams = new ArrayList(Arrays.asList(method.getParameterTypes()));
             asyncHandlerParams.add(AsyncHandler.class);
-            Method futureMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async", 
-                asyncHandlerParams.toArray(new Class<?>[asyncHandlerParams.size()]));
+            Method futureMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async",
+                    asyncHandlerParams.toArray(new Class<?>[asyncHandlerParams.size()]));
 
-            
             methodDispatcher.bind(o, method, responseMethod, futureMethod);
 
         } catch (SecurityException e) {
@@ -148,7 +146,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         } catch (NoSuchMethodException e) {
             methodDispatcher.bind(o, method);
         }
-        
+
         // rpc out-message-part-info class mapping
         initalizeClassInfo(o, method);
     }
@@ -157,23 +155,23 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         Class responseWrapper = getResponseWrapper(selected);
         if (responseWrapper != null) {
             o.getUnwrappedOperation().getOutput().setProperty(WrapperClassOutInterceptor.WRAPPER_CLASS,
-                                                              responseWrapper);
+                    responseWrapper);
         }
         Class<?> requestWrapper = getRequestWrapper(selected);
         if (requestWrapper != null) {
             o.getUnwrappedOperation().getInput().setProperty(WrappedInInterceptor.WRAPPER_CLASS,
-                                                             requestWrapper);
+                    requestWrapper);
         }
     }
 
     @Override
-    protected void initializeDataBindings() {   
+    protected void initializeDataBindings() {
         try {
             dataBinding = new JAXBDataBinding(jaxWsConfiguration.getEndpointClass());
         } catch (JAXBException e) {
             throw new ServiceConstructionException(e);
         }
-        
+
         setDataBinding(dataBinding);
 
         super.initializeDataBindings();
@@ -189,66 +187,92 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
         if (o.getOutput() == null) {
             return;
         }
+        int outPartCount = o.getOutput().getMessageParts().size();
+        int inPartCount = o.getInput().getMessageParts().size();
         Object[] para = selected.getParameterTypes();
+        int outIdx = 0;
         for (MessagePartInfo mpiOut : o.getOutput().getMessageParts()) {
-            int idx = 0;
-            boolean isHolder = false;
+            int inIdx = 0;
+            boolean isInOut = false;
             MessagePartInfo mpiInHolder = null;
+            Object[] paraType = selected.getGenericParameterTypes();
             for (MessagePartInfo mpiIn : o.getInput().getMessageParts()) {
                 // check for sayHi() type no input param method
                 if (para.length > 0) {
-                    mpiIn.setProperty(Class.class.getName(), para[idx]);
+                    mpiIn.setProperty(Class.class.getName(), para[inIdx]);
                 }
                 if (mpiOut.getName().equals(mpiIn.getName())) {
                     if (mpiOut.isElement() && mpiIn.isElement()
-                                    && mpiOut.getElementQName().equals(mpiIn.getElementQName())) {
-                        isHolder = true;
-                        mpiInHolder = mpiIn;
-                        break;
+                            && mpiOut.getElementQName().equals(mpiIn.getElementQName())) {
+                        isInOut = true;
+                        mpiInHolder = mpiIn;                        
                     } else if (!mpiOut.isElement() && !mpiIn.isElement()
-                                    && mpiOut.getTypeQName().equals(mpiIn.getTypeQName())) {
-                        isHolder = true;
-                        mpiInHolder = mpiIn;
-                        break;
+                            && mpiOut.getTypeQName().equals(mpiIn.getTypeQName())) {
+                        isInOut = true;
+                        mpiInHolder = mpiIn;                        
                     }
                 }
-                idx++;
-            }
-            if (isHolder) {
-                Object[] paraType = selected.getGenericParameterTypes();
-                ParameterizedType paramType = (ParameterizedType) paraType[idx];
-                if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
-                    Object rawType = paramType.getActualTypeArguments()[0];
-                    Class rawClass;
-                    if (rawType instanceof GenericArrayType) {
-                        rawClass = (Class) ((GenericArrayType) rawType).getGenericComponentType();
-                        rawClass = Array.newInstance(rawClass, 0).getClass();
-                    } else {
-                        rawClass = (Class) rawType;
-                    }
-                    
+                if (isInOut) {
+                    ParameterizedType paramType = (ParameterizedType) paraType[inIdx];
+                    Class rawClass = getHolderClass(paramType, inIdx);
                     mpiOut.setProperty(Class.class.getName(), rawClass);
                     mpiInHolder.setProperty(Class.class.getName(), rawClass);
-                } else {
-                    throw new RuntimeException("Expected Holder at " + idx
-                                    + " parametor of input message");
+                    mpiOut.setProperty(JaxWsServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
+                    mpiInHolder.setProperty(JaxWsServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
+                    break;
                 }
-
-                mpiOut.setProperty(JaxWsServiceFactoryBean.HOLDER, Boolean.TRUE);
-                mpiInHolder.setProperty(JaxWsServiceFactoryBean.HOLDER, Boolean.TRUE);
-            } else {
-                mpiOut.setProperty(Class.class.getName(), selected.getReturnType());
+                inIdx++;
             }
+            if (!isInOut) {
+                if (((Class) selected.getReturnType()).getName().equals("void")) {                    
+                    // to avoid <element name="..."><complexType/></element> in output message part
+                    if (paraType.length > inPartCount + outIdx) {
+                        ParameterizedType paramType = (ParameterizedType) paraType[inPartCount + outIdx];
+                        Class rawClass = getHolderClass(paramType, inPartCount + outIdx);
+                        mpiOut.setProperty(Class.class.getName(), rawClass);
+                        mpiOut.setProperty(JaxWsServiceFactoryBean.MODE_OUT, Boolean.TRUE);
+                    }
+                } else {
+                    String local = mpiOut.isElement() ? mpiOut.getElementQName().getLocalPart() : mpiOut
+                            .getTypeQName().getLocalPart();
+                    if ("return".equalsIgnoreCase(local) || outPartCount == 1) {
+                        mpiOut.setProperty(Class.class.getName(), selected.getReturnType());
+                    }
+                    // revisit, is there any case that multi-out-parts and one part map to return type, 
+                    // some map to in-out-holder, some map to out-holder?
+                }
+            }
+            outIdx++;
         }
         for (FaultInfo fi : o.getFaults()) {
             int i = 0;
             Class<?> cls = selected.getExceptionTypes()[i];
-            fi.getMessagePartByIndex(0).setProperty(Class.class.getName(), cls);                
+            fi.getMessagePartByIndex(0).setProperty(Class.class.getName(), cls);
             if (cls.isAnnotationPresent(WebFault.class)) {
                 fi.getMessagePartByIndex(i).setProperty(WebFault.class.getName(), Boolean.TRUE);
             }
             i++;
         }
+    }
+
+    private static Class getHolderClass(ParameterizedType paramType, int idx) {
+        if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
+            Object rawType = paramType.getActualTypeArguments()[0];
+            Class rawClass;
+            if (rawType instanceof GenericArrayType) {                
+                rawClass = (Class) ((GenericArrayType) rawType).getGenericComponentType();
+                rawClass = Array.newInstance(rawClass, 0).getClass();
+            } else {
+                if (rawType instanceof ParameterizedType) {
+                    rawType = (Class) ((ParameterizedType) rawType).getRawType();
+                }
+                rawClass = (Class) rawType;
+            }
+            return rawClass;
+        } else {
+            throw new RuntimeException("Expected Holder at " + idx + " parametor of input message");
+        }
+
     }
 
     public JaxWsImplementorInfo getJaxWsImplementorInfo() {

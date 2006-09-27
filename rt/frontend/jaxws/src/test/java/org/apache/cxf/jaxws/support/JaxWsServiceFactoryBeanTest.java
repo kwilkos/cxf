@@ -93,7 +93,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         
         assertTrue(itr.hasNext());
         part = itr.next();
-        assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.HOLDER));
+        assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
         assertEquals(byte[].class, part.getProperty(Class.class.getName(), Class.class));
         
         assertFalse(itr.hasNext());
@@ -103,7 +103,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
 
         assertTrue(itr.hasNext());
         part = itr.next();
-        assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.HOLDER));
+        assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
         
         assertFalse(itr.hasNext());
     }
