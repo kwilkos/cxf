@@ -48,13 +48,12 @@ import org.w3c.dom.NodeList;
 
 import org.apache.cxf.tools.common.WSDLConstants;
 
-import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 public class WSDLElementReferenceValidator {
-    private Map<String, XmlSchema> schemas;
+    private Map<String, XmlSchemaCollection> schemas;
     private Definition def;
     private Map<QName, List> msgPartsMap;
     private SchemaValidator schemaWSDLValidator;
@@ -82,7 +81,7 @@ public class WSDLElementReferenceValidator {
     public boolean isValid() {
         this.validateMessages();
         this.validatePortType();
-        this.vlidateBinding();
+        this.validateBinding();
         this.validateService();
         return isValid;
     }
@@ -92,6 +91,23 @@ public class WSDLElementReferenceValidator {
         String tns = def.getTargetNamespace();
 
         Map messageMap = def.getMessages();
+
+        Map<String, Document> wsdlImports = schemaWSDLValidator.getWsdlImportDocs();
+        for (Iterator iter = wsdlImports.keySet().iterator(); iter.hasNext();) {
+            String tnsImport = (String)iter.next();
+            Document wsdlImportDoc = (Document)wsdlImports.get(tnsImport);
+            NodeList nodeList = wsdlImportDoc.getElementsByTagNameNS(
+                WSDLConstants.QNAME_MESSAGE.getNamespaceURI(), 
+                WSDLConstants.QNAME_MESSAGE.getLocalPart());
+            
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                Node attNode = node.getAttributes().getNamedItem(WSDLConstants.ATTR_NAME);
+                QName qname = new QName(tnsImport, attNode.getNodeValue());
+
+                msgPartsMap.put(qname, new ArrayList<String>());
+            }
+        }
 
         NodeList nodeList = document.getElementsByTagNameNS(WSDLConstants.QNAME_MESSAGE.getNamespaceURI(),
                                                             WSDLConstants.QNAME_MESSAGE.getLocalPart());
@@ -140,12 +156,12 @@ public class WSDLElementReferenceValidator {
                 }
 
                 if (elementName != null && typeName == null) {
-                    boolean valid = vlidatePartType(elementName.getNamespaceURI(),
+                    boolean valid = validatePartType(elementName.getNamespaceURI(),
                                                     elementName.getLocalPart(), true);
                     if (!valid) {
                         Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_MESSAGE, msg.getQName()
                             .getLocalPart(), part.getName());
-                        schemaWSDLValidator.addError(loc, elementName + " refefrence can not find");
+                        schemaWSDLValidator.addError(loc, elementName + " cannot find reference");
 
                         isValid = false;
                     }
@@ -153,7 +169,7 @@ public class WSDLElementReferenceValidator {
                 }
                 if (typeName != null && elementName == null) {
 
-                    boolean valid = vlidatePartType(typeName.getNamespaceURI(), typeName.getLocalPart(),
+                    boolean valid = validatePartType(typeName.getNamespaceURI(), typeName.getLocalPart(),
                                                     false);
 
                     if (!valid) {
@@ -173,7 +189,7 @@ public class WSDLElementReferenceValidator {
         return isValid;
     }
 
-    private boolean vlidatePartType(String namespace, String name, boolean isElement) {
+    private boolean validatePartType(String namespace, String name, boolean isElement) {
 
         boolean partvalid = false;
 
@@ -191,16 +207,15 @@ public class WSDLElementReferenceValidator {
         } else {
             Iterator ite = schemas.values().iterator();
             while (ite.hasNext()) {
-                XmlSchema schema = (XmlSchema)ite.next();
-
+                XmlSchemaCollection schema = (XmlSchemaCollection)ite.next();
                 if (schema != null && isElement
-                    && schema.getElementByName(new QName(namespace, name)) != null) {
+                    && schema.getElementByQName(new QName(namespace, name)) != null) {
                     partvalid = true;
                     break;
 
                 }
                 if (schema != null && !isElement 
-                    && schema.getTypeByName(new QName(namespace, name)) != null) {
+                    && schema.getTypeByQName(new QName(namespace, name)) != null) {
                     partvalid = true;
                     break;
                 }
@@ -210,7 +225,7 @@ public class WSDLElementReferenceValidator {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean vlidateBinding() {
+    private boolean validateBinding() {
 
         NodeList nodelist = document.getElementsByTagNameNS(WSDLConstants.QNAME_BINDING.getNamespaceURI(),
                                                             WSDLConstants.QNAME_BINDING.getLocalPart());

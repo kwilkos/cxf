@@ -58,8 +58,8 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/validator_wsdl/hello_world_mixed_style.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Mixted style Error should be discovered",
-                       getStdErr().indexOf("Mixted style ,Wrong WSDL") > -1);
+            assertTrue("Mixed style. Error should have been discovered.",
+                       getStdErr().indexOf("Mixed style, invalid WSDL") > -1);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,7 +72,7 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/validator_wsdl/hello_world_doc_lit_type.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Refere type element error   should be discovered",
+            assertTrue("Must refer to type element error should have been discovered.",
                        getStdErr().indexOf("using the element attribute") > -1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,8 +123,34 @@ public class WSDLValidationTest extends ToolTestBase {
 
     }
 
+    public void testImportWsdlValidation() throws Exception {
+        try {
+            String[] args = new String[] {"-d", schemaDir, "-verbose",
+                                          getLocation("/validator_wsdl/hello_world_import.wsdl")};
+            WSDLValidator.main(args);
+            
+            assertTrue("Is not valid wsdl!",
+                       getStdOut().indexOf("Passed Validation") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+    }
 
+    public void testImportSchemaValidation() throws Exception {
+        try {
+            String[] args = new String[] {"-d", schemaDir, "-verbose",
+                                          getLocation("/validator_wsdl/hello_world_schema_import.wsdl")};
+            WSDLValidator.main(args);
+            
+            assertTrue("Is not valid wsdl!",
+                       getStdOut().indexOf("Passed Validation") > -1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    
     private String getLocation(String wsdlFile) throws IOException {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);
         while (e.hasMoreElements()) {

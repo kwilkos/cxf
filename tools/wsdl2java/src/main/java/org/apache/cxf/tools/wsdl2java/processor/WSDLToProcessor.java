@@ -251,7 +251,7 @@ public class WSDLToProcessor implements Processor {
         schemaTargetNamespaces.clear();
         try {
             env.put(ToolConstants.WSDL_DEFINITION, wsdlDefinition);
-            env.put(ToolConstants.IMPORTED_DEFENITION, importedDefinitions);
+            env.put(ToolConstants.IMPORTED_DEFINITION, importedDefinitions);
             env.put(ToolConstants.SCHEMA_LIST, schemaList);
             env.put(ToolConstants.SCHEMA_TARGET_NAMESPACES, schemaTargetNamespaces);
             env.put(ToolConstants.PORTTYPE_MAP, getPortTypes(wsdlDefinition));

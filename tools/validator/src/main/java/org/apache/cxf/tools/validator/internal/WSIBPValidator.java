@@ -89,7 +89,7 @@ public class WSIBPValidator extends AbstractValidator {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
                         SOAPHeader soapHeader = wsdlHelper.getBindingInputSOAPHeader(bop);
-                        boundPartSize = soapHeader != null
+                        boundPartSize = soapHeader != null 
                                         && soapHeader.getMessage().equals(
                                                                           operation.getInput().getMessage()
                                                                               .getQName())
@@ -107,7 +107,7 @@ public class WSIBPValidator extends AbstractValidator {
                                     }
                                 }
                                 if (!isDefined) {
-                                    addErrorMessage("opartion: " + operation.getName() + "  soapBody parts : "
+                                    addErrorMessage("operation: " + operation.getName() + " soapBody parts : "
                                                     + partName + " not found in the message, wrong WSDL");
                                     return false;
                                 }
@@ -128,7 +128,7 @@ public class WSIBPValidator extends AbstractValidator {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
                         SOAPHeader soapHeader = wsdlHelper.getBindingOutputSOAPHeader(bop);
-                        boundPartSize = soapHeader != null
+                        boundPartSize = soapHeader != null 
                                         && soapHeader.getMessage().equals(
                                                                           operation.getOutput().getMessage()
                                                                               .getQName())
@@ -145,7 +145,7 @@ public class WSIBPValidator extends AbstractValidator {
                                     }
                                 }
                                 if (!isDefined) {
-                                    addErrorMessage("opartion: " + operation.getName() + "  soapBody parts : "
+                                    addErrorMessage("operation: " + operation.getName() + " soapBody parts : "
                                                     + partName + " not found in the message, wrong WSDL");
                                     return false;
                                 }
@@ -160,11 +160,9 @@ public class WSIBPValidator extends AbstractValidator {
                         }
                     }
                 }
-
             }
         }
         return true;
-
     }
 
     public boolean checkR2203And2204() {
@@ -237,7 +235,7 @@ public class WSIBPValidator extends AbstractValidator {
             Object obj = ite.next();
             Binding binding = (Binding)obj;
             if (wsdlHelper.isMixedStyle(binding)) {
-                addErrorMessage("Mixted style ,Wrong WSDL");
+                addErrorMessage("Mixed style, invalid WSDL");
                 return false;
             }
         }

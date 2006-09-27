@@ -51,7 +51,7 @@ public class WSDL11Validator extends AbstractValidator {
             String[] schemas = (String[])env.get(ToolConstants.CFG_SCHEMA_URL);
             
             SchemaValidator schemaValidator = new SchemaValidator(schemaDir, (String)env
-                .get(ToolConstants.CFG_WSDLURL), schemas, false);
+                .get(ToolConstants.CFG_WSDLURL), schemas);
 
             if (!schemaValidator.isValid()) {              
                 this.addErrorMessage(schemaValidator.getErrorMessage());

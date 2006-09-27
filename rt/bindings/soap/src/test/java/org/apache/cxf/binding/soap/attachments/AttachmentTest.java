@@ -107,7 +107,7 @@ public class AttachmentTest extends TestBase {
 
             JAXBAttachmentUnmarshaller jau = new JAXBAttachmentUnmarshaller(soapMessage);
             u.setAttachmentUnmarshaller(jau);
-            System.out.println(jau.isXOPPackage());
+            // System.out.println(jau.isXOPPackage());
             XMLStreamReader r = (XMLStreamReader) soapMessage.getContent(XMLStreamReader.class);
             while (r.hasNext()) {
                 r.nextTag();

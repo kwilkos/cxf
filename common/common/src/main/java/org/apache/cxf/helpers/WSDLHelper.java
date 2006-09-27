@@ -192,17 +192,18 @@ public class WSDLHelper {
 
     public String getSOAPOperationStyle(BindingOperation bop) {
         String style = "";
-        Iterator ite = bop.getExtensibilityElements().iterator();
-        while (ite.hasNext()) {
-            Object obj = ite.next();
-            if (obj instanceof SOAPOperation) {
-                SOAPOperation soapOperation = (SOAPOperation)obj;
-                style = soapOperation.getStyle();
-                break;
+        if (bop != null) {
+            Iterator ite = bop.getExtensibilityElements().iterator();
+            while (ite.hasNext()) {
+                Object obj = ite.next();
+                if (obj instanceof SOAPOperation) {
+                    SOAPOperation soapOperation = (SOAPOperation)obj;
+                    style = soapOperation.getStyle();
+                    break;
+                }
             }
         }
         return style;
-
     }
 
     public SOAPBody getBindingInputSOAPBody(BindingOperation bop) {

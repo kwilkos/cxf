@@ -163,7 +163,7 @@ public final class ToolConstants {
     public static final String PORTTYPE_MAP = "portTypeMap";
     public static final String SCHEMA_TARGET_NAMESPACES = "schemaTargetNameSpaces";
     public static final String WSDL_DEFINITION = "wsdlDefinition";
-    public static final String IMPORTED_DEFENITION = "importedDefinition";
+    public static final String IMPORTED_DEFINITION = "importedDefinition";
     public static final String IMPORTED_PORTTYPE = "importedPortType";
     public static final String IMPORTED_SERVICE = "importedService";
     public static final String BINDING_GENERATOR = "BindingGenerator";
