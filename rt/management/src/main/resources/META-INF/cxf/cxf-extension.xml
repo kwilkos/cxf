@@ -24,15 +24,11 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <bean id="org.apache.cxf.event.EventProcessor" class="org.apache.cxf.event.EventProcessorImpl">
-        <property name="bus">
-            <ref bean="cxf"/>
-        </property>
+        <property name="bus" ref="cxf"/>
     </bean>
     
     <bean id="org.apache.cxf.management.InstrumentationManager" class="org.apache.cxf.management.InstrumentationManagerImpl">
-        <property name="bus">
-            <ref bean="cxf"/>
-        </property>
+        <property name="bus" ref="cxf"/>
     </bean>
     
 </beans>

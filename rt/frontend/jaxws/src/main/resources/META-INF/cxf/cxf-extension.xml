@@ -24,9 +24,7 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <bean class="org.apache.cxf.jaxws.servlet.ServletTransportFactory" lazy-init="true">
-        <property name="bus">
-            <ref bean="cxf"/>
-        </property>
+        <property name="bus" ref="cxf"/>
         <property name="activationNamespaces">
             <set>
                 <value>http://schemas.xmlsoap.org/wsdl/servlet</value>               

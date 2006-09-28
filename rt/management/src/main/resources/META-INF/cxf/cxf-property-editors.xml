@@ -26,9 +26,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="org.apache.cxf.management.customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="propertyEditorRegistrars">
             <list>
-                <!--
-                <ref bean="org.apache.cxf.management.JaxbPropertyEditorRegistrar"/>
-                -->
                 <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
                     <property name="packageName" value="org.apache.cxf.management"/>
                     <property name="propertyClassNames">
@@ -41,17 +38,4 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
            </list>
         </property>
     </bean>
-    <!--
-    <bean id="org.apache.cxf.management.JaxbPropertyEditorRegistrar"
-          class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
-        <property name="customEditorConfigurer" ref="customEditorConfigurer"/>
-        <property name="packageName" value="org.apache.cxf.management"/>
-        <property name="propertyClassNames">
-            <list>
-                <value>InstrumentationType</value>
-                <value>JMXConnectorPolicyType</value>
-            </list>
-        </property>
-    </bean>
-    -->
 </beans>
