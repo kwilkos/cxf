@@ -21,12 +21,17 @@ package org.apache.cxf.configuration.spring;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
+import org.apache.cxf.common.logging.LogUtils;
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.PropertyEditorRegistry;
 
 public class JaxbPropertyEditorRegistrar implements PropertyEditorRegistrar {
+    private static final Logger LOG = LogUtils.getL7dLogger(JaxbPropertyEditorRegistrar.class);
+    
     private String packageName;
     private List<String> propertyClassNames;
 
@@ -64,7 +69,11 @@ public class JaxbPropertyEditorRegistrar implements PropertyEditorRegistrar {
                     ex.printStackTrace();
                 }
                 if (null != cls) {
+                    
                     registry.registerCustomEditor(cls, editor);
+                    if (LOG.isLoggable(Level.FINE)) {
+                        LOG.fine("registered editor for class: " + cls.getName());
+                    }
                 }
             }
         }

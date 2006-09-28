@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.extension.ExtensionManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
@@ -126,6 +127,13 @@ public class ExtensionManagerImpl implements ExtensionManager {
         }
  
         Object obj = e.load(loader);
+        
+        Configurer configurer = (Configurer)(activated.get(Configurer.class));
+        if (null != configurer) {
+            configurer.configureBean(obj);
+        }
+        
+        
         
         // let the object know for which namespaces it has been activated
         ResourceResolver namespacesResolver = null;

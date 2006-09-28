@@ -21,12 +21,10 @@ package org.apache.cxf.transport.jms;
 
 
 import java.io.ByteArrayInputStream;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -41,13 +39,13 @@ import java.util.logging.Logger;
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueSender;
-
 import javax.jms.TextMessage;
 import javax.naming.NamingException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -87,6 +85,11 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         AttributedURIType address = new AttributedURIType();
         address.setValue(endpointInfo.getAddress());
         reference.setAddress(address);        
+    }
+    
+    @Override
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".jms-destination-base";
     }
     
     public EndpointReferenceType getAddress() {       
@@ -259,7 +262,20 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     }
     
     private void initConfig() {
-        JMSDestinationConfigBean bean = new JMSDestinationConfigBean();
+        
+        final class JMSDestinationConfiguration extends JMSDestinationConfigBean {
+
+            @Override
+            public String getBeanName() {
+                return endpointInfo.getName().toString() + ".jms-destination";
+            }
+        }
+        JMSDestinationConfigBean bean = new JMSDestinationConfiguration();
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(bean);
+        }
+        
         if (!bean.isSetServer()) {
             bean.setServer(new JMSServerBehaviorPolicyType());
         }

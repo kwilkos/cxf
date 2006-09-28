@@ -30,21 +30,23 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
-import org.springframework.context.support.AbstractXmlApplicationContext;
+import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
-public class BusApplicationContext extends AbstractXmlApplicationContext {
+public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     
     private static final String DEFAULT_CXF_CFG_FILE = "META-INF/cxf/cxf.xml";
     private static final String DEFAULT_CXF_EXT_CFG_FILE = "META-INF/cxf/cxf-extension.xml";
+    private static final String CXF_PROPERTY_EDITORS_CFG_FILE = "META-INF/cxf/cxf-property-editors.xml";
     private static final Logger LOG = LogUtils.getL7dLogger(BusApplicationContext.class);
     
-    private String cfgFile;
     private boolean includeDefaults;
+    private String cfgFile;
     
     BusApplicationContext(String cf, boolean include) {
+        super((String[])null);
         cfgFile = cf;
         includeDefaults = include;
     }
@@ -66,7 +68,14 @@ public class BusApplicationContext extends AbstractXmlApplicationContext {
                     .getResources(DEFAULT_CXF_EXT_CFG_FILE);
                 while (urls.hasMoreElements()) {
                     resources.add(new UrlResource(urls.nextElement()));
-                }      
+                } 
+                
+                urls = Thread.currentThread().getContextClassLoader()
+                    .getResources(CXF_PROPERTY_EDITORS_CFG_FILE);
+                while (urls.hasMoreElements()) {
+                    resources.add(new UrlResource(urls.nextElement()));
+                } 
+                
             } catch (IOException ex) {
                 // ignore  
             }  
@@ -96,6 +105,13 @@ public class BusApplicationContext extends AbstractXmlApplicationContext {
         res = resources.toArray(res);
         return res;
     }
+
+    @Override
+    protected String[] getConfigLocations() {
+        return super.getConfigLocations();
+    }
+    
+    
     
     
 

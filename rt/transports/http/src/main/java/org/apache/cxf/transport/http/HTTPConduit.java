@@ -115,7 +115,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
              t,
              null,
              null);
-    }
+    }    
 
     /**
      * Constructor, allowing subsititution of
@@ -144,6 +144,11 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
               ? new URL(getAddress())
               : new URL(t.getAddress().getValue());
         target = getTargetReference(t);
+    }
+    
+    @Override
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".http-conduit";
     }
     
     /**

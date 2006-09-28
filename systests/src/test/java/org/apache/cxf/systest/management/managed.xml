@@ -19,26 +19,45 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:im="http://cxf.apache.org/management"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
+   
+   <!--
     <bean id="customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="propertyEditorRegistrars">
             <list merge="true">
-                <ref bean="org.apache.cxf.configuration.foo.JaxbPropertyEditorRegistrar"/>
+                <ref bean="org.apache.cxf.management.JaxbPropertyEditorRegistrar"/>
            </list>
         </property>
     </bean>
     
-    <bean id="org.apache.cxf.configuration.foo.JaxbPropertyEditorRegistrar"
+    <bean id="org.apache.cxf.management.JaxbPropertyEditorRegistrar"
           class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
-        <property name="packageName" value="org.apache.cxf.configuration.foo"/>
+        <property name="packageName" value="org.apache.cxf.management"/>
         <property name="propertyClassNames">
             <list>
-                <value>Point</value>
-                <value>Address</value>
+                <value>InstrumentationType</value>
+                <value>JMXConnectorPolicyType</value>
             </list>
         </property>
     </bean>
-
+    -->
+    
+    <bean id="org.apache.cxf.management.InstrumentationManager" abstract="true">    
+        <property name="instrumentation">
+            <value>
+                <im:instrumentation Enabled="true" JMXEnabled="true"/>
+            </value>
+        </property>
+        <property name="JMXConnectorPolicy">
+            <value>
+                <im:JMXConnectorPolicy 
+                    Threaded="true" 
+                    Daemon="false"
+                    JMXServiceURL="service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server"/>
+            </value>
+        </property>
+    </bean> 
+ 
 </beans>

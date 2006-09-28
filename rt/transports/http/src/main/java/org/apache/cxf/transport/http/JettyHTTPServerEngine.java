@@ -51,8 +51,15 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
     JettyHTTPServerEngine(Bus bus, String protocol, int p) {
         port = p;
         init();
-    }
+    }    
     
+    @Override
+    public String getBeanName() {
+        return JettyHTTPServerEngine.class.getName() + "." + port;
+    }
+
+
+
     static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {
         JettyHTTPServerEngine ref = portMap.get(p);
         if (ref == null) {

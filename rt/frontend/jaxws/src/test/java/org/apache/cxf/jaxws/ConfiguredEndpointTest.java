@@ -78,24 +78,34 @@ public class ConfiguredEndpointTest extends TestCase {
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
         assertTrue("Unexpected value for property validating", !endpoint.getValidating());
    
+        System.out.println("endpoint interceptors");
         List<Interceptor> interceptors = endpoint.getInInterceptors();
+        printInterceptors("in", interceptors);        
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         interceptors = endpoint.getOutInterceptors();
+        printInterceptors("out", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         interceptors = endpoint.getInFaultInterceptors();
+        printInterceptors("inFault", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         interceptors = endpoint.getOutFaultInterceptors();
+        printInterceptors("outFault", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         
+        System.out.println("service interceptors");
         org.apache.cxf.service.ServiceImpl svc = (org.apache.cxf.service.ServiceImpl)endpoint.getService();
         assertEquals("Unexpected bean name", SERVICE_NAME.toString(), svc.getBeanName());
         interceptors = svc.getInInterceptors();
+        printInterceptors("in", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         interceptors = svc.getOutInterceptors();
+        printInterceptors("out", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         interceptors = svc.getInFaultInterceptors();
+        printInterceptors("inFault", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         interceptors = svc.getOutFaultInterceptors();
+        printInterceptors("outFault", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
     }
     
@@ -239,6 +249,12 @@ public class ConfiguredEndpointTest extends TestCase {
             }
         }
         return null;
+    }
+    
+    private void printInterceptors(String type, List<Interceptor> interceptors) {
+        for (Interceptor i : interceptors) {
+            System.out.println("    " + type + ": " + i.getClass().getName());
+        }
     }
     
     @SuppressWarnings("unchecked")

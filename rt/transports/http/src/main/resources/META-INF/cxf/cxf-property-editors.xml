@@ -19,26 +19,24 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:im="http://cxf.apache.org/management"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-    <bean id="customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
+   
+    <bean id="org.apache.cxf.transports.http.customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="propertyEditorRegistrars">
-            <list merge="true">
-                <ref bean="org.apache.cxf.configuration.foo.JaxbPropertyEditorRegistrar"/>
+            <list>
+                <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
+                    <property name="packageName" value="org.apache.cxf.transports.http.configuration"/>
+                    <property name="propertyClassNames">
+                        <list>
+                            <value>HTTPClientPolicy</value>
+                            <value>HTTPServerPolicy</value>
+                            <value>HTTPListenerPolicy</value>
+                        </list>
+                    </property>
+                </bean>
            </list>
         </property>
     </bean>
-    
-    <bean id="org.apache.cxf.configuration.foo.JaxbPropertyEditorRegistrar"
-          class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
-        <property name="packageName" value="org.apache.cxf.configuration.foo"/>
-        <property name="propertyClassNames">
-            <list>
-                <value>Point</value>
-                <value>Address</value>
-            </list>
-        </property>
-    </bean>
-
 </beans>

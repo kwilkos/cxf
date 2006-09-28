@@ -41,6 +41,7 @@ import javax.naming.NamingException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -77,6 +78,11 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
 
         initConfig();
     } 
+     
+    @Override
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".jms-conduit-base";
+    }
 
     // prepare the message for send out , not actually send out the message
     public void send(Message message) throws IOException {        
@@ -189,7 +195,20 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
     }
 
     private void initConfig() {
-        JMSConduitConfigBean bean = new JMSConduitConfigBean();
+        
+        final class JMSConduitConfiguration extends JMSConduitConfigBean {
+
+            @Override
+            public String getBeanName() {
+                return endpointInfo.getName().toString() + ".jms-conduit";
+            }
+        }
+        JMSConduitConfigBean bean = new JMSConduitConfiguration();
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(bean);
+        }
+        
         if (!bean.isSetClient()) {
             bean.setClient(new JMSClientBehaviorPolicyType());
         }

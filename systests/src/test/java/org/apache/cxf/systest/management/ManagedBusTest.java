@@ -17,21 +17,26 @@
  * under the License.
  */
 
-package org.apache.cxf.bus.spring;
+package org.apache.cxf.systest.management;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
-public class BusApplicationContextTest extends TestCase {
-       
-    public void testGetResources() {
-        BusApplicationContext ctx = new BusApplicationContext("nowhere.xml", false);
-        assertNull("Unexpected number of resources", ctx.getConfigResources());
-        String cfgFile = "/org/apache/cxf/bus/spring/resources/bus-overwrite.xml";
-        ctx = new BusApplicationContext(cfgFile, false);
-        assertEquals("Unexpected number of resources", 1, ctx.getConfigResources().length);
-        ctx = new BusApplicationContext("nowhere.xml", true);
-        assertEquals("Unexpected number of resources", 2, ctx.getConfigResources().length);
-        ctx = new BusApplicationContext(cfgFile, true);
-        assertEquals("Unexpected number of resources", 3, ctx.getConfigResources().length);
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.configuration.Configurer;
+
+public class ManagedBusTest extends TestCase {
+
+    public void testManagedBus() {
+        CXFBusFactory factory = new CXFBusFactory();
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
+                       "org/apache/cxf/systest/management/managed.xml");
+        Bus bus = factory.createBus(null, properties);
+        factory.setDefaultBus(bus);
+        // bus.run();
     }
 }

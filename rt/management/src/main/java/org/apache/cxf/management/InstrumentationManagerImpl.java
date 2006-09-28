@@ -58,7 +58,7 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
             setJMXConnectorPolicy(new JMXConnectorPolicyType());
         }      
     }
-    
+       
     public Bus getBus() {
         return bus;
     }
@@ -76,10 +76,16 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
         }
     }
     
+    @Override
+    public String getBeanName() {
+        return InstrumentationManager.class.getName();
+    }
+    
     public void initInstrumentationManagerImpl() {
         LOG.info("Setting up InstrumentationManager");
         
         if (getInstrumentation().isEnabled()) {
+            LOG.fine("Instrumentation is enabled.");
             instrumentations = new LinkedList<Instrumentation>();
             //regist to the event process
             ComponentEventFilter componentEventFilter = new ComponentEventFilter();
@@ -89,7 +95,8 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
             }    
         }
             
-        if (getInstrumentation().isJMXEnabled()) {           
+        if (getInstrumentation().isJMXEnabled()) {  
+            LOG.fine("JMX is enabled.");
             jmxManagedComponentManager = new JMXManagedComponentManager();
             jmxManagedComponentManager.init(getJMXConnectorPolicy());
         }
@@ -97,7 +104,7 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
     
     public void shutdown() {
         if (LOG.isLoggable(Level.INFO)) {
-            LOG.info("Shutdown InstrumentationManager ");
+            LOG.info("Shutdown InstrumentationManager");
         }
         
         if (jmxManagedComponentManager != null) {

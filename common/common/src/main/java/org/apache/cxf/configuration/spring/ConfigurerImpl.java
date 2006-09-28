@@ -19,6 +19,7 @@
 
 package org.apache.cxf.configuration.spring;
 
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +33,6 @@ import org.springframework.beans.factory.wiring.BeanConfigurerSupport;
 import org.springframework.beans.factory.wiring.BeanWiringInfo;
 import org.springframework.beans.factory.wiring.BeanWiringInfoResolver;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer {
@@ -56,7 +56,7 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         ClassPathResource cpr = new ClassPathResource(cfgFile);
         if (cpr.exists()) {
             try {
-                ApplicationContext ac = new ClassPathXmlApplicationContext(cfgFile);
+                ApplicationContext ac = new JaxbClassPathXmlApplicationContext(cfgFile);
                 setApplicationContext(ac);
             } catch (BeansException ex) {
                 LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
@@ -76,11 +76,11 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
             return;
         }
         
-        if (!(beanInstance instanceof Configurable)) {
+        final String beanName = getBeanName(beanInstance);
+        
+        if (null == beanName) {
             return;
         }
-        
-        final String beanName = ((Configurable)beanInstance).getBeanName();
         
         setBeanWiringInfoResolver(new BeanWiringInfoResolver() {
             public BeanWiringInfo resolveWiringInfo(Object instance) {
@@ -98,12 +98,36 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
             // users often wonder why the settings in their configuration files seem
             // to have no effect - the most common cause is that they have been using
             // incorrect bean ids
-            LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
+            LogUtils.log(LOG, Level.INFO, "NO_MATCHING_BEAN_MSG", new Object[] {beanName});
+            // LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
         }
+    }
+    
+    protected String getBeanName(Object beanInstance) {
+        if (beanInstance instanceof Configurable) {
+            return ((Configurable)beanInstance).getBeanName();
+        }
+        String beanName = null;
+        try {
+            Method m = beanInstance.getClass().getDeclaredMethod("getBeanName", (Class[])null);
+            beanName = (String)(m.invoke(beanInstance));
+        } catch (NoSuchMethodException ex) {
+            // ignore
+        } catch (Exception ex) {
+            LogUtils.log(LOG, Level.WARNING, "ERROR_DETERMINING_BEAN_NAME_EXC", ex);
+        }
+        
+        if (null == beanName) {
+            LogUtils.log(LOG, Level.INFO, "COULD_NOT_DETERMINE_BEAN_NAME_MSG", 
+                         new Object[] {beanInstance.getClass().getName()});
+        }
+      
+        return beanName;
     }
     
     private void setApplicationContext(ApplicationContext ac) {
         appContext = ac;
         setBeanFactory(appContext.getAutowireCapableBeanFactory());
     }
+    
 }

@@ -147,6 +147,26 @@ public class ConfigurerImplTest extends TestCase {
                      new Short((short)21), sb.getUnsignedByteAttr());
     }
     
+    public void testGetBeanName() {
+        ConfigurerImpl configurer = new ConfigurerImpl((String)null);
+        Object beanInstance = new Configurable() {
+
+            public String getBeanName() {
+                return "a";
+            }
+        };
+        assertEquals("a", configurer.getBeanName(beanInstance));
+        final class NamedBean {
+            public String getBeanName() {
+                return "b";
+            }
+        }
+        beanInstance = new NamedBean(); 
+        assertEquals("b", configurer.getBeanName(beanInstance));
+        beanInstance = this;
+        assertNull(configurer.getBeanName(beanInstance));
+    }
+    
     final class SimpleBean implements Configurable {
         
         private String beanName;
@@ -307,9 +327,6 @@ public class ConfigurerImplTest extends TestCase {
 
         public void setBeanName(String beanName) {
             this.beanName = beanName;
-        }
-
-        
-        
+        }    
     }
 }

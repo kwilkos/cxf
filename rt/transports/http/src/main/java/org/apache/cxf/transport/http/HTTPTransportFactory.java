@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -76,16 +77,27 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
 
     public Conduit getConduit(EndpointInfo endpointInfo)
         throws IOException {
-        return new HTTPConduit(bus, endpointInfo);
+        return getConduit(endpointInfo, null);
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target)
         throws IOException {
-        return new HTTPConduit(bus, endpointInfo, target);
+        HTTPConduit conduit = 
+            target == null ? new HTTPConduit(bus, endpointInfo) : new HTTPConduit(bus, endpointInfo, target);
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(conduit);
+        }
+        return conduit;  
     }
 
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
-        return new JettyHTTPDestination(bus, this, endpointInfo);
+        JettyHTTPDestination destination = new JettyHTTPDestination(bus, this, endpointInfo);
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(destination);
+        }
+        return destination;   
     }
 }

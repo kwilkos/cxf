@@ -50,7 +50,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean  implements Destination {
     static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
     
-    private static final long serialVersionUID = 1L;        
+    private static final long serialVersionUID = 1L;
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
@@ -85,6 +85,13 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
         address.setValue(getAddressValue());
         reference.setAddress(address);
     }
+    
+    @Override
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".http-destination";
+    }
+
+
 
     /**
      * @return the reference associated with this Destination

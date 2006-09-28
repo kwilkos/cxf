@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -66,17 +67,27 @@ public class JMSTransportFactory implements ConduitInitiator, DestinationFactory
         }
     }
    
-    public Conduit getConduit(EndpointInfo targetInfo) throws IOException {
-        return new JMSConduit(bus, targetInfo);
+    public Conduit getConduit(EndpointInfo targetInfo) throws IOException {        
+        return getConduit(targetInfo, null);
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
-        return new JMSConduit(bus, endpointInfo, target);
+        Conduit conduit = 
+            target == null ? new JMSConduit(bus, endpointInfo) : new JMSConduit(bus, endpointInfo, target);
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(conduit);
+        }
+        return conduit;
     }
 
     public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
-        //TODO
-        return new JMSDestination(bus, this, endpointInfo);
+        JMSDestination destination = new JMSDestination(bus, this, endpointInfo);
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(destination);
+        }
+        return destination;
     }
    
 }

@@ -21,19 +21,24 @@ package org.apache.cxf.configuration;
 
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public abstract class AbstractConfigurableBeanBase implements Configurable {
     
     private List<ConfigurationProvider> fallbackProviders;
+
     private List<ConfigurationProvider> overwriteProviders;
     
+    @XmlTransient
     public String getBeanName() {
-        return this.getClass().getName();
+        return getClass().getName();
     }
-
+    
     public List<ConfigurationProvider> getFallbackProviders() {
         return fallbackProviders;
     }
     
+    @XmlTransient
     public void setFallbackProviders(List<ConfigurationProvider> fallbackProviders) {
         this.fallbackProviders = fallbackProviders;
     }
@@ -42,6 +47,7 @@ public abstract class AbstractConfigurableBeanBase implements Configurable {
         return overwriteProviders;
     }
 
+    @XmlTransient
     public void setOverwriteProviders(List<ConfigurationProvider> overwriteProviders) {
         this.overwriteProviders = overwriteProviders;
     }
