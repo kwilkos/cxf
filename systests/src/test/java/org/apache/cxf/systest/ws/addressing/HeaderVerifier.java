@@ -66,28 +66,29 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) {
-        addPartialResponseHeader(message);
-        verify(message);
+        boolean outgoingPartialResponse = isOutgoingPartialResponse(message);
+        if (outgoingPartialResponse) {
+            addPartialResponseHeader(message);
+        }
+        verify(message, outgoingPartialResponse);
     }
 
     public void handleFault(SoapMessage message) {
-        verify(message);
+        verify(message, isOutgoingPartialResponse(message));
     }
 
     private void addPartialResponseHeader(SoapMessage message) {
         try {
             // add piggybacked wsa:From header to partial response
-            if (isOutgoingPartialResponse(message)) {
-                Element header = message.getHeaders(Element.class);
-                marshallFrom("urn:piggyback_responder", header, getMarshaller());
-            }
+            Element header = message.getHeaders(Element.class);
+            marshallFrom("urn:piggyback_responder", header, getMarshaller());
         } catch (Exception e) {
             verificationCache.put("SOAP header addition failed: " + e);
             e.printStackTrace();
         }
     }
 
-    private void verify(SoapMessage message) {
+    private void verify(SoapMessage message, boolean outgoingPartialResponse) {
         try {
             List<String> wsaHeaders = new ArrayList<String>();
             Element headers = message.getHeaders(Element.class);
@@ -100,7 +101,7 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
                                  VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
             }
             boolean partialResponse = isIncomingPartialResponse(message)
-                                      || isOutgoingPartialResponse(message);
+                                      || outgoingPartialResponse;
             verificationCache.put(MAPTest.verifyHeaders(wsaHeaders, 
                                                         partialResponse));
         } catch (SOAPException se) {
@@ -126,7 +127,7 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
         AddressingProperties maps = 
             (AddressingProperties)message.get(SERVER_ADDRESSING_PROPERTIES_OUTBOUND);
         return ContextUtils.isOutbound(message)
-               && ContextUtils.isRequestor(message)
+               && !ContextUtils.isRequestor(message)
                && maps != null
                && Names.WSA_ANONYMOUS_ADDRESS.equals(maps.getTo().getValue());
     }
@@ -137,6 +138,7 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
             (AddressingProperties)message.get(CLIENT_ADDRESSING_PROPERTIES_INBOUND);
         return !ContextUtils.isOutbound(message)
                && ContextUtils.isRequestor(message)
+               && maps != null
                && Names.WSA_ANONYMOUS_ADDRESS.equals(maps.getTo().getValue());
     }
     

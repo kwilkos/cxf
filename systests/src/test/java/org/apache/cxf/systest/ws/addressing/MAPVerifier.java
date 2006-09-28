@@ -53,7 +53,7 @@ public class MAPVerifier extends AbstractPhaseInterceptor<Message> {
     }
     
     public void handleMessage(Message message) {
-        //verify(message);
+        verify(message);
     }
 
     public void handleFault(Message message) {

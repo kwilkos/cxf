@@ -184,7 +184,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                     ContextUtils.rebaseResponse(maps.getReplyTo(),
                                                 maps,
                                                 message);
-                }            
+                }          
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated
@@ -264,7 +264,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                                                   : null;
                 maps.setTo(reference != null 
                            ? reference.getAddress()
-                           : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));
+                           : ContextUtils.getAttributedURI(Names.WSA_NONE_ADDRESS));                
             }
 
             // ReplyTo, set if null in MAPs or if set to a generic address
@@ -298,7 +298,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             AddressingPropertiesImpl inMAPs = getMAPs(message, false, false);
             maps.exposeAs(inMAPs.getNamespaceURI());
             // To taken from ReplyTo in incoming MAPs
-            if (inMAPs.getReplyTo() != null) {
+            if (maps.getTo() == null && inMAPs.getReplyTo() != null) {
                 maps.setTo(inMAPs.getReplyTo().getAddress());
             }
             // RelatesTo taken from MessageID in incoming MAPs
