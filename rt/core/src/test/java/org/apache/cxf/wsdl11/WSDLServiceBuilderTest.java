@@ -50,6 +50,7 @@ public class WSDLServiceBuilderTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
     private static final String WSDL_PATH = "hello_world.wsdl";
+    private static final String BARE_WSDL_PATH = "hello_world_bare.wsdl";
     private Definition def;
     private Service service;
     private ServiceInfo serviceInfo;
@@ -59,8 +60,15 @@ public class WSDLServiceBuilderTest extends TestCase {
     private BindingFactoryManager bindingFactoryManager;
 
     public void setUp() throws Exception {
+        setUpWSDL(WSDL_PATH);
+    }
 
-        String wsdlUrl = getClass().getResource(WSDL_PATH).toString();
+    public void tearDown() throws Exception {
+        
+    }
+    
+    private void setUpWSDL(String wsdl) throws Exception {
+        String wsdlUrl = getClass().getResource(wsdl).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
@@ -84,10 +92,6 @@ public class WSDLServiceBuilderTest extends TestCase {
 
         control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
-        
-    }
-
-    public void tearDown() throws Exception {
         control.verify();
     }
 
@@ -201,7 +205,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
         BindingOperationInfo greetMe = bindingInfo.getOperation(name);
         assertNotNull(greetMe);
-        assertEquals(greetMe.getName(), name);
+        assertEquals(greetMe.getName(), name);        
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
         BindingOperationInfo greetMeOneWay = bindingInfo.getOperation(name);
@@ -285,6 +289,20 @@ public class WSDLServiceBuilderTest extends TestCase {
                      "http://apache.org/hello_world_soap_http/types");
     }
     
+    public void testBare() throws Exception {
+        setUpWSDL(BARE_WSDL_PATH);
+        BindingInfo bindingInfo = null;
+        bindingInfo = serviceInfo.getBindings().iterator().next();
+        Collection<BindingOperationInfo> bindingOperationInfos = bindingInfo.getOperations();
+        assertNotNull(bindingOperationInfos);
+        assertEquals(bindingOperationInfos.size(), 1);
+        LOG.info("the binding operation is " + bindingOperationInfos.iterator().next().getName());
+        QName name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
+        BindingOperationInfo greetMe = bindingInfo.getOperation(name);
+        assertNotNull(greetMe);        
+        assertEquals("greetMe OperationInfo name error", greetMe.getName(), name);
+        assertFalse("greetMe should be a Unwrapped operation ", greetMe.isUnwrappedCapable());
+    }
 
 }
 

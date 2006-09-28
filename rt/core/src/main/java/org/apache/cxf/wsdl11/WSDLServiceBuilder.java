@@ -318,13 +318,18 @@ public class WSDLServiceBuilder {
     private void checkForWrapped(OperationInfo opInfo) {
         MessageInfo inputMessage = opInfo.getInput();
         MessageInfo outputMessage = opInfo.getOutput();
-
+        
+        boolean passedRule = true;
         // RULE No.1:
         // The operation's input and output message (if present) each contain
         // only a single part
         // input message must exist
         if (inputMessage == null || inputMessage.size() != 1
             || (outputMessage != null && outputMessage.size() > 1)) {
+            passedRule = false;
+        }
+        
+        if (!passedRule) {
             return;
         }
 
@@ -339,13 +344,17 @@ public class WSDLServiceBuilder {
         // is equal to the operation name
         MessagePartInfo inputPart = inputMessage.getMessagePartByIndex(0);
         if (!inputPart.isElement()) {
-            return;
+            passedRule = false;
         } else {
             QName inputElementName = inputPart.getElementQName();
             inputEl = schemas.getElementByQName(inputElementName);
             if (inputEl == null || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
-                return;
+                passedRule = false;
             }
+        }
+        
+        if (!passedRule) {
+            return;
         }
 
         // RULE No.3:
@@ -356,10 +365,15 @@ public class WSDLServiceBuilder {
             if (outputPart != null) {
                 if (!outputPart.isElement()
                     || schemas.getElementByQName(outputPart.getElementQName()) == null) {
-                    return;
+                    passedRule = false;
+                } else {
+                    outputEl = schemas.getElementByQName(outputPart.getElementQName());
                 }
-                outputEl = schemas.getElementByQName(outputPart.getElementQName());
             }
+        }
+        
+        if (!passedRule) {
+            return;
         }
 
         // RULE No.4 and No5:
@@ -374,18 +388,31 @@ public class WSDLServiceBuilder {
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType) {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
             if (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedInput)) {
-                return;
+                passedRule = false;
             }
+        } else {
+            passedRule = false;
         }
+        
+        if (!passedRule) {
+            return;
+        }
+        
         if (outputMessage != null) {
             unwrappedOutput = new MessageInfo(opInfo, outputMessage.getName());
             
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
                 if (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedOutput)) {
-                    return;
+                    passedRule = false;
                 }
+            } else {
+                passedRule = false;
             }
+        }
+               
+        if (!passedRule) {
+            return;
         }
 
         // we are wrappable!!
