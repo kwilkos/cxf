@@ -79,20 +79,29 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public class SchemaValidator extends AbstractValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
+
     protected String[] defaultSchemas;
+
     protected String schemaLocation = "./";
 
     private String wsdlsrc;
+
     private String[] xsds;
 
     private DocumentBuilder docBuilder;
+
     private SAXParser saxParser;
+
     private Document schemaValidatedDoc;
+
     private Map<String, Document> wsdlImportDocs;
 
     private Map<String, XmlSchemaCollection> xmlSchemaMap = new HashMap<String, XmlSchemaCollection>();
+
     private Map<QName, List> msgPartsMap = new HashMap<QName, List>();
+
     private Map<QName, Map> portTypes = new HashMap<QName, Map>();
+
     private Map<QName, QName> bindingMap = new HashMap<QName, QName>();
 
     public SchemaValidator(String schemaDir) throws ToolException {
@@ -101,8 +110,7 @@ public class SchemaValidator extends AbstractValidator {
         defaultSchemas = getDefaultSchemas();
     }
 
-    public SchemaValidator(String schemaDir, String wsdl, String[] schemas)
-        throws ToolException {
+    public SchemaValidator(String schemaDir, String wsdl, String[] schemas) throws ToolException {
         super(schemaDir);
         schemaLocation = schemaDir;
         defaultSchemas = getDefaultSchemas();
@@ -143,13 +151,13 @@ public class SchemaValidator extends AbstractValidator {
         SchemaResourceResolver resourceResolver = new SchemaResourceResolver();
 
         sf.setResourceResolver(resourceResolver);
-      
+
         Source[] sources = new Source[schemas.length];
 
         for (int i = 0; i < schemas.length; i++) {
             // need to validate the schema file
             Document doc = docBuilder.parse(schemas[i]);
-            
+
             DOMSource stream = new DOMSource(doc, schemas[i]);
 
             sources[i] = stream;
@@ -161,17 +169,15 @@ public class SchemaValidator extends AbstractValidator {
     public boolean validate(InputSource wsdlsource, String[] schemas) throws ToolException {
         boolean isValid = false;
         try {
-            
+
             Document document = docBuilder.parse(wsdlsource.getSystemId());
-           
-            
+
             Node node = DOMUtils.getChild(document, null);
-            if (node != null 
-                && !"definitions".equals(node.getLocalName())) {
+            if (node != null && !"definitions".equals(node.getLocalName())) {
                 Message msg = new Message("NOT_A_WSDLFILE", LOG, wsdlsource.getSystemId());
                 throw new ToolException(msg);
             }
-            
+
             SAXParserFactory saxFactory = SAXParserFactory.newInstance();
             saxFactory.setFeature("http://xml.org/sax/features/namespaces", true);
             saxParser = saxFactory.newSAXParser();
@@ -223,8 +229,8 @@ public class SchemaValidator extends AbstractValidator {
 
             this.schemaValidatedDoc = document;
 
-            WSDLElementReferenceValidator wsdlRefValidator = 
-                new WSDLElementReferenceValidator(def, this, xmlEventReader);
+            WSDLElementReferenceValidator wsdlRefValidator = new WSDLElementReferenceValidator(def, this,
+                    xmlEventReader);
 
             isValid = wsdlRefValidator.isValid();
 
@@ -245,14 +251,14 @@ public class SchemaValidator extends AbstractValidator {
     }
 
     private void doSchemaValidation(Document doc, NewStackTraceErrorHandler handler) throws IOException,
-        SAXException {
+            SAXException {
 
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         schemaCol.setBaseUri(def.getDocumentBaseURI());
         NodeList nodes = doc.getElementsByTagNameNS(WSDLConstants.NS_XMLNS, "schema");
         for (int x = 0; x < nodes.getLength(); x++) {
             Node schemaNode = nodes.item(x);
-            Element schemaEl = (Element)schemaNode;
+            Element schemaEl = (Element) schemaNode;
             String tns = schemaEl.getAttribute("targetNamespace");
             try {
                 schemaCol.read(schemaEl, tns);
@@ -281,8 +287,7 @@ public class SchemaValidator extends AbstractValidator {
             if (namespace != null && systemId != null) {
                 Document docImport = docBuilder.parse(systemId);
                 Node node = DOMUtils.getChild(docImport, null);
-                if (node != null 
-                    && !"definitions".equals(node.getLocalName())) {
+                if (node != null && !"definitions".equals(node.getLocalName())) {
                     Message msg = new Message("NOT_A_WSDLFILE", LOG, systemId);
                     throw new ToolException(msg);
                 }
@@ -316,7 +321,7 @@ public class SchemaValidator extends AbstractValidator {
             FilenameFilter filter = new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                     if (name.toLowerCase().endsWith(".xsd")
-                        && !new File(dir.getPath() + File.separator + name).isDirectory()) {
+                            && !new File(dir.getPath() + File.separator + name).isDirectory()) {
                         return true;
                     }
                     return false;
@@ -324,7 +329,7 @@ public class SchemaValidator extends AbstractValidator {
             };
 
             File[] files = f.listFiles(filter);
-            
+
             List<String> xsdUrls = new ArrayList<String>(files.length);
             for (File file : files) {
                 try {
@@ -347,13 +352,11 @@ public class SchemaValidator extends AbstractValidator {
         if (file != null && file.exists()) {
             return file.toURL().toString();
         }
-        // Import may have a relative path
-        int pathIndex = wsdlsrc.lastIndexOf(File.separator);
-        if (pathIndex != -1) {
-            file = new File(wsdlsrc.substring(0, pathIndex + 1) + path);
-            if (file != null && file.exists()) {
-                return file.toURL().toString();
-            }
+        // Import may have a relative path        
+        File wsdlSrcFile = new File(wsdlsrc);
+        file = new File(wsdlSrcFile.getParent(), path);
+        if (file != null && file.exists()) {
+            return file.toURL().toString();
         }
         return null;
     }
@@ -386,8 +389,11 @@ public class SchemaValidator extends AbstractValidator {
 
 class NewStackTraceErrorHandler implements ErrorHandler {
     protected boolean valid;
+
     private StringBuffer buffer;
+
     private int numErrors;
+
     private List<SAXParseException> errors;
 
     NewStackTraceErrorHandler() {
@@ -444,7 +450,7 @@ class NewStackTraceErrorHandler implements ErrorHandler {
 
     private String getErrorMessage(SAXParseException ex) {
         return "line " + ex.getLineNumber() + " column " + ex.getColumnNumber() + " of " + ex.getSystemId()
-               + ": " + ex.getMessage();
+                + ": " + ex.getMessage();
     }
 
     private void addError(SAXParseException ex) {
@@ -455,13 +461,13 @@ class NewStackTraceErrorHandler implements ErrorHandler {
 
 class SchemaResourceResolver implements LSResourceResolver {
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
-                                   String baseURI) {        
+            String baseURI) {
         String schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
-        
+
         if (systemId.indexOf("http://") < 0) {
-            systemId =  schemaLocation + systemId; 
+            systemId = schemaLocation + systemId;
         }
-        
+
         LSInput lsin = new LSInputImpl();
         URI uri = null;
         try {
@@ -478,7 +484,7 @@ class SchemaResourceResolver implements LSResourceResolver {
         } catch (FileNotFoundException e) {
             return null;
         }
-        
+
         lsin.setSystemId(systemId);
         lsin.setByteStream(inputStream);
         return lsin;
@@ -488,11 +494,15 @@ class SchemaResourceResolver implements LSResourceResolver {
 class LSInputImpl implements LSInput {
 
     protected String fPublicId;
+
     protected String fSystemId;
+
     protected String fBaseSystemId;
 
     protected InputStream fByteStream;
+
     protected Reader fCharStream;
+
     protected String fData;
 
     protected String fEncoding;

@@ -26,7 +26,7 @@
         <cxfrun classname="demo.mtom.client.Client"
             param1="${basedir}/wsdl/mtom_xop.wsdl" 
             param2="${op}" 
-            param3="${basedir}/src/demo/mtom/client/me.bmp"/>
+            param3="${param}"/>
     </target> 
         
     <target name="server" description="run demo server" depends="build">
@@ -45,7 +45,6 @@
 
     <target name="client-servlet" description="run demo client hitting servlet" depends="build">
         <property name="param" value=""/>
-        <cxfrun classname="demo.mtom.client.Client" param1="${base.url}/mtom/cxf/mime_test" param2="${op}" 
-		param3="${basedir}/src/demo/mtom/client/me.bmp"/>
+        <cxfrun classname="demo.mtom.client.Client" param1="${base.url}/mtom/cxf/mime_test" param2="${op}"/>
     </target> 
 </project>

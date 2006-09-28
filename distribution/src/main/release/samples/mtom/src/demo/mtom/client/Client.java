@@ -38,38 +38,36 @@ import org.apache.cxf.mime.HelloService;
 
 public final class Client {
 
-    private static final QName SERVICE_NAME 
-        = new QName("http://cxf.apache.org/mime", "HelloService");
+    private static final QName SERVICE_NAME = new QName("http://cxf.apache.org/mime", "HelloService");
 
-    private static final QName PORT_NAME 
-        = new QName("http://cxf.apache.org/mime", "HelloPort");
+    private static final QName PORT_NAME = new QName("http://cxf.apache.org/mime", "HelloPort");
 
     private Client() {
-    } 
+    }
 
     public static void main(String args[]) throws Exception {
 
         Client client = new Client();
-        
-        if (args.length == 0) { 
+
+        if (args.length == 0) {
             System.out.println("please specify wsdl");
-            System.exit(1); 
+            System.exit(1);
         }
         URL wsdlURL;
         File wsdlFile = new File(args[0]);
-        File bmpFile = new File(args[2]);
+
         if (wsdlFile.exists()) {
             wsdlURL = wsdlFile.toURL();
         } else {
             wsdlURL = new URL(args[0]);
-        }        
+        }
         System.out.println(wsdlURL);
 
         HelloService ss = new HelloService(wsdlURL, SERVICE_NAME);
         Hello port = (Hello) ss.getPort(PORT_NAME, Hello.class);
 
         ByteArrayDataSource bads = new ByteArrayDataSource(getResourceStream(wsdlFile),
-                                                           "Application/octet-stream");
+                "Application/octet-stream");
         DataHandler dh = new DataHandler(bads);
         System.out.println("Start test the Soap Message with Attachment!");
         System.out.println("sending out the Client.java file content as attachment to server");
@@ -81,10 +79,9 @@ public final class Client {
         for (int i = in.read(); i != -1; i = in.read()) {
             System.out.write(i);
         }
-        System.out.println("finished print the mtom_xop.wsdl content.");        
-        
+        System.out.println("finished print the mtom_xop.wsdl content.");
 
-        InputStream pre = getResourceStream(bmpFile);
+        InputStream pre = client.getClass().getResourceAsStream("me.bmp");
         long fileSize = 0;
         for (int i = pre.read(); i != -1; i = pre.read()) {
             fileSize++;
@@ -93,16 +90,18 @@ public final class Client {
         param.value = new byte[(int) fileSize];
         System.out.println("Start test the XML-binary Optimized Packaging!");
         System.out.println("Sending out the me.bmp Image content to server, data size is " + fileSize);
-        getResourceStream(bmpFile).read(param.value);
-        String target = new String(param.value);
+
+        in = client.getClass().getResourceAsStream("me.bmp");
+        in.read(param.value);
         Holder<String> name = new Holder<String>("call detail");
         port.detail(name, param);
         System.out.println("received byte[] back from server, the size is " + param.value.length);
-        
-        Image image = ImageIO.read(new ByteArrayInputStream(param.value));        
-        System.out.println("build image with the returned byte[] back from server successfully");
 
-        System.exit(0); 
+        Image image = ImageIO.read(new ByteArrayInputStream(param.value));
+        System.out.println("build image with the returned byte[] back from server successfully, hashCode="
+                + image.hashCode());
+
+        System.exit(0);
     }
 
     private static InputStream getResourceStream(File file) throws Exception {

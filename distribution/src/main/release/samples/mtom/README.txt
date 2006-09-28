@@ -84,10 +84,10 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.server.Server &
+         demo.mtom.server.Server &
 
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client ./wsdl/mtom_xop.wsdl
+         demo.mtom.client.Client ./wsdl/mtom_xop.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -95,10 +95,10 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-         demo.hw.server.Server
+         demo.mtom.server.Server
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client .\wsdl\mtom_xop.wsdl
+       demo.mtom.client.Client .\wsdl\mtom_xop.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
@@ -144,12 +144,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client http://localhost:#/helloworld/cxf/hello_world
+         demo.mtom.client.Client http://localhost:#/mtom/cxf/mime_test
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client http://localhost:#/helloworld/cxf/hello_world
+       demo.mtom.client.Client http://localhost:#/mtom/cxf/mime_test
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.

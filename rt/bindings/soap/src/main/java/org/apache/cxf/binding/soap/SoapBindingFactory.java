@@ -78,11 +78,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     
     private Bus bus;
     private Collection<String> activationNamespaces;    
-    
-    public SoapBindingFactory() {
-        System.out.println("Called create soap binding");
-    }
-    
+       
     @Resource
     public void setBus(Bus b) {
         bus = b;

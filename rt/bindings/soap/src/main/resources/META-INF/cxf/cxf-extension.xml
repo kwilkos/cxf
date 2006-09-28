@@ -17,6 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:foo="http://cxf.apache.org/configuration/foo"
@@ -26,6 +27,9 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean class="org.apache.cxf.binding.soap.SoapBindingFactory" lazy-init="true">
         <property name="bus">
             <ref bean="cxf"/>
+        </property>
+        <property name="mtomEnabled">
+            <value>false</value>
         </property>
         <property name="activationNamespaces">
             <set>
