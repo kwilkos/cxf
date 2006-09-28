@@ -74,8 +74,14 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
 
+    private boolean mtomEnabled = true;
+    
     private Bus bus;
     private Collection<String> activationNamespaces;    
+    
+    public SoapBindingFactory() {
+        System.out.println("Called create soap binding");
+    }
     
     @Resource
     public void setBus(Bus b) {
@@ -282,5 +288,14 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
 
         bmsg.addExtensor(bodyInfo);
+    }
+    
+    @Resource
+    public void setMtomEnabled(boolean mtomEnabled) {
+        this.mtomEnabled = mtomEnabled;
+    }
+
+    public boolean isMtomEnabled() {
+        return mtomEnabled;
     }    
 }
