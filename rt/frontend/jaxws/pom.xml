@@ -117,6 +117,10 @@
 				<xsdOption>
 				    <xsd>${basedir}/src/main/resources/schemas/configuration/javaee_web_services_1_2.xsd</xsd>
 				    <bindingFile>${basedir}/src/main/resources/schemas/configuration/javaee_5.xjb</bindingFile>
+                                    <extension>true</extension>
+                                    <extensionArgs>
+                                        <extensionArg>-Xcfg</extensionArg>
+                                    </extensionArgs>
 				</xsdOption>
 			    </xsdOptions>
 			</configuration>
@@ -125,6 +129,23 @@
 			</goals>
 		    </execution>
 		</executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-cfg</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-dv</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-common-utilities</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
 	    </plugin>
 	</plugins>
     </build>

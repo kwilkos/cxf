@@ -32,6 +32,7 @@ import javax.xml.validation.Schema;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
@@ -43,6 +44,8 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
+import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
+//import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -56,7 +59,7 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
- 
+
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
@@ -69,7 +72,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Service service;
     private JaxWsEndpointImpl endpoint;
     private JaxWsImplementorInfo implInfo;
-    
+
     @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;
@@ -77,7 +80,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         // bindingURI = uri;
         // build up the Service model
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
-        
+
         AbstractServiceFactoryBean serviceFactory;
         if (implInfo.isWebServiceProvider()) {
             serviceFactory = new ProviderServiceFactoryBean(implInfo);
@@ -94,26 +97,26 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         if (ei == null) {
             throw new NullPointerException("Could not find endpoint " + endpointName + " in Service.");
         }
- 
+
         // revisit: should get enableSchemaValidation from configuration
         if (false) {
             addSchemaValidation();
         }
-        
+
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
         } else {
             service.setInvoker(new JAXWSMethodInvoker(i));
         }
-        
+
         //      TODO: use bindigURI     
         try {
-            endpoint = new JaxWsEndpointImpl(bus, service, ei);            
+            endpoint = new JaxWsEndpointImpl(bus, service, ei);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
         configureObject(endpoint);
-        
+
         doInit = true;
     }
 
@@ -183,7 +186,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public ServerImpl getServer() {
         return server;
     }
-    
 
     /**
      * inject resources into servant.  The resources are injected
@@ -204,11 +206,11 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     protected void doPublish(String address) {
         init();
-        
+
         if (null != address) {
             endpoint.getEndpointInfo().setAddress(address);
         }
-        
+
         try {
             MessageObserver observer;
             if (implInfo.isWebServiceProvider()) {
@@ -216,7 +218,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             } else {
                 observer = new ChainInitiationObserver(endpoint, bus);
             }
-     
+
             server = new ServerImpl(bus, endpoint, observer);
             server.start();
         } catch (BusException ex) {
@@ -225,25 +227,25 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
         }
     }
-    
+
     org.apache.cxf.endpoint.Endpoint getEndpoint() {
         return endpoint;
     }
-    
+
     private void configureObject(Object instance) {
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(instance);
         }
     }
-    
+
     private void addSchemaValidation() {
         Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
-        
+
         if (service.getDataBinding().getDataReaderFactory() instanceof JAXBDataReaderFactory) {
             ((JAXBDataReaderFactory)service.getDataBinding().getDataReaderFactory()).setSchema(schema);
         }
-        
+
         if (service.getDataBinding().getDataWriterFactory() instanceof JAXBDataWriterFactory) {
             ((JAXBDataWriterFactory)service.getDataBinding().getDataWriterFactory()).setSchema(schema);
         }
@@ -253,15 +255,36 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         if (doInit) {
             try {
                 injectResources(implementor);
-    
+                configureHandlers();
+
             } catch (Exception ex) {
                 ex.printStackTrace();
-                if (ex instanceof WebServiceException) { 
-                    throw (WebServiceException)ex; 
+                if (ex instanceof WebServiceException) {
+                    throw (WebServiceException)ex;
                 }
                 throw new WebServiceException("Creation of Endpoint failed", ex);
             }
         }
         doInit = false;
+    }
+
+    /**
+     * Obtain handler chain from configuration first. If none is specified,
+     * default to the chain configured in the code, i.e. in annotations.
+     *
+     */
+    private void configureHandlers() {
+        LOG.fine("loading handler chain for endpoint");
+        AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
+
+        //TBD: get configuratoin from config file
+        //List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
+        //builder.setHandlerInitEnabled(configuration.getBoolean(ENABLE_HANDLER_INIT));
+        List<Handler> chain = null;
+
+        if (null == chain || chain.size() == 0) {
+            chain = builder.buildHandlerChainFromClass(implementor.getClass());
+        }
+        getBinding().setHandlerChain(chain);
     }
 }

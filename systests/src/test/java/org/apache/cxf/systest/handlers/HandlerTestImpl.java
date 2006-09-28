@@ -22,7 +22,7 @@ package org.apache.cxf.systest.handlers;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
-import javax.jws.HandlerChain;
+//import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -30,15 +30,14 @@ import org.apache.handler_test.HandlerTest;
 import org.apache.handler_test.PingException;
 import org.apache.handler_test.types.PingFaultDetails;
 
-@WebService(serviceName = "HandlerTestService", 
-            portName = "SoapPort", 
-            endpointInterface = "org.apache.handler_test.HandlerTest", 
+@WebService(serviceName = "HandlerTestService",
+            portName = "SoapPort",
+            endpointInterface = "org.apache.handler_test.HandlerTest",
             targetNamespace = "http://apache.org/handler_test")
-@HandlerChain(file = "./handlers.xml", name = "TestHandlerChain")
 public class HandlerTestImpl implements HandlerTest {
 
-    private WebServiceContext context; 
-        
+    private WebServiceContext context;
+
     public final List<String> ping() {
 
         try {
@@ -51,40 +50,40 @@ public class HandlerTestImpl implements HandlerTest {
         } catch (Exception e) {
             e.printStackTrace();
 
-        } 
+        }
         return null;
     }
 
     public final void pingOneWay() {
-    } 
+    }
 
     public final List<String> pingWithArgs(String handlerCommand) throws PingException {
 
-        List<String> ret = new ArrayList<String>(); 
-        ret.add(handlerCommand); 
+        List<String> ret = new ArrayList<String>();
+        ret.add(handlerCommand);
         //ret.addAll(getHandlersInfo(context.getMessageContext()));
 
         if (handlerCommand.contains("throw exception")) {
-            PingFaultDetails details = new PingFaultDetails(); 
+            PingFaultDetails details = new PingFaultDetails();
             details.setDetail(ret.toString());
-            throw new PingException("from servant", details); 
+            throw new PingException("from servant", details);
         }
 
         return ret;
-    } 
+    }
 
 
-    @Resource public void setWebServiceContext(WebServiceContext ctx) { 
+    @Resource public void setWebServiceContext(WebServiceContext ctx) {
         context = ctx;
     }
 
     @SuppressWarnings("unchecked")
-    private List<String> getHandlersInfo(MessageContext ctx) { 
-        List<String> ret = (List<String>)ctx.get("handler.info"); 
+    private List<String> getHandlersInfo(MessageContext ctx) {
+        List<String> ret = (List<String>)ctx.get("handler.info");
         if (ret == null) {
-            ret = new ArrayList<String>(); 
+            ret = new ArrayList<String>();
         }
         return ret;
-    } 
+    }
 
 }

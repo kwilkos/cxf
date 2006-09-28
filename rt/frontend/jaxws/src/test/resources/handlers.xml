@@ -28,7 +28,7 @@
                 <javaee:jaxwshandler>
                     <javaee:handler>
 				<javaee:handler-name>lh1</javaee:handler-name>
-				<javaee:handler-class>org.apache.cxf.systest.handlers.TestSOAPHandler</javaee:handler-class>
+				<javaee:handler-class>org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestLogicalHandler</javaee:handler-class>
 				<javaee:init-param>
 					<javaee:param-name>token</javaee:param-name>
 					<javaee:param-value>String</javaee:param-value>
@@ -36,7 +36,7 @@
                     </javaee:handler>
                     <javaee:handler>
 				<javaee:handler-name>lh2</javaee:handler-name>
-				<javaee:handler-class>org.apache.cxf.systest.handlers.TestSOAPHandler</javaee:handler-class>
+				<javaee:handler-class>org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestLogicalHandler</javaee:handler-class>
 				<javaee:init-param>
 					<javaee:param-name>token</javaee:param-name>
 					<javaee:param-value>String</javaee:param-value>
