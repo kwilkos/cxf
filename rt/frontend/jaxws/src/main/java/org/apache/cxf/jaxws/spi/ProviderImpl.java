@@ -28,7 +28,7 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
@@ -44,7 +44,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
     public ServiceDelegate createServiceDelegate(URL url,
                                                  QName qname,
                                                  Class cls) {
-        Bus bus = new CXFBusFactory().getDefaultBus();
+        Bus bus = BusFactoryHelper.getInstance().getDefaultBus();
         return new ServiceImpl(bus, url, qname, cls);
     }
 
@@ -53,7 +53,7 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
 
         Endpoint ep = null;
         if (EndpointUtils.isValidImplementor(implementor)) {
-            Bus bus = new CXFBusFactory().getDefaultBus();
+            Bus bus = BusFactoryHelper.getInstance().getDefaultBus();
             ep = new EndpointImpl(bus, implementor, bindingId);
             return ep;
         } else {

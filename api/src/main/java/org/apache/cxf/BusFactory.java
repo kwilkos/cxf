@@ -21,7 +21,29 @@ package org.apache.cxf;
 
 public interface BusFactory {
     
+    String BUS_FACTORY_PROPERTY_NAME = "org.apache.cxf.bus.factory";
+    String DEFAULT_BUS_FACTORY = "org.apache.cxf.bus.CXFBusFactory";
+    
+    /** 
+     * Creates a new bus. 
+     * While concrete <code>BusFactory</code> may offer differently
+     * parametrized methods for creating a bus, all factories support
+     * this no-arg factory method.
+     *
+     * @return the newly created bus.
+     */
+    Bus createBus();
+    
+    /**
+     * Returns the default bus, creating it if necessary.
+     * 
+     * @return the default bus.
+     */
     Bus getDefaultBus();
     
-    void setDefaultBus(Bus bus);
+    /**
+     * Sets the default bus.
+     * @param bus the default bus.
+     */
+    void setDefaultBus(Bus bus);    
 }
