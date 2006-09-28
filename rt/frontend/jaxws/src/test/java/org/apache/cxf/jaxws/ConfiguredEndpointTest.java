@@ -51,11 +51,7 @@ public class ConfiguredEndpointTest extends TestCase {
     
     public void setUp() {
         factory = new CXFBusFactory();
-        Bus bus = factory.getDefaultBus();
-        if (null != bus) {
-            bus.shutdown(true);
-            factory.setDefaultBus(null);
-        }
+        factory.setDefaultBus(null);
     }
     
     public void tearDown() {
@@ -67,8 +63,8 @@ public class ConfiguredEndpointTest extends TestCase {
     }
      
     public void testDefaultClientEndpoint() {        
-        factory.setDefaultBus(factory.createBus());
-        
+        factory.getDefaultBus();
+
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
         
@@ -78,7 +74,7 @@ public class ConfiguredEndpointTest extends TestCase {
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
         assertTrue("Unexpected value for property validating", !endpoint.getValidating());
    
-        System.out.println("endpoint interceptors");
+        // System.out.println("endpoint interceptors");
         List<Interceptor> interceptors = endpoint.getInInterceptors();
         printInterceptors("in", interceptors);        
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
@@ -92,7 +88,7 @@ public class ConfiguredEndpointTest extends TestCase {
         printInterceptors("outFault", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
         
-        System.out.println("service interceptors");
+        // System.out.println("service interceptors");
         org.apache.cxf.service.ServiceImpl svc = (org.apache.cxf.service.ServiceImpl)endpoint.getService();
         assertEquals("Unexpected bean name", SERVICE_NAME.toString(), svc.getBeanName());
         interceptors = svc.getInInterceptors();
@@ -162,7 +158,7 @@ public class ConfiguredEndpointTest extends TestCase {
     }
     
     public void testDefaultServerEndpoint() {
-        factory.setDefaultBus(factory.createBus());
+        factory.getDefaultBus();
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
@@ -253,7 +249,7 @@ public class ConfiguredEndpointTest extends TestCase {
     
     private void printInterceptors(String type, List<Interceptor> interceptors) {
         for (Interceptor i : interceptors) {
-            System.out.println("    " + type + ": " + i.getClass().getName());
+            // System.out.println("    " + type + ": " + i.getClass().getName());
         }
     }
     

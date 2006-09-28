@@ -25,10 +25,8 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -47,7 +45,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -57,8 +55,6 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-
-
 
 
 public class CXFServlet extends HttpServlet {
@@ -82,20 +78,15 @@ public class CXFServlet extends HttpServlet {
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
         
-        List<String> list = new ArrayList<String>();
         String busid = servletConfig.getInitParameter("bus.id");
         if (null != busid) {
-            list.add("-BUSid");
-            list.add(busid);
             WeakReference<Bus> ref = BUS_MAP.get(busid);
             if (null != ref) {
                 bus = ref.get();
             }
         }
         if (null == bus) {
-            //bus = Bus.init(list.toArray(new String[list.size()]));
-            bus = new CXFBusFactory().createBus();
-
+            bus = BusFactoryHelper.newInstance().createBus();
         }
         if (null != busid) {
             BUS_MAP.put(busid, new WeakReference<Bus>(bus));

@@ -36,7 +36,7 @@ import org.w3c.dom.NodeList;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -72,7 +72,7 @@ public class AbstractCXFTest extends TestCase {
     }
 
     protected Bus createBus() {
-        return new CXFBusFactory().createBus();
+        return BusFactoryHelper.newInstance().createBus();
     }
 
     protected Node invoke(String address, 

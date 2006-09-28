@@ -30,11 +30,10 @@ public class BusFactoryHelperTest extends TestCase {
     }
     
     public void testGetInstance() {
-        BusFactory factory = BusFactoryHelper.getInstance();
+        BusFactory factory = BusFactoryHelper.newInstance();
         assertNull(factory);
-        BusFactoryHelper.reset();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, TestBusFactory.class.getName());
-        factory = BusFactoryHelper.getInstance();
+        factory = BusFactoryHelper.newInstance();
         assertTrue(factory instanceof TestBusFactory);
     }
     

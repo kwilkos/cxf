@@ -26,7 +26,8 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.cxf.ws.addressing.MAPAggregator;
@@ -45,7 +46,7 @@ public class Server extends TestServerBase implements VerificationCache {
     }
     
     protected void addInterceptors() {
-        CXFBusFactory bf = new CXFBusFactory();
+        BusFactory bf = BusFactoryHelper.newInstance();
         setBus(bf.createBus());
         bf.setDefaultBus(getBus());
         MAPAggregator aggregator = new MAPAggregator();

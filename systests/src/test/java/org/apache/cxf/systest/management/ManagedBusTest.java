@@ -26,17 +26,23 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.Configurer;
 
 public class ManagedBusTest extends TestCase {
 
-    public void testManagedBus() {
+    public void testManagedCXFBus() {
         CXFBusFactory factory = new CXFBusFactory();
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-                       "org/apache/cxf/systest/management/managed.xml");
+                       "org/apache/cxf/systest/management/managed-cxf.xml");
         Bus bus = factory.createBus(null, properties);
-        factory.setDefaultBus(bus);
-        // bus.run();
+        bus.shutdown(true);
+    }
+
+    public void xtestManagedSpringBus() {
+        SpringBusFactory factory = new SpringBusFactory();
+        Bus bus = factory.createBus("org/apache/cxf/systest/management/managed-spring.xml", true);
+        bus.shutdown(true);
     }
 }

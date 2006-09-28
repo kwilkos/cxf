@@ -30,10 +30,10 @@ import javax.xml.stream.XMLStreamWriter;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
@@ -54,6 +54,7 @@ import org.easymock.classextension.IMocksControl;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
+
 public class TestBase extends TestCase {
 
     PhaseInterceptorChain chain;
@@ -67,7 +68,7 @@ public class TestBase extends TestCase {
     BindingOperationInfo operation;
 
     public void setUp() throws Exception {
-        bus = new CXFBusFactory().createBus();
+        bus = BusFactoryHelper.newInstance().createBus();
 
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
 

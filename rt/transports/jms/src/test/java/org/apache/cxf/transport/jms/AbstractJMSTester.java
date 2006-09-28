@@ -27,7 +27,8 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -51,8 +52,8 @@ public class AbstractJMSTester extends TestCase {
     }
     
     public void setUp() {
-        CXFBusFactory bf = new CXFBusFactory();
-        bus = new CXFBusFactory().createBus();
+        BusFactory bf = BusFactoryHelper.newInstance();
+        bus = bf.createBus();
         bf.setDefaultBus(bus);
     }
     

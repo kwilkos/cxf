@@ -30,7 +30,6 @@ import org.apache.cxf.common.logging.LogUtils;
 
 public final class BusFactoryHelper {
     private static final Logger LOG = LogUtils.getL7dLogger(BusFactoryHelper.class, "APIMessages");
-    private static BusFactory instance;
     
     /**
      * Prevents instantiation.
@@ -39,18 +38,17 @@ public final class BusFactoryHelper {
     private BusFactoryHelper() {
     }
     
-    public static BusFactory getInstance() {
-        if (null == instance) {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            String className = getBusFactoryClass(null, classLoader);
+    public static BusFactory newInstance() {
+        BusFactory instance = null;
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        String className = getBusFactoryClass(null, classLoader);
             
-            Class<? extends BusFactory> busFactoryClass;
-            try {
-                busFactoryClass = Class.forName(className, true, classLoader).asSubclass(BusFactory.class);
-                instance = busFactoryClass.newInstance();
-            } catch (Exception ex) {
-                LogUtils.log(LOG, Level.SEVERE, "BUS_FACTORY_INSTANTIATION_EXC", ex);
-            }
+        Class<? extends BusFactory> busFactoryClass;
+        try {
+            busFactoryClass = Class.forName(className, true, classLoader).asSubclass(BusFactory.class);
+            instance = busFactoryClass.newInstance();
+        } catch (Exception ex) {
+            LogUtils.log(LOG, Level.SEVERE, "BUS_FACTORY_INSTANTIATION_EXC", ex);
         }
         return instance;
     }
@@ -107,14 +105,6 @@ public final class BusFactoryHelper {
     
     private static boolean isValidBusFactoryClass(String busFactoryClassName) { 
         return busFactoryClassName != null && !"".equals(busFactoryClassName);
-    }
-    
-    /**
-     * For test purposes only.
-     *
-     */
-    public static void reset() {
-        instance = null;
     }
     
 }
