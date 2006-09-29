@@ -92,7 +92,11 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
 
     private void buildMustUnderstandHeaders(Set<Element> mustUnderstandHeaders, SoapMessage soapMessage,
                     Set<URI> serviceRoles) {
-        Element headers = (Element) soapMessage.getHeaders(Element.class);
+        
+        Element headers = null;
+        if (soapMessage.hasHeaders(Element.class)) {
+            headers = soapMessage.getHeaders(Element.class);
+        }
         List<Element> headerChilds = new ArrayList<Element>();
         if (headers != null) {
             for (int i = 0; i < headers.getChildNodes().getLength(); i++) {

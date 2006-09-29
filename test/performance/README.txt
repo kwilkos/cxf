@@ -3,7 +3,7 @@ Basic Setup for Building and Running the performance test case
 
 As described in the installation notes, extract the cxf
 binary distribution archive into an installation directory
-under the root drive.  This creates the sub-directory celtixfire,
+under the root drive.  This creates the sub-directory cxffire,
 which includes all of the product directories.
 
 1. setup the build Enviroment

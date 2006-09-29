@@ -22,6 +22,7 @@ package org.apache.cxf.binding.soap.interceptor;
 import java.io.InputStream;
 import java.util.ResourceBundle;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -67,23 +68,24 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
                 message.setVersion(soapVersion);
                 
-                XMLStreamReader filteredReader = 
-                    new PartialXMLStreamReader(xmlReader, message.getVersion().getBody());
-                
-                Document doc = StaxUtils.read(filteredReader);
-                
-                Element envelop = (Element)doc.getChildNodes().item(0);
-                String header = soapVersion.getHeader().getLocalPart();
-                for (int i = 0; i < envelop.getChildNodes().getLength(); i++) {
-                    if (envelop.getChildNodes().item(i) instanceof Element) {
-                        Element element = (Element)envelop.getChildNodes().item(i);
-                        if (element.getLocalName().equals(header)) {
-                            message.setHeaders(Element.class, element);
-                            message.put(Element.class, element);
-                        }
+                QName qn = xmlReader.getName();
+                while (!qn.equals(message.getVersion().getBody())
+                    && !qn.equals(message.getVersion().getHeader())) {
+                    while (xmlReader.nextTag() != XMLStreamConstants.START_ELEMENT) {
+                        //nothing to do
                     }
+                    qn = xmlReader.getName();
                 }
+                if (qn.equals(message.getVersion().getHeader())) {
+                    XMLStreamReader filteredReader = 
+                        new PartialXMLStreamReader(xmlReader, message.getVersion().getBody());
                 
+                    Document doc = StaxUtils.read(filteredReader);
+
+                    Element element = (Element)doc.getChildNodes().item(0);
+                    message.setHeaders(Element.class, element);
+                    message.put(Element.class, element);                
+                }
                 // advance just past body.
                 xmlReader.next();
             }

@@ -65,7 +65,7 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
     protected XMLOutputFactory getXMLOutputFactory() {
         if (xof == null) {
-            return XMLOutputFactory.newInstance();
+            xof = XMLOutputFactory.newInstance();
         }
 
         return xof;

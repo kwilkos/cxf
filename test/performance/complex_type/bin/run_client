@@ -43,4 +43,4 @@ do
 done
 
 cd .. 
-ant client -Dceltix.running.time=$AMOUNT -Dceltix.operation=$OPERARTION -Dceltix.basedon=$BASEDON -Dceltix.packet.size=$PACKETSIZE -Dceltix.threads=$THREADS $PIPE
+ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS $PIPE

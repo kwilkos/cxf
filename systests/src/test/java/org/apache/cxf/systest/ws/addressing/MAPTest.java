@@ -268,7 +268,6 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             throw (Exception)ex.getCause();
         }
     }
-
     //--VerificationCache implementation
 
     public void put(String verification) {

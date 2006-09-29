@@ -24,8 +24,11 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
+import javax.xml.ws.soap.SOAPBinding;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -44,7 +47,10 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
         protected void run() {
             Object implementor = new HelloImpl();
             String address = "http://localhost:9036/mime-test";
-            Endpoint.publish(address, implementor);
+            Endpoint ep = Endpoint.publish(address, implementor);
+            Binding binding = ep.getBinding();
+            assertTrue(binding instanceof SOAPBinding);
+            ((SOAPBinding)binding).setMTOMEnabled(true);
         }
 
         public static void main(String args[]) {
@@ -72,6 +78,9 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
     public void testMtomSWA() throws Exception {
         HelloService hs = new HelloService();
         Hello hello = hs.getPort(Hello.class);
+        Binding binding = ((BindingProvider)hello).getBinding();
+        assertTrue(binding instanceof SOAPBinding);
+        ((SOAPBinding)binding).setMTOMEnabled(true);
         try {
             InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
             long fileSize = 0;
@@ -98,6 +107,9 @@ public class ClientServerMtomXopTest extends ClientServerTestBase {
     public void testMtomXop() throws Exception {
         HelloService hs = new HelloService();
         Hello hello = hs.getPort(Hello.class);
+        Binding binding = ((BindingProvider)hello).getBinding();
+        assertTrue(binding instanceof SOAPBinding);
+        ((SOAPBinding)binding).setMTOMEnabled(true);
         try {
             InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
             long fileSize = 0;

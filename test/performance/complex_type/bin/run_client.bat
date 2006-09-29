@@ -21,6 +21,6 @@ GOTO Loop
 
 :Continue
 
-ant client -Dceltix.running.time=%AMOUNT% -Dceltix.operation=%OPERATION% -Dceltix.basedon=%BASEDON% -Dceltix.packet.size=%PACKETSIZE% -Dceltix.threads=%THREADS%
+ant client -Dcxf.running.time=%AMOUNT% -Dcxf.operation=%OPERATION% -Dcxf.basedon=%BASEDON% -Dcxf.packet.size=%PACKETSIZE% -Dcxf.threads=%THREADS%
 
 @endlocal

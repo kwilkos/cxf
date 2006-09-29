@@ -45,11 +45,6 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public void handleMessage(Message message) {
         InputStream is = message.getContent(InputStream.class);
-        
-
-        
-        
-
         assert is != null;
 
         // TODO: where does encoding constant go?
@@ -66,7 +61,7 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     protected XMLInputFactory getXMLInputFactory() {
         if (xif == null) {
-            return XMLInputFactory.newInstance();
+            xif = XMLInputFactory.newInstance();
         }
 
         return xif;

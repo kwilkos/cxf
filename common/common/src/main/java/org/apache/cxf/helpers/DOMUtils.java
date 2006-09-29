@@ -50,9 +50,18 @@ import org.xml.sax.SAXException;
  * @author Costin Manolache
  */
 public final class DOMUtils {
+    static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
+    static DocumentBuilder builder;
+
     private DOMUtils() {
     }
     
+    private static synchronized DocumentBuilder getBuilder() throws ParserConfigurationException {
+        if (builder == null) {
+            builder = FACTORY.newDocumentBuilder();
+        }
+        return builder;
+    }
     /**
      * Get the trimed text content of a node or null if there is no text
      */
@@ -293,12 +302,16 @@ public final class DOMUtils {
         t.transform(new DOMSource(n), new StreamResult(os));
     }
 
+    public static DocumentBuilder createDocumentBuilder() {
+        try {
+            return FACTORY.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("Couldn't find a DOM parser.", e);
+        }
+    }
     public static Document createDocument() {
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder b = factory.newDocumentBuilder();
-
-            return b.newDocument();
+            return getBuilder().newDocument();
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Couldn't find a DOM parser.", e);
         }

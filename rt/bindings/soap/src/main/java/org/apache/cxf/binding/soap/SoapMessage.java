@@ -22,10 +22,19 @@ package org.apache.cxf.binding.soap;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.AbstractWrappedMessage;
 import org.apache.cxf.message.Message;
 
 public class SoapMessage extends AbstractWrappedMessage {
+    private static final DocumentBuilder BUILDER = DOMUtils.createDocumentBuilder();
+
     
     private Map<Class<?>, Object> headers = new HashMap<Class<?>, Object>(); 
     
@@ -43,8 +52,21 @@ public class SoapMessage extends AbstractWrappedMessage {
         this.version = v;
     }
 
+    public <T> boolean hasHeaders(Class<T> format) {
+        return headers.containsKey(format);
+    }
+    
     public <T> T getHeaders(Class<T> format) {
-        return format.cast(headers.get(format));
+        T t = format.cast(headers.get(format));
+        if (t == null && Element.class.equals(format)) {
+            Document doc = BUILDER.newDocument();
+            Element header = doc.createElementNS(version.getNamespace(),
+                                                 version.getHeader().getLocalPart());
+            header.setPrefix(version.getPrefix());
+            setHeaders(Element.class, header);
+            t = format.cast(header);
+        }
+        return t;
     }  
 
     public <T> void setHeaders(Class<T> format, T content) {

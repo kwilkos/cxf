@@ -21,21 +21,11 @@ package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.ResourceBundle;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import org.apache.cxf.binding.soap.Soap11;
-import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 
@@ -48,9 +38,6 @@ import static org.apache.cxf.message.Message.MIME_HEADERS;
  * that require these to be available.
  */
 public class SoapPreProtocolOutInterceptor extends AbstractSoapInterceptor {
-
-    private static final ResourceBundle BUNDLE =
-        BundleUtils.getBundle(SoapPreProtocolOutInterceptor.class);
 
     public SoapPreProtocolOutInterceptor() {
         super();
@@ -65,7 +52,6 @@ public class SoapPreProtocolOutInterceptor extends AbstractSoapInterceptor {
      */
     public void handleMessage(SoapMessage message) throws Fault {
         ensureVersion(message);
-        ensureSoapHeader(message);
         ensureMimeHeaders(message);
     }
     
@@ -85,30 +71,6 @@ public class SoapPreProtocolOutInterceptor extends AbstractSoapInterceptor {
         if (soapVersion == null) {
             soapVersion = Soap11.getInstance();
             message.setVersion(soapVersion);
-        }
-    }
-
-    /**
-     * Ensure the SOAP header is set for this message.
-     * 
-     * @param message the current message
-     */
-    private void ensureSoapHeader(SoapMessage message) {
-        if (message.getHeaders(Element.class) == null) {
-            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder;
-            try {
-                builder = builderFactory.newDocumentBuilder();
-            } catch (ParserConfigurationException e) {
-                Message msg = new Message("PARSER_EXC", BUNDLE);
-                throw new SoapFault(msg, e, SoapFault.SENDER);
-            }
-            Document doc = builder.newDocument();
-            SoapVersion v = message.getVersion();
-            Element header = doc.createElementNS(v.getNamespace(),
-                                                 v.getHeader().getLocalPart());
-            header.setPrefix(v.getPrefix());
-            message.setHeaders(Element.class, header);
         }
     }
     

@@ -9,11 +9,11 @@
         <property name="pipe" value=""/>
         <cxf.client.run classname="org.apache.cxf.performance.basic_type.client.Client" argline=
                 "-WSDL ${wsdl.dir}/${wsdl.file} 
-			 -Amount ${celtix.running.time} 
-			 -BasedOn ${celtix.basedon}
-			 -Operation ${celtix.operation}
-			 -PacketSize ${celtix.packet.size}
-			 -Threads ${celtix.threads} ${pipe}"/>
+			 -Amount ${cxf.running.time} 
+			 -BasedOn ${cxf.basedon}
+			 -Operation ${cxf.operation}
+			 -PacketSize ${cxf.packet.size}
+			 -Threads ${cxf.threads} ${pipe}"/>
     </target>
 
     <target name="server" description="run basic_type server">

@@ -55,7 +55,7 @@ public class AttachmentDeserializer {
 
     private String contentType;
 
-    private List<CachedOutputStream> cache = new ArrayList<CachedOutputStream>();
+    private List<CachedOutputStream> cache;
 
     private Message message;
 
@@ -82,13 +82,17 @@ public class AttachmentDeserializer {
                         }
                     }
                 }
+                if (contentType == null) { 
+                    return false;
+                }
                 input = message.getContent(InputStream.class);
-                if (contentType == null || input == null) {
+                if (input == null) {
                     return false;
                 }
             }
             //printStream(input);
             if (contentType.toLowerCase().indexOf("multipart/related") != -1) {
+                cache = new ArrayList<CachedOutputStream>();
                 int i = contentType.indexOf("boundary=\"");
                 int end;
                 int len;
@@ -114,22 +118,22 @@ public class AttachmentDeserializer {
                 processSoapBody();
                 return true;
             }
-            return false;
         } catch (IOException ioe) {
             message.setContent(Exception.class, ioe);
-            return false;
         } catch (MessagingException me) {
             message.setContent(Exception.class, me);
-            return false;
         }
+        return false;
     }
 
     /**
      * release the resource
      */
     public void dispose() {
-        for (CachedOutputStream cos : cache) {
-            cos.dispose();
+        if (cache != null) {
+            for (CachedOutputStream cos : cache) {
+                cos.dispose();
+            }
         }
     }
 

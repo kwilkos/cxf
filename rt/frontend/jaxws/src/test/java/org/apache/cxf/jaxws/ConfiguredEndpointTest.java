@@ -309,11 +309,13 @@ public class ConfiguredEndpointTest extends TestCase {
         return null;
     }
     
+    
     private void printInterceptors(String type, List<Interceptor> interceptors) {
-        for (Interceptor i : interceptors) {
-            // System.out.println("    " + type + ": " + i.getClass().getName());
-        }
+        //for (Interceptor i : interceptors) {
+            //System.out.println("    " + type + ": " + i.getClass().getName());
+        //}
     }
+    
     
     @SuppressWarnings("unchecked")
     static final class TestInterceptor extends AbstractPhaseInterceptor {

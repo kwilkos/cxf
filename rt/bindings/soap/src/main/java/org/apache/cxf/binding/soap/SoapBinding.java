@@ -30,8 +30,8 @@ import org.apache.cxf.message.MessageImpl;
 
 public class SoapBinding extends AbstractBasicInterceptorProvider implements Binding {
 
-    // default to support mtom, left to config to turn off this feature.
-    private boolean mtomEnabled = true;
+    // default to support mtom, left to config to turn on this feature.
+    private boolean mtomEnabled;
     
     private List<Interceptor> in;
     private List<Interceptor> out;

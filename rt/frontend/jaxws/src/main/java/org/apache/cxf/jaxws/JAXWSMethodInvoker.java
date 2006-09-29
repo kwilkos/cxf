@@ -94,7 +94,6 @@ public class JAXWSMethodInvoker implements Invoker {
             Type[] para = method.getGenericParameterTypes();
             for (int i = 0; i < para.length; i++) {               
                 if (para[i] instanceof ParameterizedType) {
-                    Object param = null;
                     ParameterizedType paramType = (ParameterizedType) para[i];
                     if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
                         

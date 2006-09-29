@@ -73,10 +73,13 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                                   soapVersion.getNamespace());
             xtw.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
             
-            Element eleHeaders = message.getHeaders(Element.class);
-            boolean preexistingHeaders = eleHeaders != null && eleHeaders.hasChildNodes();
-            if (preexistingHeaders) {
-                StaxUtils.writeElement(eleHeaders, xtw, true, false);
+            boolean preexistingHeaders = false;
+            if (message.hasHeaders(Element.class)) {
+                Element eleHeaders = message.getHeaders(Element.class);
+                preexistingHeaders = eleHeaders != null && eleHeaders.hasChildNodes();
+                if (preexistingHeaders) {
+                    StaxUtils.writeElement(eleHeaders, xtw, true, false);
+                }
             }
             handleHeaderPart(preexistingHeaders, message);
        

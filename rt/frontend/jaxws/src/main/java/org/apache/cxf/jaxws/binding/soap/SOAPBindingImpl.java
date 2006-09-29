@@ -20,14 +20,16 @@
 package org.apache.cxf.jaxws.binding.soap;
 
 
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPFactory;
-import javax.xml.ws.WebServiceException;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
@@ -52,7 +54,21 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     }
 
     public void setMTOMEnabled(boolean flag) {
-        throw new WebServiceException("MTOM is not supported");
+        if (flag != soapBinding.isMtomEnabled()) {
+            soapBinding.setMtomEnabled(flag);
+            if (flag) {
+                soapBinding.getOutInterceptors().add(new AttachmentOutInterceptor());
+            } else {
+                Iterator<Interceptor> it = soapBinding.getOutInterceptors().iterator();
+                while (it.hasNext()) {
+                    Interceptor intc = it.next();
+                    if (intc instanceof AttachmentOutInterceptor) {
+                        soapBinding.getOutInterceptors().remove(intc);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     public MessageFactory getMessageFactory() {

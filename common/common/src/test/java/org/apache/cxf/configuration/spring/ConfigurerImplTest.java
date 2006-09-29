@@ -157,6 +157,7 @@ public class ConfigurerImplTest extends TestCase {
         };
         assertEquals("a", configurer.getBeanName(beanInstance));
         final class NamedBean {
+            @SuppressWarnings("unused")
             public String getBeanName() {
                 return "b";
             }
