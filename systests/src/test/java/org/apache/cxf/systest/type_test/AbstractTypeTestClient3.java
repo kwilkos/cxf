@@ -960,18 +960,18 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         yOrig.setAddress("Some Other Address");
 
         SOAPFactory sf = SOAPFactory.newInstance();
-        Name elementName = sf.createName("UKAddress", "", "http://objectweb.org/type_test");
+        Name elementName = sf.createName("UKAddress", "", "http://apache.org/type_test");
         Name xsiAttrName = sf.createName("type", "xsi", "http://www.w3.org/2001/XMLSchema-instance");
         SOAPElement x = sf.createElement(elementName);
-        x.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+        x.addNamespaceDeclaration("tns", "http://apache.org/type_test");
         x.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
         x.addAttribute(xsiAttrName, "tns:UKAddressType11");
         x.addTextNode("This is the text of the node for the first struct");
 
-        Name elementName2 = sf.createName("UKAddress", "", "http://objectweb.org/type_test");
+        Name elementName2 = sf.createName("UKAddress", "", "http://apache.org/type_test");
         Name xsiAttrName2 = sf.createName("type", "xsi", "http://www.w3.org/2001/XMLSchema-instance");
         SOAPElement x2 = sf.createElement(elementName2);
-        x2.addNamespaceDeclaration("tns", "http://objectweb.org/type_test");
+        x2.addNamespaceDeclaration("tns", "http://apache.org/type_test");
         x2.addNamespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
         x2.addAttribute(xsiAttrName2, "tns:UKAddressType22");
         x2.addTextNode("This is the text of the node for the second struct");
@@ -1508,8 +1508,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     public void testStructWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
         QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
-        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
-        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+        QName yAt3Name = new QName("http://apache.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://apache.org/type_test", "at_fou");
 
         StructWithAnyAttribute x = new StructWithAnyAttribute();
         StructWithAnyAttribute y = new StructWithAnyAttribute();
@@ -1584,8 +1584,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     public void testChoiceWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
         QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
-        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
-        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+        QName yAt3Name = new QName("http://apache.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://apache.org/type_test", "at_fou");
 
         ChoiceWithAnyAttribute x = new ChoiceWithAnyAttribute();
         ChoiceWithAnyAttribute y = new ChoiceWithAnyAttribute();

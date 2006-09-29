@@ -87,10 +87,10 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
 
     public void testSimpleContentExtWithAnyAttribute() throws Exception {
-        QName xAt1Name = new QName("http://objectweb.org/type_test", "at_one");
-        QName xAt2Name = new QName("http://objectweb.org/type_test", "at_two");
-        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
-        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+        QName xAt1Name = new QName("http://apache.org/type_test", "at_one");
+        QName xAt2Name = new QName("http://apache.org/type_test", "at_two");
+        QName yAt3Name = new QName("http://apache.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://apache.org/type_test", "at_fou");
 
         SimpleContentExtWithAnyAttribute x = new SimpleContentExtWithAnyAttribute();
         x.setValue("foo");
@@ -198,10 +198,10 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
 
     public void testOccuringStructWithAnyAttribute() throws Exception {
-        QName xAt1Name = new QName("http://objectweb.org/type_test", "at_one");
-        QName xAt2Name = new QName("http://objectweb.org/type_test", "at_two");
-        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
-        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+        QName xAt1Name = new QName("http://apache.org/type_test", "at_one");
+        QName xAt2Name = new QName("http://apache.org/type_test", "at_two");
+        QName yAt3Name = new QName("http://apache.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://apache.org/type_test", "at_fou");
 
         OccuringStructWithAnyAttribute x = new OccuringStructWithAnyAttribute();
         OccuringStructWithAnyAttribute y = new OccuringStructWithAnyAttribute();
@@ -265,8 +265,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     public void testOccuringChoiceWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
         QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
-        QName yAt3Name = new QName("http://objectweb.org/type_test", "at_thr");
-        QName yAt4Name = new QName("http://objectweb.org/type_test", "at_fou");
+        QName yAt3Name = new QName("http://apache.org/type_test", "at_thr");
+        QName yAt4Name = new QName("http://apache.org/type_test", "at_fou");
 
         OccuringChoiceWithAnyAttribute x = new OccuringChoiceWithAnyAttribute();
         OccuringChoiceWithAnyAttribute y = new OccuringChoiceWithAnyAttribute();
@@ -1737,7 +1737,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
     public void testAnyURIRestriction() throws Exception {
         // normal case, maxLength = 50 for anyURI
-        String x = new String("http://celtix.objectweb.org/");
+        String x = new String("http://cxf.apache.org/");
         String yOrig = new String("http://www.iona.com/info/services/oss/");
         Holder<String> y = new Holder<String>(yOrig);
         Holder<String> z = new Holder<String>();

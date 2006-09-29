@@ -55,8 +55,6 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
     public AbstractTypeTestClient(String name, QName theServicename, QName thePort, String theWsdlPath) {
         super(name); 
-
-        System.setProperty("javax.xml.ws.spi.Provider", "org.objectweb.celtix.bus.jaxws.spi.ProviderImpl");
         serviceName = theServicename;
         portName = thePort;
         wsdlPath = theWsdlPath;
