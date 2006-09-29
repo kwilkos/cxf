@@ -31,7 +31,7 @@
 
     <!-- Setup for building in a source build -->
     <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml">
-        <available file="../../lib/cxf.jar"/>
+        <available file="../../lib/cxf-incubator.jar"/>
     </condition>
     <!-- default setting -->
     <property name="srcbuild_paths.file" value="../../../target/srcbuild_paths.xml"/>
@@ -74,13 +74,13 @@
      <path id="activeMQ.classpath">
         <pathelement location="${activemq.home}/lib/spring-core-1.2.5.jar"/>
         <pathelement location="${activemq.home}/lib/spring-beans-1.2.5.jar"/>
-        <pathelement location="${cxf.home}/lib/cxf.jar"/>
+        <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
     </path>
 
     <path id="cxf.classpath">
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
-        <pathelement location="${cxf.home}/lib/cxf.jar"/>
+        <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
     </path>
     <condition property="thirdparty.classpath" value="">
         <not> <isset property="thirdparty.classpath"/> </not>

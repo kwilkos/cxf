@@ -14,7 +14,7 @@ install the Apache ant 1.6 build utility.
 
 To build and run the demos provided in the celtixfire binary
 distribution using either ant or wsdl2java, javac and java,
-you need to set the environment so that the file cxf.jar
+you need to set the environment so that the file cxf-incubator.jar
 is on the CLASSPATH and to insure that the JDK, ant and
 celtixfire bin directories are on the PATH.
 
@@ -38,7 +38,7 @@ For UNIX:
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
   export PATH=$JAVA_HOME/bin:$ANT_HOME/bin:$CXF_HOME/bin:$PATH
-  export CLASSPATH=.:$CXF_HOME/lib/cxf.jar:./build/classes
+  export CLASSPATH=.:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
 
 For Windows:
   set CXF_HOME=C:\<installation_directory>\celtixfire
@@ -46,7 +46,7 @@ For Windows:
   set ANT_HOME=C:\<ant_installation_directory>\apache-ant-1.6.5
 
   set PATH=%JAVA_HOME%\bin;%ANT_HOME%\bin;%CXF_HOME%\bin;%PATH%
-  set CLASSPATH=.;%CXF_HOME%\lib\cxf.jar;.\build\classes
+  set CLASSPATH=.;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
 
 Save a copy of this script in the Celtixfire samples directory.  Run the
 script prior to building and running the demos.

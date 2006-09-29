@@ -1,29 +1,29 @@
 @echo off 
 rem 
-rem  invoke the Celtix wsdl2java tool
+rem  invoke the CXF wsdl2java tool
 rem 
 @setlocal
 
-set CELTIX_HOME=%~dp0..
+set CXF_HOME=%~dp0..
 
 if not defined JAVA_HOME goto no_java_home
 
 set SUN_TOOL_PATH=%JAVA_HOME%\lib\tools.jar;
 
-if not exist "%CELTIX_HOME%\lib\celtix.jar" goto no_celtix_jar
+if not exist "%CXF_HOME%\lib\cxf-incubator.jar" goto no_cxf_jar
 
-set CELTIX_JAR=%CELTIX_HOME%\lib\celtix.jar
+set CXF_JAR=%CXF_HOME%\lib\cxf-incubator.jar
 
-set CELTIX_SCHEMA_DIR=%CELTIX_HOME%\resources\schemas\wsdl
+set CXF_SCHEMA_DIR=%CXF_HOME%\resources\schemas\wsdl
 
-"%JAVA_HOME%\bin\java" -cp "%CELTIX_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CELTIX_HOME%\etc\logging.properties" -Dceltix_schema_dir="%CELTIX_SCHEMA_DIR%" org.objectweb.celtix.tools.wsdl2java.WSDLToJava %*
+"%JAVA_HOME%\bin\java" -cp "%CXF_JAR%;%SUN_TOOL_PATH%;%CLASSPATH%" -Djava.util.logging.config.file="%CXF_HOME%\etc\logging.properties" -Dcxf_schema_dir="%CXF_SCHEMA_DIR%" org.apache.cxf.tools.wsdl2java.WSDLToJava %*
 
 @endlocal
 
 goto end
 
-:no_celtix_jar
-echo ERROR: Unable to find celtix.jar in %celtix_home/lib
+:no_cxf_jar
+echo ERROR: Unable to find cxf-incubator.jar in %cxf_home/lib
 goto end
 
 :no_java_home

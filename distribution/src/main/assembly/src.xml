@@ -35,7 +35,7 @@
 	 </fileSet>
 	 <fileSet>
              <directory>src/main/release</directory>
-	     <outputDirectory>celtixfire-src</outputDirectory>
+	     <outputDirectory>cxf-src</outputDirectory>
 	     <includes>
 	         <include>DISCLAIMER</include>
 		 <include>LICENSE</include>
@@ -46,7 +46,7 @@
 	 </fileSet>
 	 <fileSet>
 	     <directory>..</directory>
-	     <outputDirectory>celtixfire-src</outputDirectory>
+	     <outputDirectory>cxf-src</outputDirectory>
 	     <includes>
 	         <include>**/*</include>
              </includes>
