@@ -30,28 +30,28 @@
     <fail message="cxf requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
 	  unless="is.java.version.15"/>
 
-    <!-- Determine cxf.home, either from the environment variable cxf_HOME
+    <!-- Determine cxf.home, either from the environment variable CXF_HOME
 	 - or using ../..
     -->
-    <condition property="cxf.home" value="${env.cxf_HOME}">
-	<isset property="env.cxf_HOME"/>
+    <condition property="cxf.home" value="${env.CXF_HOME}">
+	<isset property="env.CXF_HOME"/>
     </condition>
 
-    <fail message="Please set cxf_HOME environment variable." unless="cxf.home"/>
+    <fail message="Please set CXF_HOME environment variable." unless="cxf.home"/>
 
     <!-- Determine cxf.jar.file, either ${cxf.home}/build/lib/cxf.jar
-	 - in a source distribution, or ${cxf.home}/lib/cxf.jar in a binary
+	 - in a source distribution, or ${cxf.home}/lib/cxf-incubator.jar in a binary
 	 - distribution.
     -->
-    <condition property="cxf.jar.file" value="${cxf.home}/build/lib/cxf.jar">
-	<available file="cxf.jar" type="file" filepath="${cxf.home}/build/lib"/>
+    <condition property="cxf-incubator.jar.file" value="${cxf.home}/build/lib/cxf-incubator.jar">
+	<available file="cxf-incubator.jar" type="file" filepath="${cxf.home}/build/lib"/>
     </condition>
-    <property name="cxf.jar.file" value="${cxf.home}/lib/cxf.jar"/>
+    <property name="cxf-incubator.jar.file" value="${cxf.home}/lib/cxf-incubator.jar"/>
 
     <fail message="The location ${cxf.home} does not seem to contain a cxf installation; if you are importing this common build file from a location other than the cxf samples directory then you need to set the cxf_HOME environment variable.">
 	<condition>
 	    <not>
-		<isset property="cxf.jar.file" />
+		<isset property="cxf-incubator.jar.file" />
 	    </not>
 	</condition>
     </fail>
@@ -72,7 +72,7 @@
 
     <path id="cxf.classpath">
 	<pathelement location="${build.classes.dir}"/>
-	<pathelement location="${cxf.jar.file}"/>
+	<pathelement location="${cxf-incubator.jar.file}"/>
     </path>
 
 #foreach ($interface in $intfs)
