@@ -1,1 +1,1 @@
-org.apache.cxf.bus.cxf.CXFBusFactory
+org.apache.cxf.bus.spring.SpringBusFactory
