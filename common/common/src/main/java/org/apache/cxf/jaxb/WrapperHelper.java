@@ -51,15 +51,16 @@ public final class WrapperHelper {
             
             XmlElement el = null;
             for (Field field : wrapperType.getClass().getDeclaredFields()) {
+              
                 if (field.getName().equals(fieldName)) {
                     //JAXB Type get XmlElement Annotation
                     el = field.getAnnotation(XmlElement.class);
-                    assert el != null;
+                   // assert el != null;
                 } 
             }
             
             if (part == null) {
-                if (!el.nillable()) {
+                if (el != null && !el.nillable()) {
                     throw new IllegalArgumentException("null value for field not permitted.");
                 }
                 return;
@@ -123,6 +124,26 @@ public final class WrapperHelper {
         return null;
     }
 
+    public static Object getWrappedPart(String partName, Object wrapperType, String elementType)
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+
+        String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
+
+        if ("boolean".equals(elementType.toLowerCase())) {
+            // JAXB Exception to get the Boolean property
+            accessor = accessor.replaceFirst("get", "is");
+        }
+
+        for (Method method : wrapperType.getClass().getMethods()) {
+            if (method.getParameterTypes().length == 0 && accessor.equals(method.getName())) {
+
+                return method.invoke(wrapperType);
+            }
+        }
+        return null;
+    }
+
+    
 
     public static Object getWrappedPart(String partName, Object wrapperType)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {

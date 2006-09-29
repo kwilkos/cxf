@@ -47,7 +47,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         if (boi == null) {
             return;
         }
-        
+                
         Method method = message.getExchange().get(Method.class);
 
         if (method != null && method.getName().endsWith("Async")) {
@@ -58,13 +58,26 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             }
         }        
 
+        
+        if (method != null && method.getName().endsWith("Async")) {
+            Class<?> retType = method.getReturnType();
+            if (retType.getName().equals("java.util.concurrent.Future") 
+                || retType.getName().equals("javax.xml.ws.Response")) {
+                return;
+            }
+
+        }
+      
+
+
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
             
             // Sometimes, an uperation can be unwrapped according to WSDLServiceFactory,
             // but not according to JAX-WS. We should unify these at some point, but
             // for now check for the wrapper class.
-            if (boi2.getOperationInfo().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS) == null) {
+            if (boi2.getOperationInfo().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS) 
+                == null) {
                 return;
             }
             
@@ -95,8 +108,15 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                     
                     for (MessagePartInfo part : messageInfo.getMessageParts()) {
                         try {
-                            Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(),
-                                                                  wrappedObject);
+                            String elementType = null;
+                            if (part.isElement()) {
+                                elementType = part.getElementQName().getLocalPart();
+                            } else {
+                                elementType = part.getTypeQName().getLocalPart();
+                            }
+                            Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(), 
+                                                                      wrappedObject,
+                                                                      elementType);
                         
                             CastUtils.cast(lst, Object.class).add(obj);
                         } catch (Exception e) {

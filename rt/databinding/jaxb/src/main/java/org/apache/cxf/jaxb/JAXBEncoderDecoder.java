@@ -88,6 +88,7 @@ public final class JAXBEncoderDecoder {
                 // maybe add a way to allow interceptors to add stuff to the
                 // context?
             }
+           
             context = JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
             contextMap.put(cls, context);
         }
@@ -121,7 +122,8 @@ public final class JAXBEncoderDecoder {
 
     private static void addClass(Class<?> cls, Set<Class<?>> classes) {
         if (cls.isArray()) {
-            classes.add(cls);
+            // REVISIT-- add java primitive type array will cause jaxb exception
+            //classes.add(cls);
             return;
         }
         cls = getValidClass(cls);
