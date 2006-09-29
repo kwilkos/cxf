@@ -49,14 +49,7 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
     private List <Instrumentation> instrumentations;
     private JMXManagedComponentManager jmxManagedComponentManager;
     
-   
     public InstrumentationManagerImpl() {
-        if (null == getInstrumentation()) {
-            setInstrumentation(new InstrumentationType());
-        }      
-        if (null == getJMXConnectorPolicy()) {
-            setJMXConnectorPolicy(new JMXConnectorPolicyType());
-        }      
     }
        
     public Bus getBus() {
@@ -66,7 +59,6 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
     @Resource
     public void setBus(Bus bus) {        
         this.bus = bus;
-        initInstrumentationManagerImpl();
     }
     
     @PostConstruct
@@ -75,14 +67,22 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
             bus.setExtension(this, InstrumentationManager.class);
         }
     }
-    
+
     @Override
     public String getBeanName() {
         return InstrumentationManager.class.getName();
     }
-    
+   
+    @PostConstruct 
     public void initInstrumentationManagerImpl() {
         LOG.info("Setting up InstrumentationManager");
+
+        if (null == getInstrumentation()) {
+            setInstrumentation(new InstrumentationType());
+        }      
+        if (null == getJMXConnectorPolicy()) {
+            setJMXConnectorPolicy(new JMXConnectorPolicyType());
+        }      
         
         if (getInstrumentation().isEnabled()) {
             LOG.fine("Instrumentation is enabled.");

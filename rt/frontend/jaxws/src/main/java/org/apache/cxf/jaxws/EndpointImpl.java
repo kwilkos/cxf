@@ -50,7 +50,9 @@ import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
+import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -198,6 +200,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     protected void injectResources(Object instance) {
         if (instance != null) {
             ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+            List<ResourceResolver> resolvers = resourceManager.getResourceResolvers();
+            resourceManager = new DefaultResourceManager(resolvers); 
             resourceManager.addResourceResolver(new WebContextResourceResolver());
             ResourceInjector injector = new ResourceInjector(resourceManager);
             injector.inject(instance);

@@ -29,7 +29,9 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.interceptor.Fault;
@@ -47,12 +49,7 @@ public class ConfiguredEndpointTest extends TestCase {
     private static final QName PORT_NAME = 
         new QName("http://apache.org/hello_world_soap_http", "SoapPort");
 
-    private CXFBusFactory factory;
-    
-    public void setUp() {
-        factory = new CXFBusFactory();
-        factory.setDefaultBus(null);
-    }
+    private BusFactory factory;
     
     public void tearDown() {
         Bus bus = factory.getDefaultBus();
@@ -60,10 +57,26 @@ public class ConfiguredEndpointTest extends TestCase {
             bus.shutdown(true);
             factory.setDefaultBus(null);
         }
+        System.clearProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);
+    }
+   
+    public void testCXFDefaultClientEndpoint() {
+        factory = new CXFBusFactory();
+        factory.setDefaultBus(null);
+        factory.getDefaultBus();
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
+        doTestDefaultClientEndpoint();
     }
      
-    public void testDefaultClientEndpoint() {        
+    public void testSpringDefaultClientEndpoint() {
+        factory = new SpringBusFactory();
+        factory.setDefaultBus(null);
         factory.getDefaultBus();
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
+        doTestDefaultClientEndpoint();
+    }
+     
+    private void doTestDefaultClientEndpoint() {        
 
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
@@ -104,14 +117,31 @@ public class ConfiguredEndpointTest extends TestCase {
         printInterceptors("outFault", interceptors);
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
     }
-    
-    @SuppressWarnings("unchecked")
-    public void testConfiguredClientEndpoint() {
+
+    public void testCXFConfiguredClientEndpoint() {
+        CXFBusFactory cf = new CXFBusFactory();
+        factory = cf;
+        factory.setDefaultBus(null);
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-                       "org/apache/cxf/jaxws/configured-endpoints.xml");
-        factory.setDefaultBus(factory.createBus(null, properties));
-        
+        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME,
+            "org/apache/cxf/jaxws/configured-endpoints.xml");
+        cf.setDefaultBus(cf.createBus(null, properties));
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
+        doTestConfiguredClientEndpoint();
+    }
+    
+    public void testSpringConfiguredClientEndpoint() {
+        SpringBusFactory sf = new SpringBusFactory();
+        factory = sf;
+        factory.setDefaultBus(null);
+        sf.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
+        doTestConfiguredClientEndpoint();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void doTestConfiguredClientEndpoint() {
+
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
 
@@ -157,8 +187,23 @@ public class ConfiguredEndpointTest extends TestCase {
                      findTestInterceptor(interceptors).getId());
     }
     
-    public void testDefaultServerEndpoint() {
+    public void testCXFDefaultServerEndpoint() {
+        factory = new CXFBusFactory();
+        factory.setDefaultBus(null);
         factory.getDefaultBus();
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
+        doTestDefaultServerEndpoint();
+    }
+     
+    public void testSpringDefaultServerEndpoint() {
+        factory = new SpringBusFactory();
+        factory.setDefaultBus(null);
+        factory.getDefaultBus();
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
+        doTestDefaultServerEndpoint();
+    }
+     
+    private void doTestDefaultServerEndpoint() {
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
@@ -187,13 +232,30 @@ public class ConfiguredEndpointTest extends TestCase {
         interceptors = svc.getOutFaultInterceptors();
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
     }
+
+    public void testCXFConfiguredServerEndpoint() {
+        CXFBusFactory cf = new CXFBusFactory();
+        factory = cf;
+        factory.setDefaultBus(null);
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME,
+            "org/apache/cxf/jaxws/configured-endpoints.xml");
+        cf.setDefaultBus(cf.createBus(null, properties));
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
+        doTestConfiguredServerEndpoint();
+    }
+    
+    public void testSpringConfiguredServerEndpoint() {
+        SpringBusFactory sf = new SpringBusFactory();
+        factory = sf;
+        factory.setDefaultBus(null);
+        sf.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
+        System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
+        doTestConfiguredServerEndpoint();
+    }
     
     @SuppressWarnings("unchecked")
-    public void testConfiguredServerEndpoint() {
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-                       "org/apache/cxf/jaxws/configured-endpoints.xml");
-        factory.setDefaultBus(factory.createBus(null, properties));
+    private void doTestConfiguredServerEndpoint() {
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));

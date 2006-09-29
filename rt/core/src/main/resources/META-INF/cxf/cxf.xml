@@ -28,6 +28,16 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean class="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor"/>
     
     <bean id="org.apache.cxf.extension.ExtensionManager" class="org.apache.cxf.bus.spring.extension.ExtensionManagerImpl"/>
+  
+    <bean id="org.apache.cxf.resource.ResourceManager" class="org.apache.cxf.bus.resource.ResourceManagerImpl">
+       <constructor-arg>
+            <list>
+                <bean class="org.apache.cxf.resource.ClasspathResolver"/>
+                <bean class="org.apache.cxf.resource.ClassLoaderResolver"/>
+            </list>
+       </constructor-arg>
+       <property name="bus" ref="cxf"/>
+    </bean>
         
     <bean id="org.apache.cxf.binding.BindingFactoryManager" class="org.apache.cxf.binding.BindingFactoryManagerImpl">
         <property name="extensionManager" ref="org.apache.cxf.extension.ExtensionManager"/>

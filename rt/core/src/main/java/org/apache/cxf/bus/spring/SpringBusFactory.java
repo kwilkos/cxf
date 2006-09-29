@@ -39,7 +39,7 @@ public class SpringBusFactory implements BusFactory {
 
     public synchronized Bus getDefaultBus() {
         if (null == defaultBus) {
-            defaultBus = new SpringBusImpl();
+            defaultBus = createBus();
         }
         return defaultBus;
     }
@@ -57,18 +57,17 @@ public class SpringBusFactory implements BusFactory {
     }
     
     public Bus createBus(String cfgFile, boolean includeDefaults) {        
-        
+
         BusApplicationContext bac = null;
         try {      
             bac = new BusApplicationContext(cfgFile, includeDefaults);           
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
-            
         }
         
         bac.refresh();
         Bus bus = (Bus)bac.getBean(DEFAULT_BUS_ID);
-        
+       
         Configurer configurer = new ConfigurerImpl(bac);
         bus.setExtension(configurer, Configurer.class);
 

@@ -28,10 +28,13 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.management.InstrumentationManager;
+import org.apache.cxf.management.InstrumentationManagerImpl;
+import org.apache.cxf.management.InstrumentationType;
 
 public class ManagedBusTest extends TestCase {
 
-    public void testManagedCXFBus() {
+    public void xtestManagedCXFBus() {
         CXFBusFactory factory = new CXFBusFactory();
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
@@ -40,9 +43,19 @@ public class ManagedBusTest extends TestCase {
         bus.shutdown(true);
     }
 
-    public void xtestManagedSpringBus() {
+    public void testManagedSpringBus() {
         SpringBusFactory factory = new SpringBusFactory();
         Bus bus = factory.createBus("org/apache/cxf/systest/management/managed-spring.xml", true);
+        InstrumentationManager im = bus.getExtension(InstrumentationManager.class);
+        assertNotNull(im);
+        InstrumentationManagerImpl imi = (InstrumentationManagerImpl)im;
+        InstrumentationType i = imi.getInstrumentation();
+        assertNotNull(i);
+        System.out.println("isEnabled: " + i.isEnabled());
+        System.out.println("isJMXEnabled: " + i.isJMXEnabled());
+        
+
+
         bus.shutdown(true);
     }
 }

@@ -99,7 +99,7 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
             // to have no effect - the most common cause is that they have been using
             // incorrect bean ids
             LogUtils.log(LOG, Level.INFO, "NO_MATCHING_BEAN_MSG", new Object[] {beanName});
-            // LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
+            LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
         }
     }
     

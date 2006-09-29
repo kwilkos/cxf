@@ -19,20 +19,31 @@
 
 package org.apache.cxf.bus.resource;
 
+import java.util.List;
 import java.util.Map;
 
-import org.apache.cxf.BusException;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.cxf.Bus;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.PropertiesResolver;
+import org.apache.cxf.resource.ResourceManager;
+import org.apache.cxf.resource.ResourceResolver;
 
 
 public class ResourceManagerImpl extends DefaultResourceManager {
 
+    private Bus bus;
+
     public ResourceManagerImpl() {
-        super();
     }
-    
-    public ResourceManagerImpl(Map<String, Object> properties) throws BusException { 
+
+    public ResourceManagerImpl(List<ResourceResolver> r) {
+        super(r);
+    }
+
+    public ResourceManagerImpl(Map<String, Object> properties) { 
         super();
         registeredResolvers.clear();
         
@@ -66,4 +77,16 @@ public class ResourceManagerImpl extends DefaultResourceManager {
         */
     } 
     
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+
+    @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, ResourceManager.class);
+        }
+    }
+
 }
