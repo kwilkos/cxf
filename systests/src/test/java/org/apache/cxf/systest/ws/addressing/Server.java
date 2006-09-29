@@ -26,48 +26,49 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.systest.common.TestServerBase;
-import org.apache.cxf.ws.addressing.MAPAggregator;
-import org.apache.cxf.ws.addressing.soap.MAPCodec;
 
 public class Server extends TestServerBase implements VerificationCache {
     
     private String verified;
  
     protected void run()  {
-        addInterceptors();
+
+        SpringBusFactory factory = new SpringBusFactory();
+        Bus bus = factory.createBus("org/apache/cxf/systest/ws/addressing/cxf.xml");
+        factory.setDefaultBus(bus);
+        setBus(bus);
+
+        addVerifiers();
+
         GreeterImpl implementor = new GreeterImpl();
         implementor.verificationCache = this;         
         String address = "http://localhost:9008/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
     }
-    
-    protected void addInterceptors() {
-        BusFactory bf = BusFactoryHelper.newInstance();
-        setBus(bf.createBus());
-        bf.setDefaultBus(getBus());
-        MAPAggregator aggregator = new MAPAggregator();
+
+    protected void addVerifiers() {
         MAPVerifier mapVerifier = new MAPVerifier();
         mapVerifier.verificationCache = this;
-        MAPCodec codec = new MAPCodec();
         HeaderVerifier headerVerifier = new HeaderVerifier();
         headerVerifier.verificationCache = this;
-        Interceptor[] interceptors =
-        {aggregator, mapVerifier, codec, headerVerifier};
+        Interceptor[] interceptors = {mapVerifier, headerVerifier};
         addInterceptors(getBus().getInInterceptors(), interceptors);
+        addInterceptors(getBus().getInFaultInterceptors(), interceptors);
         addInterceptors(getBus().getOutInterceptors(), interceptors);
         addInterceptors(getBus().getOutFaultInterceptors(), interceptors);
     }
-    
+
     private void addInterceptors(List<Interceptor> chain,
                                  Interceptor[] interceptors) {
         for (int i = 0; i < interceptors.length; i++) {
             chain.add(interceptors[i]);
         }
     }
+
         
     public static void main(String[] args) {
         try { 

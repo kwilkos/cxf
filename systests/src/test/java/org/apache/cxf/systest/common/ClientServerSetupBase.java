@@ -56,4 +56,8 @@ public abstract class ClientServerSetupBase extends AbstractClientServerSetupBas
     protected Bus getBus() {
         return bus;
     }
+
+    protected void setBus(Bus b) {
+        bus = b;
+    }
 }

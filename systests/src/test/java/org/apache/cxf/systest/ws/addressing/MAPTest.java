@@ -33,17 +33,16 @@ import javax.xml.ws.ProtocolException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.ContextUtils;
-import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.Names;
-import org.apache.cxf.ws.addressing.soap.MAPCodec;
 import org.apache.cxf.ws.addressing.soap.VersionTransformer;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
@@ -94,19 +93,19 @@ public class MAPTest extends ClientServerTestBase implements VerificationCache {
             }
             
             public void setUp() throws Exception {
-                // temporary mechanism to override configuration for 
-                // decoupled response endpoint
-                System.setProperty(HTTPConduit.HTTP_DECOUPLED_ENDPOINT,
-                                   "http://localhost:9999/decoupled_endpoint");
-                super.setUp();
-                MAPAggregator aggregator = new MAPAggregator();
+                startServers();
+
+                SpringBusFactory bf = new SpringBusFactory();
+                Bus bus = bf.createBus("org/apache/cxf/systest/ws/addressing/cxf.xml");
+                bf.setDefaultBus(bus);
+                setBus(bus);
+
                 mapVerifier = new MAPVerifier();
-                MAPCodec codec = new MAPCodec();
                 headerVerifier = new HeaderVerifier();
-                Interceptor[] interceptors =
-                {aggregator, mapVerifier, codec, headerVerifier};
+                Interceptor[] interceptors = {mapVerifier, headerVerifier};
                 addInterceptors(getBus().getInInterceptors(), interceptors);
                 addInterceptors(getBus().getOutInterceptors(), interceptors);
+                addInterceptors(getBus().getOutFaultInterceptors(), interceptors);
                 addInterceptors(getBus().getInFaultInterceptors(), interceptors);
             }
             
