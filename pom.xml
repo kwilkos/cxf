@@ -166,9 +166,9 @@
         <module>tools</module>
         <module>common/metacode</module>
         <module>codegen-plugin</module>
-        <module>testutils</module>
         <module>api</module>
-        <module>rt</module>
+        <module>testutils</module>
+	<module>rt</module>
         <module>jca</module>
         <module>systests</module>
         <module>integration</module>
