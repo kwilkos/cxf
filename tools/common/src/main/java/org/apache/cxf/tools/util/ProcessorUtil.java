@@ -124,18 +124,19 @@ public final class ProcessorUtil {
     public static String resolvePartType(Part part, ToolContext env, boolean fullName) {
         DataBindingGenerator binder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
         if (binder == null) {
-            return resolvePartType(part);
+            String primitiveType = JAXBUtils.builtInTypeToJavaType(part.getTypeName().getLocalPart());
+            if (part.getTypeName() != null &&  primitiveType != null) {
+                return primitiveType;
+            } else {
+                return resolvePartType(part);
+            }
         }
         String name = binder.getType(getElementName(part), fullName);
         if (name == null) {
             return resolvePartType(part);
         }
         return name;
-        /*if (fullName) {
-            return mapping.getType().getTypeClass().fullName();
-        } else {
-            return mapping.getType().getTypeClass().name();
-        }*/
+       
     }
 
     public static String resolvePartNamespace(Part part) {
@@ -251,7 +252,12 @@ public final class ProcessorUtil {
         } 
         
         if (boxify && dataBindingGenerator == null) {
-            jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());           
+            Class holderClass = JAXBUtils.holderClass(xmlTypeName.getLocalPart());
+            jtype = holderClass == null ? null : holderClass.getName();
+            if (jtype == null) {
+                jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());
+            }
+                       
         }
         
         if (!boxify && dataBindingGenerator != null) {
@@ -259,14 +265,9 @@ public final class ProcessorUtil {
         }
         
         if (!boxify && dataBindingGenerator == null) {
-            Class holderClass = JAXBUtils.holderClass(xmlTypeName.getLocalPart());
-            jtype = holderClass == null ? null : holderClass.getName();
-            if (jtype == null) {
-                jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());
-            }
+            jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());
         }
-        
-        
+            
         
         String namespace = xmlTypeName.getNamespaceURI();
         String type = resolvePartType(part, env, true);

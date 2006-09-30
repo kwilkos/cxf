@@ -192,8 +192,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
                 return true;
             }
         }
-        return false;
-        
+        return false;        
     }
 
     private InputSource processNestedBinding(Element schemaElement, String systemid) {
@@ -295,19 +294,17 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
             return null;
         }
         TypeAndAnnotation jtype = rawJaxbModel.getJavaType(qn);
+        
         if (jtype == null || jtype.getTypeClass() == null) {
             return null;
         } else {         
-            if (boxify) {           
-                jtypeClass = jtype.getTypeClass().boxify().fullName();
+            if (boxify) {
+                jtypeClass = jtype.getTypeClass().boxify().fullName();               
             } else {
                 jtypeClass = jtype.getTypeClass().fullName();
             }
-        }
-        
+        }        
         return jtypeClass;
-    
-
     }
 
     private void customizeSchema(Element schema, String targetNamespace) {

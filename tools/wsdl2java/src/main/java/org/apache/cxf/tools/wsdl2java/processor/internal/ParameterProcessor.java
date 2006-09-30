@@ -90,7 +90,7 @@ public class ParameterProcessor extends AbstractProcessor {
         parameter.setPartName(part.getName());
         parameter.setQName(ProcessorUtil.getElementName(part));
 
-        parameter.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector, true));
+        parameter.setClassName(ProcessorUtil.getFullClzName(part, env, this.collector, false));
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
