@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws.handler;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -26,17 +27,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.jws.HandlerChain;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.configuration.spring.ConfigurerImpl;
-import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
 import org.apache.cxf.jaxws.javaee.HandlerChainType;
-import org.apache.cxf.jaxws.javaee.HandlerConfigBean;
-import org.springframework.context.ApplicationContext;
+import org.apache.cxf.jaxws.javaee.HandlerChainsType;
 
 public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
 
@@ -56,7 +56,6 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
      * @return
      */
     public List<Handler> buildHandlerChainFromClass(Class<?> clz, List<Handler> existingHandlers) {
-
         LOG.fine("building handler chain");
         HandlerChainAnnotation hcAnn = findHandlerChainAnnotation(clz);
         List<Handler> chain = null;
@@ -65,21 +64,26 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
             chain = new ArrayList<Handler>();
         } else {
             hcAnn.validate();
-            String handlerFile = hcAnn.getFileName();
 
-            // This Configurer needs to be different from system configurer as
-            // it is only aware of handler configure file.
-            ApplicationContext ac = new JaxbClassPathXmlApplicationContext(new String[] {
-                handlerFile,
-                "META-INF/cxf/cxf-property-editors.xml"});
-            Configurer configurer = new ConfigurerImpl(ac);
+            HandlerChainType hc = null;
+            try {
+                JAXBContext jc = JAXBContext
+                        .newInstance(org.apache.cxf.jaxws.javaee.ObjectFactory.class);
+                Unmarshaller u = jc.createUnmarshaller();                
+                URL handlerFileURL  = clz.getResource(hcAnn.getFileName()); 
+                JAXBElement<?> o = (JAXBElement<?>)u.unmarshal(handlerFileURL);
 
-            HandlerConfigBean hcb = new HandlerConfigBean();
-            configurer.configureBean(hcb);
-            HandlerChainType hc = hcb.getJaxwshandler();
+                HandlerChainsType handlerChainsType = (HandlerChainsType) o.getValue();
 
-            if (null == hc) {
-                throw new WebServiceException(BUNDLE.getString("CHAIN_NOT_SPECIFIED_EXC"));
+                if (null == handlerChainsType || handlerChainsType.getHandlerChain().size() == 0) {
+                    throw new WebServiceException(BUNDLE
+                            .getString("CHAIN_NOT_SPECIFIED_EXC"));
+                }
+                //We expect only one HandlerChainType here
+                hc = (HandlerChainType) handlerChainsType.getHandlerChain().iterator().next();
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new WebServiceException(BUNDLE.getString("CHAIN_NOT_SPECIFIED_EXC"), e);
             }
 
             chain = buildHandlerChain(hc, clz.getClassLoader());

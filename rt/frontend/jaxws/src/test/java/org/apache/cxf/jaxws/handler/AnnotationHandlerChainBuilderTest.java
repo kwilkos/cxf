@@ -37,7 +37,6 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
 
     public void testFindHandlerChainAnnotation() {
         HandlerTestImpl handlerTestImpl = new HandlerTestImpl();
-        System.out.println(TestLogicalHandler.class.getName());
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
         assertNotNull(handlers);

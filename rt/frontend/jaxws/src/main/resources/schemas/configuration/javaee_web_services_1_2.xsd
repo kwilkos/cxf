@@ -747,16 +747,13 @@
     <xsd:attribute name="id" type="xsd:ID"/>
   </xsd:complexType>
 
-  <xsd:element name="jaxwshandler" type="javaee:handler-chainType"/>
-  <xsd:complexType name="HandlerConfigBean">        
-    <xsd:annotation>
-      <xsd:appinfo>                
-        <cfg:configurable/>
-      </xsd:appinfo>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element ref="javaee:jaxwshandler"/>
-    </xsd:sequence>
-  </xsd:complexType>
+  <element name="handler-chains" type="javaee:handler-chainsType">
+      <annotation>
+          <documentation>
+           The handler-chains element is the root element for defining handlerchains.
+          </documentation>
+      </annotation>
+  </element>
+  
 </xsd:schema>
 
