@@ -6,12 +6,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
 	<handler>
-		<handler-name>lh1</handler-name>
-		<handler-class>org.apache.cxf.systest.handlers.SmallNumberHandler</handler-class>
-		<init-param>
-			<param-name>token</param-name>
-			<param-value>String</param-value>
-		</init-param>
+		<handler-name>SmallNumberHandler</handler-name>
+		<handler-class>demo.handlers.common.SmallNumberHandler</handler-class>
 	</handler>
     </handler-chain>
 </handler-chains>
