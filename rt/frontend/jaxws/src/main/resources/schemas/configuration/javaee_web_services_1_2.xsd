@@ -3,12 +3,8 @@
 	    targetNamespace="http://java.sun.com/xml/ns/javaee"
 	    xmlns:javaee="http://java.sun.com/xml/ns/javaee"
 	    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:cfg="http://cxf.apache.org/configuration/cfg"
-            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
 	    elementFormDefault="qualified"
 	    attributeFormDefault="unqualified"
-            jaxb:extensionBindingPrefixes="cfg"
-            jaxb:version="2.0"
 	    version="1.2">
   <xsd:annotation>
     <xsd:documentation>
@@ -746,7 +742,7 @@
 
     <xsd:attribute name="id" type="xsd:ID"/>
   </xsd:complexType>
-
+  
   <element name="handler-chains" type="javaee:handler-chainsType">
       <annotation>
           <documentation>
@@ -754,6 +750,6 @@
           </documentation>
       </annotation>
   </element>
-  
+
 </xsd:schema>
 
