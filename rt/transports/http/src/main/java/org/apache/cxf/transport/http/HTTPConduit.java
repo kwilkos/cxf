@@ -271,9 +271,9 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         return new URLConnectionFactory() {
             public URLConnection createConnection(Proxy proxy, URL u)
                 throws IOException {
-                return getProxy() != null 
-                        ? u.openConnection(proxy)
-                        : u.openConnection();
+                return proxy != null 
+                       ? u.openConnection(proxy)
+                       : u.openConnection();
             }
         };
     }
