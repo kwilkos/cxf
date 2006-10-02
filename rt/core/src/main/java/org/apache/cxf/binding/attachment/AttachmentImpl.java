@@ -48,11 +48,11 @@ public class AttachmentImpl implements Attachment {
     }
 
     public void setHeader(String name, String value) {
-        headers.put(name, value);
+        headers.put(name.toLowerCase(), value);
     }
 
     public String getHeader(String name) {
-        return headers.get(name);
+        return headers.get(name.toLowerCase());
     }
     
     public Iterator<String> getHeaderNames() {

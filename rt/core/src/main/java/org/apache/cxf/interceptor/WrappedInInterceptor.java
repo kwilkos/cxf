@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
@@ -90,6 +91,9 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         if (operation.isUnwrapped() || operation.isUnwrappedCapable()) {
             objects = new ArrayList<Object>();
             Object wrappedObject = dr.read(message);
+            if (wrappedObject instanceof JAXBElement) {
+                wrappedObject = ((JAXBElement) wrappedObject).getValue();
+            }
             objects.add(wrappedObject);
         } else {
             // Unwrap each part individually if we don't have a wrapper

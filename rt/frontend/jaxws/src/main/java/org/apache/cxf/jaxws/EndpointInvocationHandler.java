@@ -52,7 +52,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
 
     private Client client;
 
-    EndpointInvocationHandler(Client c, Binding b) {
+    public EndpointInvocationHandler(Client c, Binding b) {
         super(b);
         endpoint = c.getEndpoint();
         client = c;

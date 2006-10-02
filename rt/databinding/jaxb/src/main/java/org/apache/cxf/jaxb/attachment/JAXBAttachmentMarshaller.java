@@ -53,7 +53,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
             return null;
         }        
         ByteDataSource source = new ByteDataSource(data, offset, length);
-        if (mimeType == null) {
+        if (mimeType != null) {
             source.setContentType(mimeType);
         } else {
             source.setContentType("application/octet-stream");
