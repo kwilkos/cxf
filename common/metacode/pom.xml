@@ -111,7 +111,7 @@ under the License.
 				</xsdOption>
 				<xsdOption>
 				    <xsd>${basedir}/src/main/resources/schemas/wsdl/addressing.xsd</xsd>
-				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
+				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/addressing.xjb</bindingFile>
 				</xsdOption>
 				<xsdOption>
 				    <xsd>${basedir}/src/main/resources/schemas/configuration/std-types.xsd</xsd>

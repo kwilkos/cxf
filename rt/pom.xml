@@ -48,5 +48,7 @@
         <module>transports/http</module>
         <module>transports/jms</module>
         <module>ws/addr</module>
+        <module>ws/policy</module>
+        <module>ws/rm</module>
     </modules>
 </project>
