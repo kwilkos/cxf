@@ -15,8 +15,12 @@ enable-auto-props = yes
 *.xml = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
 *.xsl = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
 *.xsd = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
+*.xjb = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
 *.wsdl = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
 *.properties = svn:mime-type=text/plain;svn:eol-style=native;svn:keywords=Rev Date
+.checkstyle = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
+.pmd = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
+.ruleset = svn:mime-type=text/xml;svn:eol-style=native;svn:keywords=Rev Date
 *.c = svn:eol-style=native;svn:keywords=Rev Date
 *.cpp = svn:eol-style=native;svn:keywords=Rev Date
 *.h = svn:eol-style=native;svn:keywords=Rev Date
@@ -28,6 +32,7 @@ enable-auto-props = yes
 *.py = svn:eol-style=native
 *.cmd = svn:eol-style=native
 *.txt = svn:eol-style=native;svn:mime-type=text/plain
+*.cat = svn:eol-style=native;svn:mime-type=text/plain
 *.htm* = svn:eol-style=native;svn:mime-type=text/html;svn:keywords=Rev Date
 ChangeLog = svn:eol-style=native;svn:mime-type=text/plain
 README* = svn:eol-style=native;svn:mime-type=text/plain

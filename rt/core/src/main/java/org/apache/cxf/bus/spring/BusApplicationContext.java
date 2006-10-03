@@ -106,13 +106,5 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
         return res;
     }
 
-    @Override
-    protected String[] getConfigLocations() {
-        return super.getConfigLocations();
-    }
-    
-    
-    
-    
 
 }

@@ -38,12 +38,6 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public String getAction(OperationInfo op) {
-        // TODO Auto-generated method stub
-        return super.getAction(op);
-    }
-
-    @Override
     public QName getFaultName(Service service, OperationInfo o, Class exClass, Class beanClass) {
         // TODO Auto-generated method stub
         return super.getFaultName(service, o, exClass, beanClass);
@@ -58,12 +52,6 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public QName getInputMessageName(OperationInfo op) {
         return new QName(op.getName().getNamespaceURI(), op.getName() + "Request");
-    }
-
-    @Override
-    public String getMEP(Method method) {
-        // TODO Auto-generated method stub
-        return super.getMEP(method);
     }
 
     @Override
