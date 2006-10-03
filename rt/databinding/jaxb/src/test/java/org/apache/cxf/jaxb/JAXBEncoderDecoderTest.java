@@ -36,6 +36,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -47,6 +48,7 @@ import org.w3c.dom.Node;
 import junit.framework.TestCase;
 
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.staxutils.StaxStreamFilter;
 import org.apache.cxf.testutil.common.TestUtil;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.types.GreetMe;
@@ -175,11 +177,11 @@ public class JAXBEncoderDecoderTest extends TestCase {
         
         InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLEventReader reader = 
-            factory.createXMLEventReader(is);
+        XMLStreamReader reader = 
+            factory.createXMLStreamReader(is);
 
         QName[] tags = {SOAP_ENV, SOAP_BODY};
-        StaxEventFilter filter = new StaxEventFilter(tags);
+        StaxStreamFilter filter = new StaxStreamFilter(tags);
         reader = factory.createFilteredReader(reader, filter);
 
         //Remove START_DOCUMENT & START_ELEMENT pertaining to Envelope and Body Tags.

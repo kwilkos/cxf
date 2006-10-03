@@ -81,7 +81,7 @@ public final class Installer {
 
         if (!System.getProperty("java.version").startsWith("1.5")) {
             System.out.println("WARNING: Installing with Java " + System.getProperty("java.version") + ".");
-            System.out.println("         Celtix requires JDK 1.5 to run.");
+            System.out.println("         Apache CXF requires JDK 1.5 to run.");
         }
 
         if (args.length != 0 && "-verbose".equals(args[0])) {
@@ -94,7 +94,7 @@ public final class Installer {
             outputDir = new File(args[0]);
         }
 
-        System.out.println("Unpacking celtixfire to " + outputDir.toString());
+        System.out.println("Unpacking Apache CXF to " + outputDir.toString());
 
 
         URL url = Installer.class.getResource("/cxfinstaller/Installer.class");

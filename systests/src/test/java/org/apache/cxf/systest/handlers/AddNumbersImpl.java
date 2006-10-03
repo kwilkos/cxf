@@ -43,7 +43,6 @@ public class AddNumbersImpl implements AddNumbers {
      */
     public void addNumbers(String number1) throws AddNumbersFault {
         System.out.println("addNumbers called....." + number1);
-        return;
     }
 
 }
