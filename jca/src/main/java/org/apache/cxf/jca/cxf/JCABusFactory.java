@@ -470,7 +470,7 @@ public class JCABusFactory {
     
     
     private String getBusClassName() {
-        return System.getProperty("test.bus.class", "org.apache.cxf.bus.CXFBusFactory");
+        return System.getProperty("test.bus.class", "org.apache.cxf.bus.spring.SpringBusFactory");
     }
 
     protected List getRegisteredServants() {
