@@ -78,6 +78,7 @@
     </path>
 
     <path id="cxf.classpath">
+        <pathelement location="${basedir}"/>
         <pathelement location="${build.classes.dir}"/>
         <pathelement path="${srcbuild.classpath}"/>
         <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>

@@ -412,10 +412,14 @@ public class JCABusFactoryTest extends TestCase {
 
             fail("expect ex on invalid url, dud host name");
         } catch (ResourceException expected) {
-            assertTrue("have a uhe " + expected.getCause(),
-                       expected.getCause() instanceof java.net.UnknownHostException);
-        }
+            // resolving the URL above results in an IOException which
+            // may be UnknowHostException or something different
+            // depending on the platoform
+            assertTrue("unexpected exception received: " + expected.getCause(),
+                       expected.getCause() instanceof java.io.IOException);       
 
+        }
+          
     }
 
     
