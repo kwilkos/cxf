@@ -30,8 +30,11 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.mime.Hello;
 import org.apache.cxf.mime.HelloService;
@@ -65,6 +68,8 @@ public final class Client {
 
         HelloService ss = new HelloService(wsdlURL, SERVICE_NAME);
         Hello port = (Hello) ss.getPort(PORT_NAME, Hello.class);
+        Binding binding = ((BindingProvider)port).getBinding();
+        ((SOAPBinding)binding).setMTOMEnabled(true);
 
         ByteArrayDataSource bads = new ByteArrayDataSource(getResourceStream(wsdlFile),
                 "Application/octet-stream");

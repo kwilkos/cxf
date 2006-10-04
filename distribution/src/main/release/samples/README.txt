@@ -3,7 +3,7 @@ Basic Setup for Building and Running the Demos
 
 As described in the installation notes, extract the celtixfire
 binary distribution archive into an installation directory
-under the root drive.  This creates the sub-directory celtixfire,
+under the root drive.  This creates the sub-directory cxf,
 which includes all of the product directories.
 
 To build and run the demos, you must install the J2SE Development
@@ -18,7 +18,7 @@ you need to set the environment so that the file cxf-incubator.jar
 is on the CLASSPATH and to insure that the JDK, ant and
 celtixfire bin directories are on the PATH.
 
-To build and run the demos provided in the celtixfire source distribution
+To build and run the demos provided in the cxf source distribution
 using ant you will need to edit the common_build.xml file.
 Uncomment the line:
 <import file="../../../target/srcbuild_paths.xml" optional="true"/>
@@ -33,7 +33,7 @@ You may find it convenient to use a script to set the required
 environment variables.
 
 For UNIX:
-  CXF_HOME=/<installation_directory>/celtixfire
+  CXF_HOME=/<installation_directory>/cxf
   JAVA_HOME=/<jdk_installation_directory>
   ANT_HOME=/<ant_installation_directory>/apache-ant-1.6.5
 
@@ -41,7 +41,7 @@ For UNIX:
   export CLASSPATH=.:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
 
 For Windows:
-  set CXF_HOME=C:\<installation_directory>\celtixfire
+  set CXF_HOME=C:\<installation_directory>\cxf
   set JAVA_HOME=C:\<jdk_installation_directory>
   set ANT_HOME=C:\<ant_installation_directory>\apache-ant-1.6.5
 

@@ -19,7 +19,10 @@
 
 package demo.mtom.server;
 
+import javax.xml.ws.Binding;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.soap.SOAPBinding;
 
 public class Server {
 
@@ -27,7 +30,9 @@ public class Server {
         System.out.println("Starting Server");
         Object implementor = new HelloImpl();
         String address = "http://localhost:9000/mime-test";
-        Endpoint.publish(address, implementor);
+        Endpoint ep = Endpoint.publish(address, implementor);
+        Binding binding = ep.getBinding();        
+        ((SOAPBinding)binding).setMTOMEnabled(true);        
     }
 
     public static void main(String args[]) throws Exception {
