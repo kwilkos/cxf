@@ -48,7 +48,7 @@ public class ServerLauncher {
     final String className;
 
 
-    private final boolean debug = true;
+    private final boolean debug = false;
     private boolean inProcess = DEFAULT_IN_PROCESS;
     private AbstractTestServerBase inProcessServer;
     
