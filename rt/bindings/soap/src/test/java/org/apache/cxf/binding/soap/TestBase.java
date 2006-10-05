@@ -47,6 +47,7 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -119,6 +120,7 @@ public class TestBase extends TestCase {
         IMocksControl control = EasyMock.createNiceControl();
         Bus bus = control.createMock(Bus.class);
         BindingFactoryManager bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
         WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         Service service = null;
@@ -131,6 +133,7 @@ public class TestBase extends TestCase {
         }
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
         control.replay();
 
         ServiceInfo serviceInfo = wsdlServiceBuilder.buildService(def, service);

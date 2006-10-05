@@ -20,17 +20,19 @@
 package org.apache.cxf.interceptor;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -38,6 +40,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -45,11 +48,13 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class BareInInterceptor extends AbstractInDatabindingInterceptor {
 
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(BareInInterceptor.class);
+
     private static Set<String> filter = new HashSet<String>();
     
     static {
         filter.add("void");
-        filter.add("javax.activation.DataHandler");        
+        filter.add("javax.activation.DataHandler");
     }
     
     public BareInInterceptor() {
@@ -61,86 +66,70 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         Exchange exchange = message.getExchange();
 
-        BindingOperationInfo operation = exchange.get(BindingOperationInfo.class);
-
         DataReader<Message> dr = getMessageDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
 
-        List<MessagePartInfo> piList = null;
-        if (operation != null) {
-            if (isRequestor(message)) {
-                piList = operation.getOperationInfo().getOutput().getMessageParts();
-            } else {
-                piList = operation.getOperationInfo().getInput().getMessageParts();
-            }
+        Endpoint ep = exchange.get(Endpoint.class);
+        Service service = ep.getService();
+        BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
+        MessageInfo msgInfo = message.get(MessageInfo.class);
+        
+        Collection<OperationInfo> ops = null;
+        if (bop == null) {
+            ops = new ArrayList<OperationInfo>();
+            ops.addAll(service.getServiceInfo().getInterface().getOperations());
+        } else if (msgInfo == null) {
+            msgInfo = getMessageInfo(message, bop, exchange);
         }
+        
+        boolean client = isRequestor(message);
+        
+        int paramNum = 0;
         while (StaxUtils.toNextElement(xmlReader)) {
-            QName streamParaQName = new QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName());
+            QName elName = xmlReader.getName();
             Object o = null;
-            if (piList != null) {                
-                for (MessagePartInfo mpi : piList) {
-                    QName paraQName = null;
-                    if (mpi.isElement()) {
-                        paraQName = mpi.getElementQName();
-                    } else {
-                        paraQName = mpi.getTypeQName();
-                    }
-                    if (streamParaQName.equals(paraQName)) {
-                        Class cls = (Class)mpi.getProperty(Class.class.getName());
-                        if (cls != null && !filter.contains(cls.getName()) && !cls.isArray()) {
-                            o = dr.read(paraQName, message, cls);
-                        } else {
-                            o = dr.read(paraQName, message, null);
-                        }
-                        break;
-                    }
-                }
-                if (o == null) {
-                    o = dr.read(message);                    
-                }
+            
+            MessagePartInfo p;
+            if (msgInfo != null) {
+                p = msgInfo.getMessagePartByIndex(paramNum);
             } else {
-                o = dr.read(message);
+                p = findMessagePart(exchange, ops, elName, client, paramNum);
             }
+            
+            if (p == null) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
+            }
+            
+            Class<?> cls = (Class) p.getProperty(Class.class.getName());
+            if (cls != null && !filter.contains(cls.getName()) && !cls.isArray()) {
+                o = dr.read(p.getConcreteName(), message, cls);
+            } else {
+                o = dr.read(p.getConcreteName(), message, null);
+            }
+            
             if (o != null) {
                 parameters.add(o);
             }
+            paramNum++;
         }
-        
-        Endpoint ep = exchange.get(Endpoint.class);
-        Service service = ep.getService();
 
         if (message.get(Element.class) != null) {
             parameters.addAll(abstractParamsFromHeader(message.get(Element.class), ep, message));
         }
 
-        if (operation == null) {            
-            // If we didn't know the operation going into this, lets try to
-            // figure it out
-            OperationInfo op = findOperation(service.getServiceInfo().getInterface().getOperations(),
-                            parameters, isRequestor(message));
-            for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
-                if (bop.getOperationInfo().equals(op)) {
-                    operation = bop;
-                    exchange.put(BindingOperationInfo.class, bop);
-                    exchange.setOneWay(bop.getOutput() == null);
-                    break;
-                }
+        // if we didn't know the operation going into this, find it.
+        if (bop == null) {
+            OperationInfo op = ops.iterator().next();
+            bop = ep.getEndpointInfo().getBinding().getOperation(op);
+            if (bop != null) {
+                exchange.put(BindingOperationInfo.class, bop);
+                exchange.setOneWay(op.isOneWay());
             }
         }
-
-        List<Object> newParameters = new ArrayList<Object>();
-        for (Iterator iter = parameters.iterator(); iter.hasNext();) {
-            Object element = (Object) iter.next();
-            if (element instanceof JAXBElement) {
-                element = ((JAXBElement) element).getValue();
-            }
-            newParameters.add(element);
-
-        }
-
-        message.setContent(List.class, newParameters);
+        
+        message.setContent(List.class, parameters);
     }
-
+    
     private List<Object> abstractParamsFromHeader(Element headerElement, Endpoint ep, Message message) {
         List<Object> paramInHeader = new ArrayList<Object>();
         List<MessagePartInfo> parts = null;

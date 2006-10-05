@@ -24,6 +24,7 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.UnwrappedOperationInfo;
 
 /**
  * Implements the Visitor pattern for the Service model.
@@ -44,44 +45,56 @@ public class ServiceModelVisitor {
         for (OperationInfo o : serviceInfo.getInterface().getOperations()) {
             begin(o);
             
-            MessageInfo in = o.getInput();
-            if (in != null) {
-                begin(in);
-                
-                for (MessagePartInfo part : in.getMessageParts()) {
-                    begin(part);
-                    end(part);
-                }
-                
-                end(in);
-            }
+            visitOperation(o);
             
-            MessageInfo out = o.getOutput();
-            if (out != null) {
-                begin(out);
-                
-                for (MessagePartInfo part : out.getMessageParts()) {
-                    begin(part);
-                    end(part);
-                }
-                
-                end(out);
-            }
-            
-            for (FaultInfo f : o.getFaults()) {
-                begin(f);
-                
-                for (MessagePartInfo part : f.getMessageParts()) {
-                    begin(part);
-                    end(part);
-                }
-                
-                end(f);
-            }
             end(o);
         }
         
         end(serviceInfo);
+    }
+
+    private void visitOperation(OperationInfo o) {
+        MessageInfo in = o.getInput();
+        if (in != null) {
+            begin(in);
+            
+            for (MessagePartInfo part : in.getMessageParts()) {
+                begin(part);
+                end(part);
+            }
+            
+            end(in);
+        }
+        
+        MessageInfo out = o.getOutput();
+        if (out != null) {
+            begin(out);
+            
+            for (MessagePartInfo part : out.getMessageParts()) {
+                begin(part);
+                end(part);
+            }
+            
+            end(out);
+        }
+        
+        for (FaultInfo f : o.getFaults()) {
+            begin(f);
+            
+            for (MessagePartInfo part : f.getMessageParts()) {
+                begin(part);
+                end(part);
+            }
+            
+            end(f);
+        }
+        
+        if (o.isUnwrappedCapable()) {
+            OperationInfo uop = o.getUnwrappedOperation();
+            begin(uop);
+            visitOperation(o.getUnwrappedOperation());
+            end(uop);
+        }
     }
     
     public void begin(ServiceInfo service) {
@@ -89,6 +102,8 @@ public class ServiceModelVisitor {
     public void begin(InterfaceInfo intf) {
     }
     public void begin(OperationInfo op) {
+    }
+    public void begin(UnwrappedOperationInfo op) {
     }
     public void begin(MessageInfo msg) {
     }
@@ -101,6 +116,8 @@ public class ServiceModelVisitor {
     public void end(InterfaceInfo intf) {
     }
     public void end(OperationInfo op) {
+    }
+    public void end(UnwrappedOperationInfo op) {
     }
     public void end(MessageInfo msg) {
     }

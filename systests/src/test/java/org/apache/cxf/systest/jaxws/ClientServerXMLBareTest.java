@@ -74,8 +74,8 @@ public class ClientServerXMLBareTest extends TestCase {
         XMLService service = new XMLService();
         assertNotNull(service);
 
-        String response1 = new String("Hello ");
-        String response2 = new String("Bonjour");
+        String response1 = "Hello ";
+        String response2 = "Bonjour";
         try {
             Greeter greeter = service.getPort(portName, Greeter.class);
             String username = System.getProperty("user.name");

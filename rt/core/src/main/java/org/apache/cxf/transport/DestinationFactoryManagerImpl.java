@@ -103,7 +103,7 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
             factory = destinationFactories.get(namespace);
         }
         if (null == factory) {
-            throw new BusException(new Message("NO_CONDUIT_INITIATOR_EXC", BUNDLE, namespace));
+            throw new BusException(new Message("NO_DEST_FACTORY", BUNDLE, namespace));
         }
         return factory;
     }

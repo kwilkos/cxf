@@ -51,7 +51,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public QName getInputMessageName(OperationInfo op) {
-        return new QName(op.getName().getNamespaceURI(), op.getName() + "Request");
+        return new QName(op.getName().getNamespaceURI(), op.getName().getLocalPart());
     }
 
     @Override
@@ -85,12 +85,17 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public QName getOutputMessageName(OperationInfo op) {
-        return new QName(op.getName().getNamespaceURI(), op.getName() + "R");
+        return new QName(op.getName().getNamespaceURI(), op.getName().getLocalPart() + "Response");
     }
 
     @Override
     public QName getInterfaceName() {
         return new QName(getServiceNamespace(), getServiceName() + "PortType");
+    }
+
+    @Override
+    public QName getEndpointName() {
+        return new QName(getServiceNamespace(), getServiceName() + "Port");
     }
 
     @Override

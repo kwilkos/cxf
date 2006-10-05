@@ -41,6 +41,7 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.IMocksControl;
 
@@ -60,6 +61,10 @@ public class SoapBindingFactoryTest extends TestCase {
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
 
         expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
+        
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
+        expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
+        
         control.replay();
 
         WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);

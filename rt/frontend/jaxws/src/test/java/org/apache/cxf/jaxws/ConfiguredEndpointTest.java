@@ -30,6 +30,9 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.Configurer;
@@ -39,6 +42,8 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.SOAPService;
@@ -192,6 +197,7 @@ public class ConfiguredEndpointTest extends TestCase {
         factory.setDefaultBus(null);
         factory.getDefaultBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
+        initializeBus();
         doTestDefaultServerEndpoint();
     }
      
@@ -200,6 +206,7 @@ public class ConfiguredEndpointTest extends TestCase {
         factory.setDefaultBus(null);
         factory.getDefaultBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
+        initializeBus();
         doTestDefaultServerEndpoint();
     }
      
@@ -207,6 +214,7 @@ public class ConfiguredEndpointTest extends TestCase {
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
+        ei.publish("http://localhost/greeter");
         
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
@@ -241,6 +249,7 @@ public class ConfiguredEndpointTest extends TestCase {
         properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME,
             "org/apache/cxf/jaxws/configured-endpoints.xml");
         cf.setDefaultBus(cf.createBus(null, properties));
+        initializeBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
         doTestConfiguredServerEndpoint();
     }
@@ -250,6 +259,7 @@ public class ConfiguredEndpointTest extends TestCase {
         factory = sf;
         factory.setDefaultBus(null);
         sf.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
+        initializeBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
         doTestConfiguredServerEndpoint();
     }
@@ -259,6 +269,7 @@ public class ConfiguredEndpointTest extends TestCase {
         
         Object implementor = new GreeterImpl(); 
         EndpointImpl ei = (EndpointImpl)(javax.xml.ws.Endpoint.create(implementor));
+        ei.publish("http://localhost/greeter");
         
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
@@ -300,6 +311,25 @@ public class ConfiguredEndpointTest extends TestCase {
                      findTestInterceptor(interceptors).getId());
     }
       
+    private void initializeBus() {
+        Bus bus = factory.getDefaultBus();
+        
+        SoapBindingFactory bindingFactory = new SoapBindingFactory();
+
+        bus.getExtension(BindingFactoryManager.class)
+            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
+
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
+
+        LocalTransportFactory localTransport = new LocalTransportFactory();
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
+    }
+      
+    
     private AbstractPhaseInterceptor findTestInterceptor(List<Interceptor> interceptors) {
         for (Interceptor i : interceptors) {
             if (i instanceof TestInterceptor) {

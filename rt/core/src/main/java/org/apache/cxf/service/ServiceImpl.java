@@ -19,12 +19,15 @@
 
 package org.apache.cxf.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -35,6 +38,7 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     private DataBinding dataBinding;
     private Executor executor;
     private Invoker invoker;
+    private Map<QName, Endpoint> endpoints = new HashMap<QName, Endpoint>();
     
     public ServiceImpl(ServiceInfo si) {
         serviceInfo = si;
@@ -74,6 +78,14 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
 
     public void setDataBinding(DataBinding dataBinding) {
         this.dataBinding = dataBinding;
+    }
+
+    public Map<QName, Endpoint> getEndpoints() {
+        return endpoints;
+    }
+
+    public void setEndpoints(Map<QName, Endpoint> endpoints) {
+        this.endpoints = endpoints;
     }
     
 }

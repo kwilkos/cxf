@@ -19,18 +19,15 @@
 
 package org.apache.cxf.jaxb;
 
-import java.lang.reflect.AnnotatedElement;
-import java.util.ResourceBundle;
+import java.lang.reflect.Type;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.common.classloader.ClassLoaderUtils;
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.i18n.UncheckedException;
+import com.sun.xml.bind.v2.model.annotation.RuntimeInlineAnnotationReader;
+import com.sun.xml.bind.v2.model.core.ElementInfo;
+import com.sun.xml.bind.v2.model.core.NonElement;
+import com.sun.xml.bind.v2.model.impl.RuntimeModelBuilder;
+
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -40,79 +37,38 @@ import org.apache.cxf.service.model.ServiceInfo;
  */
 class JAXBServiceModelInitializer extends ServiceModelVisitor {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBServiceModelInitializer.class);
-
     public JAXBServiceModelInitializer(ServiceInfo serviceInfo) {
         super(serviceInfo);
     }
 
     @Override
     public void begin(MessagePartInfo part) {
+        // Check to see if the WSDL information has been filled in for us.
+        if (part.getConcreteName() != null) {
+            return;
+        }
+        
         Class<?> clazz = (Class<?>)part.getProperty(Class.class.getName());
-
-        XmlRootElement root = (XmlRootElement)clazz.getAnnotation(XmlRootElement.class);
-        XmlType type = (XmlType)clazz.getAnnotation(XmlType.class);
-        String local = null;
-        String nsUri = null;
-        boolean isElement = false;
-
-        if (root != null) {
-            isElement = false;
-            local = root.name();
-            nsUri = root.namespace();
-        } else if (type != null) {
-            isElement = true;
-            local = type.name();
-            nsUri = type.namespace();
-        } else if (clazz.isAnnotationPresent(XmlEnum.class)) {
-            isElement = true;
-            local = clazz.getSimpleName();
-            nsUri = "##default";
-        } else {
-            // we've got a non JAXB bean - i.e. String, etc
+        if (clazz == null) {
             return;
         }
 
-        if ("##default".equals(local)) {
-            local = clazz.getSimpleName();
+        RuntimeModelBuilder builder = new RuntimeModelBuilder(new RuntimeInlineAnnotationReader(), null);
+        NonElement<Type, Class> typeInfo = builder.getTypeInfo(clazz, null);
+
+        QName typeName = typeInfo.getTypeName();
+        // TODO: this doesn't seem to work with elements yet
+        if (typeName == null) {
+            return;
         }
 
-        if ("##default".equals(nsUri)) {
-            nsUri = getPackageNs(clazz);
-        }
+        boolean isElement = typeInfo instanceof ElementInfo;
 
         part.setIsElement(isElement);
         if (isElement) {
-            part.setElementQName(new QName(nsUri, local));
+            part.setElementQName(typeName);
         } else {
-            part.setTypeQName(new QName(nsUri, local));
+            part.setTypeQName(typeName);
         }
-    }
-
-    public static String getPackageNs(Class clazz) {
-        AnnotatedElement pack = clazz.getPackage();
-        // getPackage isn't guaranteed to return a package
-        if (pack == null) {
-            try {
-                pack = ClassLoaderUtils.loadClass(
-                    clazz.getName().substring(0, clazz.getName().lastIndexOf('.')) + ".package-info", clazz);
-            } catch (Exception ex) {
-                // do nothing
-            }
-        }
-
-        if (pack == null) {
-            throw new UncheckedException(new Message("UNKNOWN_PACKAGE_NS", BUNDLE, clazz));
-        }
-
-        javax.xml.bind.annotation.XmlSchema schema = pack
-            .getAnnotation(javax.xml.bind.annotation.XmlSchema.class);
-        String namespace = null;
-        if (schema != null) {
-            namespace = schema.namespace();
-        } else {
-            namespace = "";
-        }
-        return namespace;
     }
 }

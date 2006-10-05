@@ -43,6 +43,8 @@ public abstract class AbstractServiceFactoryBean {
     }
     
     protected void initializeDataBindings() {
+        dataBinding.initialize(getService().getServiceInfo());
+        
         service.setDataBinding(dataBinding);
     }
     

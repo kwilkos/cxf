@@ -123,6 +123,10 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public QName getEndpointName() {
+        return null;
+    }
+
     public Class getResponseWrapper(Method selected) {
         return null;
     }

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxb.io;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
@@ -69,11 +70,21 @@ public class MessageDataReader implements DataReader<Message> {
         if (source == null) {
             return null;
         }
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
-                                             factory.getSchema(), source,
-                                             name,
-                                             cls, 
-                                             au);
+        Object o = JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
+                                                 factory.getSchema(), source,
+                                                 name,
+                                                 cls, 
+                                                 au);
+        o = getValue(o);
+        
+        return o;
+    }
+
+    private Object getValue(Object o) {
+        if (o instanceof JAXBElement) {
+            return ((JAXBElement)o).getValue();
+        }
+        return o;
     }
 
 }

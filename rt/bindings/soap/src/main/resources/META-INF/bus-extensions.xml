@@ -23,5 +23,11 @@
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://cxf.apache.org/transports/jms</namespace>
+    </extension>
+    
+    <extension class="org.apache.cxf.binding.soap.SoapDestinationFactory" 
+      interface="org.apache.cxf.transport.DestinationFactory" deferred="true">
+        <namespace>http://schemas.xmlsoap.org/soap/</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
     </extension>    
 </extensions>

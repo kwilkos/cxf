@@ -22,24 +22,20 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.BindingFactoryManagerImpl;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.SoapBinding;
+import org.apache.cxf.binding.xml.XMLBinding;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ServerFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
-import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.hello_world_soap_http.HWSoapMessageProvider;
-import org.easymock.IMocksControl;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.classextension.EasyMock.createNiceControl;
-
-public class ProviderServiceFactoryBeanTest extends TestCase {
+public class ProviderServiceFactoryBeanTest extends AbstractJaxWsTest {
     public void testFromWSDL() throws Exception {
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
@@ -52,7 +48,7 @@ public class ProviderServiceFactoryBeanTest extends TestCase {
         // only the unit test does.
         bean.setWsdlURL(resource);
         
-        Bus bus = createBus();
+        Bus bus = getBus();
         bean.setBus(bus);
         bean.setServiceClass(HWSoapMessageProvider.class);
 
@@ -64,13 +60,24 @@ public class ProviderServiceFactoryBeanTest extends TestCase {
         
         InterfaceInfo intf = service.getServiceInfo().getInterface();
         assertNotNull(intf);
+        
+        ServerFactoryBean svrFactory = new ServerFactoryBean();
+        svrFactory.setBus(bus);
+        svrFactory.setServiceFactory(bean);
+        svrFactory.setStart(false);
+        
+        ServerImpl server = (ServerImpl) svrFactory.create();
+        
+        Endpoint endpoint = server.getEndpoint();
+        Binding binding = endpoint.getBinding();
+        assertTrue(binding instanceof SoapBinding);
     }
     
     public void testXMLBindingFromCode() throws Exception {
         JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(SourcePayloadProvider.class);
         ProviderServiceFactoryBean bean = new ProviderServiceFactoryBean(implInfo);
 
-        Bus bus = createBus();
+        Bus bus = getBus();
         bean.setBus(bus);
 
         Service service = bean.create();
@@ -85,24 +92,15 @@ public class ProviderServiceFactoryBeanTest extends TestCase {
         EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName("SourcePayloadProviderPort"));
         
         assertNotNull(ei);
-    }
-
-    Bus createBus() throws Exception {
-        IMocksControl control = createNiceControl();
-        Bus bus = control.createMock(Bus.class);
-
-        SoapBindingFactory bindingFactory = new SoapBindingFactory();
-        BindingFactoryManager bfm = new BindingFactoryManagerImpl();
-        bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
-
-        expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm).anyTimes();
-
-        WSDLManagerImpl wsdlMan = new WSDLManagerImpl();
-        expect(bus.getExtension(WSDLManager.class)).andReturn(wsdlMan);
-
-        control.replay();
-
-        return bus;
+        
+        ServerFactoryBean svrFactory = new ServerFactoryBean();
+        svrFactory.setBus(bus);
+        svrFactory.setServiceFactory(bean);
+        
+        ServerImpl server = (ServerImpl) svrFactory.create();
+        Endpoint endpoint = server.getEndpoint();
+        Binding binding = endpoint.getBinding();
+        assertTrue(binding instanceof XMLBinding);
     }
 }
 

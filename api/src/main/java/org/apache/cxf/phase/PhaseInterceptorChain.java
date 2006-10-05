@@ -134,6 +134,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 if (LOG.isLoggable(Level.INFO)) {
                     LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
                 }
+                ex.printStackTrace();
                 message.setContent(Exception.class, ex);
                 unwind(message);
                 

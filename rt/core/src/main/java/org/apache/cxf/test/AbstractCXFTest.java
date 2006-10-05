@@ -33,10 +33,13 @@ import java.util.Map;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.xml.sax.SAXParseException;
+
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusException;
+import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -45,7 +48,6 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 /**
  * A basic test case meant for helping users unit test their services.
@@ -71,17 +73,15 @@ public class AbstractCXFTest extends TestCase {
         return bus;
     }
 
-    protected Bus createBus() {
-        return BusFactoryHelper.newInstance().createBus();
+    protected Bus createBus() throws BusException {
+        return new CXFBusFactory().createBus();
     }
 
     protected Node invoke(String address, 
                           String transport,
                           String message) throws Exception {
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        AddressType a = new AddressType();
-        a.setLocation(address);
-        ei.addExtensor(a);
+        ei.setAddress(address);
 
         ConduitInitiatorManager conduitMgr = getBus().getExtension(ConduitInitiatorManager.class);
         ConduitInitiator conduitInit = conduitMgr.getConduitInitiator(transport);
@@ -104,7 +104,12 @@ public class AbstractCXFTest extends TestCase {
         byte[] bs = obs.getResponseStream().toByteArray();
         
         ByteArrayInputStream input = new ByteArrayInputStream(bs);
-        return DOMUtils.readXml(input);
+        try {
+            return DOMUtils.readXml(input);
+        } catch (SAXParseException e) {
+            throw new IllegalStateException("Could not parse message:\n" 
+                                            + obs.getResponseStream().toString());
+        }
     }
 
     private void copy(final InputStream input, final OutputStream output, final int bufferSize)

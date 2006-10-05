@@ -22,19 +22,19 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapDestinationFactory;
-import org.apache.cxf.jaxws.EndpointImplTest.EchoObserver;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.ConduitInitiatorManager;
-import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.WSDLManagerImpl;
 
 /**
  * Abstract test which sets up the local transport and soap binding.
  */
 public abstract class AbstractJaxWsTest extends AbstractCXFTest {
+
+    LocalTransportFactory localTransport;
 
     private Bus bus;
 
@@ -52,21 +52,19 @@ public abstract class AbstractJaxWsTest extends AbstractCXFTest {
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
         SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
 
-        LocalTransportFactory localTransport = new LocalTransportFactory();
+        localTransport = new LocalTransportFactory();
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
+        dfm.registerDestinationFactory("http://cxf.apache.org/bindings/xformat", localTransport);
 
         ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
         extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/", localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/", localTransport);
         
-        EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        AddressType a = new AddressType();
-        a.setLocation("http://localhost:9000/SoapContext/SoapPort");
-        ei.addExtensor(a);
-
-        Destination d = localTransport.getDestination(ei);
-        d.setMessageObserver(new EchoObserver());
+        bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
     }
 }

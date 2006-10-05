@@ -19,14 +19,11 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
@@ -34,15 +31,21 @@ import org.w3c.dom.Node;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataReaderFactory;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 
 public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
+
+    private static final QName XSD_ANY = new QName("http://www.w3.org/2001/XMLSchema", "anyType", "xsd");
+
     private static final ResourceBundle BUNDLE = BundleUtils
         .getBundle(AbstractInDatabindingInterceptor.class);
 
@@ -62,10 +65,10 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             }
         }
         if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
+                                                                   BUNDLE, service.getName()));
         }
-        return dataReader;        
+        return dataReader;
     }
 
     protected DataReader<Message> getMessageDataReader(Message message) {
@@ -80,8 +83,8 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             }
         }
         if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
+                                                                   BUNDLE, service.getName()));
         }
         return dataReader;
     }
@@ -98,12 +101,12 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             }
         }
         if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
+            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
+                                                                   BUNDLE, service.getName()));
         }
         return dataReader;
     }
-    
+
     protected DataReader<Node> getNodeDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
@@ -116,8 +119,9 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             }
         }
         if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                service.getName()));
+            throw new Fault(
+                            new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
+                                                                   service.getName()));
         }
         return dataReader;
     }
@@ -127,102 +131,71 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         return new DepthXMLStreamReader(xr);
     }
 
-    protected OperationInfo findOperation(Collection<OperationInfo> operations, 
-                                          List<Object> parameters, boolean isRequestor) {
-        // first check for exact matches
-        for (OperationInfo o : operations) {
-            List messageParts = null;
-            if (isRequestor) {
-                if (o.hasOutput()) {
-                    messageParts = o.getOutput().getMessageParts();
-                } else {
-                    messageParts = new ArrayList();
-                }
+    /**
+     * Find the next possible message part in the message. If an operation in
+     * the list of operations is no longer a viable match, it will be removed
+     * from the Collection.
+     * 
+     * @param exchange
+     * @param operations
+     * @param name
+     * @param client
+     * @param index
+     * @return
+     */
+    protected MessagePartInfo findMessagePart(Exchange exchange, Collection<OperationInfo> operations,
+                                              QName name, boolean client, int index) {
+        MessagePartInfo lastChoice = null;
+        for (Iterator<OperationInfo> itr = operations.iterator(); itr.hasNext();) {
+            OperationInfo op = itr.next();
+
+            MessageInfo msgInfo = null;
+            if (client) {
+                msgInfo = op.getOutput();
             } else {
-                if (o.hasInput()) {
-                    messageParts = o.getInput().getMessageParts();
-                } else {
-                    messageParts = new ArrayList();
-                }
+                msgInfo = op.getInput();
             }
-            if (messageParts.size() == parameters.size() 
-                    && checkExactParameters(messageParts, parameters)) {
-                return o;
-                
-            }
-        }
 
-//        // now check for assignable matches
-        /*for (OperationInfo o : operations) {
-            List messageParts = o.getInput().getMessageParts();
-            if (messageParts.size() == parameters.size()) {
-                if (checkParameters(messageParts, parameters)) {
-                    return o;
-                }
+            if (msgInfo == null) {
+                itr.remove();
+                continue;
             }
-        }*/
-        return null;
-    }
+            
+            Collection bodyParts = msgInfo.getMessageParts();
+            if (bodyParts.size() == 0 || bodyParts.size() <= index) {
+                itr.remove();
+                continue;
+            }
 
-      /**
-       * Return true only if the message parts exactly match the classes of the
-       * parameters
-       * 
-       * @param messageParts
-       * @param parameters
-       * @return
-       */
-    private boolean checkExactParameters(List messageParts, List parameters) {
-        Iterator messagePartIterator = messageParts.iterator();
-        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
-            Object param = parameterIterator.next();
-            JAXBElement paramEl = null;
-            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
-            if (param instanceof JAXBElement) {
-                paramEl = (JAXBElement)param;
-                if (!mpi.getElementQName().equals(paramEl.getName())) {
-                    return false;
-                }
+            MessagePartInfo p = (MessagePartInfo)msgInfo.getMessageParts().get(index);
+
+            if (name.equals(p.getConcreteName())) {
+                return p;
+            }
+
+            if (XSD_ANY.equals(p.getTypeQName())) {
+                lastChoice = p;
             } else {
-                
-                if (!mpi.getElementQName().getLocalPart().equals(
-                    param.getClass().getAnnotation(XmlRootElement.class).name())) {
-               
-                    return false;
-                }
+                itr.remove();
             }
         }
-        return true;
+        return lastChoice;
     }
 
-    /*private boolean checkParameters(List messageParts, List parameters) {
-        Iterator messagePartIterator = messageParts.iterator();
-        for (Iterator parameterIterator = parameters.iterator(); parameterIterator.hasNext();) {
-            Object param = parameterIterator.next();
-            MessagePartInfo mpi = (MessagePartInfo)messagePartIterator.next();
-
-            if (!mpi.getTypeClass().isAssignableFrom(param.getClass())) {
-                if (!param.getClass().isPrimitive() && mpi.getTypeClass().isPrimitive()) {
-                    return checkPrimitiveMatch(mpi.getTypeClass(), param.getClass());
-                } else {
-                    return false;
-                }
-            }
-        }
-        return true;
+    protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation, Exchange ex) {
+        return getMessageInfo(message, operation, isRequestor(message));
     }
-
-    private boolean checkPrimitiveMatch(Class clazz, Class typeClass) {
-        if ((typeClass == Integer.class && clazz == int.class)
-            || (typeClass == Double.class && clazz == double.class)
-            || (typeClass == Long.class && clazz == long.class)
-            || (typeClass == Float.class && clazz == float.class)
-            || (typeClass == Short.class && clazz == short.class)
-            || (typeClass == Boolean.class && clazz == boolean.class)
-            || (typeClass == Byte.class && clazz == byte.class)) {
-            return true;
+    
+    protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation, boolean requestor) {
+        MessageInfo msgInfo;
+        OperationInfo intfOp = operation.getOperationInfo();
+        if (requestor) {
+            msgInfo = intfOp.getOutput();
+            message.put(MessageInfo.class, intfOp.getOutput());
+        } else {
+            msgInfo = intfOp.getInput();
+            message.put(MessageInfo.class, intfOp.getInput());
         }
-
-        return false;
-    }*/
+        return msgInfo;
+    }
 }

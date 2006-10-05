@@ -123,7 +123,8 @@ public class BindingInfo extends AbstractPropertiesHolder {
 
     public BindingOperationInfo getOperation(OperationInfo oi) {
         for (BindingOperationInfo b : operations.values()) {
-            if (b.getOperationInfo() == oi || b.getUnwrappedOperation().getOperationInfo() == oi) {
+            if (b.getOperationInfo() == oi 
+                || (b.isUnwrappedCapable() && b.getUnwrappedOperation().getOperationInfo() == oi)) {
                 return b;
             }
         }

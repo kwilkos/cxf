@@ -19,25 +19,21 @@
 
 package org.apache.cxf.service.model;
 
-import javax.wsdl.extensions.http.HTTPAddress;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
 
-import org.xmlsoap.schemas.wsdl.http.AddressType;
-
 public class EndpointInfo extends AbstractPropertiesHolder {
-    final String endpointType;
+    final String transportId;
     ServiceInfo service;
     BindingInfo binding;
     QName name;
     String address;
     
     public EndpointInfo(ServiceInfo serv, String ns) {
-        endpointType = ns;
+        transportId = ns;
         service = serv;
     }
     public String getTransportId() {
-        return endpointType;
+        return transportId;
     }    
     public InterfaceInfo getInterface() {
         return service.getInterface();
@@ -61,23 +57,9 @@ public class EndpointInfo extends AbstractPropertiesHolder {
     }    
     
     public String getAddress() {
-        if (null != address) {
-            return address;
-        }
-        SOAPAddress sa = getExtensor(SOAPAddress.class);
-        if (null != sa) {
-            return sa.getLocationURI();
-        }
-        HTTPAddress ha = getExtensor(HTTPAddress.class);
-        if (null != ha) {
-            return ha.getLocationURI();
-        }
-        AddressType a = getExtensor(AddressType.class);
-        if (null != a) {
-            return a.getLocation();
-        }
-        return null;
+        return address;
     }
+    
     public void setAddress(String a) {
         address = a;
     }

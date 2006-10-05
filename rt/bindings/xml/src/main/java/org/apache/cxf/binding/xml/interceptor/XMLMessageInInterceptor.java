@@ -19,34 +19,40 @@
 
 package org.apache.cxf.binding.xml.interceptor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
-
+    
+    // TODO: this should be part of the chain!!
+    private BareInInterceptor bareInterceptor = new BareInInterceptor();
+    private WrappedInInterceptor wrappedInterceptor = new WrappedInInterceptor();
+    
     public XMLMessageInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
@@ -55,98 +61,61 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
     public void handleMessage(Message message) throws Fault {
 
         XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
-        DepthXMLStreamReader dxsr = new DepthXMLStreamReader(xsr);
+        DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
         Endpoint ep = message.getExchange().get(Endpoint.class);
         BindingInfo service = ep.getEndpointInfo().getBinding();
-        Map<Class<?>, Object> objMap = new HashMap<Class<?>, Object>();
-        // StaxUtils.nextEvent(xmlReader);
-        if (!StaxUtils.toNextElement(dxsr)) {
+        
+        if (!StaxUtils.toNextElement(reader)) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
-        QName startQName = new QName(dxsr.getNamespaceURI(), dxsr.getLocalName());
-        for (BindingOperationInfo boi : service.getOperations()) {
-            setObjectMap(boi, message, objMap);
-            MessageInfo mi = getObject(MessageInfo.class, objMap);
-            QName rootInModel = getObject(QName.class, objMap);
-            if (rootInModel != null && rootInModel.equals(startQName)) {
-                if (mi.getMessageParts().size() != 1) {
-                    // handle multi param in bare mode
-                    message.getExchange().put(BindingOperationInfo.class, boi);
-                    StaxUtils.nextEvent(dxsr);
-                    StaxUtils.toNextElement(dxsr);
-                    new BareInInterceptor().handleMessage(message);
-                    break;
-                } else {
-                    if (!boi.isUnwrappedCapable()) {
-                        // it's bare with one part and part name equals
-                        // operation name (not support yet)
-                        if (rootInModel.equals(startQName)) {
-                            message.getExchange().put(BindingOperationInfo.class, boi);
-                            new BareInInterceptor().handleMessage(message);
-                            break;
-                        }
-                    } else {
-                        // processing wrap here
-                        message.getExchange().put(BindingOperationInfo.class, boi);
-                        new WrappedInInterceptor().handleMessage(message);
-                        break;
-                    }
-                }
+        
+        QName startQName = reader.getName();
+        Exchange ex = message.getExchange();
+        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
+        MessagePartInfo part = null;
+        if (bop == null) {
+            List<OperationInfo> operations = new ArrayList<OperationInfo>();
+            operations.addAll(service.getInterface().getOperations());
+            
+            part = findMessagePart(ex, operations, startQName, false , 0);
+        } else {
+            MessageInfo msgInfo = getMessageInfo(message, bop, ex);
+            if (msgInfo.getMessageParts().size() > 0) {
+                part = msgInfo.getMessageParts().get(0);
+            }
+        }
+
+        if (part != null && part.getMessageInfo().getMessageParts().size() == 1) {
+            OperationInfo o = part.getMessageInfo().getOperation();
+            // TODO: We already know the op, so we can optimize BareInInterceptor a bit yet
+            if (!o.isUnwrappedCapable()) {
+                bareInterceptor.handleMessage(message);
+                return;
             } else {
-                // bare with one part and part name not equal operation name,
-                // check param match
-                if (!boi.isUnwrappedCapable()) {
-                    if (mi.getMessageParts().size() != 1) {
-                        continue;
-                    }
-                    if (rootInModel.equals(startQName)) {
-                        message.getExchange().put(BindingOperationInfo.class, boi);
-                        new BareInInterceptor().handleMessage(message);
-                        break;
-                    }
+                wrappedInterceptor.handleMessage(message);
+                return;
+            }
+        } else {
+            QName name = new QName(service.getInterface().getName().getNamespaceURI(), 
+                                   "multiParamRootReq");
+            if (reader.getName().equals(name)) {
+                StaxUtils.nextEvent(reader);
+                StaxUtils.toNextElement(reader);
+                bareInterceptor.handleMessage(message);
+                return;
+            } else {
+                // Do we have a bare request with no parts?
+                bop = ServiceModelUtil.getOperation(ex, reader.getName());
+                if (bop != null) {
+                    ex.put(BindingOperationInfo.class, bop);
+                    getMessageInfo(message, bop, ex);
+                    message.setContent(List.class, Collections.EMPTY_LIST);
+                    return;
                 }
             }
         }
+        
+        throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", BUNDLE));
     }
 
-    private <T> T getObject(Class<T> cls, Map<Class<?>, Object> objMap) {
-        return cls.cast(objMap.get(cls));
-    }
-
-    private void setObjectMap(BindingOperationInfo boi, Message message, Map<Class<?>, Object> objMap) {
-        MessageInfo mi;
-        BindingMessageInfo bmi;
-        if (!isRequestor(message)) {
-            mi = boi.getOperationInfo().getInput();
-            bmi = boi.getInput();
-        } else {
-            mi = boi.getOperationInfo().getOutput();
-            bmi = boi.getOutput();
-        }
-        QName paramFirst = null;
-        if (mi.getMessageParts().size() > 0) {
-            MessagePartInfo mpiFirst = mi.getMessagePartByIndex(0);
-            if (mpiFirst.isElement()) {
-                paramFirst = mpiFirst.getElementQName();
-            } else {
-                // currently this has not been suppoerted by JAXBEncoderDecoder
-                paramFirst = mpiFirst.getTypeQName();
-            }
-        }
-        QName rootInModel = null;
-        Object ext = bmi.getExtensor(XMLBindingMessageFormat.class);
-        if (ext instanceof XMLBindingMessageFormat) {
-            // it's bare mode method, the root node exist for multi param
-            rootInModel = ((XMLBindingMessageFormat) ext).getRootNode();
-        } else {
-            // its wrap mode or bare-single-param mode, using operation name
-            if (mi.getMessageParts().size() == 1) {
-                rootInModel = paramFirst;
-            } else {
-                rootInModel = boi.getName();
-            }
-        }
-        objMap.put(QName.class, rootInModel);
-        objMap.put(MessageInfo.class, mi);
-    }
 }

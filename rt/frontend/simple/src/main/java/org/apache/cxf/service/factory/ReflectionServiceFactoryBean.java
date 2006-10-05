@@ -34,6 +34,9 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.Service;
@@ -42,12 +45,14 @@ import org.apache.cxf.service.invoker.ApplicationScopePolicy;
 import org.apache.cxf.service.invoker.FactoryInvoker;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.invoker.LocalFactory;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 /**
@@ -67,18 +72,15 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     
     private List<AbstractServiceConfiguration> serviceConfigurations = 
         new ArrayList<AbstractServiceConfiguration>();
-    private List<AbstractBindingInfoFactoryBean> bindingFactories = 
-        new ArrayList<AbstractBindingInfoFactoryBean>();
     private QName serviceName;
     private Invoker invoker;
     private Executor executor;
     private List<String> ignoredClasses = new ArrayList<String>();
+    private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
-        
-        bindingFactories.add(new SoapBindingInfoFactoryBean());
-        
+
         ignoredClasses.add("java.lang.Object");
         ignoredClasses.add("java.lang.Throwable");
         ignoredClasses.add("org.omg.CORBA_2_3.portable.ObjectImpl");
@@ -113,14 +115,29 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             });
         }
 
+        getService().put(MethodDispatcher.class.getName(), getMethodDispatcher());
+
+        createEndpoints();
+        
         return getService();
     }
+    
+    protected void createEndpoints() {
+        Service service = getService();
 
-    protected void initializeBindings() {
-        for (AbstractBindingInfoFactoryBean b : getBindingFactories()) {
-            b.setServiceFactory(this);
-            getService().getServiceInfo().addBinding(b.create());
+        for (EndpointInfo ei : service.getServiceInfo().getEndpoints()) {
+            try {
+                Endpoint ep = createEndpoint(ei);
+
+                service.getEndpoints().put(ei.getName(), ep);
+            } catch (EndpointException e) {
+                throw new ServiceConstructionException(e);
+            }
         }
+    }
+
+    protected Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
+        return new EndpointImpl(getBus(), getService(), ei);
     }
 
     protected void initializeServiceConfigurations() {
@@ -141,8 +158,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             initializeWSDLOperations();
         } else {
             LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
-            // If we can't find the wsdlLocation, then we should build a service model from the class.
+            // If we can't find the wsdlLocation, then we should build a service model ufrom the class.
             ServiceInfo serviceInfo = new ServiceInfo();
+            ServiceImpl service = new ServiceImpl(serviceInfo);
+            
             serviceInfo.setName(getServiceQName());
             
             createInterface(serviceInfo);
@@ -151,10 +170,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 getDataBinding().initialize(serviceInfo);
             }
             
-            ServiceImpl service = new ServiceImpl(serviceInfo);
             setService(service);
-
-            initializeBindings();
         }
     }
 
@@ -229,11 +245,34 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected OperationInfo createOperation(ServiceInfo serviceInfo, InterfaceInfo intf, Method m) {
-        OperationInfo info = intf.addOperation(getOperationName(intf, m));
+        OperationInfo op = intf.addOperation(getOperationName(intf, m));
 
-        createMessageParts(intf, info, m);
+        if (isWrapped(m)) {
+            UnwrappedOperationInfo uOp = new UnwrappedOperationInfo(op);
+            op.setUnwrappedOperation(uOp);
+            
+            createMessageParts(intf, uOp, m);
+            
+            if (uOp.hasInput()) {
+                MessageInfo msg = new MessageInfo(op, op.getName());
+                op.setInput(uOp.getInputName(), msg);
+                msg.addMessagePart(op.getName());
+            } 
+            
+            if (uOp.hasOutput()) {
+                QName name = new QName(op.getName().getNamespaceURI(), 
+                                       op.getName().getLocalPart() + "Response");
+                MessageInfo msg = new MessageInfo(op, name);
+                op.setOutput(uOp.getOutputName(), msg);
+                msg.addMessagePart(name);
+            }
+        } else {
+            createMessageParts(intf, op, m);
+        }
 
-        return info;
+        methodDispatcher.bind(op, m);
+
+        return op;
     }
 
     protected void createMessageParts(InterfaceInfo intf, OperationInfo op, Method method) {
@@ -284,9 +323,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return serviceName;
     }
     
-    protected QName getPortQName() {
+    protected QName getEndpointName() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
-            QName name = c.getInterfaceName();
+            QName name = c.getEndpointName();
             if (name != null) {
                 return name;
             }
@@ -331,6 +370,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 return b.booleanValue();
             }
         }
+        return true;
+    }
+    
+    protected boolean isWrapped(final Method method) {
+//        for (AbstractServiceConfiguration c : serviceConfigurations) {
+//            Boolean b = c.isOperation(method);
+//            if (b != null) {
+//                return b.booleanValue();
+//            }
+//        }
         return true;
     }
 
@@ -541,8 +590,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return null;
     }
 
-    
-    
+    protected SimpleMethodDispatcher getMethodDispatcher() {
+        return methodDispatcher;
+    }
+
     public List<AbstractServiceConfiguration> getConfigurations() {
         return serviceConfigurations;
     }
@@ -609,13 +660,5 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public void setIgnoredClasses(List<String> ignoredClasses) {
         this.ignoredClasses = ignoredClasses;
-    }
-
-    public List<AbstractBindingInfoFactoryBean> getBindingFactories() {
-        return bindingFactories;
-    }
-
-    public void setBindingFactories(List<AbstractBindingInfoFactoryBean> bindingFactories) {
-        this.bindingFactories = bindingFactories;
     }
 }

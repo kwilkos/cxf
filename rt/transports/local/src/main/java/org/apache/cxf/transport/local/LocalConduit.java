@@ -65,6 +65,11 @@ public class LocalConduit implements Conduit {
         final LocalConduit conduit = this;
         final Exchange exchange = message.getExchange();
         
+        if (destination.getMessageObserver() == null) {
+            throw new IllegalStateException("Local destination does not have a MessageObserver on address " 
+                                            + destination.getAddress().getAddress().getValue());
+        }
+        
         final Runnable receiver = new Runnable() {
             public void run() {
                 MessageImpl m = new MessageImpl();
@@ -72,6 +77,7 @@ public class LocalConduit implements Conduit {
                 m.setDestination(destination);
                 m.put(IN_CONDUIT, conduit);
                 m.put(IN_EXCHANGE, exchange);
+                
                 destination.getMessageObserver().onMessage(m);
             }
         };

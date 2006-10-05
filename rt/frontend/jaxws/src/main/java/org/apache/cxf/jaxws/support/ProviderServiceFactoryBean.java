@@ -27,9 +27,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
@@ -44,7 +45,6 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private JaxWsImplementorInfo jaxWsImplmentorInfo;
     private String bindingURI;
-    private JaxWsMethodDispatcher md;
     
     public ProviderServiceFactoryBean(JaxWsImplementorInfo implInfo) {
         this.jaxWsImplmentorInfo = implInfo;
@@ -62,11 +62,11 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
         try {
             Method invoke = getServiceClass().getMethod("invoke", c);
             
-            md = new JaxWsMethodDispatcher();
+            
             
             // Bind each operation to the invoke method.
             for (OperationInfo o : getService().getServiceInfo().getInterface().getOperations()) {
-                md.bind(o, invoke);
+                getMethodDispatcher().bind(o, invoke);
             }
             
         } catch (SecurityException e) {
@@ -74,6 +74,11 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
         } catch (NoSuchMethodException e) {
             throw new ServiceConstructionException(e);
         }
+    }
+
+    @Override
+    protected Endpoint createEndpoint(EndpointInfo ei) throws EndpointException  {
+        return new JaxWsEndpointImpl(getBus(), getService(), ei);
     }
     
     /**
@@ -98,13 +103,22 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
         
         OperationInfo invokeOneWay = intf.addOperation(new QName(getServiceNamespace(), "invokeOneWay"));
         invokeOneWay.setInput("input", input);
-        
-        md = new JaxWsMethodDispatcher();
-     
+
         return intf;
     }
     
+    
     @Override
+    public Service create() {
+        Service s = super.create();
+        
+        if (jaxWsImplmentorInfo.getWsdlLocation().length() == 0) {
+            initializeBindings();
+        }
+        
+        return s;
+    }
+
     protected void initializeBindings() {
         ServiceInfo si = getService().getServiceInfo();
         if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)) {
@@ -124,15 +138,6 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
         } else if ("soapns".equals(bindingURI)) {
             // TODO
         }
-    }
-
-    @Override
-    public Service create() {
-        Service s = super.create();
-        
-        s.put(MethodDispatcher.class.getName(), md);
-        
-        return s;
     }
 
     @Override

@@ -56,7 +56,9 @@ public class XMLMessageOutInterceptorTest extends TestBase {
 
     List<Object> params = new ArrayList<Object>();
 
-    QName bareMyComplexStructQName = new QName(bareNsType, "myComplexStructType");
+    QName bareMyComplexStructTypeQName = new QName(bareNs, "in");
+
+    QName bareMyComplexStructQName = new QName(bareNsType, "myComplexStruct");
 
     QName bareRequestTypeQName = new QName(bareNsType, "requestType");
 
@@ -96,8 +98,9 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         DepthXMLStreamReader dxr = new DepthXMLStreamReader(reader);
         StaxUtils.nextEvent(dxr);
         StaxUtils.toNextElement(dxr);
-        assertEquals(bareMyComplexStructQName.getNamespaceURI(), dxr.getNamespaceURI());
-        assertEquals(bareMyComplexStructQName.getLocalPart(), dxr.getLocalName());
+        
+        assertEquals(bareMyComplexStructTypeQName.getNamespaceURI(), dxr.getNamespaceURI());
+        assertEquals(bareMyComplexStructTypeQName.getLocalPart(), dxr.getLocalName());
         StaxUtils.toNextElement(dxr);
         StaxUtils.toNextText(dxr);
         assertEquals(myComplexStruct.getElem1(), dxr.getText());
@@ -125,10 +128,12 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         DepthXMLStreamReader dxr = new DepthXMLStreamReader(reader);
         StaxUtils.nextEvent(dxr);
         StaxUtils.toNextElement(dxr);
+
         assertEquals(bareNs, dxr.getNamespaceURI());
         assertEquals("multiParamRootReq", dxr.getLocalName());
         StaxUtils.nextEvent(dxr);
         StaxUtils.toNextElement(dxr);
+        
         assertEquals(bareMyComplexStructQName.getNamespaceURI(), dxr.getNamespaceURI());
         assertEquals("myComplexStruct", dxr.getLocalName());
         boolean foundRequest = false;

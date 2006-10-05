@@ -39,7 +39,15 @@ public final class ServiceModelUtil {
     }
     
     public static BindingOperationInfo getOperation(Exchange exchange, String opName) {
-        return getOperation(exchange, new QName(getTargetNamespace(exchange), opName));
+        Endpoint ep = exchange.get(Endpoint.class);
+        BindingInfo service = ep.getEndpointInfo().getBinding();
+        
+        for (BindingOperationInfo b : service.getOperations()) {
+            if (b.getName().getLocalPart().equals(opName)) {
+                return b;
+            }
+        }
+        return null;
     }
 
     public static BindingOperationInfo getOperation(Exchange exchange, QName opName) {

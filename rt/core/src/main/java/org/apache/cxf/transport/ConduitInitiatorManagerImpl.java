@@ -103,7 +103,7 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
             factory = conduitInitiators.get(namespace);
         } 
         if (null == factory) {
-            throw new BusException(new Message("NO_CONDUIT_INITIATOR_EXC", BUNDLE, namespace));
+            throw new BusException(new Message("NO_CONDUIT_INITIATOR", BUNDLE, namespace));
         }
         return factory;
     }

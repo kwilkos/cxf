@@ -21,13 +21,20 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.wsdl.Port;
+import javax.wsdl.extensions.http.HTTPAddress;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -35,9 +42,11 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl11.WSDLEndpointFactory;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 
-public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory {
+public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory, WSDLEndpointFactory {
     
     private Bus bus;
     private Collection<String> activationNamespaces;
@@ -99,5 +108,32 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
             configurer.configureBean(destination);
         }
         return destination;   
+    }
+
+    public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {
+        List ees = port.getExtensibilityElements();
+        for (Iterator itr = ees.iterator(); itr.hasNext();) {
+            Object extensor = itr.next();
+
+            if (extensor instanceof HTTPAddress) {
+                HTTPAddress httpAdd = (HTTPAddress)extensor;
+
+                EndpointInfo info = new EndpointInfo(serviceInfo, "http://schemas.xmlsoap.org/wsdl/http/");
+                info.setAddress(httpAdd.getLocationURI());
+                return info;
+            } else if (extensor instanceof AddressType) {
+                AddressType httpAdd = (AddressType)extensor;
+
+                EndpointInfo info = new EndpointInfo(serviceInfo, "http://schemas.xmlsoap.org/wsdl/http/");
+                info.setAddress(httpAdd.getLocation());
+                return info;
+            }
+        }
+
+        return null;
+    }
+
+    public void createPortExtensors(EndpointInfo ei, Service service) {
+        // TODO
     }
 }

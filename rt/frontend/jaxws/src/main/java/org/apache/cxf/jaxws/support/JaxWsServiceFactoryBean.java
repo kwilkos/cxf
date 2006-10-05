@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -28,20 +27,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.wsdl.WSDLException;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Holder;
 import javax.xml.ws.WebFault;
 
-import org.apache.cxf.BusException;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -49,13 +45,13 @@ import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.transport.ChainInitiationObserver;
 
 public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
-    
-    public static final String MODE_OUT = "messagepart.mode.out";
 
+    public static final String MODE_OUT = "messagepart.mode.out";
     public static final String MODE_INOUT = "messagepart.mode.inout";
+    
+    public static final String HOLDER = "messagepart.isholder";
 
     private JAXBDataBinding dataBinding;
 
@@ -63,115 +59,92 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private JaxWsImplementorInfo jaxWsImplementorInfo;
 
-    private JaxWsMethodDispatcher methodDispatcher = new JaxWsMethodDispatcher();
-
     public JaxWsServiceFactoryBean() {
         jaxWsConfiguration = new JaxWsServiceConfiguration();
         getServiceConfigurations().add(0, jaxWsConfiguration);
     }
-
+    
     public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
         this();
         this.jaxWsImplementorInfo = implInfo;
         this.serviceClass = implInfo.getImplementorClass();
     }
-
-    @Override
-    public Service create() {
-        Service service = super.create();
-
-        service.put(MethodDispatcher.class.getName(), methodDispatcher);
-
-        return service;
-    }
-
+    
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         if (jaxWsImplementorInfo == null) {
             jaxWsImplementorInfo = new JaxWsImplementorInfo(serviceClass);
         }
-
+        
         super.setServiceClass(serviceClass);
     }
 
     @Override
     protected void initializeDefaultInterceptors() {
         super.initializeDefaultInterceptors();
-
+        
         getService().getOutFaultInterceptors().add(new WebFaultOutInterceptor());
     }
 
-    public void activateEndpoints() throws IOException, WSDLException, BusException, EndpointException {
-        Service service = getService();
-
-        for (EndpointInfo ei : service.getServiceInfo().getEndpoints()) {
-            activateEndpoint(service, ei);
-        }
-    }
-
-    public void activateEndpoint(Service service, EndpointInfo ei) throws BusException, WSDLException,
-            IOException, EndpointException {
-        JaxWsEndpointImpl ep = new JaxWsEndpointImpl(getBus(), service, ei);
-        ChainInitiationObserver observer = new ChainInitiationObserver(ep, getBus());
-
-        ServerImpl server = new ServerImpl(getBus(), ep, observer);
-
-        server.start();
+    @Override
+    protected Endpoint createEndpoint(EndpointInfo ei) throws EndpointException  {
+        return new JaxWsEndpointImpl(getBus(), getService(), ei);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = jaxWsConfiguration.getDeclaredMethod(method);
-
+        
         super.initializeWSDLOperation(intf, o, method);
 
-        intializeWrapping(o, method);
-
+        initializeWrapping(o, method);
+        
         try {
             // Find the Async method which returns a Response
-            Method responseMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async",
-                    method.getParameterTypes());
+            Method responseMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async", 
+                                                                              method.getParameterTypes());
 
+            
             // Find the Async method whic has a Future & AsyncResultHandler
             List<Class<?>> asyncHandlerParams = new ArrayList(Arrays.asList(method.getParameterTypes()));
             asyncHandlerParams.add(AsyncHandler.class);
-            Method futureMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async",
-                    asyncHandlerParams.toArray(new Class<?>[asyncHandlerParams.size()]));
+            Method futureMethod = method.getDeclaringClass().getDeclaredMethod(method.getName() + "Async", 
+                asyncHandlerParams.toArray(new Class<?>[asyncHandlerParams.size()]));
 
-            methodDispatcher.bind(o, method, responseMethod, futureMethod);
+            getMethodDispatcher().bind(o, method, responseMethod, futureMethod);
 
         } catch (SecurityException e) {
             throw new ServiceConstructionException(e);
         } catch (NoSuchMethodException e) {
-            methodDispatcher.bind(o, method);
+            getMethodDispatcher().bind(o, method);
         }
-
+        
         // rpc out-message-part-info class mapping
         initalizeClassInfo(o, method);
     }
 
-    void intializeWrapping(OperationInfo o, Method selected) {
+    void initializeWrapping(OperationInfo o, Method selected) {
         Class responseWrapper = getResponseWrapper(selected);
         if (responseWrapper != null) {
             o.getUnwrappedOperation().getOutput().setProperty(WrapperClassOutInterceptor.WRAPPER_CLASS,
-                    responseWrapper);
+                                                              responseWrapper);
         }
         Class<?> requestWrapper = getRequestWrapper(selected);
         if (requestWrapper != null) {
             o.getUnwrappedOperation().getInput().setProperty(WrappedInInterceptor.WRAPPER_CLASS,
-                    requestWrapper);
+                                                             requestWrapper);
         }
     }
 
     @Override
-    protected void initializeDataBindings() {
+    protected void initializeDataBindings() {   
         try {
             dataBinding = new JAXBDataBinding(jaxWsConfiguration.getEndpointClass());
         } catch (JAXBException e) {
             throw new ServiceConstructionException(e);
         }
-
+        
         setDataBinding(dataBinding);
 
         super.initializeDataBindings();
@@ -198,7 +171,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             Object[] paraType = selected.getGenericParameterTypes();
             for (MessagePartInfo mpiIn : o.getInput().getMessageParts()) {
                 // check for sayHi() type no input param method
-                if (para.length > 0) {
+                if (para.length > 0 && !para[inIdx].equals(Holder.class)) {
                     mpiIn.setProperty(Class.class.getName(), para[inIdx]);
                 }
                 if (mpiOut.getName().equals(mpiIn.getName())) {
@@ -254,7 +227,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             i++;
         }
     }
-
+    
     private static Class getHolderClass(ParameterizedType paramType, int idx) {
         if (((Class) paramType.getRawType()).getName().equals("javax.xml.ws.Holder")) {
             Object rawType = paramType.getActualTypeArguments()[0];

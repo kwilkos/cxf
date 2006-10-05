@@ -47,6 +47,14 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
         pname = n;
     }
     
+    public QName getConcreteName() {
+        if (isElement) {
+            return typeName;
+        } else {
+            return pname;
+        }
+    }
+    
     public boolean isElement() { 
         return isElement;
     }

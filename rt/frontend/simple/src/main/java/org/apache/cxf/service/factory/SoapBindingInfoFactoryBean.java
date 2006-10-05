@@ -35,7 +35,7 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     @Override
     public BindingInfo create() {
         ServiceInfo si = getServiceInfo();
-        SoapBindingInfo info = new SoapBindingInfo(si, null, soapVersion);
+        SoapBindingInfo info = new SoapBindingInfo(si, "http://schemas.xmlsoap.org/wsdl/soap/", soapVersion);
         
         info.setName(getBindingName());
         info.setStyle(getStyle());
@@ -48,6 +48,7 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
             
             BindingOperationInfo bop = 
                 info.buildOperation(op.getName(), op.getInputName(), op.getOutputName());
+            
             bop.addExtensor(sop);
             
             info.addOperation(bop);
@@ -76,10 +77,6 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
         ServiceInfo si = getServiceInfo();
         return new QName(si.getName().getNamespaceURI(), 
                          si.getName().getLocalPart() + "SoapBinding");
-    }
-
-    protected ServiceInfo getServiceInfo() {
-        return getServiceFactory().getService().getServiceInfo();
     }
 
     public SoapVersion getSoapVersion() {

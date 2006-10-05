@@ -17,26 +17,21 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.jaxws;
+package org.apache.cxf.jaxws;
 
 import java.net.URL;
 
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
-import org.apache.cxf.test.AbstractCXFTest;
-import org.apache.cxf.transport.ConduitInitiatorManager;
-import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
-public class GreeterTest extends AbstractCXFTest {
+public class GreeterTest extends AbstractJaxWsTest {
 
     private Bus bus;
 
@@ -45,21 +40,6 @@ public class GreeterTest extends AbstractCXFTest {
         super.setUp();
         
         bus = getBus();
-        
-        SoapBindingFactory bindingFactory = new SoapBindingFactory();
-
-        bus.getExtension(BindingFactoryManager.class)
-            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
-
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
-
-        LocalTransportFactory localTransport = new LocalTransportFactory();
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
-
-        ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
-        extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
     }
 
     public void testEndpoint() throws Exception {
@@ -78,7 +58,11 @@ public class GreeterTest extends AbstractCXFTest {
         assertEquals("SOAPService", service.getName().getLocalPart());
         assertEquals("http://apache.org/hello_world_soap_http", service.getName().getNamespaceURI());
 
-        bean.activateEndpoints();
+        ServerFactoryBean svr = new ServerFactoryBean();
+        svr.setBus(bus);
+        svr.setServiceFactory(bean);
+        
+        svr.create();
 
         Node response = invoke("http://localhost:9000/SoapContext/SoapPort",
                            LocalTransportFactory.TRANSPORT_ID,

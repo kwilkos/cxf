@@ -20,41 +20,67 @@
 package org.apache.cxf.binding.soap;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.wsdl.WSDLException;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.wsdl.Port;
 import javax.wsdl.extensions.soap.SOAPAddress;
 
+import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
+
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.ws.addressing.AttributedURIType;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
-public class SoapDestinationFactory implements DestinationFactory {
+public class SoapDestinationFactory implements DestinationFactory, WSDLEndpointFactory {
     private DestinationFactoryManager destinationFactoryManager;
+
+    private Bus bus;
+    private Collection<String> activationNamespaces;
+    
+    public SoapDestinationFactory() {
+        super();
+    }
     
     public SoapDestinationFactory(DestinationFactoryManager destinationFactoyrManager) {
         super();
         this.destinationFactoryManager = destinationFactoyrManager;
     }
 
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @PostConstruct
+    void register() {
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        this.destinationFactoryManager = dfm;
+        if (null != dfm) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
+        }
+    }
+    
     public Destination getDestination(EndpointInfo ei) throws IOException {
-        EndpointReferenceType epr = new EndpointReferenceType();
-        AttributedURIType uri = new AttributedURIType();
-        
-        // TODO: make non wsdl4j specific
-        SOAPAddress add = ei.getExtensor(SOAPAddress.class);
-        uri.setValue(add.getLocationURI());
-        epr.setAddress(uri);
-        
-        SoapBindingInfo binding = (SoapBindingInfo) ei.getBinding();
+        SoapBindingInfo binding = (SoapBindingInfo)ei.getBinding();
         DestinationFactory destinationFactory;
         try {
             destinationFactory = destinationFactoryManager.getDestinationFactory(binding.getTransportURI());
-            
+
             return destinationFactory.getDestination(ei);
         } catch (BusException e) {
             throw new RuntimeException("Could not find destination factory for transport "
@@ -62,16 +88,44 @@ public class SoapDestinationFactory implements DestinationFactory {
         }
     }
 
-    public Destination getDestination(EndpointReferenceType reference) throws WSDLException, IOException {
-        // TODO How do we get actual destination factory??
-        throw new UnsupportedOperationException();
+    public void createPortExtensors(EndpointInfo ei, Service service) {
+        SOAPAddress address = new SOAPAddressImpl();
+        address.setLocationURI(ei.getAddress());
+        address.setRequired(Boolean.TRUE);
+
+        ei.addExtensor(address);
+    }
+
+    public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {
+        List ees = port.getExtensibilityElements();
+        for (Iterator itr = ees.iterator(); itr.hasNext();) {
+            Object extensor = itr.next();
+
+            if (extensor instanceof SOAPAddress) {
+                SOAPAddress sa = (SOAPAddress)extensor;
+
+                SoapBindingInfo sbi = (SoapBindingInfo) b;
+                EndpointInfo info = new EndpointInfo(serviceInfo, sbi.getTransportURI());
+                info.setAddress(sa.getLocationURI());
+                return info;
+            }
+        }
+
+        return null;
     }
 
     public DestinationFactoryManager getDestinationFactoryManager() {
         return destinationFactoryManager;
     }
 
+    @Resource
     public void setDestinationFactoryManager(DestinationFactoryManager destinationFactoryManager) {
         this.destinationFactoryManager = destinationFactoryManager;
     }
+
+    @Resource
+    public void setActivationNamespaces(Collection<String> activationNamespaces) {
+        this.activationNamespaces = activationNamespaces;
+    }
+    
 }

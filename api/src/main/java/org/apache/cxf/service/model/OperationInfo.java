@@ -42,7 +42,6 @@ public class OperationInfo extends AbstractPropertiesHolder {
     String outName;
     MessageInfo outputMessage;
     Map<QName, FaultInfo> faults;
-    
     OperationInfo unwrappedOperation;
     
     public OperationInfo() {
@@ -119,6 +118,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
     public boolean isUnwrappedCapable() {
         return unwrappedOperation != null;
     }
+    
     public OperationInfo getUnwrappedOperation() {
         return unwrappedOperation;
     }

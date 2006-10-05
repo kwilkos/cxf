@@ -46,6 +46,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -65,6 +66,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
     private IMocksControl control;
     private Bus bus;
     private BindingFactoryManager bindingFactoryManager;
+    private DestinationFactoryManager destinationFactoryManager;
     
     public void setUp() throws Exception {
   
@@ -78,6 +80,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
@@ -88,6 +91,9 @@ public class ServiceWSDLBuilderTest extends TestCase {
         }
         
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
+            .andReturn(destinationFactoryManager);
+
         control.replay();
         
         serviceInfo = wsdlServiceBuilder.buildService(def, service);

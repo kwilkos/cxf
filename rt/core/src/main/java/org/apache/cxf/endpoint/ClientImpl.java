@@ -31,6 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
@@ -250,11 +251,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
                     .getConduitInitiator(transportID);
                 initedConduit = ci.getConduit(ei);
             } catch (BusException ex) {
-                // TODO: wrap in runtime exception
-                ex.printStackTrace();
+                throw new Fault(ex);
             } catch (IOException ex) {
-                // TODO: wrap in runtime exception
-                ex.printStackTrace();
+                throw new Fault(ex);
             }
         }
         return initedConduit;

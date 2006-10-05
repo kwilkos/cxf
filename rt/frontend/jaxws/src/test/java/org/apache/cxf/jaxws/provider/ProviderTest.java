@@ -16,40 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws;
+package org.apache.cxf.jaxws.provider;
 
 import org.w3c.dom.Node;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.jaxws.AbstractJaxWsTest;
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.transport.local.LocalTransportFactory;
-import org.apache.header_test.TestHeaderImpl;
 
-public class HeaderTest extends AbstractJaxWsTest {
+public class ProviderTest extends AbstractJaxWsTest {
     public void testInvocation() throws Exception {
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
-
-        Bus bus = getBus();
-        bean.setBus(bus);
-        bean.setServiceClass(TestHeaderImpl.class);
+        EndpointImpl ep = new EndpointImpl(getBus(), new PayloadProvider(), null);
+        ep.publish("http://localhost:9000/Provider");
         
-        bean.create();
-        
-        ServerFactoryBean svr = new ServerFactoryBean();
-        svr.setBus(bus);
-        svr.setServiceFactory(bean);
-        
-        svr.create();
-        
-        Node response = invoke("http://localhost:9104/SoapHeaderContext/SoapHeaderPort",
+        Node response = invoke("http://localhost:9000/Provider",
                                LocalTransportFactory.TRANSPORT_ID, 
-                               "testHeader5.xml");
+                               "/org/apache/cxf/jaxws/sayHi.xml");
 
         assertNotNull(response);
         assertNoFault(response);
 
-        addNamespace("t", "http://apache.org/header_test/types");
-        assertValid("//s:Header/t:testHeader5", response);
+        addNamespace("j", "http://service.jaxws.cxf.apache.org");
+        assertValid("//s:Body/j:sayHi", response);
     }
 }

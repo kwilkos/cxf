@@ -21,6 +21,8 @@ package org.apache.cxf.jaxws;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.mtom_xop.HelloImpl;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ServerFactoryBean;
 
 public class HolderTest extends AbstractJaxWsTest {
     public void testInvocation() throws Exception {
@@ -30,10 +32,15 @@ public class HolderTest extends AbstractJaxWsTest {
         bean.setBus(bus);
         bean.setServiceClass(HelloImpl.class);
         
-        bean.create();
+        Service service = bean.create();
+        service.setInvoker(new JAXWSMethodInvoker(new HelloImpl()));
         
-        bean.activateEndpoints();
-//
+        ServerFactoryBean svr = new ServerFactoryBean();
+        svr.setBus(bus);
+        svr.setServiceFactory(bean);
+        
+        svr.create();
+
 //        Node response = invoke("http://localhost:9036/mime-test",
 //                               LocalTransportFactory.TRANSPORT_ID, 
 //                               "echoData.xml");

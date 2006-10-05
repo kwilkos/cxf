@@ -36,6 +36,7 @@ import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.greeter_control.types.GreetMe;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -90,7 +91,8 @@ public class TestBase extends TestCase {
         service.setDataBinding(new JAXBDataBinding(Greeter.class));
 
         operation = endpointInfo.getBinding().getOperation(new QName(ns, "greetMe"));
-        operation.getOperationInfo().setProperty(WrappedInInterceptor.WRAPPER_CLASS, Boolean.TRUE);
+        operation.getOperationInfo().getUnwrappedOperation()
+            .getInput().setProperty(WrappedInInterceptor.WRAPPER_CLASS, GreetMe.class);
 
         message = new MessageImpl();
         Exchange exchange = new ExchangeImpl();

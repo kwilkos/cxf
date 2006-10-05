@@ -25,6 +25,8 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.interceptor.WrappedInInterceptor;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
@@ -74,6 +76,10 @@ public class XMLMessageInInterceptorTest extends TestBase {
         prepareMessage("/message-wrap.xml");
         common("/wsdl/hello_world_xml_wrapped.wsdl", new QName(ns, "XMLPort"),
                         org.apache.hello_world_xml_http.wrapped.Greeter.class);
+        
+        OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "greetMe"));
+        op.getUnwrappedOperation().getInput().setProperty(WrappedInInterceptor.WRAPPER_CLASS, GreetMe.class);
+        
         in.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);

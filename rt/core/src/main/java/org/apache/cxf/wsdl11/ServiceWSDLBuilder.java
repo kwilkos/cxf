@@ -97,7 +97,9 @@ public final class ServiceWSDLBuilder {
             def.setQName(service.getName());
             def.setTargetNamespace(service.getTargetNamespace());
             addExtensibiltyElements(def, service.getWSDL11Extensors());
-            buildTypes(def, service.getTypeInfo());
+            if (service.getTypeInfo() != null) {
+                buildTypes(def, service.getTypeInfo());
+            }
             buildPortType(def, service.getInterface());
             buildBinding(def, service.getBindings());
             buildService(def, service);
@@ -210,10 +212,15 @@ public final class ServiceWSDLBuilder {
         try {
             portType = intf.getProperty(WSDLServiceBuilder.WSDL_PORTTYPE, PortType.class);
         } catch (ClassCastException e) {
+            // do nothing
+        }
+        
+        if (portType == null) {
             portType = def.createPortType();
             portType.setQName(intf.getName());
             buildPortTypeOperation(def, portType, intf.getOperations());
         }
+
         def.addPortType(portType);
     }
 
@@ -226,6 +233,10 @@ public final class ServiceWSDLBuilder {
                 operation = operationInfo.getProperty(
                     WSDLServiceBuilder.WSDL_OPERATION, Operation.class);
             } catch (ClassCastException e) {
+                // do nothing
+            }
+            
+            if (operation == null) {
                 operation = def.createOperation();
                 operation.setName(operationInfo.getName().getLocalPart());
                 if (operationInfo.isOneWay()) {

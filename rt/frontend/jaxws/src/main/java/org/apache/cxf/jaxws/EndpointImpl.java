@@ -19,14 +19,11 @@
 
 package org.apache.cxf.jaxws;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.validation.Schema;
 import javax.xml.ws.Binding;
@@ -35,17 +32,15 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusException;
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
-import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
-//import org.apache.cxf.jaxws.javaee.HandlerChainType;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -54,27 +49,22 @@ import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.ChainInitiationObserver;
-import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServerFactoryBean;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
-
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
-    private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     protected boolean doInit;
 
     private Bus bus;
-    // private String bindingURI;
     private Object implementor;
-    private ServerImpl server;
+    private Server server;
     private Service service;
-    private JaxWsEndpointImpl endpoint;
     private JaxWsImplementorInfo implInfo;
-
+    private ReflectionServiceFactoryBean serviceFactory;
+    
     @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;
@@ -82,8 +72,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         // bindingURI = uri;
         // build up the Service model
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
-
-        AbstractServiceFactoryBean serviceFactory;
+        
         if (implInfo.isWebServiceProvider()) {
             serviceFactory = new ProviderServiceFactoryBean(implInfo);
         } else {
@@ -92,46 +81,31 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         serviceFactory.setBus(bus);
         service = serviceFactory.create();
         configureObject(service);
-
-        // create the endpoint       
-        QName endpointName = implInfo.getEndpointName();
-        EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-        if (ei == null) {
-            throw new NullPointerException("Could not find endpoint " + endpointName + " in Service.");
-        }
-
+ 
         // revisit: should get enableSchemaValidation from configuration
         if (false) {
             addSchemaValidation();
         }
-
+        
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
         } else {
             service.setInvoker(new JAXWSMethodInvoker(i));
         }
-
-        //      TODO: use bindigURI     
-        try {
-            endpoint = new JaxWsEndpointImpl(bus, service, ei);
-        } catch (EndpointException e) {
-            throw new WebServiceException(e);
-        }
-        configureObject(endpoint);
-
+        
         doInit = true;
     }
 
     public Binding getBinding() {
-        return endpoint.getJaxwsBinding();
+        return ((JaxWsEndpointImpl) getEndpoint()).getJaxwsBinding();
     }
 
     public void setExecutor(Executor executor) {
-        server.getEndpoint().getService().setExecutor(executor);
+        service.setExecutor(executor);
     }
 
     public Executor getExecutor() {
-        return server.getEndpoint().getService().getExecutor();
+        return service.getExecutor();
     }
 
     @Override
@@ -186,8 +160,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
     public ServerImpl getServer() {
-        return server;
+        return (ServerImpl) server;
     }
+    
 
     /**
      * inject resources into servant.  The resources are injected
@@ -209,47 +184,43 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
     protected void doPublish(String address) {
+        ServerFactoryBean svrFactory = new ServerFactoryBean();
+        svrFactory.setBus(bus);
+        svrFactory.setAddress(address);
+        svrFactory.setServiceFactory(serviceFactory);
+        svrFactory.setTransportId("http://schemas.xmlsoap.org/wsdl/soap/");
+        svrFactory.setStart(false);
+        
+        server = svrFactory.create();
+
         init();
-
-        if (null != address) {
-            endpoint.getEndpointInfo().setAddress(address);
+        
+        if (implInfo.isWebServiceProvider()) {
+            getServer().setMessageObserver(new ProviderChainObserver(getEndpoint(), bus, implInfo));
         }
-
-        try {
-            MessageObserver observer;
-            if (implInfo.isWebServiceProvider()) {
-                observer = new ProviderChainObserver(endpoint, bus, implInfo);
-            } else {
-                observer = new ChainInitiationObserver(endpoint, bus);
-            }
-
-            server = new ServerImpl(bus, endpoint, observer);
-            server.start();
-        } catch (BusException ex) {
-            throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
-        } catch (IOException ex) {
-            throw new WebServiceException(BUNDLE.getString("FAILED_TO_PUBLISH_ENDPOINT_EXC"), ex);
-        }
+        configureObject(getEndpoint());
+        
+        server.start();
     }
-
+    
     org.apache.cxf.endpoint.Endpoint getEndpoint() {
-        return endpoint;
+        return ((ServerImpl)getServer()).getEndpoint();
     }
-
+    
     private void configureObject(Object instance) {
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(instance);
         }
     }
-
+    
     private void addSchemaValidation() {
         Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
-
+        
         if (service.getDataBinding().getDataReaderFactory() instanceof JAXBDataReaderFactory) {
             ((JAXBDataReaderFactory)service.getDataBinding().getDataReaderFactory()).setSchema(schema);
         }
-
+        
         if (service.getDataBinding().getDataWriterFactory() instanceof JAXBDataWriterFactory) {
             ((JAXBDataWriterFactory)service.getDataBinding().getDataWriterFactory()).setSchema(schema);
         }
@@ -260,18 +231,16 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             try {
                 injectResources(implementor);
                 configureHandlers();
-
             } catch (Exception ex) {
-                ex.printStackTrace();
-                if (ex instanceof WebServiceException) {
-                    throw (WebServiceException)ex;
+                if (ex instanceof WebServiceException) { 
+                    throw (WebServiceException)ex; 
                 }
                 throw new WebServiceException("Creation of Endpoint failed", ex);
             }
         }
         doInit = false;
     }
-
+    
     /**
      * Obtain handler chain from configuration first. If none is specified,
      * default to the chain configured in the code, i.e. in annotations.

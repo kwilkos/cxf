@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 
@@ -60,6 +61,11 @@ public class WebServiceProviderConfiguration extends AbstractServiceConfiguratio
             return wsProvider.targetNamespace();
         }
         return null;
+    }
+
+    @Override
+    public QName getEndpointName() {
+        return implInfo.getEndpointName();
     }
 
     @Override

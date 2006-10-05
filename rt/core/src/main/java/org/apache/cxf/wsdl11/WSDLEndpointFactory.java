@@ -16,28 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.wsdl11;
 
+import javax.wsdl.Port;
+
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 /**
- * An AbstractBindingFactory builds a binding for a Service.
+ * A factory to create an internal {@link EndpointInfo} from a WSDL4J {@link Port}.
  */
-public abstract class AbstractBindingInfoFactoryBean {
-    private AbstractServiceFactoryBean serviceFactory;
+public interface WSDLEndpointFactory {
+    EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port);
     
-    public abstract BindingInfo create();
-
-    public void setServiceFactory(AbstractServiceFactoryBean serviceFactory) {
-        this.serviceFactory = serviceFactory;
-    }
-
-    public AbstractServiceFactoryBean getServiceFactory() {
-        return serviceFactory;
-    }
-
-    protected ServiceInfo getServiceInfo() {
-        return getServiceFactory().getService().getServiceInfo();
-    }
+    void createPortExtensors(EndpointInfo ei, Service service);
 }

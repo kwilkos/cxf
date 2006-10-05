@@ -19,29 +19,64 @@
 package org.apache.cxf.service.factory;
 
 import java.util.List;
+import java.util.Map;
 
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.local.LocalTransportFactory;
 
 public class ReflectionServiceFactoryTest extends AbstractCXFTest {
-    public void testReflectionBuilding() throws Exception {
-        ReflectionServiceFactoryBean sf = new ReflectionServiceFactoryBean();
-        sf.setDataBinding(new JAXBDataBinding(HelloService.class));
-        sf.setBus(getBus());
-        sf.setServiceClass(HelloService.class);
+    private ReflectionServiceFactoryBean serviceFactory;
+
+    public void setUp() throws Exception {
+        super.setUp();
         
-        Service service = sf.create();
+        Bus bus = getBus();
+        
+        SoapBindingFactory bindingFactory = new SoapBindingFactory();
+
+        bus.getExtension(BindingFactoryManager.class)
+            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
+
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
+
+        LocalTransportFactory localTransport = new LocalTransportFactory();
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
+
+        ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
+        extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
+    }
+
+    public void testReflectionBuild() throws Exception {
+        Service service = createService();
         
         ServiceInfo si = service.getServiceInfo();
         InterfaceInfo intf = si.getInterface();
@@ -52,16 +87,64 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         OperationInfo sayHelloOp = intf.getOperation(new QName(ns, "sayHello"));
         assertNotNull(sayHelloOp);
         
+        assertEquals("sayHello", sayHelloOp.getInput().getName().getLocalPart());
+        
         List<MessagePartInfo> messageParts = sayHelloOp.getInput().getMessageParts();
+        assertEquals(1, messageParts.size());
+        
+        // test unwrapping
+        assertTrue(sayHelloOp.isUnwrappedCapable());
+        
+        OperationInfo unwrappedOp = sayHelloOp.getUnwrappedOperation();
+        assertEquals("sayHello", unwrappedOp.getInput().getName().getLocalPart());
+        
+        messageParts = unwrappedOp.getInput().getMessageParts();
         assertEquals(0, messageParts.size());
         
+        // test output
         messageParts = sayHelloOp.getOutput().getMessageParts();
+        assertEquals(1, messageParts.size());
+        assertEquals("sayHelloResponse", sayHelloOp.getOutput().getName().getLocalPart());
+        
+        messageParts = unwrappedOp.getOutput().getMessageParts();
+        assertEquals("sayHelloResponse", unwrappedOp.getOutput().getName().getLocalPart());
         assertEquals(1, messageParts.size());
         MessagePartInfo mpi = messageParts.get(0);
         assertEquals("out", mpi.getName().getLocalPart());
         assertEquals(String.class, mpi.getProperty(Class.class.getName()));
+    }
+
+    private Service createService() throws JAXBException {
+        serviceFactory = new ReflectionServiceFactoryBean();
+        serviceFactory.setDataBinding(new JAXBDataBinding(HelloService.class));
+        serviceFactory.setBus(getBus());
+        serviceFactory.setServiceClass(HelloService.class);
         
-        BindingInfo b = si.getBindings().iterator().next();
+        Service service = serviceFactory.create();
+        return service;
+    }
+    
+    public void testServerFactoryBean() throws Exception {
+        Service service = createService();
+        
+        ServerFactoryBean svrBean = new ServerFactoryBean();
+        svrBean.setAddress("http://localhost/Hello");
+        svrBean.setTransportId("http://schemas.xmlsoap.org/soap/");
+        svrBean.setServiceFactory(serviceFactory);
+        svrBean.setBus(getBus());
+        
+        Server server = svrBean.create();
+        assertNotNull(server);
+        Map<QName, Endpoint> eps = service.getEndpoints();
+        assertEquals(1, eps.size());
+        
+        Endpoint ep = eps.values().iterator().next();
+        EndpointInfo endpointInfo = ep.getEndpointInfo();
+        
+        SOAPAddress soapAddress = endpointInfo.getExtensor(SOAPAddress.class);
+        assertNotNull(soapAddress);
+        
+        BindingInfo b = service.getServiceInfo().getBindings().iterator().next();
         
         assertTrue(b instanceof SoapBindingInfo);
         

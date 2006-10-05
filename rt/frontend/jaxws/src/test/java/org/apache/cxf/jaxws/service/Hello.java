@@ -16,28 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.jaxws.service;
 
-import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.ServiceInfo;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
 
-/**
- * An AbstractBindingFactory builds a binding for a Service.
- */
-public abstract class AbstractBindingInfoFactoryBean {
-    private AbstractServiceFactoryBean serviceFactory;
-    
-    public abstract BindingInfo create();
+@WebService
+public class Hello {
 
-    public void setServiceFactory(AbstractServiceFactoryBean serviceFactory) {
-        this.serviceFactory = serviceFactory;
-    }
-
-    public AbstractServiceFactoryBean getServiceFactory() {
-        return serviceFactory;
-    }
-
-    protected ServiceInfo getServiceInfo() {
-        return getServiceFactory().getService().getServiceInfo();
+    @WebMethod
+    public String sayHi(String text) {
+        return text;
     }
 }

@@ -78,7 +78,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public String getServiceName() {
         WebService ws = getConcreteWebServiceAttribute();
-        if (ws != null) {
+        if (ws != null && ws.serviceName().length() > 0) {
             return ws.serviceName();
         }
 
@@ -88,11 +88,16 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public String getServiceNamespace() {
         WebService ws = getConcreteWebServiceAttribute();
-        if (ws != null) {
+        if (ws != null && ws.targetNamespace().length() > 0) {
             return ws.targetNamespace();
         }
 
         return null;
+    }
+
+    @Override
+    public QName getEndpointName() {
+        return implInfo.getEndpointName();
     }
 
     @Override
@@ -117,17 +122,17 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getOperationName(InterfaceInfo service, Method method) {
+    public QName getOperationName(InterfaceInfo intf, Method method) {
         method = getDeclaredMethod(method);
 
         WebMethod wm = method.getAnnotation(WebMethod.class);
         if (wm != null) {
             String name = wm.operationName();
-            if (name == null) {
+            if (name.length() == 0) {
                 name = method.getName();
             }
 
-            return new QName(service.getName().getNamespaceURI(), name);
+            return new QName(intf.getName().getNamespaceURI(), name);
         }
 
         return null;
@@ -165,7 +170,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
         return method;
     }
-
+    
     @Override
     public Class getResponseWrapper(Method selected) {
         Method m = getDeclaredMethod(selected);

@@ -43,7 +43,6 @@ import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
-import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
@@ -65,6 +64,8 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -83,8 +84,7 @@ public class WSDLServiceBuilder {
     public static final String WSDL_PORTTYPE = WSDLServiceBuilder.class.getName() + ".WSDL_PORTTYPE";
     public static final String WSDL_PORT = WSDLServiceBuilder.class.getName() + ".PORT";
     public static final String WSDL_BINDING = WSDLServiceBuilder.class.getName() + ".BINDING";
-    
-    
+
     public static final String WSDL_OPERATION = WSDLServiceBuilder.class.getName() + ".OPERATION";
     public static final String WSDL_BINDING_OPERATION = WSDLServiceBuilder.class.getName()
                                                         + ".BINDING_OPERATION";
@@ -106,10 +106,10 @@ public class WSDLServiceBuilder {
 
     public ServiceInfo buildService(Definition d, QName name) {
         Service service = d.getService(name);
-        
+
         return buildService(d, service);
     }
-    
+
     public ServiceInfo buildService(Definition def, Service serv) {
         ServiceInfo service = new ServiceInfo();
         service.setProperty(WSDL_DEFINITION, def);
@@ -169,8 +169,7 @@ public class WSDLServiceBuilder {
             defList.add(impt.getDefinition());
         }
     }
-    
- 
+
     private void extractSchema(Definition def, XmlSchemaCollection schemaCol, TypeInfo typeInfo) {
         Types typesElement = def.getTypes();
         if (typesElement != null) {
@@ -191,20 +190,37 @@ public class WSDLServiceBuilder {
                     SchemaInfo schemaInfo = new SchemaInfo(typeInfo, xmlSchema.getTargetNamespace());
                     schemaInfo.setElement(schemaElem);
                     typeInfo.addSchema(schemaInfo);
-                    
+
                 }
             }
         }
-        
+
     }
 
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {
         String ns = ((ExtensibilityElement)port.getExtensibilityElements().get(0)).getElementType()
             .getNamespaceURI();
-        EndpointInfo ei = new EndpointInfo(service, ns);
+        EndpointInfo ei = null;
+
+        try {
+            DestinationFactory factory = bus.getExtension(DestinationFactoryManager.class)
+                .getDestinationFactory(ns);
+            if (factory instanceof WSDLEndpointFactory) {
+                WSDLEndpointFactory wFactory = (WSDLEndpointFactory)factory;
+                ei = wFactory.createEndpointInfo(service, bi, port);
+            }
+        } catch (BusException e) {
+            // do nothing
+        }
+
+        if (ei == null) {
+            ei = new EndpointInfo(service, ns);
+        }
+
         ei.setName(new QName(service.getName().getNamespaceURI(), port.getName()));
         ei.setBinding(bi);
         copyExtensors(ei, port.getExtensibilityElements());
+
         service.addEndpoint(ei);
         return ei;
     }
@@ -264,20 +280,20 @@ public class WSDLServiceBuilder {
         service.addBinding(bi);
         return bi;
     }
-    
+
     private void handleHeader(BindingMessageInfo bindingMessageInfo) {
-        //mark all message part which should be in header
+        // mark all message part which should be in header
         List<ExtensibilityElement> extensiblilityElement = bindingMessageInfo.getWSDL11Extensors();
-        //for non-soap binding, the extensiblilityElement could be null
+        // for non-soap binding, the extensiblilityElement could be null
         if (extensiblilityElement == null) {
             return;
         }
-        for (ExtensibilityElement element : extensiblilityElement) {
-            LOG.info("the extensibility is " + element.getClass().getName());
-            if (element instanceof SOAPHeader) {
-                LOG.info("the header is " + ((SOAPHeader)element).getPart());
-            }
-        }
+//        for (ExtensibilityElement element : extensiblilityElement) {
+//            LOG.info("the extensibility is " + element.getClass().getName());
+//            if (element instanceof SOAPHeader) {
+//                LOG.info("the header is " + ((SOAPHeader)element).getPart());
+//            }
+//        }
     }
 
     public void buildInterface(ServiceInfo si, PortType p) {
@@ -400,7 +416,7 @@ public class WSDLServiceBuilder {
         
         if (outputMessage != null) {
             unwrappedOutput = new MessageInfo(opInfo, outputMessage.getName());
-            
+
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
                 if (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedOutput)) {
@@ -475,6 +491,5 @@ public class WSDLServiceBuilder {
             }
         }
     }
-
 
 }

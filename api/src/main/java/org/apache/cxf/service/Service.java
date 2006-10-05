@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -46,4 +47,6 @@ public interface Service extends Map<String, Object>, InterceptorProvider {
     Invoker getInvoker();
     
     void setInvoker(Invoker invoker);
+    
+    Map<QName, Endpoint> getEndpoints();
 }

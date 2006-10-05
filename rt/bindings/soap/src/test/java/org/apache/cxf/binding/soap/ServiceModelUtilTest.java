@@ -38,9 +38,12 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+
+import static org.easymock.EasyMock.expect;
 
 public class ServiceModelUtilTest extends TestCase {
     private static final String WSDL_PATH = "test-soap-header.wsdl";
@@ -73,6 +76,9 @@ public class ServiceModelUtilTest extends TestCase {
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
+        expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
 
         control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);

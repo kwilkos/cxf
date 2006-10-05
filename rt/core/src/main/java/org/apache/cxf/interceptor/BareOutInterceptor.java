@@ -20,15 +20,12 @@
 package org.apache.cxf.interceptor;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
@@ -76,8 +73,8 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                         //this part should be in header, should donot write to soap body
                         continue;
                     }
-                    QName elName = ServiceModelUtil.getPartName(part);
-                    dataWriter.write(arg, elName, message);
+                    
+                    dataWriter.write(arg, part.getConcreteName(), message);
                 }
             }
         }

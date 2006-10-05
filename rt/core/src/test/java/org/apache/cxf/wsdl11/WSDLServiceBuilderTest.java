@@ -42,6 +42,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -58,15 +59,12 @@ public class WSDLServiceBuilderTest extends TestCase {
     private IMocksControl control;
     private Bus bus;
     private BindingFactoryManager bindingFactoryManager;
+    private DestinationFactoryManager destinationFactoryManager;
 
     public void setUp() throws Exception {
         setUpWSDL(WSDL_PATH);
     }
 
-    public void tearDown() throws Exception {
-        
-    }
-    
     private void setUpWSDL(String wsdl) throws Exception {
         String wsdlUrl = getClass().getResource(wsdl).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
@@ -86,12 +84,19 @@ public class WSDLServiceBuilderTest extends TestCase {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);
         bindingFactoryManager = control.createMock(BindingFactoryManager.class);
+        destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
+            .andReturn(destinationFactoryManager);
 
         control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
+
+    }
+
+    public void tearDown() throws Exception {
         control.verify();
     }
 
@@ -136,7 +141,7 @@ public class WSDLServiceBuilderTest extends TestCase {
 
         assertTrue("greatMe should be wrapped", greetMe.isUnwrappedCapable());
         OperationInfo greetMeUnwrapped = greetMe.getUnwrappedOperation();
-        
+
         assertNotNull(greetMeUnwrapped.getInput());
         assertNotNull(greetMeUnwrapped.getOutput());
         assertEquals("wrapped part not set", 1, greetMeUnwrapped.getInput().size());
@@ -150,9 +155,6 @@ public class WSDLServiceBuilderTest extends TestCase {
             .getMessagePartByIndex(0).getName().getLocalPart());
         assertEquals("wrapper part type name wrong", "string", greetMeUnwrapped.getOutput()
             .getMessagePartByIndex(0).getTypeQName().getLocalPart());
-        
-        
-        
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
         OperationInfo greetMeOneWay = serviceInfo.getInterface().getOperation(name);
@@ -167,7 +169,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(greetMeOneWayUnwrapped.getInput());
         assertNull(greetMeOneWayUnwrapped.getOutput());
         assertEquals("wrapped part not set", 1, greetMeOneWayUnwrapped.getInput().size());
-        
+
         name = new QName(serviceInfo.getName().getNamespaceURI(), "pingMe");
         OperationInfo pingMe = serviceInfo.getInterface().getOperation(name);
         assertNotNull(pingMe);
@@ -273,11 +275,10 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(elementName.getLocalPart(), "faultDetail");
         assertEquals(elementName.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types");
     }
-    
- 
+
     public void testSchema() {
-        XmlSchemaCollection schemas = 
-            serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, XmlSchemaCollection.class);
+        XmlSchemaCollection schemas = serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST,
+                                                              XmlSchemaCollection.class);
         assertNotNull(schemas);
         TypeInfo typeInfo = serviceInfo.getTypeInfo();
         assertNotNull(typeInfo);
@@ -288,7 +289,6 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(schemas.read(schemaInfo.getElement()).getTargetNamespace(),
                      "http://apache.org/hello_world_soap_http/types");
     }
-    
     public void testBare() throws Exception {
         setUpWSDL(BARE_WSDL_PATH);
         BindingInfo bindingInfo = null;
@@ -305,5 +305,3 @@ public class WSDLServiceBuilderTest extends TestCase {
     }
 
 }
-
-

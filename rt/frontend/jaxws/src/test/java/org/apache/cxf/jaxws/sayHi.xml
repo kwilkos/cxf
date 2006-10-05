@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -17,13 +16,11 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<extensions xmlns="http://cxf.apache.org/bus/extension">
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap:Body>
+	<sayHi xmlns="http://service.jaxws.cxf.apache.org">
+		<text>hi</text>
+	</sayHi>
+	</soap:Body>
 
-    <extension class="org.apache.cxf.transport.http.HTTPTransportFactory" deferred="true">
-        <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
-        <namespace>http://schemas.xmlsoap.org/soap/http</namespace>
-        <namespace>http://schemas.xmlsoap.org/wsdl/http/</namespace>
-        <namespace>http://cxf.apache.org/transports/http/configuration</namespace>
-        <namespace>http://cxf.apache.org/bindings/xformat</namespace>
-    </extension>
-</extensions>
+</soap:Envelope>
