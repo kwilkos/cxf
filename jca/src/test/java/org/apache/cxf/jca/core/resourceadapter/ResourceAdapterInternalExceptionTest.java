@@ -18,18 +18,33 @@
  */
 package org.apache.cxf.jca.core.resourceadapter;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 public class ResourceAdapterInternalExceptionTest extends TestCase {
+    private static final Logger EXCEPTION_LOGGER = 
+        Logger.getLogger(ResourceAdapterInternalException.class.getName());
+    private Level logLevel;  
 
     public ResourceAdapterInternalExceptionTest(String name) {
         super(name);
     }
 
     public static Test suite() {
-        return new TestSuite(ResourceAdapterInternalExceptionTest.class);
+        return new TestSuite(ResourceAdapterInternalExceptionTest.class);        
+    }
+    
+    public void setUp() throws Exception { 
+        logLevel = EXCEPTION_LOGGER.getLevel();
+        EXCEPTION_LOGGER.setLevel(Level.SEVERE);
+    } 
+    
+    public void tearDown() throws Exception {
+        EXCEPTION_LOGGER.setLevel(logLevel);
     }
     
     public void testMessage() {

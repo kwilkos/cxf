@@ -72,11 +72,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         chain.add(out);
         prepareMessage(params);
     }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+   
     public void testBareOutSingle() throws Exception {
 
         MyComplexStructType myComplexStruct = new MyComplexStructType();

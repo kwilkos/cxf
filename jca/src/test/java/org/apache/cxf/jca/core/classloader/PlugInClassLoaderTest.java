@@ -22,6 +22,7 @@ package org.apache.cxf.jca.core.classloader;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.ProtectionDomain;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import junit.framework.Test;
@@ -32,8 +33,9 @@ import junit.textui.TestRunner;
 
 public class PlugInClassLoaderTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(PlugInClassLoaderTest.class.getName());
+    private static boolean debug;
     PlugInClassLoader plugInClassLoader;
-
+   
     public PlugInClassLoaderTest(String name) {
         super(name);
     }
@@ -48,6 +50,11 @@ public class PlugInClassLoaderTest extends TestCase {
 
     public void setUp() throws Exception {
         plugInClassLoader = new PlugInClassLoader(getClass().getClassLoader());
+        if (debug) {
+            LOG.setLevel(Level.INFO);
+        } else {
+            LOG.setLevel(Level.WARNING);
+        }
     }
 
     public void testLoadClassWithPlugInClassLoader() throws Exception {

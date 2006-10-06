@@ -41,10 +41,6 @@ public class XMLMessageInInterceptorTest extends TestBase {
         chain.add(in);
     }
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testHandleMessageOnBareMultiParam() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-multi-param.xml");

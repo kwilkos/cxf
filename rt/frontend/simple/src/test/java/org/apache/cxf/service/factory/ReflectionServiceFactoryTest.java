@@ -120,8 +120,7 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         serviceFactory.setBus(getBus());
         serviceFactory.setServiceClass(HelloService.class);
         
-        Service service = serviceFactory.create();
-        return service;
+        return serviceFactory.create();        
     }
     
     public void testServerFactoryBean() throws Exception {

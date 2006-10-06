@@ -40,10 +40,6 @@ public class ServerAppTest extends TestCase {
         emptyFile = getClass().getResource("empty/empty.js").getFile();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     private ServerApp createServerApp() {
         return new ServerApp() {
                 protected ProviderFactory createProviderFactory() {
