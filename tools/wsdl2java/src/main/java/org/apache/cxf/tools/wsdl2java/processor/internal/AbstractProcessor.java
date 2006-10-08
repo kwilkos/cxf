@@ -41,5 +41,4 @@ public abstract class AbstractProcessor {
         dataBinder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
         
     }
-
 }

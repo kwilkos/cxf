@@ -86,6 +86,26 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
         assertTrue("Should generate 1 file", files != null && files.length == 1);
 
     }
+    
+    public void testGenDocLitBare() throws Exception {
+
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/doc_lit_bare.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+        File file = new File(output.getCanonicalPath() + "/org/apache/hello_world_doc_lit_bare/");
+        File[] files = file.listFiles(new java.io.FileFilter() {
+            public boolean accept(File pathname) {
+                if (pathname.getName().endsWith(".java")) {
+                    return true;
+                }
+                return false;
+
+            }
+        });
+        assertTrue("Should generate 2 files", files != null && files.length == 2);
+
+    }
+    
 
     private String getLocation(String wsdlFile) {
         return WSDLToJavaClientServerTest.class.getResource(wsdlFile).getFile();

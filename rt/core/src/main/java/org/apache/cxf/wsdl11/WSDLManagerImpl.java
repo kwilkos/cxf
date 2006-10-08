@@ -141,8 +141,8 @@ public class WSDLManagerImpl implements WSDLManager {
         }
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
-        reader.setExtensionRegistry(registry);
-        Definition def = reader.readWSDL(null, el);
+        reader.setExtensionRegistry(registry);       
+        Definition def = reader.readWSDL("", el);
         synchronized (definitionsMap) {
             definitionsMap.put(el, def);
         }

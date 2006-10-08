@@ -54,10 +54,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         init();
 
         //Generate type classes for specified databinding
-        if (isSOAP12Binding(wsdlDefinition)) {
-            Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
-            throw new ToolException(msg);
-        }
         generateTypes();
 
         //Generate client, server and service stub codeS for specified profile
@@ -81,10 +77,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         validateWSDL(def);
         parseCustomization(def);
         env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
-        if (isSOAP12Binding(def)) {
-            Message msg = new Message("SOAP12_UNSUPPORTED", LOG);
-            throw new ToolException(msg);
-        }
 
         //Generate client, server and service stub code for specified profile
         registerGenerators();
@@ -341,17 +333,5 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             Message msg = new Message("FAIL_TO_COPY_GENERATED_RESOURCE_FILE", LOG);
             throw new ToolException(msg, e);
         }
-    }
-
-    private boolean isSOAP12Binding(Definition def) {
-        String namespace = "";
-        for (Iterator ite = def.getNamespaces().values().iterator(); ite.hasNext();) {
-            namespace = (String)ite.next();
-            if (namespace != null
-                && namespace.toLowerCase().indexOf("http://schemas.xmlsoap.org/wsdl/soap12") >= 0) {
-                return true;
-            }
-        }
-        return false;
     }
 }

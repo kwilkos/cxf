@@ -51,7 +51,6 @@ import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.model.Model;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
@@ -61,6 +60,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdl2java.databindings.jaxb.JAXBBindingGenerator;
@@ -152,7 +152,7 @@ public class WSDLToProcessor implements Processor {
         } catch (WSDLException we) {
             org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION",
-                                                             LOG);
+                                                             LOG, wsdlURL);
             throw new ToolException(msg, we);
         }
 
@@ -421,24 +421,23 @@ public class WSDLToProcessor implements Processor {
     }
 
     private boolean isRPCEncoded(Definition def) {
-        WSDLHelper whelper = new WSDLHelper();
         Iterator ite1 = def.getBindings().values().iterator();
         while (ite1.hasNext()) {
             Binding binding = (Binding)ite1.next();
-            String bindingStyle = whelper.getBindingStyle(binding);
+            String bindingStyle = SOAPBindingUtil.getBindingStyle(binding);
 
             Iterator ite2 = binding.getBindingOperations().iterator();
             while (ite2.hasNext()) {
                 BindingOperation bop = (BindingOperation)ite2.next();
-                String bopStyle = whelper.getSOAPOperationStyle(bop);
+                String bopStyle = SOAPBindingUtil.getSOAPOperationStyle(bop);
 
                 String outputUse = "";
-                if (whelper.getBindingOutputSOAPBody(bop) != null) {
-                    outputUse = whelper.getBindingOutputSOAPBody(bop).getUse();
+                if (SOAPBindingUtil.getBindingOutputSOAPBody(bop) != null) {
+                    outputUse = SOAPBindingUtil.getBindingOutputSOAPBody(bop).getUse();
                 }
                 String inputUse = "";
-                if (whelper.getBindingInputSOAPBody(bop) != null) {
-                    inputUse = whelper.getBindingInputSOAPBody(bop).getUse();
+                if (SOAPBindingUtil.getBindingInputSOAPBody(bop) != null) {
+                    inputUse = SOAPBindingUtil.getBindingInputSOAPBody(bop).getUse();
                 }
                 if ((SOAPBinding.Style.RPC.name().equalsIgnoreCase(bindingStyle) || SOAPBinding.Style.RPC
                     .name().equalsIgnoreCase(bopStyle))

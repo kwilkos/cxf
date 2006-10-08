@@ -124,7 +124,7 @@ public class AbstractWSDLToProcessor implements Processor, com.sun.tools.xjc.api
             buildWSDLDefinition();
         } catch (WSDLException we) {
             org.apache.cxf.common.i18n.Message msg =
-                new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG);
+                new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG, wsdlURL);
             throw new ToolException(msg, we);
         }
 

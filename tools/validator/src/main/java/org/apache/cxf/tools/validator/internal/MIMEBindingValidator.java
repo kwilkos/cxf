@@ -30,7 +30,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.mime.MIMEContent;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
-import javax.wsdl.extensions.soap.SOAPBody;
+
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class MIMEBindingValidator
     extends AbstractValidator {
@@ -71,7 +72,7 @@ public class MIMEBindingValidator
             Iterator extns = mPart.getExtensibilityElements().iterator();
             while (extns.hasNext()) {
                 ExtensibilityElement extElement = (ExtensibilityElement)extns.next();
-                if (extElement instanceof SOAPBody) {
+                if (SOAPBindingUtil.isSOAPBody(extElement)) {
                     if (gotRootPart) {
                         addErrorMessage("Operation("
                                         + operationName

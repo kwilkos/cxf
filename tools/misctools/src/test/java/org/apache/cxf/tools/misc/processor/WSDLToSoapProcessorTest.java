@@ -26,16 +26,16 @@ import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPFault;
-import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
+import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.misc.WSDLToSoap;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 
 public class WSDLToSoapProcessorTest extends ProcessorTestBase {
@@ -68,8 +68,9 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             boolean found = false;
             while (it.hasNext()) {
                 Object obj = it.next();
-                if (obj instanceof SOAPBinding 
-                    && ((SOAPBinding)obj).getStyle().equalsIgnoreCase("document")) {
+                SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
+                if (soapBinding != null 
+                    && soapBinding.getStyle().equalsIgnoreCase("document")) {
                     found = true;
                     break;
                 }
@@ -85,8 +86,9 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             found = false;
             while (it.hasNext()) {
                 Object obj = it.next();
-                if (obj instanceof SOAPOperation
-                    && ((SOAPOperation)obj).getStyle().equalsIgnoreCase("document")) {
+                SoapOperation soapOperation = SOAPBindingUtil.getSoapOperation(obj);
+                if (soapOperation != null
+                    && soapOperation.getStyle().equalsIgnoreCase("document")) {
                     found = true;
                     break;
                 }
@@ -102,7 +104,7 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             found = false;
             while (it.hasNext()) {
                 Object obj = it.next();
-                if (obj instanceof SOAPFault) {
+                if (SOAPBindingUtil.isSOAPFault(obj)) {
                     found = true;
                     break;
                 }
@@ -142,7 +144,8 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             boolean found = false;
             while (it.hasNext()) {
                 Object obj = it.next();
-                if (obj instanceof SOAPBinding && ((SOAPBinding)obj).getStyle().equalsIgnoreCase("rpc")) {
+                SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
+                if (soapBinding != null && soapBinding.getStyle().equalsIgnoreCase("rpc")) {
                     found = true;
                     break;
 
@@ -159,7 +162,8 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             found = false;
             while (it.hasNext()) {
                 Object obj = it.next();
-                if (obj instanceof SOAPOperation && ((SOAPOperation)obj).getStyle().equalsIgnoreCase("rpc")) {
+                SoapOperation soapOperation = SOAPBindingUtil.getSoapOperation(obj);
+                if (soapOperation != null && soapOperation.getStyle().equalsIgnoreCase("rpc")) {
                     found = true;
                     break;
                 }
@@ -172,7 +176,8 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
             found = false;
             while (it.hasNext()) {
                 Object obj = it.next();
-                if (obj instanceof SOAPBody && ((SOAPBody)obj).getUse().equalsIgnoreCase("literal")) {
+                SoapBody soapBody = SOAPBindingUtil.getSoapBody(obj);
+                if (soapBody != null && soapBody.getUse().equalsIgnoreCase("literal")) {
                     found = true;
                     break;
                 }

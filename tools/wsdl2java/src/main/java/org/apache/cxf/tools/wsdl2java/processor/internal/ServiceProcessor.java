@@ -39,11 +39,7 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.http.HTTPAddress;
 import javax.wsdl.extensions.http.HTTPBinding;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPHeader;
-import javax.wsdl.extensions.soap.SOAPOperation;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.logging.LogUtils;
@@ -53,6 +49,11 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.extensions.jaxws.CustomizationParser;
 import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 import org.apache.cxf.tools.common.extensions.jms.JMSAddress;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
+import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
+import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
+import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -63,6 +64,7 @@ import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.common.toolspec.parser.CommandLineParser;
 import org.apache.cxf.tools.util.ProcessorUtil;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class ServiceProcessor extends AbstractProcessor {
 
@@ -176,7 +178,7 @@ public class ServiceProcessor extends AbstractProcessor {
         }
 
         if (isSoapBinding()) {
-            SOAPBinding spbd = (SOAPBinding)this.bindingObj;
+            SoapBinding spbd = SOAPBindingUtil.getProxy(SoapBinding.class, this.bindingObj);
             jport.setStyle(getSoapStyle(spbd.getStyle()));
             jport.setTransURI(spbd.getTransportURI());
         }
@@ -223,7 +225,7 @@ public class ServiceProcessor extends AbstractProcessor {
         // TODO: extend other bindings
         doCustomizeBinding(model, jf, binding);
         if (isSoapBinding()) {
-            SOAPBinding soapBinding = (SOAPBinding)bindingObj;
+            SoapBinding soapBinding = (SoapBinding)bindingObj;
             if (getSoapStyle(soapBinding.getStyle()) == null) {
                 jf.setSOAPStyle(javax.jws.soap.SOAPBinding.Style.DOCUMENT);
             } else {
@@ -308,12 +310,14 @@ public class ServiceProcessor extends AbstractProcessor {
         String use = null;
         while (inbindings != null && inbindings.hasNext()) {
             Object obj = inbindings.next();
-            if (obj instanceof SOAPBody) {
-                SOAPBody soapBody = (SOAPBody)obj;
+            
+            if (SOAPBindingUtil.isSOAPBody(obj)) {
+                SoapBody soapBody = SOAPBindingUtil.getSoapBody(obj);
                 use = soapBody.getUse();
-            }
-            if (obj instanceof SOAPHeader) {
-                SOAPHeader soapHeader = (SOAPHeader)obj;
+            }            
+            
+            if (SOAPBindingUtil.isSOAPHeader(obj)) {
+                SoapHeader soapHeader = SOAPBindingUtil.getSoapHeader(obj);
                 boolean found = false;
                 for (JavaParameter parameter : jm.getParameters()) {
                     if (soapHeader.getPart().equals(parameter.getPartName())) {
@@ -356,8 +360,9 @@ public class ServiceProcessor extends AbstractProcessor {
             Iterator outbindings = operation.getBindingOutput().getExtensibilityElements().iterator();
             while (outbindings.hasNext()) {
                 Object obj = outbindings.next();
-                if (obj instanceof SOAPHeader) {
-                    SOAPHeader soapHeader = (SOAPHeader)obj;
+                
+                if (SOAPBindingUtil.isSOAPHeader(obj)) {         
+                    SoapHeader soapHeader = SOAPBindingUtil.getSoapHeader(obj);
                     boolean found = false;
                     for (JavaParameter parameter : jm.getParameters()) {
                         if (soapHeader.getPart().equals(parameter.getPartName())) {
@@ -415,10 +420,10 @@ public class ServiceProcessor extends AbstractProcessor {
             Iterator ite = bop.getExtensibilityElements().iterator();
             while (ite.hasNext()) {
                 Object obj = ite.next();
-                if (obj instanceof SOAPOperation) {
-                    SOAPOperation soapOP = (SOAPOperation)obj;
+                
+                if (SOAPBindingUtil.isSOAPOperation(obj)) {
+                    SoapOperation soapOP = SOAPBindingUtil.getSoapOperation(obj);
                     soapOPProp.put(this.soapOPAction, soapOP.getSoapActionURI());
-
                     soapOPProp.put(this.soapOPStyle, soapOP.getStyle());
                 }
             }
@@ -431,8 +436,10 @@ public class ServiceProcessor extends AbstractProcessor {
         String address = null;
         while (it.hasNext()) {
             Object obj = it.next();
-            if (obj instanceof SOAPAddress) {
-                address = ((SOAPAddress)obj).getLocationURI();
+                        
+            if (SOAPBindingUtil.isSOAPAddress(obj)) {
+                SoapAddress soapAddress = SOAPBindingUtil.getSoapAddress(obj);
+                address = soapAddress.getLocationURI();
             }
             if (obj instanceof JMSAddress) {
                 address = ((JMSAddress)obj).getAddress();
@@ -450,8 +457,9 @@ public class ServiceProcessor extends AbstractProcessor {
         Iterator it = binding.getExtensibilityElements().iterator();
         while (it.hasNext()) {
             Object obj = it.next();
-            if (obj instanceof SOAPBinding) {
-                bindingObj = (SOAPBinding)obj;
+            
+            if (SOAPBindingUtil.isSOAPBinding(obj)) {
+                bindingObj = SOAPBindingUtil.getSoapBinding(obj);
                 return BindingType.SOAPBinding;
             }
             if (obj instanceof HTTPBinding) {
@@ -469,7 +477,7 @@ public class ServiceProcessor extends AbstractProcessor {
         String operationName = bop.getName();
         Message bodyMessage = null;
         QName headerMessage = null;
-        SOAPHeader header = null;
+        SoapHeader header = null;
         boolean containParts = false;
         boolean isSameMessage = false;
         boolean isNonWrappable = false;
@@ -481,11 +489,11 @@ public class ServiceProcessor extends AbstractProcessor {
             Iterator ite = bop.getBindingInput().getExtensibilityElements().iterator();
             while (ite.hasNext()) {
                 Object obj = ite.next();
-                if (obj instanceof SOAPBody) {
+                if (SOAPBindingUtil.isSOAPBody(obj)) {
                     bodyMessage = getMessage(operationName, true);
                 }
-                if (obj instanceof SOAPHeader) {
-                    header = (SOAPHeader)obj;
+                if (SOAPBindingUtil.isSOAPHeader(obj)) {
+                    header = SOAPBindingUtil.getSoapHeader(obj);
                     headerMessage = header.getMessage();
                     if (header.getPart().length() > 0) {
                         containParts = true;
@@ -513,11 +521,11 @@ public class ServiceProcessor extends AbstractProcessor {
             Iterator ite1 = bop.getBindingOutput().getExtensibilityElements().iterator();
             while (ite1.hasNext()) {
                 Object obj = ite1.next();
-                if (obj instanceof SOAPBody) {
+                if (SOAPBindingUtil.isSOAPBody(obj)) {
                     bodyMessage = getMessage(operationName, false);
                 }
-                if (obj instanceof SOAPHeader) {
-                    header = (SOAPHeader)obj;
+                if (SOAPBindingUtil.isSOAPHeader(obj)) {
+                    header = SOAPBindingUtil.getSoapHeader(obj);
                     headerMessage = header.getMessage();
                     if (header.getPart().length() > 0) {
                         containParts = true;
@@ -654,8 +662,8 @@ public class ServiceProcessor extends AbstractProcessor {
         Iterator it = bop.getExtensibilityElements().iterator();
         while (it.hasNext()) {
             Object obj = it.next();
-            if (obj instanceof SOAPHeader) {
-                String outPartName = ((SOAPHeader)obj).getPart();
+            if (SOAPBindingUtil.isSOAPHeader(obj)) {
+                String outPartName = (SOAPBindingUtil.getSoapHeader(obj)).getPart();
                 if (inPartName.equals(outPartName)) {
                     return true;
                 }

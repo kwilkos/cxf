@@ -32,11 +32,12 @@ import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.Part;
 import javax.wsdl.PortType;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPHeader;
 
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class WSIBPValidator extends AbstractValidator {
     private List<String> operationMap = new ArrayList<String>();
@@ -76,19 +77,19 @@ public class WSIBPValidator extends AbstractValidator {
                 }
                 BindingOperation bop = wsdlHelper.getBindingOperation(def, operation.getName());
                 Binding binding = wsdlHelper.getBinding(bop, def);
-                String bindingStyle = binding != null ? wsdlHelper.getBindingStyle(binding) : "";
+                String bindingStyle = binding != null ? SOAPBindingUtil.getBindingStyle(binding) : "";
 
-                String style = "".equals(wsdlHelper.getSOAPOperationStyle(bop))
-                    ? bindingStyle : wsdlHelper.getSOAPOperationStyle(bop);
+                String style = "".equals(SOAPBindingUtil.getSOAPOperationStyle(bop))
+                    ? bindingStyle : SOAPBindingUtil.getSOAPOperationStyle(bop);
 
                 if ("DOCUMENT".equalsIgnoreCase(style)) {
                     List<Part> partsList = wsdlHelper.getInMessageParts(operation);
                     int inmessagePartsCount = partsList.size();
-                    SOAPBody soapBody = wsdlHelper.getBindingInputSOAPBody(bop);
+                    SoapBody soapBody = SOAPBindingUtil.getBindingInputSOAPBody(bop);
                     if (soapBody != null) {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? inmessagePartsCount : parts.size();
-                        SOAPHeader soapHeader = wsdlHelper.getBindingInputSOAPHeader(bop);
+                        SoapHeader soapHeader = SOAPBindingUtil.getBindingInputSOAPHeader(bop);
                         boundPartSize = soapHeader != null 
                                         && soapHeader.getMessage().equals(
                                                                           operation.getInput().getMessage()
@@ -123,11 +124,11 @@ public class WSIBPValidator extends AbstractValidator {
                     }
 
                     int outmessagePartsCount = wsdlHelper.getOutMessageParts(operation).size();
-                    soapBody = wsdlHelper.getBindingOutputSOAPBody(bop);
+                    soapBody = SOAPBindingUtil.getBindingOutputSOAPBody(bop);
                     if (soapBody != null) {
                         List parts = soapBody.getParts();
                         int boundPartSize = parts == null ? outmessagePartsCount : parts.size();
-                        SOAPHeader soapHeader = wsdlHelper.getBindingOutputSOAPHeader(bop);
+                        SoapHeader soapHeader = SOAPBindingUtil.getBindingOutputSOAPHeader(bop);
                         boundPartSize = soapHeader != null 
                                         && soapHeader.getMessage().equals(
                                                                           operation.getOutput().getMessage()
@@ -170,7 +171,7 @@ public class WSIBPValidator extends AbstractValidator {
         for (Iterator ite = def.getBindings().values().iterator(); ite.hasNext();) {
             Binding binding = (Binding)ite.next();
 
-            String style = wsdlHelper.getCanonicalBindingStyle(binding);
+            String style = SOAPBindingUtil.getCanonicalBindingStyle(binding);
 
             //
 
@@ -234,7 +235,7 @@ public class WSIBPValidator extends AbstractValidator {
         while (ite.hasNext()) {
             Object obj = ite.next();
             Binding binding = (Binding)obj;
-            if (wsdlHelper.isMixedStyle(binding)) {
+            if (SOAPBindingUtil.isMixedStyle(binding)) {
                 addErrorMessage("Mixed style, invalid WSDL");
                 return false;
             }

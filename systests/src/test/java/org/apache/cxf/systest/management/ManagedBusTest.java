@@ -51,10 +51,6 @@ public class ManagedBusTest extends TestCase {
         InstrumentationManagerImpl imi = (InstrumentationManagerImpl)im;
         InstrumentationType i = imi.getInstrumentation();
         assertNotNull(i);
-        System.out.println("isEnabled: " + i.isEnabled());
-        System.out.println("isJMXEnabled: " + i.isJMXEnabled());
-        
-
 
         bus.shutdown(true);
     }
