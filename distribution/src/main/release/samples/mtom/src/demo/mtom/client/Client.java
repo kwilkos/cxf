@@ -30,9 +30,9 @@ import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.namespace.QName;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 
