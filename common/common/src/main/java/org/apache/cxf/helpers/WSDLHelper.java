@@ -164,17 +164,6 @@ public class WSDLHelper {
         return partsList;
     }
 
-//    public String getBindingStyle(Binding binding) {
-//        Iterator ite = binding.getExtensibilityElements().iterator();
-//        while (ite.hasNext()) {
-//            Object obj = ite.next();
-//            if (obj instanceof SOAPBinding) {
-//                return ((SOAPBinding)obj).getStyle();
-//            }
-//        }
-//        return "";
-//    }
-
     public Binding getBinding(BindingOperation bop, Definition def) {
         Iterator ite = def.getBindings().values().iterator();
         while (ite.hasNext()) {
@@ -189,155 +178,10 @@ public class WSDLHelper {
         return null;
     }
 
-//    public String getSOAPOperationStyle(BindingOperation bop) {
-//        String style = "";
-//        if (bop != null) {
-//            Iterator ite = bop.getExtensibilityElements().iterator();
-//            while (ite.hasNext()) {
-//                Object obj = ite.next();
-//                if (obj instanceof SOAPOperation) {
-//                    SOAPOperation soapOperation = (SOAPOperation)obj;
-//                    style = soapOperation.getStyle();
-//                    break;
-//                }
-//            }
-//        }
-//        return style;
-//    }
-
-//    public SOAPBody getBindingInputSOAPBody(BindingOperation bop) {
-//        BindingInput bindingInput = bop.getBindingInput();
-//        if (bindingInput != null) {
-//            Iterator ite = bindingInput.getExtensibilityElements().iterator();
-//            while (ite.hasNext()) {
-//                Object obj = ite.next();
-//                if (obj instanceof SOAPBody) {
-//                    return (SOAPBody)obj;
-//                }
-//            }
-//        }
-//
-//        return null;
-//    }
-
-//    public SOAPHeader getBindingInputSOAPHeader(BindingOperation bop) {
-//        BindingInput bindingInput = bop.getBindingInput();
-//        if (bindingInput != null) {
-//            Iterator ite = bindingInput.getExtensibilityElements().iterator();
-//            while (ite.hasNext()) {
-//                Object obj = ite.next();
-//                if (obj instanceof SOAPHeader) {
-//                    return (SOAPHeader)obj;
-//                }
-//            }
-//        }
-//
-//        return null;
-//    }
-
-//    public SOAPHeader getBindingOutputSOAPHeader(BindingOperation bop) {
-//        BindingOutput bindingOutput = bop.getBindingOutput();
-//        if (bindingOutput != null) {
-//            Iterator ite = bindingOutput.getExtensibilityElements().iterator();
-//            while (ite.hasNext()) {
-//                Object obj = ite.next();
-//                if (obj instanceof SOAPHeader) {
-//                    return (SOAPHeader)obj;
-//                }
-//            }
-//        }
-//
-//        return null;
-//    }
-
-//    public SOAPBody getBindingOutputSOAPBody(BindingOperation bop) {
-//        BindingOutput bindingOutput = bop.getBindingOutput();
-//        if (bindingOutput != null) {
-//            Iterator ite = bindingOutput.getExtensibilityElements().iterator();
-//            while (ite.hasNext()) {
-//                Object obj = ite.next();
-//                if (obj instanceof SOAPBody) {
-//                    return (SOAPBody)obj;
-//                }
-//            }
-//        }
-//
-//        return null;
-//    }
-
     public Definition getDefinition(File wsdlFile) throws Exception {
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
         WSDLReader reader = wsdlFactory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         return reader.readWSDL(wsdlFile.toURL().toString());
     }
-
-//    public boolean isMixedStyle(Binding binding) {
-//        Iterator ite = binding.getExtensibilityElements().iterator();
-//        String bindingStyle = "";
-//        String previousOpStyle = "";
-//        String style = "";
-//        while (ite.hasNext()) {
-//            Object obj = ite.next();
-//            if (obj instanceof SOAPBinding) {
-//                SOAPBinding soapBinding = (SOAPBinding)obj;
-//                bindingStyle = soapBinding.getStyle();
-//                if (bindingStyle == null) {
-//                    bindingStyle = "";
-//                }
-//            }
-//        }
-//        Iterator ite2 = binding.getBindingOperations().iterator();
-//        while (ite2.hasNext()) {
-//            BindingOperation bop = (BindingOperation)ite2.next();
-//            Iterator ite3 = bop.getExtensibilityElements().iterator();
-//            while (ite3.hasNext()) {
-//                Object obj = ite3.next();
-//
-//                if (obj instanceof SOAPOperation) {
-//                    SOAPOperation soapOperation = (SOAPOperation)obj;
-//                    style = soapOperation.getStyle();
-//                    if (style == null) {
-//                        style = "";
-//                    }
-//
-//                    if ("".equals(bindingStyle) && "".equals(previousOpStyle) || "".equals(bindingStyle)
-//                        && previousOpStyle.equalsIgnoreCase(style)) {
-//                        previousOpStyle = style;
-//
-//                    } else if (!"".equals(bindingStyle) && "".equals(previousOpStyle)
-//                               && bindingStyle.equalsIgnoreCase(style)
-//                               || bindingStyle.equalsIgnoreCase(previousOpStyle)
-//                               && bindingStyle.equalsIgnoreCase(style)) {
-//                        previousOpStyle = style;
-//                    } else if (!"".equals(bindingStyle) && "".equals(style) && "".equals(previousOpStyle)) {
-//                        continue;
-//                    } else {
-//                        return true;
-//                    }
-//
-//                }
-//
-//            }
-//        }
-//
-//        return false;
-//
-//    }
-//
-//    public String getCanonicalBindingStyle(Binding binding) {
-//        String bindingStyle = getBindingStyle(binding);
-//        if (bindingStyle != null && !("".equals(bindingStyle))) {
-//            return bindingStyle;
-//        }
-//        for (Iterator ite2 = binding.getBindingOperations().iterator(); ite2.hasNext();) {
-//            BindingOperation bindingOp = (BindingOperation)ite2.next();
-//            String bopStyle = getSOAPOperationStyle(bindingOp);
-//            if (!"".equals(bopStyle)) {
-//                return bopStyle;
-//            }
-//        }
-//        return "";
-//
-//    }
 }
