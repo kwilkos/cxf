@@ -28,7 +28,7 @@ public class Server extends TestServerBase {
 
     protected void run()  {    
         Object implementor = new GreeterImpl();
-        String address = "http://localhost:9000/SoapContext/SoapPort";
+        String address = "http://localhost:9012/SoapContext/SoapPort";
         Endpoint.publish(address, implementor);
     }
 
