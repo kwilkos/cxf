@@ -293,10 +293,8 @@ public class ServletDestination implements Destination {
             OutputStream os = resp.getOutputStream();
             
             WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-            Definition def = 
-                ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(endpointInfo.getService());
-            Port port = def.getService(
-                                       endpointInfo.getService().getName()).getPort(
+            Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
+            Port port = def.getService(endpointInfo.getService().getName()).getPort(
                                        endpointInfo.getName().getLocalPart());
             List<?> exts = port.getExtensibilityElements();
             if (exts.size() > 0) {

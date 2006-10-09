@@ -77,6 +77,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Executor executor;
     private List<String> ignoredClasses = new ArrayList<String>();
     private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
+    private boolean wrappedStyle = true;
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
@@ -374,12 +375,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
     
     protected boolean isWrapped(final Method method) {
-//        for (AbstractServiceConfiguration c : serviceConfigurations) {
-//            Boolean b = c.isOperation(method);
-//            if (b != null) {
-//                return b.booleanValue();
-//            }
-//        }
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Boolean b = c.isWrapped(method);
+            if (b != null) {
+                return b.booleanValue();
+            }
+        }
         return true;
     }
 
@@ -661,4 +662,13 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     public void setIgnoredClasses(List<String> ignoredClasses) {
         this.ignoredClasses = ignoredClasses;
     }
+
+    public boolean isWrapped() {
+        return wrappedStyle;
+    }
+
+    public void setWrapped(boolean style) {
+        this.wrappedStyle = style;
+    }
+    
 }

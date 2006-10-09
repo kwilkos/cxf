@@ -55,6 +55,10 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public Boolean isWrapped(Method m) { 
+        return null;
+    }
+    
     public Boolean isOutParam(Method method, int j) {
         return null;
     }

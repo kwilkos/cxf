@@ -34,8 +34,6 @@ public class MessagePartInfoTest extends TestCase {
         messagePartInfo = new MessagePartInfo(new QName(
             "http://apache.org/hello_world_soap_http", "testMessagePart"), null);
         messagePartInfo.setIsElement(true);
-        messagePartInfo.setElementQName(new QName(
-            "http://apache.org/hello_world_soap_http/types", "testElement"));
     }
     
     public void tearDown() throws Exception {
@@ -55,6 +53,8 @@ public class MessagePartInfoTest extends TestCase {
     }
 
     public void testElement() {
+        messagePartInfo.setElementQName(new QName("http://apache.org/hello_world_soap_http/types",
+                                                  "testElement"));
         assertTrue(messagePartInfo.isElement());
         assertEquals(messagePartInfo.getElementQName().getLocalPart(), "testElement");
         assertEquals(messagePartInfo.getElementQName().getNamespaceURI(),

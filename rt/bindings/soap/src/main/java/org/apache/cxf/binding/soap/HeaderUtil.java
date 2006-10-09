@@ -44,7 +44,7 @@ public final class HeaderUtil {
         if (obj == null) {
             Set<QName> set = new HashSet<QName>();
             List<MessagePartInfo> mps = bmi.getMessageInfo().getMessageParts();
-            for (ExtensibilityElement ext : bmi.getWSDL11Extensors()) {
+            for (ExtensibilityElement ext : bmi.getExtensors(ExtensibilityElement.class)) {
                 if (SOAPBindingUtil.isSOAPHeader(ext)) {
                     SoapHeader header = SOAPBindingUtil.getSoapHeader(ext);
                     String pn = header.getPart();

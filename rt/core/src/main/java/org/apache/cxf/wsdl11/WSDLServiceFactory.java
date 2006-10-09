@@ -42,23 +42,28 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     
     private URL wsdlUrl;
     private QName serviceName;
-        
+    private Definition definition;
+    
+    public WSDLServiceFactory(Bus b, Definition d, QName sn) {
+        setBus(b);
+        definition = d;
+        serviceName = sn;        
+    }
+    
     public WSDLServiceFactory(Bus b, URL url, QName sn) {
         setBus(b);
         wsdlUrl = url;
         serviceName = sn;        
-    }
-    
-    public Service create() {
-        // use wsdl manager to parse wsdl or get cached definition
         
-        Definition definition = null;
         try {
+            // use wsdl manager to parse wsdl or get cached definition
             definition = getBus().getExtension(WSDLManager.class).getDefinition(wsdlUrl);
         } catch (WSDLException ex) {
             throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
         }
-        
+    }
+    
+    public Service create() {
         javax.wsdl.Service wsdlService = definition.getService(serviceName);
         if (wsdlService == null) {
             throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE", LOG, serviceName));

@@ -20,6 +20,10 @@ package org.apache.cxf.jaxws;
 
 import java.util.Collection;
 
+import javax.wsdl.Definition;
+import javax.wsdl.factory.WSDLFactory;
+
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
@@ -30,15 +34,19 @@ import org.apache.cxf.service.factory.ServerFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 
 public class CodeFirstTest extends AbstractJaxWsTest {
+    String address = "http://localhost:9000/Hello";
+    
     public void testModel() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         Bus bus = getBus();
         bean.setBus(bus);
         bean.setServiceClass(Hello.class);
-
+        bean.setWrapped(false);
+        
         Service service = bean.create();
 
         InterfaceInfo i = service.getServiceInfo().getInterface();
@@ -48,10 +56,26 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         svrFactory.setBus(bus);
         svrFactory.setServiceFactory(bean);
         svrFactory.setTransportId("http://schemas.xmlsoap.org/soap/");
+        svrFactory.setAddress(address);
         svrFactory.create();
         
         Collection<BindingInfo> bindings = service.getServiceInfo().getBindings();
         assertEquals(1, bindings.size());
+        
+        ServiceWSDLBuilder wsdlBuilder = 
+            new ServiceWSDLBuilder(service.getServiceInfo());
+        Definition d = wsdlBuilder.build();
+        
+        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
+        
+        addNamespace("svc", "http://service.jaxws.cxf.apache.org");
+        
+        assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
+        assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
+        assertValid("//wsdl:portType[@name='HelloPortType']", wsdl);
+        assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
+                    + "/wsdl:part[@type='xsd:string'][@name='text']",
+                    wsdl);
     }
 
     public void testEndpoint() throws Exception {

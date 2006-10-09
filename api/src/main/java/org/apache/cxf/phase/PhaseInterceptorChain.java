@@ -126,8 +126,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
             try {
                 Interceptor currentInterceptor = iterator.next();
                
-                if (LOG.isLoggable(Level.FINE)) {
-                    LOG.fine("Invoking handleMessage on interceptor " + currentInterceptor);
+                if (LOG.isLoggable(Level.INFO)) {
+                    LOG.info("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
                 currentInterceptor.handleMessage(message);
             } catch (Exception ex) {

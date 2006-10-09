@@ -181,7 +181,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         initializeBindingInfo(service, binding, bi);
 
         org.apache.cxf.tools.common.extensions.soap.SoapBinding wSoapBinding
-            = SOAPBindingUtil.getSoapBinding(bi.getWSDL11Extensors());
+            = SOAPBindingUtil.getSoapBinding(bi.getExtensors(ExtensibilityElement.class));
         
         bi.setTransportURI(wSoapBinding.getTransportURI());
         bi.setStyle(wSoapBinding.getStyle());
@@ -196,7 +196,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
 
-        SoapOperation soapOp = SOAPBindingUtil.getSoapOperation(boi.getWSDL11Extensors());
+        SoapOperation soapOp = 
+            SOAPBindingUtil.getSoapOperation(boi.getExtensors(ExtensibilityElement.class));
         
         if (soapOp != null) {
             String action = soapOp.getSoapActionURI();
@@ -226,7 +227,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         List<MessagePartInfo> messageParts = new ArrayList<MessagePartInfo>();
         messageParts.addAll(msg.getMessageParts());
 
-        List<SoapHeader> headers = SOAPBindingUtil.getSoapHeaders(bmsg.getWSDL11Extensors());
+        List<SoapHeader> headers = 
+            SOAPBindingUtil.getSoapHeaders(bmsg.getExtensors(ExtensibilityElement.class));
         if (headers != null) {
             for (SoapHeader header : headers) {
                 SoapHeaderInfo headerInfo = new SoapHeaderInfo();
@@ -245,7 +247,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
 
         SoapBodyInfo bodyInfo = new SoapBodyInfo();
-        SoapBody soapBody = SOAPBindingUtil.getSoapBody(bmsg.getWSDL11Extensors());
+        SoapBody soapBody = SOAPBindingUtil.getSoapBody(bmsg.getExtensors(ExtensibilityElement.class));
         List parts = null;
         if (soapBody == null) {
             MIMEMultipartRelated mmr = bmsg.getExtensor(MIMEMultipartRelated.class);

@@ -20,13 +20,10 @@
 package org.apache.cxf.service.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.wsdl.extensions.ExtensibilityElement;
 
 public abstract class AbstractPropertiesHolder {
     private AtomicReference<Map<String, Object>> propertyMap = new AtomicReference<Map<String, Object>>();
@@ -99,34 +96,8 @@ public abstract class AbstractPropertiesHolder {
         return list;
     }
 
-    public List<ExtensibilityElement> getWSDL11Extensors() {
-        if (extensors.get() == null) {
-            return null;
-        }
-        List<ExtensibilityElement> list
-            = new ArrayList<ExtensibilityElement>(extensors.get().length);
-        for (Object obj : extensors.get()) {
-            if (obj instanceof ExtensibilityElement) {
-                list.add((ExtensibilityElement)obj);
-            }
-        }
-        return Collections.unmodifiableList(list);
+    public AtomicReference<Object[]> getExtensors() {
+        return extensors;
     }
-    /*
-    //eventually for wsdl20 support
-    public List<org.apache.woden.wsdl20.extensions.ExtensionElement> getWSDL12Extensors() {
-        if (extensors.get() == null) {
-            return null;
-        }
-        List<ExtensionElement> list
-            = new ArrayList<ExtensionElement>(extensors.get().length);
-        for (Object obj : extensors.get()) {
-            if (obj instanceof ExtensionElement) {
-                list.add((ExtensionElement)obj);
-            }
-        }
-        return Collections.unmodifiableList(list);
-    }
-    */
 
 }

@@ -30,12 +30,16 @@ import javax.wsdl.Port;
 import javax.wsdl.extensions.soap.SOAPAddress;
 
 import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
+import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
+import com.ibm.wsdl.extensions.soap.SOAPOperationImpl;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
@@ -91,11 +95,33 @@ public class SoapDestinationFactory implements DestinationFactory, WSDLEndpointF
     }
 
     public void createPortExtensors(EndpointInfo ei, Service service) {
+        SoapBindingInfo bi = (SoapBindingInfo) ei.getBinding();
+        if (bi.getSoapVersion() instanceof Soap11) {
+            createSoap11Extensors(ei, bi);
+        }
+    }
+
+    private void createSoap11Extensors(EndpointInfo ei, SoapBindingInfo bi) {
         SOAPAddress address = new SOAPAddressImpl();
         address.setLocationURI(ei.getAddress());
-        address.setRequired(Boolean.TRUE);
-
+        
         ei.addExtensor(address);
+        
+        
+        SOAPBindingImpl sbind = new SOAPBindingImpl();
+        sbind.setStyle(bi.getStyle());
+        sbind.setTransportURI(bi.getTransportURI());
+        bi.addExtensor(sbind);
+        
+        for (BindingOperationInfo b : bi.getOperations()) {
+            SoapOperationInfo soi = b.getExtensor(SoapOperationInfo.class);
+            
+            SOAPOperationImpl op = new SOAPOperationImpl();
+            op.setSoapActionURI(soi.getAction());
+            op.setStyle(soi.getStyle());
+            
+            b.addExtensor(op);
+        }
     }
 
     public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {

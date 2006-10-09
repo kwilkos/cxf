@@ -44,10 +44,15 @@ public class ServerFactoryBean {
     private Bus bus;
     private String address;
     private String transportId; // where should this come from???
-    private AbstractBindingInfoFactoryBean bindingFactory = new SoapBindingInfoFactoryBean();
+    private AbstractBindingInfoFactoryBean bindingFactory;
     private QName endpointName;
     private boolean start = true;
     
+    public ServerFactoryBean() {
+        super();
+        bindingFactory = new SoapBindingInfoFactoryBean();
+    }
+
     public Server create() {
         try {
             service = serviceFactory.getService();
@@ -107,6 +112,7 @@ public class ServerFactoryBean {
         } else {
             // ?
         }
+        service.getServiceInfo().addEndpoint(ei);
         return ei;
     }
 
@@ -172,6 +178,14 @@ public class ServerFactoryBean {
 
     public void setStart(boolean start) {
         this.start = start;
+    }
+
+    public AbstractBindingInfoFactoryBean getBindingFactory() {
+        return bindingFactory;
+    }
+
+    public void setBindingFactory(AbstractBindingInfoFactoryBean bindingFactory) {
+        this.bindingFactory = bindingFactory;
     }
     
 }

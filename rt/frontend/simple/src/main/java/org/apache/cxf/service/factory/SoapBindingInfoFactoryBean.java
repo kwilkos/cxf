@@ -31,7 +31,9 @@ import org.apache.cxf.service.model.ServiceInfo;
 
 public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     private SoapVersion soapVersion = Soap11.getInstance();
-
+    private String style = "document";
+    private String use;
+    
     @Override
     public BindingInfo create() {
         ServiceInfo si = getServiceInfo();
@@ -66,11 +68,11 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     }
 
     protected String getStyle() {
-        return "document";
+        return style;
     }
 
     protected String getStyle(OperationInfo op) {
-        return "document";
+        return getStyle();
     }
 
     protected QName getBindingName() {
@@ -86,4 +88,17 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     public void setSoapVersion(SoapVersion soapVersion) {
         this.soapVersion = soapVersion;
     }
+
+    public String getUse() {
+        return use;
+    }
+
+    public void setUse(String use) {
+        this.use = use;
+    }
+
+    public void setStyle(String style) {
+        this.style = style;
+    }
+    
 }

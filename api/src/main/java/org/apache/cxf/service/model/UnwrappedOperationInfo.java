@@ -21,8 +21,6 @@ package org.apache.cxf.service.model;
 
 import java.util.List;
 
-import javax.wsdl.extensions.ExtensibilityElement;
-
 public class UnwrappedOperationInfo extends OperationInfo {
     OperationInfo wrappedOp;
 
@@ -64,7 +62,4 @@ public class UnwrappedOperationInfo extends OperationInfo {
         return wrappedOp.getExtensors(cls);
     }
 
-    public List<ExtensibilityElement> getWSDL11Extensors() {
-        return wrappedOp.getWSDL11Extensors();
-    }
 }

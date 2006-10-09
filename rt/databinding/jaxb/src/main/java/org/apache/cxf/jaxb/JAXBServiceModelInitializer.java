@@ -44,7 +44,7 @@ class JAXBServiceModelInitializer extends ServiceModelVisitor {
     @Override
     public void begin(MessagePartInfo part) {
         // Check to see if the WSDL information has been filled in for us.
-        if (part.getConcreteName() != null) {
+        if (part.getTypeQName() != null || part.getElementQName() != null) {
             return;
         }
         

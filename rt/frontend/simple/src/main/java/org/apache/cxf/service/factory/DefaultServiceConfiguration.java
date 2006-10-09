@@ -90,12 +90,12 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public QName getInterfaceName() {
-        return new QName(getServiceNamespace(), getServiceName() + "PortType");
+        return new QName(getServiceFactory().getServiceNamespace(), getServiceName() + "PortType");
     }
 
     @Override
     public QName getEndpointName() {
-        return new QName(getServiceNamespace(), getServiceName() + "Port");
+        return new QName(getServiceFactory().getServiceNamespace(), getServiceName() + "Port");
     }
 
     @Override
@@ -148,4 +148,8 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
         return j < 0;
     }
 
+    @Override
+    public Boolean isWrapped(Method m) {
+        return getServiceFactory().isWrapped();
+    }
 }

@@ -118,7 +118,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                             public void handle(String pathInContext, String pathParams,
                                                HttpRequest req, HttpResponse resp)
                                 throws IOException {
-                                if (pathInContext.startsWith(getName())) {
+                                String name = getName();
+                                if (pathInContext.startsWith(name)) {
                                     doService(req, resp);                    
                                 }
                             }
@@ -265,8 +266,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 OutputStream os = resp.getOutputStream();
                 
                 WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-                Definition def = 
-                    ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(endpointInfo.getService());
+                Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
                 wsdlWriter.writeWSDL(def, os);
                 resp.getOutputStream().flush();
                 resp.commit();

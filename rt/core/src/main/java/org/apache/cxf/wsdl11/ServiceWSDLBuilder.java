@@ -20,7 +20,9 @@
 package org.apache.cxf.wsdl11;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
@@ -48,6 +50,7 @@ import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
+import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -63,20 +66,61 @@ import org.apache.cxf.service.model.TypeInfo;
 
 public final class ServiceWSDLBuilder {
     
-    private static ServiceWSDLBuilder serviceWSDLBuilder;       
+    private Map<String, String> prefix2ns;
+    private Map<String, String> ns2prefix;
+    private Definition definition;
+    private ServiceInfo service;
     
-    private ServiceWSDLBuilder() {
-        
+    public ServiceWSDLBuilder(ServiceInfo service) {
+        this.service = service;
+        prefix2ns = new HashMap<String, String>();
+        ns2prefix = new HashMap<String, String>();
     }
 
-    public static synchronized ServiceWSDLBuilder getServiceWSDLBuilder() {
-        if (serviceWSDLBuilder == null) {
-            serviceWSDLBuilder = new ServiceWSDLBuilder();
+    public Definition build() throws WSDLException {
+        try {
+            definition = service.getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
+        } catch (ClassCastException e) {
+            //ignore
         }
-        return serviceWSDLBuilder;
+        if (definition == null) {
+            definition = WSDLFactory.newInstance().newDefinition();
+
+            addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
+            addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
+            addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
+            
+            definition.setQName(service.getName());
+            definition.setTargetNamespace(service.getTargetNamespace());
+            addExtensibiltyElements(definition, getWSDL11Extensors(service));
+            if (service.getTypeInfo() != null) {
+                buildTypes(service.getTypeInfo());
+            }
+            buildPortType(service.getInterface());
+            buildBinding(service.getBindings());
+            buildService(service);
+        }
+        return definition;
+    }
+
+
+    public List<ExtensibilityElement> getWSDL11Extensors(AbstractPropertiesHolder holder) {
+//        List<?> extensors = holder.getExtensors()
+//        if (extensors.get() == null) {
+//            return null;
+//        }
+//        List<ExtensibilityElement> list
+//            = new ArrayList<ExtensibilityElement>(extensors.get().length);
+//        for (Object obj : extensors.get()) {
+//            if (obj instanceof ExtensibilityElement) {
+//                list.add((ExtensibilityElement)obj);
+//            }
+//        }
+//        return Collections.unmodifiableList(list);
+        return holder.getExtensors(ExtensibilityElement.class);
     }
     
-    private void addExtensibiltyElements(ElementExtensible elementExtensible, 
+    protected void addExtensibiltyElements(ElementExtensible elementExtensible, 
         List<ExtensibilityElement> extensibilityElements) {
         if (extensibilityElements != null) {
             for (ExtensibilityElement element : extensibilityElements) {
@@ -84,60 +128,38 @@ public final class ServiceWSDLBuilder {
             }
         }
     }
-    
-    public Definition buildDefinition(ServiceInfo service) throws WSDLException {
-        Definition def = null;
-        try {
-            def = service.getProperty(WSDLServiceBuilder.WSDL_DEFINITION, Definition.class);
-        } catch (ClassCastException e) {
-            //ignore
-        }
-        if (def == null) {
-            def = WSDLFactory.newInstance().newDefinition();
-            def.setQName(service.getName());
-            def.setTargetNamespace(service.getTargetNamespace());
-            addExtensibiltyElements(def, service.getWSDL11Extensors());
-            if (service.getTypeInfo() != null) {
-                buildTypes(def, service.getTypeInfo());
-            }
-            buildPortType(def, service.getInterface());
-            buildBinding(def, service.getBindings());
-            buildService(def, service);
-        }
-        return def;
-    }
 
-
-    private void buildTypes(Definition def, TypeInfo typeInfo) {
-        Types types = def.createTypes();
+    protected void buildTypes(TypeInfo typeInfo) {
+        Types types = definition.createTypes();
         for (SchemaInfo schemaInfo : typeInfo.getSchemas()) {
             SchemaImpl schemaImpl = new SchemaImpl();
             schemaImpl.setElement(schemaInfo.getElement());
             types.addExtensibilityElement(schemaImpl);
         }
         
-        def.setTypes(types);
+        definition.setTypes(types);
     }
 
-    private void buildBinding(Definition def, Collection<BindingInfo> bindingInfos) {
+    protected void buildBinding(Collection<BindingInfo> bindingInfos) {
         Binding binding = null;
         for (BindingInfo bindingInfo : bindingInfos) {
-            binding = def.createBinding();
+            binding = definition.createBinding();
+            binding.setUndefined(false);
             for (PortType portType 
-                    : CastUtils.cast(def.getPortTypes().values(), PortType.class)) {
+                    : CastUtils.cast(definition.getPortTypes().values(), PortType.class)) {
                 if (portType.getQName().equals(bindingInfo.getInterface().getName())) {
                     binding.setPortType(portType);
                     break;
                 }
             }
             binding.setQName(bindingInfo.getName());
-            buildBindingOperation(def, binding, bindingInfo.getOperations());
-            addExtensibiltyElements(binding, bindingInfo.getWSDL11Extensors());
-            def.addBinding(binding);
+            buildBindingOperation(definition, binding, bindingInfo.getOperations());
+            addExtensibiltyElements(binding, getWSDL11Extensors(bindingInfo));
+            definition.addBinding(binding);
         }
     }
 
-    private void buildBindingOperation(Definition def, Binding binding, 
+    protected void buildBindingOperation(Definition def, Binding binding, 
                                        Collection<BindingOperationInfo> bindingOperationInfos) {
         BindingOperation bindingOperation = null;
         for (BindingOperationInfo bindingOperationInfo : bindingOperationInfos) {
@@ -153,12 +175,12 @@ public final class ServiceWSDLBuilder {
             buildBindingInput(def, bindingOperation, bindingOperationInfo.getInput());
             buildBindingOutput(def, bindingOperation, bindingOperationInfo.getOutput());
             buildBindingFault(def, bindingOperation, bindingOperationInfo.getFaults());
-            addExtensibiltyElements(bindingOperation, bindingOperationInfo.getWSDL11Extensors());
+            addExtensibiltyElements(bindingOperation, getWSDL11Extensors(bindingOperationInfo));
             binding.addBindingOperation(bindingOperation);
         }
     }
 
-    private void buildBindingFault(Definition def, BindingOperation bindingOperation, 
+    protected void buildBindingFault(Definition def, BindingOperation bindingOperation, 
                                    Collection<BindingFaultInfo> bindingFaultInfos) {
         BindingFault bindingFault = null;
         for (BindingFaultInfo bindingFaultInfo 
@@ -166,48 +188,51 @@ public final class ServiceWSDLBuilder {
             bindingFault = def.createBindingFault();
             bindingFault.setName(bindingFaultInfo.getFaultInfo().getFaultName().getLocalPart());
             bindingOperation.addBindingFault(bindingFault);
-            addExtensibiltyElements(bindingFault, bindingFaultInfo.getWSDL11Extensors());
+            addExtensibiltyElements(bindingFault, getWSDL11Extensors(bindingFaultInfo));
         }
         
     }
 
-    private void buildBindingInput(Definition def, BindingOperation bindingOperation, 
+    protected void buildBindingInput(Definition def, BindingOperation bindingOperation, 
                                          BindingMessageInfo bindingMessageInfo) {
         BindingInput bindingInput = null;
         if (bindingMessageInfo != null) {
             bindingInput = def.createBindingInput();
             bindingInput.setName(bindingMessageInfo.getMessageInfo().getName().getLocalPart());
             bindingOperation.setBindingInput(bindingInput);
-            addExtensibiltyElements(bindingInput, bindingMessageInfo.getWSDL11Extensors());
+            addExtensibiltyElements(bindingInput, getWSDL11Extensors(bindingMessageInfo));
         }
     }
     
-    private void buildBindingOutput(Definition def, BindingOperation bindingOperation, 
+    protected void buildBindingOutput(Definition def, BindingOperation bindingOperation, 
                                    BindingMessageInfo bindingMessageInfo) {
         BindingOutput bindingOutput = null;
         if (bindingMessageInfo != null) {
             bindingOutput = def.createBindingOutput();
             bindingOutput.setName(bindingMessageInfo.getMessageInfo().getName().getLocalPart());
             bindingOperation.setBindingOutput(bindingOutput);
-            addExtensibiltyElements(bindingOutput, bindingMessageInfo.getWSDL11Extensors());
+            addExtensibiltyElements(bindingOutput, getWSDL11Extensors(bindingMessageInfo));
         }
     }
 
-    private void buildService(Definition def, ServiceInfo service) {
-        Service serv = def.createService();
-        serv.setQName(service.getName());
-        def.addService(serv);
+    protected void buildService(ServiceInfo serviceInfo) {
+        Service serv = definition.createService();
+        serv.setQName(serviceInfo.getName());
+        addNamespace(serviceInfo.getName().getNamespaceURI());
+        definition.addService(serv);
 
-        for (EndpointInfo ei : service.getEndpoints()) {
-            Port port = def.createPort();
+        for (EndpointInfo ei : serviceInfo.getEndpoints()) {
+            addNamespace(ei.getTransportId());
+            addNamespace(ei.getBinding().getBindingId());
+            Port port = definition.createPort();
             port.setName(ei.getName().getLocalPart());
-            port.setBinding(def.getBinding(ei.getBinding().getName()));
-            addExtensibiltyElements(port, ei.getWSDL11Extensors());
+            port.setBinding(definition.getBinding(ei.getBinding().getName()));
+            addExtensibiltyElements(port, getWSDL11Extensors(ei));
             serv.addPort(port);
         }
     }
 
-    private void buildPortType(Definition def, InterfaceInfo intf) {
+    protected void buildPortType(InterfaceInfo intf) {
         PortType portType = null;
         try {
             portType = intf.getProperty(WSDLServiceBuilder.WSDL_PORTTYPE, PortType.class);
@@ -216,17 +241,27 @@ public final class ServiceWSDLBuilder {
         }
         
         if (portType == null) {
-            portType = def.createPortType();
+            portType = definition.createPortType();
             portType.setQName(intf.getName());
-            buildPortTypeOperation(def, portType, intf.getOperations());
+            addNamespace(intf.getName().getNamespaceURI());
+            portType.setUndefined(false);
+            buildPortTypeOperation(portType, intf.getOperations());
         }
 
-        def.addPortType(portType);
+        definition.addPortType(portType);
     }
 
+    protected void addNamespace(String namespaceURI) {
+        addNamespace(getPrefix(namespaceURI), namespaceURI);
+    }
 
-    private void buildPortTypeOperation(Definition def, 
-                                        PortType portType, Collection<OperationInfo> operationInfos) {
+    protected void addNamespace(String prefix, String namespaceURI) {
+        prefix2ns.put(prefix, namespaceURI);
+        ns2prefix.put(namespaceURI, prefix);
+        definition.addNamespace(prefix, namespaceURI);
+    }
+
+    protected void buildPortTypeOperation(PortType portType, Collection<OperationInfo> operationInfos) {
         for (OperationInfo operationInfo : operationInfos) {
             Operation operation = null;
             try {
@@ -237,32 +272,34 @@ public final class ServiceWSDLBuilder {
             }
             
             if (operation == null) {
-                operation = def.createOperation();
+                operation = definition.createOperation();
+                operation.setUndefined(false);
                 operation.setName(operationInfo.getName().getLocalPart());
+                addNamespace(operationInfo.getName().getNamespaceURI());
                 if (operationInfo.isOneWay()) {
                     operation.setStyle(OperationType.ONE_WAY);
                 }
-                Input input = def.createInput();
+                Input input = definition.createInput();
                 input.setName(operationInfo.getInputName());
-                Message message = def.createMessage();
-                buildMessage(def, message, operationInfo.getInput());
+                Message message = definition.createMessage();
+                buildMessage(message, operationInfo.getInput());
                 input.setMessage(message);
                 operation.setInput(input);
                 
-                Output output = def.createOutput();
+                Output output = definition.createOutput();
                 output.setName(operationInfo.getOutputName());
-                message = def.createMessage();
-                buildMessage(def, message, operationInfo.getOutput());
+                message = definition.createMessage();
+                buildMessage(message, operationInfo.getOutput());
                 output.setMessage(message);
                 operation.setOutput(output);
                 //loop to add fault
                 Collection<FaultInfo> faults = operationInfo.getFaults();
                 Fault fault = null;
                 for (FaultInfo faultInfo : faults) {
-                    fault = def.createFault();
+                    fault = definition.createFault();
                     fault.setName(faultInfo.getFaultName().getLocalPart());
-                    message = def.createMessage();
-                    buildMessage(def, message, faultInfo);
+                    message = definition.createMessage();
+                    buildMessage(message, faultInfo);
                     fault.setMessage(message);
                     operation.addFault(fault);
                 }
@@ -271,18 +308,41 @@ public final class ServiceWSDLBuilder {
         }
     }
 
+    protected String getPrefix(String ns) {
+        String prefix = ns2prefix.get(ns);
+        if (prefix == null) {
+            prefix = getNewPrefix();
+            ns2prefix.put(ns, prefix);
+        }
+        return prefix;
+    }
+    
+    protected String getNewPrefix() {
+        String prefix = "ns1";
+        int i = 0;
+        while (prefix2ns.get(prefix) != null) {
+            i++;
+            prefix = "ns" + i;
+        }
+        return prefix;
+    }
 
-    private void buildMessage(Definition def, Message message,  AbstractMessageContainer messageContainer) {
+    protected void buildMessage(Message message, AbstractMessageContainer messageContainer) {
         message.setQName(messageContainer.getName());
+        message.setUndefined(false);
+        definition.addMessage(message);
+        
         List<MessagePartInfo> messageParts = messageContainer.getMessageParts();
         Part messagePart = null;
         for (MessagePartInfo messagePartInfo : messageParts) {
-            messagePart = def.createPart();
+            messagePart = definition.createPart();
             messagePart.setName(messagePartInfo.getName().getLocalPart());
             if (messagePartInfo.isElement()) {
                 messagePart.setElementName(messagePartInfo.getElementQName());
-            } else {
+                addNamespace(messagePartInfo.getElementQName().getNamespaceURI());
+            } else if (messagePartInfo.getTypeQName() != null) {
                 messagePart.setTypeName(messagePartInfo.getTypeQName());
+                addNamespace(messagePartInfo.getTypeQName().getNamespaceURI());
             }
             message.addPart(messagePart);
         }

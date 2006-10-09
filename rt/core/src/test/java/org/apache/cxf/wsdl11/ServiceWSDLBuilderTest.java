@@ -99,7 +99,7 @@ public class ServiceWSDLBuilderTest extends TestCase {
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
-        newDef = ServiceWSDLBuilder.getServiceWSDLBuilder().buildDefinition(serviceInfo);
+        newDef = new ServiceWSDLBuilder(serviceInfo).build();
         
     }
     

@@ -90,7 +90,7 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
     private void writeMessage(Message message, QName name, boolean executeBare) {
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
         try {
-            StaxUtils.writeStartElement(xmlWriter, "xmlroot", name.getLocalPart(), name.getNamespaceURI());
+            StaxUtils.writeStartElement(xmlWriter, "", name.getLocalPart(), name.getNamespaceURI());
             if (executeBare) {
                 new BareOutInterceptor().handleMessage(message);
             }

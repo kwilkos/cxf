@@ -29,6 +29,8 @@ import java.util.List;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 /**
@@ -44,8 +46,10 @@ public abstract class AbstractInvoker implements Invoker {
         final Object serviceObject = getServiceObject(exchange);
 
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
-
-        Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
+        MethodDispatcher md = (MethodDispatcher) 
+            exchange.get(Service.class).get(MethodDispatcher.class.getName());
+        Method m = md.getMethod(bop);
+        //Method m = (Method)bop.getOperationInfo().getProperty(Method.class.getName());
         m = matchMethod(m, serviceObject);
         List<Object> params = CastUtils.cast((List<?>)o);
 

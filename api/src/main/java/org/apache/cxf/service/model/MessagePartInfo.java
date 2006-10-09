@@ -27,6 +27,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     
     private boolean isElement;
     private QName typeName;
+    private QName elementName;
     private boolean isInSoapHeader;
 
     MessagePartInfo(QName n, AbstractMessageContainer info) {
@@ -49,7 +50,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     
     public QName getConcreteName() {
         if (isElement) {
-            return typeName;
+            return elementName;
         } else {
             return pname;
         }
@@ -63,16 +64,10 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     }
     
     public QName getElementQName() {
-        if (isElement) {
-            return typeName; 
-        }
-        return null;
+        return elementName;
     }
     public QName getTypeQName() {
-        if (!isElement) {
-            return typeName; 
-        }
-        return null;
+        return typeName;
     }
     public void setTypeQName(QName qn) {
         isElement = false;
@@ -80,7 +75,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     }
     public void setElementQName(QName qn) {
         isElement = true;
-        typeName = qn;
+        elementName = qn;
     }
     
     public AbstractMessageContainer getMessageInfo() {

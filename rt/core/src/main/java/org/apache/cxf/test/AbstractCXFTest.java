@@ -66,7 +66,12 @@ public class AbstractCXFTest extends TestCase {
     public void setUp() throws Exception {
         bus = createBus();
         
-        namespaces.put("s", "http://schemas.xmlsoap.org/soap/envelope/");
+        addNamespace("s", "http://schemas.xmlsoap.org/soap/envelope/");
+        addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
+        addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
+        addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
+        addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
+        
     }
     
     public Bus getBus() {
@@ -99,7 +104,7 @@ public class AbstractCXFTest extends TestCase {
             throw new RuntimeException("Could not find resource " + message);
         }
         
-        copy(is, os, 8096);
+        copy(is, os);
 
         byte[] bs = obs.getResponseStream().toByteArray();
         
@@ -111,9 +116,10 @@ public class AbstractCXFTest extends TestCase {
                                             + obs.getResponseStream().toString());
         }
     }
-
-    private void copy(final InputStream input, final OutputStream output, final int bufferSize)
+   
+    protected void copy(final InputStream input, final OutputStream output)
         throws IOException {
+        int bufferSize = 1024;
         try {
             final byte[] buffer = new byte[bufferSize];
 
@@ -215,7 +221,7 @@ public class AbstractCXFTest extends TestCase {
 
         public void onMessage(Message message) {
             try {
-                copy(message.getContent(InputStream.class), response, 1024);
+                copy(message.getContent(InputStream.class), response);
             } catch (IOException e) {
                 e.printStackTrace();
                 fail();
