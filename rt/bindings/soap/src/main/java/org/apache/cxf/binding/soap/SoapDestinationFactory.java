@@ -38,6 +38,8 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -101,8 +103,8 @@ public class SoapDestinationFactory implements DestinationFactory, WSDLEndpointF
         for (Iterator itr = ees.iterator(); itr.hasNext();) {
             Object extensor = itr.next();
 
-            if (extensor instanceof SOAPAddress) {
-                SOAPAddress sa = (SOAPAddress)extensor;
+            if (SOAPBindingUtil.isSOAPAddress(extensor)) {
+                SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
 
                 SoapBindingInfo sbi = (SoapBindingInfo) b;
                 EndpointInfo info = new EndpointInfo(serviceInfo, sbi.getTransportURI());

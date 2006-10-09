@@ -106,7 +106,7 @@ public class ReadHeaderInterceptorTest extends TestBase {
 
     private void prepareSoapMessage(String message) throws IOException {
 
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(message),
                                                            "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://cxf.apache.org");

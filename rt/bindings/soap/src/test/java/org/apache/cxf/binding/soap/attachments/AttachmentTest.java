@@ -74,7 +74,7 @@ public class AttachmentTest extends TestBase {
 
     public void testDoInterceptOfSoap12() throws Exception {
         try {
-            soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
+            soapMessage = TestUtil.createSoapMessage(Soap12.getInstance(), chain, this.getClass());
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
@@ -85,7 +85,7 @@ public class AttachmentTest extends TestBase {
 
     public void testDoInterceptOfSoap11() throws Exception {
         try {
-            soapMessage = TestUtil.createSoapMessage(new Soap11(), chain, this.getClass());
+            soapMessage = TestUtil.createSoapMessage(Soap11.getInstance(), chain, this.getClass());
         } catch (IOException ioe) {
             fail(ioe.getStackTrace().toString());
         }
@@ -97,7 +97,7 @@ public class AttachmentTest extends TestBase {
     public void testDoUnmarshallXopEnabled() {
         Object obj = null;
         try {
-            soapMessage = TestUtil.createSoapMessage(new Soap12(), chain, this.getClass());
+            soapMessage = TestUtil.createSoapMessage(Soap12.getInstance(), chain, this.getClass());
             InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
                             .getInputStream();
             testHandleMessage(soapMessage, is, false);
@@ -147,7 +147,7 @@ public class AttachmentTest extends TestBase {
     public void testDoMarshallXopEnabled() throws Exception {
         // mashalling data object
         QName elName = new QName("http://cxf.apache.org/bindings/soap/attachments/types", "Detail");
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         try {
             DetailType detailObj = TestUtil.createDetailObject(this.getClass());
             Class<?> cls = DetailType.class;

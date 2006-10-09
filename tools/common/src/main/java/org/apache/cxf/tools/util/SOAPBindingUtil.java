@@ -21,14 +21,13 @@ package org.apache.cxf.tools.util;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.BindingOutput;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -85,6 +84,17 @@ public final class SOAPBindingUtil {
         return "";
     }
 
+    public static SoapOperation getSoapOperation(List<ExtensibilityElement> exts) {
+        if (exts != null) {
+            for (ExtensibilityElement ext : exts) {
+                if (isSOAPOperation(ext)) {
+                    return getSoapOperation(ext);
+                }
+            }
+        }
+        return null;
+    }
+    
     public static SoapOperation getSoapOperation(Object obj) {
         if (isSOAPOperation(obj)) {
             return getProxy(SoapOperation.class, obj);
@@ -137,6 +147,15 @@ public final class SOAPBindingUtil {
         return null;
     }
 
+    public static SoapBody getSoapBody(List<ExtensibilityElement> exts) {
+        for (ExtensibilityElement ext : exts) {
+            if (isSOAPBody(ext)) {
+                return getSoapBody(ext);
+            }
+        }
+        return null;
+    }
+
     public static SoapBody getSoapBody(Object obj) {
         if (isSOAPBody(obj)) {
             return getProxy(SoapBody.class, obj);
@@ -150,6 +169,16 @@ public final class SOAPBindingUtil {
 
     public static boolean isSOAPHeader(Object obj) {
         return obj instanceof SOAPHeader || obj instanceof SOAP12Header;
+    }
+
+    public static List<SoapHeader> getSoapHeaders(List<ExtensibilityElement> exts) {
+        List<SoapHeader> headers = new ArrayList<SoapHeader>();
+        for (ExtensibilityElement ext : exts) {
+            if (isSOAPHeader(ext)) {
+                headers.add(getSoapHeader(ext));
+            }
+        }
+        return headers;
     }
 
     public static SoapHeader getSoapHeader(Object obj) {
@@ -200,6 +229,15 @@ public final class SOAPBindingUtil {
         return null;
     }
 
+    public static SoapBinding getSoapBinding(List<ExtensibilityElement> exts) {
+        for (ExtensibilityElement ext : exts) {
+            if (isSOAPBinding(ext)) {
+                return getSoapBinding(ext);
+            }
+        }
+        return null;
+    }
+    
     public static SoapBinding getSoapBinding(Object obj) {
         if (isSOAPBinding(obj)) {
             return getProxy(SoapBinding.class, obj);

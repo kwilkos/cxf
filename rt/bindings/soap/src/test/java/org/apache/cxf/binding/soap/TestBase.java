@@ -70,7 +70,7 @@ public class TestBase extends TestCase {
         phases.add(phase3);
         chain = new PhaseInterceptorChain(phases);
 
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap11(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap11.getInstance(), chain);
     }
 
     public void tearDown() throws Exception {

@@ -136,8 +136,57 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     }
 
-    public void testHelloWorld() throws Exception {
+    public void testHelloWorldSoap12() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_soap12.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
 
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File helloworldsoaphttp = new File(apache, "hello_world_soap12_http");
+        assertTrue(helloworldsoaphttp.exists());
+        File types = new File(helloworldsoaphttp, "types");
+        assertTrue(types.exists());
+        File[] files = helloworldsoaphttp.listFiles();
+        assertEquals(3, files.length);
+        files = types.listFiles();
+        assertEquals(4, files.length);
+
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
+        assertTrue("class " + clz.getName() + " modifier is not public", Modifier
+                   .isPublic(clz.getModifiers()));
+        assertTrue("class " + clz.getName() + " modifier is interface",
+                   Modifier.isInterface(clz
+                                        .getModifiers()));
+
+        WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
+        assertEquals("Greeter", webServiceAnn.name());
+
+        Method method = clz.getMethod("sayHi", new Class[] {});
+        WebMethod webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
+        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "sayHi",
+                     webMethodAnno.operationName());
+
+        RequestWrapper requestWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
+                                                                                  RequestWrapper.class);
+
+        assertEquals("org.apache.hello_world_soap12_http.types.SayHi", requestWrapperAnn.className());
+
+        ResponseWrapper resposneWrapperAnn = AnnotationUtil.getPrivMethodAnnotation(method,
+                                                                                    ResponseWrapper.class);
+
+        assertEquals("sayHiResponse", resposneWrapperAnn.localName());
+
+        WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
+
+        assertEquals("responseType", webResultAnno.name());
+    }
+    
+    public void testHelloWorld() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();

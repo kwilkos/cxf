@@ -165,6 +165,9 @@
                                     </extraargs>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_soap12.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_secure.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>

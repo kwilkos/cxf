@@ -94,7 +94,7 @@ public class SoapOutInterceptorTest extends TestBase {
     }
 
     private void prepareSoapMessage() throws IOException {
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
 
         soapMessage.setContent(InputStream.class, getClass().getResourceAsStream("test-soap-header.xml"));
     }

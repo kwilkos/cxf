@@ -35,6 +35,8 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                 <value>http://schemas.xmlsoap.org/wsdl/soap/</value>
                 <value>http://schemas.xmlsoap.org/wsdl/soap/http</value>
                 <value>http://cxf.apache.org/transports/jms</value>
+ 	            <value>http://www.w3.org/2003/05/soap/bindings/HTTP/</value>
+                <value>http://schemas.xmlsoap.org/wsdl/soap12/</value>
             </set>
         </property>
     </bean>
@@ -47,6 +49,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             <set>
                 <value>http://schemas.xmlsoap.org/soap/</value>
                 <value>http://schemas.xmlsoap.org/wsdl/soap/</value>
+				<value>http://schemas.xmlsoap.org/wsdl/soap12/</value>
             </set>
         </property>
     </bean>

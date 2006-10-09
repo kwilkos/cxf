@@ -393,31 +393,12 @@ public class WSDLToProcessor implements Processor {
     
 
     public void checkSupported(Definition def) throws ToolException {
-        if (isSOAP12Binding(wsdlDefinition)) {
-            org.apache.cxf.common.i18n.Message msg =
-                new org.apache.cxf.common.i18n.Message("SOAP12_UNSUPPORTED",
-                                                             LOG);
-            throw new ToolException(msg);
-        }
-
         if (isRPCEncoded(wsdlDefinition)) {
             org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("UNSUPPORTED_RPC_ENCODED",
                                                              LOG);
             throw new ToolException(msg);
         }
-    }
-
-    private boolean isSOAP12Binding(Definition def) {
-        String namespace = "";
-        for (Iterator ite = def.getNamespaces().values().iterator(); ite.hasNext();) {
-            namespace = (String)ite.next();
-            if (namespace != null
-                && namespace.toLowerCase().indexOf("http://schemas.xmlsoap.org/wsdl/soap12") >= 0) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isRPCEncoded(Definition def) {

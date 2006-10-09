@@ -32,11 +32,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.mime.MIMEContent;
 import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPHeader;
-import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
+
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
@@ -69,6 +66,11 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
+import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
+
 
 public class SoapBindingFactory extends AbstractBindingFactory {
 
@@ -178,7 +180,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         // Copy all the extensors
         initializeBindingInfo(service, binding, bi);
 
-        SOAPBinding wSoapBinding = bi.getExtensor(SOAPBinding.class);
+        org.apache.cxf.tools.common.extensions.soap.SoapBinding wSoapBinding
+            = SOAPBindingUtil.getSoapBinding(bi.getWSDL11Extensors());
+        
         bi.setTransportURI(wSoapBinding.getTransportURI());
         bi.setStyle(wSoapBinding.getStyle());
 
@@ -192,7 +196,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     private void initializeBindingOperation(SoapBindingInfo bi, BindingOperationInfo boi) {
         SoapOperationInfo soi = new SoapOperationInfo();
 
-        SOAPOperation soapOp = boi.getExtensor(SOAPOperation.class);
+        SoapOperation soapOp = SOAPBindingUtil.getSoapOperation(boi.getWSDL11Extensors());
+        
         if (soapOp != null) {
             String action = soapOp.getSoapActionURI();
             if (action == null) {
@@ -221,9 +226,9 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         List<MessagePartInfo> messageParts = new ArrayList<MessagePartInfo>();
         messageParts.addAll(msg.getMessageParts());
 
-        List<SOAPHeader> headers = bmsg.getExtensors(SOAPHeader.class);
+        List<SoapHeader> headers = SOAPBindingUtil.getSoapHeaders(bmsg.getWSDL11Extensors());
         if (headers != null) {
-            for (SOAPHeader header : headers) {
+            for (SoapHeader header : headers) {
                 SoapHeaderInfo headerInfo = new SoapHeaderInfo();
                 headerInfo.setUse(header.getUse());
 
@@ -240,7 +245,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
 
         SoapBodyInfo bodyInfo = new SoapBodyInfo();
-        SOAPBody soapBody = bmsg.getExtensor(SOAPBody.class);
+        SoapBody soapBody = SOAPBindingUtil.getSoapBody(bmsg.getWSDL11Extensors());
         List parts = null;
         if (soapBody == null) {
             MIMEMultipartRelated mmr = bmsg.getExtensor(MIMEMultipartRelated.class);
@@ -259,14 +264,16 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 String partName = null;
                 if (part instanceof MIMEPart) {
                     MIMEPart mpart = (MIMEPart) part;
-                    if (mpart.getExtensibilityElements().size() == 1) {
-                        Object content = mpart.getExtensibilityElements().get(0);
-                        if (content instanceof MIMEContent) {
-                            partName = ((MIMEContent) content).getPart();
-                        } else {
-                            if (((SOAPBody) content).getParts().size() == 1) {
-                                partName = (String) ((SOAPBody) content).getParts().get(0);
-                            }
+                    if (mpart.getExtensibilityElements().size() < 1) {
+                        throw new RuntimeException("MIMEPart should at least contain one element!");
+                    }
+                    Object content = mpart.getExtensibilityElements().get(0);
+                    if (content instanceof MIMEContent) {
+                        partName = ((MIMEContent) content).getPart();
+                    } else if (SOAPBindingUtil.isSOAPBody(content)) {
+                        SoapBody sb = SOAPBindingUtil.getSoapBody(content);
+                        if (sb.getParts().size() == 1) {
+                            partName = (String) sb.getParts().get(0);
                         }
                     }
                 } else {

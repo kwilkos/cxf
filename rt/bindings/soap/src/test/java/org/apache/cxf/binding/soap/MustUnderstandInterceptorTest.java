@@ -117,7 +117,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
 
     private void prepareSoapMessage() throws Exception {
 
-        soapMessage = TestUtil.createEmptySoapMessage(new Soap12(), chain);
+        soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass()
             .getResourceAsStream("test-soap-header.xml"), "Application/xop+xml");
         String cid = AttachmentUtil.createContentID("http://cxf.apache.org");

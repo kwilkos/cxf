@@ -37,10 +37,18 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
     private List<Interceptor> out;
     private List<Interceptor> fault;
     
+    private SoapVersion version;
+    
     public SoapBinding() {
+        this(Soap11.getInstance());
+    }
+    
+    public SoapBinding(SoapVersion v) {
         in = new ArrayList<Interceptor>();
         out = new ArrayList<Interceptor>();
         fault = new ArrayList<Interceptor>();
+        
+        version = v; 
     }
     
     public Message createMessage() {
@@ -48,6 +56,9 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
     }
 
     public Message createMessage(Message m) {
+        SoapMessage soapMessage = new SoapMessage(m);
+        soapMessage.setVersion(version);
+
         if (mtomEnabled) {
             m.put(Message.MTOM_ENABLED, Boolean.TRUE);
         }

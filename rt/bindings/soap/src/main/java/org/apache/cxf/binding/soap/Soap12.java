@@ -26,7 +26,7 @@ import javax.xml.namespace.QName;
  * 
  * @version $Revision$
  */
-public class Soap12 implements SoapVersion {
+public final class Soap12 implements SoapVersion {
     public static final String SOAP_NAMESPACE = "http://www.w3.org/2003/05/soap-envelope";
     
     private static Soap12 instance = new Soap12();
@@ -54,6 +54,10 @@ public class Soap12 implements SoapVersion {
 
     private final QName fault = new QName(namespace, "Fault", prefix);
 
+    private Soap12() {
+       // Singleton 
+    }
+    
     public static Soap12 getInstance() {
         return instance;
     }
