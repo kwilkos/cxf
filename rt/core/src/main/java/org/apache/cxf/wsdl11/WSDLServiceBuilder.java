@@ -480,7 +480,8 @@ public class WSDLServiceBuilder {
     }
 
     private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
-        for (Part part : cast(msg.getOrderedParts(paramOrder), Part.class)) {
+        List orderedParam = msg.getOrderedParts(paramOrder);
+        for (Part part : cast(orderedParam, Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(part.getName());
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
@@ -490,6 +491,18 @@ public class WSDLServiceBuilder {
                 pi.setIsElement(true);
             }
         }
-    }
+        for (Part part : cast(msg.getParts().values(), Part.class)) {
+            if (!orderedParam.contains(part)) {
+                MessagePartInfo pi = minfo.addMessagePart(part.getName());
+                if (part.getTypeName() != null) {
+                    pi.setTypeQName(part.getTypeName());
+                    pi.setIsElement(false);
+                } else {
+                    pi.setElementQName(part.getElementName());
+                    pi.setIsElement(true);
+                }                
+            }
+        }
+    }    
 
 }

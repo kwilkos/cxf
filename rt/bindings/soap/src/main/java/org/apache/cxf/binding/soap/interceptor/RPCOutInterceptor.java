@@ -74,18 +74,15 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             countParts = parts.size();
 
             if (countParts > 0) {
-                List<?> objs = (List<?>) message.getContent(List.class);
-                Object[] args = objs.toArray();
-                Object[] els = parts.toArray();
-
-                if (args.length != els.length) {
+                List<?> objs = (List<?>) message.getContent(List.class);                
+                if (objs.size() < parts.size()) {
                     message.setContent(Exception.class, new RuntimeException(
                                     "The number of arguments is not equal!"));
                 }
 
                 for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = args[idx];
-                    MessagePartInfo part = (MessagePartInfo) els[idx];
+                    Object arg = objs.get(idx);
+                    MessagePartInfo part = (MessagePartInfo) parts.get(idx);
                     QName elName = getPartName(part);
                     dataWriter.write(arg, elName, message);
                 }
