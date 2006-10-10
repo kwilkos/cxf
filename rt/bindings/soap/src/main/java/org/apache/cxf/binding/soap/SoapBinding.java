@@ -51,6 +51,10 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
         version = v; 
     }
     
+    public void setSoapVersion(SoapVersion v) {
+        this.version = v;
+    }
+    
     public Message createMessage() {
         return createMessage(new MessageImpl());
     }
@@ -62,7 +66,7 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
         if (mtomEnabled) {
             m.put(Message.MTOM_ENABLED, Boolean.TRUE);
         }
-        return new SoapMessage(m);
+        return soapMessage;
     }
 
     public List<Interceptor> getFaultInterceptors() {

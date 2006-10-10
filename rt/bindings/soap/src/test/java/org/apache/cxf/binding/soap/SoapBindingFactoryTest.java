@@ -31,6 +31,7 @@ import org.xml.sax.InputSource;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.BindingFactoryManagerImpl;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -41,6 +42,7 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.IMocksControl;
@@ -49,16 +51,29 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
 public class SoapBindingFactoryTest extends TestCase {
-
-    public void testFactory() throws Exception {
-        Definition d = createDefinition();
-
-        IMocksControl control = createNiceControl();
-        Bus bus = control.createMock(Bus.class);
-
+    IMocksControl control;
+    
+    public void setUp() {
+        control = createNiceControl();
+    }
+    
+    private Bus getMockBus() {        
+        return control.createMock(Bus.class);        
+    }
+    
+    private BindingFactoryManager getBindingFactoryManager(String ns) throws BusException {
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
         BindingFactoryManager bfm = new BindingFactoryManagerImpl();
-        bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
+        bfm.registerBindingFactory(ns, bindingFactory);
+        return bfm;
+    }
+
+    public void testFactory() throws Exception {        
+        Definition d = createDefinition("/wsdl/hello_world.wsdl");
+
+        Bus bus = getMockBus();
+
+        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP11_NAMESPACE);
 
         expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
         
@@ -77,7 +92,8 @@ public class SoapBindingFactoryTest extends TestCase {
 
         SoapBindingInfo sbi = (SoapBindingInfo)bi;
         assertEquals("document", sbi.getStyle());
-        assertEquals("http://schemas.xmlsoap.org/soap/http", sbi.getTransportURI());
+        assertTrue(WSDLConstants.SOAP_HTTP_TRANSPORT.equalsIgnoreCase(sbi.getTransportURI()));
+        assertTrue(sbi.getSoapVersion() instanceof Soap11);
 
         BindingOperationInfo boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap_http",
                                                               "sayHi"));
@@ -94,10 +110,55 @@ public class SoapBindingFactoryTest extends TestCase {
         assertNotNull(parts);
         assertEquals(1, parts.size());
     }
+    
+    
+    public void testSoap12Factory() throws Exception {        
+        Definition d = createDefinition("/wsdl/hello_world_soap12.wsdl");
 
-    public Definition createDefinition() throws Exception {
-        URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
-        return WSDLFactory.newInstance().newWSDLReader().readWSDL("hello_world.wsdl",
+        Bus bus = getMockBus();
+
+        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP12_NAMESPACE);
+
+        expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
+        
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
+        expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
+        
+        control.replay();
+
+        WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);
+        ServiceInfo serviceInfo = builder
+            .buildService(d, new QName("http://apache.org/hello_world_soap12_http", "SOAPService"));
+
+        BindingInfo bi = serviceInfo.getBindings().iterator().next();
+
+        assertTrue(bi instanceof SoapBindingInfo);
+
+        SoapBindingInfo sbi = (SoapBindingInfo)bi;
+        assertEquals("document", sbi.getStyle());
+        assertTrue(WSDLConstants.SOAP12_HTTP_TRANSPORT.equalsIgnoreCase(sbi.getTransportURI()));
+        assertTrue(sbi.getSoapVersion() instanceof Soap12);
+
+        BindingOperationInfo boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap12_http",
+                                                              "sayHi"));
+        SoapOperationInfo sboi = boi.getExtensor(SoapOperationInfo.class);
+        assertNotNull(sboi);
+        assertEquals("document", sboi.getStyle());
+        assertEquals("", sboi.getAction());
+
+        BindingMessageInfo input = boi.getInput();
+        SoapBodyInfo bodyInfo = input.getExtensor(SoapBodyInfo.class);
+        assertEquals("literal", bodyInfo.getUse());
+
+        List<MessagePartInfo> parts = bodyInfo.getParts();
+        assertNotNull(parts);
+        assertEquals(1, parts.size());
+    }
+    
+
+    public Definition createDefinition(String wsdlURL) throws Exception {
+        URL resource = getClass().getResource(wsdlURL);
+        return WSDLFactory.newInstance().newWSDLReader().readWSDL(null,
                                                                   new InputSource(resource.openStream()));
     }
 }

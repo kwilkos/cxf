@@ -116,9 +116,11 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         String parameterStyle = SoapConstants.PARAMETER_STYLE_WRAPPED;
         String bindingStyle = SoapConstants.BINDING_STYLE_DOC;
 
-        SoapBinding sb = new SoapBinding();
+        SoapBinding sb = null;
         if (binding instanceof SoapBindingInfo) {
             SoapBindingInfo sbi = (SoapBindingInfo) binding;
+            
+            sb = new SoapBinding(sbi.getSoapVersion());
             // Service wide style
             if (!StringUtils.isEmpty(sbi.getStyle())) {
                 bindingStyle = sbi.getStyle();
@@ -133,6 +135,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     parameterStyle = SoapConstants.PARAMETER_STYLE_BARE;
                 }
             }            
+        } else {
+            throw new RuntimeException("Can not initialize SoapBinding, BindingInfo is not SoapBindingInfo");
         }
 
         sb.getInInterceptors().add(new MultipartMessageInterceptor());
@@ -175,7 +179,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
     public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding) {
         String ns = ((ExtensibilityElement) binding.getExtensibilityElements().get(0)).getElementType()
                         .getNamespaceURI();
-        SoapBindingInfo bi = new SoapBindingInfo(service, ns, Soap11.getInstance());
+        SoapBindingInfo bi = new SoapBindingInfo(service, ns);
 
         // Copy all the extensors
         initializeBindingInfo(service, binding, bi);

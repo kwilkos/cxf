@@ -41,7 +41,7 @@ public final class WSDLConstants {
 
     public static final String BINDING = "Binding";
     public static final String SOAP_HTTP_TRANSPORT = "http://schemas.xmlsoap.org/soap/http";
-    public static final String SOAP12_HTTP_TRANSPORT = "http://schemas.xmlsoap.org/soap12/http";
+    public static final String SOAP12_HTTP_TRANSPORT = "http://www.w3.org/2003/05/soap/bindings/http/";
 
     public static final String DOCUMENT = "document";
     public static final String RPC = "rpc";
