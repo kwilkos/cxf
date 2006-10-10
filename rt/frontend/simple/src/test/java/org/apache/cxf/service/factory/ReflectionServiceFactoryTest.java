@@ -75,8 +75,35 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
     }
 
-    public void testReflectionBuild() throws Exception {
-        Service service = createService();
+    public void testUnwrappedBuild() throws Exception {
+        Service service = createService(false);
+        
+        ServiceInfo si = service.getServiceInfo();
+        InterfaceInfo intf = si.getInterface();
+        
+        assertEquals(3, intf.getOperations().size());
+        
+        String ns = si.getName().getNamespaceURI();
+        OperationInfo sayHelloOp = intf.getOperation(new QName(ns, "sayHello"));
+        assertNotNull(sayHelloOp);
+        
+        assertEquals("sayHello", sayHelloOp.getInput().getName().getLocalPart());
+        
+        List<MessagePartInfo> messageParts = sayHelloOp.getInput().getMessageParts();
+        assertEquals(0, messageParts.size());
+        
+        // test output
+        messageParts = sayHelloOp.getOutput().getMessageParts();
+        assertEquals(1, messageParts.size());
+        assertEquals("sayHelloResponse", sayHelloOp.getOutput().getName().getLocalPart());
+        
+        MessagePartInfo mpi = messageParts.get(0);
+        assertEquals("out", mpi.getName().getLocalPart());
+        assertEquals(String.class, mpi.getProperty(Class.class.getName()));
+    }
+    
+    public void testWrappedBuild() throws Exception {
+        Service service = createService(true);
         
         ServiceInfo si = service.getServiceInfo();
         InterfaceInfo intf = si.getInterface();
@@ -114,17 +141,18 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         assertEquals(String.class, mpi.getProperty(Class.class.getName()));
     }
 
-    private Service createService() throws JAXBException {
+    private Service createService(boolean wrapped) throws JAXBException {
         serviceFactory = new ReflectionServiceFactoryBean();
         serviceFactory.setDataBinding(new JAXBDataBinding(HelloService.class));
         serviceFactory.setBus(getBus());
         serviceFactory.setServiceClass(HelloService.class);
+        serviceFactory.setWrapped(wrapped);
         
         return serviceFactory.create();        
     }
     
     public void testServerFactoryBean() throws Exception {
-        Service service = createService();
+        Service service = createService(true);
         
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");

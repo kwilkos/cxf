@@ -45,6 +45,7 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ElementExtensible;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
+import javax.xml.namespace.QName;
 
 import com.ibm.wsdl.extensions.schema.SchemaImpl;
 
@@ -66,6 +67,8 @@ import org.apache.cxf.service.model.TypeInfo;
 
 public final class ServiceWSDLBuilder {
     
+    private static final QName SCHEMA_QNAME = new QName("http://www.w3.org/2001/XMLSchema", "schema");
+    
     private Map<String, String> prefix2ns;
     private Map<String, String> ns2prefix;
     private Definition definition;
@@ -85,7 +88,10 @@ public final class ServiceWSDLBuilder {
         }
         if (definition == null) {
             definition = WSDLFactory.newInstance().newDefinition();
-
+            definition.getExtensionRegistry().registerSerializer(Types.class, 
+                                                                 SCHEMA_QNAME,
+                                                                 new SchemaSerializer());
+                    
             addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
             addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
             addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
@@ -133,6 +139,8 @@ public final class ServiceWSDLBuilder {
         Types types = definition.createTypes();
         for (SchemaInfo schemaInfo : typeInfo.getSchemas()) {
             SchemaImpl schemaImpl = new SchemaImpl();
+            schemaImpl.setRequired(true);
+            schemaImpl.setElementType(SCHEMA_QNAME);
             schemaImpl.setElement(schemaInfo.getElement());
             types.addExtensibilityElement(schemaImpl);
         }

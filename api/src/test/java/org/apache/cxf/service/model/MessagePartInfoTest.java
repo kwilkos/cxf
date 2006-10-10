@@ -33,7 +33,7 @@ public class MessagePartInfoTest extends TestCase {
         
         messagePartInfo = new MessagePartInfo(new QName(
             "http://apache.org/hello_world_soap_http", "testMessagePart"), null);
-        messagePartInfo.setIsElement(true);
+        messagePartInfo.setElement(true);
     }
     
     public void tearDown() throws Exception {

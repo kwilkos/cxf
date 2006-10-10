@@ -19,22 +19,17 @@
 
 package org.apache.cxf.service.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
+import java.util.List;
 
 
 
 public class TypeInfo extends AbstractPropertiesHolder {
-    private static final Logger LOG = LogUtils.getL7dLogger(TypeInfo.class);
     
     ServiceInfo service;
-    Map<String, SchemaInfo> schemas = new ConcurrentHashMap<String, SchemaInfo>(4);
+    List<SchemaInfo> schemas = new ArrayList<SchemaInfo>(4);
     
     public TypeInfo(ServiceInfo serv) {
         service = serv;
@@ -44,32 +39,22 @@ public class TypeInfo extends AbstractPropertiesHolder {
         return service;
     }
     
-    public SchemaInfo addSchema(String namespaceURI) {
-        if (namespaceURI == null) {
-            throw new NullPointerException(new Message("NAMESPACE.URI.NOT.NULL", LOG).toString());
-        } 
-        if (schemas.containsKey(namespaceURI)) {
-            throw new IllegalArgumentException(
-                new Message("DUPLICATED.NAMESPACE", LOG, new Object[]{namespaceURI}).toString());
-        }
-        SchemaInfo schemaInfo = new SchemaInfo(this, namespaceURI);
-        addSchema(schemaInfo);
-        return schemaInfo;
-    }
-
-    
     public void addSchema(SchemaInfo schemaInfo) {
-        schemas.put(schemaInfo.getNamespaceURI(), schemaInfo);
+        schemas.add(schemaInfo);
     }
 
     
     public SchemaInfo getSchema(String namespaceURI) {
-        return schemas.get(namespaceURI);
+        for (SchemaInfo s : schemas) {
+            if (s.getNamespaceURI().equals(namespaceURI)) {
+                return s;
+            }
+        }
+        return null;
     }
-
     
     public Collection<SchemaInfo> getSchemas() {
-        return Collections.unmodifiableCollection(schemas.values());
+        return Collections.unmodifiableCollection(schemas);
     } 
 
 }

@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxb;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,10 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.dom.DOMResult;
 
 import org.w3c.dom.Document;
 
@@ -45,8 +49,10 @@ import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.TypeInfo;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
@@ -155,7 +161,50 @@ public final class JAXBDataBinding implements DataBinding {
     public void initialize(ServiceInfo serviceInfo) {
         JAXBServiceModelInitializer initializer = new JAXBServiceModelInitializer(serviceInfo);
         initializer.walk();
+        
+        try {
+            TypeInfo typeInfo = serviceInfo.getTypeInfo();
+            if (typeInfo == null) {
+                typeInfo = new TypeInfo(serviceInfo);
+                serviceInfo.setTypeInfo(typeInfo);
+            }
+
+            for (DOMResult r : generateJaxbSchemas()) {
+                Document d = (Document) r.getNode();
+                String ns = d.getDocumentElement().getAttribute("targetNamespace");
+                if (ns == null) {
+                    ns = "";
+                }
+                
+                // Don't include WS-Addressing bits
+                if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
+                    continue;
+                }
+                
+                SchemaInfo schema = new SchemaInfo(typeInfo, ns);
+                schema.setElement(d.getDocumentElement());
+            }
+        } catch (IOException e) {
+            throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", BUNDLE), e);
+        }
     }
     
-    
+
+    private List<DOMResult> generateJaxbSchemas() throws IOException {
+        final List<DOMResult> results = new ArrayList<DOMResult>();
+
+        context.generateSchema(new SchemaOutputResolver() {
+            @Override
+            public Result createOutput(String ns, String file) throws IOException {
+                DOMResult result = new DOMResult();
+                result.setSystemId(file);
+
+                results.add(result);
+
+                return result;
+            }
+        });
+
+        return results;
+    }
 }

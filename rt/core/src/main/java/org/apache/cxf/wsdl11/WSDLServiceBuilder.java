@@ -486,10 +486,10 @@ public class WSDLServiceBuilder {
             MessagePartInfo pi = minfo.addMessagePart(part.getName());
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
-                pi.setIsElement(false);
+                pi.setElement(false);
             } else {
                 pi.setElementQName(part.getElementName());
-                pi.setIsElement(true);
+                pi.setElement(true);
             }
         }
         for (Part part : cast(msg.getParts().values(), Part.class)) {
@@ -497,10 +497,10 @@ public class WSDLServiceBuilder {
                 MessagePartInfo pi = minfo.addMessagePart(part.getName());
                 if (part.getTypeName() != null) {
                     pi.setTypeQName(part.getTypeName());
-                    pi.setIsElement(false);
+                    pi.setElement(false);
                 } else {
                     pi.setElementQName(part.getElementName());
-                    pi.setIsElement(true);
+                    pi.setElement(true);
                 }                
             }
         }

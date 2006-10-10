@@ -51,6 +51,7 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
         this.bindingURI = implInfo.getBindingType();
         getServiceConfigurations().add(0, new WebServiceProviderConfiguration());
         setServiceClass(implInfo.getImplementorClass());
+        setWrapped(false);
     }
     
     @Override

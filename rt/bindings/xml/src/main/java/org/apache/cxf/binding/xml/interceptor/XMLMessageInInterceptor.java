@@ -59,7 +59,6 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     public void handleMessage(Message message) throws Fault {
-
         XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
         Endpoint ep = message.getExchange().get(Endpoint.class);
@@ -115,7 +114,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
             }
         }
         
-        throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", BUNDLE));
+        throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", BUNDLE, startQName));
     }
 
 }

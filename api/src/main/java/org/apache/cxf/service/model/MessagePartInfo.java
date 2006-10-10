@@ -59,7 +59,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     public boolean isElement() { 
         return isElement;
     }
-    public void setIsElement(boolean b) {
+    public void setElement(boolean b) {
         isElement = b;
     }
     

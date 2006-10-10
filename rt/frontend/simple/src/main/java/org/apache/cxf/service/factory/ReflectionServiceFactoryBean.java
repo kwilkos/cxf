@@ -32,11 +32,15 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.Service;
@@ -51,7 +55,9 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
@@ -65,7 +71,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
-
+    private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
+    
     protected URL wsdlURL;
 
     protected Class<?> serviceClass;
@@ -167,8 +174,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             
             createInterface(serviceInfo);
 
+            if (wrappedStyle) {
+                initializeWrappedElementNames(serviceInfo);
+            }
+            
             if (getDataBinding() != null) {
                 getDataBinding().initialize(serviceInfo);
+            }
+            
+            if (wrappedStyle) {
+                initializeWrappedSchema(serviceInfo);
             }
             
             setService(service);
@@ -274,6 +289,93 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         methodDispatcher.bind(op, m);
 
         return op;
+    }
+
+    private void initializeWrappedElementNames(ServiceInfo serviceInfo) {
+        for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
+            if (op.hasInput()) {
+                setElementNameOnPart(op.getInput());
+            }
+            if (op.hasOutput()) {
+                setElementNameOnPart(op.getOutput());
+            }
+        }
+    }
+
+    private void setElementNameOnPart(MessageInfo m) {
+        List<MessagePartInfo> parts = m.getMessageParts();
+        if (parts.size() == 1) {
+            MessagePartInfo p = parts.get(0);
+            p.setElement(true);
+            p.setElementQName(m.getName());
+        }
+    }
+
+    protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
+        Document d = DOMUtils.createDocument();
+        
+        Element schema = d.createElementNS(XSD_NS, "xsd:schema");
+        d.appendChild(schema);
+        schema.setAttribute("targetNamespace", getServiceNamespace());
+        
+        for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
+            if (op.hasInput()) {
+                createWrappedMessage(op.getInput(), op.getUnwrappedOperation().getInput(), d, schema);
+            }
+            if (op.hasOutput()) {
+                createWrappedMessage(op.getOutput(), op.getUnwrappedOperation().getOutput(), d, schema);
+            }
+        }
+        
+        TypeInfo typeInfo = serviceInfo.getTypeInfo();
+        if (typeInfo == null) {
+            typeInfo = new TypeInfo(serviceInfo);
+            serviceInfo.setTypeInfo(typeInfo);
+        }
+        
+        SchemaInfo schemaInfo = new SchemaInfo(typeInfo, getServiceNamespace());
+        schemaInfo.setElement(schema);
+        typeInfo.addSchema(schemaInfo);
+    }
+
+    private void createWrappedMessage(MessageInfo wrappedMessage, 
+                                      MessageInfo unwrappedMessage, 
+                                      Document d, 
+                                      Element schema) {
+        Element el = d.createElementNS(XSD_NS, "xsd:element");
+        el.setAttribute("name", wrappedMessage.getName().getLocalPart());
+        schema.appendChild(el);
+        
+        Element ct = d.createElementNS(XSD_NS, "xsd:complexType");
+        el.appendChild(ct);
+        
+        Element seq = d.createElementNS(XSD_NS, "xsd:sequence");
+        ct.appendChild(seq);
+        
+        
+        for (MessagePartInfo mpi : unwrappedMessage.getMessageParts()) {
+            el = d.createElementNS(XSD_NS, "xsd:element");
+            el.setAttribute("name", mpi.getName().getLocalPart());
+            el.setAttribute("minOccurs", "1");
+            el.setAttribute("maxOccurs", "1");
+            
+            if (mpi.isElement()) {
+                String ns = mpi.getElementQName().getNamespaceURI();
+                String prefix = DOMUtils.getPrefixRecursive(el, ns);
+                if (prefix == null) {
+                    prefix = DOMUtils.createNamespace(schema, ns);
+                }
+                el.setAttribute("ref", prefix + ":" + mpi.getElementQName().getLocalPart());
+            } else {
+                String ns = mpi.getTypeQName().getNamespaceURI();
+                String prefix = DOMUtils.getPrefixRecursive(el, ns);
+                if (prefix == null) {
+                    prefix = DOMUtils.createNamespace(schema, ns);
+                }
+                el.setAttribute("type", prefix + ":" + mpi.getTypeQName().getLocalPart());
+            }
+            seq.appendChild(el);
+        }
     }
 
     protected void createMessageParts(InterfaceInfo intf, OperationInfo op, Method method) {

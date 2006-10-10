@@ -64,7 +64,7 @@ class JAXBServiceModelInitializer extends ServiceModelVisitor {
 
         boolean isElement = typeInfo instanceof ElementInfo;
 
-        part.setIsElement(isElement);
+        part.setElement(isElement);
         if (isElement) {
             part.setElementQName(typeName);
         } else {

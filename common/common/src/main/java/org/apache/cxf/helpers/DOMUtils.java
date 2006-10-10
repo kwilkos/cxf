@@ -36,6 +36,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -315,5 +316,42 @@ public final class DOMUtils {
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("Couldn't find a DOM parser.", e);
         }
+    }
+
+    public static String getUniquePrefix(Element el, String ns) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    public static String getPrefixRecursive(Element el, String ns) {
+        String prefix = getPrefix(el, ns);
+        if (prefix == null && el.getParentNode() instanceof Element) {
+            prefix = getPrefixRecursive((Element) el.getParentNode(), ns);
+        }
+        return prefix;
+    }
+
+    public static String getPrefix(Element el, String ns) {
+        NamedNodeMap atts = el.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Node node = atts.item(i);
+            String name = node.getNodeName();
+            if (ns.equals(node.getNodeValue()) 
+                && (name != null && ("xmlns".equals(name) || name.startsWith("xmlns:")))) { 
+                return node.getPrefix();
+            }
+        }
+        return null;
+    }
+
+    public static String createNamespace(Element el, String ns) {
+        String p = "ns1";
+        int i = 1;
+        while (getPrefix(el, ns) != null) {
+            p = "ns" + i;
+            i++;
+        }
+        el.setAttribute("xmlns:" + p, ns);
+        return p;
     }
 }

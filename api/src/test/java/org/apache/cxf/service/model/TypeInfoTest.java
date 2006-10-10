@@ -39,9 +39,10 @@ public class TypeInfoTest extends TestCase {
  
     public void testSchema() throws Exception {
         assertEquals(typeInfo.getSchemas().size(), 0);
-        typeInfo.addSchema("http://schema1");
+        SchemaInfo schemaInfo = new SchemaInfo(typeInfo, "http://schema1");
+        typeInfo.addSchema(schemaInfo);
         assertEquals(typeInfo.getSchemas().size(), 1);
-        SchemaInfo schemaInfo = typeInfo.getSchema("dummySchema");
+        schemaInfo = typeInfo.getSchema("dummySchema");
         assertNull(schemaInfo);
         schemaInfo = typeInfo.getSchema("http://schema1");
         assertNotNull(schemaInfo);
@@ -51,34 +52,5 @@ public class TypeInfoTest extends TestCase {
         typeInfo.addSchema(schemaInfo);
         assertEquals(typeInfo.getSchemas().size(), 2);
         assertEquals(typeInfo.getSchema("http://schema2").getNamespaceURI(), "http://schema2");
-    }
-    
-    public void testSchemaTnsNull() throws Exception {
-        boolean isNull = false;
-        try {
-            String tns = null;
-            typeInfo.addSchema(tns);
-        } catch (NullPointerException e) {
-            assertEquals(e.getMessage(), "Namespace URI cannot be null.");
-            isNull = true;
-        }
-        if (!isNull) {
-            fail("should get NullPointerException");
-        }
-        
-        boolean duplicatedTns = false;
-        try {
-            String tns = "http://schema";
-            typeInfo.addSchema(tns);
-            typeInfo.addSchema(tns);
-        } catch (IllegalArgumentException e) {
-            assertEquals(e.getMessage(), 
-                "An schema with namespaceURI [http://schema] already exists in this service");
-            duplicatedTns = true;
-        }
-        
-        if (!duplicatedTns) {
-            fail("should get IllegalArgumentException");
-        }
     }
 }

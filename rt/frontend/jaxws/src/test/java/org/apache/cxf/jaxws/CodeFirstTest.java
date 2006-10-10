@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
@@ -39,13 +40,50 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 public class CodeFirstTest extends AbstractJaxWsTest {
     String address = "http://localhost:9000/Hello";
     
-    public void testModel() throws Exception {
+    public void testDocLitModel() throws Exception {
+        Definition d = createService(false);
+        
+        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
+        
+        addNamespace("svc", "http://service.jaxws.cxf.apache.org");
+        
+        assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
+        assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
+        assertValid("//wsdl:portType[@name='HelloPortType']", wsdl);
+        assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
+                    + "/wsdl:part[@type='xsd:string'][@name='text']",
+                    wsdl);
+    }
+
+    public void testWrappedModel() throws Exception {
+        Definition d = createService(true);
+        
+        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
+        
+        addNamespace("svc", "http://service.jaxws.cxf.apache.org");
+        
+        assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
+        assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
+        assertValid("//wsdl:portType[@name='HelloPortType']", wsdl);
+        assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
+                    + "/wsdl:part[@element='ns1:sayHi'][@name='sayHi']",
+                    wsdl);
+        assertValid("/wsdl:definitions/wsdl:message[@name='sayHiResponse']"
+                    + "/wsdl:part[@element='ns1:sayHiResponse'][@name='sayHiResponse']",
+                    wsdl);
+        assertValid("//xsd:element[@name='sayHi']/xsd:complexType"
+                    + "/xsd:sequence/xsd:element[@name='text']",
+                    wsdl);
+    }
+    
+    private Definition createService(boolean wrapped) throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         Bus bus = getBus();
         bean.setBus(bus);
         bean.setServiceClass(Hello.class);
-        bean.setWrapped(false);
+        bean.setWrapped(wrapped);
+        bean.setDataBinding(new JAXBDataBinding(Hello.class));
         
         Service service = bean.create();
 
@@ -65,17 +103,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         ServiceWSDLBuilder wsdlBuilder = 
             new ServiceWSDLBuilder(service.getServiceInfo());
         Definition d = wsdlBuilder.build();
-        
-        Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
-        
-        addNamespace("svc", "http://service.jaxws.cxf.apache.org");
-        
-        assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
-        assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
-        assertValid("//wsdl:portType[@name='HelloPortType']", wsdl);
-        assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
-                    + "/wsdl:part[@type='xsd:string'][@name='text']",
-                    wsdl);
+        return d;
     }
 
     public void testEndpoint() throws Exception {
