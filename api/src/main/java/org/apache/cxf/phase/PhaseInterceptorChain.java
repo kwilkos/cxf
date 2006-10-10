@@ -85,7 +85,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
 
     @SuppressWarnings("unchecked")
     public void add(Interceptor i) {
-        AbstractPhaseInterceptor pi = (AbstractPhaseInterceptor)i;
+        PhaseInterceptor pi = (PhaseInterceptor)i;
 
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Adding interceptor " + i + " to phase " + pi.getPhase());
@@ -182,7 +182,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
     
 
-    protected void insertInterceptor(List<Interceptor> intercs, AbstractPhaseInterceptor interc) {
+    protected void insertInterceptor(List<Interceptor> intercs, PhaseInterceptor interc) {
         if (intercs.size() == 0) {
             intercs.add(interc);
             return;

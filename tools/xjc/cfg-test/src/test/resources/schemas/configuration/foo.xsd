@@ -53,6 +53,7 @@
             <xs:element name="unsignedIntElem" type="xs:unsignedInt" default="19" minOccurs="0"></xs:element>
             <xs:element name="unsignedShortElem" type="xs:unsignedShort" default="20" minOccurs="0"></xs:element>
             <xs:element name="unsignedByteElem" type="xs:unsignedByte" default="21" minOccurs="0"></xs:element>
+            <xs:element name="durationElem" type="xs:duration" default="PT3H" minOccurs="0"></xs:element>
             
             <xs:element name="point" type="tns:point" minOccurs="0"></xs:element>
             <xs:element name="address" minOccurs="0">
@@ -83,6 +84,8 @@
         <xs:attribute name="unsignedIntAttr" type="xs:unsignedInt" default="119"/>
         <xs:attribute name="unsignedShortAttr" type="xs:unsignedShort" default="120"/>
         <xs:attribute name="unsignedByteAttr" type="xs:unsignedByte" default="121"/>
+        <xs:attribute name="durationAttr" type="xs:duration" default="PT3S"/>
+        
         
         <xs:attribute name="stringAttrNoDefault" type="xs:string"/>
         <xs:attribute name="booleanAttrNoDefault" type="xs:boolean"/>
@@ -100,6 +103,8 @@
         <xs:attribute name="unsignedIntAttrNoDefault" type="xs:unsignedInt"/>
         <xs:attribute name="unsignedShortAttrNoDefault" type="xs:unsignedShort"/>
         <xs:attribute name="unsignedByteAttrNoDefault" type="xs:unsignedByte"/>
+        <xs:attribute name="durationAttrNoDefault" type="xs:duration"/>
+        
         
     </xs:complexType>
     

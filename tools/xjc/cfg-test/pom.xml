@@ -85,7 +85,7 @@
                             <schemaDirectory>${basedir}/src/test/resources/schemas/configuration</schemaDirectory>
                             <includeSchema>*.xsd</includeSchema>
                             <extension>true</extension> 
-                            <args>-Xcfg</args>
+                            <args>-Xdv -Xcfg</args>
                         </configuration>
                         <goals>
                             <goal>generate</goal>

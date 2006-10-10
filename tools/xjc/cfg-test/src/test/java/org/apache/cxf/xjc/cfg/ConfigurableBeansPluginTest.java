@@ -75,7 +75,8 @@ public class ConfigurableBeansPluginTest extends TestCase {
         providers.add(provider);
         foo.setFallbackProviders(providers);
         assertEquals(BigInteger.TEN, foo.getIntegerAttrNoDefault());
-        assertEquals(new BigInteger("111"), foo.getIntegerAttr());
+        assertEquals(BigInteger.TEN, foo.getIntegerAttr());
+        foo.setFallbackProviders(null);
         providers = foo.getOverwriteProviders();
         assertNull(providers); 
         providers = new ArrayList<ConfigurationProvider>();
@@ -102,7 +103,7 @@ public class ConfigurableBeansPluginTest extends TestCase {
         foo.setChangedProperty(null);        
         foo.setIntegerElem(null);
         assertEquals("integerElem", foo.getChangedProperty());
-        assertNull(foo.getIntegerElem());
+        assertEquals(new BigInteger("11"), foo.getIntegerElem());
         
     }
     
@@ -114,11 +115,11 @@ public class ConfigurableBeansPluginTest extends TestCase {
         assertEquals("Unexpected value for attribute integerAttr",
                      new BigInteger("111"), foo.getIntegerAttr());
         assertEquals("Unexpected value for attribute intAttr",
-                     new Integer(112), foo.getIntAttr());
+                     112, foo.getIntAttr());
         assertEquals("Unexpected value for attribute longAttr",
-                     new Long(113L), foo.getLongAttr());
+                     113L, foo.getLongAttr());
         assertEquals("Unexpected value for attribute shortAttr",
-                     new Short((short)114), foo.getShortAttr());
+                     114, foo.getShortAttr());
         assertEquals("Unexpected value for attribute decimalAttr",
                      new BigDecimal("115"), foo.getDecimalAttr());
         assertEquals("Unexpected value for attribute floatAttr",
@@ -126,7 +127,7 @@ public class ConfigurableBeansPluginTest extends TestCase {
         assertEquals("Unexpected value for attribute doubleAttr",
                      new Double(117D), foo.getDoubleAttr());
         assertEquals("Unexpected value for attribute byteAttr",
-                     new Byte((byte)118), foo.getByteAttr());
+                     118, foo.getByteAttr());
         
         byte[] expected = DatatypeConverter.parseBase64Binary("wxyz");
         byte[] effective = foo.getBase64BinaryAttr();
@@ -150,11 +151,17 @@ public class ConfigurableBeansPluginTest extends TestCase {
                      "schema", qn.getLocalPart());
        
         assertEquals("Unexpected value for attribute unsignedIntAttr",
-                     new Long(119L), foo.getUnsignedIntAttr());
+                     119L, foo.getUnsignedIntAttr());
         assertEquals("Unexpected value for attribute unsignedShortAttr",
-                     new Integer(120), foo.getUnsignedShortAttr());
+                     120, foo.getUnsignedShortAttr());
         assertEquals("Unexpected value for attribute unsignedByteAttr",
-                     new Short((short)121), foo.getUnsignedByteAttr());
+                     121, foo.getUnsignedByteAttr());
+        
+        assertEquals("Unexpected value for attribute durationAttr",
+                     3, foo.getDurationAttr().getSeconds());
+        assertEquals("Unexpected value for attribute durationAttr",
+                     0, foo.getDurationAttr().getHours());
+        
     }
     
     /**
@@ -196,6 +203,8 @@ public class ConfigurableBeansPluginTest extends TestCase {
                      foo.getUnsignedShortAttrNoDefault());
         assertNull("Unexpected value for attribute unsignedByteAttrNoDefault",
                      foo.getUnsignedByteAttrNoDefault());
+        assertNull("Unexpected value for attribute durationAttrNoDefault",
+                   foo.getDurationAttrNoDefault());
     }
     
     private void assertDefaultElementValues(Foo foo) {
@@ -247,6 +256,11 @@ public class ConfigurableBeansPluginTest extends TestCase {
                      new Integer(20), foo.getUnsignedShortElem());
         assertEquals("Unexpected value for element unsignedByteElem",
                      new Short((short)21), foo.getUnsignedByteElem());
+        
+        assertEquals("Unexpected value for element durationElem",
+                     0, foo.getDurationElem().getSeconds());
+        assertEquals("Unexpected value for element durationElem",
+                     3, foo.getDurationElem().getHours());
     }
     
     static class FooBean extends Foo {
