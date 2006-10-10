@@ -229,7 +229,7 @@ public class EJBServant extends AbstractServant {
 
     /**
      * Creates a new Initial Context with the specified properties.
-     * @param props Properties for initial context.
+     * @param propers Properties for initial context.
      * @return Context initial context for EJB lookup.
      * @throws NamingException if there is an error getting initial context.
      */

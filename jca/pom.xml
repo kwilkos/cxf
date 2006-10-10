@@ -82,29 +82,20 @@
         </dependency>
 
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-common</artifactId>
-            <version>4.0.2</version>            
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-	    </exclusions>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
         </dependency>
+
+        <!--TODO It's pretty unclear why there is code requiring ejb classes. Perhaps the code doesn't belong here? -->
         <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>jboss-j2ee</artifactId>
-            <version>4.0.2</version>
-            <optional>true</optional>            
-            <exclusions>
-                <exclusion>
-                    <groupId>xerces</groupId>
-                    <artifactId>xercesImpl</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
 </project>
