@@ -26,7 +26,7 @@ import org.apache.cxf.transport.local.LocalTransportFactory;
 
 public class ProviderTest extends AbstractJaxWsTest {
     public void testInvocation() throws Exception {
-        EndpointImpl ep = new EndpointImpl(getBus(), new PayloadProvider(), null);
+        EndpointImpl ep = new EndpointImpl(getBus(), new PayloadProvider(), (String) null);
         ep.publish("http://localhost:9000/Provider");
         
         Node response = invoke("http://localhost:9000/Provider",

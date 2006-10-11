@@ -108,7 +108,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
     public void testEndpoint() throws Exception {
         Hello service = new Hello();
 
-        EndpointImpl ep = new EndpointImpl(getBus(), service, null);
+        EndpointImpl ep = new EndpointImpl(getBus(), service, (String) null);
         ep.publish("http://localhost:9090/hello");
 
         Node res = invoke("http://localhost:9090/hello", 

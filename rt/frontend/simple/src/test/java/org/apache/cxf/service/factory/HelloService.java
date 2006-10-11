@@ -18,8 +18,11 @@
  */
 package org.apache.cxf.service.factory;
 
+import org.apache.cxf.message.Exchange;
+
 public interface HelloService {
     String sayHello();
     void ping();
-    String echo(String text);
+    String echoWithExchange(Exchange ex, String text);
+    String echo(String text);    
 }

@@ -23,7 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
@@ -53,18 +52,26 @@ public abstract class AbstractInvoker implements Invoker {
         m = matchMethod(m, serviceObject);
         List<Object> params = CastUtils.cast((List<?>)o);
 
+        return invoke(exchange, serviceObject, m, params);
+    }
+
+    protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
         Object res;
         try {
             Object[] paramArray = params.toArray();
+            
+            insertExchange(m, paramArray, exchange);
+            
             res = m.invoke(serviceObject, paramArray);
             if (exchange.isOneWay()) {
                 return null;
             }
+            
             List<Object> retList = new ArrayList<Object>();
             if (!((Class)m.getReturnType()).getName().equals("void")) {
                 retList.add(res);
             }
-            return Arrays.asList(retList.toArray());
+            return retList;
         } catch (InvocationTargetException e) {
             Throwable t = e.getCause();
             if (t == null) {
@@ -76,6 +83,26 @@ public abstract class AbstractInvoker implements Invoker {
         }
     }
 
+    public Object[] insertExchange(Method method, Object[] params, Exchange context) {
+        Object[] newParams = params;
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            if (method.getParameterTypes()[i].equals(Exchange.class)) {
+                newParams = new Object[params.length + 1];
+
+                for (int j = 0; j < newParams.length; j++) {
+                    if (j == i) {
+                        newParams[j] = context;
+                    } else if (j > i) {
+                        newParams[j] = params[j - 1];
+                    } else {
+                        newParams[j] = params[j];
+                    }
+                }
+            }
+        }
+        return newParams;
+    }
+    
     /**
      * Creates and returns a service object depending on the scope.
      */

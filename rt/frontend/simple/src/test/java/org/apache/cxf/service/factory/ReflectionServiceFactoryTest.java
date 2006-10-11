@@ -81,7 +81,7 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         ServiceInfo si = service.getServiceInfo();
         InterfaceInfo intf = si.getInterface();
         
-        assertEquals(3, intf.getOperations().size());
+        assertEquals(4, intf.getOperations().size());
         
         String ns = si.getName().getNamespaceURI();
         OperationInfo sayHelloOp = intf.getOperation(new QName(ns, "sayHello"));
@@ -100,6 +100,10 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         MessagePartInfo mpi = messageParts.get(0);
         assertEquals("out", mpi.getName().getLocalPart());
         assertEquals(String.class, mpi.getProperty(Class.class.getName()));
+
+        
+        OperationInfo op = si.getInterface().getOperation(new QName(ns, "echoWithExchange"));
+        assertEquals(1, op.getInput().getMessageParts().size());
     }
     
     public void testWrappedBuild() throws Exception {
@@ -108,7 +112,7 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         ServiceInfo si = service.getServiceInfo();
         InterfaceInfo intf = si.getInterface();
         
-        assertEquals(3, intf.getOperations().size());
+        assertEquals(4, intf.getOperations().size());
         
         String ns = si.getName().getNamespaceURI();
         OperationInfo sayHelloOp = intf.getOperation(new QName(ns, "sayHello"));
@@ -179,7 +183,7 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         assertEquals("HelloServiceSoapBinding", b.getName().getLocalPart());
         assertEquals("document", sb.getStyle());
         
-        assertEquals(3, b.getOperations().size());
+        assertEquals(4, b.getOperations().size());
         
         BindingOperationInfo bop = b.getOperations().iterator().next();
         SoapOperationInfo sop = bop.getExtensor(SoapOperationInfo.class);

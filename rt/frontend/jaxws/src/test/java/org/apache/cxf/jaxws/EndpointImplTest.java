@@ -25,7 +25,9 @@ import java.io.OutputStream;
 
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.GreeterImpl;
@@ -49,6 +51,30 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         
         assertNotNull(ctx);
         
+    }
+    
+
+    public void testEndpointServiceConstructor() throws Exception {   
+        GreeterImpl greeter = new GreeterImpl();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(greeter));
+        serviceFactory.setServiceClass(GreeterImpl.class);
+        
+        EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, serviceFactory);
+ 
+        WebServiceContext ctx = greeter.getContext();
+        assertNull(ctx);
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            //assertTrue(ex.getCause() instanceof BusException);
+            //assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+        ctx = greeter.getContext();
+        
+        assertNotNull(ctx);
     }
 
     static class EchoObserver implements MessageObserver {

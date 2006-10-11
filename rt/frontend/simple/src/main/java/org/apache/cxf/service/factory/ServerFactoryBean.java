@@ -52,7 +52,7 @@ public class ServerFactoryBean {
         super();
         bindingFactory = new SoapBindingInfoFactoryBean();
     }
-
+    
     public Server create() {
         try {
             service = serviceFactory.getService();

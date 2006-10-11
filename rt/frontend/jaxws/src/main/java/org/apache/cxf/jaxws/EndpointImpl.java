@@ -67,6 +67,20 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private JaxWsImplementorInfo implInfo;
     private ReflectionServiceFactoryBean serviceFactory;
     
+    public EndpointImpl(Bus b, Object implementor, JaxWsServiceFactoryBean serviceFactory) {
+        this.bus = b;
+        this.serviceFactory = serviceFactory;
+        this.implInfo = serviceFactory.getJaxWsImplementorInfo();
+        this.service = serviceFactory.getService();
+        this.implementor = implementor;
+        
+        if (this.service == null) {
+            service = serviceFactory.create();
+        }
+        
+        doInit = true;
+    }
+    
     @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;

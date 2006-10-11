@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.util.ParamReader;
 import org.apache.cxf.helpers.ServiceUtils;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -126,7 +127,14 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean isInParam(Method method, int j) {
-        return j >= 0;
+        if (j >= 0) {
+            Class c = method.getParameterTypes()[j];
+            if (Exchange.class.equals(c)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
