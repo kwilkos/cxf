@@ -66,9 +66,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertTrue(e.toString().indexOf(msg) != -1);
         assertTrue(e.toString().indexOf("reason") == -1);
         assertEquals(e.getMessage(), msg);
-
-        assertNull(e.getCause());
-        assertNull(e.getLinkedException());
+        assertNull(e.getCause());        
     }
 
     public void testMessageWithEx() throws Exception {
@@ -95,9 +93,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertTrue(e.toString().indexOf(msg) != -1);
         assertTrue(e.toString().indexOf("reason") != -1);
         assertTrue(e.toString().indexOf(causeMsg) != -1);
-
-        assertEquals(e.getCause(), cause);
-        assertNull(e.getLinkedException());
+        assertEquals(e.getCause(), cause);       
 
     }
 
