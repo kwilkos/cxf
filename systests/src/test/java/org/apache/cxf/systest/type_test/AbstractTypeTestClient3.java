@@ -110,6 +110,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceOfChoice ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceOfChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceOfChoice(x, y, z);
         } else {
             ret = rpcClient.testChoiceOfChoice(x, y, z);
         }
@@ -151,6 +153,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceOfSeq ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceOfSeq(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceOfSeq(x, y, z);
         } else {
             ret = rpcClient.testChoiceOfSeq(x, y, z);
         }
@@ -201,6 +205,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedStructBaseStruct ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedStructBaseStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedStructBaseStruct(x, y, z);
         } else {
             ret = rpcClient.testDerivedStructBaseStruct(x, y, z);
         }
@@ -242,6 +248,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedStructBaseChoice ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedStructBaseChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedStructBaseChoice(x, y, z);
         } else {
             ret = rpcClient.testDerivedStructBaseChoice(x, y, z);
         }
@@ -291,6 +299,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedChoiceBaseStruct ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedChoiceBaseStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedChoiceBaseStruct(x, y, z);
         } else {
             ret = rpcClient.testDerivedChoiceBaseStruct(x, y, z);
         }
@@ -336,6 +346,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedChoiceBaseArray ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedChoiceBaseArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedChoiceBaseArray(x, y, z);
         } else {
             ret = rpcClient.testDerivedChoiceBaseArray(x, y, z);
         }
@@ -382,6 +394,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedChoiceBaseChoice ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedChoiceBaseChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedChoiceBaseChoice(x, y, z);
         } else {
             ret = rpcClient.testDerivedChoiceBaseChoice(x, y, z);
         }
@@ -419,6 +433,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedNoContent ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedNoContent(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedNoContent(x, y, z);
         } else {
             ret = rpcClient.testDerivedNoContent(x, y, z);
         }
@@ -457,6 +473,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedStructBaseEmpty ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedStructBaseEmpty(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedStructBaseEmpty(x, y, z);
         } else {
             ret = rpcClient.testDerivedStructBaseEmpty(x, y, z);
         }
@@ -479,6 +497,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedEmptyBaseEmptyAll ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedEmptyBaseEmptyAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedEmptyBaseEmptyAll(x, y, z);
         } else {
             ret = rpcClient.testDerivedEmptyBaseEmptyAll(x, y, z);
         }
@@ -498,6 +518,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         DerivedEmptyBaseEmptyChoice ret;
         if (testDocLiteral) {
             ret = docClient.testDerivedEmptyBaseEmptyChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDerivedEmptyBaseEmptyChoice(x, y, z);
         } else {
             ret = rpcClient.testDerivedEmptyBaseEmptyChoice(x, y, z);
         }
@@ -531,6 +553,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         RestrictedChoiceBaseChoice ret;
         if (testDocLiteral) {
             ret = docClient.testRestrictedChoiceBaseChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRestrictedChoiceBaseChoice(x, y, z);
         } else {
             ret = rpcClient.testRestrictedChoiceBaseChoice(x, y, z);
         }
@@ -565,6 +589,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ComplexTypeWithAttributeGroup ret;
         if (testDocLiteral) {
             ret = docClient.testComplexTypeWithAttributeGroup(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexTypeWithAttributeGroup(x, y, z);
         } else {
             ret = rpcClient.testComplexTypeWithAttributeGroup(x, y, z);
         }
@@ -601,6 +627,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ComplexTypeWithAttributeGroup1 ret;
         if (testDocLiteral) {
             ret = docClient.testComplexTypeWithAttributeGroup1(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexTypeWithAttributeGroup1(x, y, z);
         } else {
             ret = rpcClient.testComplexTypeWithAttributeGroup1(x, y, z);
         }
@@ -645,6 +673,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         SequenceWithGroupSeq ret;
         if (testDocLiteral) {
             ret = docClient.testSequenceWithGroupSeq(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSequenceWithGroupSeq(x, y, z);
         } else {
             ret = rpcClient.testSequenceWithGroupSeq(x, y, z);
         }
@@ -705,6 +735,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         SequenceWithGroupChoice ret;
         if (testDocLiteral) {
             ret = docClient.testSequenceWithGroupChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSequenceWithGroupChoice(x, y, z);
         } else {
             ret = rpcClient.testSequenceWithGroupChoice(x, y, z);
         }
@@ -759,6 +791,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         SequenceWithGroups ret;
         if (testDocLiteral) {
             ret = docClient.testSequenceWithGroups(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSequenceWithGroups(x, y, z);
         } else {
             ret = rpcClient.testSequenceWithGroups(x, y, z);
         }
@@ -794,6 +828,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         SequenceWithOccuringGroup ret;
         if (testDocLiteral) {
             ret = docClient.testSequenceWithOccuringGroup(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSequenceWithOccuringGroup(x, y, z);
         } else {
             ret = rpcClient.testSequenceWithOccuringGroup(x, y, z);
         }
@@ -833,6 +869,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         GroupDirectlyInComplexType ret;
         if (testDocLiteral) {
             ret = docClient.testGroupDirectlyInComplexType(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGroupDirectlyInComplexType(x, y, z);
         } else {
             ret = rpcClient.testGroupDirectlyInComplexType(x, y, z);
         }
@@ -865,6 +903,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ComplexTypeWithAttributes ret;
         if (testDocLiteral) {
             ret = docClient.testComplexTypeWithAttributes(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testComplexTypeWithAttributes(x, y, z);
         } else {
             ret = rpcClient.testComplexTypeWithAttributes(x, y, z);
         }
@@ -941,6 +981,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         StructWithAny ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithAny(swa, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithAny(swa, y, z);
         } else {
             ret = rpcClient.testStructWithAny(swa, y, z);
         }
@@ -984,6 +1026,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         StructWithAny ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithAny(swa, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithAny(swa, y, z);
         } else {
             ret = rpcClient.testStructWithAny(swa, y, z);
         }
@@ -1021,6 +1065,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         try {
             if (testDocLiteral) {
                 docClient.testStructWithAny(swa, y, z);
+            } else if (testXMLBinding) {
+                xmlClient.testStructWithAny(swa, y, z);
             } else {
                 rpcClient.testStructWithAny(swa, y, z);
             }
@@ -1072,6 +1118,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         StructWithAnyArray ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithAnyArray(swa, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithAnyArray(swa, y, z);
         } else {
             ret = rpcClient.testStructWithAnyArray(swa, y, z);
         }
@@ -1109,6 +1157,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         try {
             if (testDocLiteral) {
                 docClient.testStructWithAnyArray(swa, y, z);
+            } else if (testXMLBinding) {
+                xmlClient.testStructWithAnyArray(swa, y, z);
             } else {
                 rpcClient.testStructWithAnyArray(swa, y, z);
             }
@@ -1147,6 +1197,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         //IDTypeAttribute ret;
         if (testDocLiteral) {
             /*ret =*/ docClient.testIDTypeAttribute(x, y, z);
+        } else if (testXMLBinding) {
+            /*ret =*/ xmlClient.testIDTypeAttribute(x, y, z);
         } else {
             /*ret =*/ rpcClient.testIDTypeAttribute(x, y, z);
         }
@@ -1187,6 +1239,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         MultipleOccursSequenceInSequence ret;
         if (testDocLiteral) {
             ret = docClient.testMultipleOccursSequenceInSequence(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testMultipleOccursSequenceInSequence(x, y, z);
         } else {
             ret = rpcClient.testMultipleOccursSequenceInSequence(x, y, z);
         }
@@ -1222,6 +1276,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         StructWithBinary ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithBinary(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithBinary(x, y, z);
         } else {
             ret = rpcClient.testStructWithBinary(x, y, z);
         }
@@ -1259,6 +1315,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceWithBinary ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithBinary(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithBinary(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithBinary(x, y, z);
         }
@@ -1309,6 +1367,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceWithGroupChoice ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithGroupChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithGroupChoice(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithGroupChoice(x, y, z);
         }
@@ -1365,6 +1425,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceWithGroupSeq ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithGroupSeq(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithGroupSeq(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithGroupSeq(x, y, z);
         }
@@ -1418,6 +1480,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceWithGroups ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithGroups(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithGroups(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithGroups(x, y, z);
         }
@@ -1451,6 +1515,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ExtBase64Binary ret;
         if (testDocLiteral) {
             ret = docClient.testExtBase64Binary(x1, y1Holder, z1);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtBase64Binary(x1, y1Holder, z1);
         } else {
             ret = rpcClient.testExtBase64Binary(x1, y1Holder, z1);
         }
@@ -1537,6 +1603,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         StructWithAnyAttribute ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithAnyAttribute(x, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithAnyAttribute(x, yh, zh);
         } else {
             ret = rpcClient.testStructWithAnyAttribute(x, yh, zh);
         }
@@ -1611,6 +1679,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         ChoiceWithAnyAttribute ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithAnyAttribute(x, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithAnyAttribute(x, yh, zh);
         } else {
             ret = rpcClient.testChoiceWithAnyAttribute(x, yh, zh);
         }
@@ -1691,6 +1761,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         OccuringStruct ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringStruct(x, y, z);
         } else {
             ret = rpcClient.testOccuringStruct(x, y, z);
         }
@@ -1730,6 +1802,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         OccuringStruct1 ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringStruct1(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringStruct1(x, y, z);
         } else {
             ret = rpcClient.testOccuringStruct1(x, y, z);
         }
@@ -1800,6 +1874,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         OccuringStruct2 ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringStruct2(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringStruct2(x, y, z);
         } else {
             ret = rpcClient.testOccuringStruct2(x, y, z);
         }
@@ -1846,6 +1922,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         OccuringChoice ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringChoice(x, y, z);
         } else {
             ret = rpcClient.testOccuringChoice(x, y, z);
         }
@@ -1866,6 +1944,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
         if (testDocLiteral) {
             ret = docClient.testOccuringChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringChoice(x, y, z);
         } else {
             ret = rpcClient.testOccuringChoice(x, y, z);
         }
@@ -1923,6 +2003,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         OccuringChoice1 ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringChoice1(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringChoice1(x, y, z);
         } else {
             ret = rpcClient.testOccuringChoice1(x, y, z);
         }
@@ -1958,6 +2040,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         OccuringChoice2 ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringChoice2(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringChoice2(x, y, z);
         } else {
             ret = rpcClient.testOccuringChoice2(x, y, z);
         }
@@ -1978,6 +2062,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         z = new Holder<OccuringChoice2>();
         if (testDocLiteral) {
             ret = docClient.testOccuringChoice2(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringChoice2(x, y, z);
         } else {
             ret = rpcClient.testOccuringChoice2(x, y, z);
         }

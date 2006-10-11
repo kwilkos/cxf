@@ -111,6 +111,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         EmptyStruct ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyStruct(x, y, z);            
         } else {
             ret = rpcClient.testEmptyStruct(x, y, z);
         }
@@ -136,6 +138,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         z = new Holder<EmptyStruct>();
         if (testDocLiteral) {
             ret = docClient.testEmptyStruct(derivedX, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyStruct(derivedX, y, z);
         } else {
             ret = rpcClient.testEmptyStruct(derivedX, y, z);
         }
@@ -173,6 +177,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleStruct ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleStruct(x, y, z);
         } else {
             ret = rpcClient.testSimpleStruct(x, y, z);
         }
@@ -206,6 +212,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithNillables ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithNillables(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillables(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillables(x, y, z);
         }
@@ -242,6 +250,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         AnonymousStruct ret;
         if (testDocLiteral) {
             ret = docClient.testAnonymousStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testAnonymousStruct(x, y, z);
         } else {
             ret = rpcClient.testAnonymousStruct(x, y, z);
         }
@@ -310,6 +320,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         NestedStruct ret;
         if (testDocLiteral) {
             ret = docClient.testNestedStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNestedStruct(x, y, z);
         } else {
             ret = rpcClient.testNestedStruct(x, y, z);
         }
@@ -336,6 +348,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         FixedArray ret;
         if (testDocLiteral) {
             ret = docClient.testFixedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testFixedArray(x, y, z);
         } else {
             ret = rpcClient.testFixedArray(x, y, z);
         }
@@ -364,6 +378,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         BoundedArray ret;
         if (testDocLiteral) {
             ret = docClient.testBoundedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testBoundedArray(x, y, z);
         } else {
             ret = rpcClient.testBoundedArray(x, y, z);
         }
@@ -414,6 +430,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         UnboundedArray ret;
         if (testDocLiteral) {
             ret = docClient.testUnboundedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnboundedArray(x, y, z);
         } else {
             ret = rpcClient.testUnboundedArray(x, y, z);
         }
@@ -447,6 +465,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         CompoundArray ret;
         if (testDocLiteral) {
             ret = docClient.testCompoundArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testCompoundArray(x, y, z);
         } else {
             ret = rpcClient.testCompoundArray(x, y, z);
         }
@@ -485,6 +505,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         NestedArray ret;
         if (testDocLiteral) {
             ret = docClient.testNestedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNestedArray(x, y, z);
         } else {
             ret = rpcClient.testNestedArray(x, y, z);
         }
@@ -545,6 +567,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithList ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithList(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithList(x, y, z);
         } else {
             ret = rpcClient.testStructWithList(x, y, z);
         }
@@ -560,6 +584,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithList(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithList(x, y, z);
         } else {
             ret = rpcClient.testStructWithList(x, y, z);
         }
@@ -575,6 +601,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithList(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithList(x, y, z);
         } else {
             ret = rpcClient.testStructWithList(x, y, z);
         }
@@ -605,6 +633,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithUnion ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithUnion(x, y, z);
         } else {
             ret = rpcClient.testStructWithUnion(x, y, z);
         }
@@ -618,6 +648,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithUnion(x, y, z);
         } else {
             ret = rpcClient.testStructWithUnion(x, y, z);
         }
@@ -631,6 +663,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         y.value = yOrig;
         if (testDocLiteral) {
             ret = docClient.testStructWithUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithUnion(x, y, z);
         } else {
             ret = rpcClient.testStructWithUnion(x, y, z);
         }
@@ -651,6 +685,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         EmptyChoice ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyChoice(x, y, z);
         } else {
             ret = rpcClient.testEmptyChoice(x, y, z);
         }
@@ -689,6 +725,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleChoice ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleChoice(x, y, z);
         } else {
             ret = rpcClient.testSimpleChoice(x, y, z);
         }
@@ -711,6 +749,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         EmptyAll ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyAll(x, y, z);
         } else {
             ret = rpcClient.testEmptyAll(x, y, z);
         }
@@ -751,6 +791,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleAll ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleAll(x, y, z);
         } else {
             ret = rpcClient.testSimpleAll(x, y, z);
         }
@@ -785,6 +827,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithOptionals ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithOptionals(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOptionals(x, y, z);
         } else {
             ret = rpcClient.testStructWithOptionals(x, y, z);
         }
@@ -840,6 +884,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveStruct ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveStruct(x, y, z);
         } else {
             ret = rpcClient.testRecursiveStruct(x, y, z);
         }
@@ -896,6 +942,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveStructArray ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveStructArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveStructArray(x, y, z);
         } else {
             ret = rpcClient.testRecursiveStructArray(x, y, z);
         }
@@ -951,6 +999,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveUnion ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveUnion(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveUnion(x, y, z);
         } else {
             ret = rpcClient.testRecursiveUnion(x, y, z);
         }
@@ -995,6 +1045,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecursiveUnionData ret;
         if (testDocLiteral) {
             ret = docClient.testRecursiveUnionData(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecursiveUnionData(x, y, z);
         } else {
             ret = rpcClient.testRecursiveUnionData(x, y, z);
         }
@@ -1044,6 +1096,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceArray ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceArray(x, y, z);
         } else {
             ret = rpcClient.testChoiceArray(x, y, z);
         }
@@ -1069,6 +1123,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtendsSimpleType ret;
         if (testDocLiteral) {
             ret = docClient.testExtendsSimpleType(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtendsSimpleType(x, y, z);
         } else {
             ret = rpcClient.testExtendsSimpleType(x, y, z);
         }
@@ -1092,6 +1148,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtendsSimpleContent ret;
         if (testDocLiteral) {
             ret = docClient.testExtendsSimpleContent(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtendsSimpleContent(x, y, z);
         } else {
             ret = rpcClient.testExtendsSimpleContent(x, y, z);
         }
@@ -1123,6 +1181,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         Document ret;
         if (testDocLiteral) {
             ret = docClient.testDocument(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDocument(x, y, z);
         } else {
             ret = rpcClient.testDocument(x, y, z);
         }
@@ -1143,6 +1203,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
 
         if (testDocLiteral) {
             ret = docClient.testDocument(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDocument(x, y, z);
         } else {
             ret = rpcClient.testDocument(x, y, z);
         }
@@ -1211,6 +1273,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtBase64Binary ret;
         if (testDocLiteral) {
             ret = docClient.testExtBase64Binary(x1, y1Holder, z1);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtBase64Binary(x1, y1Holder, z1);
         } else {
             ret = rpcClient.testExtBase64Binary(x1, y1Holder, z1);
         }
@@ -1258,6 +1322,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithSubstitutionGroup ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithSubstitutionGroup(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithSubstitutionGroup(x, y, z);
         } else {
             ret = rpcClient.testStructWithSubstitutionGroup(x, y, z);
         }
@@ -1307,6 +1373,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithSubstitutionGroupAbstract ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithSubstitutionGroupAbstract(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithSubstitutionGroupAbstract(x, y, z);
         } else {
             ret = rpcClient.testStructWithSubstitutionGroupAbstract(x, y, z);
         }
@@ -1347,6 +1415,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithSubstitutionGroupNil ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithSubstitutionGroupNil(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithSubstitutionGroupNil(x, y, z);
         } else {
             ret = rpcClient.testStructWithSubstitutionGroupNil(x, y, z);
         }
@@ -1436,6 +1506,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         StructWithMultipleSubstitutionGroups ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithMultipleSubstitutionGroups(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithMultipleSubstitutionGroups(x, y, z);
         } else {
             ret = rpcClient.testStructWithMultipleSubstitutionGroups(x, y, z);
         }
@@ -1489,6 +1561,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceWithSubstitutionGroupAbstract ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithSubstitutionGroupAbstract(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithSubstitutionGroupAbstract(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithSubstitutionGroupAbstract(x, y, z);
         }
@@ -1555,6 +1629,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceWithSubstitutionGroupNil ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithSubstitutionGroupNil(x, y, z); 
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithSubstitutionGroupNil(x, y, z); 
         } else {
             ret = rpcClient.testChoiceWithSubstitutionGroupNil(x, y, z);
         }
@@ -1645,6 +1721,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ChoiceWithSubstitutionGroup ret;
         if (testDocLiteral) {
             ret = docClient.testChoiceWithSubstitutionGroup(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testChoiceWithSubstitutionGroup(x, y, z);
         } else {
             ret = rpcClient.testChoiceWithSubstitutionGroup(x, y, z);
         }
@@ -1698,6 +1776,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecElType ret;
         if (testDocLiteral) {
             ret = docClient.testRecElType(x, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecElType(x, yh, zh);
         } else {
             ret = rpcClient.testRecElType(x, yh, zh);
         }
@@ -1849,6 +1929,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         RecOuterType ret;
         if (testDocLiteral) {
             ret = docClient.testRecOuterType(otx, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecOuterType(otx, yh, zh);
         } else {
             ret = rpcClient.testRecOuterType(otx, yh, zh);
         }
@@ -1884,6 +1966,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleContent1 ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContent1(x1, y1Holder, z1);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleContent1(x1, y1Holder, z1);
         } else {
             ret = rpcClient.testSimpleContent1(x1, y1Holder, z1);
         }
@@ -1920,6 +2004,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleContent2 ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContent2(x2, y2Holder, z2);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleContent2(x2, y2Holder, z2);
         } else {
             ret = rpcClient.testSimpleContent2(x2, y2Holder, z2);
         }
@@ -1960,6 +2046,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         SimpleContent3 ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContent3(x3, y3Holder, z3);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleContent3(x3, y3Holder, z3);
         } else {
             ret = rpcClient.testSimpleContent3(x3, y3Holder, z3);
         }
@@ -1987,6 +2075,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         UnionSimpleContent ret;
         if (testDocLiteral) {
             ret = docClient.testUnionSimpleContent(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnionSimpleContent(x, y, z);
         } else {
             ret = rpcClient.testUnionSimpleContent(x, y, z);
         }

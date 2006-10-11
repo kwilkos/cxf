@@ -32,8 +32,8 @@
     <xsl:template match="/xsd:schema">
 	<wsdl:definitions
 	    xmlns="http://schemas.xmlsoap.org/wsdl/"
-	    xmlns:tns="http://apache.org/type_test/doc"
-	    targetNamespace="http://apache.org/type_test/doc"
+	    xmlns:tns="http://apache.org/type_test/xml"
+	    targetNamespace="http://apache.org/type_test/xml"
 	    name="type_test_xml">
 	    <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
 	    <xsl:apply-templates select="." mode="test_binding"/>
@@ -43,7 +43,7 @@
     <!-- 1 - test binding and service -->
     <xsl:template match="/xsd:schema" mode="test_binding"
 		  xmlns="http://schemas.xmlsoap.org/wsdl/">
-	<wsdl:import namespace="http://apache.org/type_test/doc" location="type_test_doclit.wsdl"/>
+	<wsdl:import namespace="http://apache.org/type_test/xml" location="./type_test_xml_inc.wsdl"/>
 
 	<wsdl:binding type="tns:TypeTestPortType" name="TypeTestXML">
 	    <xformat:binding/>
@@ -51,7 +51,7 @@
 	    <xsl:apply-templates select="itst:it_test_group" mode="test_operations_group"/>
 	</wsdl:binding>
 	<wsdl:service name="XMLService">
-	    <wsdl:port name="XMLPPort">
+	    <wsdl:port name="XMLPort">
 		<xsl:attribute name="binding" xmlns="http://schemas.xmlsoap.org/">
 		    <xsl:value-of select="'tns:TypeTestXML'"/>
 		</xsl:attribute>

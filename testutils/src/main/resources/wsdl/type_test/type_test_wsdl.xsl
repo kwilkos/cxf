@@ -12,8 +12,12 @@
 
   <!-- Parameter: Path to the generated XSDs to include -->
   <xsl:param name="inc_xsd_path"/>
+  
   <!-- Parameter: Use document-literal 'document' or rpc-literal 'rpc' style -->
   <xsl:param name="use_style"/>
+ 
+  <!-- Parameter: Target name space suffix -->
+  <xsl:param name="tns_suffix"/>
  
   <!-- copy attributes from any node -->
   <xsl:template match="@*" mode="attribute_copy">
@@ -24,7 +28,7 @@
 
   <!-- 0 - root schema node -->
   <xsl:template match="/xsd:schema">
-    <xsl:if test="$use_style='document'">
+    <xsl:if test="$tns_suffix='doc'">
       <definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
           xmlns:tns="http://apache.org/type_test/doc"
@@ -36,7 +40,7 @@
         <xsl:apply-templates select="." mode="test_portType"/>
       </definitions>
     </xsl:if>
-    <xsl:if test="$use_style='rpc'">
+    <xsl:if test="$tns_suffix='rpc'">
       <definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
           xmlns:x1="http://apache.org/type_test/types1"
@@ -44,6 +48,21 @@
           xmlns:x3="http://apache.org/type_test/types3"
           xmlns:tns="http://apache.org/type_test/rpc"
           targetNamespace="http://apache.org/type_test/rpc"
+          name="type_test">
+        <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
+        <xsl:apply-templates select="." mode="schema"/>
+        <xsl:apply-templates select="." mode="test_messages"/>
+        <xsl:apply-templates select="." mode="test_portType"/>
+      </definitions>
+    </xsl:if>
+    <xsl:if test="$tns_suffix='xml'">
+      <definitions
+          xmlns="http://schemas.xmlsoap.org/wsdl/"
+          xmlns:x1="http://apache.org/type_test/types1"
+          xmlns:x2="http://apache.org/type_test/types2"
+          xmlns:x3="http://apache.org/type_test/types3"
+          xmlns:tns="http://apache.org/type_test/xml"
+          targetNamespace="http://apache.org/type_test/xml"
           name="type_test">
         <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="schema"/>
@@ -64,11 +83,14 @@
                   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
                   jaxb:version="2.0">
         <xsl:attribute name="targetNamespace">
-          <xsl:if test="$use_style='document'">
+          <xsl:if test="$tns_suffix='doc'">
             <xsl:value-of select="'http://apache.org/type_test/doc'"/>
           </xsl:if>
-          <xsl:if test="$use_style='rpc'">
+          <xsl:if test="$tns_suffix='rpc'">
             <xsl:value-of select="'http://apache.org/type_test/rpc'"/>
+          </xsl:if>
+          <xsl:if test="$tns_suffix='xml'">
+            <xsl:value-of select="'http://apache.org/type_test/xml'"/>
           </xsl:if>
         </xsl:attribute>
         <!-- 

@@ -113,6 +113,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         SimpleContentExtWithAnyAttribute ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleContentExtWithAnyAttribute(x, yh, zh);
+        } else if (testXMLBinding) {            
+            ret = xmlClient.testSimpleContentExtWithAnyAttribute(x, yh, zh);
         } else {
             ret = rpcClient.testSimpleContentExtWithAnyAttribute(x, yh, zh);
         }
@@ -148,6 +150,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         OccuringAll ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringAll(x, y, z);
         } else {
             ret = rpcClient.testOccuringAll(x, y, z);
         }
@@ -232,6 +236,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         OccuringStructWithAnyAttribute ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringStructWithAnyAttribute(x, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringStructWithAnyAttribute(x, yh, zh);
         } else {
             ret = rpcClient.testOccuringStructWithAnyAttribute(x, yh, zh);
         }
@@ -295,6 +301,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         OccuringChoiceWithAnyAttribute ret;
         if (testDocLiteral) {
             ret = docClient.testOccuringChoiceWithAnyAttribute(x, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testOccuringChoiceWithAnyAttribute(x, yh, zh);
         } else {
             ret = rpcClient.testOccuringChoiceWithAnyAttribute(x, yh, zh);
         }
@@ -351,6 +359,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         MRecSeqA ret;
         if (testDocLiteral) {
             ret = docClient.testMRecSeqA(xA, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testMRecSeqA(xA, yh, zh);
         } else {
             ret = rpcClient.testMRecSeqA(xA, yh, zh);
         }
@@ -417,6 +427,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         MRecSeqC ret;
         if (testDocLiteral) {
             ret = docClient.testMRecSeqC(xC, yh, zh);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testMRecSeqC(xC, yh, zh);
         } else {
             ret = rpcClient.testMRecSeqC(xC, yh, zh);
         }
@@ -467,6 +479,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         StructWithNillableChoice ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithNillableChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillableChoice(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillableChoice(x, y, z);
         }
@@ -493,6 +507,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithNillableChoice>();
         if (testDocLiteral) {
             ret = docClient.testStructWithNillableChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillableChoice(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillableChoice(x, y, z);
         }
@@ -569,6 +585,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         StructWithOccuringChoice ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringChoice(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringChoice(x, y, z);
         }
@@ -595,6 +613,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithOccuringChoice>();
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringChoice(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringChoice(x, y, z);
         }
@@ -618,6 +638,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithOccuringChoice>();
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringChoice(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringChoice(x, y, z);
         }
@@ -642,6 +664,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithOccuringChoice>();
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringChoice(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringChoice(x, y, z);
         }
@@ -706,6 +730,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         StructWithNillableStruct ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithNillableStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillableStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillableStruct(x, y, z);
         }
@@ -733,6 +759,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithNillableStruct>();
         if (testDocLiteral) {
             ret = docClient.testStructWithNillableStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillableStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillableStruct(x, y, z);
         }
@@ -758,6 +786,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithNillableStruct>();
         if (testDocLiteral) {
             ret = docClient.testStructWithNillableStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithNillableStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithNillableStruct(x, y, z);
         }
@@ -811,6 +841,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return x.getVarIntAndVarFloat() != null;
     }
 
+    
     public void testStructWithOccuringStruct() throws Exception {
         // Test 1
         //
@@ -832,6 +863,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         StructWithOccuringStruct ret;
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringStruct(x, y, z);
         }
@@ -859,6 +892,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithOccuringStruct>();
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringStruct(x, y, z);
         }
@@ -871,6 +906,23 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
                        equals(x, ret));
         }
 
+    }
+
+    public void testStructWithOccuringStruct2() throws Exception {
+        StructWithOccuringStruct x = new StructWithOccuringStruct();
+        x.setVarInteger(100);
+        x.getVarIntAndVarFloat().add(101);
+        x.getVarIntAndVarFloat().add(101.5f);
+        x.getVarIntAndVarFloat().add(102);
+        x.getVarIntAndVarFloat().add(102.5f);
+
+        StructWithOccuringStruct yOriginal = new StructWithOccuringStruct();
+        yOriginal.setVarInteger(200);
+
+        Holder<StructWithOccuringStruct> y = new Holder<StructWithOccuringStruct>(yOriginal);
+        Holder<StructWithOccuringStruct> z = new Holder<StructWithOccuringStruct>();
+        StructWithOccuringStruct ret;
+
         // Test 3
         //
         // x: sequence occurs once
@@ -882,6 +934,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithOccuringStruct>();
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringStruct(x, y, z);
         }
@@ -906,6 +960,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         z = new Holder<StructWithOccuringStruct>();
         if (testDocLiteral) {
             ret = docClient.testStructWithOccuringStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testStructWithOccuringStruct(x, y, z);
         } else {
             ret = rpcClient.testStructWithOccuringStruct(x, y, z);
         }
@@ -922,8 +978,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             assertTrue("testStructWithOccuringStruct(): Incorrect return form",
                        isNormalized(ret));
         }
-    }
 
+    }
     //org.apache.type_test.types1.AnonymousType;
 
     protected boolean equals(AnonymousType x, AnonymousType y) {
@@ -950,6 +1006,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         AnonymousType ret;
         if (testDocLiteral) {
             ret = docClient.testAnonymousType(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testAnonymousType(x, y, z);
         } else {
             ret = rpcClient.testAnonymousType(x, y, z);
         }
@@ -1009,6 +1067,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         RecSeqB6918 ret;
         if (testDocLiteral) {
             ret = docClient.testRecSeqB6918(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRecSeqB6918(x, y, z);
         } else {
             ret = rpcClient.testRecSeqB6918(x, y, z);
         }
@@ -1578,6 +1638,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         RestrictedStructBaseStruct ret;
         if (testDocLiteral) {
             ret = docClient.testRestrictedStructBaseStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRestrictedStructBaseStruct(x, y, z);
         } else {
             ret = rpcClient.testRestrictedStructBaseStruct(x, y, z);
         }
@@ -1614,6 +1676,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         RestrictedAllBaseAll ret;
         if (testDocLiteral) {
             ret = docClient.testRestrictedAllBaseAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testRestrictedAllBaseAll(x, y, z);
         } else {
             ret = rpcClient.testRestrictedAllBaseAll(x, y, z);
         }
@@ -1629,14 +1693,15 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     //org.apache.type_test.types1.UnionWithStringList;
 
     public void testUnionWithStringList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
             List<String> yOrig = Arrays.asList("I", "am", "SimpleList");
 
             // Invoke testUnionWithStringList
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-            List<String> ret = docClient.testUnionWithStringList(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testUnionWithStringList(x, y, z) 
+                    : xmlClient.testUnionWithStringList(x, y, z);
             if (!perfTestOnly) {
                 assertEquals("testUnionWithStringList(): Incorrect value for inout param",
                              x, y.value);
@@ -1666,14 +1731,15 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     //org.apache.type_test.types1.UnionWithStringListRestriction;
 
     public void testUnionWithStringListRestriction() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
             List<String> yOrig = Arrays.asList("I", "am", "SimpleList");
 
             // Invoke testUnionWithStringListRestriction
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-            List<String> ret = docClient.testUnionWithStringListRestriction(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testUnionWithStringListRestriction(x, y, z) 
+                    : xmlClient.testUnionWithStringListRestriction(x, y, z);
             if (!perfTestOnly) {
                 assertEquals("testUnionWithStringListRestriction(): Incorrect value for inout param",
                              x, y.value);
@@ -1703,14 +1769,15 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     //org.apache.type_test.types1.UnionWithAnonList;
 
     public void testUnionWithAnonList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
             List<String> yOrig = Arrays.asList("0.5f", "1.5f", "2.5f");
 
             // Invoke testUnionWithAnonList
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-            List<String> ret = docClient.testUnionWithAnonList(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testUnionWithAnonList(x, y, z) 
+                    : xmlClient.testUnionWithAnonList(x, y, z);
             if (!perfTestOnly) {
                 assertEquals("testUnionWithAnonList(): Incorrect value for inout param", x, y.value);
                 assertEquals("testUnionWithAnonList(): Incorrect value for out param", yOrig, z.value);
@@ -1745,6 +1812,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         String ret;
         if (testDocLiteral) {
             ret = docClient.testAnyURIRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testAnyURIRestriction(x, y, z);
         } else {
             ret = rpcClient.testAnyURIRestriction(x, y, z);
         }
@@ -1754,13 +1823,14 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             assertEquals("testString(): Incorrect return value", x, ret);
         }
 
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             yOrig = new String("http://www.iona.com/info/services/oss/info_services_oss_train.html");
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testAnyURIRestriction(x, y, z);
+                ret = testDocLiteral ? docClient.testAnyURIRestriction(x, y, z) 
+                        : xmlClient.testAnyURIRestriction(x, y, z);
                 //fail("maxLength=50 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1815,6 +1885,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         NestedStruct ret;
         if (testDocLiteral) {
             ret = docClient.testNestedStruct(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNestedStruct(x, y, z);
         } else {
             ret = rpcClient.testNestedStruct(x, y, z);
         }
@@ -1857,8 +1929,9 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         Holder<SimpleStruct> z = new Holder<SimpleStruct>();
 
         SimpleStruct ret;
-        if (testDocLiteral) {
-            ret = docClient.testSimpleStruct(x, y, z);
+        if (testDocLiteral || testXMLBinding) {
+            ret = testDocLiteral ? docClient.testSimpleStruct(x, y, z) 
+                    : xmlClient.testSimpleStruct(x, y, z);
             // XXX - rpc-literal returns an object of type SimpleStruct,
             //       doc-literal returns an object of type
             //       DerivedStructBaseStruct
@@ -1909,8 +1982,9 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         Holder<SimpleChoice> z = new Holder<SimpleChoice>();
 
         SimpleChoice ret;
-        if (testDocLiteral) {
-            ret = docClient.testSimpleChoice(x, y, z);
+        if (testDocLiteral || testXMLBinding) {
+            ret = testDocLiteral ? docClient.testSimpleChoice(x, y, z) 
+                    : xmlClient.testSimpleChoice(x, y, z);
             // XXX - rpc-literal returns an object of type SimpleChoice,
             //       doc-literal returns an object of type
             //       DerivedStructBaseChoice
@@ -1954,8 +2028,9 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         Holder<UnboundedArray> y = new Holder<UnboundedArray>(yOrig);
         Holder<UnboundedArray> z = new Holder<UnboundedArray>();
         UnboundedArray ret;
-        if (testDocLiteral) {
-            ret = docClient.testUnboundedArray(x, y, z);
+        if (testDocLiteral || testXMLBinding) {
+            ret = testDocLiteral ? docClient.testUnboundedArray(x, y, z) 
+                    : xmlClient.testUnboundedArray(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for inout param",
                            equals(x, (DerivedChoiceBaseArray)y.value));
@@ -1986,6 +2061,8 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         EmptyAll ret;
         if (testDocLiteral) {
             ret = docClient.testEmptyAll(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testEmptyAll(x, y, z);
         } else {
             ret = rpcClient.testEmptyAll(x, y, z);
         }

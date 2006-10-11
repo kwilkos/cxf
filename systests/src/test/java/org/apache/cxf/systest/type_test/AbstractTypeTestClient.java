@@ -43,6 +43,7 @@ import org.apache.type_test.types1.StringEnum;
 
 public abstract class AbstractTypeTestClient extends ClientServerTestBase implements TypeTestTester {
     protected static TypeTestPortType docClient;
+    protected static org.apache.type_test.xml.TypeTestPortType xmlClient;
     protected static org.apache.type_test.rpc.TypeTestPortType rpcClient;
     protected static boolean testDocLiteral;
     protected static boolean testXMLBinding;
@@ -72,12 +73,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         assertNotNull("Could not load wsdl " + wsdlPath, wsdlLocation);
         testDocLiteral = wsdlPath.contains("doclit");
         testXMLBinding = wsdlPath.contains("_xml");
-        if (testXMLBinding) {
-            testDocLiteral = true;
-            org.apache.type_test.doc.XMLService docService =
-                new org.apache.type_test.doc.XMLService(wsdlLocation, serviceName);
-            docClient = docService.getPort(portName, org.apache.type_test.doc.TypeTestPortType.class);
-            assertNotNull("Could not create docClient", docClient);
+        if (testXMLBinding) {            
+            org.apache.type_test.xml.XMLService xmlService =
+                new org.apache.type_test.xml.XMLService(wsdlLocation, serviceName);
+            xmlClient = xmlService.getPort(portName, org.apache.type_test.xml.TypeTestPortType.class);
+            assertNotNull("Could not create xmlClient", xmlClient);
         } else {
             if (testDocLiteral) {
                 org.apache.type_test.doc.SOAPService docService =
@@ -139,9 +139,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     public void testVoid() throws Exception {
         if (testDocLiteral) {
             docClient.testVoid();
+        } else if (testXMLBinding) {
+            xmlClient.testVoid();
         } else {
             rpcClient.testVoid();
-        }
+        } 
     }
 
     public void testOneway() throws Exception {
@@ -149,6 +151,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String y = "oneway";
         if (testDocLiteral) {
             docClient.testOneway(x, y);
+        } else if (testXMLBinding) {
+            xmlClient.testOneway(x, y);
         } else {
             rpcClient.testOneway(x, y);
         }
@@ -170,6 +174,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             byte ret;
             if (testDocLiteral) {
                 ret = docClient.testByte(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testByte(x, y, z);                
             } else {
                 ret = rpcClient.testByte(x, y, z);
             }
@@ -199,6 +205,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             short ret;
             if (testDocLiteral) {
                 ret = docClient.testShort(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testShort(x, y, z);                
             } else {
                 ret = rpcClient.testShort(x, y, z);
             }
@@ -222,6 +230,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             int ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedShort(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedShort(x, y, z);                
             } else {
                 ret = rpcClient.testUnsignedShort(x, y, z);
             }
@@ -248,6 +258,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             int ret;
             if (testDocLiteral) {
                 ret = docClient.testInt(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testInt(x, y, z);                
             } else {
                 ret = rpcClient.testInt(x, y, z);
             }
@@ -272,6 +284,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             long ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedInt(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedInt(x, y, z);                
             } else {
                 ret = rpcClient.testUnsignedInt(x, y, z);
             }
@@ -298,6 +312,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             long ret;
             if (testDocLiteral) {
                 ret = docClient.testLong(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testLong(x, y, z);                
             } else {
                 ret = rpcClient.testLong(x, y, z);
             }
@@ -324,6 +340,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedLong(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedLong(x, y, z);                
             } else {
                 ret = rpcClient.testUnsignedLong(x, y, z);
             }
@@ -353,6 +371,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             float ret;
             if (testDocLiteral) {
                 ret = docClient.testFloat(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testFloat(x, y, z);                
             } else {
                 ret = rpcClient.testFloat(x, y, z);
             }
@@ -370,6 +390,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         float ret;
         if (testDocLiteral) {
             ret = docClient.testFloat(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testFloat(x, y, z);            
         } else {
             ret = rpcClient.testFloat(x, y, z);
         }
@@ -399,6 +421,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             double ret;
             if (testDocLiteral) {
                 ret = docClient.testDouble(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testDouble(x, y, z);                
             } else {
                 ret = rpcClient.testDouble(x, y, z);
             }
@@ -416,6 +440,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         double ret;
         if (testDocLiteral) {
             ret = docClient.testDouble(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDouble(x, y, z);            
         } else {
             ret = rpcClient.testDouble(x, y, z);
         }
@@ -439,6 +465,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             short ret;
             if (testDocLiteral) {
                 ret = docClient.testUnsignedByte(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testUnsignedByte(x, y, z);                
             } else {
                 ret = rpcClient.testUnsignedByte(x, y, z);
             }
@@ -465,6 +493,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             boolean ret;
             if (testDocLiteral) {
                 ret = docClient.testBoolean(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testBoolean(x, y, z);                
             } else {
                 ret = rpcClient.testBoolean(x, y, z);
             }
@@ -498,6 +528,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             String ret;
             if (testDocLiteral) {
                 ret = docClient.testString(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testString(x, y, z);                
             } else {
                 ret = rpcClient.testString(x, y, z);
             }
@@ -524,6 +556,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             String ret;
             if (testDocLiteral) {
                 ret = docClient.testString(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testString(x, y, z);                
             } else {
                 ret = rpcClient.testString(x, y, z);
             }
@@ -551,6 +585,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             QName ret;
             if (testDocLiteral) {
                 ret = docClient.testQName(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testQName(x, y, z);                
             } else {
                 ret = rpcClient.testQName(x, y, z);
             }
@@ -640,6 +676,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testDateTime(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDateTime(x, y, z);            
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests (ClassCastException in jaxb).
@@ -672,6 +710,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testTime(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testTime(x, y, z);            
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests.
@@ -697,6 +737,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGYear(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGYear(x, y, z);           
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests (ClassCastException in jaxb).
@@ -720,6 +762,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGYearMonth(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGYearMonth(x, y, z);            
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests (ClassCastException in jaxb).
@@ -743,6 +787,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGMonth(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGMonth(x, y, z);
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests (ClassCastException in jaxb).
@@ -766,6 +812,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGMonthDay(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGMonthDay(x, y, z);            
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests (ClassCastException in jaxb).
@@ -789,6 +837,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testGDay(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testGDay(x, y, z);            
         } else {
             // XXX - TODO getting a marshalling exception with rpc-lit for the
             // xsd:date tests (ClassCastException in jaxb).
@@ -812,6 +862,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         Duration ret;
         if (testDocLiteral) {
             ret = docClient.testDuration(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDuration(x, y, z);            
         } else {
             // XXX - TODO getting a MarshalException with rpc-lit for the
             // xsd:duration test [DurationImpl is not known to this context].
@@ -833,6 +885,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testNormalizedString(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNormalizedString(x, y, z);            
         } else {
             ret = rpcClient.testNormalizedString(x, y, z);
         }
@@ -851,6 +905,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testToken(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testToken(x, y, z);            
         } else {
             ret = rpcClient.testToken(x, y, z);
         }
@@ -869,6 +925,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testLanguage(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testLanguage(x, y, z);            
         } else {
             ret = rpcClient.testLanguage(x, y, z);
         }
@@ -887,6 +945,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testNMTOKEN(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNMTOKEN(x, y, z);            
         } else {
             ret = rpcClient.testNMTOKEN(x, y, z);
         }
@@ -904,14 +964,21 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         if (testDocLiteral) {
             List<String> x = Arrays.asList("123:abc");
             List<String> yOrig = Arrays.asList("abc.-_:", "a");
-
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-
             List<String> ret = docClient.testNMTOKENS(x, y, z);
             assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
             assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
             assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));
+        } else if (testXMLBinding) {
+            List<String> x = Arrays.asList("123:abc");
+            List<String> yOrig = Arrays.asList("abc.-_:", "a");
+            Holder<List<String>> y = new Holder<List<String>>(yOrig);
+            Holder<List<String>> z = new Holder<List<String>>();
+            List<String> ret = xmlClient.testNMTOKENS(x, y, z);
+            assertTrue("testNMTOKENS(): Incorrect value for inout param", x.equals(y.value));
+            assertTrue("testNMTOKENS(): Incorrect value for out param", yOrig.equals(z.value));
+            assertTrue("testNMTOKENS(): Incorrect return value", x.equals(ret));            
         } else {
             String[] x = new String[1];
             x[0] = "123:abc";
@@ -939,6 +1006,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testName(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testName(x, y, z);            
         } else {
             ret = rpcClient.testName(x, y, z);
         }
@@ -957,6 +1026,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testNCName(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testNCName(x, y, z);            
         } else {
             ret = rpcClient.testNCName(x, y, z);
         }
@@ -983,6 +1054,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
             if (testDocLiteral) {
                 /*String ret =*/ docClient.testID(x, y, z);
+            } else if (testXMLBinding) {
+                /*String ret =*/ xmlClient.testID(x, y, z);               
             } else {
                 /*String ret =*/ rpcClient.testID(x, y, z);
             }
@@ -1009,6 +1082,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigDecimal ret;
             if (testDocLiteral) {
                 ret = docClient.testDecimal(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testDecimal(x, y, z);                
             } else {
                 ret = rpcClient.testDecimal(x, y, z);
             }
@@ -1036,6 +1111,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testInteger(x, y, z);                
             } else {
                 ret = rpcClient.testInteger(x, y, z);
             }
@@ -1063,6 +1140,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testPositiveInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testPositiveInteger(x, y, z);                
             } else {
                 ret = rpcClient.testPositiveInteger(x, y, z);
             }
@@ -1090,6 +1169,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testNonPositiveInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNonPositiveInteger(x, y, z);                
             } else {
                 ret = rpcClient.testNonPositiveInteger(x, y, z);
             }
@@ -1117,6 +1198,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testNegativeInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNegativeInteger(x, y, z);                
             } else {
                 ret = rpcClient.testNegativeInteger(x, y, z);
             }
@@ -1144,6 +1227,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             BigInteger ret;
             if (testDocLiteral) {
                 ret = docClient.testNonNegativeInteger(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNonNegativeInteger(x, y, z);                
             } else {
                 ret = rpcClient.testNonNegativeInteger(x, y, z);
             }
@@ -1163,6 +1248,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testHexBinary(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testHexBinary(x, y, z);            
         } else {
             ret = rpcClient.testHexBinary(x, y, z);
         }
@@ -1184,6 +1271,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testBase64Binary(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testBase64Binary(x, y, z);            
         } else {
             ret = rpcClient.testBase64Binary(x, y, z);
         }
@@ -1202,6 +1291,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<byte[]>();
             if (testDocLiteral) {
                 docClient.testBase64Binary(x, y, z);
+            } else if (testXMLBinding) {
+                xmlClient.testBase64Binary(x, y, z);                
             } else {
                 rpcClient.testBase64Binary(x, y, z);
             }
@@ -1227,6 +1318,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             String ret;
             if (testDocLiteral) {
                 ret = docClient.testAnyURI(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testAnyURI(x, y, z);                
             } else {
                 ret = rpcClient.testAnyURI(x, y, z);
             }
@@ -1286,6 +1379,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             NumberEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testNumberEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNumberEnum(x, y, z);                
             } else {
                 ret = rpcClient.testNumberEnum(x, y, z);
             }
@@ -1313,6 +1408,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             StringEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testStringEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testStringEnum(x, y, z);                
             } else {
                 ret = rpcClient.testStringEnum(x, y, z);
             }
@@ -1345,6 +1442,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             DecimalEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testDecimalEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testDecimalEnum(x, y, z);                
             } else {
                 ret = rpcClient.testDecimalEnum(x, y, z);
             }
@@ -1373,6 +1472,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             NMTokenEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testNMTokenEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testNMTokenEnum(x, y, z);                
             } else {
                 ret = rpcClient.testNMTokenEnum(x, y, z);
             }
@@ -1400,6 +1501,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             AnyURIEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testAnyURIEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testAnyURIEnum(x, y, z);                
             } else {
                 ret = rpcClient.testAnyURIEnum(x, y, z);
             }
@@ -1422,6 +1525,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction(x, y, z);            
         } else {
             ret = rpcClient.testSimpleRestriction(x, y, z);
         }
@@ -1432,7 +1537,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
         
         // Enabled schema validation for doc literal tests
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "string_xxxxx";
             y = new Holder<String>(yOrig);
@@ -1450,7 +1555,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleRestriction(x, y, z) 
+                        : xmlClient.testSimpleRestriction(x, y, z);
                 //fail("y parameter maxLength=10 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1468,6 +1574,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction2(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction2(x, y, z);            
         } else {
             ret = rpcClient.testSimpleRestriction2(x, y, z);
         }
@@ -1478,13 +1586,14 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
         
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction2(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleRestriction2(x, y, z) 
+                        : xmlClient.testSimpleRestriction2(x, y, z);
                 //fail("minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1502,6 +1611,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction3(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction3(x, y, z);            
         } else {
             ret = rpcClient.testSimpleRestriction3(x, y, z);
         }
@@ -1512,7 +1623,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
         
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
@@ -1530,7 +1641,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction3(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleRestriction3(x, y, z) 
+                        : xmlClient.testSimpleRestriction3(x, y, z);
                 //fail("y parameter maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1548,6 +1660,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction4(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction4(x, y, z);            
         } else {
             ret = rpcClient.testSimpleRestriction4(x, y, z);
         }
@@ -1558,13 +1672,14 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
         
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction4(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleRestriction4(x, y, z) 
+                        : xmlClient.testSimpleRestriction4(x, y, z);
                 //fail("x parameter minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1583,6 +1698,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction5(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction5(x, y, z);            
         } else {
             ret = rpcClient.testSimpleRestriction5(x, y, z);
         }
@@ -1593,7 +1710,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
  
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "str";
             y = new Holder<String>(yOrig);
@@ -1611,7 +1728,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction5(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleRestriction5(x, y, z) 
+                        : xmlClient.testSimpleRestriction5(x, y, z);
                 //fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1628,6 +1746,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testSimpleRestriction6(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleRestriction6(x, y, z);            
         } else {
             ret = rpcClient.testSimpleRestriction6(x, y, z);
         }
@@ -1638,14 +1758,15 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
         
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "string_x";
             yOrig = "string_y";
             y = new Holder<String>(yOrig);
             z = new Holder<String>();
             try {
-                ret = docClient.testSimpleRestriction6(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleRestriction6(x, y, z) 
+                        : xmlClient.testSimpleRestriction6(x, y, z);
                 //fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1663,6 +1784,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testHexBinaryRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testHexBinaryRestriction(x, y, z);            
         } else {
             ret = rpcClient.testHexBinaryRestriction(x, y, z);
         }
@@ -1675,7 +1798,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
 
         // Schema validation is enabled for doc-literal
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             // abnormal case
             x = "".getBytes();
             y = new Holder<byte[]>(yOrig);
@@ -1693,7 +1816,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder<byte[]>(yOrig);
             z = new Holder<byte[]>();
             try {
-                ret = docClient.testHexBinaryRestriction(x, y, z);
+                ret = testDocLiteral ? docClient.testHexBinaryRestriction(x, y, z) 
+                        : xmlClient.testHexBinaryRestriction(x, y, z);
                 //fail("maxLength=10 && minLength=1 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
@@ -1716,6 +1840,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         byte[] ret;
         if (testDocLiteral) {
             ret = docClient.testBase64BinaryRestriction(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testBase64BinaryRestriction(x, y, z);            
         } else {
             ret = rpcClient.testBase64BinaryRestriction(x, y, z);
         }
@@ -1743,12 +1869,13 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
     
     public void testSimpleListRestriction2() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("I", "am", "SimpleList");
             List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
             Holder<List<String>> z = new Holder<List<String>>();
-            List<String> ret = docClient.testSimpleListRestriction2(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testSimpleListRestriction2(x, y, z) 
+                    : xmlClient.testSimpleListRestriction2(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testStringList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testStringList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1758,7 +1885,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             y = new Holder< List<String> >(yOrig);
             z = new Holder< List<String> >();
             try {
-                ret = docClient.testSimpleListRestriction2(x, y, z);
+                ret = testDocLiteral ? docClient.testSimpleListRestriction2(x, y, z) 
+                        : xmlClient.testSimpleListRestriction2(x, y, z);                     
                 //fail("length=10 restriction is violated.");
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -1786,13 +1914,14 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
     
     public void testStringList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("I", "am", "SimpleList");
             List<String> yOrig = Arrays.asList("Does", "SimpleList", "Work");
             Holder< List<String> > y = new Holder< List<String> >(yOrig);
             Holder< List<String> > z = new Holder< List<String> >();
 
-            List<String> ret = docClient.testStringList(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testStringList(x, y, z) 
+                    : xmlClient.testStringList(x, y, z); 
             if (!perfTestOnly) {
                 assertTrue("testStringList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testStringList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1820,18 +1949,19 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
 
     public void testNumberList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<Integer> x = Arrays.asList(1, 2, 3);
             List<Integer> yOrig = Arrays.asList(10, 100, 1000);
             Holder< List<Integer> > y = new Holder< List<Integer> >(yOrig);
             Holder< List<Integer> > z = new Holder< List<Integer> >();
 
-            List<Integer> ret = docClient.testNumberList(x, y, z);
+            List<Integer> ret = testDocLiteral ? docClient.testNumberList(x, y, z) 
+                    : xmlClient.testNumberList(x, y, z);
             if (!perfTestOnly) {
                 assertTrue("testNumberList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testNumberList(): Incorrect value for out param", yOrig.equals(z.value));
                 assertTrue("testNumberList(): Incorrect return value", x.equals(ret));
-            }
+            }            
         } else {
             Integer[] x = {1, 2, 3};
             Integer[] yOrig = {10, 100, 1000};
@@ -1854,7 +1984,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
     
     public void testQNameList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<QName> x = Arrays.asList(
                                           new QName("http://schemas.iona.com/type_test", "testqname1"),
                                           new QName("http://schemas.iona.com/type_test", "testqname2"),
@@ -1868,7 +1998,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             Holder< List<QName> > y = new Holder< List<QName> >(yOrig);
             Holder< List<QName> > z = new Holder< List<QName> >();
 
-            List<QName> ret = docClient.testQNameList(x, y, z);
+            List<QName> ret = testDocLiteral ? docClient.testQNameList(x, y, z) 
+                    : xmlClient.testQNameList(x, y, z); 
             if (!perfTestOnly) {
                 assertTrue("testQNameList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testQNameList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1904,14 +2035,15 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     }
 
     public void testSimpleUnionList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5", "-7");
             List<String> yOrig = Arrays.asList("-9", "7");
 
             Holder< List<String> > y = new Holder< List<String> >(yOrig);
             Holder< List<String> > z = new Holder< List<String> >();
 
-            List<String> ret = docClient.testSimpleUnionList(x, y, z);
+            List<String> ret = testDocLiteral ? docClient.testSimpleUnionList(x, y, z) 
+                    : xmlClient.testSimpleUnionList(x, y, z);             
             if (!perfTestOnly) {
                 assertTrue("testSimpleUnionList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testSimpleUnionList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1942,14 +2074,15 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
     public void testAnonEnumList() throws Exception {
-        if (testDocLiteral) {
+        if (testDocLiteral || testXMLBinding) {
             List<Short> x = Arrays.asList((short)10, (short)100);
             List<Short> yOrig = Arrays.asList((short)1000, (short)10);
 
             Holder< List<Short> > y = new Holder< List<Short> >(yOrig);
             Holder< List<Short> > z = new Holder< List<Short> >();
 
-            List<Short> ret = docClient.testAnonEnumList(x, y, z);
+            List<Short> ret = testDocLiteral ? docClient.testAnonEnumList(x, y, z) 
+                    : xmlClient.testAnonEnumList(x, y, z);                
             if (!perfTestOnly) {
                 assertTrue("testAnonEnumList(): Incorrect value for inout param", x.equals(y.value));
                 assertTrue("testAnonEnumList(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1988,6 +2121,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         String ret;
         if (testDocLiteral) {
             ret = docClient.testUnionWithAnonEnum(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnionWithAnonEnum(x, y, z);            
         } else {
             ret = rpcClient.testUnionWithAnonEnum(x, y, z);
         }
