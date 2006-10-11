@@ -62,7 +62,7 @@ public class WSDL11Validator extends AbstractValidator {
                 this.def = schemaValidator.def;
             }
         } else {
-            throw new ToolException("Schema dir should be defined before validate wsdl");
+            throw new ToolException("Schema dir should be defined before validating wsdl");
         }
 
         validators.add(new UniqueBodyPartsValidator(this.def));

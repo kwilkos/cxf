@@ -19,6 +19,12 @@
 
 package org.apache.cxf.tools.validator.internal;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,12 +46,16 @@ import javax.wsdl.Service;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -53,29 +63,51 @@ import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaType;
 
 public class WSDLElementReferenceValidator {
-    private Map<String, XmlSchemaCollection> schemas;
     private Definition def;
-    private Map<QName, List> msgPartsMap;
     private SchemaValidator schemaWSDLValidator;
-    private Map<QName, QName> bindingMap;
-    private Map<QName, Map> portTypes;
+
+    private List<XmlSchemaCollection> schemas;
+    private Map<QName, QName> bindingMap = new HashMap<QName, QName>();
+    private Map<QName, List> msgPartsMap = new HashMap<QName, List>();
+    private Map<QName, Map> portTypes = new HashMap<QName, Map>();
+
     private Document document;
     private Document locationDocument;
     private boolean isValid = true;
-    private  XmlSchemaCollection schemaCollection;
+    // XXX - schemaCollection never seems to be populated?
+    private XmlSchemaCollection schemaCollection = new XmlSchemaCollection();
 
-    public WSDLElementReferenceValidator(Definition definition, SchemaValidator wsdlValidator,
-                                         XMLEventReader reader) {
+    public WSDLElementReferenceValidator(Definition definition, 
+                                         SchemaValidator validator, 
+                                         String wsdlId,
+                                         Document wsdlDocument) {
         def = definition;
-        schemaWSDLValidator = wsdlValidator;
-        schemas = wsdlValidator.getXMLSchemaMap();
-        msgPartsMap = wsdlValidator.getMsgPartsMap();
-        portTypes = wsdlValidator.getPortTypesMap();
-        bindingMap = wsdlValidator.getBindingMap();
-        document = wsdlValidator.getSchemaValidatedDoc();
+        schemaWSDLValidator = validator;
+        document = wsdlDocument;
+        try {
+            schemas = ValidatorUtil.getSchemaList(document, def.getDocumentBaseURI());
+        } catch (IOException ex) {
+            throw new ToolException("Cannot get schema list " + def.getDocumentBaseURI(), ex);
+        } catch (SAXException ex) {
+            throw new ToolException(ex);
+        }
+
+        XMLEventReader reader = null;
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
+            File file = new File(new URI(wsdlId));
+            reader = factory.createXMLEventReader(new FileReader(file));
+        } catch (XMLStreamException streamEx) {
+            throw new ToolException(streamEx);
+        } catch (URISyntaxException e) {
+            throw new ToolException(e);
+        } catch (FileNotFoundException e) {
+            throw new ToolException("Cannot get the wsdl " + wsdlId, e);
+        }
+
         Stax2DOM stax2dom = new Stax2DOM();
         locationDocument = stax2dom.getDocument(reader);
-        schemaCollection = new XmlSchemaCollection();
     }
 
     public boolean isValid() {
@@ -83,6 +115,7 @@ public class WSDLElementReferenceValidator {
         this.validatePortType();
         this.validateBinding();
         this.validateService();
+
         return isValid;
     }
 
@@ -92,7 +125,15 @@ public class WSDLElementReferenceValidator {
 
         Map messageMap = def.getMessages();
 
-        Map<String, Document> wsdlImports = schemaWSDLValidator.getWsdlImportDocs();
+        Map<String, Document> wsdlImports = null;
+        try {
+            wsdlImports = ValidatorUtil.getImportedWsdlMap(document,
+                def.getDocumentBaseURI());
+        } catch (IOException ex) {
+            throw new ToolException("Cannot get wsdl imports " + def.getDocumentBaseURI(), ex);
+        } catch (SAXException ex) {
+            throw new ToolException(ex);
+        }
         for (Iterator iter = wsdlImports.keySet().iterator(); iter.hasNext();) {
             String tnsImport = (String)iter.next();
             Document wsdlImportDoc = (Document)wsdlImports.get(tnsImport);
@@ -135,11 +176,10 @@ public class WSDLElementReferenceValidator {
                     Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_MESSAGE, msg.getQName()
                         .getLocalPart(), part.getName());
 
-                    schemaWSDLValidator
-                        .addError(loc, "The part does not have a type defined. Every part must "
-                                       + "specify a type from some type system. The type can "
-                                       + "be specified using the built in 'element' or 'type' attributes "
-                                       + "or may be specified using an extension attribute.");
+                    addError(loc, "The part does not have a type defined. Every part must "
+                                + "specify a type from some type system. The type can "
+                                + "be specified using the built in 'element' or 'type' attributes "
+                                + "or may be specified using an extension attribute.");
 
                     isValid = false;
 
@@ -148,9 +188,8 @@ public class WSDLElementReferenceValidator {
                 if (elementName != null && typeName != null) {
                     Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_MESSAGE, msg.getQName()
                         .getLocalPart(), part.getName());
-                    schemaWSDLValidator.addError(loc,
-                                                 "The part has both an element and a type defined. Every "
-                                                     + "part must only have an element or a type defined.");
+                    addError(loc, "The part has both an element and a type defined. Every "
+                                + "part must only have an element or a type defined.");
                     isValid = false;
 
                 }
@@ -161,7 +200,7 @@ public class WSDLElementReferenceValidator {
                     if (!valid) {
                         Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_MESSAGE, msg.getQName()
                             .getLocalPart(), part.getName());
-                        schemaWSDLValidator.addError(loc, elementName + " cannot find reference");
+                        addError(loc, elementName + " cannot find reference");
 
                         isValid = false;
                     }
@@ -175,7 +214,7 @@ public class WSDLElementReferenceValidator {
                     if (!valid) {
                         Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_MESSAGE, msg.getQName()
                             .getLocalPart(), part.getName());
-                        schemaWSDLValidator.addError(loc, "reference cannot be found");
+                        addError(loc, "reference cannot be found");
                         isValid = false;
                     }
 
@@ -205,19 +244,21 @@ public class WSDLElementReferenceValidator {
             }
             
         } else {
-            Iterator ite = schemas.values().iterator();
-            while (ite.hasNext()) {
-                XmlSchemaCollection schema = (XmlSchemaCollection)ite.next();
-                if (schema != null && isElement
-                    && schema.getElementByQName(new QName(namespace, name)) != null) {
-                    partvalid = true;
-                    break;
-
+            if (isElement) {
+                for (XmlSchemaCollection schema : schemas) {
+                    if (schema != null && schema.getElementByQName(
+                            new QName(namespace, name)) != null) {
+                        partvalid = true;
+                        break;
+                    }
                 }
-                if (schema != null && !isElement 
-                    && schema.getTypeByQName(new QName(namespace, name)) != null) {
-                    partvalid = true;
-                    break;
+            } else {
+                for (XmlSchemaCollection schema : schemas) {
+                    if (schema != null && schema.getTypeByQName(
+                            new QName(namespace, name)) != null) {
+                        partvalid = true;
+                        break;
+                    }
                 }
             }
         }
@@ -242,7 +283,7 @@ public class WSDLElementReferenceValidator {
             if (!portTypes.containsKey(typeName)) {
                 Location loc = getErrNodeLocation(WSDLConstants.QNAME_DEFINITIONS, null, bindingName
                     .getLocalPart());
-                schemaWSDLValidator.addError(loc, typeName + " is not defined");
+                addError(loc, typeName + " is not defined");
                 isValid = false;
             } else {
 
@@ -262,8 +303,8 @@ public class WSDLElementReferenceValidator {
 
                         Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_BINDING, bindingName
                             .getLocalPart(), bop.getName());
-                        schemaWSDLValidator.addError(loc, "BindingOperation " + bop.getName()
-                                                          + " is not defined");
+                        addError(loc, "BindingOperation " + bop.getName()
+                                    + " is not defined");
 
                         isValid = false;
 
@@ -273,16 +314,16 @@ public class WSDLElementReferenceValidator {
                         if (op.getInput() == null && bop.getBindingInput() != null) {
                             Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_BINDING, bindingName
                                 .getLocalPart(), bop.getName());
-                            schemaWSDLValidator.addError(loc, "BindingOperation " + bop.getName()
-                                                              + " binding input is not defined");
+                            addError(loc, "BindingOperation " + bop.getName()
+                                        + " binding input is not defined");
                             isValid = false;
                         }
 
                         if (op.getInput() != null && bop.getBindingInput() == null) {
                             Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_BINDING, bindingName
                                 .getLocalPart(), bop.getName());
-                            schemaWSDLValidator.addError(loc, "BindingOperation " + bop.getName()
-                                                              + " binding input is not resolved");
+                            addError(loc, "BindingOperation " + bop.getName()
+                                        + " binding input is not resolved");
 
                             isValid = false;
                         }
@@ -290,16 +331,16 @@ public class WSDLElementReferenceValidator {
                         if (op.getOutput() == null && bop.getBindingOutput() != null) {
                             Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_BINDING, bindingName
                                 .getLocalPart(), bop.getName());
-                            schemaWSDLValidator.addError(loc, "BindingOperation " + bop.getName()
-                                                              + " binding output is not defined");
+                            addError(loc, "BindingOperation " + bop.getName()
+                                        + " binding output is not defined");
                             isValid = false;
                         }
 
                         if (op.getOutput() != null && bop.getBindingOutput() == null) {
                             Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_BINDING, bindingName
                                 .getLocalPart(), bop.getName());
-                            schemaWSDLValidator.addError(loc, "BindingOperation " + bop.getName()
-                                                              + " binding output is not resolved");
+                            addError(loc, "BindingOperation " + bop.getName()
+                                        + " binding output is not resolved");
 
                             isValid = false;
                         }
@@ -307,8 +348,8 @@ public class WSDLElementReferenceValidator {
                         if (op.getFaults().size() != bop.getBindingFaults().size()) {
                             Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_BINDING, bindingName
                                 .getLocalPart(), bop.getName());
-                            schemaWSDLValidator.addError(loc, "BindingOperation " + bop.getName()
-                                                              + " binding fault resolved error");
+                            addError(loc, "BindingOperation " + bop.getName()
+                                        + " binding fault resolved error");
                             isValid = false;
                         }
 
@@ -336,8 +377,8 @@ public class WSDLElementReferenceValidator {
                 if (!bindingMap.containsKey(binding.getQName())) {
                     Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_SERVICE, service.getQName()
                         .getLocalPart(), port.getName());
-                    schemaWSDLValidator.addError(loc, " port : " + port.getName()
-                                                      + " reference binding is not defined");
+                    addError(loc, " port : " + port.getName()
+                                + " reference binding is not defined");
                     isValid = false;
                 }
             }
@@ -380,8 +421,8 @@ public class WSDLElementReferenceValidator {
                                 && !msgPartsMap.containsKey(input.getMessage().getQName())) {
                                 Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_OPERATION,
                                                                        operation.getName(), input.getName());
-                                schemaWSDLValidator.addError(loc, " input : " + input.getName()
-                                                                  + " reference is not defined");
+                                addError(loc, " input : " + input.getName()
+                                            + " reference is not defined");
                                 isValid = false;
                             }
 
@@ -390,8 +431,8 @@ public class WSDLElementReferenceValidator {
                                 && !msgPartsMap.containsKey(output.getMessage().getQName())) {
                                 Location loc = this.getErrNodeLocation(WSDLConstants.QNAME_OPERATION,
                                                                        operation.getName(), output.getName());
-                                schemaWSDLValidator.addError(loc, " output : " + output.getName()
-                                                                  + " reference is not defined");
+                                addError(loc, " output : " + output.getName()
+                                            + " reference is not defined");
                                 isValid = false;
                             }
 
@@ -421,7 +462,6 @@ public class WSDLElementReferenceValidator {
 
     private void addError(Location loc, String msg) {
         schemaWSDLValidator.addError(loc, msg);
-
     }
 
     public Location getErrNodeLocation(QName wsdlParentNode, String parentNameValue,

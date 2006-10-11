@@ -102,8 +102,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         
         ServiceWSDLBuilder wsdlBuilder = 
             new ServiceWSDLBuilder(service.getServiceInfo());
-        Definition d = wsdlBuilder.build();
-        return d;
+        return wsdlBuilder.build();
     }
 
     public void testEndpoint() throws Exception {

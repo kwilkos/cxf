@@ -145,7 +145,7 @@ public class WSDLToProcessor implements Processor {
             wsdlReader = wsdlFactory.newWSDLReader();
             wsdlReader.setFeature("javax.wsdl.verbose", false);
             WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, wsdlReader);
-            register.registerExtenstions();
+            register.registerExtensions();
             wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
             parseImports(wsdlDefinition);
             buildImportedMaps();

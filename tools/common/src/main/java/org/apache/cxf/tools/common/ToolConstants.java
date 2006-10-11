@@ -132,7 +132,7 @@ public final class ToolConstants {
 
     //public static final String RAW_JAXB_MODEL = "rawjaxbmodel";
 
-    // JMS adress
+    // JMS address
     public static final String NS_JMS_ADDRESS = "http://cxf.apache.org/transports/jms";
     public static final QName  JMS_ADDRESS = new QName(NS_JMS_ADDRESS, "address");
 

@@ -54,7 +54,7 @@ public class WSDLExtensionRegister {
         wsdlreader = reader;
     }
 
-    public void registerExtenstions() {
+    public void registerExtensions() {
         ExtensionRegistry registry = wsdlreader.getExtensionRegistry();
         if (registry == null) {
             registry = wsdlFactory.newPopulatedExtensionRegistry();

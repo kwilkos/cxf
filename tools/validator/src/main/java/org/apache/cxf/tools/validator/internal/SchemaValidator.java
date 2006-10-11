@@ -20,35 +20,24 @@
 package org.apache.cxf.tools.validator.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.XMLConstants;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
@@ -57,9 +46,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
@@ -71,11 +58,9 @@ import org.xml.sax.SAXParseException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
-
-import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 public class SchemaValidator extends AbstractValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
@@ -91,18 +76,6 @@ public class SchemaValidator extends AbstractValidator {
     private DocumentBuilder docBuilder;
 
     private SAXParser saxParser;
-
-    private Document schemaValidatedDoc;
-
-    private Map<String, Document> wsdlImportDocs;
-
-    private Map<String, XmlSchemaCollection> xmlSchemaMap = new HashMap<String, XmlSchemaCollection>();
-
-    private Map<QName, List> msgPartsMap = new HashMap<QName, List>();
-
-    private Map<QName, Map> portTypes = new HashMap<QName, Map>();
-
-    private Map<QName, QName> bindingMap = new HashMap<QName, QName>();
 
     public SchemaValidator(String schemaDir) throws ToolException {
         super(schemaDir);
@@ -198,39 +171,20 @@ public class SchemaValidator extends AbstractValidator {
                 throw new ToolException(errHandler.getErrorMessages());
             }
 
-            XMLEventReader xmlEventReader = null;
             try {
                 WSDLFactory wsdlFactory = WSDLFactory.newInstance();
                 WSDLReader reader = wsdlFactory.newWSDLReader();
                 reader.setFeature("javax.wsdl.verbose", false);
                 WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, reader);
-                register.registerExtenstions();
+                register.registerExtensions();
                 def = reader.readWSDL(wsdlsource.getSystemId());
-
-                XMLInputFactory factory = XMLInputFactory.newInstance();
-                factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
-
-                File file = new File(new URI(wsdlsource.getSystemId()));
-                xmlEventReader = factory.createXMLEventReader(new FileReader(file));
-
             } catch (WSDLException e) {
                 throw new ToolException(e);
-            } catch (XMLStreamException streamEx) {
-                throw new ToolException(streamEx);
-            } catch (URISyntaxException e) {
-                throw new ToolException(e);
             }
 
-            doSchemaValidation(document, errHandler);
-
-            if (!errHandler.isValid()) {
-                throw new ToolException(errHandler.getErrorMessages());
-            }
-
-            this.schemaValidatedDoc = document;
-
-            WSDLElementReferenceValidator wsdlRefValidator = new WSDLElementReferenceValidator(def, this,
-                    xmlEventReader);
+            WSDLElementReferenceValidator wsdlRefValidator = new 
+                WSDLElementReferenceValidator(def, this,
+                wsdlsource.getSystemId(), document);
 
             isValid = wsdlRefValidator.isValid();
 
@@ -241,61 +195,13 @@ public class SchemaValidator extends AbstractValidator {
             isValid = true;
 
         } catch (IOException ioe) {
-            throw new ToolException("Can not get the wsdl " + wsdlsource.getSystemId(), ioe);
+            throw new ToolException("Cannot get the wsdl " + wsdlsource.getSystemId(), ioe);
         } catch (SAXException saxEx) {
             throw new ToolException(saxEx);
         } catch (ParserConfigurationException e) {
             throw new ToolException(e);
         }
         return isValid;
-    }
-
-    private void doSchemaValidation(Document doc, NewStackTraceErrorHandler handler) throws IOException,
-            SAXException {
-
-        XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-        schemaCol.setBaseUri(def.getDocumentBaseURI());
-        NodeList nodes = doc.getElementsByTagNameNS(WSDLConstants.NS_XMLNS, "schema");
-        for (int x = 0; x < nodes.getLength(); x++) {
-            Node schemaNode = nodes.item(x);
-            Element schemaEl = (Element) schemaNode;
-            String tns = schemaEl.getAttribute("targetNamespace");
-            try {
-                schemaCol.read(schemaEl, tns);
-            } catch (java.lang.RuntimeException ex) {
-                //
-                // Couldn't find schema... check if it's relative to wsdl.
-                // XXX - Probably the setBaseUri() above should take care of
-                // this but it doesn't seem to work with ws commons 1.0.2.
-                //
-                schemaCol.read(schemaEl, def.getDocumentBaseURI());
-            }
-            xmlSchemaMap.put(tns, schemaCol);
-        }
-        // Now do same for imported wsdl files.
-        nodes = doc.getElementsByTagNameNS(WSDLConstants.NS_WSDL, "import");
-        Map<String, Document> docMap = new HashMap<String, Document>();
-        for (int x = 0; x < nodes.getLength(); x++) {
-            org.w3c.dom.NamedNodeMap attributes = nodes.item(x).getAttributes();
-            String systemId;
-            String namespace = attributes.getNamedItem("namespace").getNodeValue();
-            try {
-                systemId = getWsdlUrl(attributes.getNamedItem("location").getNodeValue());
-            } catch (IOException ioe) {
-                throw new ToolException(ioe);
-            }
-            if (namespace != null && systemId != null) {
-                Document docImport = docBuilder.parse(systemId);
-                Node node = DOMUtils.getChild(docImport, null);
-                if (node != null && !"definitions".equals(node.getLocalName())) {
-                    Message msg = new Message("NOT_A_WSDLFILE", LOG, systemId);
-                    throw new ToolException(msg);
-                }
-                doSchemaValidation(docImport, handler);
-                docMap.put(namespace, docImport);
-            }
-        }
-        this.wsdlImportDocs = docMap;
     }
 
     private String[] addSchemas(String[] defaults, String[] schemas) {
@@ -352,37 +258,8 @@ public class SchemaValidator extends AbstractValidator {
         if (file != null && file.exists()) {
             return file.toURL().toString();
         }
-        // Import may have a relative path        
-        File wsdlSrcFile = new File(wsdlsrc);
-        file = new File(wsdlSrcFile.getParent(), path);
-        if (file != null && file.exists()) {
-            return file.toURL().toString();
-        }
+
         return null;
-    }
-
-    public Document getSchemaValidatedDoc() {
-        return schemaValidatedDoc;
-    }
-
-    public Map<String, Document> getWsdlImportDocs() {
-        return wsdlImportDocs;
-    }
-
-    public Map<String, XmlSchemaCollection> getXMLSchemaMap() {
-        return xmlSchemaMap;
-    }
-
-    public Map<QName, List> getMsgPartsMap() {
-        return msgPartsMap;
-    }
-
-    public Map<QName, Map> getPortTypesMap() {
-        return portTypes;
-    }
-
-    public Map<QName, QName> getBindingMap() {
-        return bindingMap;
     }
 
 }
@@ -468,26 +345,21 @@ class SchemaResourceResolver implements LSResourceResolver {
             systemId = schemaLocation + systemId;
         }
 
-        LSInput lsin = new LSInputImpl();
-        URI uri = null;
+        URIResolver resolver = null;
         try {
-            uri = new URI(systemId);
-        } catch (URISyntaxException e1) {
+            resolver = new URIResolver(systemId);
+        } catch (IOException e1) {
             return null;
         }
 
-        File file = new File(uri);
-        FileInputStream inputStream = null;
-
-        try {
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
+        if (resolver.getInputStream() != null) {
+            LSInput lsin = new LSInputImpl();
+            lsin.setSystemId(systemId);
+            lsin.setByteStream(resolver.getInputStream());
+            return lsin;
+        } else {
             return null;
         }
-
-        lsin.setSystemId(systemId);
-        lsin.setByteStream(inputStream);
-        return lsin;
     }
 }
 
