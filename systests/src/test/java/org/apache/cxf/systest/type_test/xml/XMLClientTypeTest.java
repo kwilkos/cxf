@@ -32,7 +32,7 @@ public class XMLClientTypeTest extends AbstractTypeTestClient5 {
     static final QName PORT_NAME = new QName("http://apache.org/type_test/xml", "XMLPort");
 
     public XMLClientTypeTest(String name) {
-        super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
+        super(name);
     }
     
     public static Test suite() throws Exception {
@@ -50,6 +50,11 @@ public class XMLClientTypeTest extends AbstractTypeTestClient5 {
 //                configFileName = url.toString(); 
 //                super.setUp();
 //            }
+            public void setUp() throws Exception {
+                super.setUp();
+                initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
+            }
+
         };
     }  
 }

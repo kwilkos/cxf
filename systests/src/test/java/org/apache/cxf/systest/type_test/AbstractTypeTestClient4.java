@@ -68,9 +68,8 @@ import org.apache.type_test.types3.StructWithOccuringStruct;
 
 public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
-    public AbstractTypeTestClient4(String name, QName theServicename,
-            QName thePort, String theWsdlPath) {
-        super(name, theServicename, thePort, theWsdlPath);
+    public AbstractTypeTestClient4(String name) {
+        super(name);
     }
 
     //org.apache.type_test.types2.SimpleContentExtWithAnyAttribute;

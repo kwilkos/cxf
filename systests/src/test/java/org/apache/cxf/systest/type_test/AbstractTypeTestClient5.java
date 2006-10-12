@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.systest.type_test;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
 import org.apache.type_test.types1.ComplexRestriction;
@@ -29,9 +28,8 @@ import org.apache.type_test.types1.ComplexRestriction5;
 
 public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
-    public AbstractTypeTestClient5(String name, QName theServicename,
-            QName thePort, String theWsdlPath) {
-        super(name, theServicename, thePort, theWsdlPath);
+    public AbstractTypeTestClient5(String name) {
+        super(name);
     }
 
     //org.apache.type_test.types1.ComplexRestriction

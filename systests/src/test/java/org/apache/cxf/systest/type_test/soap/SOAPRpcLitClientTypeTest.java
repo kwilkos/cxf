@@ -41,7 +41,7 @@ public class SOAPRpcLitClientTypeTest extends AbstractTypeTestClient5 {
     static final QName PORT_NAME = new QName("http://apache.org/type_test/rpc", "SOAPPort");
 
     public SOAPRpcLitClientTypeTest(String name) {
-        super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
+        super(name);
     }
 
     public static Test suite() throws Exception {
@@ -51,6 +51,10 @@ public class SOAPRpcLitClientTypeTest extends AbstractTypeTestClient5 {
                 boolean ok = launchServer(SOAPRpcLitServerImpl.class);
                 assertTrue("failed to launch server", ok);
             }
+            public void setUp() throws Exception {
+                super.setUp();
+                initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
+            }                
         };
     }
     

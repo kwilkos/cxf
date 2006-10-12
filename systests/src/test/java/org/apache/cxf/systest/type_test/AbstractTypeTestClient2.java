@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
 import org.apache.type_test.types1.AnonymousStruct;
@@ -82,9 +81,8 @@ import org.apache.type_test.types3.StructWithSubstitutionGroupNil;
 
 public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
 
-    public AbstractTypeTestClient2(String name, QName theServicename,
-            QName thePort, String theWsdlPath) {
-        super(name, theServicename, thePort, theWsdlPath);
+    public AbstractTypeTestClient2(String name) {
+        super(name);
     }
 
     protected <T> boolean equalsNilable(T x, T y) {

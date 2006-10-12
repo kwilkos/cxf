@@ -39,7 +39,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
     static final QName PORT_NAME = new QName("http://apache.org/type_test/doc", "SOAPPort");
 
     public SOAPDocLitClientTypeTest(String name) {
-        super(name, SERVICE_NAME, PORT_NAME, WSDL_PATH);
+        super(name);
     }
     
     public static Test suite() throws Exception {
@@ -57,6 +57,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
                 // configFileName = url.toString();
                 configFileName = null;
                 super.setUp();
+                initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
             }
         };
     }  

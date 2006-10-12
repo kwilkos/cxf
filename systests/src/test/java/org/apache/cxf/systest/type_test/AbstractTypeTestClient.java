@@ -50,26 +50,24 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
 
     protected boolean perfTestOnly;
 
-    private final QName serviceName;
-    private final QName portName;
-    private final String wsdlPath;
+//    private final QName serviceName;
+//    private final QName portName;
+//    private final String wsdlPath;
 
-    public AbstractTypeTestClient(String name, QName theServicename, QName thePort, String theWsdlPath) {
+    public AbstractTypeTestClient(String name) {
         super(name); 
-        serviceName = theServicename;
-        portName = thePort;
-        wsdlPath = theWsdlPath;
+//        serviceName = theServicename;
+//        portName = thePort;
+//        wsdlPath = theWsdlPath;
     }
 
     public void setPerformanceTestOnly() {
         perfTestOnly = true;
     }
 
-    public void setUp() throws Exception {
-        super.setUp(); 
-
-       
-        URL wsdlLocation = getClass().getResource(wsdlPath);
+    public static void initClient(Class clz, QName serviceName, QName portName, String wsdlPath) 
+        throws Exception {       
+        URL wsdlLocation = clz.getResource(wsdlPath);
         assertNotNull("Could not load wsdl " + wsdlPath, wsdlLocation);
         testDocLiteral = wsdlPath.contains("doclit");
         testXMLBinding = wsdlPath.contains("_xml");

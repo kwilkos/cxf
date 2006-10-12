@@ -77,9 +77,8 @@ import org.apache.type_test.types3.OccuringStruct2;
 
 public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
-    public AbstractTypeTestClient3(String name, QName theServicename,
-            QName thePort, String theWsdlPath) {
-        super(name, theServicename, thePort, theWsdlPath);
+    public AbstractTypeTestClient3(String name) {
+        super(name);
     }
  
     protected boolean equals(ChoiceOfChoice x, ChoiceOfChoice y) {
