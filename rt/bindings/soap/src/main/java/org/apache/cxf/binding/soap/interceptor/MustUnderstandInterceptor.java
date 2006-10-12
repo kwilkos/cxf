@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 import org.apache.cxf.binding.soap.HeaderUtil;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Interceptor;
@@ -50,6 +51,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage soapMessage) {
+        SoapVersion soapVersion = soapMessage.getVersion();
         //Client-in message needs not to handle MustUnderstand
         if (isRequestor(soapMessage)) {
             return;
@@ -70,7 +72,7 @@ public class MustUnderstandInterceptor extends AbstractSoapInterceptor {
             }
             sb.delete(pos - 2, pos);
             throw new SoapFault(new Message("MUST_UNDERSTAND", BUNDLE, sb.toString()),
-                            SoapFault.MUST_UNDERSTAND);
+                                soapVersion.getMustUnderstand());
         }
     }
 

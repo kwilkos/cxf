@@ -120,4 +120,24 @@ public final class Soap12 implements SoapVersion {
         return "mustUnderstand";
     }
 
+    public QName getReceiver() {
+        return new QName(SOAP_NAMESPACE, "Receiver");
+    }
+
+    public QName getSender() {
+        return new QName(SOAP_NAMESPACE, "Sender");
+    }
+
+    public QName getMustUnderstand() {
+        return new QName(SOAP_NAMESPACE, "MustUnderstand");
+    }
+
+    public QName getVersionMismatch() {
+        return new QName(SOAP_NAMESPACE, "VersionMismatch");
+    }
+
+    public QName getDateEncodingUnknown() {
+        return new QName(SOAP_NAMESPACE, "DataEncodingUnknown");
+    }
+
 }

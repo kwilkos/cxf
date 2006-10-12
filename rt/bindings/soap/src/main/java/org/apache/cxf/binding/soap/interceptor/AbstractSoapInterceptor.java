@@ -24,9 +24,12 @@ import java.util.Collections;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<SoapMessage> 
     implements SoapInterceptor {
@@ -43,4 +46,13 @@ public abstract class AbstractSoapInterceptor extends AbstractPhaseInterceptor<S
     public Set<QName> getUnderstoodHeaders() {
         return Collections.emptySet();
     }
+    
+    protected String getFaultCodePrefix(XMLStreamWriter writer, QName faultCode) throws XMLStreamException {
+        String codeNs = faultCode.getNamespaceURI();
+        String prefix = null;
+        if (codeNs.length() > 0) {
+            prefix = StaxUtils.getUniquePrefix(writer, codeNs, true);
+        }        
+        return prefix;
+    }    
 }

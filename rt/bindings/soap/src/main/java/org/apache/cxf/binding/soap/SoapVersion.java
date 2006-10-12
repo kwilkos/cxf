@@ -39,6 +39,16 @@ public interface SoapVersion {
     QName getBody();
     
     QName getFault();
+    
+    QName getReceiver();
+    
+    QName getSender();
+    
+    QName getMustUnderstand();
+    
+    QName getVersionMismatch();
+    
+    QName getDateEncodingUnknown();
 
     String getSoapEncodingStyle();
 

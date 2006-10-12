@@ -292,4 +292,26 @@ public final class XMLUtils {
         }
         return ret;
     }
+    
+    public static QName getQName(String value, Node node) {        
+        if (value == null) {
+            return null;
+        }
+        
+        int index = value.indexOf(":");
+
+        if (index == -1) {
+            return new QName(value);
+        }
+
+        String prefix = value.substring(0, index);
+        String localName = value.substring(index + 1);
+        String ns = node.lookupNamespaceURI(prefix);
+
+        if (ns == null || localName == null) {
+            throw new RuntimeException("Invalid QName in mapping: " + value);
+        }
+
+        return new QName(ns, localName, prefix);        
+    }
 }

@@ -71,7 +71,8 @@ public class AbstractCXFTest extends TestCase {
         addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
         addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
         addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
-        
+        addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");        
+        addNamespace("xml", "http://www.w3.org/XML/1998/namespace");
     }
     
     public Bus getBus() {

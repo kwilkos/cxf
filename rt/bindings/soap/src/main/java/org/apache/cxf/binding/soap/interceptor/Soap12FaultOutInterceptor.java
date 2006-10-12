@@ -32,14 +32,15 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.StaxUtils;
 
-public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Soap11FaultOutInterceptor.class);
+public class Soap12FaultOutInterceptor extends AbstractSoapInterceptor {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Soap12FaultOutInterceptor.class);
 
-    public Soap11FaultOutInterceptor() {
+    public Soap12FaultOutInterceptor() {
         super();
         setPhase(Phase.MARSHAL);
     }
@@ -61,25 +62,35 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
 
             writer.writeStartElement(defaultPrefix, "Fault", ns);
 
-            writer.writeStartElement("faultcode");          
-                
-            String codeString = fault.getCodeString(getFaultCodePrefix(writer, fault.getFaultCode()), 
-                                                    defaultPrefix);           
-
-            writer.writeCharacters(codeString);
+            writer.writeStartElement("Code");
+            writer.writeStartElement("Value");
+       
+            writer.writeCharacters(fault.getCodeString(getFaultCodePrefix(writer, fault.getFaultCode()), 
+                                                       defaultPrefix));
+            writer.writeEndElement();
+            
+            if (fault.getSubCode() != null) {
+                writer.writeStartElement("Subcode");
+                writer.writeCharacters(fault.getSubCodeString(getFaultCodePrefix(writer, fault.getSubCode()), 
+                                                              defaultPrefix));                
+                writer.writeEndElement();
+            }
             writer.writeEndElement();
 
-            writer.writeStartElement("faultstring");
+            writer.writeStartElement("Reason");
+            writer.writeStartElement("Text");
+            writer.writeAttribute("xml", "http://www.w3.org/XML/1998/namespace", "lang ", getLangCode());
             if (fault.getMessage() != null) {
                 writer.writeCharacters(fault.getMessage());
             } else {
                 writer.writeCharacters("Fault occurred while processing.");
             }
             writer.writeEndElement();
+            writer.writeEndElement();
 
             if (fault.hasDetails()) {
                 Element detail = fault.getDetail();
-                writer.writeStartElement("detail");
+                writer.writeStartElement("Detail");
 
                 NodeList details = detail.getChildNodes();
                 for (int i = 0; i < details.getLength(); i++) {
@@ -101,5 +112,13 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
         } catch (XMLStreamException xe) {
             throw new Fault(new Message("XML_WRITE_EXC", BUNDLE), xe);
         }
-    }   
+    }
+    
+    private String getLangCode() {        
+        String code = BUNDLE.getLocale().getDisplayLanguage();
+        if (StringUtils.isEmpty(code)) {
+            return "en";
+        }
+        return code;
+    }
 }

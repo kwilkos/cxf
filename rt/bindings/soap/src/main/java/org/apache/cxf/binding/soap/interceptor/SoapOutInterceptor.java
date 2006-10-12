@@ -62,10 +62,10 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
     }
     
     public void handleMessage(SoapMessage message) {
+        SoapVersion soapVersion = message.getVersion();
         try {
             XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
-            message.setContent(XMLStreamWriter.class, xtw);
-            SoapVersion soapVersion = message.getVersion();
+            message.setContent(XMLStreamWriter.class, xtw);            
             
             xtw.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
             xtw.writeStartElement(soapVersion.getPrefix(), 
@@ -97,7 +97,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
         } catch (XMLStreamException e) {
             throw new SoapFault(
-                new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, SoapFault.SENDER);
+                new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), e, soapVersion.getSender());
         }
     }
     
@@ -154,7 +154,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                         } catch (XMLStreamException e) {
                             throw new SoapFault(
                                 new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
-                                e, SoapFault.SENDER);
+                                e, soapVersion.getSender());
                         }
                         
                         startedHeader = true;
@@ -171,7 +171,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 } catch (XMLStreamException e) {
                     throw new SoapFault(
                         new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
-                        e, SoapFault.SENDER);
+                        e, soapVersion.getSender());
                 }
             }
         }

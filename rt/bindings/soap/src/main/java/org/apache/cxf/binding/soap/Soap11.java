@@ -28,7 +28,7 @@ import javax.xml.namespace.QName;
  */
 public final class Soap11 implements SoapVersion {
     public static final String SOAP_NAMESPACE = "http://schemas.xmlsoap.org/soap/envelope/";
-    
+
     private static final Soap11 INSTANCE = new Soap11();
 
     private final double version = 1.1;
@@ -56,7 +56,7 @@ public final class Soap11 implements SoapVersion {
     private Soap11() {
         // Singleton 
     }
-    
+
     public static Soap11 getInstance() {
         return INSTANCE;
     }
@@ -110,7 +110,7 @@ public final class Soap11 implements SoapVersion {
     public String getNextRole() {
         return nextRole;
     }
-    
+
     public String getAttrNameRole() {
         return "actor";
     }
@@ -119,4 +119,24 @@ public final class Soap11 implements SoapVersion {
         return "mustUnderstand";
     }
 
+    public QName getReceiver() {
+        return new QName(SOAP_NAMESPACE, "Server");
+    }
+
+    public QName getSender() {
+        return new QName(SOAP_NAMESPACE, "Client");
+    }
+
+    public QName getMustUnderstand() {
+        return new QName(SOAP_NAMESPACE, "MustUnderstand");
+    }
+
+    public QName getVersionMismatch() {
+        return new QName(SOAP_NAMESPACE, "VersionMismatch");
+    }
+
+    public QName getDateEncodingUnknown() {
+        // There is no such fault code in soap11
+        return null;
+    }
 }

@@ -92,7 +92,7 @@ public class MustUnderstandInterceptorTest extends TestBase {
         if (ie == null) {
             fail("InBound Exception Missing! Exception should be Can't understands QNames: " + PASSENGER);
         } else {
-            assertEquals(SoapFault.MUST_UNDERSTAND, ie.getFaultCode());
+            assertEquals(soapMessage.getVersion().getMustUnderstand(), ie.getFaultCode());
             assertEquals("Can not understand QNames: " + PASSENGER, ie.getMessage().toString());
         }
     }

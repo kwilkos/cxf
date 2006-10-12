@@ -47,6 +47,8 @@ import org.apache.cxf.binding.soap.interceptor.RPCOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
+import org.apache.cxf.binding.soap.interceptor.Soap12FaultInInterceptor;
+import org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -117,10 +119,11 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         String bindingStyle = SoapConstants.BINDING_STYLE_DOC;
 
         SoapBinding sb = null;
+        SoapVersion version = null;
         if (binding instanceof SoapBindingInfo) {
             SoapBindingInfo sbi = (SoapBindingInfo) binding;
-            
-            sb = new SoapBinding(sbi.getSoapVersion());
+            version = sbi.getSoapVersion();
+            sb = new SoapBinding(version);
             // Service wide style
             if (!StringUtils.isEmpty(sbi.getStyle())) {
                 bindingStyle = sbi.getStyle();
@@ -142,9 +145,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new MultipartMessageInterceptor());
         sb.getInInterceptors().add(new ReadHeadersInterceptor());
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
-        sb.getInInterceptors().add(new StaxInInterceptor());
-
-        sb.getInFaultInterceptors().add(new Soap11FaultInInterceptor());
+        sb.getInInterceptors().add(new StaxInInterceptor());        
         
         // TODO: We shouldn't be running this interceptor if MTOM isn't enabled
         // as caching everything is going to slow us down, should set according to config 
@@ -158,7 +159,14 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
-        sb.getOutFaultInterceptors().add(new Soap11FaultOutInterceptor());
+        
+        if (version.getVersion() == 1.1) {
+            sb.getInFaultInterceptors().add(new Soap11FaultInInterceptor());
+            sb.getOutFaultInterceptors().add(new Soap11FaultOutInterceptor());
+        } else if (version.getVersion() == 1.2) {
+            sb.getInFaultInterceptors().add(new Soap12FaultInInterceptor());
+            sb.getOutFaultInterceptors().add(new Soap12FaultOutInterceptor());
+        }        
 
         if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
             sb.getInInterceptors().add(new RPCInInterceptor());

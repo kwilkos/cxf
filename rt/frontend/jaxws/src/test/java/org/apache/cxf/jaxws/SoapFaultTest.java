@@ -100,7 +100,7 @@ public class SoapFaultTest extends AbstractJaxWsTest {
         }
 
         public void handleMessage(SoapMessage message) throws Fault {
-            throw new SoapFault("I blame Hadrian.", SoapFault.SENDER);
+            throw new SoapFault("I blame Hadrian.", message.getVersion().getSender());
         }
 
     }

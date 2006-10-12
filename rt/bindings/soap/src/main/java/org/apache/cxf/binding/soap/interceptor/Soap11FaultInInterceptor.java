@@ -54,7 +54,8 @@ public class Soap11FaultInInterceptor extends AbstractSoapInterceptor {
                 }
             }
         } catch (XMLStreamException e) {
-            throw new SoapFault("Could not parse message.", SoapFault.SENDER);
+            throw new SoapFault("Could not parse message.", 
+                                message.getVersion().getSender());
         }
 
         SoapFault fault = new SoapFault(exMessage, faultCode);

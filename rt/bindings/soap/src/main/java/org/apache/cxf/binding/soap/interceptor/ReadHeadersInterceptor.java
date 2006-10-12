@@ -90,7 +90,8 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 xmlReader.next();
             }
         } catch (XMLStreamException e) {
-            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, SoapFault.SENDER);
+            throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, 
+                                message.getVersion().getSender());
         }
     }
 
