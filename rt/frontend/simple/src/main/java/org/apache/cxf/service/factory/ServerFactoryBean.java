@@ -62,14 +62,17 @@ public class ServerFactoryBean {
             }
 
             EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-
+            Endpoint ep = null;
             if (ei == null) {
                 ei = createEndpoint();
             } else if (address != null) {
                 ei.setAddress(address); 
-            }
+            }                        
             
-            Endpoint ep = serviceFactory.createEndpoint(ei);
+            ep = service.getEndpoints().get(ei.getName());
+            if (ep == null) {
+                ep = serviceFactory.createEndpoint(ei);
+            }
             service.getEndpoints().put(ep.getEndpointInfo().getName(), ep);
             server = new ServerImpl(bus, ep, new ChainInitiationObserver(ep, bus));
             
