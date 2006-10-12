@@ -17,43 +17,44 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.persistence;
+package org.apache.cxf.ws.rm.impl;
 
-import java.math.BigInteger;
-import java.util.Date;
-
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.ws.rm.Identifier;
 
-public interface RMSourceSequence {
+public class AbstractEndpoint {
+    
+    private final RMInterceptor interceptor;
+    private final Endpoint endpoint;
+    
+    protected AbstractEndpoint(RMInterceptor h, Endpoint e) {
+        interceptor = h;
+        endpoint = e;
+    }
     
     /**
-     * @return the sequence identifier
+     * @return Returns the interceptor.
      */
-    Identifier getIdentifier();
+    public RMInterceptor getInterceptor() {
+        return interceptor;
+    }
     
     /**
-     * @return the message number assigned to the most recent outgoing application message.
+     * @return Returns the endpoint.
      */
-    BigInteger getCurrentMessageNr();
-    
+    public Endpoint getEndpoint() {
+        return endpoint;
+    }
+
     /**
-     * @return true if the last message had been sent for this sequence. 
+     * Generates and returns a new sequence identifier.
+     * 
+     * @return the sequence identifier.
      */
-    boolean isLastMessage();
-    
-    /**
-     * @return the identifier of the sequence that was created on behalf of the CreateSequence request 
-     * that included this sequence as an offer
-     */
-    Identifier getOfferingSequenceIdentifier();
-    
-    /**
-     * @return the identifier of the rm source
-     */
-    String getEndpointIdentifier(); 
-    
-    /**
-     * @return the expiry data of this sequence
-     */
-    Date getExpiry();
+    public Identifier generateSequenceIdentifier() {
+        String sequenceID = ContextUtils.generateUUID();
+        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
+        sid.setValue(sequenceID);        
+        return sid;
+    }
 }

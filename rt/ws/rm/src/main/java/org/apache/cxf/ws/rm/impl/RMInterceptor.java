@@ -21,18 +21,26 @@ package org.apache.cxf.ws.rm.impl;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
+import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.MAPAggregator;
+import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.RMContextUtils;
+import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.interceptor.DeliveryAssuranceType;
 import org.apache.cxf.ws.rm.interceptor.DestinationPolicyType;
 import org.apache.cxf.ws.rm.interceptor.RMInterceptorConfigBean;
@@ -53,7 +61,12 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
     private static final Logger LOG = LogUtils.getL7dLogger(RMInterceptor.class);
       
     private RMStore store;
+    private RetransmissionQueue retransmissionQueue;
+    private Timer timer;
+    private Proxy proxy;
     private Set<String> after = Collections.singleton(MAPAggregator.class.getName());
+    private Map<Endpoint, Source> sources;
+    private Map<Endpoint, Destination> destinations;
     
     public RMStore getStore() {
         return store;
@@ -63,8 +76,25 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         this.store = store;
     }
     
-    // PhaseInterceptor interface
+    public RetransmissionQueue getRetransmissionQueue() {
+        return retransmissionQueue;
+    }
+
+    public void setRetransmissionQueue(RetransmissionQueue retransmissionQueue) {
+        this.retransmissionQueue = retransmissionQueue;
+    }
     
+    public Timer getTimer() {
+        return timer;
+    }
+    
+    public Proxy getProxy() {
+        return proxy;
+    }
+   
+    
+    // PhaseInterceptor interface
+
     public Set<String> getAfter() {
         return after;
     }
@@ -81,7 +111,6 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         return Phase.PRE_LOGICAL;
     }
 
-    
     public void handleMessage(Message msg) throws Fault {
         if (ContextUtils.isOutbound(msg)) {
             handleOutbound(msg, false);        
@@ -98,8 +127,53 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         }
     }
     
+    // rm logic
+    
     void handleOutbound(Message message, boolean isFault) {
         LOG.entering(getClass().getName(), "handleOutbound");
+       
+        AddressingProperties maps =
+            ContextUtils.retrieveMAPs(message, false, true);
+        ContextUtils.ensureExposedVersion(maps);
+
+        String action = null;
+        if (maps != null && null != maps.getAction()) {
+            action = maps.getAction().getValue();
+        }
+        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Action: " + action);
+        }
+
+        boolean isApplicationMessage = isAplicationMessage(action);
+        
+        RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(message, true);
+        if (null == rmpsOut) {
+            rmpsOut = new RMPropertiesImpl();
+            RMContextUtils.storeRMProperties(message, rmpsOut, true);
+        }
+        
+        RMPropertiesImpl rmpsIn = null;
+        Identifier inSeqId = null;
+        BigInteger inMessageNumber = null;
+        
+        if (isApplicationMessage) {
+                        
+            rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(message, false);
+            
+            if (null != rmpsIn && null != rmpsIn.getSequence()) {
+                inSeqId = rmpsIn.getSequence().getIdentifier();
+                inMessageNumber = rmpsIn.getSequence().getMessageNumber();
+            }
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("inbound sequence: " + (null == inSeqId ? "null" : inSeqId.getValue()));
+            }
+        }
+        
+        if (1 < 0) {
+            System.out.println(inMessageNumber);
+        }
+        
     }
     
     void handleInbound(Message message, boolean isFault) {
@@ -135,6 +209,44 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
             dp.setAcksPolicy(factory.createAcksPolicyType());
             setDestinationPolicy(dp);
         }
+    }
+    
+    
+    synchronized Source getSource(Message message) {
+        Endpoint endpoint = ContextUtils.getEndpoint(message);
+        Source source = sources.get(endpoint);
+        if (null == source) {
+            source = new Source(this, endpoint);
+            sources.put(endpoint, source);
+        }
+        return source;
+    }
+    
+    synchronized Destination  getDestination(Message message) {
+        Endpoint endpoint = ContextUtils.getEndpoint(message);
+        Destination destination = destinations.get(endpoint);
+        if (null == destination) {
+            destination = new Destination(this, endpoint);
+            destinations.put(endpoint, destination);
+        }
+        return destination;
+    }
+    
+    synchronized Destination getDestination(Source source) {
+        return destinations.get(source.getEndpoint());
+    }
+   
+    
+    boolean isAplicationMessage(String action) {
+        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)
+            || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)
+            || RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)
+            || RMUtils.getRMConstants().getLastMessageAction().equals(action)
+            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)
+            || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
+            return false;
+        }
+        return true;
     }
 
 

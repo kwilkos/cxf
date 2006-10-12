@@ -23,7 +23,9 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.SourceSequence;
 
 
 public interface RMStore {
@@ -39,14 +41,14 @@ public interface RMStore {
      * <code>RMSourceSequence</code> object.
      * @param seq the sequence
      */
-    void createSourceSequence(RMSourceSequence seq);
+    void createSourceSequence(SourceSequence seq);
     
     /**
      * Create a destination sequence in the persistent store, with the sequence attributes as specified in the
      * <code>RMSDestinationSequence</code> object.
      * @param seq the sequence
      */
-    void createDestinationSequence(RMDestinationSequence seq);
+    void createDestinationSequence(DestinationSequence seq);
     
     /**
      * Remove the source sequence with the specified identifier from persistent store. 
@@ -67,7 +69,7 @@ public interface RMStore {
      * @param endpointIdentifier the identifier for the source
      * @return the collection of sequences
      */    
-    Collection<RMSourceSequence> getSourceSequences(String endpointIdentifier);
+    Collection<SourceSequence> getSourceSequences(String endpointIdentifier);
     
     /**
      * Retrieves all sequences managed by the identified RM destination endpoint 
@@ -76,7 +78,7 @@ public interface RMStore {
      * @param endpointIdentifier the identifier for the destination
      * @return the collection of sequences
      */    
-    Collection<RMDestinationSequence> getDestinationSequences(String endpointIdentifier);
+    Collection<DestinationSequence> getDestinationSequences(String endpointIdentifier);
     
     /**
      * Retrieves the outbound/inbound messages stored for the source/destination sequence with 
@@ -95,7 +97,7 @@ public interface RMStore {
      * @param seq the source sequence 
      * @param msg the outgoing message
      */
-    void persistOutgoing(RMSourceSequence seq, RMMessage msg);
+    void persistOutgoing(SourceSequence seq, RMMessage msg);
     
    /**
     * Called by an RM source upon processing an outbound message. The <code>RMMessage</code>
@@ -104,7 +106,7 @@ public interface RMStore {
     * @param seq the destination sequence
     * @param msg the incoming message
     */
-    void persistIncoming(RMDestinationSequence seq, RMMessage msg);
+    void persistIncoming(DestinationSequence seq, RMMessage msg);
   
     /**
      * Removes the messages with the given message numbers and identifiers from the store of

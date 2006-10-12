@@ -29,7 +29,7 @@ import org.apache.cxf.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 public abstract class AbstractSequenceImpl {
     
     protected final Identifier id;
-    protected SequenceAcknowledgement acked;
+    protected SequenceAcknowledgement acknowledgement;
     
     protected AbstractSequenceImpl(Identifier i) {
         id = i;
@@ -70,7 +70,7 @@ public abstract class AbstractSequenceImpl {
     }
     
     public synchronized boolean isAcknowledged(BigInteger m) {
-        for (AcknowledgementRange r : acked.getAcknowledgementRange()) {
+        for (AcknowledgementRange r : acknowledgement.getAcknowledgementRange()) {
             if (m.subtract(r.getLower()).signum() >= 0 && r.getUpper().subtract(m).signum() >= 0) {
                 return true;
             }

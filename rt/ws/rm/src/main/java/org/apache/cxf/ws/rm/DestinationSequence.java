@@ -17,16 +17,14 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.persistence;
+package org.apache.cxf.ws.rm;
 
 import java.io.InputStream;
 import java.math.BigInteger;
 
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 
-public interface RMDestinationSequence {
+public interface DestinationSequence {
     
     /**
      * @return the sequence identifier
@@ -41,7 +39,7 @@ public interface RMDestinationSequence {
     /**
      * @return the message number of the last message or null if the last message had not been received.
      */
-    BigInteger getLastMessageNr();
+    BigInteger getLastMessageNumber();
     
     /**
      * @return the sequence acknowledgement presenting the sequences thus far received by a destination 
@@ -58,6 +56,5 @@ public interface RMDestinationSequence {
      * @return the identifier of the rm destination
      */
     String getEndpointIdentifier(); 
-    
     
 }

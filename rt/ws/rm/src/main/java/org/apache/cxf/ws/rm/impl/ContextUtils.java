@@ -19,20 +19,17 @@
 
 package org.apache.cxf.ws.rm.impl;
 
-import java.util.UUID;
 
-import org.apache.cxf.message.Exchange;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
+import org.apache.cxf.ws.addressing.VersionTransformer;
 
 /**
  * Holder for utility methods relating to contexts.
  */
 public final class ContextUtils {
-
-    /**
-     * Used to fabricate a Uniform Resource Name from a UUID string
-     */
-    private static final String URN_UUID = "urn:uuid:";
 
     /**
      * Prevents instantiation.
@@ -44,7 +41,7 @@ public final class ContextUtils {
      * @return a generated UUID
      */
     static String generateUUID() {
-        return URN_UUID + UUID.randomUUID();
+        return org.apache.cxf.ws.addressing.ContextUtils.generateUUID();
     }
 
     /**
@@ -54,7 +51,62 @@ public final class ContextUtils {
      * @return true iff the message direction is outbound
      */
     static boolean isOutbound(Message message) {
-        Exchange exchange = message.getExchange();
-        return message != null && exchange != null && message == exchange.getOutMessage();
+        return org.apache.cxf.ws.addressing.ContextUtils.isOutbound(message);
     }
+
+    /**
+    * Determine if current messaging role is that of requestor.
+    *
+    * @param message the current Message
+    * @return true iff the current messaging role is that of requestor
+    */
+    public static boolean isRequestor(Message message) {
+        return org.apache.cxf.ws.addressing.ContextUtils.isRequestor(message);
+    }
+    
+    /**
+     * Retrieves the addressing properties from the current message.
+     * 
+     * @param message the current message
+     * @param isProviderContext true if the binding provider request context
+     * available to the client application as opposed to the message context
+     * visible to handlers
+     * @param isOutbound true iff the message is outbound
+     * @return the current addressing properties
+     */
+    public static AddressingProperties retrieveMAPs(
+                                                        Message message, 
+                                                        boolean isProviderContext,
+                                                        boolean isOutbound) {
+        return org.apache.cxf.ws.addressing.ContextUtils
+            .retrieveMAPs(message, isProviderContext, isOutbound);
+    }
+    
+    /**
+     * Ensures the appropriate version of WS-Addressing is used.
+     * 
+     * @param maps the addressing properties
+     */
+    public static void ensureExposedVersion(AddressingProperties maps) {
+        ((AddressingPropertiesImpl)maps)
+            .exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+    }
+    
+    /**
+     * Returns the endpoint of this message, i.e. the client endpoint
+     * if the current messaging role is that of requestor, or the server
+     * endpoint otherwise.
+     * 
+     * @param message the current Message
+     * @return the endpoint
+     */
+    public static Endpoint getEndpoint(Message message) {
+        if (isRequestor(message)) {
+            return message.getExchange().get(Endpoint.class);
+        } else {
+            return null;
+        }
+    }
+    
+    
 }

@@ -33,8 +33,14 @@ import org.apache.cxf.common.logging.LogUtils;
  */
 public final class DatatypeFactory {
     
+    public static final Duration PT0S;
     private static final Logger LOG = LogUtils.getL7dLogger(DatatypeFactory.class);
-    
+   
+
+    static {
+        PT0S = createDuration("PT0S");
+    }
+
     /**
      * prevents instantiation
      *

@@ -19,29 +19,26 @@
 
 package org.apache.cxf.ws.rm.impl;
 
-import org.apache.cxf.ws.rm.Identifier;
+import java.util.logging.Logger;
 
-public class RMEndpoint {
-    
-    private RMInterceptor handler;
-    
-    protected RMEndpoint(RMInterceptor h) {
-        handler = h;
-    }
-        
-    public RMInterceptor getHandler() {
-        return handler;
-    }
-    
-    /**
-     * Generates and returns a new sequence identifier.
-     * 
-     * @return the sequence identifier.
-     */
-    public Identifier generateSequenceIdentifier() {
-        String sequenceID = ContextUtils.generateUUID();
-        Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
-        sid.setValue(sequenceID);        
-        return sid;
-    }
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.SequenceFault;
+import org.apache.cxf.ws.rm.SequenceFaultType;
+
+/**
+ * 
+ */
+
+public class SequenceFaultFactory { 
+
+    private static final Logger LOG = LogUtils.getL7dLogger(SequenceFaultFactory.class);
+
+    SequenceFault createUnknownSequenceFault(Identifier sid) {
+        SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
+        sf.setFaultCode(RMUtils.getRMConstants().getUnknownSequenceFaultCode());
+        Message msg = new Message("UNKNOWN_SEQUENCE_EXC", LOG, sid.getValue());
+        return new SequenceFault(msg.toString(), sf);
+    }    
 }

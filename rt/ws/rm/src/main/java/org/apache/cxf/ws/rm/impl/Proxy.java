@@ -17,28 +17,15 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm;
+package org.apache.cxf.ws.rm.impl;
+
+import java.io.IOException;
+import org.apache.cxf.ws.rm.DestinationSequence;
 
 /**
- * A container for WS-RM constants.
+ * 
  */
-public final class JAXWSRMConstants {
-    
-    /**
-     * Used to cache outbound RM properties in context.
-     */
-    public static final String RM_PROPERTIES_OUTBOUND = 
-        "org.objectweb.celtix.ws.rm.context.outbound";
-    
-    /**
-     * Used to cache inbound RM properties in context.
-     */
-    public static final String RM_PROPERTIES_INBOUND = 
-        "org.objectweb.celtix.ws.rm.context.inbound";
-    
-    /**
-     * Prevents instantiation. 
-     */
-    private JAXWSRMConstants() {
-    }
+public interface Proxy {
+
+    void acknowledge(DestinationSequence ds) throws IOException;
 }
