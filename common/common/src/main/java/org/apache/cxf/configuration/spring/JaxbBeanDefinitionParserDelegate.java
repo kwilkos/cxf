@@ -22,6 +22,7 @@ package org.apache.cxf.configuration.spring;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
 import org.springframework.beans.factory.xml.XmlReaderContext;
 
@@ -31,7 +32,7 @@ public class JaxbBeanDefinitionParserDelegate extends BeanDefinitionParserDelega
         super(readerContext);
     }
 
-    public Object parsePropertySubElement(Element elem, String defaultTypeClassName) {
+    public Object parsePropertySubElement(Element elem, BeanDefinition bd, String defaultTypeClassName) {
  
         if (elem.getTagName().equals(VALUE_ELEMENT)) {
             for (Node nd = elem.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
@@ -40,7 +41,7 @@ public class JaxbBeanDefinitionParserDelegate extends BeanDefinitionParserDelega
                 }
             }
         }        
-        return super.parsePropertySubElement(elem, defaultTypeClassName);
+        return super.parsePropertySubElement(elem, bd, defaultTypeClassName);
     }
     
     
