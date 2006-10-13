@@ -92,10 +92,10 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
     }
 
     @Override
-    public String addSwaRefAttachment(DataHandler handler) {
+    public String addSwaRefAttachment(DataHandler handler) {        
         String id = UUID.randomUUID() + "@apache.org";
         AttachmentImpl att = new AttachmentImpl(id, handler);
-        att.setXOP(this.isXop);
+        att.setXOP(false);
         atts.add(att);
         return id;
     }

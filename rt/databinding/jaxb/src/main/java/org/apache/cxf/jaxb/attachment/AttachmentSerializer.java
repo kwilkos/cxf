@@ -98,11 +98,7 @@ public class AttachmentSerializer {
                 Object content = att.getDataHandler().getContent();
                 if (content instanceof InputStream) {
                     InputStream insAtt = (InputStream) content;
-                    if (!att.isXOP()) {
-                        AbstractCachedOutputStream.copyStreamWithBase64Encoding(insAtt, out, 64 * 1024);
-                    } else {
-                        AbstractCachedOutputStream.copyStream(insAtt, out, 64 * 1024);
-                    }
+                    AbstractCachedOutputStream.copyStream(insAtt, out, 64 * 1024);
                 } else {                    
                     ObjectOutputStream oos = new ObjectOutputStream(out);
                     oos.writeObject(content);
@@ -111,7 +107,7 @@ public class AttachmentSerializer {
                     out.write(LINE_SEP.getBytes());
                 }
             }
-            out.write(("--" + boundary).getBytes());
+            out.write(("--" + boundary + "--").getBytes());
             out.write(LINE_SEP.getBytes());
             out.flush();            
             // build contentType string for return

@@ -267,6 +267,7 @@ public class AttachmentDeserializer {
         }
 
         public int read() throws IOException {
+            boolean needUnread0d0a = false;
             if (boundaryFound) {
                 return -1;
             }
@@ -288,6 +289,8 @@ public class AttachmentDeserializer {
                         inStream.unread(value);
                         inStream.unread(10);
                         return 13;
+                    } else {
+                        needUnread0d0a = true;
                     }
                 }
             } else if ((byte) value != boundary[0]) {
@@ -318,8 +321,15 @@ public class AttachmentDeserializer {
                 // Stream might have ended
                 inStream.unread(value);
             }
-            inStream.unread(boundary, 1, boundaryIndex - 1);
-            return boundary[0];
+            if (needUnread0d0a) {
+                inStream.unread(boundary, 0, boundaryIndex);
+                inStream.unread(10);
+                value = 13;
+            } else {
+                inStream.unread(boundary, 1, boundaryIndex - 1);                
+                value = boundary[0];
+            }
+            return value;
         }
     }
 
