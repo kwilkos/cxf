@@ -81,11 +81,15 @@ public class DispatchXMLClientServerTest extends ClientServerTestBase {
     }
 
     public void testStreamSourceMESSAGE() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
+        /*URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
         assertNotNull(wsdl);
 
         XMLService service = new XMLService(wsdl, serviceName);
+        assertNotNull(service);*/
+        Service service = Service.create(serviceName);       
         assertNotNull(service);
+        service.addPort(portName, "http://cxf.apache.org/bindings/xformat", 
+                        "http://localhost:9007/XMLService/XMLDispatchPort");        
 
         InputStream is = getClass().getResourceAsStream("/messages/XML_GreetMeDocLiteralReq.xml");        
         StreamSource reqMsg = new StreamSource(is);

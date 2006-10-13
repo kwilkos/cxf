@@ -140,20 +140,27 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertEquals("Response should be : Hello TestSOAPInputMessage3", expected3, tsmh.getReplyBuffer());
 
     }
-
+    
+  
     public void testDOMSourceMESSAGE() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        /*URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);*/
+        SOAPService service = new SOAPService(null, serviceName);
         assertNotNull(service);
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/http", 
+                        "http://localhost:9006/SOAPDispatchService/SoapDispatchPort");
+
+        Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.MESSAGE);
 
         InputStream is = getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         SOAPMessage soapReqMsg = MessageFactory.newInstance().createMessage(null, is);
         DOMSource domReqMsg = new DOMSource(soapReqMsg.getSOAPPart());
         assertNotNull(domReqMsg);
 
-        Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.MESSAGE);
+
         DOMSource domResMsg = disp.invoke(domReqMsg);
         assertNotNull(domResMsg);
         String expected = "Hello TestSOAPInputMessage";
@@ -198,11 +205,15 @@ public class DispatchClientServerTest extends ClientServerTestBase {
     }
 
     public void testDOMSourcePAYLOAD() throws Exception {
-        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        /*URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
+        assertNotNull(service);*/
+        Service service = Service.create(serviceName);
         assertNotNull(service);
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/http", 
+                        "http://localhost:9006/SOAPDispatchService/SoapDispatchPort");
 
         Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
 
@@ -258,7 +269,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
 
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);
-
+        
         JAXBContext jc = JAXBContext.newInstance("org.apache.hello_world_soap_http.types");
         Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
 

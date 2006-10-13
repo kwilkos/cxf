@@ -11,7 +11,7 @@
                 200    totalelementtosend
                 aa     to invoke all method
                 1,10   the arraysize for eacho call  -->
-            <arg line="file:${basedir}/wsdl/${wsdl.file} 200 aa 1,10"/>
+            <arg line="http://localhost:8080/cxf/services/Benchmark?wsdl 200 aa 1,10"/>
             <classpath refid="cxf.classpath"/>
             <sysproperty key="java.util.logging.config.file" value="${cxf.etc.dir}/logging.properties"/>
             <sysproperty key="log4j.configuration" value="file:///${cxf.etc.dir}/log4j.properties"/>

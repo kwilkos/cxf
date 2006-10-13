@@ -26,6 +26,7 @@ import org.apache.cxf.service.model.ServiceInfo;
  */
 public abstract class AbstractBindingInfoFactoryBean {
     private AbstractServiceFactoryBean serviceFactory;
+    private ServiceInfo serviceInfo;
     
     public abstract BindingInfo create();
 
@@ -36,8 +37,16 @@ public abstract class AbstractBindingInfoFactoryBean {
     public AbstractServiceFactoryBean getServiceFactory() {
         return serviceFactory;
     }
+    
+    public void setServiceInfo(ServiceInfo si) {
+        this.serviceInfo = si;
+    }
 
     protected ServiceInfo getServiceInfo() {
-        return getServiceFactory().getService().getServiceInfo();
+        if (null != serviceInfo) {
+            return serviceInfo;
+        } else {
+            return getServiceFactory().getService().getServiceInfo();
+        }    
     }
 }

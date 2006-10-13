@@ -65,7 +65,7 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
         this.bus = bus;
         service = s;
         endpointInfo = ei;
-        faultInterceptor = new FaultChainIntiatorInterceptor(this, bus);
+        faultInterceptor = new FaultChainIntiatorInterceptor(this, bus);        
         createBinding(endpointInfo.getBinding());
     }
 
@@ -118,18 +118,20 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     }
 
     final void createBinding(BindingInfo bi) throws EndpointException {
-        String namespace = bi.getBindingId();
-        BindingFactory bf = null;
-        try {
-            bf = bus.getExtension(BindingFactoryManager.class).getBindingFactory(namespace);
-            binding = bf.createBinding(bi);
-        } catch (BusException ex) {
-            throw new EndpointException(ex);
-        }
-        if (null == bf) {
-            Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
-            throw new EndpointException(msg);
-        }
+        if (null != bi) {
+            String namespace = bi.getBindingId();
+            BindingFactory bf = null;
+            try {
+                bf = bus.getExtension(BindingFactoryManager.class).getBindingFactory(namespace);
+                binding = bf.createBinding(bi);
+            } catch (BusException ex) {
+                throw new EndpointException(ex);
+            }
+            if (null == bf) {
+                Message msg = new Message("NO_BINDING_FACTORY", BUNDLE, namespace);
+                throw new EndpointException(msg);
+            }
+        }    
     }
 
 }

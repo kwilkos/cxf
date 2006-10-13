@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
+import javax.xml.ws.Service;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -54,6 +55,9 @@ public class ClientServerTest extends ClientServerTestBase {
                                                 "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                                              "SoapPort");
+    
+    private final QName fakePortName = new QName("http://apache.org/hello_world_soap_http",
+                                             "FackPort");
     
     
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
@@ -114,6 +118,23 @@ public class ClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     } 
+    
+    public void testAddPort() throws Exception {
+        Service service = Service.create(serviceName);
+        service.addPort(fakePortName, "http://schemas.xmlsoap.org/soap/http", 
+                        "http://localhost:9000/SoapContext/SoapPort");
+        Greeter greeter = service.getPort(fakePortName, Greeter.class);
+
+        String response = new String("Bonjour");
+        try {
+            greeter.greetMe("test");
+            String reply = greeter.sayHi();
+            assertNotNull("no response received from service", reply);
+            assertEquals(response, reply);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
     
     public void testDocLitBareConnection() throws Exception {
         
