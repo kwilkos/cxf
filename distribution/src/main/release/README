@@ -1,11 +1,11 @@
-Welcome to Apache CeltiXfire!
+Welcome to Apache Incubator CXF!
 ======================
-Apache Incubator CeltiXfire simplifies the construction, integration, and flexible reuse of technical and business components using a standards-based, service-oriented architecture (SOA). It provides a pluggable architecture that supports not only XML but also non-XML type bindings in combination with any type of transport. It also supports several programming languages like JAX-WS, JBI, SCA, and CORBA services and is designed for flexible deployment in a variety of containers including Spring-based, JBI, SCA, Servlet and J2EE containers. The broad range of flexibility makes it possible to create and integrate web services and legacy services using a single framework.
+Apache Incubator CXF simplifies the construction, integration, and flexible reuse of technical and business components using a standards-based, service-oriented architecture (SOA). It provides a pluggable architecture that supports not only XML but also non-XML type bindings in combination with any type of transport. It also supports several programming languages like JAX-WS, JBI, SCA, and CORBA services and is designed for flexible deployment in a variety of containers including Spring-based, JBI, SCA, Servlet and J2EE containers. The broad range of flexibility makes it possible to create and integrate web services and legacy services using a single framework.
 
 
 Incubation Disclaimer
 =====================
-Apache Incubator CeltiXfire is an effort undergoing incubation at the Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. 
+Apache Incubator CXF is an effort undergoing incubation at the Apache Software Foundation (ASF), sponsored by the Apache Incubator PMC. 
 
 Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. 
 
@@ -23,8 +23,8 @@ http://cwiki.apache.org/confluence/display/CXF/Mailing+Lists
 
 We welcome contributions
 
-Many thanks for using Apache CeltiXfire.
+Many thanks for using Apache Incubator CXF.
 
 
-The Apache CeltiXfire Team
+The Apache Incubator CXF Team
 http://incubator.apache.org/projects/cxf.html
