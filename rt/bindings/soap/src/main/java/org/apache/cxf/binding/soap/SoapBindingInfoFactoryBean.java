@@ -16,14 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.binding.soap;
 
+import java.util.Collection;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.binding.soap.Soap11;
-import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.Bus;
+import org.apache.cxf.binding.BindingInfoFactoryBeanManager;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.service.model.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -33,6 +38,31 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     private SoapVersion soapVersion = Soap11.getInstance();
     private String style = "document";
     private String use;
+    private Bus bus;
+    private Collection<String> activationNamespaces;    
+    
+    @Resource
+    public void setBus(Bus b) {
+        bus = b;
+    }
+    
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
+    }
+    
+    @PostConstruct
+    void register() {
+        if (null == bus) {
+            return;
+        }        
+        BindingInfoFactoryBeanManager bfm = bus.getExtension(BindingInfoFactoryBeanManager.class);
+        if (null != bfm) {
+            for (String ns : activationNamespaces) {
+                bfm.registerBindingInfoFactoryBean(ns, this);
+            }
+        }
+    }
     
     @Override
     public BindingInfo create() {
@@ -63,7 +93,7 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
         return "";
     }
 
-    protected String getTransportURI() {
+    public String getTransportURI() {
         return "http://schemas.xmlsoap.org/wsdl/soap/http";
     }
 

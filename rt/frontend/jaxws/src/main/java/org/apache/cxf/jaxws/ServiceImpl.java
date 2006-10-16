@@ -43,6 +43,8 @@ import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.binding.BindingInfoFactoryBeanManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Client;
@@ -55,8 +57,7 @@ import org.apache.cxf.jaxws.support.DummyImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
-import org.apache.cxf.service.factory.SoapBindingInfoFactoryBean;
+import org.apache.cxf.service.model.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -114,7 +115,11 @@ public class ServiceImpl extends ServiceDelegate {
         } else {
             PortInfo portInfo =  getPortInfor(portName);
             if (null != portInfo) {
-                ei = createEndpointInfo(service, portName, portInfo);
+                try {
+                    ei = createEndpointInfo(service, portName, portInfo);
+                } catch (BusException e) {
+                    throw new WebServiceException(e);
+                }
             } else {
                 ei = si.getEndpoint(portName);
             }    
@@ -253,8 +258,12 @@ public class ServiceImpl extends ServiceDelegate {
         } else {
             // first chech the endpointInfo from portInfos
             PortInfo portInfo = portInfos.get(portName);
-            if (null != portInfo) {
-                ei = createEndpointInfo(service, portName, portInfo);                
+            if (null != portInfo) {                
+                try {
+                    ei = createEndpointInfo(service, portName, portInfo);
+                } catch (BusException e) {
+                    throw new WebServiceException(e);
+                }                
             } else {
                 ei = si.getEndpoint(portName);
             }    
@@ -289,18 +298,22 @@ public class ServiceImpl extends ServiceDelegate {
         return serviceEndpointInterface.cast(obj);
     }
 
-    private EndpointInfo createEndpointInfo(Service service, QName portName, PortInfo portInfo) {        
+    private EndpointInfo createEndpointInfo(Service service, QName portName, PortInfo portInfo)
+        throws BusException {        
+        
         EndpointInfo ei = null;
         String address = portInfo.getAddress();        
         //create bindingInfo from the bindingId
-        //TODO get the different BindingInfoFactoryBean from BindingInfoFactories
-        AbstractBindingInfoFactoryBean bindingFactory = new SoapBindingInfoFactoryBean();
-        bindingFactory.setServiceInfo(service.getServiceInfo());
+        BindingInfoFactoryBeanManager bfm = bus.getExtension(BindingInfoFactoryBeanManager.class);
+       
+        AbstractBindingInfoFactoryBean bindingFactory = 
+            bfm.getBindingInfoFactoryBean(portInfo.getBindingUri());
+        bindingFactory.setService(service);
         
         BindingInfo bindingInfo = bindingFactory.create();
         service.getServiceInfo().addBinding(bindingInfo);
-            
-        ei = new EndpointInfo(service.getServiceInfo(), portInfo.getBindingUri());
+        //TODO we may need to get the transportURI from Address    
+        ei = new EndpointInfo(service.getServiceInfo(), bindingFactory.getTransportURI());
         ei.setName(portName);
         ei.setAddress(address);
         ei.setBinding(bindingInfo);

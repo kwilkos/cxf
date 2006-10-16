@@ -148,9 +148,9 @@ public class DispatchClientServerTest extends ClientServerTestBase {
 
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull(service);*/
-        SOAPService service = new SOAPService(null, serviceName);
+        Service service = Service.create(serviceName);
         assertNotNull(service);
-        service.addPort(portName, "http://schemas.xmlsoap.org/soap/http", 
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/", 
                         "http://localhost:9006/SOAPDispatchService/SoapDispatchPort");
 
         Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.MESSAGE);
@@ -212,7 +212,7 @@ public class DispatchClientServerTest extends ClientServerTestBase {
         assertNotNull(service);*/
         Service service = Service.create(serviceName);
         assertNotNull(service);
-        service.addPort(portName, "http://schemas.xmlsoap.org/soap/http", 
+        service.addPort(portName, "http://schemas.xmlsoap.org/soap/", 
                         "http://localhost:9006/SOAPDispatchService/SoapDispatchPort");
 
         Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);

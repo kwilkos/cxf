@@ -41,6 +41,19 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
     </bean>
     
+    <bean class="org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean" lazy-init="true">
+    	<property name="bus">
+            <ref bean="cxf"/>
+        </property>
+        <property name="activationNamespaces">
+            <set> 
+                <value>http://schemas.xmlsoap.org/soap/</value>              
+                <value>http://schemas.xmlsoap.org/wsdl/soap/</value>
+                <value>http://schemas.xmlsoap.org/wsdl/soap/http</value>               
+            </set>
+        </property>
+    </bean>
+    
     <bean class="org.apache.cxf.binding.soap.SoapDestinationFactory" lazy-init="true">
         <property name="bus">
             <ref bean="cxf"/>

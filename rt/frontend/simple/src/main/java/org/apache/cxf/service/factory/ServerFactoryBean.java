@@ -24,11 +24,13 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ChainInitiationObserver;
@@ -99,7 +101,7 @@ public class ServerFactoryBean {
         destinationFactory = dfm.getDestinationFactory(transportId);
         
         // Get the Service from the ServiceFactory if specified        
-        bindingFactory.setServiceFactory(serviceFactory);
+        bindingFactory.setService(serviceFactory.getService());
         BindingInfo bindingInfo = bindingFactory.create();
         service.getServiceInfo().addBinding(bindingInfo);
         

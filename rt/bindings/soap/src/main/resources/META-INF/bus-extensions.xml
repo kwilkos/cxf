@@ -20,11 +20,21 @@
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
     <extension class="org.apache.cxf.binding.soap.SoapBindingFactory" deferred="true">
+        <namespace>http://schemas.xmlsoap.org/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
         <namespace>http://cxf.apache.org/transports/jms</namespace>
         <namespace>http://www.w3.org/2003/05/soap/bindings/HTTP/</namespace>
         <namespace>http://schemas.xmlsoap.org/wsdl/soap12/</namespace>
+    </extension>
+    
+     <extension class="org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean" deferred="true">
+        <namespace>http://schemas.xmlsoap.org/soap/</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/</namespace>      
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap/http</namespace>
+        <namespace>http://cxf.apache.org/transports/jms</namespace>
+        <namespace>http://www.w3.org/2003/05/soap/bindings/HTTP/</namespace>
+        <namespace>http://schemas.xmlsoap.org/wsdl/soap12/</namespace>        
     </extension>
     
     <extension class="org.apache.cxf.binding.soap.SoapDestinationFactory" 

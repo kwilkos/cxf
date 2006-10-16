@@ -35,5 +35,7 @@
        	   interface="org.apache.cxf.buslifecycle.BusLifeCycleManager"/>   	   
     <extension class="org.apache.cxf.endpoint.ServerRegistryImpl"
        	   interface="org.apache.cxf.endpoint.ServerRegistry"/>
-    
+    <extension class="org.apache.cxf.binding.BindingInfoFactoryBeanManagerImpl"
+           interface="org.apache.cxf.binding.BindingInfoFactoryBeanManager"/>
+           
 </extensions>

@@ -44,6 +44,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         <property name="bus" ref="cxf"/>
     </bean>
     
+    <bean id="org.apache.cxf.binding.BindingInfoFactoryBeanManager" class="org.apache.cxf.binding.BindingInfoFactoryBeanManagerImpl">
+        <property name="extensionManager" ref="org.apache.cxf.extension.ExtensionManager"/>
+        <property name="bus" ref="cxf"/>
+    </bean>
+    
     <bean id="org.apache.cxf.transport.DestinationFactoryManager" class="org.apache.cxf.transport.DestinationFactoryManagerImpl">
         <property name="extensionManager" ref="org.apache.cxf.extension.ExtensionManager"/>
         <property name="bus" ref="cxf"/>

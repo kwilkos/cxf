@@ -121,7 +121,7 @@ public class ClientServerTest extends ClientServerTestBase {
     
     public void testAddPort() throws Exception {
         Service service = Service.create(serviceName);
-        service.addPort(fakePortName, "http://schemas.xmlsoap.org/soap/http", 
+        service.addPort(fakePortName, "http://schemas.xmlsoap.org/soap/", 
                         "http://localhost:9000/SoapContext/SoapPort");
         Greeter greeter = service.getPort(fakePortName, Greeter.class);
 

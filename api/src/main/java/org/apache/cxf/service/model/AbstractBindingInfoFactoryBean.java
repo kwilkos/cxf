@@ -16,37 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.service.model;
 
-import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.Service;
 
 /**
  * An AbstractBindingFactory builds a binding for a Service.
  */
 public abstract class AbstractBindingInfoFactoryBean {
-    private AbstractServiceFactoryBean serviceFactory;
-    private ServiceInfo serviceInfo;
+    //private AbstractServiceFactoryBean serviceFactory;
+    private Service service;
     
     public abstract BindingInfo create();
-
-    public void setServiceFactory(AbstractServiceFactoryBean serviceFactory) {
-        this.serviceFactory = serviceFactory;
-    }
-
-    public AbstractServiceFactoryBean getServiceFactory() {
-        return serviceFactory;
-    }
     
-    public void setServiceInfo(ServiceInfo si) {
-        this.serviceInfo = si;
+    public abstract String getTransportURI();
+       
+    public void setService(Service si) {
+        this.service = si;
     }
 
-    protected ServiceInfo getServiceInfo() {
-        if (null != serviceInfo) {
-            return serviceInfo;
-        } else {
-            return getServiceFactory().getService().getServiceInfo();
-        }    
+    protected ServiceInfo getServiceInfo() {        
+        return service.getServiceInfo();        
     }
 }

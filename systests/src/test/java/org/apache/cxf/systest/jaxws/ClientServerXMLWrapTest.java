@@ -23,6 +23,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.Service;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -36,8 +37,12 @@ import org.apache.hello_world_xml_http.wrapped.XMLService;
 
 
 public class ClientServerXMLWrapTest extends TestCase {
-    
-    private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
+    private final QName serviceName = 
+        new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLService");
+    private final QName portName = 
+        new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
+    private final QName fakePortName = 
+        new QName("http://apache.org/hello_world_xml_http/wrapped", "FackPort");
 
     public static class Server extends TestServerBase {
         
@@ -79,6 +84,35 @@ public class ClientServerXMLWrapTest extends TestCase {
         String response2 = new String("Bonjour");
         try {
             Greeter greeter = service.getPort(portName, Greeter.class);
+            String username = System.getProperty("user.name");
+            String reply = greeter.greetMe(username);
+
+            assertNotNull("no response received from service", reply);
+            assertEquals(response1 + username, reply);
+
+            reply = greeter.sayHi();
+            assertNotNull("no response received from service", reply);
+            assertEquals(response2, reply);
+
+            greeter.greetMeOneWay(System.getProperty("user.name"));
+
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception) ex.getCause();
+        }
+    }
+    
+    public void testAddPort() throws Exception {
+
+        Service service = Service.create(serviceName);
+        service.addPort(fakePortName, 
+                        "http://cxf.apache.org/bindings/xformat",
+                        "http://localhost:9032/XMLService/XMLPort");
+        assertNotNull(service);
+
+        String response1 = new String("Hello ");
+        String response2 = new String("Bonjour");
+        try {
+            Greeter greeter = service.getPort(fakePortName, Greeter.class);
             String username = System.getProperty("user.name");
             String reply = greeter.greetMe(username);
 

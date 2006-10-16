@@ -23,4 +23,8 @@
         <namespace>http://cxf.apache.org/bindings/xformat</namespace>       
     </extension>
     
+    <extension class="org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean" deferred="true">
+        <namespace>http://cxf.apache.org/bindings/xformat</namespace>       
+    </extension>
+    
 </extensions>
