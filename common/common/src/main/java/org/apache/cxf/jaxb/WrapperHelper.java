@@ -129,7 +129,7 @@ public final class WrapperHelper {
 
         String accessor = JAXBUtils.nameToIdentifier(partName, JAXBUtils.IdentifierType.GETTER);
 
-        if ("boolean".equals(elementType.toLowerCase())) {
+        if (elementType != null && "boolean".equals(elementType.toLowerCase())) {
             // JAXB Exception to get the Boolean property
             accessor = accessor.replaceFirst("get", "is");
         }

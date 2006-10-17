@@ -112,7 +112,12 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                             if (part.isElement()) {
                                 elementType = part.getElementQName().getLocalPart();
                             } else {
-                                elementType = part.getTypeQName().getLocalPart();
+                                if (part.getTypeQName() == null) {
+                                    // handling anonymous complex type
+                                    elementType = null;
+                                } else {
+                                    elementType = part.getTypeQName().getLocalPart();
+                                }
                             }
                             Object obj = WrapperHelper.getWrappedPart(part.getName().getLocalPart(), 
                                                                       wrappedObject,

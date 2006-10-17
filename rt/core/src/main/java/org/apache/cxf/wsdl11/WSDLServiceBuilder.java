@@ -462,13 +462,6 @@ public class WSDLServiceBuilder {
                 }
                 XmlSchemaElement el = (XmlSchemaElement)o;
 
-                // If this is an anonymous complex type, mark it as unwrapped.
-                // We're doing this because things like JAXB don't have support
-                // for finding classes from anonymous type names.
-                if (el.getSchemaTypeName() == null && el.getRefName() == null) {
-                    return false;
-                }
-
                 MessagePartInfo mpi = wrapper.addMessagePart(el.getQName());
                 mpi.setTypeQName(el.getSchemaTypeName());
             }
