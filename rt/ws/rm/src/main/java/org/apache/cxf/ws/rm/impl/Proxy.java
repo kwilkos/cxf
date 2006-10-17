@@ -20,12 +20,67 @@
 package org.apache.cxf.ws.rm.impl;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.xml.bind.JAXBException;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.ws.addressing.RelatesToType;
+import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.DestinationSequence;
 
+ 
 /**
  * 
  */
-public interface Proxy {
+public class Proxy {
 
-    void acknowledge(DestinationSequence ds) throws IOException;
+    private static final Logger LOG = Logger.getLogger(Proxy.class.getName());
+
+    private RMEndpoint reliableEndpoint;
+    private Service service;
+    
+    Proxy(Bus bus, RMEndpoint rme) {
+        reliableEndpoint = rme;
+        buildService(bus);
+    }
+   
+    RMEndpoint getReliableEndpoint() {
+        return reliableEndpoint;
+    }
+    
+    Source getSource() {
+        return reliableEndpoint.getSource();
+    }
+
+    Service getService() {
+        return service;
+    }
+    
+    void acknowledge(DestinationSequence ds) throws IOException {
+        
+    }
+    
+    void createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, 
+                        EndpointReferenceType acksTo, 
+                        RelatesToType relatesTo) throws IOException {
+        service.getServiceInfo();    
+    }
+
+    final void buildService(Bus bus) {
+        ReflectionServiceFactoryBean serviceFactory = new ReflectionServiceFactoryBean();
+        try {
+            serviceFactory.setDataBinding(new JAXBDataBinding(SequenceService.class));
+        } catch (JAXBException ex) {
+            LOG.log(Level.SEVERE, "Failed to build service.", ex);
+        }
+        serviceFactory.setBus(bus);
+        serviceFactory.setServiceClass(SequenceService.class);
+        // that's the default: serviceFactory.setWrapped(true);
+        service = serviceFactory.create();
+    }
 }

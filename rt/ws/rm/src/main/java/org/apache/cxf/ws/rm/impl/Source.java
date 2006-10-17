@@ -27,7 +27,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
@@ -44,14 +43,16 @@ public class Source extends AbstractEndpoint {
     private Condition sequenceCreationCondition;
     private boolean sequenceCreationNotified;
 
-    Source(RMInterceptor interceptor, Endpoint endpoint) {
-        super(interceptor, endpoint);
+    Source(RMEndpoint reliableEndpoint) {
+        super(reliableEndpoint);
         map = new HashMap<String, SourceSequenceImpl>();
         current = new HashMap<String, SourceSequenceImpl>();
              
         sequenceCreationLock = new ReentrantLock();
         sequenceCreationCondition = sequenceCreationLock.newCondition();
     }
+    
+    
     
     public SourceSequence getSequence(Identifier id) {        
         return map.get(id.getValue());
@@ -152,7 +153,7 @@ public class Source extends AbstractEndpoint {
      * 
      * @return the current sequence.
      */
-    SourceSequence getCurrent(Identifier i) {        
+    SourceSequenceImpl getCurrent(Identifier i) {        
         sequenceCreationLock.lock();
         try {
             return getAssociatedSequence(i);
@@ -168,7 +169,7 @@ public class Source extends AbstractEndpoint {
      * @return the associated sequence
      * @pre the sequenceCreationLock is already held
      */
-    SourceSequence getAssociatedSequence(Identifier i) {        
+    SourceSequenceImpl getAssociatedSequence(Identifier i) {        
         return current.get(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue());
     }
     
@@ -178,10 +179,10 @@ public class Source extends AbstractEndpoint {
      * @param i the sequence identifier
      * @return
      */
-    SourceSequence awaitCurrent(Identifier i) {
+    SourceSequenceImpl awaitCurrent(Identifier i) {
         sequenceCreationLock.lock();
         try {
-            SourceSequence seq = getAssociatedSequence(i);
+            SourceSequenceImpl seq = getAssociatedSequence(i);
             while (seq == null) {
                 while (!sequenceCreationNotified) {
                     try {

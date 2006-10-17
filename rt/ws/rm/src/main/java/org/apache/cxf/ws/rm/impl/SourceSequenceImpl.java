@@ -80,13 +80,7 @@ public class SourceSequenceImpl extends AbstractSequenceImpl implements SourceSe
      * @see org.apache.cxf.ws.rm.SourceSequence#getEndpointIdentifier()
      */
     public String getEndpointIdentifier() {
-        // TODO
-        /*
-        if (null != source) {
-            return source.getHandler().getConfigurationHelper().getEndpointId();
-        }
-        */
-        return null;
+        return source.getName().toString();
     }
 
     /* (non-Javadoc)
@@ -106,12 +100,11 @@ public class SourceSequenceImpl extends AbstractSequenceImpl implements SourceSe
     /* (non-Javadoc)
      * @see org.apache.cxf.ws.rm.SourceSequence#getExpiry()
      */
-    public Date getExpiry() {
-        // TODO Auto-generated method stub
-        return null;
+    public Date getExpires() {
+        return expires;
     }
     
-    // end RMSourceSequence interface
+    // end SourceSequence interface
     
     /**
      * Returns true if a last message had been sent for this sequence and if all
@@ -265,8 +258,7 @@ public class SourceSequenceImpl extends AbstractSequenceImpl implements SourceSe
         // that included this sequence as an offer 
 
         if (null != inSeqId && null != inMsgNumber) {
-            RMInterceptor interceptor = source.getInterceptor();
-            Destination destination = interceptor.getDestination(source);
+            Destination destination = source.getReliableEndpoint().getDestination();
             DestinationSequenceImpl inSeq = null;
             if (null != destination) {
                 inSeq = destination.getSequenceImpl(inSeqId);

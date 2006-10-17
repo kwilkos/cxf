@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import javax.xml.namespace.QName;
+
 
 import junit.framework.TestCase;
 
@@ -39,11 +41,8 @@ import org.apache.cxf.ws.rm.interceptor.DestinationPolicyType;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
+import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createNiceControl;
 
 public class DestinationSequenceImplTest extends TestCase {
 
@@ -58,7 +57,7 @@ public class DestinationSequenceImplTest extends TestCase {
     private DestinationPolicyType dp;
  
     public void setUp() {
-        control = createNiceControl();
+        control = EasyMock.createNiceControl();
         factory = new ObjectFactory();
         
         ref = control.createMock(EndpointReferenceType.class);                
@@ -123,21 +122,14 @@ public class DestinationSequenceImplTest extends TestCase {
     }
     
     public void testGetEndpointIdentifier() {
-        /*
-        destination.getHandler();
-        expectLastCall().andReturn(handler);
-        handler.getConfigurationHelper();
-        expectLastCall().andReturn(configurationHelper);
-        configurationHelper.getEndpointId();
-        expectLastCall().andReturn("abc.xyz");
+        setUpDestination();
+        QName qn = new QName("abc", "xyz");
+        EasyMock.expect(destination.getName()).andReturn(qn);
         control.replay();
         
         DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
-        seq.setDestination(destination);
-        assertEquals("abc.xyz", seq.getEndpointIdentifier());
-   
+        assertEquals("Unexpected endpoint identifier", "{abc}xyz", seq.getEndpointIdentifier());
         control.verify();
-        */
     }
     
     public void testGetAcknowledgementAsStream() throws SequenceFault {
@@ -337,15 +329,16 @@ public class DestinationSequenceImplTest extends TestCase {
     }
     
     public void testAcknowledgeDeferred() throws SequenceFault, IOException {
-        setUpDestination(true);
+        Timer timer = new Timer();
+        setUpDestination(timer);
         
         DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
-        
+        RMEndpoint rme = control.createMock(RMEndpoint.class);
+        EasyMock.expect(destination.getReliableEndpoint()).andReturn(rme).anyTimes();
         Proxy proxy = control.createMock(Proxy.class);
-        interceptor.getProxy();
-        expectLastCall().andReturn(proxy);
+        EasyMock.expect(rme.getProxy()).andReturn(proxy).anyTimes();        
         proxy.acknowledge(seq);
-        expectLastCall();
+        EasyMock.expectLastCall();
         
         control.replay();
         
@@ -393,10 +386,10 @@ public class DestinationSequenceImplTest extends TestCase {
         SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
         List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
         AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
-        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
-        expect(interceptor.getDeliveryAssurance()).andReturn(da);
-        expect(da.isSetAtMostOnce()).andReturn(true);                    
+        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da);
+        EasyMock.expect(da.isSetAtMostOnce()).andReturn(true);                    
         
         control.replay();        
         DestinationSequenceImpl ds = new DestinationSequenceImpl(id, ref, null, ack);
@@ -406,12 +399,12 @@ public class DestinationSequenceImplTest extends TestCase {
         
         control.reset();
         ranges.add(r);
-        expect(destination.getInterceptor()).andReturn(interceptor);
-        expect(interceptor.getDeliveryAssurance()).andReturn(da);
-        expect(da.isSetAtMostOnce()).andReturn(true);            
-        expect(ack.getAcknowledgementRange()).andReturn(ranges);
-        expect(r.getLower()).andReturn(new BigInteger("5"));
-        expect(r.getUpper()).andReturn(new BigInteger("15"));
+        EasyMock.expect(destination.getInterceptor()).andReturn(interceptor);
+        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da);
+        EasyMock.expect(da.isSetAtMostOnce()).andReturn(true);            
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        EasyMock.expect(r.getLower()).andReturn(new BigInteger("5"));
+        EasyMock.expect(r.getUpper()).andReturn(new BigInteger("15"));
         control.replay();        
         assertTrue("message has not yet been delivered", !ds.applyDeliveryAssurance(mn));
         control.verify();
@@ -424,18 +417,18 @@ public class DestinationSequenceImplTest extends TestCase {
         BigInteger mn = BigInteger.TEN;
         
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
-        expect(interceptor.getDeliveryAssurance()).andReturn(da).anyTimes();
-        expect(da.isSetAtMostOnce()).andReturn(false);
-        expect(da.isSetAtLeastOnce()).andReturn(true);
-        expect(da.isSetInOrder()).andReturn(true); 
+        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da).anyTimes();
+        EasyMock.expect(da.isSetAtMostOnce()).andReturn(false);
+        EasyMock.expect(da.isSetAtLeastOnce()).andReturn(true);
+        EasyMock.expect(da.isSetInOrder()).andReturn(true); 
         
         SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
         List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
         AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
         ranges.add(r);
-        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
-        expect(r.getLower()).andReturn(BigInteger.ONE);
-        expect(r.getUpper()).andReturn(new BigInteger("15"));
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
+        EasyMock.expect(r.getLower()).andReturn(BigInteger.ONE);
+        EasyMock.expect(r.getUpper()).andReturn(new BigInteger("15"));
         
         control.replay(); 
         
@@ -449,10 +442,10 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
-        expect(interceptor.getDeliveryAssurance()).andReturn(da).anyTimes();
-        expect(da.isSetAtMostOnce()).andReturn(false).anyTimes();
-        expect(da.isSetAtLeastOnce()).andReturn(true).anyTimes();
-        expect(da.isSetInOrder()).andReturn(true).anyTimes(); 
+        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da).anyTimes();
+        EasyMock.expect(da.isSetAtMostOnce()).andReturn(false).anyTimes();
+        EasyMock.expect(da.isSetAtLeastOnce()).andReturn(true).anyTimes();
+        EasyMock.expect(da.isSetInOrder()).andReturn(true).anyTimes(); 
         
         SequenceAcknowledgement ack = factory.createSequenceAcknowledgement();
         List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
@@ -512,7 +505,7 @@ public class DestinationSequenceImplTest extends TestCase {
         SequenceAcknowledgement ack = control.createMock(SequenceAcknowledgement.class);
         List<AcknowledgementRange> ranges = new ArrayList<AcknowledgementRange>();
         AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
-        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         control.replay();
         DestinationSequenceImpl ds = new DestinationSequenceImpl(id, ref, null, ack);
         ds.setDestination(destination);
@@ -521,41 +514,41 @@ public class DestinationSequenceImplTest extends TestCase {
         
         control.reset();
         ranges.add(r);
-        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(2);
-        expect(r.getLower()).andReturn(BigInteger.TEN);
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges).times(2);
+        EasyMock.expect(r.getLower()).andReturn(BigInteger.TEN);
         control.replay();
         assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
         control.verify();
         
         control.reset();
-        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
-        expect(r.getLower()).andReturn(BigInteger.ONE);
-        expect(r.getUpper()).andReturn(new BigInteger("5"));
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
+        EasyMock.expect(r.getLower()).andReturn(BigInteger.ONE);
+        EasyMock.expect(r.getUpper()).andReturn(new BigInteger("5"));
         control.replay();
         assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
         control.verify();
         
         control.reset();
-        expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
-        expect(r.getLower()).andReturn(BigInteger.ONE);
-        expect(r.getUpper()).andReturn(BigInteger.TEN);
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges).times(3);
+        EasyMock.expect(r.getLower()).andReturn(BigInteger.ONE);
+        EasyMock.expect(r.getUpper()).andReturn(BigInteger.TEN);
         control.replay();
         assertTrue("not all predecessors acknowledged", ds.allPredecessorsAcknowledged(BigInteger.TEN));
         control.verify();
         
         ranges.add(r);
         control.reset();
-        expect(ack.getAcknowledgementRange()).andReturn(ranges);
+        EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         control.replay();
         assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
         control.verify();
     }
     
     private void setUpDestination() {
-        setUpDestination(false);
+        setUpDestination(null);
     }
     
-    private void setUpDestination(boolean withTimer) {
+    private void setUpDestination(Timer timer) {
         
         interceptor = control.createMock(RMInterceptor.class);
 
@@ -573,22 +566,15 @@ public class DestinationSequenceImplTest extends TestCase {
         bri.setMilliseconds(new BigInteger("3000"));
         rma.setBaseRetransmissionInterval(bri);  
 
-        interceptor.getRMAssertion();
-        expectLastCall().andReturn(rma).anyTimes();
-        interceptor.getDestinationPolicy();
-        expectLastCall().andReturn(dp).anyTimes();
-        
-        interceptor.getStore();
-        expectLastCall().andReturn(null).anyTimes();
+        EasyMock.expect(interceptor.getRMAssertion()).andReturn(rma).anyTimes();
+        EasyMock.expect(interceptor.getDestinationPolicy()).andReturn(dp).anyTimes();
+        EasyMock.expect(interceptor.getStore()).andReturn(null).anyTimes();
         
         destination = control.createMock(Destination.class);
-        destination.getInterceptor();
-        expectLastCall().andReturn(interceptor).anyTimes();
+        EasyMock.expect(destination.getInterceptor()).andReturn(interceptor).anyTimes();
         
-        if (withTimer) {
-            Timer timer = new Timer();
-            interceptor.getTimer();
-            expectLastCall().andReturn(timer).anyTimes();
+        if (null != timer) {
+            EasyMock.expect(interceptor.getTimer()).andReturn(timer).anyTimes();
         }
 
     }

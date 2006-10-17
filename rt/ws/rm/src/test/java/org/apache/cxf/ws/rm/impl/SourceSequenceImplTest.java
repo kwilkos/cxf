@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.util.Date;
 
 import javax.xml.datatype.Duration;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
@@ -45,7 +46,6 @@ public class SourceSequenceImplTest extends TestCase {
     private Identifier id;
 
     private Source source;
-    // Destination destination;
     private RMInterceptor interceptor;
     private SourcePolicyType sp;
     private SequenceTerminationPolicyType stp;
@@ -57,20 +57,6 @@ public class SourceSequenceImplTest extends TestCase {
         id.setValue("seq");
         
         control = EasyMock.createNiceControl();
-        
-        /*
-        ap = RMUtils.getWSRMConfFactory().createAcksPolicyType();
-        rma = RMUtils.getWSRMPolicyFactory().createRMAssertionType();
-        BaseRetransmissionInterval bri =
-            RMUtils.getWSRMPolicyFactory().createRMAssertionTypeBaseRetransmissionInterval();
-        bri.setMilliseconds(new BigInteger("3000"));
-        rma.setBaseRetransmissionInterval(bri);
-        ExponentialBackoff eb = 
-            RMUtils.getWSRMPolicyFactory().createRMAssertionTypeExponentialBackoff();
-        eb.getOtherAttributes().put(ConfigurationHelper.EXPONENTIAL_BACKOFF_BASE_ATTR,
-                                    RetransmissionQueue.DEFAULT_EXPONENTIAL_BACKOFF);
-                                    */
-        
     }
     
     public void tearDown() {
@@ -270,34 +256,27 @@ public class SourceSequenceImplTest extends TestCase {
         // termination policy max unacknowledged 
     }
     
-    /*
     public void testGetEndpointIdentfier() {
-        SourceSequence seq = null;
-        control = EasyMock.createNiceControl();
-        source = control.createMock(RMSource.class); 
-        handler = control.createMock(RMHandler.class);
-        configurationHelper = control.createMock(ConfigurationHelper.class);  
-        
-        expect(source.getHandler()).andReturn(handler);
-        expect(handler.getConfigurationHelper()).andReturn(configurationHelper);
-        expect(configurationHelper.getEndpointId())
-            .andReturn("abc.xyz");
+        setUpSource();
+        QName qn = new QName("abc", "xyz");
+        EasyMock.expect(source.getName()).andReturn(qn);
         control.replay();
         
-        seq = new SourceSequence(id);
+        SourceSequenceImpl seq = new SourceSequenceImpl(id);
         seq.setSource(source);
-        assertEquals("abc.xyz", seq.getEndpointIdentifier());      
-        control.verify();       
+        assertEquals("Unexpected endpoint identifier", "{abc}xyz", seq.getEndpointIdentifier());
+        control.verify();
     }
-    */
     
     public void testCheckOfferingSequenceClosed() {
         SourceSequenceImpl seq = null;
         
         setUpSource();
  
+        RMEndpoint rme = control.createMock(RMEndpoint.class);
+        EasyMock.expect(source.getReliableEndpoint()).andReturn(rme).anyTimes();
         Destination destination = control.createMock(Destination.class);
-        EasyMock.expect(interceptor.getDestination(source)).andReturn(destination).anyTimes();
+        EasyMock.expect(rme.getDestination()).andReturn(destination).anyTimes();
         DestinationSequenceImpl dseq = control.createMock(DestinationSequenceImpl.class); 
         Identifier did = control.createMock(Identifier.class);
         EasyMock.expect(destination.getSequenceImpl(did)).andReturn(dseq).anyTimes();
@@ -313,28 +292,7 @@ public class SourceSequenceImplTest extends TestCase {
         
         control.verify();
     }
-    
-    /*
-    public void testIdentifierEquals() {
-        control = EasyMock.createNiceControl();
-        Identifier id1 = null;
-        Identifier id2 = null;   
-        assertTrue(AbstractSequenceImpl.identifierEquals(id1, id2));
-        
-        id1 = factory.createIdentifier();
-        id1.setValue("seq1"); 
-        assertTrue(!AbstractSequenceImpl.identifierEquals(id1, id2));
-        
-        id2 = factory.createIdentifier();
-        id2.setValue("seq2"); 
-        assertTrue(!AbstractSequenceImpl.identifierEquals(id1, id2));
-        
-        id2.setValue("seq1");
-        assertTrue(AbstractSequenceImpl.identifierEquals(id1, id2));
-    }
-    */
- 
-    
+   
     private boolean nextMessages(SourceSequenceImpl seq, 
                                  int n) {
         int i = 0;

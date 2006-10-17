@@ -157,13 +157,7 @@ public class DestinationSequenceImpl extends AbstractSequenceImpl implements Des
      * @see org.apache.cxf.ws.rm.DestinationSequence#getEndpointIdentifier()
      */
     public String getEndpointIdentifier() {
-        // TODO
-        /*
-        if (null != destination) {
-            return destination.getHandler().getConfigurationHelper().getEndpointId();
-        }
-        */
-        return null;
+        return destination.getName().toString();
     }
 
     /* (non-Javadoc)
@@ -315,8 +309,9 @@ public class DestinationSequenceImpl extends AbstractSequenceImpl implements Des
 
         public void run() {
             DestinationSequenceImpl.this.scheduleImmediateAcknowledgement();
-            try {
-                destination.getInterceptor().getProxy().acknowledge(DestinationSequenceImpl.this);
+            try {                
+                RMEndpoint rme = destination.getReliableEndpoint();
+                rme.getProxy().acknowledge(DestinationSequenceImpl.this);
             } catch (IOException ex) {
                 Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, DestinationSequenceImpl.this);
                 LOG.log(Level.SEVERE, msg.toString(), ex);

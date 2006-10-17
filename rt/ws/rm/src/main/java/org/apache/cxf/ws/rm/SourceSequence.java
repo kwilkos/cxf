@@ -53,21 +53,5 @@ public interface SourceSequence {
     /**
      * @return the expiry data of this sequence
      */
-    Date getExpiry();
-    
-    /**
-     * Returns true if a last message had been sent for this sequence and if all
-     * messages for this sequence have been acknowledged.
-     * 
-     * @return true if all messages have been acknowledged.
-     */
-    // boolean allAcknowledged();
-
-    /**
-     * Used by the RM source to cache received acknowledgements for this
-     * sequence.
-     * 
-     * @param acknowledgement an acknowledgement for this sequence
-     */
-    // void setAcknowledged(SequenceAcknowledgement acknowledgment);
+    Date getExpires();
 }

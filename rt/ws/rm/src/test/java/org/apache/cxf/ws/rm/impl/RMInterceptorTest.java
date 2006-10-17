@@ -30,12 +30,34 @@ import junit.framework.TestCase;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.ws.addressing.MAPAggregator;
+import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.interceptor.SequenceTerminationPolicyType;
 import org.apache.cxf.ws.rm.interceptor.SourcePolicyType;
+import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class RMInterceptorTest extends TestCase {
    
+    public void testAccessors() {
+        RMInterceptor rmi = new RMInterceptor();
+        assertNull(rmi.getStore());
+        assertNull(rmi.getRetransmissionQueue());
+        assertNotNull(rmi.getTimer());
+        
+        IMocksControl control = EasyMock.createNiceControl();
+        RMStore store = control.createMock(RMStore.class);
+        RetransmissionQueue queue = control.createMock(RetransmissionQueue.class);
+        
+        rmi.setStore(store);
+        rmi.setRetransmissionQueue(queue);
+        assertSame(store, rmi.getStore());
+        assertSame(queue, rmi.getRetransmissionQueue());
+  
+        
+        
+    }
     
     public void testInitialisation() {
         RMInterceptor rmi = new RMInterceptor();
@@ -80,9 +102,13 @@ public class RMInterceptorTest extends TestCase {
         chain.add(map);
         Iterator it = chain.iterator();
         assertSame("Unexpected order.", map, it.next());
-        assertSame("Unexpected order.", rmi, it.next());
-        
-        
-        
+        assertSame("Unexpected order.", rmi, it.next());                      
+    }    
+    
+    public void testAddAcknowledgement() {
+        // MInterceptor rmi = new RMInterceptor();
+        IMocksControl control = EasyMock.createNiceControl();
+        control.createMock(Source.class);
+         
     }
 }

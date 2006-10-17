@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.Identifier;
@@ -41,13 +40,12 @@ public class Destination extends AbstractEndpoint {
 
     private static final Logger LOG = LogUtils.getL7dLogger(Destination.class);
     
-  
     private Map<String, DestinationSequenceImpl> map;
     
-    Destination(RMInterceptor interceptor, Endpoint endpoint) {
-        super(interceptor, endpoint);
+    Destination(RMEndpoint reliableEndpoint) {
+        super(reliableEndpoint);
         map = new HashMap<String, DestinationSequenceImpl>();    
-    }
+    }  
     
     public DestinationSequence getSequence(Identifier id) {        
         return map.get(id.getValue());
@@ -74,10 +72,6 @@ public class Destination extends AbstractEndpoint {
         if (null != store) {
             store.removeDestinationSequence(seq.getIdentifier());
         }
-    }
-    
-    public Collection<DestinationSequence> getAllSequences() {  
-        return CastUtils.cast(map.values());
     }
   
    /**
@@ -108,7 +102,7 @@ public class Destination extends AbstractEndpoint {
                 if (!(seq.getAcksTo().getAddress().getValue().equals(replyToAddress)
                     || seq.canPiggybackAckOnPartialResponse())) {
                     try {
-                        getInterceptor().getProxy().acknowledge(seq);
+                        getProxy().acknowledge(seq);
                     } catch (IOException ex) {
                         Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, seq);
                         LOG.log(Level.SEVERE, msg.toString(), ex);
@@ -119,6 +113,10 @@ public class Destination extends AbstractEndpoint {
             SequenceFaultFactory sff = new SequenceFaultFactory();
             throw sff.createUnknownSequenceFault(sequenceType.getIdentifier());
         }
+    }
+    
+    Collection<DestinationSequenceImpl> getAllSequences() {  
+        return CastUtils.cast(map.values());
     }
     
     DestinationSequenceImpl getSequenceImpl(Identifier sid) {

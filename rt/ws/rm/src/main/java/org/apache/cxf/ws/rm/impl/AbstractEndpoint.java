@@ -19,31 +19,49 @@
 
 package org.apache.cxf.ws.rm.impl;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.ws.rm.Identifier;
 
 public class AbstractEndpoint {
     
-    private final RMInterceptor interceptor;
-    private final Endpoint endpoint;
+    private final RMEndpoint reliableEndpoint;
     
-    protected AbstractEndpoint(RMInterceptor h, Endpoint e) {
-        interceptor = h;
-        endpoint = e;
+    protected AbstractEndpoint(RMEndpoint rme) {
+        reliableEndpoint = rme;
     }
     
+    public QName getName() {
+        return reliableEndpoint.getName();
+    }
+    
+    /** 
+     * @return Returns the reliableEndpoint.
+     */
+    public RMEndpoint getReliableEndpoint() {
+        return reliableEndpoint;
+    }
+
     /**
      * @return Returns the interceptor.
      */
     public RMInterceptor getInterceptor() {
-        return interceptor;
+        return reliableEndpoint.getInterceptor();
     }
     
     /**
      * @return Returns the endpoint.
      */
     public Endpoint getEndpoint() {
-        return endpoint;
+        return reliableEndpoint.getEndpoint();
+    }
+    
+    /**
+     * @return Returns the proxy.
+     */
+    public Proxy getProxy() {
+        return reliableEndpoint.getProxy();
     }
 
     /**
