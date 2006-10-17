@@ -24,10 +24,15 @@ import java.lang.reflect.Proxy;
 import java.util.*;
 
 import javax.wsdl.Binding;
+import javax.wsdl.BindingFault;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.BindingOutput;
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -40,11 +45,14 @@ import javax.wsdl.extensions.soap12.SOAP12Body;
 import javax.wsdl.extensions.soap12.SOAP12Fault;
 import javax.wsdl.extensions.soap12.SOAP12Header;
 import javax.wsdl.extensions.soap12.SOAP12Operation;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.tools.common.ExtensionInvocationHandler;
+import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapFault;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
 import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 
@@ -249,6 +257,13 @@ public final class SOAPBindingUtil {
         return obj instanceof SOAPBinding || obj instanceof SOAP12Binding;
     }
 
+    public static SoapFault getSoapFault(Object obj) {
+        if (isSOAPFault(obj)) {
+            return getProxy(SoapFault.class, obj);
+        }
+        return null;
+    }
+
     public static boolean isMixedStyle(Binding binding) {
         Iterator ite = binding.getExtensibilityElements().iterator();
         String bindingStyle = "";
@@ -325,4 +340,103 @@ public final class SOAPBindingUtil {
     public static boolean isSOAPFault(Object obj) {
         return obj instanceof SOAPFault || obj instanceof SOAP12Fault;
     }
+
+    public static SoapAddress createSoapAddress(ExtensionRegistry extReg, boolean isSOAP12)
+        throws WSDLException {
+        ExtensibilityElement extElement = null;
+        if (isSOAP12) {
+            extElement = (SOAP12Address)extReg.createExtension(Port.class,
+                                                               WSDLConstants.NS_SOAP12_BINDING_ADDRESS);
+        } else {
+            extElement = (SOAPAddress)extReg.createExtension(Port.class,
+                                                             WSDLConstants.NS_SOAP_BINDING_ADDRESS);
+        }
+        return getSoapAddress(extElement);
+    }
+
+    public static SoapBody createSoapBody(ExtensionRegistry extReg, Class clz, boolean isSOAP12)
+        throws WSDLException {
+        ExtensibilityElement extElement = null;
+        if (isSOAP12) {
+            extElement = (SOAP12Body)extReg.createExtension(clz, new QName(WSDLConstants.SOAP12_NAMESPACE,
+                                                                           "body"));
+        } else {
+            extElement = (SOAPBody)extReg.createExtension(clz, new QName(WSDLConstants.SOAP11_NAMESPACE,
+                                                                         "body"));
+        }
+        return getSoapBody(extElement);
+    }
+
+    public static SoapBinding createSoapBinding(ExtensionRegistry extReg, boolean isSOAP12)
+        throws WSDLException {
+        ExtensibilityElement extElement = null;
+        if (isSOAP12) {
+            extElement = (SOAP12Binding)extReg.createExtension(Binding.class,
+                                                               new QName(WSDLConstants.SOAP12_NAMESPACE,
+                                                                         "binding"));
+            ((SOAP12Binding)extElement).setTransportURI(WSDLConstants.SOAP12_HTTP_TRANSPORT);
+        } else {
+            extElement = (SOAPBinding)extReg.createExtension(Binding.class,
+                                                             new QName(WSDLConstants.SOAP11_NAMESPACE,
+                                                                       "binding"));
+            ((SOAPBinding)extElement).setTransportURI(WSDLConstants.NS_SOAP11_HTTP_BINDING);
+        }
+        return getSoapBinding(extElement);
+    }
+
+    public static SoapOperation createSoapOperation(ExtensionRegistry extReg, boolean isSOAP12)
+        throws WSDLException {
+        ExtensibilityElement extElement = null;
+        if (isSOAP12) {
+            extElement = (SOAP12Operation)extReg.createExtension(BindingOperation.class,
+                                                                 new QName(WSDLConstants.SOAP12_NAMESPACE,
+                                                                           "operation"));
+        } else {
+            extElement = (SOAPOperation)extReg.createExtension(BindingOperation.class,
+                                                               new QName(WSDLConstants.SOAP11_NAMESPACE,
+                                                                         "operation"));
+        }
+        return getSoapOperation(extElement);
+    }
+
+    public static SoapFault createSoapFault(ExtensionRegistry extReg, boolean isSOAP12)
+        throws WSDLException {
+        ExtensibilityElement extElement = null;
+        if (isSOAP12) {
+            extElement = (SOAP12Fault)extReg.createExtension(BindingFault.class,
+                                                             new QName(WSDLConstants.SOAP12_NAMESPACE,
+                                                                       "fault"));
+        } else {
+            extElement = (SOAPFault)extReg.createExtension(BindingFault.class,
+                                                           new QName(WSDLConstants.SOAP11_NAMESPACE,
+                                                                     "fault"));
+        }
+        return getSoapFault(extElement);
+    }
+
+    public static SoapHeader createSoapHeader(ExtensionRegistry extReg, Class clz, boolean isSOAP12)
+        throws WSDLException {
+        ExtensibilityElement extElement = null;
+        if (isSOAP12) {
+            extElement = (SOAP12Header)extReg.createExtension(clz,
+                                                              new QName(WSDLConstants.SOAP12_NAMESPACE,
+                                                                        "header"));
+        } else {
+            extElement = (SOAPHeader)extReg.createExtension(clz,
+                                                            new QName(WSDLConstants.SOAP11_NAMESPACE,
+                                                                      "header"));
+        }
+        return getSoapHeader(extElement);
+    }
+
+
+    public static void addSOAPNamespace(Definition definition, boolean isSOAP12) {
+        Map namespaces = definition.getNamespaces();
+        if (isSOAP12
+            && !namespaces.values().contains(WSDLConstants.SOAP12_NAMESPACE)) {
+            definition.addNamespace("soap12", WSDLConstants.SOAP12_NAMESPACE);
+        } else if (!namespaces.values().contains(WSDLConstants.SOAP11_NAMESPACE)) {
+            definition.addNamespace("soap", WSDLConstants.SOAP12_NAMESPACE);
+        }
+    }    
 }

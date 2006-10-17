@@ -32,20 +32,24 @@ import javax.wsdl.BindingOutput;
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPHeader;
-import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
+import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapFault;
+import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
+import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.WSDLModel;
 import org.apache.cxf.tools.common.model.WSDLParameter;
 import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
+
 
 public class BindingGenerator {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
@@ -60,19 +64,22 @@ public class BindingGenerator {
     }
 
     public void generate() {
+        generate(false);
+    }
+    
+    public void generate(boolean isSOAP12) {
         Binding binding = definition.createBinding();
 
         binding.setQName(new QName(WSDLConstants.NS_WSDL, wmodel.getPortTypeName() + "Binding"));
-        binding.setPortType(definition.getPortType(new QName(wmodel.getTargetNameSpace(), wmodel
-            .getPortTypeName())));
+        binding.setPortType(definition.getPortType(new QName(wmodel.getTargetNameSpace(),
+                                                             wmodel.getPortTypeName())));
 
-        // genearte the soap binding
+        // default to genearte the soap 1.1 binding
 
-        javax.wsdl.extensions.soap.SOAPBinding soapBinding;
+        SoapBinding soapBinding = null;
         try {
-            soapBinding = (javax.wsdl.extensions.soap.SOAPBinding)extensionRegistry
-                .createExtension(Binding.class, new QName(WSDLConstants.SOAP11_NAMESPACE, "binding"));
-            soapBinding.setTransportURI("http://schemas.xmlsoap.org/soap/http");
+            soapBinding = SOAPBindingUtil.createSoapBinding(extensionRegistry, isSOAP12);
+            
             soapBinding.setStyle(wmodel.getStyle().toString().toLowerCase());
             binding.addExtensibilityElement(soapBinding);
         } catch (WSDLException e) {
@@ -80,88 +87,72 @@ public class BindingGenerator {
             e.printStackTrace();
         }
 
-        generateBindingOperation(binding);
+        try {
+            generateBindingOperation(binding, isSOAP12);
+        } catch (WSDLException e) {
+            throw new ToolException(e.getMessage(), e);
+        }
         binding.setUndefined(false);
         definition.addBinding(binding);
 
     }
 
-    private void generateBindingOperation(Binding binding) {
+    private void generateBindingOperation(Binding binding, boolean isSOAP12) throws WSDLException {
         for (JavaMethod jmethod : wmodel.getJavaMethods()) {
             BindingOperation bindOperation = definition.createBindingOperation();
             bindOperation.setName(jmethod.getName());
-            generateBindingOperationInputOutPut(bindOperation, jmethod);
+            generateBindingOperationInputOutPut(bindOperation, jmethod, isSOAP12);
             binding.addBindingOperation(bindOperation);
         }
 
     }
 
-    private void generateBindingOperationInputOutPut(BindingOperation operation, JavaMethod jmethod) {
+    private void generateBindingOperationInputOutPut(BindingOperation operation,
+                                                     JavaMethod jmethod,
+                                                     boolean isSOAP12)
+        throws WSDLException {
         // generate soap binding action
-        SOAPOperation soapOperation = generateSoapAction();
+
+        SoapOperation soapOperation = SOAPBindingUtil.createSoapOperation(extensionRegistry, isSOAP12);
+        
         soapOperation.setStyle(jmethod.getSoapStyle().name().toLowerCase());
         if (jmethod.getSoapAction() != null && !jmethod.getSoapAction().equals("")) {
             soapOperation.setSoapActionURI(jmethod.getSoapAction());
         }
         operation.addExtensibilityElement(soapOperation);
 
-        generateInputSoapBody(jmethod, operation, jmethod.getRequest());
-
-        generateOutputSoapBody(jmethod, operation, jmethod.getResponse());
+        generateInputSoapBody(jmethod, operation, jmethod.getRequest(), isSOAP12);
+        
+        generateOutputSoapBody(jmethod, operation, jmethod.getResponse(), isSOAP12);
 
         for (org.apache.cxf.tools.common.model.WSDLException ex : jmethod.getWSDLExceptions()) {
 
             BindingFault bindingFault = definition.createBindingFault();
             bindingFault.setName(ex.getExcpetionClass().getSimpleName());
             operation.addBindingFault(bindingFault);
-            javax.wsdl.extensions.soap.SOAPFault soapFault = null;
-            try {
-                soapFault = (javax.wsdl.extensions.soap.SOAPFault)extensionRegistry
-                    .createExtension(BindingFault.class, new QName(WSDLConstants.SOAP11_NAMESPACE, "fault"));
-                soapFault.setUse("literal");
-                soapFault.setName(ex.getExcpetionClass().getSimpleName());
-            } catch (WSDLException e) {
-                throw new ToolException(e.getMessage(), e);
-            }
+            SoapFault soapFault = SOAPBindingUtil.createSoapFault(extensionRegistry, isSOAP12);
+            soapFault.setUse("literal");
+            soapFault.setName(ex.getExcpetionClass().getSimpleName());
             bindingFault.addExtensibilityElement(soapFault);
 
         }
 
     }
 
-    private SOAPOperation generateSoapAction() {
-        SOAPOperation soapOperation = null;
-        try {
-            soapOperation = (SOAPOperation)extensionRegistry
-                .createExtension(BindingOperation.class, new QName(WSDLConstants.SOAP11_NAMESPACE,
-                                                                   "operation"));
-        } catch (WSDLException e) {
-            throw new ToolException(e.getMessage(), e);
-        }
-
-        return soapOperation;
-    }
-
-    private void generateOutputSoapBody(JavaMethod jmethod, BindingOperation operation, WSDLParameter param) {
+    private void generateOutputSoapBody(JavaMethod jmethod,
+                                        BindingOperation operation,
+                                        WSDLParameter param,
+                                        boolean isSOAP12) throws WSDLException {
         if (param == null) {
             return;
         }
-
-        SOAPBody body = null;
 
         BindingOutput bindingOutput = definition.createBindingOutput();
         bindingOutput.setName(param.getName());
 
         operation.setBindingOutput(bindingOutput);
-
-        try {
-            body = (SOAPBody)extensionRegistry.createExtension(BindingOutput.class,
-                                                               new QName(WSDLConstants.SOAP11_NAMESPACE,
-                                                                         "body"));
-        } catch (WSDLException e1) {
-            throw new ToolException(e1.getMessage(), e1);
-        }
-
+        
+        SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry, BindingOutput.class, isSOAP12);
         if (jmethod.getSoapUse() == SOAPBinding.Use.LITERAL) {
             body.setUse("literal");
         } else {
@@ -181,20 +172,14 @@ public class BindingGenerator {
                 parts.add(parameter.getPartName());
             }
             body.setParts(parts);
-            SOAPHeader soapHeader = null;
+            SoapHeader soapHeader = null;
             for (JavaParameter jp : headerParams) {
-
-                try {
-                    soapHeader = (SOAPHeader)extensionRegistry
-                        .createExtension(BindingOutput.class, new QName(WSDLConstants.SOAP11_NAMESPACE,
-                                                                        "header"));
-                    soapHeader.setMessage(new QName(param.getTargetNamespace(), param.getName()));
-                    soapHeader.setPart(jp.getPartName());
-                    soapHeader.setUse("literal");
-
-                } catch (WSDLException e) {
-                    throw new ToolException(e.getMessage(), e);
-                }
+                soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
+                                                              BindingOutput.class,
+                                                              isSOAP12);
+                soapHeader.setMessage(new QName(param.getTargetNamespace(), param.getName()));
+                soapHeader.setPart(jp.getPartName());
+                soapHeader.setUse("literal");
             }
 
             if (jmethod.getSoapStyle() == SOAPBinding.Style.RPC) {
@@ -207,25 +192,19 @@ public class BindingGenerator {
 
     }
 
-    private void generateInputSoapBody(JavaMethod jmethod, BindingOperation operation, WSDLParameter param) {
+    private void generateInputSoapBody(JavaMethod jmethod,
+                                       BindingOperation operation,
+                                       WSDLParameter param,
+                                       boolean isSOAP12) throws WSDLException {
         if (param == null) {
             return;
         }
-        SOAPBody body = null;
-
         BindingInput bindingInput = definition.createBindingInput();
         bindingInput.setName(param.getName());
 
         operation.setBindingInput(bindingInput);
 
-        try {
-            body = (SOAPBody)extensionRegistry.createExtension(BindingInput.class,
-                                                               new QName(WSDLConstants.SOAP11_NAMESPACE,
-                                                                         "body"));
-        } catch (WSDLException e1) {
-            throw new ToolException(e1.getMessage(), e1);
-        }
-
+        SoapBody body = SOAPBindingUtil.createSoapBody(extensionRegistry, BindingInput.class, isSOAP12);
         if (jmethod.getSoapUse() == SOAPBinding.Use.LITERAL) {
             body.setUse("literal");
         } else {
@@ -246,23 +225,16 @@ public class BindingGenerator {
                 parts.add(parameter.getPartName());
             }
             body.setParts(parts);
-            SOAPHeader soapHeader = null;
+            SoapHeader soapHeader = null;
             for (JavaParameter jp : headerParams) {
-
-                try {
-                    soapHeader = (SOAPHeader)extensionRegistry
-                        .createExtension(BindingInput.class, new QName(WSDLConstants.SOAP11_NAMESPACE,
-                                                                       "header"));
-
-                    soapHeader.setMessage(new QName(param.getTargetNamespace(), param.getName()));
-                    soapHeader.setPart(jp.getPartName());
-                    soapHeader.setUse("literal");
-
-                } catch (WSDLException e) {
-                    throw new ToolException(e.getMessage(), e);
-                }
+                soapHeader = SOAPBindingUtil.createSoapHeader(extensionRegistry,
+                                                              BindingInput.class,
+                                                              isSOAP12);
+                soapHeader.setMessage(new QName(param.getTargetNamespace(), param.getName()));
+                soapHeader.setPart(jp.getPartName());
+                soapHeader.setUse("literal");
             }
-
+            
             if (jmethod.getSoapStyle() == SOAPBinding.Style.RPC) {
                 body.setNamespaceURI(param.getTargetNamespace());
             }

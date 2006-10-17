@@ -27,6 +27,7 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.WSDLModel;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class WSDLGenerator {
     private final WSDLModel wmodel;
@@ -59,11 +60,15 @@ public class WSDLGenerator {
         MessagePortTypeGenerator messagePortTypeGen = new MessagePortTypeGenerator(wmodel);
         messagePortTypeGen.generate();
         BindingGenerator bindingGen = new BindingGenerator(wmodel);
-        bindingGen.generate();
+        bindingGen.generate(isSOAP12());
         ServiceGenerator serviceGen = new ServiceGenerator(wmodel);
-        serviceGen.generate();
+        serviceGen.generate(isSOAP12());
         writeDefinition();
 
+    }
+
+    private boolean isSOAP12() {
+        return env.optionSet(ToolConstants.CFG_SOAP12);
     }
 
     private void preGenerate() {
@@ -78,7 +83,7 @@ public class WSDLGenerator {
         wmodel.setPortName(portTypeName);
 
     }
-
+   
     private boolean writeDefinition() {
 
         WSDLWriter writer = wsdlFactory.newWSDLWriter();
@@ -92,6 +97,7 @@ public class WSDLGenerator {
         }
 
         try {
+            SOAPBindingUtil.addSOAPNamespace(definition, isSOAP12());
             writer.writeWSDL(this.definition, outstream);
         } catch (javax.wsdl.WSDLException e) {
             throw new ToolException(e.getMessage(), e);

@@ -85,6 +85,7 @@ public final class ToolConstants {
     public static final String CFG_TRANSPORT = "transport";
     public static final String CFG_SERVICE = "service";
     public static final String CFG_BINDING_ATTR = "attrbinding";
+    public static final String CFG_SOAP12 = "soap12";
 
     // WSDL2Soap Constants
     public static final String CFG_STYLE = "style";

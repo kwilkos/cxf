@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import javax.wsdl.Service;
 import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
@@ -84,6 +85,49 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
+    }
+
+    public void testNewServiceSoap12() throws Exception {
+        String[] args = new String[] {"-soap12", "-transport", "http", 
+                                      "-e", "SOAPService", "-p", "SoapPort", "-n",
+                                      "Greeter_SOAPBinding", "-a", 
+                                      "http://localhost:9000/SOAPService/SoapPort", "-d",
+                                      output.getCanonicalPath(),
+                                      getLocation("/misctools_wsdl/hello_world_soap12.wsdl")};
+        WSDLToService.main(args);
+
+        File outputFile = new File(output, "hello_world_soap12-service.wsdl");
+        assertTrue("New wsdl file is not generated", outputFile.exists());
+        WSDLToServiceProcessor processor = new WSDLToServiceProcessor();
+        processor.setEnvironment(env);
+        try {
+            processor.parseWSDL(outputFile.getAbsolutePath());
+            Service service = processor.getWSDLDefinition().getService(
+                                                                       new QName(processor
+                                                                           .getWSDLDefinition()
+                                                                           .getTargetNamespace(),
+                                                                                 "SOAPService"));
+            if (service == null) {
+                fail("Element wsdl:service serviceins Missed!");
+            }
+            Iterator it = service.getPort("SoapPort").getExtensibilityElements().iterator();
+            if (service == null) {
+                fail("Element wsdl:port portins Missed!");
+            }
+
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof SOAP12Address) {
+                    SOAP12Address soapAddress = (SOAP12Address)obj;
+                    assertNotNull(soapAddress.getLocationURI());
+                    assertEquals("http://localhost:9000/SOAPService/SoapPort", soapAddress.getLocationURI());
+                    break;
+                }
+            }
+        } catch (ToolException e) {
+            fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
+        }
+        
     }
 
     public void testDefaultLocation() throws Exception {

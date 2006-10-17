@@ -52,6 +52,13 @@ wsdl2soap -i GreetPortType -n http://apache.org/hello_world_doc_lit -o Greeting.
 					<annotation>binding-name</annotation>
 				</associatedArgument>
 			</option>
+
+			<option id="soap12" maxOccurs="1">
+			    <annotation>
+				Specifies to generate SOAP 1.2 binding
+			    </annotation>
+			    <switch>soap12</switch>
+			</option>
 			
 			<option id="outputdir" maxOccurs="1">
                         <annotation>

@@ -56,7 +56,13 @@ java2wsdl -o hello.wsdl -t http://cxf.apache.org org.apache.hello_world_soap_htt
 		    <annotation>class-path</annotation>
 		</associatedArgument>
 	    </option>
-	    
+
+	    <option id="soap12" maxOccurs="1">
+		<annotation>
+		    Specify to generate SOAP 1.2 binding
+		</annotation>
+		<switch>soap12</switch>
+	    </option>
 
 	    <option id="tns" maxOccurs="1">
 		<annotation>

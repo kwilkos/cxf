@@ -86,6 +86,15 @@ wsdl2service -transport http -e servicename -p portname -n bindingname HelloWorl
 				    <annotation>address</annotation>
 				</associatedArgument>
 		</option>
+
+
+		<option id="soap12" maxOccurs="1">
+		    <annotation>
+			Specifies the SOAP version to SOAP 1.2
+		    </annotation>
+		    <switch>soap12</switch>
+		</option>
+
 	
 		<option id="destinationStyle" maxOccurs="1">
 		     	 <annotation>

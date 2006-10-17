@@ -38,10 +38,6 @@ import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.soap.SOAPBinding;
-import javax.wsdl.extensions.soap.SOAPBody;
-import javax.wsdl.extensions.soap.SOAPFault;
-import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 
@@ -49,6 +45,12 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
+import org.apache.cxf.tools.common.extensions.soap.SoapBody;
+import org.apache.cxf.tools.common.extensions.soap.SoapFault;
+import org.apache.cxf.tools.common.extensions.soap.SoapOperation;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
+
 
 public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
 
@@ -65,6 +67,10 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         validate();
         extReg = this.wsdlReader.getExtensionRegistry();
         doAppendBinding();
+    }
+
+    private boolean isSOAP12() {
+        return env.optionSet(ToolConstants.CFG_SOAP12);        
     }
 
     private void validate() throws ToolException {
@@ -159,8 +165,8 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
     private void doAppendBinding() throws ToolException {
         if (binding == null) {
             binding = wsdlDefinition.createBinding();
-            binding.setQName(new QName(wsdlDefinition.getTargetNamespace(), (String)env
-                .get(ToolConstants.CFG_BINDING)));
+            binding.setQName(new QName(wsdlDefinition.getTargetNamespace(),
+                                       (String)env.get(ToolConstants.CFG_BINDING)));
             binding.setUndefined(false);
             binding.setPortType(portType);
         }
@@ -189,15 +195,17 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        SOAPBinding soapBinding = null;
+
+        SOAPBindingUtil.addSOAPNamespace(wsdlDefinition, isSOAP12());
+        
+        SoapBinding soapBinding = null;
         try {
-            soapBinding = (SOAPBinding)extReg.createExtension(Binding.class, WSDLConstants.NS_SOAP_BINDING);
+            soapBinding = SOAPBindingUtil.createSoapBinding(extReg, isSOAP12());
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
             throw new ToolException(msg, wse);
         }
         soapBinding.setStyle((String)env.get(ToolConstants.CFG_STYLE));
-        soapBinding.setTransportURI(WSDLConstants.NS_SOAP11_HTTP_BINDING);
         binding.addExtensibilityElement(soapBinding);
     }
 
@@ -236,10 +244,10 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        SOAPOperation soapOperation = null;
+        SoapOperation soapOperation = null;
+        
         try {
-            soapOperation = (SOAPOperation)extReg.createExtension(BindingOperation.class,
-                                                                  WSDLConstants.NS_SOAP_OPERATION);
+            soapOperation = SOAPBindingUtil.createSoapOperation(extReg, isSOAP12());
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
             throw new ToolException(msg, wse);
@@ -269,13 +277,13 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         return bo;
     }
 
-    private SOAPBody getSoapBody(Class parent) throws ToolException {
+    private SoapBody getSoapBody(Class parent) throws ToolException {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        SOAPBody soapBody = null;
+        SoapBody soapBody = null;
         try {
-            soapBody = (SOAPBody)extReg.createExtension(parent, WSDLConstants.NS_SOAP_BODY);
+            soapBody = SOAPBindingUtil.createSoapBody(extReg, parent, isSOAP12());
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
             throw new ToolException(msg, wse);
@@ -305,9 +313,9 @@ public class WSDLToSoapProcessor extends AbstractWSDLToProcessor {
         if (extReg == null) {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
-        SOAPFault soapFault = null;
+        SoapFault  soapFault = null;
         try {
-            soapFault = (SOAPFault)extReg.createExtension(BindingFault.class, WSDLConstants.NS_SOAP_FAULT);
+            soapFault = SOAPBindingUtil.createSoapFault(extReg, isSOAP12());
         } catch (WSDLException wse) {
             Message msg = new Message("FAIL_TO_CREATE_SOAPBINDING", LOG);
             throw new ToolException(msg, wse);

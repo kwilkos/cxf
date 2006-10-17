@@ -25,12 +25,13 @@ import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.common.model.WSDLModel;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class ServiceGenerator {
     private static final String ADDRESS_URI = "http://localhost/changme";
@@ -46,6 +47,10 @@ public class ServiceGenerator {
     }
     
     public void generate() {
+        generate(false);
+    }
+    
+    public void generate(boolean isSOAP12) {
         Service service = definition.createService();
         service.setQName(new QName(WSDLConstants.WSDL_PREFIX, wmodel.getServiceName()));
         Port port = definition.createPort();
@@ -54,10 +59,9 @@ public class ServiceGenerator {
         String targetNameSpace = wmodel.getTargetNameSpace();
         binding.setQName(new QName(targetNameSpace, wmodel.getPortTypeName() + "Binding"));
         port.setBinding(binding);
-        SOAPAddress soapAddress = null;
+        SoapAddress soapAddress = null;
         try {
-            soapAddress = (SOAPAddress)extensionRegistry
-                .createExtension(Port.class, new QName(WSDLConstants.SOAP11_NAMESPACE, "address"));
+            soapAddress = SOAPBindingUtil.createSoapAddress(extensionRegistry, isSOAP12);
             soapAddress.setLocationURI(ADDRESS_URI);
         } catch (WSDLException e) {
             throw new ToolException(e.getMessage(), e);

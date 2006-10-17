@@ -41,7 +41,7 @@ public final class WSDLConstants {
 
     public static final String BINDING = "Binding";
     public static final String SOAP_HTTP_TRANSPORT = "http://schemas.xmlsoap.org/soap/http";
-    public static final String SOAP12_HTTP_TRANSPORT = "http://www.w3.org/2003/05/soap/bindings/http/";
+    public static final String SOAP12_HTTP_TRANSPORT = "http://www.w3.org/2003/05/soap/bindings/HTTP/";
 
     public static final String DOCUMENT = "document";
     public static final String RPC = "rpc";
@@ -62,15 +62,15 @@ public final class WSDLConstants {
     public static final QName QNAME_BINDING = new QName(NS_WSDL, "binding");
     public static final QName QNAME_DEFINITIONS = new QName(NS_WSDL, "definitions");
     public static final QName QNAME_DOCUMENTATION = new QName(NS_WSDL, "documentation");
-    public static final QName NS_SOAP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/soap/",
+    public static final QName NS_SOAP_BINDING_ADDRESS = new QName(SOAP11_NAMESPACE,
                                                                   "address");
     public static final QName NS_XMLHTTP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/http/",
                                                                      "address");
-    public static final QName NS_SOAP_BINDING = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "binding");
-    public static final QName NS_SOAP_OPERATION = new QName("http://schemas.xmlsoap.org/wsdl/soap/",
+    public static final QName NS_SOAP_BINDING = new QName(SOAP11_NAMESPACE, "binding");
+    public static final QName NS_SOAP_OPERATION = new QName(SOAP11_NAMESPACE,
                                                             "operation");
-    public static final QName NS_SOAP_BODY = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "body");
-    public static final QName NS_SOAP_FAULT = new QName("http://schemas.xmlsoap.org/wsdl/soap/", "fault");
+    public static final QName NS_SOAP_BODY = new QName(SOAP11_NAMESPACE, "body");
+    public static final QName NS_SOAP_FAULT = new QName(SOAP11_NAMESPACE, "fault");
 
     public static final QName NS_SOAP12_BINDING = new QName("http://schemas.xmlsoap.org/wsdl/soap12/",
                                                             "binding");

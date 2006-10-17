@@ -29,7 +29,6 @@ import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 
@@ -39,6 +38,8 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.jms.JMSAddress;
 import org.apache.cxf.tools.common.extensions.jms.JMSAddressSerializer;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
 
@@ -101,6 +102,10 @@ public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
         return (port == null) ? false : true;
     }
 
+    private boolean isSOAP12() {
+        return env.optionSet(ToolConstants.CFG_SOAP12);
+    }
+
     private boolean isBindingExisted() {
         Map bindings = wsdlDefinition.getBindings();
         if (bindings == null) {
@@ -142,7 +147,7 @@ public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
         try {
             wsdlWriter.writeWSDL(wsdlDefinition, outputWriter);
         } catch (WSDLException wse) {
-            Message msg = new Message("FAIl_TO_WRITE_WSDL", LOG);
+            Message msg = new Message("FAIL_TO_WRITE_WSDL", LOG);
             throw new ToolException(msg, wse);
         }
         try {
@@ -160,14 +165,14 @@ public class WSDLToServiceProcessor extends AbstractWSDLToProcessor {
             extReg = wsdlFactory.newPopulatedExtensionRegistry();
         }
         if ("http".equalsIgnoreCase((String)env.get(ToolConstants.CFG_TRANSPORT))) {
-            SOAPAddress soapAddress = null;
+            SoapAddress soapAddress = null;
             try {
-                soapAddress = (SOAPAddress)extReg.createExtension(Port.class,
-                                                                  WSDLConstants.NS_SOAP_BINDING_ADDRESS);
+                soapAddress = SOAPBindingUtil.createSoapAddress(extReg, isSOAP12());
             } catch (WSDLException wse) {
-                Message msg = new Message("FAIl_TO_CREATE_SOAPADDRESS", LOG);
+                Message msg = new Message("FAIL_TO_CREATE_SOAPADDRESS", LOG);
                 throw new ToolException(msg, wse);
             }
+            
             if (env.get(ToolConstants.CFG_ADDRESS) != null) {
                 soapAddress.setLocationURI((String)env.get(ToolConstants.CFG_ADDRESS));
             } else {

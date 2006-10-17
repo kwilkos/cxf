@@ -273,7 +273,7 @@ public class WSDLToXMLProcessor extends AbstractWSDLToProcessor {
             xmlHttpAddress = (XMLHttpAddress)extReg.createExtension(Port.class,
                                                                     WSDLConstants.NS_XMLHTTP_BINDING_ADDRESS);
         } catch (WSDLException wse) {
-            Message msg = new Message("FAIl_TO_CREATE_SOAPADDRESS", LOG);
+            Message msg = new Message("FAIL_TO_CREATE_SOAPADDRESS", LOG);
             throw new ToolException(msg);
         }
         if (env.get(ToolConstants.CFG_ADDRESS) != null) {

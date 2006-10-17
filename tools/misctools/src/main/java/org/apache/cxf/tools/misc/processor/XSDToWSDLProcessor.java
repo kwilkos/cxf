@@ -199,7 +199,7 @@ public class XSDToWSDLProcessor implements Processor {
         try {
             writer = fw.getWriter("", newName);
         } catch (IOException ioe) {
-            Message msg = new Message("FAIl_TO_WRITE_FILE", LOG, env.get(ToolConstants.CFG_OUTPUTDIR)
+            Message msg = new Message("FAIL_TO_WRITE_FILE", LOG, env.get(ToolConstants.CFG_OUTPUTDIR)
                                     + System.getProperty("file.seperator") + newName);
             throw new ToolException(msg, ioe);
         }
