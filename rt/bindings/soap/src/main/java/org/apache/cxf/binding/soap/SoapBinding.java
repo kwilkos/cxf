@@ -19,12 +19,8 @@
 
 package org.apache.cxf.binding.soap;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 
@@ -33,9 +29,6 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
     // default to support mtom, left to config to turn on this feature.
     private boolean mtomEnabled;
     
-    private List<Interceptor> in;
-    private List<Interceptor> out;
-    private List<Interceptor> fault;
     
     private SoapVersion version;
     
@@ -44,10 +37,6 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
     }
     
     public SoapBinding(SoapVersion v) {
-        in = new ArrayList<Interceptor>();
-        out = new ArrayList<Interceptor>();
-        fault = new ArrayList<Interceptor>();
-        
         version = v; 
     }
     
@@ -67,18 +56,6 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
             m.put(Message.MTOM_ENABLED, Boolean.TRUE);
         }
         return soapMessage;
-    }
-
-    public List<Interceptor> getFaultInterceptors() {
-        return fault;
-    }
-
-    public List<Interceptor> getInInterceptors() {
-        return in;
-    }
-
-    public List<Interceptor> getOutInterceptors() {
-        return out;
     }
 
     public boolean isMtomEnabled() {

@@ -90,15 +90,16 @@ public class LocalDestination implements Destination {
             return null;
         }
 
-        public void send(Message message) throws IOException {
+        public void send(final Message message) throws IOException {
 
             final PipedInputStream stream = new PipedInputStream();
-            final Exchange exchange = (Exchange)message.get(LocalConduit.IN_EXCHANGE);
-
+            final Exchange exchange = (Exchange)message.getExchange().get(LocalConduit.IN_EXCHANGE);
             final Runnable receiver = new Runnable() {
                 public void run() {
                     MessageImpl m = new MessageImpl();
-                    m.setExchange(exchange);
+                    if (exchange != null) {
+                        exchange.setInMessage(m);
+                    }
                     m.setContent(InputStream.class, stream);
                     conduit.getMessageObserver().onMessage(m);
                 }

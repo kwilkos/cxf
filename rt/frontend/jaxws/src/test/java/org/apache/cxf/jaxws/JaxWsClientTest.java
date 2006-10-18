@@ -23,13 +23,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.endpoint.ClientImpl;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
@@ -38,9 +42,12 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class JaxWsClientTest extends AbstractJaxWsTest {
+
+    static String responseMessage;
 
     @Override
     public void setUp() throws Exception {
@@ -52,19 +59,17 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         Destination d = localTransport.getDestination(ei);
         d.setMessageObserver(new EchoObserver());
     }
-    
+
     public void testCreate() throws Exception {
-        javax.xml.ws.Service s =
-            javax.xml.ws.Service.create(new QName("http://apache.org/hello_world_soap_http",
-                                                          "SoapPort"));
+        javax.xml.ws.Service s = javax.xml.ws.Service
+            .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
         assertNotNull(s);
-        
+
         try {
             s = javax.xml.ws.Service.create(new URL("file:/does/not/exist.wsdl"),
-                                            new QName("http://apache.org/hello_world_soap_http",
-                                                "SoapPort"));
+                                            new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
         } catch (ServiceConstructionException sce) {
-            //ignore, this is expected
+            // ignore, this is expected
         }
     }
 
@@ -73,27 +78,60 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         bean.setWsdlURL(resource);
-        bean.setBus(getBus());        
-        bean.setServiceClass(GreeterImpl.class);        
+        bean.setBus(getBus());
+        bean.setServiceClass(GreeterImpl.class);
         GreeterImpl greeter = new GreeterImpl();
         BeanInvoker invoker = new BeanInvoker(greeter);
         bean.setInvoker(invoker);
-        
+
         Service service = bean.create();
 
         String namespace = "http://apache.org/hello_world_soap_http";
         EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName(namespace, "SoapPort"));
         JaxWsEndpointImpl endpoint = new JaxWsEndpointImpl(getBus(), service, ei);
-        
+
         ClientImpl client = new ClientImpl(getBus(), endpoint);
-        
+
         BindingOperationInfo bop = ei.getBinding().getOperation(new QName(namespace, "sayHi"));
         assertNotNull(bop);
         bop = bop.getUnwrappedOperation();
         assertNotNull(bop);
+
+        responseMessage = "sayHiResponse.xml";
         Object ret[] = client.invoke(bop, new Object[0], null);
         assertNotNull(ret);
         assertEquals("Wrong number of return objects", 1, ret.length);
+
+        // test fault handling
+        bop = ei.getBinding().getOperation(new QName(namespace, "testDocLitFault"));
+        responseMessage = "testDocLitFault.xml";
+        try {
+            client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
+            fail("Should have returned a fault!");
+        } catch (BadRecordLitFault fault) {
+            // this is supposed to happen
+        }
+        
+        try {
+            client.getEndpoint().getOutInterceptors().add(new FaultThrower());
+            client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
+            fail("Should have returned a fault!");
+        } catch (Fault fault) {
+            // this is supposed to happen
+        } 
+    }
+
+    public static class FaultThrower extends AbstractPhaseInterceptor<Message> {
+        
+        public FaultThrower() {
+            super();
+            setPhase(Phase.PRE_LOGICAL);
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("Foo", (ResourceBundle)null));
+        }
+
     }
 
     static class EchoObserver implements MessageObserver {
@@ -104,11 +142,14 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
 
                 backChannel.send(message);
 
+                InputStream in = message.getContent(InputStream.class);
+                while (in.available() > 0) {
+                    in.read();
+                }
+
                 OutputStream out = message.getContent(OutputStream.class);
                 assertNotNull(out);
-                InputStream in = message.getContent(InputStream.class);
-                assertNotNull(in);
-                
+                in = getClass().getResourceAsStream(responseMessage);
                 copy(in, out, 2045);
 
                 out.close();

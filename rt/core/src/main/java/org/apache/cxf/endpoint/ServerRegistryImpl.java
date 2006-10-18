@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
@@ -63,6 +64,10 @@ public class ServerRegistryImpl implements ServerRegistry, BusLifeCycleListener 
         serversList.add(server);        
     }
 
+    public void unregister(Server server) {
+        serversList.remove(server);
+    }
+
     public List<Server> getServers() {
         return serversList;
     }
@@ -72,6 +77,7 @@ public class ServerRegistryImpl implements ServerRegistry, BusLifeCycleListener 
         
     }
 
+    @PreDestroy
     public void preShutdown() {
         // Shutdown the service       
         for (Server server : serversList) {            

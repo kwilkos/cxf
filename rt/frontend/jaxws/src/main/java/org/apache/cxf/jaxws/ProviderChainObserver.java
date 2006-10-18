@@ -83,7 +83,7 @@ public class ProviderChainObserver implements MessageObserver {
         chain.add(endpoint.getBinding().getOutInterceptors());
 
         chain.add(endpoint.getService().getInInterceptors());
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());
+        chain.setFaultObserver(endpoint.getOutFaultObserver());
 
         chain.doIntercept(message);
 

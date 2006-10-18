@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws.support;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
@@ -30,6 +31,7 @@ import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.mtom_xop.HelloImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.BeanInvoker;
+import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -51,13 +53,13 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         
         Service service = bean.create();
 
+        String ns = "http://apache.org/hello_world_soap_http";
         assertEquals("SOAPService", service.getName().getLocalPart());
-        assertEquals("http://apache.org/hello_world_soap_http", service.getName().getNamespaceURI());
+        assertEquals(ns, service.getName().getNamespaceURI());
         
         InterfaceInfo intf = service.getServiceInfo().getInterface();
         
-        OperationInfo op = intf.getOperation(
-            new QName("http://apache.org/hello_world_soap_http", "sayHi"));
+        OperationInfo op = intf.getOperation(new QName(ns, "sayHi"));
         
         Class wrapper = (Class) 
             op.getUnwrappedOperation().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS);
@@ -68,6 +70,20 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertNotNull(wrapper);
     
         assertEquals(invoker, service.getInvoker());
+        
+        op = intf.getOperation(new QName(ns, "testDocLitFault"));
+        Collection<FaultInfo> faults = op.getFaults();
+        assertEquals(2, faults.size());
+        
+        FaultInfo f = op.getFault(new QName(ns, "BadRecordLitFault"));
+        assertNotNull(f);
+        Class c = f.getProperty(Class.class.getName(), Class.class);
+        assertNotNull(c);
+        
+        assertEquals(1, f.getMessageParts().size());
+        MessagePartInfo mpi = f.getMessagePartByIndex(0);
+        c = mpi.getProperty(Class.class.getName(), Class.class);
+        assertNotNull(c);
     }
     
     public void testHolder() throws Exception {

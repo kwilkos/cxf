@@ -57,15 +57,17 @@ import org.apache.cxf.transport.MessageObserver;
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
     
     private static final Logger LOG = Logger.getLogger(ClientImpl.class.getName());
+
+    private static final String FINISHED = "exchange.finished";
     
-    Bus bus;
-    Endpoint endpoint;
-    Conduit initedConduit;
-    
+    private Bus bus;
+    private Endpoint endpoint;
+    private Conduit initedConduit;
+    private int synchronousTimeout = 100000; // default 10 second timeout
+
     public ClientImpl(Bus b, Endpoint e) {
         bus = b;
         endpoint = e;
-        
         getOutInterceptors().add(new MessageSenderInterceptor());
     }
 
@@ -73,11 +75,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return this.endpoint;
     }
 
-        
-    
     @SuppressWarnings("unchecked")
     public Object[] invoke(BindingOperationInfo oi, Object[] params, 
-                           Map<String, Object> context) {
+                           Map<String, Object> context) throws Exception {
         Map<String, Object> requestContext = null;
         Map<String, Object> responseContext = null;
         if (LOG.isLoggable(Level.FINE)) {
@@ -92,20 +92,17 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         setContext(requestContext, message);
         setParameters(params, message);
         Exchange exchange = new ExchangeImpl();
+
         if (null != requestContext) {
             exchange.putAll(requestContext);
         }
         exchange.setOneWay(oi.getOutput() == null);
 
         exchange.setOutMessage(message);
-        message.setExchange(exchange);
-        
-        // message.setContent(List.class, Arrays.asList(params));
         
         setOutMessageProperties(message, oi);
         setExchangeProperties(exchange, requestContext, oi);
         
-
         // setup chain
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
@@ -140,33 +137,51 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         conduit.setMessageObserver(this);
         
         // execute chain
-        
         chain.doIntercept(message);
 
-        if (message.getContent(Exception.class) != null) {
-            //exception trying to send the message
-            throw new RuntimeException(message.getContent(Exception.class));
+        // Check to see if there is a Fault from the outgoing chain
+        Exception ex = message.getContent(Exception.class);
+        
+        if (ex != null) {
+            throw ex;
         }
         
-        // correlate response        
-        if (conduit.getBackChannel() != null) {
-            // process partial response and wait for decoupled response
-        } else {
-            // process response: send was synchronous so when we get here we can assume that the 
-            // Exchange's inbound message is set and had been passed through the inbound interceptor chain.
+        // Wait for a response if we need to
+        if (!oi.getOperationInfo().isOneWay() 
+            && !Boolean.TRUE.equals(exchange.get(FINISHED))) {
+            synchronized (exchange) {
+                waitResponse(exchange);
+            }
         }
 
-        if (oi.getOutput() != null) {
-            synchronized (exchange) {
-                Message inMsg = waitResponse(exchange);
-                //set the inMsg context to response context                
-                if (null != responseContext && null != inMsg) {                   
-                    responseContext.putAll(inMsg);
-                    LOG.info("set responseContext to be" + responseContext);
-                }
-                return inMsg.getContent(List.class).toArray();
+        // Grab the response objects if there are any
+        List resList = null;
+        Message inMsg = exchange.getInMessage();
+        if (inMsg != null) {
+            if (null != responseContext) {                   
+                responseContext.putAll(inMsg);
+                LOG.info("set responseContext to be" + responseContext);
             }
-        } 
+            resList = inMsg.getContent(List.class);
+        }
+        
+        // check for an incoming fault
+        ex = getException(exchange);
+        
+        if (ex != null) {
+            throw ex;
+        }
+        
+        if (resList != null) {
+            return resList.toArray();
+        }
+        return null;
+    }
+
+    private Exception getException(Exchange exchange) {
+        if (exchange.getFaultMessage() != null) {
+            return exchange.getFaultMessage().getContent(Exception.class);
+        }
         return null;
     }
 
@@ -177,19 +192,12 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }        
     }
 
-    private Message waitResponse(Exchange exchange) {
-        while (exchange.getInMessage() == null) {
-            try {
-                exchange.wait();
-            } catch (InterruptedException e) {
-                //TODO - timeout
-            }
+    private void waitResponse(Exchange exchange) {
+        try {
+            exchange.wait(synchronousTimeout);
+        } catch (InterruptedException e) {
+            //TODO - timeout
         }
-        if (isException(exchange)) {
-            //TODO - exceptions 
-            throw new RuntimeException(exchange.getInMessage().getContent(Exception.class));
-        }
-        return exchange.getInMessage();
     }
 
     private void setParameters(Object[] params, Message message) {
@@ -234,10 +242,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             chain.doIntercept(message);
         } finally {
             synchronized (message.getExchange()) {
-                if (!isPartialResponse(message)) {
-                    message.getExchange().setInMessage(message);
-                    message.getExchange().notifyAll();
-                }
+                message.getExchange().put(FINISHED, Boolean.TRUE);
+                message.getExchange().notifyAll();
             }
         }
     }
@@ -258,21 +264,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
         return initedConduit;
     }
-    
-    private boolean isPartialResponse(Message in) {
-        //Message in = exchange.getInMessage();
-        boolean partial = in.getContent(List.class) == null
-                          && in.getContent(Exception.class) == null;
-        //if (partial) {
-            //exchange.setInMessage(null);
-        //}
-        return partial;
-    }
 
-    private boolean isException(Exchange exchange) {
-        return exchange.getInMessage().getContent(Exception.class) != null;
-    }
-    
     protected void setOutMessageProperties(Message message, BindingOperationInfo boi) {
         message.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
         message.put(Message.INBOUND_MESSAGE, Boolean.FALSE);
@@ -297,6 +289,12 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {
         // no-op
     }
-   
 
+    public int getSynchronousTimeout() {
+        return synchronousTimeout;
+    }
+
+    public void setSynchronousTimeout(int synchronousTimeout) {
+        this.synchronousTimeout = synchronousTimeout;
+    }
 }

@@ -353,7 +353,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
             
             //TODO if outMessage need to get the response
             Message inMessage = new MessageImpl();
-            inMessage.setExchange(outMessage.getExchange());            
+            outMessage.getExchange().setInMessage(inMessage);            
             //set the message header back to the incomeMessage
             //inMessage.put(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS, 
             //              outMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS));

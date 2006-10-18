@@ -35,6 +35,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.MessageObserver;
 
 /**
  * A PhaseInterceptorChain orders Interceptors according to the phase the
@@ -60,7 +61,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private State state;
     private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
-    private Interceptor faultInterceptor;
+    private MessageObserver faultObserver;
     
     public PhaseInterceptorChain(List<Phase> ps) {
         state = State.EXECUTING;
@@ -137,8 +138,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 message.setContent(Exception.class, ex);
                 unwind(message);
                 
-                if (faultInterceptor != null) {
-                    faultInterceptor.handleMessage(message);
+                if (faultObserver != null) {
+                    faultObserver.onMessage(message);
                 }
                 state = State.ABORTED;
             } 
@@ -172,6 +173,11 @@ public class PhaseInterceptorChain implements InterceptorChain {
 
     public void remove(Interceptor i) {
         // TODO
+    }
+    
+
+    public void abort() {
+        this.state = InterceptorChain.State.ABORTED;
     }
 
     public Iterator<Interceptor<? extends Message>> iterator() {
@@ -326,12 +332,15 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
     }
 
-    public Interceptor getFaultInterceptor() {
-        return faultInterceptor;
-    }
 
-    public void setFaultInterceptor(Interceptor faultInterceptor) {
-        this.faultInterceptor = faultInterceptor;
+
+    public MessageObserver getFaultObserver() {
+        return faultObserver;
+    }
+    
+
+    public void setFaultObserver(MessageObserver faultObserver) {
+        this.faultObserver = faultObserver;
     }
 
 }

@@ -206,7 +206,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                         && isMatchOperation(o.getName().getLocalPart(), opName.getLocalPart())) {
                     //if (o.getName().equals(opName)) {
                         selected = m;
-                        o.setProperty(Method.class.getName(), m);
                         break;
                     }
                 }
@@ -564,7 +563,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
             // Ignore XFireFaults because they don't need to be declared
             if (exClazz.equals(Exception.class) 
-                || exClazz.equals(Fault.class)
+                || Fault.class.isAssignableFrom(exClazz)
                 || exClazz.equals(RuntimeException.class)
                 || exClazz.equals(Throwable.class)) {
                 continue;
@@ -575,14 +574,26 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected FaultInfo addFault(final InterfaceInfo service, final OperationInfo op, Class exClass) {
-        // TODO
-        return null;
+        Class beanClass = getBeanClass(exClass);
+        
+        QName faultName = getFaultName(service, op, getBeanClass(exClass), getBeanClass(beanClass));
+        FaultInfo fi = op.addFault(faultName, faultName);
+        fi.setProperty(Class.class.getName(), exClass);
+        
+        MessagePartInfo mpi = fi.addMessagePart(faultName);
+        mpi.setProperty(Class.class.getName(), beanClass);
+        
+        return fi;
     }
 
-    protected QName getFaultName(Service service, OperationInfo o, Class exClass, Class beanClass) {
+    protected Class getBeanClass(Class exClass) {
+        return exClass;
+    }
+
+    protected QName getFaultName(InterfaceInfo service, OperationInfo o, Class exClass, Class beanClass) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            QName q = c.getFaultName(service, o, exClass, beanClass);
+            QName q = c.getFaultName(service, o, getBeanClass(exClass), getBeanClass(beanClass));
             if (q != null) {
                 return q;
             }
@@ -677,8 +688,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected Class getResponseWrapper(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Class cls = c.getResponseWrapper(selected);
-            if (cls != null) {
-                return cls;
+            if (getBeanClass(cls) != null) {
+                return getBeanClass(cls);
             }
         }
         return null;
@@ -686,8 +697,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected Class getRequestWrapper(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Class cls = c.getRequestWrapper(selected);
-            if (cls != null) {
-                return cls;
+            if (getBeanClass(cls) != null) {
+                return getBeanClass(cls);
             }
         }
         return null;

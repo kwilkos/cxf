@@ -22,6 +22,7 @@ package org.apache.cxf.jaxb;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -37,6 +38,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.greeter_control.types.GreetMe;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -54,7 +56,6 @@ import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createNiceControl;
-
 
 public class TestBase extends TestCase {
 
@@ -77,7 +78,9 @@ public class TestBase extends TestCase {
         BindingFactory bf = control.createMock(BindingFactory.class);
         Binding binding = control.createMock(Binding.class);
         expect(bf.createBinding(null)).andStubReturn(binding);
-
+        expect(binding.getInFaultInterceptors()).andStubReturn(new ArrayList<Interceptor>());
+        expect(binding.getOutFaultInterceptors()).andStubReturn(new ArrayList<Interceptor>());
+        
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bf);
 
         String ns = "http://apache.org/hello_world_soap_http";

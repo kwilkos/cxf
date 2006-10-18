@@ -36,6 +36,7 @@ import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.SoapVersionFactory;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -61,8 +62,6 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
 
         try {
-//            System.out.println("the xml fragment is ");
-//            System.out.println(XMLUtils.toString(StaxUtils.read(xmlReader)));
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
@@ -88,6 +87,18 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 }
                 // advance just past body.
                 xmlReader.next();
+
+                while (xmlReader.isWhiteSpace()) {
+                    xmlReader.next();
+                }
+                
+                if (message.getVersion().getFault().equals(xmlReader.getName())) {
+                    Endpoint ep = message.getExchange().get(Endpoint.class);
+                    message.getInterceptorChain().abort();
+                    if (ep.getInFaultObserver() != null) {
+                        ep.getInFaultObserver().onMessage(message);
+                    }
+                }
             }
         } catch (XMLStreamException e) {
             throw new SoapFault(new Message("XML_STREAM_EXC", BUNDLE), e, 

@@ -16,17 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.interceptor;
 
-package org.apache.cxf.service;
+import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 
-import javax.xml.namespace.QName;
+public class OutFaultChainInitiatorObserver extends AbstractFaultChainIntiatorObserver {
 
-public interface ServiceManager {
-    
-    void register(Service service);
-    
-    void unregister(Service service);
-    
-    Service getService(QName name);
-    
+    public OutFaultChainInitiatorObserver(Bus bus) {
+        super(bus);
+    }
+
+    protected void initializeInterceptors(Exchange ex, PhaseInterceptorChain chain) {
+        Endpoint e = ex.get(Endpoint.class);
+        
+        chain.add(e.getOutFaultInterceptors());
+        chain.add(e.getBinding().getOutFaultInterceptors());
+        chain.add(e.getService().getOutFaultInterceptors());
+        chain.add(getBus().getOutFaultInterceptors());
+    }
 }

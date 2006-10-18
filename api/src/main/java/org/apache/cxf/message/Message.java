@@ -47,6 +47,7 @@ public interface Message extends Map<String, Object> {
 
 
     String getId();
+    void setId(String id);
     
     InterceptorChain getInterceptorChain();
     void setInterceptorChain(InterceptorChain chain);

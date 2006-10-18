@@ -100,7 +100,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                           BindingOperationInfo oi, 
                           Object[] params, 
                           Object[] paramsWithOutHolder, 
-                          Map<String, Object> context) {
+                          Map<String, Object> context) throws Exception {
         Object rawRet[] = client.invoke(oi, paramsWithOutHolder, context);
 
         if (rawRet != null && rawRet.length != 0) {

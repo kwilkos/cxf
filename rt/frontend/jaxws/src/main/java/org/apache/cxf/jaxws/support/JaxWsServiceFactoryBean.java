@@ -29,9 +29,9 @@ import java.util.List;
 
 import javax.wsdl.Operation;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Holder;
-import javax.xml.ws.WebFault;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -169,14 +169,21 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     }
     
     private void setFaultClassInfo(OperationInfo o, Method selected) {
-        for (FaultInfo fi : o.getFaults()) {
-            int i = 0;
-            Class<?> cls = selected.getExceptionTypes()[i];
-            fi.getMessagePartByIndex(0).setProperty(Class.class.getName(), cls);
-            if (cls.isAnnotationPresent(WebFault.class)) {
-                fi.getMessagePartByIndex(i).setProperty(WebFault.class.getName(), Boolean.TRUE);
+        Class[] types = selected.getExceptionTypes();
+        for (int i = 0; i < types.length; i++) {
+            Class exClass = types[i];
+            Class beanClass = getBeanClass(exClass);
+            
+            QName name = getFaultName(o.getInterface(), o, exClass, beanClass);
+            
+            for (FaultInfo fi : o.getFaults()) {
+                for (MessagePartInfo mpi : fi.getMessageParts()) {
+                    if (mpi.getConcreteName().equals(name)) {
+                        fi.setProperty(Class.class.getName(), exClass);
+                        mpi.setProperty(Class.class.getName(), beanClass);
+                    }
+                }
             }
-            i++;
         }
     }
     /**

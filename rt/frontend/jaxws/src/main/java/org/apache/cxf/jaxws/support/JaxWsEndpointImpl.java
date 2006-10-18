@@ -28,6 +28,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapBinding;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.interceptor.ClientFaultConverter;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
@@ -55,7 +56,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         super(bus, s, ei);
 
         createJaxwsBinding();
-        
+
         List<Interceptor> handlerInterceptors;
                 
         handlerInterceptors = new ArrayList<Interceptor>();
@@ -76,6 +77,8 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         List<Interceptor> out = super.getOutInterceptors();
         out.addAll(handlerInterceptors);
         out.add(new WrapperClassOutInterceptor());
+
+        getInFaultInterceptors().add(new ClientFaultConverter());
     }
     
     public Binding getJaxwsBinding() {

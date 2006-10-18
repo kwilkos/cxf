@@ -29,6 +29,7 @@ import javax.jws.WebService;
 import javax.xml.namespace.QName;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.WebFault;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
@@ -39,6 +40,7 @@ import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.OperationInfo;
 
 public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
@@ -211,6 +213,24 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             }
         }
         
+        return null;
+    }
+
+    @Override
+    public QName getFaultName(InterfaceInfo service, OperationInfo o, Class<?> exClass, Class<?> beanClass) {
+        WebFault fault = exClass.getAnnotation(WebFault.class);
+        if (fault != null) {
+            String name = fault.name();
+            if (name.length() == 0) {
+                name = exClass.getSimpleName();
+            }
+            String ns = fault.targetNamespace();
+            if (ns.length() == 0) {
+                ns = service.getName().getNamespaceURI();
+            }
+            
+            return new QName(ns, name);
+        }
         return null;
     }
     

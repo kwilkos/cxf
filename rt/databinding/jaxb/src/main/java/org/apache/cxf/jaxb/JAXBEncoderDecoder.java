@@ -38,7 +38,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
@@ -57,7 +56,6 @@ import org.w3c.dom.Node;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.PackageUtils;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.Fault;
 
 /**
@@ -355,7 +353,7 @@ public final class JAXBEncoderDecoder {
         } catch (Exception ex) {
             throw new Fault(new Message("MARSHAL_ERROR", BUNDLE), ex);
         }
-        return (elName == null) ? obj : getElementValue(obj, elName);
+        return getElementValue(obj, elName);
     }
 
     public static Object getElementValue(Object obj, QName elName) {
@@ -363,24 +361,21 @@ public final class JAXBEncoderDecoder {
             return null;
         }
 
-        if (obj instanceof JAXBElement<?>) {
-            JAXBElement<?> el = (JAXBElement<?>)obj;
-            if (isSame(el.getName(), elName)) {
-                obj = el.getValue();
-            }
+        if (obj instanceof JAXBElement) {
+            return ((JAXBElement<?>)obj).getValue();
         }
         return obj;
     }
 
-    private static boolean isSame(QName messageQName, QName methodQName) {
-        boolean same = false;
-        if (StringUtils.isEmpty(messageQName.getNamespaceURI())) {
-            same = messageQName.getLocalPart().equals(methodQName.getLocalPart());
-        } else {
-            same = messageQName.equals(methodQName);
-        }
-        return same;
-    }
+//    private static boolean isSame(QName messageQName, QName methodQName) {
+//        boolean same = false;
+//        if (StringUtils.isEmpty(messageQName.getNamespaceURI())) {
+//            same = messageQName.getLocalPart().equals(methodQName.getLocalPart());
+//        } else {
+//            same = messageQName.equals(methodQName);
+//        }
+//        return same;
+//    }
 
     public static Class<?> getClassFromType(Type t) {
         if (t instanceof Class) {

@@ -419,7 +419,7 @@ public class ClientServerTest extends ClientServerTestBase {
     
     
  
-    public void xtestFaults() throws Exception {
+    public void testFaults() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         

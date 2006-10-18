@@ -104,7 +104,7 @@ lengths, if/try depths, etc...
             <property name="max" value="40"/>
         </module>
         <module name="ExecutableStatementCount">
-            <property name="max" value="50"/>
+            <property name="max" value="75"/>
         </module>
         <module name="FileLength">
             <property name="max" value="3000"/>

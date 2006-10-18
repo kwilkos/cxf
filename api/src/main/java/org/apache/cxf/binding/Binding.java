@@ -22,6 +22,10 @@ package org.apache.cxf.binding;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.message.Message;
 
+/**
+ * A Binding provides interceptors and message creation logic for a 
+ * specific protocol binding.
+ */
 public interface Binding extends InterceptorProvider {
     
     Message createMessage();

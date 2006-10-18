@@ -37,7 +37,7 @@ public interface Client extends InterceptorProvider {
      */
     Object[] invoke(BindingOperationInfo oi,
                     Object[] params,
-                    Map<String, Object> context);
+                    Map<String, Object> context) throws Exception;
 
     Endpoint getEndpoint();
    

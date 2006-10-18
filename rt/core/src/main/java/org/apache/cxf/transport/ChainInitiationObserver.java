@@ -41,10 +41,12 @@ public class ChainInitiationObserver implements MessageObserver {
 
     public void onMessage(Message m) {
         Message message = endpoint.getBinding().createMessage(m);
-        Exchange exchange = new ExchangeImpl();
-        exchange.setInMessage(message);
-        message.setExchange(exchange);
-        setExchangProperties(exchange, message);
+        Exchange exchange = message.getExchange();
+        if (exchange == null) {
+            exchange = new ExchangeImpl();
+            exchange.setInMessage(message);
+        }
+        setExchangeProperties(exchange, message);
         
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
@@ -57,12 +59,12 @@ public class ChainInitiationObserver implements MessageObserver {
         chain.add(endpoint.getBinding().getInInterceptors());
         chain.add(endpoint.getService().getInInterceptors());
 
-        chain.setFaultInterceptor(endpoint.getFaultInterceptor());
+        chain.setFaultObserver(endpoint.getOutFaultObserver());
        
         chain.doIntercept(message);        
     }
     
-    protected void setExchangProperties(Exchange exchange, Message m) {
+    protected void setExchangeProperties(Exchange exchange, Message m) {
         exchange.put(Endpoint.class, endpoint);
         exchange.put(Service.class, endpoint.getService());
         exchange.put(Binding.class, endpoint.getBinding());

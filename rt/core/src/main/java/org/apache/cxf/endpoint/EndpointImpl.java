@@ -34,11 +34,13 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.interceptor.FaultChainIntiatorInterceptor;
-import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.AbstractFaultChainIntiatorObserver;
+import org.apache.cxf.interceptor.InFaultChainInitiatorObserver;
+import org.apache.cxf.interceptor.OutFaultChainInitiatorObserver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.MessageObserver;
 
 public class EndpointImpl extends AbstractBasicInterceptorProvider implements Endpoint, Configurable {
 
@@ -50,7 +52,8 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
     private EndpointInfo endpointInfo;
     private Executor executor;
     private Bus bus;
-    private Interceptor faultInterceptor;
+    private AbstractFaultChainIntiatorObserver inFaultObserver;
+    private AbstractFaultChainIntiatorObserver outFaultObserver;
     private boolean validating;
     
     public EndpointImpl(Bus bus, Service s, QName endpointName) throws EndpointException {
@@ -65,10 +68,13 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
         this.bus = bus;
         service = s;
         endpointInfo = ei;
-        faultInterceptor = new FaultChainIntiatorInterceptor(this, bus);        
-        createBinding(endpointInfo.getBinding());
-    }
 
+        createBinding(endpointInfo.getBinding());
+        
+        inFaultObserver = new InFaultChainInitiatorObserver(bus);
+        outFaultObserver = new OutFaultChainInitiatorObserver(bus);
+    }
+    
     public String getBeanName() {
         return endpointInfo.getName().toString();
     }
@@ -79,14 +85,6 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
 
     public void setValidating(boolean v) {
         validating = v;
-    }
-
-    public Interceptor getFaultInterceptor() {
-        return faultInterceptor;
-    }
-
-    public void setFaultInterceptor(Interceptor faultInterceptor) {
-        this.faultInterceptor = faultInterceptor;
     }
 
     public EndpointInfo getEndpointInfo() {
@@ -133,5 +131,13 @@ public class EndpointImpl extends AbstractBasicInterceptorProvider implements En
             }
         }    
     }
+    
 
+    public MessageObserver getInFaultObserver() {
+        return inFaultObserver;
+    }
+
+    public MessageObserver getOutFaultObserver() {
+        return outFaultObserver;
+    }
 }

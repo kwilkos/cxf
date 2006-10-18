@@ -92,6 +92,10 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getId();
     }
 
+    public void setId(String id) {
+        message.setId(id);
+    }
+    
     public InterceptorChain getInterceptorChain() {
         return message.getInterceptorChain();
     }

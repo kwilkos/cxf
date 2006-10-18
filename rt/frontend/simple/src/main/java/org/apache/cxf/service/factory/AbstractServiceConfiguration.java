@@ -24,7 +24,6 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
@@ -79,7 +78,7 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public QName getFaultName(Service service, OperationInfo o, Class exClass, Class beanClass) {
+    public QName getFaultName(InterfaceInfo service, OperationInfo o, Class<?> exClass, Class<?> beanClass) {
         return null;
     }
 

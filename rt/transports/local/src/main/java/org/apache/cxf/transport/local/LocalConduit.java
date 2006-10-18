@@ -27,6 +27,7 @@ import java.io.PipedInputStream;
 import org.apache.cxf.binding.attachment.CachedOutputStream;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
@@ -60,7 +61,7 @@ public class LocalConduit implements Conduit {
         return destination.getAddress();
     }
 
-    public void send(Message message) throws IOException {
+    public void send(final Message message) throws IOException {
         final PipedInputStream stream = new PipedInputStream();
         final LocalConduit conduit = this;
         final Exchange exchange = message.getExchange();
@@ -76,8 +77,10 @@ public class LocalConduit implements Conduit {
                 m.setContent(InputStream.class, stream);
                 m.setDestination(destination);
                 m.put(IN_CONDUIT, conduit);
-                m.put(IN_EXCHANGE, exchange);
                 
+                ExchangeImpl ex = new ExchangeImpl();
+                ex.setInMessage(m);
+                ex.put(IN_EXCHANGE, exchange);
                 destination.getMessageObserver().onMessage(m);
             }
         };

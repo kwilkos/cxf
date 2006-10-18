@@ -20,28 +20,31 @@
 package org.apache.cxf.interceptor;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.binding.Binding;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.transport.MessageObserver;
 
-public class FaultChainIntiatorInterceptor implements Interceptor<Message> {
-    Endpoint endpoint;
-    Bus bus;
+public abstract class AbstractFaultChainIntiatorObserver implements MessageObserver {
+    private Bus bus;
 
-    public FaultChainIntiatorInterceptor(Endpoint endpoint, Bus bus) {
-        super();
-        this.endpoint = endpoint;
+    public AbstractFaultChainIntiatorObserver(Bus bus) {
         this.bus = bus;
     }
 
-    public void handleMessage(Message m) {
-        Message message = m.getExchange().getFaultMessage();
-        if (message == null) {
-            message = new MessageImpl();
-            m.getExchange().setFaultMessage(message);
+    public void onMessage(Message m) {
+        Message faultMessage = m.getExchange().getFaultMessage();
+        if (faultMessage == null) {
+            faultMessage = new MessageImpl();
         }
+        
+        faultMessage = m.getExchange().get(Binding.class).createMessage(faultMessage);
+        m.getExchange().setFaultMessage(faultMessage);
+        faultMessage.putAll(m);
+        MessageImpl.copyContent(m, faultMessage);
         
         Exception e = m.getContent(Exception.class);
         Fault f;
@@ -50,20 +53,22 @@ public class FaultChainIntiatorInterceptor implements Interceptor<Message> {
         } else {
             f = new Fault(e);
         }
-        message.setContent(Exception.class, f);
+        faultMessage.setContent(Exception.class, f);
         
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
             .getOutPhases());
-        chain.add(bus.getOutFaultInterceptors());
-        chain.add(endpoint.getOutFaultInterceptors());
-        chain.add(endpoint.getBinding().getOutFaultInterceptors());
-        chain.add(endpoint.getService().getOutFaultInterceptors());
-
-        message.setInterceptorChain(chain);
-        chain.doIntercept(message);
+        initializeInterceptors(faultMessage.getExchange(), chain);
+        
+        faultMessage.setInterceptorChain(chain);
+        chain.doIntercept(faultMessage);
     }
 
-    public void handleFault(Message message) {
+    protected void initializeInterceptors(Exchange ex, PhaseInterceptorChain chain) {
+        
+    }
+
+    public Bus getBus() {
+        return bus;
     }
 }
