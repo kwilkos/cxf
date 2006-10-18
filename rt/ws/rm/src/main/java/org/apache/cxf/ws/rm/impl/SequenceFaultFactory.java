@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.SequenceFault;
 import org.apache.cxf.ws.rm.SequenceFaultType;
 
@@ -37,7 +38,7 @@ public class SequenceFaultFactory {
 
     SequenceFault createUnknownSequenceFault(Identifier sid) {
         SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
-        sf.setFaultCode(RMUtils.getRMConstants().getUnknownSequenceFaultCode());
+        sf.setFaultCode(RMConstants.getUnknownSequenceFaultCode());
         Message msg = new Message("UNKNOWN_SEQUENCE_EXC", LOG, sid.getValue());
         return new SequenceFault(msg.toString(), sf);
     }    

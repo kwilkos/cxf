@@ -48,7 +48,9 @@ import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMContextUtils;
+import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceFault;
@@ -128,7 +130,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
 
     public void handleMessage(Message msg) throws Fault {
         try {
-            if (ContextUtils.isOutbound(msg)) {
+            if (RMContextUtils.isOutbound(msg)) {
                 handleOutbound(msg, true);
             } else {
                 handleInbound(msg, true);
@@ -141,7 +143,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
     
     public void handleFault(Message msg) {
         try {
-            if (ContextUtils.isOutbound(msg)) {
+            if (RMContextUtils.isOutbound(msg)) {
                 handleOutbound(msg, true);
             } else {
                 handleInbound(msg, true);
@@ -176,21 +178,21 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         boolean isApplicationMessage = isAplicationMessage(action);
         System.out.println("isApplicationMessage: " + isApplicationMessage);
         
-        RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(message, true);
+        RMProperties rmpsOut = (RMProperties)RMContextUtils.retrieveRMProperties(message, true);
         if (null == rmpsOut) {
-            rmpsOut = new RMPropertiesImpl();
+            rmpsOut = new RMProperties();
             RMContextUtils.storeRMProperties(message, rmpsOut, true);
         } else {
             System.out.println("Got existing RMPropertiesImpl");
         }
         
-        RMPropertiesImpl rmpsIn = null;
+        RMProperties rmpsIn = null;
         Identifier inSeqId = null;
         BigInteger inMessageNumber = null;
         
         if (isApplicationMessage) {
                         
-            rmpsIn = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(message, false);
+            rmpsIn = (RMProperties)RMContextUtils.retrieveRMProperties(message, false);
             
             if (null != rmpsIn && null != rmpsIn.getSequence()) {
                 inSeqId = rmpsIn.getSequence().getIdentifier();
@@ -224,7 +226,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         // created Acknowledgement messages only)
 
         if (isApplicationMessage 
-            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)) {
+            || RMConstants.getSequenceAcknowledgmentAction().equals(action)) {
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
             addAcknowledgements(destination, rmpsOut, inSeqId, to);
@@ -293,19 +295,19 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
     }
     
     boolean isAplicationMessage(String action) {
-        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)
-            || RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)
-            || RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)
-            || RMUtils.getRMConstants().getLastMessageAction().equals(action)
-            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)
-            || RMUtils.getRMConstants().getSequenceInfoAction().equals(action)) {
+        if (RMConstants.getCreateSequenceAction().equals(action)
+            || RMConstants.getCreateSequenceResponseAction().equals(action)
+            || RMConstants.getTerminateSequenceAction().equals(action)
+            || RMConstants.getLastMessageAction().equals(action)
+            || RMConstants.getSequenceAcknowledgmentAction().equals(action)
+            || RMConstants.getSequenceInfoAction().equals(action)) {
             return false;
         }
         return true;
     }
     
     void addAcknowledgements(Destination destination, 
-                             RMPropertiesImpl rmpsOut, 
+                             RMProperties rmpsOut, 
                              Identifier inSeqId, 
                              AttributedURI to) {
 
@@ -364,8 +366,8 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
                 } else {
                     acksTo = VersionTransformer.convert(maps.getReplyTo());
                     // for oneways
-                    if (Names.WSA_NONE_ADDRESS.equals(acksTo.getAddress().getValue())) {
-                        acksTo = RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS);
+                    if (RMConstants.WSA_NONE_ADDRESS.equals(acksTo.getAddress().getValue())) {
+                        acksTo = RMUtils.createReference(RMConstants.WSA_ANONYMOUS_ADDRESS);
                     }
                 }
                 

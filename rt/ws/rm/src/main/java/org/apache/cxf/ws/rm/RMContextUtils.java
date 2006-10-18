@@ -30,10 +30,32 @@ public final class RMContextUtils {
     protected RMContextUtils() {
     }
     
+    /**
+     * Determine if message is outbound.
+     * 
+     * @param message the current Message
+     * @return true iff the message direction is outbound
+     */
+    public static boolean isOutbound(Message message) {
+        return org.apache.cxf.ws.addressing.ContextUtils.isOutbound(message);
+    }
+    
+    /**
+     * Retrieve the RM properties from the current message.
+     * @param message the current message
+     * @param outbound true iff the message direction is outbound
+     * @return the RM properties
+     */
     public static RMProperties retrieveRMProperties(Message message, boolean outbound) {
         return (RMProperties)message.get(getRMPropertiesKey(outbound));
     }
     
+    /**
+     * Store the RM properties in the current message.
+     * @param message the current message
+     * @param rmps the RM properties
+     * @param outbound iff the message direction is outbound
+     */
     public static void storeRMProperties(Message message, RMProperties rmps, boolean outbound) {
         String key = getRMPropertiesKey(outbound);
         message.put(key, rmps);
@@ -43,5 +65,7 @@ public final class RMContextUtils {
         return outbound ? RMMessageConstants.RM_PROPERTIES_OUTBOUND 
             : RMMessageConstants.RM_PROPERTIES_INBOUND;
     }
+    
+    
     
 }

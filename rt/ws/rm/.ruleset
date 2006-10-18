@@ -41,7 +41,7 @@
   <rule ref="rulesets/basic.xml/UnnecessaryConversionTemporary"/>
   <rule ref="rulesets/basic.xml/UnnecessaryFinalModifier"/>
   <rule ref="rulesets/basic.xml/UnnecessaryReturn"/>
-  <rule ref="rulesets/basic.xml/UselessOverridingMethod"/>
+  <!--rule ref="rulesets/basic.xml/UselessOverridingMethod"/-->
   
 <!--<rule ref="rulesets/braces.xml/ForLoopsMustUseBraces"/>-->
 <!--<rule ref="rulesets/braces.xml/IfElseStmtsMustUseBraces"/>-->

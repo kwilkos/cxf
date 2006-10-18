@@ -27,22 +27,20 @@ import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyConstantsImpl;
-import org.apache.cxf.ws.rm.RMConstants;
+
 // import org.apache.cxf.ws.rm.persistence.PersistenceUtils;
 
 public final class RMUtils {
    
     private static final org.apache.cxf.ws.addressing.v200408.ObjectFactory WSA_FACTORY;
     private static final org.apache.cxf.ws.rm.ObjectFactory WSRM_FACTORY;
-    private static final RMConstants WSRM_CONSTANTS;
     private static final AddressingConstants WSA_CONSTANTS; 
     private static final PolicyConstants WSP_CONSTANTS;
     // private static final PersistenceUtils WSRM_PERSISTENCE_UTILS;
     
     static {
         WSA_FACTORY = new org.apache.cxf.ws.addressing.v200408.ObjectFactory();
-        WSRM_FACTORY = new org.apache.cxf.ws.rm.ObjectFactory();
-        WSRM_CONSTANTS = new RMConstantsImpl();        
+        WSRM_FACTORY = new org.apache.cxf.ws.rm.ObjectFactory();        
         WSA_CONSTANTS = new AddressingConstantsImpl();
         WSP_CONSTANTS = new PolicyConstantsImpl();
         // WSRM_PERSISTENCE_UTILS = new PersistenceUtils();       
@@ -57,10 +55,6 @@ public final class RMUtils {
     
     public static org.apache.cxf.ws.rm.ObjectFactory getWSRMFactory() {
         return WSRM_FACTORY;
-    }
-    
-    public static RMConstants getRMConstants() {
-        return WSRM_CONSTANTS;
     }
     
     public static AddressingConstants getAddressingConstants() {

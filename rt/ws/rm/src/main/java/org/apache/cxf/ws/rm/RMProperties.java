@@ -19,48 +19,58 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Abstraction of Reliable Messaging Properties. 
- */
+import org.apache.cxf.ws.rm.impl.RMUtils;
 
-public interface RMProperties {
+public class RMProperties {
+    private SequenceType sequence;
+    private Collection<SequenceAcknowledgement> acks;
+    private Collection<AckRequestedType> acksRequested;
     
-    /**
-     * Accessor for the <b>Sequence</b> property.
-     * @return current value of Sequence property
-     */
-    SequenceType getSequence();
+    public Collection<SequenceAcknowledgement> getAcks() {
+        return acks;
+    }
     
-    /**
-     * Mutator for the <b>Sequence</b> property.
-     * @param st new value for Sequence property
-     */
-    void setSequence(SequenceType st);
+    public Collection<AckRequestedType> getAcksRequested() {
+        return acksRequested;
+    }
     
-    /**
-     * Accessor for the <b>Acks</b> property.
-     * @return current value of Acks property
-     */
-    Collection<SequenceAcknowledgement> getAcks();
+    public SequenceType getSequence() {
+        return sequence;
+    }
     
-    /**
-     * Mutator for the <b>Acks</b> property.
-     * @param acks new value for Acks property
-     */
-    void setAcks(Collection<SequenceAcknowledgement> acks);
+    public void setAcks(Collection<SequenceAcknowledgement> a) {
+        acks = a;
+    }
     
-    /**
-     * Accessor for the <b>AcksRequested</b> property.
-     * @return current value of AcksRequested property
-     */
-    Collection<AckRequestedType> getAcksRequested();
+    public void setAcksRequested(Collection<AckRequestedType> ar) {
+        acksRequested = ar;       
+    }
     
-    /**
-     * Mutator for the <b>AcksRequested</b> property.
-     * @param acks new value for AcksRequested property
-     */
-    void setAcksRequested(Collection<AckRequestedType> acks);    
-
+    public void setSequence(SequenceType s) {
+        sequence = s;
+    }
+    
+    public void setSequence(SourceSequence seq) {
+        SequenceType s = RMUtils.getWSRMFactory().createSequenceType();
+        s.setIdentifier(seq.getIdentifier());
+        s.setMessageNumber(seq.getCurrentMessageNr());   
+        if (seq.isLastMessage()) {
+            s.setLastMessage(new SequenceType.LastMessage());
+        }
+        setSequence(s);
+    }
+    
+    public void addAck(DestinationSequence seq) {
+        if (null == acks) {
+            acks = new ArrayList<SequenceAcknowledgement>();
+        }
+        SequenceAcknowledgement ack = seq.getAcknowledgment();
+        acks.add(ack);
+        // TODO: move to caller
+        // seq.acknowledgmentSent();
+    }
+  
 }

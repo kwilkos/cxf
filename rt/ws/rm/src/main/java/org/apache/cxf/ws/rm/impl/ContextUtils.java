@@ -44,16 +44,6 @@ public final class ContextUtils {
     }
 
     /**
-     * Determine if message is outbound.
-     * 
-     * @param message the current Message
-     * @return true iff the message direction is outbound
-     */
-    static boolean isOutbound(Message message) {
-        return org.apache.cxf.ws.addressing.ContextUtils.isOutbound(message);
-    }
-
-    /**
      * Determine if current messaging role is that of requestor.
      * 
      * @param message the current Message

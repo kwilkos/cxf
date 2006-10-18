@@ -34,6 +34,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.Identifier;
+import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 import org.apache.cxf.ws.rm.SequenceFault;
@@ -82,7 +83,7 @@ public class DestinationSequenceImpl extends AbstractSequenceImpl implements Des
     public void acknowledge(BigInteger messageNumber) throws SequenceFault {
         if (null != lastMessageNumber && messageNumber.compareTo(lastMessageNumber) > 0) {
             SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
-            sf.setFaultCode(RMUtils.getRMConstants().getLastMessageNumberExceededFaultCode());
+            sf.setFaultCode(RMConstants.getLastMessageNumberExceededFaultCode());
             Message msg = new Message("LAST_MESSAGE_NUMBER_EXCEEDED_EXC", LOG, this);
             throw new SequenceFault(msg.toString(), sf);
         }
@@ -176,7 +177,7 @@ public class DestinationSequenceImpl extends AbstractSequenceImpl implements Des
     boolean canPiggybackAckOnPartialResponse() {
         // TODO: should also check if we allow breaking the WI Profile rule by which no headers
         // can be included in a HTTP response
-        return getAcksTo().getAddress().getValue().equals(Names.WSA_ANONYMOUS_ADDRESS);
+        return getAcksTo().getAddress().getValue().equals(RMConstants.WSA_ANONYMOUS_ADDRESS);
     }
      
     final void setDestination(Destination d) {

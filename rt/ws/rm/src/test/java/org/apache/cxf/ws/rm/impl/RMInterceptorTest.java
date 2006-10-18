@@ -45,6 +45,7 @@ import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.RMMessageConstants;
+import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.SequenceFault;
 import org.apache.cxf.ws.rm.interceptor.SequenceTerminationPolicyType;
@@ -239,7 +240,7 @@ public class RMInterceptorTest extends TestCase {
             RMInterceptor.class.getDeclaredMethod("getSequence", 
                 new Class[] {Identifier.class, Message.class, AddressingProperties.class}),
             RMInterceptor.class.getDeclaredMethod("addAcknowledgements",
-                new Class[] {Destination.class, RMPropertiesImpl.class, Identifier.class, 
+                new Class[] {Destination.class, RMProperties.class, Identifier.class, 
                              AttributedURI.class})            
         };
         RMInterceptor rmi = control.createMock(RMInterceptor.class, mocked);       
@@ -247,7 +248,7 @@ public class RMInterceptorTest extends TestCase {
         EasyMock.expect(message.get(Message.REQUESTOR_ROLE)).andReturn(Boolean.TRUE).anyTimes();        
         EasyMock.expect(message.get(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES_OUTBOUND))
             .andReturn(maps).anyTimes();
-        RMPropertiesImpl rmpsOut = new RMPropertiesImpl();
+        RMProperties rmpsOut = new RMProperties();
         EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_OUTBOUND)).andReturn(rmpsOut);
         EasyMock.expect(message.get(RMMessageConstants.RM_PROPERTIES_INBOUND)).andReturn(null);        
         Source source = control.createMock(Source.class);
