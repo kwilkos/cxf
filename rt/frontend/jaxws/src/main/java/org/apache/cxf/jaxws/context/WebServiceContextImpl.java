@@ -24,6 +24,8 @@ import java.security.Principal;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
+
 
 public class WebServiceContextImpl implements WebServiceContext {
 
@@ -51,6 +53,7 @@ public class WebServiceContextImpl implements WebServiceContext {
     }
 
     public static void setMessageContext(MessageContext ctx) {
+        ContextPropertiesMapping.mapCxf2Jaxws(ctx);
         context.set(ctx);
     }
 

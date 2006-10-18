@@ -85,8 +85,8 @@
 		    <attach>true</attach>
 		    <quiet>true</quiet>
 		    <bottom>-</bottom>
-		    <header>CeltiXfire API</header>
-		    <footer>CeltiXfire API</footer>
+		    <header>CXF API</header>
+		    <footer>CXF API</footer>
 		    <sourcepath>${basedir}/src/main/java${path.separator}${basedir}/target/generated/src/main/java</sourcepath>
 		    <subpackages>org.apache.cxf</subpackages>
 		</configuration>

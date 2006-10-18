@@ -41,6 +41,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
@@ -82,17 +83,27 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         Map<String, Object> requestContext = this.getRequestContext();
         Map<String, Object> responseContext = this.getResponseContext();
         Map<String, Object> context = new HashMap<String, Object>();
+        
+        //need to do context mapping from jax-ws to cxf message
+        ContextPropertiesMapping.mapJaxws2Cxf(requestContext);
+        
         context.put(Client.REQUEST_CONTEXT, requestContext);
         context.put(Client.RESPONSE_CONTEXT, responseContext);
 
         requestContext.put(Method.class.getName(), method);
 
         boolean isAsync = method.getName().endsWith("Async");
+        
+        Object result = null;
         if (isAsync) {
-            return invokeAsync(method, oi, params, paramsWithOutHolder, context);
+            result = invokeAsync(method, oi, params, paramsWithOutHolder, context);
         } else {
-            return invokeSync(method, oi, params, paramsWithOutHolder, context);
+            result = invokeSync(method, oi, params, paramsWithOutHolder, context);
         }
+        // need to do context mapping from cxf message to jax-ws 
+        ContextPropertiesMapping.mapJaxws2Cxf(responseContext);
+        return result;
+        
     }
 
 

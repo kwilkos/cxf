@@ -20,11 +20,13 @@
 <extensions xmlns="http://cxf.apache.org/bus/extension">
 
     <extension class="org.apache.cxf.binding.xml.XMLBindingFactory" deferred="true">
-        <namespace>http://cxf.apache.org/bindings/xformat</namespace>       
+        <namespace>http://cxf.apache.org/bindings/xformat</namespace>
+        <namespace>http://www.w3.org/2004/08/wsdl/http</namespace>       
     </extension>
     
     <extension class="org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean" deferred="true">
-        <namespace>http://cxf.apache.org/bindings/xformat</namespace>       
+        <namespace>http://cxf.apache.org/bindings/xformat</namespace>
+        <namespace>http://www.w3.org/2004/08/wsdl/http</namespace>        
     </extension>
     
 </extensions>

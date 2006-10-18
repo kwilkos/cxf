@@ -21,7 +21,9 @@ package org.apache.cxf.systest.rest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -31,10 +33,11 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-//import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.Endpoint;
+
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.http.HTTPBinding;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -45,7 +48,6 @@ import junit.framework.TestSuite;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
 
 public class RestClientServerTest extends ClientServerTestBase {
@@ -55,27 +57,7 @@ public class RestClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                              "RestProviderPort");
 
-    public static class Server extends TestServerBase {
-
-        protected void run() {
-            Object implementor = new RestSourcePayloadProvider();
-            String address = "http://localhost:9023/XMLService/RestProviderPort/Customer";
-            Endpoint.publish(address, implementor);
-        }
-
-        public static void main(String[] args) {
-            try {
-                Server s = new Server();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                System.out.println("done!");
-            }
-        }
-    }
-
+    
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(RestClientServerTest.class);
         return new ClientServerSetupBase(suite) {
@@ -119,24 +101,31 @@ public class RestClientServerTest extends ClientServerTestBase {
          */
     }
 
-    // Service.addPort() is not supported yet
-    /*
-     * public void testHttpGETDispatcher() throws Exception { String
-     * endpointAddress =
-     * "http://localhost:9023/XMLService/RestProviderPort/Customer"; Service
-     * service = Service.create(serviceName); URI endpointURI = new
-     * URI(endpointAddress.toString()); String path = null; String query = null;
-     * if (endpointURI != null){ path = endpointURI.getPath(); query =
-     * endpointURI.getQuery(); } service.addPort(portName,
-     * HTTPBinding.HTTP_BINDING, endpointAddress.toString()); Dispatch<Source>
-     * d = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
-     * Map<String, Object> requestContext = d.getRequestContext();
-     * requestContext.put(Message.HTTP_REQUEST_METHOD, new String("GET"));
-     * requestContext.put(Message.QUERY_STRING, "id=1"); //this is the original
-     * path part of uri requestContext.put(Message.PATH_INFO, path);
-     * System.out.println ("Invoking Restful GET Request with query string ");
-     * Source result = d.invoke(null); printSource(result); }
-     */
+   
+    public void utestHttpGETDispatcher() throws Exception { 
+        String endpointAddress =
+            "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
+        Service service = Service.create(serviceName); 
+        URI endpointURI = new URI(endpointAddress.toString());
+        String path = null; 
+        //String query = null;
+        if (endpointURI != null) { 
+            path = endpointURI.getPath(); 
+            //query = endpointURI.getQuery();
+        } 
+        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress.toString());
+        Dispatch<Source> d = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
+        Map<String, Object> requestContext = d.getRequestContext();
+        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
+        requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
+        //this is the original path part of uri 
+        requestContext.put(MessageContext.PATH_INFO, path);
+        System.out.println("Invoking Restful GET Request with query string ");
+        Source result = d.invoke(null);
+        assertNotNull("result shoud not be null", result);
+        printSource(result); 
+    }
+     
 
     void printSource(Source source) {
         try {

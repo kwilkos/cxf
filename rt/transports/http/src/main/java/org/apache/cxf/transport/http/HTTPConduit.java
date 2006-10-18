@@ -180,6 +180,8 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             hc.setRequestMethod("POST");
         }
 
+        //TODO using Message context to deceided HTTP send properties
+        
         connection.setConnectTimeout((int)getClient().getConnectionTimeout());
         connection.setReadTimeout((int)getClient().getReceiveTimeout());
 

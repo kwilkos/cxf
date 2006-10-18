@@ -34,7 +34,7 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.w3c.dom.Document;
 
-import org.apache.cxf.message.Message;
+
 
 @WebServiceProvider()
 @ServiceMode(value = Service.Mode.PAYLOAD)
@@ -49,15 +49,15 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
 
     public DOMSource invoke(DOMSource request) {
         MessageContext mc = wsContext.getMessageContext();
-        String path = (String)mc.get(Message.PATH_INFO);
-        String query = (String)mc.get(Message.QUERY_STRING);
-        String httpMethod = (String)mc.get(Message.HTTP_REQUEST_METHOD);
+        String path = (String)mc.get(MessageContext.PATH_INFO);
+        String query = (String)mc.get(MessageContext.QUERY_STRING);
+        String httpMethod = (String)mc.get(MessageContext.HTTP_REQUEST_METHOD);
 
-        /*
-         * System.out.println("--path--- " + path);
-         * System.out.println("--query--- " + query);
-         * System.out.println("--httpMethod--- " + httpMethod);
-         */
+        
+//        System.out.println("--path--- " + path);
+//        System.out.println("--query--- " + query);
+//        System.out.println("--httpMethod--- " + httpMethod);
+        
         if (httpMethod.equalsIgnoreCase("POST")) {
             // TBD: parse query info from DOMSource
             // System.out.println("--POST: getAllCustomers--- ");
@@ -101,5 +101,6 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
             e.printStackTrace();
         }
         return response;
-    }
+    }    
+   
 }
