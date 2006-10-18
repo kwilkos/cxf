@@ -46,7 +46,9 @@ public class Proxy {
     
     Proxy(Bus bus, RMEndpoint rme) {
         reliableEndpoint = rme;
-        buildService(bus);
+        if (null != bus) {
+            buildService(bus);
+        }
     }
    
     RMEndpoint getReliableEndpoint() {

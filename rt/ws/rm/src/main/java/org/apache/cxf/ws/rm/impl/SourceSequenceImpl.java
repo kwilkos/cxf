@@ -197,7 +197,6 @@ public class SourceSequenceImpl extends AbstractSequenceImpl implements SourceSe
      * @return the next message number.
      */
     BigInteger nextMessageNumber(Identifier inSeqId, BigInteger inMsgNumber) {
-
         assert !lastMessage;
         
         BigInteger result = null;

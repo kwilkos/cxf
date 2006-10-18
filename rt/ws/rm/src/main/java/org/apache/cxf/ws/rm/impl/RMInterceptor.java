@@ -41,6 +41,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.MAPAggregator;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.VersionTransformer;
@@ -173,11 +174,14 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         }
 
         boolean isApplicationMessage = isAplicationMessage(action);
+        System.out.println("isApplicationMessage: " + isApplicationMessage);
         
         RMPropertiesImpl rmpsOut = (RMPropertiesImpl)RMContextUtils.retrieveRMProperties(message, true);
         if (null == rmpsOut) {
             rmpsOut = new RMPropertiesImpl();
             RMContextUtils.storeRMProperties(message, rmpsOut, true);
+        } else {
+            System.out.println("Got existing RMPropertiesImpl");
         }
         
         RMPropertiesImpl rmpsIn = null;
@@ -214,37 +218,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
             if (seq.isLastMessage()) {
                 source.setCurrent(null);
             }
-            
-            /*
-            if (!(isServerSide() && BindingContextUtils.isOnewayTransport(context))) {
-
-                if (!ContextUtils.isRequestor(message)) {
-                    assert null != inSeqId;
-                }
-                
-                // get the current sequence, requesting the creation of a new one if necessary
-                
-                SourceSequence seq = getSequence(inSeqId, context, maps);
-                assert null != seq;
-
-                // increase message number and store a sequence type object in
-                // context
-
-                seq.nextMessageNumber(inSeqId, inMessageNumber);
-                rmpsOut.setSequence(seq);
-
-                // if this was the last message in the sequence, reset the
-                // current sequence so that a new one will be created next 
-                // time the handler is invoked
-
-                if (seq.isLastMessage()) {
-                    source.setCurrent(null);
-                }
-            }
-            */
         }
-        
-        System.out.println(inMessageNumber);
         
         // add Acknowledgements (to application messages or explicitly 
         // created Acknowledgement messages only)
@@ -375,20 +349,18 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
                 EndpointReferenceType acksTo = null;
                 RelatesToType relatesTo = null;
                 if (ContextUtils.isServerSide(message)) {
-                    /*
-                     * AddressingPropertiesImpl inMaps = ContextUtils
-                     * .retrieveMAPs(message, false, false);
-                     * inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
-                     * acksTo =
-                     * RMUtils.createReference(inMaps.getTo().getValue()); to =
-                     * inMaps.getReplyTo();
-                     * getServant().setUnattachedIdentifier(inSeqId); relatesTo =
-                     * ContextUtils.WSA_OBJECT_FACTORY.createRelatesToType();
-                     * DestinationSequence inSeq =
-                     * getDestination().getSequence(inSeqId);
-                     * relatesTo.setValue(inSeq != null ?
-                     * inSeq.getCorrelationID() : null);
-                     */
+
+                    
+                    AddressingPropertiesImpl inMaps = ContextUtils.retrieveMAPs(message, false, false);
+                    inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
+                    acksTo = RMUtils.createReference(inMaps.getTo().getValue());
+                    to = inMaps.getReplyTo();
+                    // getServant().setUnattachedIdentifier(inSeqId);
+                    relatesTo = (new org.apache.cxf.ws.addressing.ObjectFactory()).createRelatesToType();
+                    Destination destination = getDestination(message);
+                    DestinationSequenceImpl inSeq = destination.getSequenceImpl(inSeqId);
+                    relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
+
                 } else {
                     acksTo = VersionTransformer.convert(maps.getReplyTo());
                     // for oneways
@@ -396,7 +368,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
                         acksTo = RMUtils.createReference(Names.WSA_ANONYMOUS_ADDRESS);
                     }
                 }
-
+                
                 source.getProxy().createSequence(to, acksTo, relatesTo);
             } catch (IOException ex) {
                 ex.printStackTrace();

@@ -57,7 +57,5 @@ public class ProxyTest extends TestCase {
         
         List<MessagePartInfo> messageParts = opi.getInput().getMessageParts();
         assertEquals(1, messageParts.size());
-        MessagePartInfo mpi = messageParts.get(0);
-        System.out.println("name of first part of input message: " + mpi.getName().getLocalPart());
     }
 }
