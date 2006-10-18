@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -43,6 +44,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -99,7 +101,13 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (context != null) {
             message.setContent(JAXBContext.class, context);
         }
-
+        
+        Map<String, Object> requestContext = this.getRequestContext();
+        Map<String, Object> responseContext = this.getResponseContext();
+        message.putAll(requestContext);
+        //need to do context mapping from jax-ws to cxf message
+        ContextPropertiesMapping.mapJaxws2Cxf(message);
+        
         Exchange exchange = new ExchangeImpl();
         exchange.put(Service.Mode.class, mode);
         exchange.put(Class.class, cl);
@@ -136,12 +144,14 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         if (!isOneWay) {
             synchronized (exchange) {
                 Message inMsg = waitResponse(exchange);
+                responseContext.putAll(inMsg);
+                //need to do context mapping from cxf message to jax-ws 
+                ContextPropertiesMapping.mapJaxws2Cxf(responseContext);
                 return cl.cast(inMsg.getContent(Object.class));
             }
         }
         return null;
-        //         populateResponseContext(objMsgContext);
-        //         return cl.cast(objMsgContext.getReturn());
+        
     }
 
     private Message waitResponse(Exchange exchange) {
