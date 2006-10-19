@@ -37,11 +37,19 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
+import org.apache.cxf.interceptor.ClientFaultConverter;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.FragmentStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class Soap12FaultInInterceptor extends AbstractSoapInterceptor {
+    
+    public Soap12FaultInInterceptor() {
+        super();
+        setPhase(Phase.MARSHAL);
+        addBefore(ClientFaultConverter.class.getName());
+    }
 
     public void handleMessage(SoapMessage message) throws Fault {
         String exMessage = null;

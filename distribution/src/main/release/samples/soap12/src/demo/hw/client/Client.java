@@ -23,15 +23,15 @@ import java.io.File;
 import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.ProtocolException;
-import org.apache.hello_world_soap_http.Greeter;
-import org.apache.hello_world_soap_http.PingMeFault;
-import org.apache.hello_world_soap_http.SOAPService;
-import org.apache.hello_world_soap_http.types.FaultDetail;
+import org.apache.hello_world_soap12_http.Greeter;
+import org.apache.hello_world_soap12_http.PingMeFault;
+import org.apache.hello_world_soap12_http.SOAPService;
+import org.apache.hello_world_soap12_http.types.FaultDetail;
 
 public final class Client {
 
     private static final QName SERVICE_NAME 
-        = new QName("http://apache.org/hello_world_soap_http", "SOAPService");
+        = new QName("http://apache.org/hello_world_soap12_http", "SOAPService");
 
 
     private Client() {

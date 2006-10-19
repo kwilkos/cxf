@@ -152,9 +152,9 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(3, files.length);
-        files = types.listFiles();
         assertEquals(4, files.length);
+        files = types.listFiles();
+        assertEquals(7, files.length);
 
         Class clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
@@ -184,6 +184,14 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
 
         assertEquals("responseType", webResultAnno.name());
+
+        method = clz.getMethod("pingMe", new Class[] {});
+        webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
+        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "pingMe",
+                     webMethodAnno.operationName());
+        Class[] exceptionCls = method.getExceptionTypes();
+        assertEquals(1, exceptionCls.length);
+        assertEquals("org.apache.hello_world_soap12_http.PingMeFault", exceptionCls[0].getName());
     }
     
     public void testHelloWorld() throws Exception {

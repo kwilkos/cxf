@@ -109,8 +109,8 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
                     copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
                 }
                 for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
-                    copyExtensors(bop2.getFault(f.getName()), bop.getBindingFault(f.getName())
-                        .getExtensibilityElements());
+                    copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(), f.getName())),
+                                  bop.getBindingFault(f.getName()).getExtensibilityElements());
                 }
             }
         }

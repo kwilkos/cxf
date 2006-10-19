@@ -57,11 +57,11 @@ public class ClientServerTest extends ClientServerTestBase {
                                              "SoapPort");
     
     private final QName fakePortName = new QName("http://apache.org/hello_world_soap_http",
-                                             "FackPort");
+                                                 "FackPort");
     
     
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
-                "SoapPort2");
+                                               "SoapPort2");
 
     public static class Server extends TestServerBase {
         
@@ -92,10 +92,10 @@ public class ClientServerTest extends ClientServerTestBase {
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+                public void startServers() throws Exception {
+                    assertTrue("server did not launch correctly", launchServer(Server.class));
+                }
+            };
         
 
          

@@ -98,7 +98,7 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
         return outputMessage;
     }
     
-    public BindingFaultInfo getFault(String name) {
+    public BindingFaultInfo getFault(QName name) {
         if (faults != null) {
             return faults.get(name);
         }

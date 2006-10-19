@@ -109,7 +109,8 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
             client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
             fail("Should have returned a fault!");
         } catch (BadRecordLitFault fault) {
-            // this is supposed to happen
+            assertEquals("foo", fault.getFaultInfo().trim());
+            assertEquals("Hadrian did it.", fault.getMessage());
         }
         
         try {
@@ -117,7 +118,8 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
             client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
             fail("Should have returned a fault!");
         } catch (Fault fault) {
-            // this is supposed to happen
+            assertEquals("Foo", fault.getCode());
+            assertEquals("Foo", fault.getMessage());
         } 
     }
 

@@ -20,6 +20,7 @@
 package org.apache.cxf.binding.soap;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import javax.wsdl.Definition;
@@ -37,6 +38,7 @@ import org.apache.cxf.binding.BindingFactoryManagerImpl;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -153,6 +155,16 @@ public class SoapBindingFactoryTest extends TestCase {
         List<MessagePartInfo> parts = bodyInfo.getParts();
         assertNotNull(parts);
         assertEquals(1, parts.size());
+        
+        boi = sbi.getOperation(new QName("http://apache.org/hello_world_soap12_http", "pingMe"));
+        sboi = boi.getExtensor(SoapOperationInfo.class);
+        assertNotNull(sboi);
+        assertEquals("document", sboi.getStyle());
+        Collection<BindingFaultInfo> faults = boi.getFaults();
+        assertEquals(1, faults.size());
+        BindingFaultInfo faultInfo = boi.getFault(new QName("http://apache.org/hello_world_soap12_http", 
+                                                            "pingMeFault"));
+        assertNotNull(faultInfo);
     }
     
 

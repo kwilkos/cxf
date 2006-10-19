@@ -269,8 +269,9 @@ public class WSDLServiceBuilder {
                         handleHeader(bop2.getOutput());
                     }
                     for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
-                        copyExtensors(bop2.getFault(f.getName()), bop.getBindingFault(f.getName())
-                            .getExtensibilityElements());
+                        copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(),
+                                                              f.getName())), 
+                                      bop.getBindingFault(f.getName()).getExtensibilityElements());
                     }
                 }
 

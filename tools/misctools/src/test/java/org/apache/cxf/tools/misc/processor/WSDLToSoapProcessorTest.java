@@ -20,7 +20,7 @@
 package org.apache.cxf.tools.misc.processor;
 
 import java.io.File;
-import java.util.Iterator;
+import java.util.*;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingFault;
@@ -323,6 +323,26 @@ public class WSDLToSoapProcessorTest extends ProcessorTestBase {
                 assertNotNull(soapBody);
                 assertTrue("literal".equalsIgnoreCase(soapBody.getUse()));
             }
+            bo = binding.getBindingOperation("pingMe", null, null);
+            assertNotNull(bo);
+            it = bo.getExtensibilityElements().iterator();
+            assertTrue(it != null && it.hasNext());
+            assertTrue(it.next() instanceof SOAP12Operation);
+
+            it = bo.getBindingInput().getExtensibilityElements().iterator();
+            assertTrue(it != null && it.hasNext());
+            assertTrue(it.next() instanceof SOAP12Body);
+
+            it = bo.getBindingOutput().getExtensibilityElements().iterator();
+            assertTrue(it != null && it.hasNext());
+            assertTrue(it.next() instanceof SOAP12Body);
+
+            Map faults = bo.getBindingFaults();
+            assertTrue(faults != null && faults.size() == 1);
+            Object bf = faults.get("pingMeFault");
+            assertNotNull(bf);
+            assertTrue(bf instanceof BindingFault);
+            assertEquals("pingMeFault", ((BindingFault)bf).getName());
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }

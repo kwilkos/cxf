@@ -30,7 +30,9 @@ import junit.framework.TestSuite;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.hello_world_soap12_http.Greeter;
+import org.apache.hello_world_soap12_http.PingMeFault;
 import org.apache.hello_world_soap12_http.SOAPService;
+import org.apache.hello_world_soap12_http.types.FaultDetail;
 
 public class Soap12ClientServerTest extends ClientServerTestBase {    
 
@@ -49,20 +51,36 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
     }
 
     public void testBasicConnection() throws Exception {
+        Greeter greeter = getGreeter();
+        for (int i = 0; i < 5; i++) {
+            String echo = greeter.sayHi();
+            assertEquals("Bonjour", echo);
+        }
+
+    }
+
+    public void testPingMeFault() throws Exception {
+        Greeter greeter = getGreeter();
+        try {
+            greeter.pingMe();
+            fail("Should throw Exception!");
+        } catch (PingMeFault ex) {
+            FaultDetail detail = ex.getFaultInfo();
+            assertEquals((short)2, detail.getMajor());
+            assertEquals((short)1, detail.getMinor());
+            assertEquals("PingMeFault raised by server", ex.getMessage());            
+        }
+    }
+
+    private Greeter getGreeter() {
         URL wsdl = getClass().getResource("/wsdl/hello_world_soap12.wsdl");
         assertNotNull("WSDL is null", wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull("Service is ull ", service);
 
-        Greeter greeter = service.getPort(portName,
-                                          Greeter.class);
-        
-        for (int i = 0; i < 5; i++) {
-            String echo = greeter.sayHi();
-            assertEquals("Bonjour", echo);
-        }
-
+        return service.getPort(portName,
+                               Greeter.class);
     }
 
     public static void main(String[] args) {
