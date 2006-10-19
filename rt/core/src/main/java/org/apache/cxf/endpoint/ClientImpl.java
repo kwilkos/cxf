@@ -242,8 +242,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             chain.doIntercept(message);
         } finally {
             synchronized (message.getExchange()) {
-                message.getExchange().put(FINISHED, Boolean.TRUE);
-                message.getExchange().notifyAll();
+                if (!isPartialResponse(message)) {
+                    message.getExchange().put(FINISHED, Boolean.TRUE);
+                    message.getExchange().notifyAll();
+                }
             }
         }
     }
@@ -296,5 +298,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
     public void setSynchronousTimeout(int synchronousTimeout) {
         this.synchronousTimeout = synchronousTimeout;
+    }
+
+    private boolean isPartialResponse(Message in) {
+        return in.getContent(List.class) == null
+            && in.getContent(Exception.class) == null;
     }
 }
