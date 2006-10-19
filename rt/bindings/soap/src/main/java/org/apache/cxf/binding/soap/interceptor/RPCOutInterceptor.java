@@ -37,21 +37,16 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
 
-    private NSStack nsStack;
-
     public RPCOutInterceptor() {
         super();
         setPhase(Phase.MARSHAL);
     }
 
-    private void init() {
-        nsStack = new NSStack();
-        nsStack.push();
-    }
 
     public void handleMessage(Message message) {
         try {
-            init();
+            NSStack nsStack = new NSStack();
+            nsStack.push();
 
             BindingOperationInfo operation = (BindingOperationInfo) message.getExchange().get(
                             BindingOperationInfo.class.getName());
@@ -61,7 +56,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
             DataWriter<Message> dataWriter = getMessageDataWriter(message);
 
-            addOperationNode(message, xmlWriter);
+            addOperationNode(nsStack, message, xmlWriter);
 
             int countParts = 0;
             List<MessagePartInfo> parts = null;
@@ -95,7 +90,8 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
         }
     }
 
-    protected void addOperationNode(Message message, XMLStreamWriter xmlWriter) throws XMLStreamException {
+    protected void addOperationNode(NSStack nsStack, Message message, XMLStreamWriter xmlWriter) 
+        throws XMLStreamException {
         String responseSuffix = !isRequestor(message) ? "Response" : "";
         String namespaceURI = ServiceModelUtil.getTargetNamespace(message.getExchange());
         nsStack.add(namespaceURI);
