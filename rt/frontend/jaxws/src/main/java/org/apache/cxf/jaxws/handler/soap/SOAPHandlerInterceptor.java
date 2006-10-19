@@ -49,10 +49,13 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
     
     @SuppressWarnings("unchecked")
     public Set<QName> getUnderstoodHeaders() {
-        Set<QName> understood = new HashSet<QName>();  
+        Set<QName> understood = new HashSet<QName>();
         for (Handler h : getBinding().getHandlerChain()) {
             if (h instanceof SOAPHandler) {
-                understood.addAll(((SOAPHandler)h).getHeaders());
+                Set<QName> headers = ((SOAPHandler) h).getHeaders();
+                if (headers != null) {
+                    understood.addAll(headers);
+                }
             }
         }
         return understood;
