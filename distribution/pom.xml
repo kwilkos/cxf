@@ -36,6 +36,7 @@
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
         <java.source.version>1.4</java.source.version>
+	<cxf.version>${pom.version}</cxf.version>
     </properties>
 
     <dependencies>
@@ -250,11 +251,6 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>cxfinstaller.Installer</mainClass>
-                                </manifest>
-                            </archive>
                             <descriptors>
                                 <descriptor>src/main/assembly/bin.xml</descriptor>
                                 <descriptor>src/main/assembly/src.xml</descriptor>

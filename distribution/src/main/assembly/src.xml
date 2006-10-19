@@ -22,20 +22,14 @@
     <id>src</id>
     <includeBaseDirectory>false</includeBaseDirectory>
     <formats>
-        <format>jar</format>
+        <format>tar.gz</format>
+	<format>zip</format>
     </formats>
 
     <fileSets>
-         <fileSet>
-             <directory>target/classes/cxfinstaller</directory>
-	     <outputDirectory>cxfinstaller</outputDirectory>
-	     <includes>
-	         <include>Installer.class</include>
-             </includes>
-	 </fileSet>
 	 <fileSet>
              <directory>src/main/release</directory>
-	     <outputDirectory>cxf-src</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
 	     <includes>
 	         <include>DISCLAIMER</include>
 		 <include>LICENSE</include>
@@ -46,7 +40,7 @@
 	 </fileSet>
 	 <fileSet>
 	     <directory>..</directory>
-	     <outputDirectory>cxf-src</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}-src</outputDirectory>
 	     <includes>
 	         <include>**/*</include>
              </includes>

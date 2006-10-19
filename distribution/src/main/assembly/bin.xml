@@ -19,23 +19,17 @@
 -->
 <assembly>
     <!-- id typically identifies the "type" (src vs bin etc) of the assembly -->
-    <id>bin</id>
+    <id></id>
     <includeBaseDirectory>false</includeBaseDirectory>
     <formats>
-        <format>jar</format>
+        <format>tar.gz</format>
+	<format>zip</format>
     </formats>
 
     <fileSets>
-         <fileSet>
-             <directory>target/classes/cxfinstaller</directory>
-	     <outputDirectory>cxfinstaller</outputDirectory>
-	     <includes>
-	         <include>Installer.class</include>
-             </includes>
-	 </fileSet>
 	 <fileSet>
              <directory>src/main/release</directory>
-	     <outputDirectory>cxf</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}</outputDirectory>
 	     <includes>
 	         <include>DISCLAIMER</include>
 		 <include>LICENSE</include>
@@ -46,12 +40,12 @@
 	 </fileSet>
 	 <fileSet>
 	     <directory>src/main/release/bin</directory>
-	     <outputDirectory>cxf/bin</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/bin</outputDirectory>
 	     <fileMode>775</fileMode>
 	 </fileSet>
 	 <fileSet>
 	     <directory>src/main/release/etc</directory>
-	     <outputDirectory>cxf/etc</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/etc</outputDirectory>
 	     <includes>
 	         <include>logging.properties</include>
 		 <include>log4j.properties</include>
@@ -60,7 +54,7 @@
 	 </fileSet>
 	 <fileSet>
 	     <directory>src/main/release/docs</directory>
-	     <outputDirectory>cxf/docs</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/docs</outputDirectory>
 	     <includes>
 	         <include>**/*.pdf</include>
 		 <include>release_notes.txt</include>
@@ -68,7 +62,7 @@
 	 </fileSet>
 	 <fileSet>
 	     <directory>src/main/release/samples</directory>
-	     <outputDirectory>cxf/samples</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/samples</outputDirectory>
 	     <excludes>
 	         <exclude>**/build</exclude>
 		 <exclude>**/build/**/*</exclude>
@@ -76,35 +70,35 @@
 	 </fileSet>
 	 <fileSet>
 	     <directory>../api/src/main/resources</directory>
-	     <outputDirectory>cxf/resources</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/resources</outputDirectory>
 	     <includes>
 	         <include>**/*</include>
              </includes>
 	 </fileSet>
 	 <fileSet>
 	     <directory>target/javadoc</directory>
-	     <outputDirectory>cxf/docs/api</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/docs/api</outputDirectory>
 	     <includes>
 	         <include>**/*</include>
              </includes>
 	</fileSet>
 	<fileSet>
 	     <directory>target</directory>
-	     <outputDirectory>cxf/lib</outputDirectory>
+	     <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 	     <includes>
 	         <include>cxf-incubator.jar</include>
              </includes>
 	</fileSet>
 	<fileSet>
 	    <directory>src/main/release/lib</directory>
-	    <outputDirectory>cxf/lib</outputDirectory>
+	    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 	    <includes>
 	        <include>activemq/**/*</include>
             </includes>
 	</fileSet>
 	<fileSet>
 	    <directory>target/additional-libs</directory>
-	    <outputDirectory>cxf/lib</outputDirectory>
+	    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 	    <includes>
 	        <include>**/*</include>
             </includes>
@@ -112,7 +106,7 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
-	    <outputDirectory>cxf/lib</outputDirectory>
+	    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 	    <unpack>false</unpack>
 	    <scope>runtime</scope>
 	</dependencySet>
