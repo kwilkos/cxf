@@ -31,6 +31,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Dispatch;
@@ -92,17 +93,11 @@ public class RestClientServerTest extends ClientServerTestBase {
         URL url = new URL(endpointAddress + "?name=john&address=20");
         InputStream in = url.openStream();
         assertNotNull(in);
-        //StreamSource source = new StreamSource(in);
-        //printSource(source);
-
-        /*
-         * url = new URL(endpointAddress + "/num1/10/num2/20");
-         * System.out.println("Invoking URL=" + url); process(url);
-         */
+       
     }
 
    
-    public void utestHttpGETDispatcher() throws Exception { 
+    public void testHttpGETDispatcher() throws Exception { 
         String endpointAddress =
             "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
         Service service = Service.create(serviceName); 
@@ -122,10 +117,22 @@ public class RestClientServerTest extends ClientServerTestBase {
         requestContext.put(MessageContext.PATH_INFO, path);
         System.out.println("Invoking Restful GET Request with query string ");
         Source result = d.invoke(null);
-        assertNotNull("result shoud not be null", result);
-        printSource(result); 
+        assertNotNull("result shoud not be null", result);        
+        String tempstring = source2String(result);
+        assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
+        assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
     }
-     
+    
+    private String source2String(Source source) throws Exception {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        StreamResult sr = new StreamResult(bos);
+        Transformer trans = TransformerFactory.newInstance().newTransformer();
+        Properties oprops = new Properties();
+        oprops.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        trans.setOutputProperties(oprops);
+        trans.transform(source, sr);
+        return bos.toString();
+    }
 
     void printSource(Source source) {
         try {

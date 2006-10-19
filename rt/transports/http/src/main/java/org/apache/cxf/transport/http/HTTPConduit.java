@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -87,6 +88,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
     private URL decoupledURL;
     private DecoupledDestination decoupledDestination;
     private EndpointInfo endpointInfo;
+    
 
     /**
      * Constructor
@@ -168,20 +170,22 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      */
     public void send(Message message) throws IOException {
         Map<String, List<String>> headers = setHeaders(message);
-        
-        String value = (String)message.get(Message.ENDPOINT_ADDRESS);
-        URL currentURL = value != null ? new URL(value) : url;
+        URL currentURL = setupURL(message);
         URLConnection connection = 
             connectionFactory.createConnection(getProxy(), currentURL);
-        connection.setDoOutput(true);
-
+        connection.setDoOutput(true);        
+                       
         if (connection instanceof HttpURLConnection) {
-            HttpURLConnection hc = (HttpURLConnection)connection;
-            hc.setRequestMethod("POST");
-        }
-
-        //TODO using Message context to deceided HTTP send properties
-        
+            String httpRequestMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
+            HttpURLConnection hc = (HttpURLConnection)connection;           
+            if (null != httpRequestMethod) {
+                hc.setRequestMethod(httpRequestMethod);                 
+            } else {
+                hc.setRequestMethod("POST");
+            }
+        }     
+      
+        //TODO using Message context to deceided HTTP send properties        
         connection.setConnectTimeout((int)getClient().getConnectionTimeout());
         connection.setReadTimeout((int)getClient().getReceiveTimeout());
 
@@ -194,7 +198,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                 hc.setInstanceFollowRedirects(true);
             } else {
                 hc.setInstanceFollowRedirects(false);
-                if (getClient().isAllowChunking()) {
+                if (!hc.getRequestMethod().equals("GET") && client.isAllowChunking()) {
                     hc.setChunkedStreamingMode(2048);
                 }
             }
@@ -204,6 +208,22 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      
         message.setContent(OutputStream.class,
                            new WrappedOutputStream(message, connection));
+    }
+    
+    
+    private URL setupURL(Message message) throws MalformedURLException {
+        String value = (String)message.get(Message.ENDPOINT_ADDRESS);
+        String pathInfo = (String)message.get(Message.PATH_INFO);
+        String queryString = (String)message.get(Message.QUERY_STRING);
+        
+        String result = value != null ? value : url.toString();
+        if (null != pathInfo && !result.endsWith(pathInfo)) { 
+            result = result + pathInfo;
+        }
+        if (queryString != null) {
+            result = result + "?" + queryString;
+        }        
+        return new URL(result);    
     }
 
     /**
@@ -418,8 +438,14 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
          * reset output stream ... etc.)
          */
         protected void doFlush() throws IOException {
-            if (!alreadyFlushed()) {
+            if (!alreadyFlushed()) {                
                 flushHeaders(outMessage);
+                if (connection instanceof HttpURLConnection) {            
+                    HttpURLConnection hc = (HttpURLConnection)connection;                    
+                    if (hc.getRequestMethod().equals("GET")) {
+                        return;
+                    }
+                }
                 resetOut(connection.getOutputStream(), true);
             }
         }

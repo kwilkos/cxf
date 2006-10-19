@@ -175,7 +175,7 @@ public class HTTPConduitTest extends TestCase {
             EasyMock.expectLastCall();
             
             if (httpConnection) {
-                ((HttpURLConnection)connection).setRequestMethod("POST");
+                ((HttpURLConnection)connection).setRequestMethod("POST");                
             }
             
             connection.setConnectTimeout(303030);
@@ -184,21 +184,27 @@ public class HTTPConduitTest extends TestCase {
             EasyMock.expectLastCall();
             connection.setUseCaches(false);
             EasyMock.expectLastCall();
+            
+            
 
             if (httpConnection) {
                 ((HttpURLConnection)connection).setInstanceFollowRedirects(autoRedirect);
-                EasyMock.expectLastCall();
+                EasyMock.expectLastCall();                
                 if (!autoRedirect) {
+                    ((HttpURLConnection)connection).getRequestMethod();
+                    EasyMock.expectLastCall().andReturn("POST");
                     ((HttpURLConnection)connection).setChunkedStreamingMode(2048);
-                    EasyMock.expectLastCall();
+                    EasyMock.expectLastCall();                    
                 }
             }
             
             if (decoupled) {
                 decoupledEngine = new TestServerEngine();
                 parameters = control.createMock(MultiMap.class);
-            }
+            }            
+            
         }
+               
         
         control.replay();
         
@@ -258,6 +264,12 @@ public class HTTPConduitTest extends TestCase {
         control.reset();
                 
         OutputStream wrappedOS = verifyRequestHeaders(message, expectHeaders);
+        
+        if (connection instanceof HttpURLConnection) {
+            ((HttpURLConnection)connection).getRequestMethod();
+            EasyMock.expectLastCall().andReturn("POST");
+        }
+        
         
         os = EasyMock.createMock(OutputStream.class);
         connection.getOutputStream();
