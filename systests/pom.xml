@@ -174,9 +174,7 @@
                         </systemProperties>
                         <excludes>
                             <exclude>**/*$*</exclude>
-                            <!--
-                            <exclude>**/ProviderClientServer*</exclude>
-                            -->
+                            <exclude>**/MAPTest.java</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
