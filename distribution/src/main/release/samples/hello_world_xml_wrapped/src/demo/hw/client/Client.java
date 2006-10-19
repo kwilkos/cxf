@@ -24,9 +24,8 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 
 import org.apache.hello_world_xml_http.wrapped.Greeter;
+import org.apache.hello_world_xml_http.wrapped.PingMeFault;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
-
-// import org.apache.hello_world_xml_http.wrapped.PingMeFault;
 
 public final class Client {
 
@@ -74,14 +73,14 @@ public final class Client {
         System.out.println("No response from server as method is OneWay");
         System.out.println();
 
-        /*
-         * try { System.out.println("Invoking pingMe, expecting exception...");
-         * port.pingMe(); } catch (PingMeFault ex) {
-         * System.out.println("Expected exception: " + ex.getMessage()); }
-         */
-
+        try {
+            System.out.println("Invoking pingMe, expecting exception...");
+            port.pingMe();
+        } catch (PingMeFault ex) {
+            System.out.println("Expected exception: " + ex.getMessage());
+        }
+    
         System.exit(0);
-
     }
 
 }

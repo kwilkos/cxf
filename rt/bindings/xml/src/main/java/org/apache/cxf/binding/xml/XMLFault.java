@@ -21,8 +21,6 @@ package org.apache.cxf.binding.xml;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
-import javax.xml.namespace.QName;
-
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 
@@ -30,15 +28,15 @@ public class XMLFault extends Fault {
 
     public static final String XML_FAULT_PREFIX = "xfns";
 
-    public static final QName XML_FAULT_ROOT = new QName(XMLConstants.NS_XML_FORMAT, "XMLFault");
+    public static final String XML_FAULT_ROOT = "XMLFault";
 
-    public static final QName XML_FAULT_STRING = new QName(XMLConstants.NS_XML_FORMAT, "faultstring");
+    public static final String XML_FAULT_STRING = "faultstring";
 
-    public static final QName XML_FAULT_DETAIL = new QName(XMLConstants.NS_XML_FORMAT, "detail");
+    public static final String XML_FAULT_DETAIL = "detail";
 
-    public static final QName XML_FAULT_CODE_SERVER = new QName(XMLConstants.NS_XML_FORMAT, "SERVER");
+    public static final String XML_FAULT_CODE_SERVER = "SERVER";
 
-    public static final QName XML_FAULT_CODE_CLIENT = new QName(XMLConstants.NS_XML_FORMAT, "CLIENT");
+    public static final String XML_FAULT_CODE_CLIENT = "CLIENT";
 
     
     static final long serialVersionUID = 100000;

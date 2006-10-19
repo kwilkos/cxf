@@ -30,7 +30,6 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -40,7 +39,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedOutInterceptor.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageOutInterceptor.class);
     
     public XMLMessageOutInterceptor() {
         super();

@@ -33,19 +33,20 @@ import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.hello_world_xml_http.wrapped.Greeter;
 import org.apache.hello_world_xml_http.wrapped.GreeterImpl;
+import org.apache.hello_world_xml_http.wrapped.PingMeFault;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
 
-
 public class ClientServerXMLWrapTest extends TestCase {
-    private final QName serviceName = 
-        new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLService");
-    private final QName portName = 
-        new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
+
+    private final QName serviceName = new QName("http://apache.org/hello_world_xml_http/wrapped",
+            "XMLService");
+
+    private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
+
     private final QName fakePortName = 
-        new QName("http://apache.org/hello_world_xml_http/wrapped", "FackPort");
+        new QName("http://apache.org/hello_world_xml_http/wrapped", "FakePort");
 
     public static class Server extends TestServerBase {
-        
 
         protected void run() {
             Object implementor = new GreeterImpl();
@@ -77,7 +78,8 @@ public class ClientServerXMLWrapTest extends TestCase {
 
     public void testBasicConnection() throws Exception {
 
-        XMLService service = new XMLService();
+        XMLService service = new XMLService(
+                this.getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl"), serviceName);
         assertNotNull(service);
 
         String response1 = new String("Hello ");
@@ -100,13 +102,12 @@ public class ClientServerXMLWrapTest extends TestCase {
             throw (Exception) ex.getCause();
         }
     }
-    
+
     public void testAddPort() throws Exception {
 
         Service service = Service.create(serviceName);
-        service.addPort(fakePortName, 
-                        "http://cxf.apache.org/bindings/xformat",
-                        "http://localhost:9032/XMLService/XMLPort");
+        service.addPort(fakePortName, "http://cxf.apache.org/bindings/xformat",
+                "http://localhost:9032/XMLService/XMLPort");
         assertNotNull(service);
 
         String response1 = new String("Hello ");
@@ -129,16 +130,20 @@ public class ClientServerXMLWrapTest extends TestCase {
             throw (Exception) ex.getCause();
         }
     }
-    
-// public void testXMLFault() throws Exception {
-//        XMLService service = new XMLService();
-//        assertNotNull(service);
-//        try {
-//            Greeter greeter = service.getPort(portName, Greeter.class);            
-//            greeter.pingMe();            
-//        } catch (UndeclaredThrowableException ex) {
-//            System.out.println(ex.getMessage());
-//            throw (Exception) ex.getCause();
-//        }
-//    }
+
+    public void testXMLFault() throws Exception {
+        XMLService service = new XMLService(
+                this.getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl"), serviceName);
+        assertNotNull(service);
+        try {
+            Greeter greeter = service.getPort(portName, Greeter.class);
+            greeter.pingMe();
+            fail("did not catch expected PingMeFault exception");
+        } catch (PingMeFault ex) {
+            assertEquals("minor value", 1, ex.getFaultInfo().getMinor());
+            assertEquals("major value", 2, ex.getFaultInfo().getMajor());
+        } catch (Exception ex) {
+            fail("did not catch expected PingMeFault exception");
+        }
+    }
 }

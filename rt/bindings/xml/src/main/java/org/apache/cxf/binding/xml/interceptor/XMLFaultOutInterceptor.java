@@ -30,6 +30,7 @@ import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.binding.xml.XMLFault;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -37,6 +38,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
 
@@ -49,21 +51,23 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public void handleMessage(Message message) throws Fault {
 
+        NSStack nsStack = new NSStack();
+        nsStack.push();
+
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
         Fault f = (Fault) message.getContent(Exception.class);
         XMLFault xmlFault = XMLFault.createFault(f);
         try {
-            writer.writeStartElement(XMLFault.XML_FAULT_PREFIX, XMLFault.XML_FAULT_ROOT.getLocalPart(),
-                            XMLConstants.NS_XML_FORMAT);
+            nsStack.add(XMLConstants.NS_XML_FORMAT);
+            String prefix = nsStack.getPrefix(XMLConstants.NS_XML_FORMAT);
 
-            writer.writeStartElement(XMLFault.XML_FAULT_PREFIX, XMLFault.XML_FAULT_STRING.getLocalPart(),
-                            XMLConstants.NS_XML_FORMAT);
+            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_ROOT, XMLConstants.NS_XML_FORMAT);
 
+            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_STRING, 
+                    XMLConstants.NS_XML_FORMAT);
             Throwable t = xmlFault.getCause();
             StringBuffer str = new StringBuffer(t.toString());
-            
             QName elName = null;
-            
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
             if (!bop.isUnwrappedCapable()) {
                 bop = bop.getUnwrappedOperation();
@@ -95,13 +99,20 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
             writer.writeCharacters(str.toString());
             // fault string
             writer.writeEndElement();
+            
             // call data writer to marshal exception
             if (elName != null) {
-                DataWriter<Message> dataWriter = getMessageDataWriter(message);            
+                StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
+                        XMLConstants.NS_XML_FORMAT);
+                DataWriter<Message> dataWriter = getMessageDataWriter(message);
                 dataWriter.write(getFaultInfo(t), elName, message);
+                writer.writeEndElement();
             }
             // fault root
             writer.writeEndElement();
+            
+            writer.flush();
+
         } catch (XMLStreamException xe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), xe);
         }

@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.binding.xml.XMLFault;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
@@ -47,7 +48,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageInInterceptor.class);
     
     // TODO: this should be part of the chain!!
     private BareInInterceptor bareInterceptor = new BareInInterceptor();
@@ -68,8 +69,17 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
         
-        QName startQName = reader.getName();
         Exchange ex = message.getExchange();
+        QName startQName = reader.getName();
+        // handling xml fault message
+        if (startQName.getLocalPart().equals(XMLFault.XML_FAULT_ROOT)) {            
+            message.getInterceptorChain().abort();
+            if (ep.getInFaultObserver() != null) {
+                ep.getInFaultObserver().onMessage(message);
+                return;
+            }
+        }
+        // handling xml normal inbound message
         BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
         MessagePartInfo part = null;
         if (bop == null) {

@@ -29,6 +29,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultInInterceptor;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultOutInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -77,11 +79,13 @@ public class XMLBindingFactory extends AbstractBindingFactory {
         xb.getInInterceptors().add(new XMLMessageInInterceptor());
         
         xb.getInFaultInterceptors().add(new StaxInInterceptor());
+        xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         
         xb.getOutInterceptors().add(new StaxOutInterceptor());
         xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
         
         xb.getOutFaultInterceptors().add(new StaxOutInterceptor());
+        xb.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
 
         return xb;
     }
