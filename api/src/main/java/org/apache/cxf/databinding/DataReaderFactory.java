@@ -19,11 +19,15 @@
 
 package org.apache.cxf.databinding;
 
+import javax.xml.validation.Schema;
+
 
 //REVISIT - need to move the Reader/Writer stuff, also probably 
 //need the MessageInfo/OperationInfo as a param 
 public interface DataReaderFactory {
-    Class<?>[] getSupportedFormats();
     
+    Class<?>[] getSupportedFormats();    
     <T> DataReader<T> createReader(Class<T> cls);
+    void setSchema(Schema s);
+    
 }

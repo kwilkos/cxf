@@ -25,6 +25,7 @@ import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.validation.Schema;
 
 import org.w3c.dom.Node;
 
@@ -41,6 +42,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
 
@@ -56,7 +58,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     protected DataReader getDataReader(Message message, Class<?> input) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
+        setSchemaInMessage(service, message);
         DataReader dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == input) {
@@ -74,7 +76,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     protected DataReader<Message> getMessageDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
+        setSchemaInMessage(service, message);
         DataReader<Message> dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == Message.class) {
@@ -92,7 +94,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     protected DataReader<XMLStreamReader> getDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
+        setSchemaInMessage(service, message);
         DataReader<XMLStreamReader> dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == XMLStreamReader.class) {
@@ -110,7 +112,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     protected DataReader<Node> getNodeDataReader(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-
+        setSchemaInMessage(service, message);
         DataReader<Node> dataReader = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == Node.class) {
@@ -126,6 +128,14 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         return dataReader;
     }
 
+    private void setSchemaInMessage(Service service, Message message) {
+        if (message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED) != null 
+                && Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
+            Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
+            service.getDataBinding().getDataReaderFactory().setSchema(schema);
+        }
+    }
+    
     protected DepthXMLStreamReader getXMLStreamReader(Message message) {
         XMLStreamReader xr = message.getContent(XMLStreamReader.class);
         return new DepthXMLStreamReader(xr);

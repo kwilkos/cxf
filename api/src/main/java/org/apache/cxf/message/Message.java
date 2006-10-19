@@ -44,7 +44,7 @@ public interface Message extends Map<String, Object> {
     String PATH_INFO = Message.class.getName() + ".PATH_INFO";
     String QUERY_STRING = Message.class.getName() + ".QUERY_STRING";
     String MTOM_ENABLED = Message.class.getName() + ".isMtomEnabled";
-
+    String SCHEMA_VALIDATION_ENABLED = Message.class.getCanonicalName() + ".schemaValidationEnabled";
 
     String getId();
     void setId(String id);
