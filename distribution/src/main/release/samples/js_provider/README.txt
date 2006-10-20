@@ -86,7 +86,7 @@ From the samples/js_dispatch directory run the commands, entered on a
 single command line:
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          org.apache.cxf.js.rhino.ServerApp -v
          -b http://localhost:9000/SoapContext impl.jsx impl.js
 

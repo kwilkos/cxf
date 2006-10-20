@@ -65,12 +65,12 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/celtix.jar:./build/classes
   javac -d build/classes src/demo/jms_greeter/client/*.java
   javac -d build/classes src/demo/jms_greeter/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\celtix.jar;.\build\classes
   javac -d build\classes src\demo\jms_greeter\client\*.java
   javac -d build\classes src\demo\jms_greeter\server\*.java
 
