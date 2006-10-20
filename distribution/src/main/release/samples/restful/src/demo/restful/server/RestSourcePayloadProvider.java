@@ -95,7 +95,7 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
 
         try {
             factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
+            //factory.setValidating(true);
             builder = factory.newDocumentBuilder();
             InputStream greetMeResponse = getClass().getResourceAsStream(fileName);
 

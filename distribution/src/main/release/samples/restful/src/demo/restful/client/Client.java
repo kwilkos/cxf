@@ -22,7 +22,9 @@ package demo.restful.client;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.namespace.QName;
@@ -35,6 +37,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
+import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.http.HTTPBinding;
 
 import org.w3c.dom.Document;
 
@@ -69,7 +73,7 @@ public final class Client {
         QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                              "RestProviderPort");
 
-        Cutomerservice service = new Cutomerservice(wsdlURL, serviceName);
+        Cutomerservice cutomerservice = new Cutomerservice(wsdlURL, serviceName);
 
         Client client = new Client();
         InputStream is = client.getClass().getResourceAsStream("CustomerJohnReq.xml");
@@ -77,7 +81,7 @@ public final class Client {
         DOMSource reqMsg = new DOMSource(doc);
 
         // Sent HTTP POST request to update customer info
-        Dispatch<DOMSource> disp = service.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
+        Dispatch<DOMSource> disp = cutomerservice.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
         System.out.println("Invoking server through HTTP POST to update customer info");
         DOMSource result = disp.invoke(reqMsg);
         printSource(result);
@@ -98,6 +102,24 @@ public final class Client {
         source = new StreamSource(in);
         printSource(source);
 
+        // Use Dispatch to send GET request to query customer info
+        endpointAddress =
+            "http://localhost:9000/customerservice/customer"; 
+        Service service = Service.create(serviceName); 
+        URI endpointURI = new URI(endpointAddress.toString());
+        String path = null; 
+        if (endpointURI != null) { 
+            path = endpointURI.getPath(); 
+        } 
+        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress.toString());
+        Dispatch<Source> dispatch = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
+        Map<String, Object> requestContext = dispatch.getRequestContext();
+        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
+        requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
+        requestContext.put(MessageContext.PATH_INFO, path);
+        System.out.println("Invoking Restful GET Request with query string ");
+        Source returnSource = dispatch.invoke(null);
+        printSource(returnSource);
         System.exit(0);
     }
 
