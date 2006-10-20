@@ -59,12 +59,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
         }
     }
 
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.objectweb.celtix.workqueue.WorkQueueManager#getAutomaticWorkQueue()
-     */
     public synchronized AutomaticWorkQueue getAutomaticWorkQueue() {
         if (autoQueue == null) {
             autoQueue = createAutomaticWorkQueue();
@@ -78,30 +72,14 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
         return autoQueue;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.objectweb.celtix.workqueue.WorkQueueManager#getThreadingModel()
-     */
     public ThreadingModel getThreadingModel() {
         return threadingModel;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.objectweb.celtix.workqueue.WorkQueueManager#setThreadingModel(
-     *      org.objectweb.celtix.workqueue.WorkQueueManager.ThreadingModel)
-     */
     public void setThreadingModel(ThreadingModel model) {
         threadingModel = model;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.objectweb.celtix.workqueue.WorkQueueManager#shutdown(boolean)
-     */
     public synchronized void shutdown(boolean processRemainingTasks) {
         inShutdown = true;
         if (autoQueue != null) {

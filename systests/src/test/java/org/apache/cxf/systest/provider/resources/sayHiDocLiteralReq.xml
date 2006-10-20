@@ -17,4 +17,4 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><SOAP-ENV:Body><ns5:sayHi xmlns:ns4="http://www.w3.org/2005/08/addressing/wsdl" xmlns:ns5="http://objectweb.org/hello_world_soap_http/types"/></SOAP-ENV:Body></SOAP-ENV:Envelope>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><SOAP-ENV:Body><ns5:sayHi xmlns:ns4="http://www.w3.org/2005/08/addressing/wsdl" xmlns:ns5="http://apache.org/hello_world_soap_http/types"/></SOAP-ENV:Body></SOAP-ENV:Envelope>

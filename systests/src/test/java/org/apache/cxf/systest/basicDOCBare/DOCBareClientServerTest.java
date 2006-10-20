@@ -72,7 +72,7 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
         for (int i = 0; i < 5; i++) {
             putLastTradedPrice.sayHi(holder);
             assertEquals(4.5f, holder.value.getTickerPrice());
-            assertEquals("OBJECTWEB", holder.value.getTickerSymbol());
+            assertEquals("APACHE", holder.value.getTickerSymbol());
             putLastTradedPrice.putLastTradedPrice(priceData);
         }
 

@@ -37,13 +37,6 @@ import org.apache.header_test.types.TestHeader5;
             targetNamespace = "http://apache.org/header_test")
 public class TestHeaderImpl implements TestHeader {
 
-    /**
-     * 
-     * @param inHeader
-     * @param in
-     * @return
-     *     returns org.objectweb.header_test.types.TestHeader1Response
-     */
     public TestHeader1Response testHeader1(
         TestHeader1 in,
         TestHeader1 inHeader) {
@@ -76,13 +69,6 @@ public class TestHeaderImpl implements TestHeader {
         outHeader.value = outHeaderVal;        
     }
 
-    /**
-     * 
-     * @param inoutHeader
-     * @param in
-     * @return
-     *     returns org.objectweb.header_test.types.TestHeader3Response
-     */
     public TestHeader3Response testHeader3(
         TestHeader3 in,
         Holder<TestHeader3> inoutHeader) {
@@ -106,12 +92,6 @@ public class TestHeaderImpl implements TestHeader {
         
     }
 
-    /**
-     * 
-     * @param in
-     * @return
-     *     returns org.objectweb.header_test.types.TestHeader5
-     */
     public TestHeader5 testHeader5(
         TestHeader5 in) {
         return in;

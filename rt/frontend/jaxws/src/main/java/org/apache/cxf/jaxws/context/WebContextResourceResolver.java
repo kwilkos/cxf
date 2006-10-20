@@ -28,8 +28,6 @@ import org.apache.cxf.resource.ResourceResolver;
 
 public class WebContextResourceResolver implements ResourceResolver {
 
-    // Implementation of org.objectweb.celtix.resource.ResourceResolver
-
     public final InputStream getAsStream(final String string) {
         return null;
     }

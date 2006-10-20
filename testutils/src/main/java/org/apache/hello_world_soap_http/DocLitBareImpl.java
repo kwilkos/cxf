@@ -33,7 +33,7 @@ public class DocLitBareImpl implements PutLastTradedPricePortType {
     public void sayHi(Holder<TradePriceData> inout) {
         ++sayHiCount;
         inout.value.setTickerPrice(4.5f);
-        inout.value.setTickerSymbol("OBJECTWEB");
+        inout.value.setTickerSymbol("APACHE");
     }
     
     public void putLastTradedPrice(TradePriceData body) {

@@ -32,7 +32,7 @@ public class PutLastTradedPriceImpl implements PutLastTradedPricePortType {
    
     public void sayHi(Holder<TradePriceData> inout) {
         inout.value.setTickerPrice(4.5f);
-        inout.value.setTickerSymbol("OBJECTWEB");
+        inout.value.setTickerSymbol("APACHE");
     }   
     public void putLastTradedPrice(TradePriceData body) {
         System.out.println("-----TradePriceData TickerPrice : ----- " + body.getTickerPrice());
