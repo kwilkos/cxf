@@ -174,7 +174,11 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         URLConnection connection = 
             connectionFactory.createConnection(getProxy(), currentURL);
         connection.setDoOutput(true);        
-                       
+        //TODO using Message context to deceided HTTP send properties        
+        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
+        connection.setReadTimeout((int)getClient().getReceiveTimeout());
+        connection.setUseCaches(false);
+        
         if (connection instanceof HttpURLConnection) {
             String httpRequestMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
             HttpURLConnection hc = (HttpURLConnection)connection;           
@@ -183,15 +187,6 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             } else {
                 hc.setRequestMethod("POST");
             }
-        }     
-      
-        //TODO using Message context to deceided HTTP send properties        
-        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
-        connection.setReadTimeout((int)getClient().getReceiveTimeout());
-
-        connection.setUseCaches(false);
-        if (connection instanceof HttpURLConnection) {
-            HttpURLConnection hc = (HttpURLConnection)connection;
             if (getClient().isAutoRedirect()) {
                 //cannot use chunking if autoredirect as the request will need to be
                 //completely cached locally and resent to the redirect target
@@ -225,7 +220,8 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         }        
         return new URL(result);    
     }
-
+    
+   
     /**
      * @return the reference associated with the target Destination
      */    
@@ -636,9 +632,9 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
     private void setPolicies(Message message, Map<String, List<String>> headers) {
         AuthorizationPolicy authPolicy = getAuthorization();
         AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
-        String userName = null;
-        String passwd = null;
-        if (null != newPolicy) {
+        String userName = (String)message.get(Message.USERNAME);
+        String passwd = (String)message.get(Message.PASSWORD);
+        if (null != newPolicy && null != userName) {
             userName = newPolicy.getUserName();
             passwd = newPolicy.getPassword();
         }

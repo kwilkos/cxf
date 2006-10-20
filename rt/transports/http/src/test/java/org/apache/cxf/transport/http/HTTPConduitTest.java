@@ -140,7 +140,9 @@ public class HTTPConduitTest extends TestCase {
         contentTypes.add("text/xml");
         contentTypes.add("charset=utf8");
         headers.put("content-type", contentTypes);
-        message.put(Message.PROTOCOL_HEADERS, headers);
+        message.put(Message.PROTOCOL_HEADERS, headers);        
+        message.put(Message.USERNAME, "BJ");
+        message.put(Message.PASSWORD, "value");
     }
 
     private HTTPConduit setUpConduit(boolean send) throws Exception {
@@ -356,6 +358,9 @@ public class HTTPConduitTest extends TestCase {
         
         message.put(HTTPConduit.HTTP_CONNECTION, connection);
         if (expectHeaders) {
+            connection.addRequestProperty(EasyMock.eq("Authorization"),
+                                          EasyMock.eq("Basic Qko6dmFsdWU="));            
+            EasyMock.expectLastCall();
             connection.addRequestProperty(EasyMock.eq("content-type"),
                                           EasyMock.eq("text/xml"));
             EasyMock.expectLastCall();

@@ -37,6 +37,8 @@ public interface Message extends Map<String, Object> {
     
     String MIME_HEADERS = "org.apache.cxf.mime.headers";
     
+    String USERNAME = Message.class.getName() + ".USERNAME";
+    String PASSWORD = Message.class.getName() + ".PASSWORD";
     String PROTOCOL_HEADERS = Message.class.getName() + ".PROTOCOL_HEADERS";
     String RESPONSE_CODE = Message.class.getName() + ".RESPONSE_CODE";
     String ENDPOINT_ADDRESS = Message.class.getName() + ".ENDPOINT_ADDRESS";
