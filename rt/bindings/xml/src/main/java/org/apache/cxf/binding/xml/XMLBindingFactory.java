@@ -77,8 +77,7 @@ public class XMLBindingFactory extends AbstractBindingFactory {
         
         xb.getInInterceptors().add(new StaxInInterceptor());
         xb.getInInterceptors().add(new XMLMessageInInterceptor());
-        
-        xb.getInFaultInterceptors().add(new StaxInInterceptor());
+                
         xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         
         xb.getOutInterceptors().add(new StaxOutInterceptor());

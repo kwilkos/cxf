@@ -43,7 +43,7 @@ public class XMLFaultInInterceptor extends AbstractInDatabindingInterceptor {
 
     public XMLFaultInInterceptor() {
         super();
-        setPhase(Phase.MARSHAL);
+        setPhase(Phase.UNMARSHAL);
         addBefore(ClientFaultConverter.class.getName());
     }
     
