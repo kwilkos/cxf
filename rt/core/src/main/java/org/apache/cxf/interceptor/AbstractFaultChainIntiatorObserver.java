@@ -19,13 +19,15 @@
 
 package org.apache.cxf.interceptor;
 
+import java.util.List;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.transport.MessageObserver;
 
 public abstract class AbstractFaultChainIntiatorObserver implements MessageObserver {
@@ -56,13 +58,14 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         faultMessage.setContent(Exception.class, f);
         
         // setup chain
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(bus.getExtension(PhaseManager.class)
-            .getOutPhases());
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(getPhases());
         initializeInterceptors(faultMessage.getExchange(), chain);
         
         faultMessage.setInterceptorChain(chain);
         chain.doIntercept(faultMessage);
     }
+
+    protected abstract List<Phase> getPhases();
 
     protected void initializeInterceptors(Exchange ex, PhaseInterceptorChain chain) {
         

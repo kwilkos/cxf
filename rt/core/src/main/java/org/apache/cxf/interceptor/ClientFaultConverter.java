@@ -45,7 +45,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
     
     public ClientFaultConverter() {
         super();
-        setPhase(Phase.MARSHAL);
+        setPhase(Phase.UNMARSHAL);
     }
 
     public void handleMessage(Message msg) {

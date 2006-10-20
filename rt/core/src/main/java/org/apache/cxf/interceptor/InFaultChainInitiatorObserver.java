@@ -18,10 +18,14 @@
  */
 package org.apache.cxf.interceptor;
 
+import java.util.List;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.phase.PhaseManager;
 
 public class InFaultChainInitiatorObserver extends AbstractFaultChainIntiatorObserver {
 
@@ -36,5 +40,9 @@ public class InFaultChainInitiatorObserver extends AbstractFaultChainIntiatorObs
         chain.add(e.getBinding().getInFaultInterceptors());
         chain.add(e.getService().getInFaultInterceptors());
         chain.add(getBus().getInFaultInterceptors());
+    }
+    
+    protected List<Phase> getPhases() {
+        return getBus().getExtension(PhaseManager.class).getInPhases();
     }
 }
