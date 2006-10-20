@@ -42,14 +42,14 @@ import org.apache.cxf.service.model.MessagePartInfo;
  * @author Dan Diephouse
  */
 public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
-    
+
     public ClientFaultConverter() {
         super();
         setPhase(Phase.UNMARSHAL);
     }
 
     public void handleMessage(Message msg) {
-        Fault fault = (Fault)msg.getContent(Exception.class);
+        Fault fault = (Fault) msg.getContent(Exception.class);
 
         if (fault.getDetail() != null) {
             processFaultDetail(fault, msg);
@@ -57,52 +57,54 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
     }
 
     protected void processFaultDetail(Fault fault, Message msg) {
-        Element exDetail = (Element)DOMUtils.getChild(fault.getDetail(), Node.ELEMENT_NODE);
+        Element exDetail = (Element) DOMUtils.getChild(fault.getDetail(), Node.ELEMENT_NODE);
         QName qname = new QName(exDetail.getNamespaceURI(), exDetail.getLocalName());
+        FaultInfo faultWanted = null;        
+        Class cls = null;
+        BindingOperationInfo boi = msg.getExchange().get(BindingOperationInfo.class);
+        for (FaultInfo faultInfo : boi.getOperationInfo().getFaults()) {
+            for (MessagePartInfo mpi : faultInfo.getMessageParts()) {
+                String ns = null;
+                if (mpi.isElement()) {
+                    ns = mpi.getElementQName().getNamespaceURI();
+                } else {
+                    ns = mpi.getTypeQName().getNamespaceURI();
+                }
+                if (qname.getLocalPart().equals(mpi.getConcreteName().getLocalPart()) 
+                        && qname.getNamespaceURI().equals(ns)) {
+                    cls = (Class)mpi.getProperty(Class.class.getName());
+                    faultWanted = faultInfo;
+                    break;
+                }
+            }
+            if (faultWanted != null) {
+                break;
+            }
+        }
 
-        FaultInfo faultInfo = getFaultInfo(msg.getExchange().get(BindingOperationInfo.class),
-                                           qname,
-                                           exDetail);
-        if (faultInfo == null) {
+        if (faultWanted == null) {
             return;
         }
-        
+
         Service s = msg.getExchange().get(Service.class);
         DataBinding dataBinding = s.getDataBinding();
-        
+
         DataReader<Node> reader = dataBinding.getDataReaderFactory().createReader(Node.class);
-        Object e = reader.read(exDetail);
-        
+        Object e = reader.read(qname, exDetail, cls);
+
         if (!(e instanceof Exception)) {
-            Class exClass = faultInfo.getProperty(Class.class.getName(), Class.class);
+            Class exClass = faultWanted.getProperty(Class.class.getName(), Class.class);
             Class beanClass = e.getClass();
 
             try {
-                Constructor constructor = exClass.getConstructor(new Class[] {String.class,
-                                                                              beanClass});
-                e = constructor.newInstance(new Object[] {fault.getMessage(), e});
+                Constructor constructor = exClass.getConstructor(new Class[]{String.class, beanClass});
+                e = constructor.newInstance(new Object[]{fault.getMessage(), e});
             } catch (Exception e1) {
                 throw new Fault(e1);
             }
         }
 
         msg.setContent(Exception.class, e);
-    }
-
-    protected FaultInfo getFaultInfo(BindingOperationInfo operation, 
-                                     QName qname,
-                                     Element exDetail) {
-        
-        for (FaultInfo faultInfo : operation.getOperationInfo().getFaults()) {
-
-            for (MessagePartInfo mpi : faultInfo.getMessageParts()) {
-                if (qname.equals(mpi.getConcreteName())) {
-                    return faultInfo;
-                }
-            }
-        }
-
-        return null;
     }
 
 }

@@ -31,14 +31,14 @@ import javax.xml.ws.BindingProvider;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-//import org.apache.cxf.hello_world_jms.BadRecordLitFault;
+import org.apache.cxf.hello_world_jms.BadRecordLitFault;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayPort;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayQueueService;
 import org.apache.cxf.hello_world_jms.HelloWorldPortType;
 import org.apache.cxf.hello_world_jms.HelloWorldPubSubPort;
 import org.apache.cxf.hello_world_jms.HelloWorldPubSubService;
 import org.apache.cxf.hello_world_jms.HelloWorldService;
-//import org.apache.cxf.hello_world_jms.NoSuchCodeLitFault;
+import org.apache.cxf.hello_world_jms.NoSuchCodeLitFault;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.transport.jms.JMSConstants;
@@ -134,7 +134,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 assertNotNull("no response received from service", reply);
                 assertEquals(response2, reply);
                 
-                /*try {
+                try {
                     greeter.testRpcLitFault("BadRecordLitFault");
                     fail("Should have thrown BadRecoedLitFault");
                 } catch (BadRecordLitFault ex) {
@@ -147,7 +147,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 } catch (NoSuchCodeLitFault nslf) {
                     assertNotNull(nslf.getFaultInfo());
                     assertNotNull(nslf.getFaultInfo().getCode());
-                } */
+                } 
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

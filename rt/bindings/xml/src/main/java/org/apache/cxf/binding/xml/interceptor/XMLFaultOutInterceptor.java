@@ -78,7 +78,9 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                 FaultInfo fi = it.next();
                 for (MessagePartInfo mpi : fi.getMessageParts()) {
                     Class cls = mpi.getProperty(Class.class.getName(), Class.class);
-                    if (cls != null && cls.equals(t.getClass())) {
+                    Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
+                    Class sub = method.getReturnType();
+                    if (cls != null && cls.equals(sub)) {
                         if (mpi.isElement()) {
                             elName = mpi.getElementQName();
                         } else {
@@ -113,6 +115,8 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
             
             writer.flush();
 
+        } catch (NoSuchMethodException ne) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("UNKNOWN_EXCEPTION", BUNDLE), ne);        
         } catch (XMLStreamException xe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), xe);
         }

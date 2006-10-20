@@ -178,9 +178,22 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             
             for (FaultInfo fi : o.getFaults()) {
                 for (MessagePartInfo mpi : fi.getMessageParts()) {
-                    if (mpi.getConcreteName().equals(name)) {
-                        fi.setProperty(Class.class.getName(), exClass);
-                        mpi.setProperty(Class.class.getName(), beanClass);
+                    String ns = null;
+                    if (mpi.isElement()) {
+                        ns = mpi.getElementQName().getNamespaceURI();
+                    } else {
+                        ns = mpi.getTypeQName().getNamespaceURI();
+                    }
+                    if (mpi.getConcreteName().getLocalPart().equals(name.getLocalPart()) 
+                            && name.getNamespaceURI().equals(ns)) {
+                        try {
+                            Method method = beanClass.getMethod("getFaultInfo", new Class[0]);
+                            Class sub = method.getReturnType();
+                            fi.setProperty(Class.class.getName(), exClass);
+                            mpi.setProperty(Class.class.getName(), sub);
+                        } catch (NoSuchMethodException nsme) {
+                            nsme.printStackTrace();
+                        }
                     }
                 }
             }

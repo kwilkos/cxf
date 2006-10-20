@@ -59,7 +59,9 @@ public class XMLFaultInInterceptor extends AbstractInDatabindingInterceptor {
             }
             String exMessage = reader.getElementText();
             Fault fault = new XMLFault(exMessage);
-            reader.next();
+            while (!StaxUtils.toNextElement(reader)) {
+                StaxUtils.nextEvent(reader);
+            }
             if (StaxUtils.toNextElement(reader)) {
                 // handling detail
                 Element detail = StaxUtils.read(new FragmentStreamReader(reader)).getDocumentElement();
