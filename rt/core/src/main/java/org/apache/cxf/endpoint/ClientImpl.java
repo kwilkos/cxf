@@ -301,19 +301,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     private boolean isPartialResponse(Message in) {
-        // andreasmyth:
-        // return always false (and disable the addressing system test) 
-        // as for some reason checking the content of the message 
-        // slows performance: with some exceptions (possibly random) 
-        // individual system tests take more or less the same time either
-        // way but there seem to be problems with freeing up resources
-        // after each test run so that the total time for all system tests is
-        // excessively long.
-
-        return false;
-        /*
         return in.getContent(List.class) == null
-            && in.getContent(Exception.class) == null;
-        */
+            && getException(in.getExchange()) == null;
     }
 }
