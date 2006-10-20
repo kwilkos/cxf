@@ -45,6 +45,7 @@
 	         <include>**/*</include>
              </includes>
              <excludes>
+		 <exclude>build.xml</exclude>
 	         <exclude>**/target</exclude>
 		 <exclude>**/target/**/*</exclude>
 		 <exclude>**/build</exclude>

@@ -116,7 +116,7 @@
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>3.2</version>
-            <scope>runtime</scope>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>xerces</groupId>
@@ -187,7 +187,7 @@
                     <artifactId>xbean</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency> 
 
     </dependencies>
 

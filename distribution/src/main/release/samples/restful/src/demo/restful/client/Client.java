@@ -81,7 +81,8 @@ public final class Client {
         DOMSource reqMsg = new DOMSource(doc);
 
         // Sent HTTP POST request to update customer info
-        Dispatch<DOMSource> disp = cutomerservice.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
+        Dispatch<DOMSource> disp = cutomerservice.createDispatch(portName, DOMSource.class, 
+                                   Service.Mode.PAYLOAD);
         System.out.println("Invoking server through HTTP POST to update customer info");
         DOMSource result = disp.invoke(reqMsg);
         printSource(result);

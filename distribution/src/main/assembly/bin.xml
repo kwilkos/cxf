@@ -89,20 +89,6 @@
 	         <include>cxf-incubator.jar</include>
              </includes>
 	</fileSet>
-	<fileSet>
-	    <directory>src/main/release/lib</directory>
-	    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
-	    <includes>
-	        <include>activemq/**/*</include>
-            </includes>
-	</fileSet>
-	<fileSet>
-	    <directory>target/additional-libs</directory>
-	    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
-	    <includes>
-	        <include>**/*</include>
-            </includes>
-	</fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
