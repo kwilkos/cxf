@@ -49,8 +49,8 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
         setPhase(Phase.MARSHAL);
     }
 
-    public void handleMessage(Message message) throws Fault {
-
+    public void handleMessage(Message message) throws Fault {        
+        message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
         NSStack nsStack = new NSStack();
         nsStack.push();
 

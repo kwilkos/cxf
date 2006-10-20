@@ -22,11 +22,16 @@
 package org.apache.cxf.systest.soap12;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.apache.cxf.message.Message;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.hello_world_soap12_http.Greeter;
@@ -56,13 +61,18 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
             String echo = greeter.sayHi();
             assertEquals("Bonjour", echo);
         }
-
+        BindingProvider bp = (BindingProvider)greeter;
+        Map<String, Object> responseContext = bp.getResponseContext();
+        Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
+        assertEquals(200, responseCode.intValue());
     }
 
     public void testPingMeFault() throws Exception {
-        Greeter greeter = getGreeter();
+        Greeter greeter = getGreeter();       
+        
         try {
             greeter.pingMe();
+            
             fail("Should throw Exception!");
         } catch (PingMeFault ex) {
             FaultDetail detail = ex.getFaultInfo();
@@ -70,6 +80,16 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
             assertEquals((short)1, detail.getMinor());
             assertEquals("PingMeFault raised by server", ex.getMessage());            
         }
+        
+        BindingProvider bp = (BindingProvider)greeter;
+        Map<String, Object> responseContext = bp.getResponseContext();
+        String contentType = (String) responseContext.get(Message.CONTENT_TYPE);
+        assertEquals("application/soap+xml", contentType);
+        Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
+        assertEquals(500, responseCode.intValue());
+        Map ct = (Map) responseContext.get(Message.PROTOCOL_HEADERS);
+        List contentTypes = (List) ct.get("Content-Type"); 
+        assertTrue(contentTypes.contains("application/soap+xml"));
     }
 
     private Greeter getGreeter() {

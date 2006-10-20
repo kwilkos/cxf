@@ -21,6 +21,7 @@ package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +29,7 @@ import java.util.concurrent.Future;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
@@ -35,6 +37,7 @@ import javax.xml.ws.Service;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.message.Message;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
@@ -117,6 +120,10 @@ public class ClientServerTest extends ClientServerTestBase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();
         }
+        BindingProvider bp = (BindingProvider)greeter;
+        Map<String, Object> responseContext = bp.getResponseContext();
+        Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);        
+        assertEquals(200, responseCode.intValue());
     } 
     
     public void testAddPort() throws Exception {
@@ -444,11 +451,17 @@ public class ClientServerTest extends ClientServerTestBase {
             try {
                 greeter.testDocLitFault(badRecordFault);
                 fail("Should have thrown BadRecordLitFault exception");
-            } catch (BadRecordLitFault brlf) {
+            } catch (BadRecordLitFault brlf) {                
+                BindingProvider bp = (BindingProvider)greeter;
+                Map<String, Object> responseContext = bp.getResponseContext();
+                String contentType = (String) responseContext.get(Message.CONTENT_TYPE);
+                assertEquals("text/xml", contentType);
+                Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
+                assertEquals(500, responseCode.intValue());                
                 assertNotNull(brlf.getFaultInfo());
+                assertEquals("BadRecordLitFault", brlf.getFaultInfo());
             }
         }
-
     } 
 
     public static void main(String[] args) {

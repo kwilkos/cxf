@@ -65,4 +65,6 @@ public interface SoapVersion {
     String getNextRole();
     
     String getSoapMimeType();
+    
+    String getContentType();
 }

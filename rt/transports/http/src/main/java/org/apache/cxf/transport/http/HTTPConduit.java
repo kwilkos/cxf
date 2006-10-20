@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -178,6 +177,12 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         connection.setConnectTimeout((int)getClient().getConnectionTimeout());
         connection.setReadTimeout((int)getClient().getReceiveTimeout());
         connection.setUseCaches(false);
+        
+        if (null != message.get(Message.CONTENT_TYPE)) {
+            connection.setRequestProperty("Content-Type", (String)message.get(Message.CONTENT_TYPE));
+        } else {
+            connection.setRequestProperty("Content-Type", "text/xml");
+        }
         
         if (connection instanceof HttpURLConnection) {
             String httpRequestMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);

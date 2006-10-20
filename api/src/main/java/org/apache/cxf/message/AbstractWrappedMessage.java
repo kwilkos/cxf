@@ -156,6 +156,5 @@ public abstract class AbstractWrappedMessage implements Message {
 
     public Object getContextualProperty(String key) {
         return message.getContextualProperty(key);
-    }
-    
+    }       
 }

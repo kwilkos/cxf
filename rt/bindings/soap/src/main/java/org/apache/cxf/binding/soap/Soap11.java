@@ -51,7 +51,7 @@ public final class Soap11 implements SoapVersion {
 
     private final QName body = new QName(namespace, "Body", prefix);
 
-    private final QName fault = new QName(namespace, "Fault", prefix);
+    private final QName fault = new QName(namespace, "Fault", prefix);      
 
     private Soap11() {
         // Singleton 
@@ -138,5 +138,9 @@ public final class Soap11 implements SoapVersion {
     public QName getDateEncodingUnknown() {
         // There is no such fault code in soap11
         return null;
+    }
+    
+    public String getContentType() {
+        return "text/xml";
     }
 }

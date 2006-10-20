@@ -114,8 +114,7 @@ public class RestClientServerTest extends ClientServerTestBase {
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
         requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
         //this is the original path part of uri 
-        requestContext.put(MessageContext.PATH_INFO, path);
-        System.out.println("Invoking Restful GET Request with query string ");
+        requestContext.put(MessageContext.PATH_INFO, path);        
         Source result = d.invoke(null);
         assertNotNull("result shoud not be null", result);        
         String tempstring = source2String(result);
@@ -133,21 +132,4 @@ public class RestClientServerTest extends ClientServerTestBase {
         trans.transform(source, sr);
         return bos.toString();
     }
-
-    void printSource(Source source) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            StreamResult sr = new StreamResult(bos);
-            Transformer trans = TransformerFactory.newInstance().newTransformer();
-            Properties oprops = new Properties();
-            oprops.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            trans.setOutputProperties(oprops);
-            trans.transform(source, sr);
-            System.out.println("**** Response ******" + bos.toString());
-            bos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }

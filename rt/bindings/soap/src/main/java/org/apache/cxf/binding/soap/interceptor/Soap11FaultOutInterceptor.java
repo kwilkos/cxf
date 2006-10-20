@@ -45,10 +45,12 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
+        message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
+        
         XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
         Fault f = (Fault)message.getContent(Exception.class);
 
-        SoapFault fault = SoapFault.createFault(f, message.getVersion());
+        SoapFault fault = SoapFault.createFault(f, message.getVersion());        
 
         try {
             Map<String, String> namespaces = fault.getNamespaces();

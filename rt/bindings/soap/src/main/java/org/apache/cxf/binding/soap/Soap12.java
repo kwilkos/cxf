@@ -139,5 +139,7 @@ public final class Soap12 implements SoapVersion {
     public QName getDateEncodingUnknown() {
         return new QName(SOAP_NAMESPACE, "DataEncodingUnknown");
     }
-
+    public String getContentType() {
+        return "application/soap+xml";
+    }
 }

@@ -20,8 +20,10 @@
 package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Service;
 
@@ -29,6 +31,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.message.Message;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.hello_world_xml_http.wrapped.Greeter;
@@ -112,8 +115,8 @@ public class ClientServerXMLWrapTest extends TestCase {
 
         String response1 = new String("Hello ");
         String response2 = new String("Bonjour");
-        try {
-            Greeter greeter = service.getPort(fakePortName, Greeter.class);
+        Greeter greeter = service.getPort(fakePortName, Greeter.class);
+        try {            
             String username = System.getProperty("user.name");
             String reply = greeter.greetMe(username);
 
@@ -129,21 +132,33 @@ public class ClientServerXMLWrapTest extends TestCase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
+        BindingProvider bp = (BindingProvider)greeter;
+        Map<String, Object> responseContext = bp.getResponseContext();
+        Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);        
+        assertEquals(200, responseCode.intValue());                                    
     }
 
     public void testXMLFault() throws Exception {
         XMLService service = new XMLService(
                 this.getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl"), serviceName);
         assertNotNull(service);
-        try {
-            Greeter greeter = service.getPort(portName, Greeter.class);
+        Greeter greeter = service.getPort(portName, Greeter.class);
+        try {            
             greeter.pingMe();
             fail("did not catch expected PingMeFault exception");
         } catch (PingMeFault ex) {
             assertEquals("minor value", 1, ex.getFaultInfo().getMinor());
             assertEquals("major value", 2, ex.getFaultInfo().getMajor());
+            
+            BindingProvider bp = (BindingProvider)greeter;
+            Map<String, Object> responseContext = bp.getResponseContext();
+            String contentType = (String) responseContext.get(Message.CONTENT_TYPE);
+            assertEquals("text/xml", contentType);
+            Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
+            assertEquals(500, responseCode.intValue());                                    
         } catch (Exception ex) {
-            fail("did not catch expected PingMeFault exception");
+            assertTrue("did not catch expected PingMeFault exception", 
+                       !(ex instanceof PingMeFault));
         }
     }
 }

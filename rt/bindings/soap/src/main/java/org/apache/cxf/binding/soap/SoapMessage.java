@@ -51,7 +51,7 @@ public class SoapMessage extends AbstractWrappedMessage {
     public void setVersion(SoapVersion v) {
         this.version = v;
     }
-
+    
     public <T> boolean hasHeaders(Class<T> format) {
         return headers.containsKey(format);
     }

@@ -34,6 +34,7 @@ public class XMLBinding extends AbstractBasicInterceptorProvider implements Bind
     }
 
     public Message createMessage(Message m) {
+        m.put(Message.CONTENT_TYPE, "text/xml");
         return new XMLMessage(m);
     }
 }
