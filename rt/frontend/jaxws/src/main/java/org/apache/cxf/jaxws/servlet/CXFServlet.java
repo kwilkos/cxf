@@ -201,16 +201,21 @@ public class CXFServlet extends HttpServlet {
 
     private void replaceDestionFactory() {
         DestinationFactory factory = createServletTransportFactory();
-        deregisterTransport("http://schemas.xmlsoap.org/wsdl/soap/");
+        
+
         deregisterTransport("http://schemas.xmlsoap.org/wsdl/soap/http");
+        deregisterTransport("http://schemas.xmlsoap.org/soap/http");
+        deregisterTransport("http://www.w3.org/2003/05/soap/bindings/HTTP/");
         deregisterTransport("http://schemas.xmlsoap.org/wsdl/http/");
-        deregisterTransport("http://celtix.objectweb.org/bindings/xmlformat");
-        deregisterTransport("http://celtix.objectweb.org/transports/http/configuration");
-        registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/");
+        deregisterTransport("http://cxf.apache.org/transports/http/configuration");
+        deregisterTransport("http://cxf.apache.org/bindings/xformat");
+        
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/http");
+        registerTransport(factory, "http://schemas.xmlsoap.org/soap/http");
+        registerTransport(factory, "http://www.w3.org/2003/05/soap/bindings/HTTP/");
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/http/");
-        registerTransport(factory, "http://celtix.objectweb.org/bindings/xmlformat");
-        registerTransport(factory, "http://celtix.objectweb.org/transports/http/configuration");
+        registerTransport(factory, "http://cxf.apache.org/transports/http/configuration");
+        registerTransport(factory, "http://cxf.apache.org/bindings/xformat");
     }
 
     public void loadEndpoint(ServletConfig servletConfig, Node node) {
