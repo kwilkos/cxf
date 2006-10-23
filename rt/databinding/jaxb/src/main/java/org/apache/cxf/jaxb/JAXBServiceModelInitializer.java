@@ -24,21 +24,25 @@ import java.lang.reflect.Type;
 import javax.xml.namespace.QName;
 
 import com.sun.xml.bind.v2.model.annotation.RuntimeInlineAnnotationReader;
-import com.sun.xml.bind.v2.model.core.ElementInfo;
+import com.sun.xml.bind.v2.model.core.Element;
 import com.sun.xml.bind.v2.model.core.NonElement;
 import com.sun.xml.bind.v2.model.impl.RuntimeModelBuilder;
 
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
 
 /**
  * Walks the service model and sets up the element/type names.
  */
 class JAXBServiceModelInitializer extends ServiceModelVisitor {
 
-    public JAXBServiceModelInitializer(ServiceInfo serviceInfo) {
+    private XmlSchemaCollection schemas;
+
+    public JAXBServiceModelInitializer(ServiceInfo serviceInfo, XmlSchemaCollection col) {
         super(serviceInfo);
+        schemas = col;
     }
 
     @Override
@@ -62,13 +66,16 @@ class JAXBServiceModelInitializer extends ServiceModelVisitor {
             return;
         }
 
-        boolean isElement = typeInfo instanceof ElementInfo;
+        boolean isElement = typeInfo instanceof Element;
 
         part.setElement(isElement);
         if (isElement) {
-            part.setElementQName(typeName);
+            QName name = ((Element) typeInfo).getElementName();
+            part.setElementQName(name);
+            part.setXmlSchema(schemas.getElementByQName(name));
         } else {
             part.setTypeQName(typeName);
+            part.setXmlSchema(schemas.getTypeByQName(typeName));
         }
     }
 }

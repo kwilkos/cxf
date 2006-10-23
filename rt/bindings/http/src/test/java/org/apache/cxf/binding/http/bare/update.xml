@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<customer xmlns="http://cxf.apache.org/jra" xmlns:ns2="http://www.w3.org/2005/08/addressing/wsdl">
+<id>123</id>
+<name>Danno Manno</name>
+</customer>

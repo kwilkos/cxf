@@ -30,6 +30,7 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -44,6 +45,7 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
     public XMLMessageOutInterceptor() {
         super();
         setPhase(Phase.MARSHAL);
+        addAfter(WrappedOutInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -69,7 +71,7 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
             if (rootInModel == null) {
                 rootInModel = boi.getName();
             }
-            if (mi.getMessageParts().size() == 0) {
+            if (mi.getMessageParts().size() == 0 && !boi.isUnwrapped()) {
                 // write empty operation qname
                 writeMessage(message, rootInModel, false);
             } else {

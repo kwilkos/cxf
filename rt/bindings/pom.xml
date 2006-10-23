@@ -37,6 +37,7 @@
     <modules>
         <module>soap</module>
 	<module>xml</module>
+        <module>http</module>
     </modules>
 
 </project>

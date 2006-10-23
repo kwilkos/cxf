@@ -47,6 +47,7 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
+import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebEndpoint;
@@ -101,7 +102,7 @@ public final class JAXBEncoderDecoder {
             return getValidClass(cls.getComponentType());
         }
 
-        if (cls == Object.class || cls == String.class) {
+        if (cls == Object.class || cls == String.class || cls == Holder.class) {
             cls = null;
         } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
             cls = null;

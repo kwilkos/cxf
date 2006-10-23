@@ -53,6 +53,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
@@ -78,12 +79,11 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public JAXBDataBinding(Class<?> cls) throws JAXBException {
-        this();                
+        this();
         context = JAXBEncoderDecoder.createJAXBContextForClass(cls);
         reader.setJAXBContext(context);
         writer.setJAXBContext(context);
     }
-
 
     public void setContext(JAXBContext ctx) {
         context = ctx;
@@ -100,8 +100,8 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo) {
-        Collection<String> schemaResources = CastUtils.cast(serviceInfo.getProperty(SCHEMA_RESOURCE,
-                        List.class), String.class);
+        Collection<String> schemaResources = CastUtils
+            .cast(serviceInfo.getProperty(SCHEMA_RESOURCE, List.class), String.class);
 
         return loadSchemas(schemaResources);
     }
@@ -159,9 +159,16 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public void initialize(ServiceInfo serviceInfo) {
-        JAXBServiceModelInitializer initializer = new JAXBServiceModelInitializer(serviceInfo);
-        initializer.walk();
-        
+        XmlSchemaCollection col = (XmlSchemaCollection)serviceInfo
+            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+
+        if (col != null) {
+            // someone has already filled in the types
+            return;
+        }
+
+        col = new XmlSchemaCollection();
+
         try {
             TypeInfo typeInfo = serviceInfo.getTypeInfo();
             if (typeInfo == null) {
@@ -170,25 +177,30 @@ public final class JAXBDataBinding implements DataBinding {
             }
 
             for (DOMResult r : generateJaxbSchemas()) {
-                Document d = (Document) r.getNode();
+                Document d = (Document)r.getNode();
                 String ns = d.getDocumentElement().getAttribute("targetNamespace");
                 if (ns == null) {
                     ns = "";
                 }
-                
+
                 // Don't include WS-Addressing bits
                 if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
                     continue;
                 }
-                
+
                 SchemaInfo schema = new SchemaInfo(typeInfo, ns);
                 schema.setElement(d.getDocumentElement());
+                col.read(d.getDocumentElement());
             }
         } catch (IOException e) {
             throw new ServiceConstructionException(new Message("SCHEMA_GEN_EXC", BUNDLE), e);
         }
+
+        serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
+        JAXBServiceModelInitializer initializer = new JAXBServiceModelInitializer(serviceInfo, col);
+        initializer.walk();
+
     }
-    
 
     private List<DOMResult> generateJaxbSchemas() throws IOException {
         final List<DOMResult> results = new ArrayList<DOMResult>();
