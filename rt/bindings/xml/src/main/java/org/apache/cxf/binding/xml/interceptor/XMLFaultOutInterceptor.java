@@ -73,7 +73,7 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                 bop = bop.getUnwrappedOperation();
             }
             Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
-            Boolean isWebFault = null;
+            // Boolean isWebFault = null;
             while (it.hasNext()) {
                 FaultInfo fi = it.next();
                 for (MessagePartInfo mpi : fi.getMessageParts()) {
@@ -86,11 +86,13 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                         } else {
                             elName = mpi.getTypeQName();
                         }
-                        isWebFault = mpi.getProperty("javax.xml.ws.WebFault", Boolean.class);
+                        // isWebFault = mpi.getProperty("javax.xml.ws.WebFault", Boolean.class);
                         break;
                     }
                 }
             }
+            /*
+             * do not send stack trace information to client
             if (!(isWebFault != null && isWebFault.booleanValue())) {
                 str.append("\n");
                 for (StackTraceElement s : t.getStackTrace()) {
@@ -98,6 +100,7 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                     str.append("\n");
                 }
             }
+             */
             writer.writeCharacters(str.toString());
             // fault string
             writer.writeEndElement();
