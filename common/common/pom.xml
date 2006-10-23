@@ -118,6 +118,11 @@
 	    <artifactId>wsdl4j</artifactId>
 	</dependency>
 
+    <dependency>
+        <groupId>org.apache.ws.commons</groupId>
+        <artifactId>XmlSchema</artifactId>
+        <scope>compile</scope>
+    </dependency> 
 	<dependency>
 	    <groupId>woodstox</groupId>
 	    <artifactId>wstx-asl</artifactId>

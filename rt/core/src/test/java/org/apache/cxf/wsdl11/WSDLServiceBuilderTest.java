@@ -20,6 +20,7 @@
 package org.apache.cxf.wsdl11;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -38,12 +39,14 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
@@ -139,6 +142,18 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertTrue(greetMe.hasInput());
         assertTrue(greetMe.hasOutput());
 
+        List<MessagePartInfo> inParts = greetMe.getInput().getMessageParts();
+        assertEquals(1, inParts.size());
+        MessagePartInfo part = inParts.get(0);
+        assertNotNull(part.getXmlSchema());
+        assertTrue(part.getXmlSchema() instanceof XmlSchemaElement);
+        
+        List<MessagePartInfo> outParts = greetMe.getOutput().getMessageParts();
+        assertEquals(1, outParts.size());
+        part = outParts.get(0);
+        assertNotNull(part.getXmlSchema());
+        assertTrue(part.getXmlSchema() instanceof XmlSchemaElement);
+        
         assertTrue("greatMe should be wrapped", greetMe.isUnwrappedCapable());
         OperationInfo greetMeUnwrapped = greetMe.getUnwrappedOperation();
 

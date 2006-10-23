@@ -31,7 +31,6 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -41,13 +40,12 @@ import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
-public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
+public class ProviderServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
-    private JaxWsImplementorInfo jaxWsImplmentorInfo;
     private String bindingURI;
     
     public ProviderServiceFactoryBean(JaxWsImplementorInfo implInfo) {
-        this.jaxWsImplmentorInfo = implInfo;
+        setJaxWsImplementorInfo(implInfo);
         this.bindingURI = implInfo.getBindingType();
         getServiceConfigurations().add(0, new WebServiceProviderConfiguration());
         setServiceClass(implInfo.getImplementorClass());
@@ -113,7 +111,7 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
     public Service create() {
         Service s = super.create();
         
-        if (jaxWsImplmentorInfo.getWsdlLocation().length() == 0) {
+        if (getJaxWsImplementorInfo().getWsdlLocation().length() == 0) {
             initializeBindings();
         }
         
@@ -159,9 +157,5 @@ public class ProviderServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     public void setBindingURI(String bindingURI) {
         this.bindingURI = bindingURI;
-    }
-
-    public JaxWsImplementorInfo getJaxWsImplmentorInfo() {
-        return jaxWsImplmentorInfo;
     }
 }

@@ -21,8 +21,10 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -35,6 +37,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -45,26 +48,32 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
+public class HTTPTransportFactory extends AbstractTransportFactory implements ConduitInitiator,
+    DestinationFactory, WSDLEndpointFactory {
 
-public class HTTPTransportFactory implements ConduitInitiator, DestinationFactory, WSDLEndpointFactory {
-    
+    private static final Set<String> URI_PREFIXES = new HashSet<String>();
+    static {
+        URI_PREFIXES.add("http://");
+        URI_PREFIXES.add("https://");
+    }
+
     private Bus bus;
     private Collection<String> activationNamespaces;
-    
+
     @Resource
     public void setBus(Bus b) {
         bus = b;
     }
-    
+
     public Bus getBus() {
         return bus;
     }
-    
+
     @Resource
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
-    
+
     @PostConstruct
     void registerWithBindingManager() {
         if (null == bus) {
@@ -84,30 +93,27 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
         }
     }
 
-    public Conduit getConduit(EndpointInfo endpointInfo)
-        throws IOException {
+    public Conduit getConduit(EndpointInfo endpointInfo) throws IOException {
         return getConduit(endpointInfo, null);
     }
 
-    public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target)
-        throws IOException {
-        HTTPConduit conduit = 
-            target == null ? new HTTPConduit(bus, endpointInfo) : new HTTPConduit(bus, endpointInfo, target);
+    public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
+        HTTPConduit conduit = target == null
+            ? new HTTPConduit(bus, endpointInfo) : new HTTPConduit(bus, endpointInfo, target);
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(conduit);
         }
-        return conduit;  
+        return conduit;
     }
 
-    public Destination getDestination(EndpointInfo endpointInfo)
-        throws IOException {
+    public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
         JettyHTTPDestination destination = new JettyHTTPDestination(bus, this, endpointInfo);
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(destination);
         }
-        return destination;   
+        return destination;
     }
 
     public EndpointInfo createEndpointInfo(ServiceInfo serviceInfo, BindingInfo b, Port port) {
@@ -135,5 +141,9 @@ public class HTTPTransportFactory implements ConduitInitiator, DestinationFactor
 
     public void createPortExtensors(EndpointInfo ei, Service service) {
         // TODO
+    }
+
+    public Set<String> getUriPrefixes() {
+        return URI_PREFIXES;
     }
 }

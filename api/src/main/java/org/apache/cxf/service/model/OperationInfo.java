@@ -43,7 +43,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
     MessageInfo outputMessage;
     Map<QName, FaultInfo> faults;
     OperationInfo unwrappedOperation;
-    
+
     public OperationInfo() {
     }
     
@@ -195,5 +195,4 @@ public class OperationInfo extends AbstractPropertiesHolder {
         }
         return Collections.unmodifiableCollection(faults.values());
     }
-    
 }

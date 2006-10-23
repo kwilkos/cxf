@@ -32,12 +32,15 @@ import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
+import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
@@ -48,8 +51,11 @@ import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
@@ -62,6 +68,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Service service;
     private JaxWsImplementorInfo implInfo;
     private ReflectionServiceFactoryBean serviceFactory;
+
+    private String bindingURI;
     
     public EndpointImpl(Bus b, Object implementor, JaxWsServiceFactoryBean serviceFactory) {
         this.bus = b;
@@ -81,7 +89,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public EndpointImpl(Bus b, Object i, String uri) {
         bus = b;
         implementor = i;
-        // bindingURI = uri;
+        bindingURI = uri;
         // build up the Service model
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
         
@@ -196,12 +204,43 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
     protected void doPublish(String address) {
+
+        String transportId = null;
+        if (address != null) {
+            DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+            DestinationFactory df = dfm.getDestinationFactoryForUri(address);
+            if (df != null) {
+                transportId = df.getTransportIds().get(0);
+            }
+        }
+        
+        if (transportId == null) {
+            // TODO: we shouldn't have to do this, but the DF is null because the
+            // LocalTransport doesn't return for the http:// uris
+            // People also seem to be supplying a null JMS address, which is worrying
+            transportId = "http://schemas.xmlsoap.org/wsdl/soap/http";
+        }
+        
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setAddress(address);
         svrFactory.setServiceFactory(serviceFactory);
-        svrFactory.setTransportId("http://schemas.xmlsoap.org/wsdl/soap/");
         svrFactory.setStart(false);
+        
+        // TODO: Replace with discovery mechanism!!
+        AbstractBindingInfoFactoryBean bindingFactory = null;
+        if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)) {
+            bindingFactory = new XMLBindingInfoFactoryBean();
+        } else {
+            // Just assume soap otherwise...
+            JaxWsSoapBindingInfoFactoryBean soapBindingFactory = new JaxWsSoapBindingInfoFactoryBean();
+            soapBindingFactory.setTransportURI(transportId);
+            transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
+            bindingFactory = soapBindingFactory;
+        }
+        
+        svrFactory.setBindingFactory(bindingFactory);
+        svrFactory.setTransportId(transportId);
         
         server = svrFactory.create();
 

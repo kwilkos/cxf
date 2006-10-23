@@ -16,26 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.model;
+package org.apache.cxf.configuration.spring;
 
-import org.apache.cxf.service.Service;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-/**
- * An AbstractBindingFactory builds a binding for a Service.
- */
-public abstract class AbstractBindingInfoFactoryBean {
-    //private AbstractServiceFactoryBean serviceFactory;
-    private Service service;
-    
-    public abstract BindingInfo create();
-    
-    public abstract String getTransportURI();
-       
-    public void setService(Service si) {
-        this.service = si;
-    }
-
-    protected ServiceInfo getServiceInfo() {        
-        return service.getServiceInfo();        
+public class PersonImpl implements Person {
+    public Collection<String> getIds() {
+        List<String> ids = new ArrayList<String>();
+        ids.add("dan");
+        return ids;
     }
 }

@@ -122,6 +122,7 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         
         List<MessagePartInfo> messageParts = sayHelloOp.getInput().getMessageParts();
         assertEquals(1, messageParts.size());
+        assertNotNull(messageParts.get(0).getXmlSchema());
         
         // test unwrapping
         assertTrue(sayHelloOp.isUnwrappedCapable());

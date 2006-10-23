@@ -58,7 +58,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     WebService getPortTypeWebServiceAttribute() {
-        Class<?> epi = getEndpointClass();
+        Class<?> epi = implInfo.getEndpointClass();
         WebService ws = null;
         if (epi != null) {
             ws = epi.getAnnotation(WebService.class);
@@ -67,14 +67,6 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             ws = getConcreteWebServiceAttribute();
         }
         return ws;
-    }
-
-    Class getEndpointClass() {
-        Class endpointInterface = implInfo.getSEIClass();
-        if (null == endpointInterface) {
-            endpointInterface = implInfo.getImplementorClass();
-        }
-        return endpointInterface;
     }
 
     @Override
@@ -159,7 +151,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     Method getDeclaredMethod(Method method) {
-        Class endpointClass = getEndpointClass();
+        Class endpointClass = implInfo.getEndpointClass();
 
         if (!method.getDeclaringClass().equals(endpointClass)) {
             try {

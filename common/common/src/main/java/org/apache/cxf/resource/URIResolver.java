@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.resource;
 
 import java.io.File;
@@ -34,12 +33,8 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
 /**
  * Resolves a File, classpath resource, or URL according to the follow rules:
  * <ul>
- * <li>Check to see if a File exists with the specified URI.</li>
- * <li>Attempt to create URI from the uri string directly and create an
- * InputStream from it.</li>
- * <li>Check to see if a File exists relative to the specified base URI.</li>
- * <li>Attempt to create URI relative to the base URI and create an InputStream
- * from it.</li>
+ * <li>Check to see if a file exists, relative to the base URI.</li>
+ * <li>If the file doesn't exist, check the classpath</li>
  * <li>If the classpath doesn't exist, try to create URL from the URI.</li>
  * </ul>
  * 
@@ -49,7 +44,8 @@ public class URIResolver {
     private File file;
     private URI uri;
     private InputStream is;
-
+    private Class calling;
+    
     public URIResolver(String path) throws IOException {
         this("", path);
     }
@@ -57,30 +53,50 @@ public class URIResolver {
     public URIResolver(String baseUriStr, String uriStr) throws IOException {
         this(baseUriStr, uriStr, null);
     }
+    
+    public URIResolver(String baseUriStr, String uriStr, Class calling) throws IOException {
+        this.calling = (calling != null) ? calling : getClass();
 
-    public URIResolver(String baseUriStr, String uriStr, Class callingClass) throws IOException {
+        if (uriStr.startsWith("classpath:")) {
+            tryClasspath(uriStr);
+        } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
+            tryJar(baseUriStr, uriStr);
+        } else if (uriStr.startsWith("jar:")) {
+            tryJar(uriStr);
+        } else {
+            tryFileSystem(baseUriStr, uriStr);
+        }
+    }
+
+    private void tryFileSystem(String baseUriStr, String uriStr) throws IOException, MalformedURLException {
         try {
             URI relative;
             File uriFile = new File(uriStr);
             uriFile = new File(uriFile.getAbsolutePath());
+
             if (uriFile.exists()) {
                 relative = uriFile.toURI();
             } else {
                 relative = new URI(uriStr);
             }
-
+            
             if (relative.isAbsolute()) {
                 uri = relative;
                 is = relative.toURL().openStream();
             } else if (baseUriStr != null) {
                 URI base;
                 File baseFile = new File(baseUriStr);
+
+                if (!baseFile.exists() && baseUriStr.startsWith("file:/")) {
+                    baseFile = new File(baseUriStr.substring(6));
+                }
+
                 if (baseFile.exists()) {
                     base = baseFile.toURI();
                 } else {
                     base = new URI(baseUriStr);
                 }
-
+                
                 base = base.resolve(relative);
                 if (base.isAbsolute()) {
                     is = base.toURL().openStream();
@@ -88,7 +104,7 @@ public class URIResolver {
                 }
             }
         } catch (URISyntaxException e) {
-            // Do nothing
+            // do nothing
         }
 
         if (uri != null && "file".equals(uri.getScheme())) {
@@ -103,30 +119,66 @@ public class URIResolver {
                 throw new RuntimeException("File was deleted! " + uriStr, e);
             }
         } else if (is == null) {
-            if (callingClass == null) {
-                callingClass = getClass();
+            tryClasspath(uriStr);
+        }
+    }
+
+    private void tryJar(String baseStr, String uriStr) throws IOException {
+        int i = baseStr.indexOf('!');
+        if (i == -1) {
+            tryFileSystem(baseStr, uriStr);
+        }
+        baseStr = baseStr.substring(i + 1);
+        try {
+            URI u = new URI(baseStr).resolve(uriStr);
+            tryClasspath(u.toString());
+            if (is != null) {
+                return;
             }
-            
-            URL url = ClassLoaderUtils.getResource(uriStr, callingClass);
-            
-            if (url == null) {
-                try {
-                    url = new URL(uriStr);
-                    uri = new URI(url.toString());
-                    is = url.openStream();
-                } catch (MalformedURLException e) {
-                    // Do nothing
-                } catch (URISyntaxException e) {
-                    // Do nothing
-                }
-            } else {
-                try {
-                    uri = new URI(url.toString());
-                } catch (URISyntaxException e) {
-                    // do nothing?
-                }
-                is = url.openStream();
+        } catch (URISyntaxException e) {
+            // do nothing
+        }
+        
+        tryFileSystem("", uriStr);
+    }
+    
+    private void tryJar(String uriStr) throws IOException {
+        int i = uriStr.indexOf('!');
+        if (i == -1) {
+            return;
+        }
+        uriStr = uriStr.substring(i + 1);
+        tryClasspath(uriStr);
+    }
+    private void tryClasspath(String uriStr) throws IOException {
+        if (uriStr.startsWith("classpath:")) {
+            uriStr = uriStr.substring(10);
+        }
+
+        URL url = ClassLoaderUtils.getResource(uriStr, calling);
+
+        if (url == null) {
+            tryRemote(uriStr);
+        } else {
+            try {
+                uri = new URI(url.toString());
+            } catch (URISyntaxException e) {
+                // How would this occurr??
             }
+            is = url.openStream();
+        }
+    }
+
+    private void tryRemote(String uriStr) throws IOException {
+        URL url;
+        try {
+            url = new URL(uriStr);
+            uri = new URI(url.toString());
+            is = url.openStream();
+        } catch (MalformedURLException e) {
+            // do nothing
+        } catch (URISyntaxException e) {
+            // do nothing
         }
     }
 
@@ -145,8 +197,8 @@ public class URIResolver {
     public File getFile() {
         return file;
     }
-
+    
     public boolean isResolved() {
-        return uri != null;
+        return is != null;
     }
 }

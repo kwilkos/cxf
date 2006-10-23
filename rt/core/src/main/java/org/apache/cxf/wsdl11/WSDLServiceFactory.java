@@ -71,7 +71,7 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         ServiceInfo si = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
         
         ServiceImpl service = new ServiceImpl(si);
-        
+        setService(service);
         return service;
     }
     

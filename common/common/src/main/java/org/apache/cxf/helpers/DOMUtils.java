@@ -81,6 +81,23 @@ public final class DOMUtils {
     }
 
     /**
+     * Get the raw text content of a node or null if there is no text
+     */
+    public static String getRawContent(Node n) {
+        if (n == null) {
+            return null;
+        }
+        
+        Node n1 = DOMUtils.getChild(n, Node.TEXT_NODE);
+
+        if (n1 == null) {
+            return null;
+        }
+        
+        return n1.getNodeValue();
+    }
+    
+    /**
      * Get the first element child.
      * 
      * @param parent lookup direct childs

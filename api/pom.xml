@@ -64,6 +64,10 @@
             <artifactId>cxf-common-metacode</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons</groupId>
+            <artifactId>XmlSchema</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

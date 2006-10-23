@@ -62,6 +62,14 @@ public class JaxWsImplementorInfo {
     public Class<?> getImplementorClass() {
         return implementorClass;
     }
+    
+    public Class<?> getEndpointClass() {
+        Class endpointInterface = getSEIClass();
+        if (null == endpointInterface) {
+            endpointInterface = getImplementorClass();
+        }
+        return endpointInterface;
+    }
 
     public String getWsdlLocation() {
         if (null != seiAnnotation) {

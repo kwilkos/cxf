@@ -16,37 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.transport;
 
-import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import javax.annotation.Resource;
+
+import org.apache.cxf.helpers.CastUtils;
 
 /**
- * Factory for Conduits.
+ * Helper methods for {@link DestinationFactory}s and {@link ConduitInitiator}s.
  */
-public interface ConduitInitiator {
-    /**
-     * Initiate an outbound Conduit.
-     * 
-     * @param targetInfo the endpoint info of the target 
-     * @return a suitable new or pre-existing Conduit
-     */
-    Conduit getConduit(EndpointInfo targetInfo) throws IOException;
+public class AbstractTransportFactory {
+    private List<String> transportIds;
 
-    /**
-     * Initiate an outbound Conduit.
-     * 
-     * @param localInfo the endpoint info for a local endpoint on which the
-     * the configuration should be based
-     * @param target the target EPR
-     * @return a suitable new or pre-existing Conduit
-     */
-    Conduit getConduit(EndpointInfo localInfo,
-                       EndpointReferenceType target) throws IOException;
-    
-    Set<String> getUriPrefixes();
+    public List<String> getTransportIds() {
+        return transportIds;
+    }
+
+    @Resource
+    public void setTransportIds(List<String> transportIds) {
+        this.transportIds = transportIds;
+    }
+
+    public Set<String> getUriPrefixes() {
+        return CastUtils.cast(Collections.EMPTY_SET);
+    }
 }

@@ -33,13 +33,4 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
         </property>
     </bean>
     
-    <bean class="org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean" lazy-init="true">
-        <property name="bus" ref="cxf"/>
-        <property name="activationNamespaces">
-            <set>
-                <value>http://cxf.apache.org/bindings/xformat</value>
-                <value>http://www.w3.org/2004/08/wsdl/http</value>
-            </set>
-        </property>
-    </bean>
 </beans>

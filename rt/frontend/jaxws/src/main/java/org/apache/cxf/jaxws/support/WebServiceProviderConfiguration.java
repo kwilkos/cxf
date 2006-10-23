@@ -43,7 +43,7 @@ public class WebServiceProviderConfiguration extends AbstractServiceConfiguratio
     @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         super.setServiceFactory(serviceFactory);
-        implInfo = ((ProviderServiceFactoryBean) serviceFactory).getJaxWsImplmentorInfo();
+        implInfo = ((ProviderServiceFactoryBean) serviceFactory).getJaxWsImplementorInfo();
         wsProvider = implInfo.getWsProvider();
     }
 

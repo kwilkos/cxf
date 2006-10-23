@@ -40,7 +40,6 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
-import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.Service;
@@ -60,6 +59,14 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
+import org.apache.ws.commons.schema.XmlSchema;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaSerializer;
+import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
+import org.apache.ws.commons.schema.utils.NamespaceMap;
 
 /**
  * Introspects a class and builds a {@link Service} from it. If a WSDL URL is specified, 
@@ -71,7 +78,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
-    private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     
     protected URL wsdlURL;
 
@@ -311,18 +317,19 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
-        Document d = DOMUtils.createDocument();
+        XmlSchemaCollection col = new XmlSchemaCollection();
+        XmlSchema schema = new XmlSchema(getServiceNamespace(), col);
         
-        Element schema = d.createElementNS(XSD_NS, "xsd:schema");
-        d.appendChild(schema);
-        schema.setAttribute("targetNamespace", getServiceNamespace());
+        NamespaceMap nsMap = new NamespaceMap();
+        nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");
+        schema.setNamespaceContext(nsMap);
         
         for (OperationInfo op : serviceInfo.getInterface().getOperations()) {
             if (op.hasInput()) {
-                createWrappedMessage(op.getInput(), op.getUnwrappedOperation().getInput(), d, schema);
+                createWrappedMessage(op.getInput(), op.getUnwrappedOperation().getInput(), schema);
             }
             if (op.hasOutput()) {
-                createWrappedMessage(op.getOutput(), op.getUnwrappedOperation().getOutput(), d, schema);
+                createWrappedMessage(op.getOutput(), op.getUnwrappedOperation().getOutput(), schema);
             }
         }
         
@@ -332,48 +339,47 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             serviceInfo.setTypeInfo(typeInfo);
         }
         
+        Document[] docs;
+        try {
+            docs = XmlSchemaSerializer.serializeSchema(schema, false);
+        } catch (XmlSchemaSerializerException e1) {
+            throw new ServiceConstructionException(e1);
+        }
+        Element e = docs[0].getDocumentElement();
         SchemaInfo schemaInfo = new SchemaInfo(typeInfo, getServiceNamespace());
-        schemaInfo.setElement(schema);
+        schemaInfo.setElement(e);
         typeInfo.addSchema(schemaInfo);
     }
 
     private void createWrappedMessage(MessageInfo wrappedMessage, 
                                       MessageInfo unwrappedMessage, 
-                                      Document d, 
-                                      Element schema) {
-        Element el = d.createElementNS(XSD_NS, "xsd:element");
-        el.setAttribute("name", wrappedMessage.getName().getLocalPart());
-        schema.appendChild(el);
+                                      XmlSchema schema) {
+        XmlSchemaElement el = new XmlSchemaElement();
+        el.setQName(wrappedMessage.getName());
+        el.setName(wrappedMessage.getName().getLocalPart());
+        schema.getItems().add(el);
         
-        Element ct = d.createElementNS(XSD_NS, "xsd:complexType");
-        el.appendChild(ct);
+        wrappedMessage.getMessageParts().get(0).setXmlSchema(el);
         
-        Element seq = d.createElementNS(XSD_NS, "xsd:sequence");
-        ct.appendChild(seq);
+        XmlSchemaComplexType ct = new XmlSchemaComplexType(schema);
+        el.setSchemaType(ct);
         
+        XmlSchemaSequence seq = new XmlSchemaSequence();
+        ct.setParticle(seq);
         
         for (MessagePartInfo mpi : unwrappedMessage.getMessageParts()) {
-            el = d.createElementNS(XSD_NS, "xsd:element");
-            el.setAttribute("name", mpi.getName().getLocalPart());
-            el.setAttribute("minOccurs", "1");
-            el.setAttribute("maxOccurs", "1");
+            el = new XmlSchemaElement();
+            el.setName(mpi.getName().getLocalPart());
+            el.setQName(mpi.getName());
+            el.setMinOccurs(1);
+            el.setMaxOccurs(1);
             
             if (mpi.isElement()) {
-                String ns = mpi.getElementQName().getNamespaceURI();
-                String prefix = DOMUtils.getPrefixRecursive(el, ns);
-                if (prefix == null) {
-                    prefix = DOMUtils.createNamespace(schema, ns);
-                }
-                el.setAttribute("ref", prefix + ":" + mpi.getElementQName().getLocalPart());
+                el.setRefName(mpi.getElementQName());
             } else {
-                String ns = mpi.getTypeQName().getNamespaceURI();
-                String prefix = DOMUtils.getPrefixRecursive(el, ns);
-                if (prefix == null) {
-                    prefix = DOMUtils.createNamespace(schema, ns);
-                }
-                el.setAttribute("type", prefix + ":" + mpi.getTypeQName().getLocalPart());
+                el.setSchemaTypeName(mpi.getTypeQName());
             }
-            seq.appendChild(el);
+            seq.getItems().add(el);
         }
     }
 

@@ -32,32 +32,29 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.extension.ExtensionManager;
 
 public final class DestinationFactoryManagerImpl implements DestinationFactoryManager {
-  
+
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DestinationFactoryManager.class);
-    
+
     final Map<String, DestinationFactory> destinationFactories;
     Properties factoryNamespaceMappings;
-    
-    private ExtensionManager extensionManager;
+
     private Bus bus;
 
-    public DestinationFactoryManagerImpl() throws BusException {
+    public DestinationFactoryManagerImpl() {
         destinationFactories = new ConcurrentHashMap<String, DestinationFactory>();
     }
-    
-    @Resource
-    public void setExtensionManager(ExtensionManager em) {
-        extensionManager = em;
+
+    public DestinationFactoryManagerImpl(Map<String, DestinationFactory> destinationFactories) {
+        this.destinationFactories = destinationFactories;
     }
-    
+
     @Resource
     public void setBus(Bus b) {
         bus = b;
     }
-    
+
     @PostConstruct
     public void register() {
         if (null != bus) {
@@ -99,10 +96,6 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
     public DestinationFactory getDestinationFactory(String namespace) throws BusException {
         DestinationFactory factory = destinationFactories.get(namespace);
         if (null == factory) {
-            extensionManager.activateViaNS(namespace);
-            factory = destinationFactories.get(namespace);
-        }
-        if (null == factory) {
             throw new BusException(new Message("NO_DEST_FACTORY", BUNDLE, namespace));
         }
         return factory;
@@ -112,4 +105,16 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
     public void shutdown() {
         // nothing to do
     }
+
+    public DestinationFactory getDestinationFactoryForUri(String uri) {
+        for (DestinationFactory df : destinationFactories.values()) {
+            for (String prefix : df.getUriPrefixes()) {
+                if (uri.startsWith(prefix)) {
+                    return df;
+                }
+            }
+        }
+        return null;
+    }
+
 }

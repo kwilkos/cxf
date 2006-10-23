@@ -21,6 +21,8 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
+import org.apache.ws.commons.schema.XmlSchemaAnnotated;
+
 public final class MessagePartInfo extends AbstractPropertiesHolder {
     private QName pname;
     private AbstractMessageContainer mInfo;
@@ -29,7 +31,8 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     private QName typeName;
     private QName elementName;
     private boolean isInSoapHeader;
-
+    private XmlSchemaAnnotated xmlSchema;
+    
     MessagePartInfo(QName n, AbstractMessageContainer info) {
         mInfo = info;
         pname = n;
@@ -88,5 +91,13 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
 
     public void setInSoapHeader(boolean inSoapHeader) {
         this.isInSoapHeader = inSoapHeader;
+    }
+
+    public XmlSchemaAnnotated getXmlSchema() {
+        return xmlSchema;
+    }
+
+    public void setXmlSchema(XmlSchemaAnnotated xmlSchema) {
+        this.xmlSchema = xmlSchema;
     }
 }

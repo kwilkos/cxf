@@ -49,6 +49,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.resource.XmlSchemaURIResolver;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
@@ -186,6 +187,7 @@ public class WSDLServiceBuilder {
                 }
                 if (schemaElem != null) {
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
+                    schemaCol.setSchemaResolver(new XmlSchemaURIResolver());
                     XmlSchema xmlSchema = schemaCol.read(schemaElem);
                     SchemaInfo schemaInfo = new SchemaInfo(typeInfo, xmlSchema.getTargetNamespace());
                     schemaInfo.setElement(schemaElem);
@@ -310,6 +312,7 @@ public class WSDLServiceBuilder {
     private void buildInterfaceOperation(InterfaceInfo inf, Operation op) {
         OperationInfo opInfo = inf.addOperation(new QName(inf.getName().getNamespaceURI(), op.getName()));
         opInfo.setProperty(WSDL_OPERATION, op);
+
         Input input = op.getInput();
         List paramOrder = op.getParameterOrdering();
         if (input != null) {
@@ -366,7 +369,8 @@ public class WSDLServiceBuilder {
         } else {
             QName inputElementName = inputPart.getElementQName();
             inputEl = schemas.getElementByQName(inputElementName);
-            if (inputEl == null || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
+            if (inputEl == null 
+                || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
                 passedRule = false;
             }
         }
@@ -475,15 +479,20 @@ public class WSDLServiceBuilder {
     }
 
     private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
+        XmlSchemaCollection schemas = (XmlSchemaCollection)minfo.getOperation().getInterface().getService()
+            .getProperty(WSDL_SCHEMA_LIST);
+        
         List orderedParam = msg.getOrderedParts(paramOrder);
         for (Part part : cast(orderedParam, Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(part.getName());
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
                 pi.setElement(false);
+                pi.setXmlSchema(schemas.getTypeByQName(part.getTypeName()));
             } else {
                 pi.setElementQName(part.getElementName());
                 pi.setElement(true);
+                pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
             }
         }
         for (Part part : cast(msg.getParts().values(), Part.class)) {
@@ -492,9 +501,11 @@ public class WSDLServiceBuilder {
                 if (part.getTypeName() != null) {
                     pi.setTypeQName(part.getTypeName());
                     pi.setElement(false);
+                    pi.setXmlSchema(schemas.getTypeByQName(part.getTypeName()));
                 } else {
                     pi.setElementQName(part.getElementName());
                     pi.setElement(true);
+                    pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
                 }                
             }
         }

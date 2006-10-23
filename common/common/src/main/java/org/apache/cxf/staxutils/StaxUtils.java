@@ -31,6 +31,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Source;
 
 import org.w3c.dom.*;
 
@@ -615,6 +616,14 @@ public final class StaxUtils {
 
         try {
             return getXMLInputFactory().createXMLStreamReader(in);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Couldn't parse stream.", e);
+        }
+    }
+    
+    public static XMLStreamReader createXMLStreamReader(Source source) {
+        try {
+            return getXMLInputFactory().createXMLStreamReader(source);
         } catch (XMLStreamException e) {
             throw new RuntimeException("Couldn't parse stream.", e);
         }

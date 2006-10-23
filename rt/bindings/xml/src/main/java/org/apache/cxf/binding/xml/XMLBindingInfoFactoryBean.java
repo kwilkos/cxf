@@ -18,47 +18,16 @@
  */
 package org.apache.cxf.binding.xml;
 
-import java.util.Collection;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.binding.BindingInfoFactoryBeanManager;
-import org.apache.cxf.service.model.AbstractBindingInfoFactoryBean;
+import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public class XMLBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
-    private Bus bus;
-    private Collection<String> activationNamespaces; 
     
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
-    @Resource
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
-    
-    @PostConstruct
-    void register() {
-        if (null == bus) {
-            return;
-        }
-        BindingInfoFactoryBeanManager bfm = bus.getExtension(BindingInfoFactoryBeanManager.class);
-        if (null != bfm) {
-            for (String ns : activationNamespaces) {
-                bfm.registerBindingInfoFactoryBean(ns, this);
-            }
-        }
-    }
-
     @Override
     public BindingInfo create() {
         ServiceInfo si = getServiceInfo();
@@ -78,10 +47,4 @@ public class XMLBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
         return new QName(si.getName().getNamespaceURI(), 
                          si.getName().getLocalPart() + "XMLBinding");
     }
-
-    @Override
-    public String getTransportURI() {        
-        return "http://cxf.apache.org/bindings/xformat";
-    }
-
 }

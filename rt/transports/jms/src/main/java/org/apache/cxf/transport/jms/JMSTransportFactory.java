@@ -20,26 +20,30 @@
 package org.apache.cxf.transport.jms;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
-public class JMSTransportFactory implements ConduitInitiator, DestinationFactory  {
+public class JMSTransportFactory extends AbstractTransportFactory
+    implements ConduitInitiator, DestinationFactory  {
 
+    private static final Set<String> URI_PREFIXES = new HashSet<String>();
+    static {
+        URI_PREFIXES.add("jms://");
+    }
+    
     private Bus bus;
-    private Collection<String> activationNamespaces;
     
     @Resource
     public void setBus(Bus b) {
@@ -49,24 +53,7 @@ public class JMSTransportFactory implements ConduitInitiator, DestinationFactory
     public Bus getBus() {
         return bus;
     }
-    
-    @Resource
-    public void setActivationNamespaces(Collection<String> ans) {
-        activationNamespaces = ans;
-    }
         
-    @PostConstruct
-    void register() {
-        ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
-        for (String ns : activationNamespaces) {
-            cim.registerConduitInitiator(ns, this);
-        }
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        for (String ns : activationNamespaces) {
-            dfm.registerDestinationFactory(ns, this);
-        }
-    }
-   
     public Conduit getConduit(EndpointInfo targetInfo) throws IOException {        
         return getConduit(targetInfo, null);
     }
@@ -89,5 +76,8 @@ public class JMSTransportFactory implements ConduitInitiator, DestinationFactory
         }
         return destination;
     }
-   
+
+    public Set<String> getUriPrefixes() {
+        return URI_PREFIXES;
+    }
 }

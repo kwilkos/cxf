@@ -25,11 +25,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     
     <bean class="org.apache.cxf.transport.jms.JMSTransportFactory" lazy-init="true">
         <property name="bus" ref="cxf"/>
-        <property name="activationNamespaces">
-            <set>
+        <property name="transportIds">
+            <list>
                 <value>http://cxf.apache.org/transports/jms</value>
                 <value>http://cxf.apache.org/transports/jms/configuration</value>
-            </set>
+            </list>
         </property>
     </bean>
 </beans>

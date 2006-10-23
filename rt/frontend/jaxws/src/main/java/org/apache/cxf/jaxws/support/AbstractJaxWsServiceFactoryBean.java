@@ -16,29 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.jaxws.support;
 
-package org.apache.cxf.transport;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+public class AbstractJaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
-import org.apache.cxf.service.model.EndpointInfo;
+    private JaxWsImplementorInfo jaxWsImplementorInfo;
 
-/**
- * Factory for Destinations.
- */
-public interface DestinationFactory {
-    
-    /**
-     * Create a destination.
-     * 
-     * @param ei the endpoint info of the destination.
-     * @return the created Destination.
-     */
-    Destination getDestination(EndpointInfo ei) throws IOException;
-    
-    Set<String> getUriPrefixes();
-    
-    List<String> getTransportIds();
+    public JaxWsImplementorInfo getJaxWsImplementorInfo() {
+        return jaxWsImplementorInfo;
+    }
+
+    public void setJaxWsImplementorInfo(JaxWsImplementorInfo jaxWsImplementorInfo) {
+        this.jaxWsImplementorInfo = jaxWsImplementorInfo;
+    }
 }

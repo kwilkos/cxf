@@ -32,6 +32,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Holder;
+import javax.xml.ws.Service;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -39,7 +40,6 @@ import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
 import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
@@ -48,7 +48,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
-public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
+public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
     public static final String MODE_OUT = "messagepart.mode.out";
 
@@ -60,23 +60,22 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
     private JaxWsServiceConfiguration jaxWsConfiguration;
 
-    private JaxWsImplementorInfo jaxWsImplementorInfo;
-
     public JaxWsServiceFactoryBean() {
         jaxWsConfiguration = new JaxWsServiceConfiguration();
         getServiceConfigurations().add(0, jaxWsConfiguration);
+        getIgnoredClasses().add(Service.class.getName());
     }
 
     public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
         this();
-        this.jaxWsImplementorInfo = implInfo;
+        setJaxWsImplementorInfo(implInfo);
         this.serviceClass = implInfo.getImplementorClass();
     }
 
     @Override
     public void setServiceClass(Class<?> serviceClass) {
-        if (jaxWsImplementorInfo == null) {
-            jaxWsImplementorInfo = new JaxWsImplementorInfo(serviceClass);
+        if (getJaxWsImplementorInfo() == null) {
+            setJaxWsImplementorInfo(new JaxWsImplementorInfo(serviceClass));
         }
 
         super.setServiceClass(serviceClass);
@@ -145,7 +144,7 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
     @Override
     protected void initializeDataBindings() {
         try {
-            dataBinding = new JAXBDataBinding(jaxWsConfiguration.getEndpointClass());
+            dataBinding = new JAXBDataBinding(getJaxWsImplementorInfo().getEndpointClass());
         } catch (JAXBException e) {
             throw new ServiceConstructionException(e);
         }
@@ -293,14 +292,6 @@ public class JaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
             throw new RuntimeException("Expected Holder at " + idx + " parametor of input message");
         }
 
-    }
-
-    public JaxWsImplementorInfo getJaxWsImplementorInfo() {
-        return jaxWsImplementorInfo;
-    }
-
-    public void setJaxWsImplementorInfo(JaxWsImplementorInfo jaxWsImplementorInfo) {
-        this.jaxWsImplementorInfo = jaxWsImplementorInfo;
     }
 
     public void setJaxWsConfiguration(JaxWsServiceConfiguration jaxWsConfiguration) {

@@ -20,7 +20,6 @@
 package org.apache.cxf.transport;
 
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,25 +31,21 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.extension.ExtensionManager;
 
 public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManager {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ConduitInitiatorManager.class);
 
     final Map<String, ConduitInitiator> conduitInitiators;
-    Properties factoryNamespaceMappings;
     
-    private ExtensionManager extensionManager;
     private Bus bus;
 
     public ConduitInitiatorManagerImpl() {
         conduitInitiators = new ConcurrentHashMap<String, ConduitInitiator>();
     }
     
-    @Resource
-    public void setExtensionManager(ExtensionManager em) {
-        extensionManager = em;
+    public ConduitInitiatorManagerImpl(Map<String, ConduitInitiator> conduitInitiators) {
+        this.conduitInitiators = conduitInitiators;
     }
     
     @Resource
@@ -99,10 +94,6 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     public ConduitInitiator getConduitInitiator(String namespace) throws BusException {
         ConduitInitiator factory = conduitInitiators.get(namespace);
         if (null == factory) {
-            extensionManager.activateViaNS(namespace);
-            factory = conduitInitiators.get(namespace);
-        } 
-        if (null == factory) {
             throw new BusException(new Message("NO_CONDUIT_INITIATOR", BUNDLE, namespace));
         }
         return factory;
@@ -112,4 +103,10 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     public void shutdown() {
         // nothing to do
     }
+
+    public ConduitInitiator getConduitInitiatorForUri(String uri) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
 }

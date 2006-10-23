@@ -16,29 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.configuration.spring;
 
-package org.apache.cxf.transport;
+public interface Person {
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.cxf.service.model.EndpointInfo;
-
-/**
- * Factory for Destinations.
- */
-public interface DestinationFactory {
-    
-    /**
-     * Create a destination.
-     * 
-     * @param ei the endpoint info of the destination.
-     * @return the created Destination.
-     */
-    Destination getDestination(EndpointInfo ei) throws IOException;
-    
-    Set<String> getUriPrefixes();
-    
-    List<String> getTransportIds();
 }

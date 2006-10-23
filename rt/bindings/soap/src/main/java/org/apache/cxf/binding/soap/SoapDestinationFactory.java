@@ -20,11 +20,9 @@
 package org.apache.cxf.binding.soap;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.soap.SOAPAddress;
@@ -33,7 +31,6 @@ import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import com.ibm.wsdl.extensions.soap.SOAPOperationImpl;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
@@ -44,17 +41,17 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
-public class SoapDestinationFactory implements DestinationFactory, WSDLEndpointFactory {
+public class SoapDestinationFactory extends AbstractTransportFactory
+    implements DestinationFactory, WSDLEndpointFactory {
+    public static final String TRANSPORT_ID = "http://schemas.xmlsoap.org/soap/";
     private DestinationFactoryManager destinationFactoryManager;
 
-    private Bus bus;
-    private Collection<String> activationNamespaces;
-    
     public SoapDestinationFactory() {
         super();
     }
@@ -62,23 +59,6 @@ public class SoapDestinationFactory implements DestinationFactory, WSDLEndpointF
     public SoapDestinationFactory(DestinationFactoryManager destinationFactoyrManager) {
         super();
         this.destinationFactoryManager = destinationFactoyrManager;
-    }
-
-    
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
-    @PostConstruct
-    void register() {
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        this.destinationFactoryManager = dfm;
-        if (null != dfm) {
-            for (String ns : activationNamespaces) {
-                dfm.registerDestinationFactory(ns, this);
-            }
-        }
     }
     
     public Destination getDestination(EndpointInfo ei) throws IOException {
@@ -150,10 +130,4 @@ public class SoapDestinationFactory implements DestinationFactory, WSDLEndpointF
     public void setDestinationFactoryManager(DestinationFactoryManager destinationFactoryManager) {
         this.destinationFactoryManager = destinationFactoryManager;
     }
-
-    @Resource
-    public void setActivationNamespaces(Collection<String> activationNamespaces) {
-        this.activationNamespaces = activationNamespaces;
-    }
-    
 }

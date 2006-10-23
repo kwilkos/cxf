@@ -20,11 +20,16 @@
 package org.apache.cxf.transport.local;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
@@ -32,15 +37,27 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
-public class LocalTransportFactory implements DestinationFactory, ConduitInitiator {
+public class LocalTransportFactory extends AbstractTransportFactory
+    implements DestinationFactory, ConduitInitiator {
    
     public static final String TRANSPORT_ID = "http://cxf.apache.org/local-transport";
     
     private static final Logger LOG = Logger.getLogger(LocalTransportFactory.class.getName());
+    private static final Set<String> URI_PREFIXES = new HashSet<String>();
+    static {
+        URI_PREFIXES.add("local://");
+    }
     
     private Map<String, Destination> destinations = new HashMap<String, Destination>();
 
     
+    public LocalTransportFactory() {
+        super();
+        List<String> ids = new ArrayList<String>();
+        ids.add(TRANSPORT_ID);
+        setTransportIds(ids);
+    }
+
     public Destination getDestination(EndpointInfo ei) throws IOException {
         return getDestination(createReference(ei));
     }
@@ -77,6 +94,10 @@ public class LocalTransportFactory implements DestinationFactory, ConduitInitiat
         address.setValue(ei.getAddress());
         epr.setAddress(address);
         return epr;
+    }
+
+    public Set<String> getUriPrefixes() {
+        return URI_PREFIXES;
     }
 
 }
