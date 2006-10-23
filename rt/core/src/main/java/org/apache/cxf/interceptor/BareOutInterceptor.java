@@ -78,6 +78,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                 }
             }
         }
+        message.getInterceptorChain().finishSubChain();
     }
     
     

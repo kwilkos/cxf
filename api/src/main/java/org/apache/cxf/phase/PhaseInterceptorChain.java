@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,12 +60,14 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private final Map<String, List<Interceptor>> nameMap = new HashMap<String, List<Interceptor>>();
 
     private State state;
+    private Stack subChainState;
     private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
     private MessageObserver faultObserver;
     
     public PhaseInterceptorChain(List<Phase> ps) {
         state = State.EXECUTING;
+        subChainState = new Stack();
 
         for (Phase phase : ps) {
             List<Interceptor> ints = new ArrayList<Interceptor>();
@@ -107,6 +110,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
         state = State.PAUSED;
     }
 
+    public void finishSubChain() {
+        if (!subChainState.isEmpty()) {
+            subChainState.pop();
+            subChainState.push(State.SUBCHAIN_COMPLETE);
+        }
+    }
+
     public void resume() {
         if (state == State.PAUSED) {
             state = State.EXECUTING;
@@ -131,6 +141,10 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     LOG.info("Invoking handleMessage on interceptor " + currentInterceptor);
                 }
                 currentInterceptor.handleMessage(message);
+                
+                if (!subChainState.empty() && subChainState.peek() == State.SUBCHAIN_COMPLETE) {
+                    return true;
+                }
             } catch (Exception ex) {
                 if (LOG.isLoggable(Level.INFO)) {
                     LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
@@ -152,6 +166,22 @@ public class PhaseInterceptorChain implements InterceptorChain {
         return state == State.COMPLETE;
     }
     
+    /**
+     * Invokes following inteceptors in a sub chain until the last chain in the
+     * sub chain calls finishSubChain, which makes the flow continues in the
+     * main chain.
+     * 
+     * @param context
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public boolean doInterceptInSubChain(Message message) {
+        subChainState.push(State.SUBCHAIN_EXECUTING);
+        boolean result = doIntercept(message);
+        subChainState.pop();
+        return result;
+    }
+
     public void reset() {
         if (state == State.COMPLETE) {
             state = State.EXECUTING;

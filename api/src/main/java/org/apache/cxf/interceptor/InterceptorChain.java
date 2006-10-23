@@ -30,7 +30,9 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
         PAUSED,
         EXECUTING,
         COMPLETE,
-        ABORTED
+        ABORTED,
+        SUBCHAIN_EXECUTING,
+        SUBCHAIN_COMPLETE
     };
     
     void add(Interceptor i);
@@ -39,11 +41,15 @@ public interface InterceptorChain extends Iterable<Interceptor<? extends Message
     
     boolean doIntercept(Message message);
     
+    boolean doInterceptInSubChain(Message message);
+   
     void pause();
     
     void resume();
     
     void reset();
+    
+    void finishSubChain();
     
     ListIterator<Interceptor<? extends Message>> getIterator();
 

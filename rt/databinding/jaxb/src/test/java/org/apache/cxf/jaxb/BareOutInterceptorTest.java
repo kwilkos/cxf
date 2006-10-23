@@ -29,12 +29,15 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.interceptor.BareOutInterceptor;
+import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_soap_http.types.GreetMe;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.easymock.IMocksControl;
+import org.easymock.classextension.EasyMock;
 
 
 public class BareOutInterceptorTest extends TestBase {
@@ -52,6 +55,12 @@ public class BareOutInterceptorTest extends TestBase {
         writer = getXMLStreamWriter(baos);
         message.setContent(XMLStreamWriter.class, writer);
         message.getExchange().put(BindingOperationInfo.class, operation);
+        IMocksControl control = EasyMock.createNiceControl();
+        InterceptorChain ic = control.createMock(InterceptorChain.class);
+        ic.finishSubChain();
+        EasyMock.expectLastCall().anyTimes();
+        message.setInterceptorChain(ic);
+        control.replay();
     }
 
     public void tearDown() throws Exception {
