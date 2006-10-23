@@ -246,6 +246,12 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                         </manifest>
+			<manifestEntries>
+			    <specification-title>Apache CXF</specification-title>
+			    <specification-vendor>The Apache Software Foundation</specification-vendor>
+			    <specification-version>${pom.version}</specification-version>
+			    <implementation-vendor>The Apache Software Foundation</implementation-vendor>
+			</manifestEntries>
                     </archive>
                 </configuration>
             </plugin>

@@ -85,6 +85,12 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
+	    <exclusions>
+	        <exclusion>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jsr173_api</artifactId>
+		</exclusion>
+	    </exclusions>
         </dependency>
         <dependency>
 	            <groupId>org.apache.cxf</groupId>

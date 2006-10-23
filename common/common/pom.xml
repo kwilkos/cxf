@@ -90,11 +90,23 @@
 	<dependency>
 	    <groupId>javax.xml.bind</groupId>
 	    <artifactId>jaxb-api</artifactId>
+	    <exclusions>
+	        <exclusion>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jsr173_api</artifactId>
+		</exclusion>
+	    </exclusions>
 	</dependency>
 
 	<dependency>
 	    <groupId>com.sun.xml.bind</groupId>
 	    <artifactId>jaxb-impl</artifactId>
+	    <exclusions>
+	        <exclusion>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jsr173_api</artifactId>
+		</exclusion>
+	    </exclusions>
 	    <scope>test</scope>
 	</dependency>
 	<dependency>
@@ -112,6 +124,7 @@
 	<dependency>
 	    <groupId>stax</groupId>
 	    <artifactId>stax-api</artifactId>
+	    <version>1.0.1</version>
 	</dependency>
 	<dependency>
 	    <groupId>wsdl4j</groupId>
