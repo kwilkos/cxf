@@ -17,7 +17,7 @@
     under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-common-utilities</artifactId>
@@ -27,126 +27,103 @@
     <url>http://cxf.apache.org/</url>
 
     <parent>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf-common</artifactId>
-	<version>2.0-incubator-M1-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-common</artifactId>
+        <version>2.0-incubator-M1-SNAPSHOT</version>
     </parent>
 
     <properties>
-	<topDirectoryLocation>../../</topDirectoryLocation>
-	<!-- 
-	     use the 2.0.1 version of jaxb.impl because that is the version used by the codegenerator 
-	     (maven xjc plugin) as opposed to codegen-plugin
-	-->
-	<jaxb.impl.version.test>2.0.1</jaxb.impl.version.test>
-
+        <topDirectoryLocation>../../</topDirectoryLocation>
     </properties>
 
     <dependencies>
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.easymock</groupId>
-	    <artifactId>easymockclassextension</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>asm</groupId>
-	    <artifactId>asm</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.springframework</groupId>
-	    <artifactId>spring-core</artifactId>
-	    <scope>compile</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.springframework</groupId>
-	    <artifactId>spring-beans</artifactId>
-	    <scope>compile</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.springframework</groupId>
-	    <artifactId>spring-context</artifactId>
-	    <scope>compile</scope>
-	</dependency>
-	<dependency>
-	    <groupId>commons-logging</groupId>
-	    <artifactId>commons-logging</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
 
-	<dependency>
-	    <groupId>javax.annotation</groupId>
-	    <artifactId>jsr250-api</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>javax.jws</groupId>
-	    <artifactId>jsr181-api</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.jws</groupId>
+            <artifactId>jsr181-api</artifactId>
+        </dependency>
 
-	<dependency>
-	    <groupId>javax.xml.bind</groupId>
-	    <artifactId>jaxb-api</artifactId>
-	    <exclusions>
-	        <exclusion>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jsr173_api</artifactId>
-		</exclusion>
-	    </exclusions>
-	</dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
 
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-impl</artifactId>
-	    <exclusions>
-	        <exclusion>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jsr173_api</artifactId>
-		</exclusion>
-	    </exclusions>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-xjc</artifactId>
-	    <scope>test</scope>
-	</dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-	<dependency>
-	    <groupId>javax.xml.ws</groupId>
-	    <artifactId>jaxws-api</artifactId>
-	    <scope>provided</scope>
-	</dependency>
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-	<dependency>
-	    <groupId>stax</groupId>
-	    <artifactId>stax-api</artifactId>
-	    <version>1.0.1</version>
-	</dependency>
-	<dependency>
-	    <groupId>wsdl4j</groupId>
-	    <artifactId>wsdl4j</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
 
-    <dependency>
-        <groupId>org.apache.ws.commons</groupId>
-        <artifactId>XmlSchema</artifactId>
-        <scope>compile</scope>
-    </dependency> 
-	<dependency>
-	    <groupId>woodstox</groupId>
-	    <artifactId>wstx-asl</artifactId>
-	    <scope>test</scope>
-	</dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons</groupId>
+            <artifactId>XmlSchema</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-	<dependency>
-	    <groupId>jaxme</groupId>
-	    <artifactId>jaxme2</artifactId>
-	    <scope>test</scope>
-	</dependency>
+        <dependency>
+            <groupId>jaxme</groupId>
+            <artifactId>jaxme2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

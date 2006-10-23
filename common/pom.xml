@@ -17,7 +17,7 @@
     under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-common</artifactId>
@@ -27,40 +27,20 @@
     <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
 
     <parent>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf</artifactId>
-	<version>2.0-incubator-M1-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf</artifactId>
+        <version>2.0-incubator-M1-SNAPSHOT</version>
     </parent>
 
     <properties>
-	<topDirectoryLocation>..</topDirectoryLocation>
+        <topDirectoryLocation>..</topDirectoryLocation>
     </properties>
     
-    <modules>
-	<module>common</module>	        
-	<module>xsd</module>
-	<!--module>metacode</module-->
-    </modules>
-    <dependencies>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-xjc</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-impl</artifactId>
-	    <exclusions>
-	        <exclusion>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jsr173_api</artifactId>
-		</exclusion>
-	    </exclusions>
-	</dependency>
 
-	<dependency>
-	    <groupId>stax</groupId>
-	    <artifactId>stax-api</artifactId>
-	    <version>1.0.1</version>
-	</dependency>
-    </dependencies>
+    <modules>
+        <module>common</module>
+        <module>xsd</module>
+        <!--module>metacode</module-->
+    </modules>
+
 </project>

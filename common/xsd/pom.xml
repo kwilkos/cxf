@@ -62,8 +62,14 @@
             <artifactId>cxf-common-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
-        
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>ant</groupId>

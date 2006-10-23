@@ -80,7 +80,7 @@
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
             <scope>provided</scope>
-	    </dependency>  
+        </dependency>
 
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
@@ -98,25 +98,21 @@
             <scope>test</scope>
         </dependency>
  
+
         <dependency>
             <groupId>woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
         
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-impl</artifactId>
-	    <exclusions>
-	        <exclusion>
-		    <groupId>javax.xml.bind</groupId>
-		    <artifactId>jsr173_api</artifactId>
-		</exclusion>
-	    </exclusions>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-xjc</artifactId>
-	</dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

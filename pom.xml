@@ -148,9 +148,9 @@
         <jsr250.version>2.0-JAXWS-2.0-EA3</jsr250.version>
         <jsr181.version>2.0-JAXWS-2.0-EA3</jsr181.version>
         <jaxb.version>2.0</jaxb.version>
-        <jaxb.impl.version>2.0.2</jaxb.impl.version>
+        <jaxb.impl.version>2.0.3</jaxb.impl.version>
         <jaxws.version>2.0</jaxws.version>
-        <jetty.version>5.1.9</jetty.version>
+        <jetty.version>5.1.11</jetty.version>
         <saaj.version>1.3</saaj.version>
         <spring.version>2.0</spring.version>
         <wsdl4j.version>1.6.1</wsdl4j.version>
@@ -372,6 +372,10 @@
             </dependency>
     
 
+
+
+
+
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-project</artifactId>
@@ -484,19 +488,16 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
                 <version>${spring.version}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
                 <version>${spring.version}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -506,6 +507,14 @@
                     <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>logkit</groupId>
+                        <artifactId>logkit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>avalon-framework</groupId>
+                        <artifactId>avalon-framework</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
