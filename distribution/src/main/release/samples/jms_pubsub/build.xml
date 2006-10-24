@@ -18,7 +18,16 @@
   under the License.
 -->
 <project name="JMS Greeter pub-sub demo" default="build" basedir=".">
+    <property environment="env"/>
+    <condition property="activemq.home" value="${env.ACTIVEMQ_HOME}">
+        <isset property="env.ACTIVEMQ_HOME"/>
+    </condition>
 
+    <fail message="this sample need to use activemq, please setup  ACTIVEMQ_HOME."
+        unless="activemq.home"/>
+
+    <property name="thirdparty.classpath" location="${activemq.home}/incubator-activemq-4.0.2.jar"/>
+    
     <import file="../common_build.xml"/>
 
     <property name="wsdl.dir" location="${basedir}/wsdl"/>
@@ -28,12 +37,12 @@
         <property name="param1" value=""/>
         <property name="param2" value=""/>
         <property name="param3" value=""/>
-        <cxfrun classname="demo.jms_greeter.client.Client" jvmarg1="-Dceltix.config.file=file:///${basedir}/wsdl/jms_greeter_config.xml" param1="${basedir}/wsdl/jms_greeter.wsdl" param2="${op}" param3="${param1}" param4="${param2}" param5="${param3}"/>
+        <cxfrun classname="demo.jms_greeter.client.Client" param1="${basedir}/wsdl/jms_greeter.wsdl" param2="${op}" param3="${param1}" param4="${param2}" param5="${param3}"/>
     </target>
     
 
     <target name="server" description="run demo server" depends="build">
-        <cxfrun classname="demo.jms_greeter.server.Server" jvmarg1="-Dceltix.config.file=file:///${basedir}/wsdl/jms_greeter_config.xml" param1="${basedir}/wsdl/jms_greeter.wsdl"/>
+        <cxfrun classname="demo.jms_greeter.server.Server" param1="${basedir}/wsdl/jms_greeter.wsdl"/>
     </target>
 
     <target name="generate.code" unless="codegen.notrequired">

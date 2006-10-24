@@ -20,6 +20,26 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment by running the script.
 
+This demo need to play with ActiveMQ 4.X, Before you run this
+Demo, please make sure you had installed the ActiveMQ 4.X and
+set ACTIVE_HOME enviroment variables.
+
+Befor you run this demo, please start up the JMS message broker first.
+
+From ActiveMQ 4.X insallation launch ActiveMQ JMS Broker in seperate window
+or in background using the commandline:
+
+For Unix:
+
+cd <activemq.home.dir>/bin
+activemq
+
+For Windows:
+cd <activemq.home.dir>\bin
+activemq.bat
+
+The location of <activemq.home.dir> depends on whether you have installed the
+binary or source release.
 
 
 Building and running the demo using ant
@@ -78,23 +98,6 @@ For Windows:
 
 Running the demo using java
 ---------------------------
-
-From ActiveMQ insallation launch ActiveMQ JMS Broker in seperate window or in
-background using the commandline:
-
-For Unix:
-
-cd <activemq.home.dir>/bin
-activemq ../conf/activemq.xml
-
-For Windows:
-cd <activemq.home.dir>\bin
-activemq.bat ..\conf\activemq.xml
-
-The location of <activemq.home.dir> depends on whether you have installed the
-binary or source release.  In the binary release, <activemq.home.dir> is in
-lib/activemq/3.2.  In the source release, <activemq.home.dir> is in
-tools/activemq/3.2.
 
 From the samples/jms_queue directory run the commands, entered on a
 single command line:

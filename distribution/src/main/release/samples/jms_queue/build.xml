@@ -18,6 +18,14 @@
   under the License.
 -->
 <project name="JMS Queue Greeter" default="build" basedir=".">
+    <property environment="env"/>
+    <condition property="activemq.home" value="${env.ACTIVEMQ_HOME}">
+        <isset property="env.ACTIVEMQ_HOME"/>
+    </condition>
+    <fail message="this sample need to use activemq, please setup  ACTIVEMQ_HOME."
+        unless="activemq.home"/>
+
+    <property name="thirdparty.classpath" location="${activemq.home}/incubator-activemq-4.0.2.jar"/>
 
     <import file="../common_build.xml"/>
 

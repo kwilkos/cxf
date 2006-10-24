@@ -135,9 +135,9 @@
                <jms:address
                    destinationStyle="queue"
                    jndiConnectionFactoryName="ConnectionFactory" 
-                   jndiDestinationName="dynamicQueues/test.celtix.jmstransport.queue">
+                   jndiDestinationName="dynamicQueues/test.cxf.jmstransport.queue">
                    
-                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
                    
               </jms:address>

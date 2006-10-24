@@ -68,14 +68,7 @@
         <isset property="env.CXF_HOME"/>
     </condition>
     <property name="cxf.home" location="../.."/>
-    <property name="activemq.home" location="${cxf.home}/lib/activemq/3.2"/>
     <property name="cxf.etc.dir" location="${cxf.home}/etc"/>
-
-     <path id="activeMQ.classpath">
-        <pathelement location="${activemq.home}/lib/spring-core-1.2.5.jar"/>
-        <pathelement location="${activemq.home}/lib/spring-beans-1.2.5.jar"/>
-        <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
-    </path>
 
     <path id="cxf.classpath">
         <pathelement location="${basedir}"/>
@@ -128,22 +121,6 @@
         <delete dir="${activemq.home}/var"/>
     </target>
 
-    <!-- Target to start JMS Broker for JMS samples -->
-    <target name="jmsbroker.start">
-        <property name="derby.system.home" location="${build.var.dir}"/>
-
-        <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
-            <classpath>
-                <path refid="activeMQ.classpath"/>
-            </classpath>
-            <arg value="${activemq.home}/conf/activemq.xml"/>
-            <jvmarg value="-Dactivemq.home=${activemq.home}"/>
-            <jvmarg value="-Dderby.system.home=${derby.system.home}"/>
-            <jvmarg value="-Dderby.storage.fileSyncTransactionLog=true"/>
-            <jvmarg value="-Dderby.storage.dir=${build.var.dir}"/>
-            <sysproperty key="log4j.configuration" value="file:///${cxf.etc.dir}/log4j.properties"/>
-        </java>
-    </target>
 
     <target name="build"  depends="compile" description="build demo client and server"/>
 

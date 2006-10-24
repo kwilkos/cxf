@@ -651,6 +651,11 @@
             </snapshots>
         </repository>
         <repository>
+        <id>ActiveMQ</id>
+        <name>ActiveMQ Maven2 Temp Repository</name>
+        <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC3/maven2</url>
+        </repository>
+        <repository>
             <id>java.net</id>
             <name>java.net Maven Repository</name>
             <url>https://maven-repository.dev.java.net/nonav/repository/</url>
