@@ -84,7 +84,7 @@ public class CustomerService {
         customers.remove(new Long(id));
     }
 
-    Customer createCustomer() {
+    final Customer createCustomer() {
         Customer c = new Customer();
         c.setName("Dan Diephouse");
         c.setId(123);

@@ -49,8 +49,7 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
         HttpURLConnection c = (HttpURLConnection)url.openConnection();
 
         InputStream is = c.getInputStream();
-        Document res = DOMUtils.readXml(is);
-        return res;
+        return DOMUtils.readXml(is);
     }
 
     protected Document post(String urlStr, String message) throws MalformedURLException, IOException,
@@ -79,7 +78,6 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
         copy(msgIs, out);
 
         InputStream is = c.getInputStream();
-        Document res = DOMUtils.readXml(is);
-        return res;
+        return DOMUtils.readXml(is);
     }
 }

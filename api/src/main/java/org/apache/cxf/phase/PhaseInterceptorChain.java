@@ -60,14 +60,14 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private final Map<String, List<Interceptor>> nameMap = new HashMap<String, List<Interceptor>>();
 
     private State state;
-    private Stack subChainState;
+    private Stack<State> subChainState;
     private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
     private MessageObserver faultObserver;
     
     public PhaseInterceptorChain(List<Phase> ps) {
         state = State.EXECUTING;
-        subChainState = new Stack();
+        subChainState = new Stack<State>();
 
         for (Phase phase : ps) {
             List<Interceptor> ints = new ArrayList<Interceptor>();
