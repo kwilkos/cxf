@@ -49,7 +49,7 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
         setPhase(Phase.MARSHAL);
     }
 
-    public void handleMessage(Message message) throws Fault {        
+    public void handleMessage(Message message) throws Fault {
         message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
         NSStack nsStack = new NSStack();
         nsStack.push();
@@ -63,63 +63,52 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
 
             StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_ROOT, XMLConstants.NS_XML_FORMAT);
 
-            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_STRING, 
-                    XMLConstants.NS_XML_FORMAT);
-            Throwable t = xmlFault.getCause();
-            StringBuffer str = new StringBuffer(t.toString());
-            QName elName = null;
-            BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-            if (!bop.isUnwrappedCapable()) {
-                bop = bop.getUnwrappedOperation();
-            }
-            Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
-            // Boolean isWebFault = null;
-            while (it.hasNext()) {
-                FaultInfo fi = it.next();
-                for (MessagePartInfo mpi : fi.getMessageParts()) {
-                    Class cls = mpi.getProperty(Class.class.getName(), Class.class);
-                    Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
-                    Class sub = method.getReturnType();
-                    if (cls != null && cls.equals(sub)) {
-                        if (mpi.isElement()) {
-                            elName = mpi.getElementQName();
-                        } else {
-                            elName = mpi.getTypeQName();
-                        }
-                        // isWebFault = mpi.getProperty("javax.xml.ws.WebFault", Boolean.class);
-                        break;
-                    }
-                }
-            }
-            /*
-             * do not send stack trace information to client
-            if (!(isWebFault != null && isWebFault.booleanValue())) {
-                str.append("\n");
-                for (StackTraceElement s : t.getStackTrace()) {
-                    str.append(s.toString());
-                    str.append("\n");
-                }
-            }
-             */
-            writer.writeCharacters(str.toString());
+            StaxUtils
+                    .writeStartElement(writer, prefix, XMLFault.XML_FAULT_STRING, XMLConstants.NS_XML_FORMAT);
+            Throwable t = xmlFault.getCause();            
+            writer.writeCharacters(t == null ? xmlFault.getMessage() : t.toString());
             // fault string
             writer.writeEndElement();
-            
+
             // call data writer to marshal exception
-            if (elName != null) {
-                StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
-                        XMLConstants.NS_XML_FORMAT);
-                DataWriter<Message> dataWriter = getMessageDataWriter(message);
-                dataWriter.write(getFaultInfo(t), elName, message);
-                writer.writeEndElement();
+            BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+            if (bop != null) {
+                QName elName = null;
+                if (!bop.isUnwrappedCapable()) {
+                    bop = bop.getUnwrappedOperation();
+                }
+                Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
+                while (it.hasNext()) {
+                    FaultInfo fi = it.next();
+                    for (MessagePartInfo mpi : fi.getMessageParts()) {
+                        Class cls = mpi.getProperty(Class.class.getName(), Class.class);
+                        Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
+                        Class sub = method.getReturnType();
+                        if (cls != null && cls.equals(sub)) {
+                            if (mpi.isElement()) {
+                                elName = mpi.getElementQName();
+                            } else {
+                                elName = mpi.getTypeQName();
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (elName != null) {
+                    StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
+                            XMLConstants.NS_XML_FORMAT);
+                    DataWriter<Message> dataWriter = getMessageDataWriter(message);
+                    dataWriter.write(getFaultInfo(t), elName, message);
+                    writer.writeEndElement();
+                }
             }
             // fault root
             writer.writeEndElement();
-            
+
             writer.flush();
 
         } catch (NoSuchMethodException ne) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("UNKNOWN_EXCEPTION", BUNDLE), ne);        
+            throw new Fault(new org.apache.cxf.common.i18n.Message("UNKNOWN_EXCEPTION", BUNDLE), ne);
         } catch (XMLStreamException xe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), xe);
         }

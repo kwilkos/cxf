@@ -52,16 +52,14 @@ public class XMLFaultInInterceptor extends AbstractInDatabindingInterceptor {
         XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
 
-        try {
+        try {            
             reader.nextTag();
             if (!StaxUtils.toNextElement(reader)) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ILLEAGAL_XMLFAULT_FORMAT", BUNDLE));
             }
             String exMessage = reader.getElementText();
             Fault fault = new XMLFault(exMessage);
-            while (!StaxUtils.toNextElement(reader)) {
-                StaxUtils.nextEvent(reader);
-            }
+            reader.nextTag();
             if (StaxUtils.toNextElement(reader)) {
                 // handling detail
                 Element detail = StaxUtils.read(new FragmentStreamReader(reader)).getDocumentElement();
