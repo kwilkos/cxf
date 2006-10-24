@@ -14,7 +14,15 @@ While incubation status is not necessarily a reflection of the completeness or s
 
 Getting Started
 ===============
-To find out how to get started try this
+
+For Apache CXF source distribution, please read BUILDING.txt for 
+how to build Apache CXF. 
+
+For Apache CXF binary distribution, please read doc/release_notes.txt
+for installation instruction and list of supported and unsupported 
+features.
+
+Alternatively, you can also find out how to get started here 
 http://cwiki.apache.org/confluence/display/CXF/Index
 
 If you need more help try talking to us on our mailing lists

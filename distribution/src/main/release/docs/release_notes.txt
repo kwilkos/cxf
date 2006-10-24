@@ -1,0 +1,62 @@
+Apache CXF 2.0 Release Notes
+
+1. New Features
+
+2. Installation Prerequisites 
+
+Before installing Apache CXF, make sure the following products,
+with the specified versions, are installed on your system:
+
+    * Java 5 Development Kit
+    * Apache ant 1.6
+
+
+2.1 Java 5 Development Kit
+
+You must install the J2SE Development Kit (JDK) 5.0, which can be downloaded from:
+
+    http://java.sun.com/j2se/1.5.0/download.jsp
+
+After installing the JDK, set or modify the following environment variables:
+
+    * JAVA_HOME -- set this environment variable
+      to point at the root directory of the JDK 5.0 installation.
+
+    * PATH -- make sure that your PATH includes: 
+      %JAVA_HOME%\bin  (Windows) 
+      $JAVA_HOME/bin   (UNIX)
+
+2.2 Apache Ant 1.6.5
+
+To run samples included in the binary distribution of Celtix, you must
+install the Apache Ant 1.6.5 build utility, which can be downloaded from:
+
+    http://ant.apache.org/bindownload.cgi
+
+After installing Apache Ant, add the <AntInstallDir>/bin directory to your PATH.
+
+For more details, see the Apache CXF Installation Guide.
+
+
+3. Building samples
+
+Building samples included in binary distribution is easy. Please change to
+samples directory and following build instruction readme.txt under each
+sample.
+
+4. Known Problems
+
+3.1 HTTP
+There is an issue with Jetty HTTP that prevents Apache CXF from being able to 
+shut down the actual port listener.  If you programmatically remove the last endpoint
+published on a port, the listener remains running on the port, but only 404
+(page not found) errors are served to all client connections.
+
+3.2 Schema Definitions
+There is no support for nillable elements in XML Schema and xsi:nil attribute 
+in XML documents.
+
+4. Reporting Problems
+
+If you have any problems or want to send feedback of any kind, please e-mail the
+cxf dev list, cxf-dev@incupator.apache.org. 
