@@ -25,6 +25,7 @@ import javax.resource.spi.ManagedConnection;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.WebServiceException;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -92,6 +93,14 @@ public class OutBoundConnectionTest extends ClientServerTestBase {
         Subject subject = new Subject();
         ManagedConnection mc = managedFactory.createManagedConnection(subject, cri);        
         Object o = mc.getConnection(subject, cri);
+        
+        // test for the Object hash()
+        try {
+            o.hashCode();
+            o.toString();
+        } catch (WebServiceException ex) {
+            fail("The connection object should support Object method");
+        }
         
         assertTrue("returned connect does not implement Connection interface", o instanceof Connection);
         assertTrue("returned connect does not implement Connection interface", o instanceof Greeter);
