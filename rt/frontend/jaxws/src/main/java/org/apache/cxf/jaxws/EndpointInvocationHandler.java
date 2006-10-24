@@ -60,6 +60,9 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if ("hashCode".equals(method.getName())) {
+            return this.hashCode();
+        }
         MethodDispatcher dispatcher = 
             (MethodDispatcher)endpoint.getService().get(MethodDispatcher.class.getName());
         BindingOperationInfo oi = dispatcher.getBindingOperation(method, endpoint);
