@@ -205,6 +205,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
      * @param method
      */
     protected void initalizeClassInfo(OperationInfo o, Method selected, List<String> paramOrder) {
+        setInputClassInfo(o, selected);
         if (o.getOutput() == null) {
             return;
         }
@@ -212,7 +213,6 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         int inPartCount = o.getInput().getMessageParts().size();        
         int outIdx = 0;
         int offset = 0;
-        setInputClassInfo(o, selected);
         for (MessagePartInfo mpiOut : o.getOutput().getMessageParts()) {
             int inIdx = 0;
             boolean isInOut = false;
@@ -268,7 +268,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                         }
                     }
                 }
-            }
+            }            
             outIdx++;
         }
         setFaultClassInfo(o, selected);
