@@ -134,13 +134,26 @@ public class JaxWsImplementorInfo {
             return new QName(namespace, "NoNamedPort");
         }        
     }
+        
+    @SuppressWarnings("unchecked")
+    private String getWSInterfaceName(Class implClz) {
+        Class[] clzs = implClz.getInterfaces();
+        for (Class clz : clzs) {
+            if (null != clz.getAnnotation(WebService.class)) {
+                return clz.getName();
+            }
+        }
+        return null;
+    }
 
     private void initialise() {
         implementorAnnotation = implementorClass.getAnnotation(WebService.class);
         if (null != implementorAnnotation) {
-
             String sei = implementorAnnotation.endpointInterface();
-            if (null != sei && !"".equals(sei)) {
+            if (StringUtils.isEmpty(sei)) {
+                sei = getWSInterfaceName(implementorClass);                
+            }
+            if (!StringUtils.isEmpty(sei)) {
                 try {
                     seiClass = ClassLoaderUtils.loadClass(sei, implementorClass);
                 } catch (ClassNotFoundException ex) {
@@ -150,12 +163,9 @@ public class JaxWsImplementorInfo {
                 if (null == seiAnnotation) {
                     throw new WebServiceException(BUNDLE.getString("SEI_WITHOUT_WEBSERVICE_ANNOTATION_EXC"));
                 }
-                String portName = seiAnnotation.portName();
-                String serviceName = seiAnnotation.serviceName();
-                String endpointInterface = seiAnnotation.endpointInterface();
-                if ((null != portName && !"".equals(portName))
-                    || (null != serviceName && !"".equals(serviceName))
-                    || (null != endpointInterface && !"".equals(endpointInterface))) {
+                if (!StringUtils.isEmpty(seiAnnotation.portName())
+                    || !StringUtils.isEmpty(seiAnnotation.serviceName())
+                    || !StringUtils.isEmpty(seiAnnotation.endpointInterface())) {
                     String expString = BUNDLE.getString("ILLEGAL_ATTRIBUTE_IN_SEI_ANNOTATION_EXC");
                     throw new WebServiceException(expString);
                 }

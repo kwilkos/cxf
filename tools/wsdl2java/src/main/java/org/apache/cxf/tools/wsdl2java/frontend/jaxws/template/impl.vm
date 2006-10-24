@@ -39,7 +39,8 @@ import ${import};
 @javax.jws.WebService(name = "$intf.Name", serviceName = "$service",
                       portName = "$port",
                       targetNamespace = "$intf.Namespace", 
-                      wsdlLocation = "$intf.Location")
+                      wsdlLocation = "$intf.Location" ,
+		      endpointInterface = "$intf.PackageName.$intf.Name")
                       
 public class ${intf.Name}Impl implements $intf.Name {
 

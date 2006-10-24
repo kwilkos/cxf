@@ -55,6 +55,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
                                               + File.separatorChar);
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_IMPL, "impl");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
     }
@@ -81,7 +82,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(3, files.length);
+        assertEquals(4, files.length);
         files = types.listFiles();
         assertEquals(files.length, 3);
 
@@ -100,6 +101,15 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         Class paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
         Method method = clz.getMethod("sendReceiveData", new Class[] {paraClass});
         assertEquals("MyComplexStruct", method.getReturnType().getSimpleName());
+        
+        clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLitImpl");
+        assertNotNull(clz);
+        ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
+        assertNotNull(ws);
+        assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
+                   .startsWith("file"));
+        assertEquals("org.apache.hello_world_rpclit.GreeterRPCLit", ws.endpointInterface());
+        assertEquals("GreeterRPCLit", ws.name());
     }
 
     public void testAsynMethod() throws Exception {
@@ -117,7 +127,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(async.exists());
 
         File[] files = async.listFiles();
-        assertEquals(3, files.length);
+        assertEquals(4, files.length);
 
         Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
 
@@ -152,7 +162,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(4, files.length);
+        assertEquals(5, files.length);
         files = types.listFiles();
         assertEquals(7, files.length);
 
@@ -210,7 +220,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File types = new File(helloworldsoaphttp, "types");
         assertTrue(types.exists());
         File[] files = helloworldsoaphttp.listFiles();
-        assertEquals(6, files.length);
+        assertEquals(7, files.length);
         files = types.listFiles();
         assertEquals(17, files.length);
 
@@ -282,7 +292,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File mapping = new File(apache, "mapping");
         assertTrue(mapping.exists());
         File[] files = mapping.listFiles();
-        assertEquals(6, files.length);
+        assertEquals(7, files.length);
 
         Class clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
         Method method = clz.getMethod("doSomething", new Class[] {int.class, javax.xml.ws.Holder.class,
@@ -319,7 +329,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File schemaImport = new File(apache, "schema_import");
         assertTrue(schemaImport.exists());
         files = schemaImport.listFiles();
-        assertEquals(3, files.length);
+        assertEquals(4, files.length);
 
         Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
         assertEquals(4, clz.getMethods().length);
@@ -370,7 +380,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(exceptionCollision.exists());
 
         File[] files = invoiceserver.listFiles();
-        assertEquals(12, files.length);
+        assertEquals(13, files.length);
         files = invoice.listFiles();
         assertEquals(files.length, 9);
 
@@ -396,7 +406,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(apache.exists());
 
         File[] files = apache.listFiles();
-        assertEquals(13, files.length);
+        assertEquals(14, files.length);
 
         File typeCollision = new File(apache, "Greeter_Type.java");
         assertTrue(typeCollision.exists());
@@ -427,7 +437,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(apache.exists());
 
         File[] files = apache.listFiles();
-        assertEquals(3, files.length);
+        assertEquals(4, files.length);
 
         File serviceCollision = new File(apache, "HelloWorldServiceImpl_Service.java");
         assertTrue(serviceCollision.exists());
@@ -473,7 +483,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(apache.exists());
 
         File[] files = apache.listFiles();
-        assertEquals(11, files.length);
+        assertEquals(12, files.length);
 
         Class clz = classLoader.loadClass("org.apache.HeaderTester");
         assertEquals(3, clz.getMethods().length);
@@ -564,7 +574,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(cxf.exists());
 
         File[] files = apache.listFiles();
-        assertEquals(5, files.length);
+        assertEquals(6, files.length);
         files = cxf.listFiles();
         assertEquals(17, files.length);
 
@@ -594,7 +604,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         File cxf = new File(org, "cxf");
         files = cxf.listFiles();
-        assertEquals(5, files.length);
+        assertEquals(6, files.length);
 
         Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
@@ -615,7 +625,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertTrue(address.exists());
 
         File[] files = address.listFiles();
-        assertEquals(4, files.length);
+        assertEquals(5, files.length);
         File handlerConfig = new File(address, "Greeter_handler.xml");
         assertTrue(handlerConfig.exists());
 
@@ -790,7 +800,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File xsd = new File(soapinterop, "xsd");
         assertTrue(xsd.exists());
         File[] files = wsdlinterop.listFiles();
-        assertEquals(3, files.length);
+        assertEquals(4, files.length);
         files = xsd.listFiles();
         assertEquals(4, files.length);
 
