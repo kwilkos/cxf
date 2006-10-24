@@ -93,7 +93,6 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setServiceFactory(bean);
-        svrFactory.setTransportId("http://schemas.xmlsoap.org/soap/");
         svrFactory.setAddress(address);
         svrFactory.create();
         

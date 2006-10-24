@@ -161,7 +161,7 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");
-        svrBean.setTransportId("http://schemas.xmlsoap.org/soap/");
+        svrBean.setTransportId("http://schemas.xmlsoap.org/soap/http");
         svrBean.setServiceFactory(serviceFactory);
         svrBean.setBus(getBus());
         

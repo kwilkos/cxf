@@ -48,6 +48,7 @@ public class ServerFactoryBean {
     private AbstractBindingInfoFactoryBean bindingFactory;
     private QName endpointName;
     private boolean start = true;
+    private Class serviceClass;
     
     public ServerFactoryBean() {
         super();
@@ -57,6 +58,12 @@ public class ServerFactoryBean {
     public Server create() {
         try {
             service = serviceFactory.getService();
+            
+            if (service == null) {
+                serviceFactory.setServiceClass(serviceClass);
+                serviceFactory.setBus(bus);
+                service = serviceFactory.create();
+            }
             
             if (endpointName == null) {
                 endpointName = serviceFactory.getEndpointName();
@@ -93,7 +100,26 @@ public class ServerFactoryBean {
 
     private EndpointInfo createEndpoint() throws BusException {
         if (transportId == null) {
-            throw new NullPointerException("A transport id must be specified!");
+            if (address != null) {
+                DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+                DestinationFactory df = dfm.getDestinationFactoryForUri(address);
+                if (df != null) {
+                    transportId = df.getTransportIds().get(0);
+                }
+            }
+            
+            if (transportId == null) {
+                // TODO: we shouldn't have to do this, but the DF is null because the
+                // LocalTransport doesn't return for the http:// uris
+                // People also seem to be supplying a null JMS address, which is worrying
+                transportId = "http://schemas.xmlsoap.org/wsdl/soap/http";
+            }
+        }
+        
+        // SOAP nonsense
+        if (bindingFactory instanceof SoapBindingInfoFactoryBean) {
+            ((SoapBindingInfoFactoryBean) bindingFactory).setTransportURI(transportId);
+            transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
         
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
@@ -191,5 +217,12 @@ public class ServerFactoryBean {
     public void setBindingFactory(AbstractBindingInfoFactoryBean bindingFactory) {
         this.bindingFactory = bindingFactory;
     }
-    
+
+    public Class getServiceClass() {
+        return serviceClass;
+    }
+
+    public void setServiceClass(Class serviceClass) {
+        this.serviceClass = serviceClass;
+    }    
 }

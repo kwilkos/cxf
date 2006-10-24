@@ -26,10 +26,7 @@ import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.binding.http.HttpBindingInfoFactoryBean;
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.transport.http.JettyHTTPDestination;
 
@@ -38,30 +35,19 @@ public class WrappedServiceTest extends AbstractRestTest {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
         
-        JaxWsServiceFactoryBean sf = new JaxWsServiceFactoryBean();
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setBus(getBus());
         sf.setServiceClass(CustomerService.class);
-        sf.setWrapped(true);
+        sf.getServiceFactory().setWrapped(true);
+        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
+        sf.setAddress("http://localhost:9001/");
+        sf.setStart(false);
         
-        Service service = sf.create();
-        assertNotNull(service.getServiceInfo());
-        assertEquals("http://cxf.apache.org/jra", service.getName().getNamespaceURI());
-        
-        HttpBindingInfoFactoryBean jraFactory = new HttpBindingInfoFactoryBean();
-        
-        ServerFactoryBean svrFactory = new ServerFactoryBean();
-        svrFactory.setServiceFactory(sf);
-        svrFactory.setBus(getBus());
-        svrFactory.setBindingFactory(jraFactory);
-        svrFactory.setAddress("http://localhost:9001/");
-        svrFactory.setTransportId("http://schemas.xmlsoap.org/wsdl/http/");
-        svrFactory.setStart(false);
-        
-        ServerImpl svr = (ServerImpl) svrFactory.create();
+        ServerImpl svr = (ServerImpl) sf.create();
         ((JettyHTTPDestination) svr.getDestination()).setContextMatchStrategy("stem");
         svr.start();
                 
-        URIMapper mapper = (URIMapper) service.get(URIMapper.class.getName());
+        URIMapper mapper = (URIMapper) svr.getEndpoint().getService().get(URIMapper.class.getName());
         assertNotNull(mapper);
         
         BindingOperationInfo bop = mapper.getOperation("/customers", "GET", null);
@@ -85,7 +71,6 @@ public class WrappedServiceTest extends AbstractRestTest {
         
         Document res = get("http://localhost:9001/customers");
         assertNotNull(res);
-        DOMUtils.writeXml(res, System.out);
         
         addNamespace("c", "http://cxf.apache.org/jra");
         assertValid("/c:getCustomersResponse/c:customers", res);
@@ -94,8 +79,7 @@ public class WrappedServiceTest extends AbstractRestTest {
         
         res = get("http://localhost:9001/customers/123");
         assertNotNull(res);
-        DOMUtils.writeXml(res, System.out);
-        
+
         addNamespace("c", "http://cxf.apache.org/jra");
         assertValid("/c:getCustomerResponse/c:customer", res);
         assertValid("/c:getCustomerResponse/c:customer/c:id[text()='123']", res);
@@ -103,21 +87,18 @@ public class WrappedServiceTest extends AbstractRestTest {
         
         res = put("http://localhost:9001/customers/123", "update.xml");
         assertNotNull(res);
-        DOMUtils.writeXml(res, System.out);
-        
+
         assertValid("/c:updateCustomerResponse", res);
         
         res = post("http://localhost:9001/customers", "add.xml");
         assertNotNull(res);
-        DOMUtils.writeXml(res, System.out);
-        
+
         assertValid("/c:addCustomerResponse", res);
 
         // Get the updated document
         res = get("http://localhost:9001/customers/123");
         assertNotNull(res);
-        DOMUtils.writeXml(res, System.out);
-        
+
         assertValid("/c:getCustomerResponse/c:customer", res);
         assertValid("/c:getCustomerResponse/c:customer/c:id[text()='123']", res);
         assertValid("/c:getCustomerResponse/c:customer/c:name[text()='Danno Manno']", res);

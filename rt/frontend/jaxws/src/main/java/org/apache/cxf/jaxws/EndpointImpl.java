@@ -54,8 +54,6 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServerFactoryBean;
-import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.transport.DestinationFactoryManager;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
@@ -205,22 +203,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     protected void doPublish(String address) {
 
-        String transportId = null;
-        if (address != null) {
-            DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-            DestinationFactory df = dfm.getDestinationFactoryForUri(address);
-            if (df != null) {
-                transportId = df.getTransportIds().get(0);
-            }
-        }
-        
-        if (transportId == null) {
-            // TODO: we shouldn't have to do this, but the DF is null because the
-            // LocalTransport doesn't return for the http:// uris
-            // People also seem to be supplying a null JMS address, which is worrying
-            transportId = "http://schemas.xmlsoap.org/wsdl/soap/http";
-        }
-        
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setAddress(address);
@@ -233,14 +215,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             bindingFactory = new XMLBindingInfoFactoryBean();
         } else {
             // Just assume soap otherwise...
-            JaxWsSoapBindingInfoFactoryBean soapBindingFactory = new JaxWsSoapBindingInfoFactoryBean();
-            soapBindingFactory.setTransportURI(transportId);
-            transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
-            bindingFactory = soapBindingFactory;
+            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();
         }
         
         svrFactory.setBindingFactory(bindingFactory);
-        svrFactory.setTransportId(transportId);
         
         server = svrFactory.create();
 

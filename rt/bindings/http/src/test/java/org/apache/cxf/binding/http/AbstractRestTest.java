@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.w3c.dom.Document;
 
@@ -38,7 +39,8 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.test.AbstractCXFTest;
 
 public abstract class AbstractRestTest extends AbstractCXFTest {
-
+    boolean debug;
+    
     protected Bus createBus() throws BusException {
         return new SpringBusFactory().createBus();
     }
@@ -78,6 +80,15 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
         copy(msgIs, out);
 
         InputStream is = c.getInputStream();
-        return DOMUtils.readXml(is);
+        Document res = DOMUtils.readXml(is);
+        
+        if (debug) {
+            try {
+                DOMUtils.writeXml(res, System.out);
+            } catch (TransformerException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return res;
     }
 }
