@@ -409,7 +409,9 @@ public class WSDLServiceBuilder {
         XmlSchemaComplexType xsct = null;
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType) {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
-            if (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedInput)) {
+            if (hasAttributes(xsct) || !isWrappableSequence(xsct,
+                                                            inputEl.getQName().getNamespaceURI(),
+                                                            unwrappedInput)) {
                 passedRule = false;
             }
         } else {
@@ -425,7 +427,9 @@ public class WSDLServiceBuilder {
 
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
-                if (hasAttributes(xsct) || !isWrappableSequence(xsct, unwrappedOutput)) {
+                if (hasAttributes(xsct) || !isWrappableSequence(xsct, 
+                                                                outputEl.getQName().getNamespaceURI(),
+                                                                unwrappedOutput)) {
                     passedRule = false;
                 }
             } else {
@@ -455,7 +459,9 @@ public class WSDLServiceBuilder {
         return false;
     }
 
-    private boolean isWrappableSequence(XmlSchemaComplexType type, MessageInfo wrapper) {
+    private boolean isWrappableSequence(XmlSchemaComplexType type, 
+                                        String namespaceURI, 
+                                        MessageInfo wrapper) { 
         if (type.getParticle() instanceof XmlSchemaSequence) {
             XmlSchemaSequence seq = (XmlSchemaSequence)type.getParticle();
             XmlSchemaObjectCollection items = seq.getItems();
@@ -467,7 +473,12 @@ public class WSDLServiceBuilder {
                 }
                 XmlSchemaElement el = (XmlSchemaElement)o;
 
-                MessagePartInfo mpi = wrapper.addMessagePart(el.getQName());
+                // Handle anonymous ref
+                QName elQname = el.getQName();
+                if (elQname == null) {
+                    elQname = new QName(namespaceURI, el.getRefName().getLocalPart());
+                }
+                MessagePartInfo mpi = wrapper.addMessagePart(elQname); 
                 mpi.setTypeQName(el.getSchemaTypeName());
             }
 

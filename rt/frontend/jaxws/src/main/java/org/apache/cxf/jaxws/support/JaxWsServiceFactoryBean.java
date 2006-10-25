@@ -246,7 +246,8 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                 if (((Class) selected.getReturnType()).getName().equals("void")) {
                     // to avoid <element name="..."><complexType/></element> in
                     // output message part
-                    if (paraType.length > inPartCount + outIdx) {
+                    if (paraType.length > inPartCount + outIdx 
+                            && paraType[inPartCount + outIdx] instanceof ParameterizedType) {
                         ParameterizedType paramType = (ParameterizedType) paraType[inPartCount + outIdx];
                         Class rawClass = getHolderClass(paramType, inPartCount + outIdx);
                         mpiOut.setProperty(Class.class.getName(), rawClass);
