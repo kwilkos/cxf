@@ -162,6 +162,7 @@
     </properties>
 
     <modules>
+        <module>buildtools</module>
         <module>common</module>
         <module>tools</module>
         <module>common/metacode</module>
@@ -238,12 +239,19 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.cxf</groupId>
+                            <artifactId>cxf-buildtools</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                     <executions>
                         <execution>
                             <id>process-sources</id>
                             <phase>process-sources</phase>
                             <configuration>
-                                <configLocation>${basedir}/${topDirectoryLocation}/checkstyle.xml</configLocation>
+                                <configLocation>cxf-checkstyle.xml</configLocation>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
@@ -261,10 +269,18 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.cxf</groupId>
+                            <artifactId>cxf-buildtools</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <rulesets>
-                            <ruleset>${basedir}/.ruleset</ruleset>
+                            <ruleset>cxf-pmd-ruleset.xml</ruleset>
                         </rulesets>
+                        <targetJdk>${java.source.version}</targetJdk>
                         <linkXRef>false</linkXRef>
                     </configuration>
                     <executions>
@@ -621,19 +637,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <configLocation>${basedir}/${topDirectoryLocation}/checkstyle.xml</configLocation>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <targetJdk>${java.source.version}</targetJdk>
-                    <rulesets>
-                        <ruleset>${basedir}/.ruleset</ruleset>
-                    </rulesets>
-                </configuration>
             </plugin>
         </plugins>
     </reporting>
@@ -708,6 +715,7 @@
                             <source>1.5</source>
                             <target>1.5</target>
                             <showDeprecation>true</showDeprecation>
+                            <showWarnings>true</showWarnings>
                             <compilerArgument>${compile.flags}</compilerArgument>
                         </configuration>
                     </plugin>
@@ -737,6 +745,7 @@
                             <source>1.5</source>
                             <target>1.5</target>
                             <showDeprecation>true</showDeprecation>
+                            <showWarnings>true</showWarnings>
                             <compilerArgument>${compile.flags}</compilerArgument>
                         </configuration>
                     </plugin>
@@ -792,6 +801,11 @@
                                 <artifactId>ant-trax</artifactId>
                                 <version>1.6.5</version>
                             </dependency>
+                            <dependency>
+                                <groupId>org.apache.cxf</groupId>
+                                <artifactId>cxf-buildtools</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
                         </dependencies>
                         <executions>
                             <execution>
@@ -802,10 +816,22 @@
                                         <path id="ecp.ws.path" location="${eclipse.workspace.dir}"/>
                                         <property name="full.eclipse.workspace" refid="ecp.ws.path"/>
 
+                                        <whichresource resource="/cxf-eclipse-pmd" property="pmd.url"/>
+                                        <whichresource resource="/cxf-pmd-ruleset.xml" property="pmdruleset.url"/>
+                                        <whichresource resource="/cxf-eclipse-checkstyle" property="eclipse.checkstyle.url"/>
+                                        <whichresource resource="/cxf-checkstyle.xml" property="checkstyle.url"/>
+
+
+                                        <get src="${pmdruleset.url}" dest=".ruleset"/>
+                                        <get src="${pmd.url}" dest=".pmd"/>
+                                        <get src="${eclipse.checkstyle.url}" dest=".checkstyle"/>
+                                        <get src="${checkstyle.url}" dest="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
+
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/net.sourceforge.pmd.eclipse"/>
-                                        <copy file="${basedir}/${topDirectoryLocation}/checkstyle.xml" tofile="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
+
+
                                         <copy file="${basedir}/${topDirectoryLocation}/etc/apache-header.txt" tofile="${full.eclipse.workspace}/apache-header.txt"/>
         
                                         <!-- Add checkstyle config -->

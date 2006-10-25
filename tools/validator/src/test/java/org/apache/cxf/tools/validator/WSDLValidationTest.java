@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.cxf.tools.validator;
 
 import java.io.File;
@@ -32,7 +31,7 @@ public class WSDLValidationTest extends ToolTestBase {
     public void setUp() {
         super.setUp();
         try {
-            schemaDir = getLocation("/schemas");
+            schemaDir = getLocation("/validator_schemas");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -45,7 +44,7 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir,
                                           "-verbose", getLocation("/validator_wsdl/doc_lit_bare.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Non Unique Body Parts Error should be discovered",
+            assertTrue("Non Unique Body Parts Error should be discovered: " + getStdErr(),
                        getStdErr().indexOf("Non unique body part") > -1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,7 +57,7 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/validator_wsdl/hello_world_mixed_style.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Mixed style. Error should have been discovered.",
+            assertTrue("Mixed style. Error should have been discovered: " + getStdErr(),
                        getStdErr().indexOf("Mixed style, invalid WSDL") > -1);
 
         } catch (Exception e) {
@@ -72,7 +71,7 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/validator_wsdl/hello_world_doc_lit_type.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Must refer to type element error should have been discovered.",
+            assertTrue("Must refer to type element error should have been discovered: " + getStdErr(),
                        getStdErr().indexOf("using the element attribute") > -1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,7 +84,7 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/validator_wsdl/hello_world_error_attribute.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Attribute error should be discovered",
+            assertTrue("Attribute error should be discovered: " + getStdErr(),
                        getStdErr().indexOf(" is not allowed to appear in element") > -1);
 
         } catch (Exception e) {
@@ -100,7 +99,7 @@ public class WSDLValidationTest extends ToolTestBase {
             String[] args = new String[] {"-d", schemaDir, "-verbose",
                                           getLocation("/validator_wsdl/hello_world_error_reference.wsdl")};
             WSDLValidator.main(args);
-            assertTrue("Reference error should be discovered",
+            assertTrue("Reference error should be discovered: " + getStdErr(),
                        getStdErr().indexOf("reference binding is not defined") > -1);
 
 
@@ -115,7 +114,7 @@ public class WSDLValidationTest extends ToolTestBase {
                                           getLocation("/validator_wsdl/bug305872/http.xsd")};
             WSDLValidator.main(args);
             
-            assertTrue("Tools should check if this file is a wsdl file",
+            assertTrue("Tools should check if this file is a wsdl file: " + getStdErr(),
                        getStdErr().indexOf("is not a wsdl file") > -1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,7 +128,7 @@ public class WSDLValidationTest extends ToolTestBase {
                                           getLocation("/validator_wsdl/hello_world_import.wsdl")};
             WSDLValidator.main(args);
             
-            assertTrue("Is not valid wsdl!",
+            assertTrue("Is not valid wsdl!: " + getStdOut(),
                        getStdOut().indexOf("Passed Validation") > -1);
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,7 +142,7 @@ public class WSDLValidationTest extends ToolTestBase {
                                           getLocation("/validator_wsdl/hello_world_schema_import.wsdl")};
             WSDLValidator.main(args);
             
-            assertTrue("Is not valid wsdl!",
+            assertTrue("Is not valid wsdl: " + getStdOut(),
                        getStdOut().indexOf("Passed Validation") > -1);
         } catch (Exception e) {
             e.printStackTrace();
