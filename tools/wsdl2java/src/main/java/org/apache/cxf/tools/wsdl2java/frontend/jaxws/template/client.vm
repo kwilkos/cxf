@@ -38,7 +38,7 @@ import javax.xml.namespace.QName;
 
 public final class ${clientClassName} {
 
-    private static final QName SERVICE_NAME = new QName("$intf.Namespace", "$service.Name");
+    private static final QName SERVICE_NAME = new QName("$intf.Namespace", "$service.ServiceName");
 
     private ${clientClassName}() {
     }
