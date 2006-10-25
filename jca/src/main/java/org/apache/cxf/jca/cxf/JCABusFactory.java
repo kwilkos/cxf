@@ -22,47 +22,67 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 //import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
+//import java.lang.reflect.InvocationTargetException;
+//import java.lang.reflect.Method;
+//import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+//import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+//import javax.ejb.EJBHome;
+//import javax.ejb.EJBObject;
+//import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.resource.ResourceException;
-import javax.wsdl.Binding;
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.PortType;
-import javax.wsdl.Service;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.soap.SOAPAddress;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLReader;
+//import javax.rmi.PortableRemoteObject;
+//import javax.wsdl.Binding;
+//import javax.wsdl.Definition;
+//import javax.wsdl.Port;
+//import javax.wsdl.PortType;
+//import javax.wsdl.Service;
+//import javax.wsdl.extensions.ExtensibilityElement;
+//import javax.wsdl.extensions.soap.SOAPAddress;
+//import javax.wsdl.factory.WSDLFactory;
+//import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import javax.xml.ws.Endpoint;
-import org.xml.sax.InputSource;
+//import javax.xml.ws.Endpoint;
+//import org.xml.sax.InputSource;
 
 import org.apache.cxf.Bus;
+//import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.jaxws.EndpointImpl;
+//import org.apache.cxf.jaxws.EndpointImpl;
+//import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 //import org.apache.cxf.endpoint.EndpointImpl;
+//import org.apache.cxf.binding.BindingFactoryManager;
+//import org.apache.cxf.binding.soap.SoapBindingFactory;
+//import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.endpoint.Server;
+//import org.apache.cxf.jaxb.JAXBDataBinding;
 //import org.apache.cxf.jaxws.EndpointRegistry;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.core.resourceadapter.UriHandlerInit;
-import org.apache.cxf.jca.servant.CXFConnectEJBServant;
-import org.apache.cxf.jca.servant.EJBServant;
-import org.apache.cxf.tools.util.ProcessorUtil;
+//import org.apache.cxf.jca.servant.CXFConnectEJBServant;
+//import org.apache.cxf.jca.servant.EJBServant;
+//import org.apache.cxf.service.Service;
+//import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+//import org.apache.cxf.service.factory.ServerFactoryBean;
+
+//import org.apache.cxf.tools.util.ProcessorUtil;
+//import org.apache.cxf.transport.ConduitInitiatorManager;
+//import org.apache.cxf.transport.DestinationFactoryManager;
+//import org.apache.cxf.transport.http.HTTPTransportFactory;
 //import org.apache.cxf.ws.addressing.EndpointReferenceType;
 //import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+//import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 
 public class JCABusFactory {
@@ -71,12 +91,12 @@ public class JCABusFactory {
 
     private Bus bus;
     private BusFactory bf;
-    private List<Endpoint> servantsCache = new ArrayList<Endpoint>();
+    private List<Object> servantsCache = new ArrayList<Object>();
     private InitialContext jndiContext;
     private ClassLoader appserverClassLoader;
     private ManagedConnectionFactoryImpl mcf;
     private Object raBootstrapContext;
-    private String nameSpace;
+//    private String nameSpace;
 
     public JCABusFactory(ManagedConnectionFactoryImpl aMcf) {
         this.mcf = aMcf;
@@ -94,6 +114,7 @@ public class JCABusFactory {
     }
 
     protected Bus initBus(ClassLoader loader) throws ResourceException {
+
         try {
             Class busClazz = Class.forName(getBusClassName(), true, loader);
             bf = (org.apache.cxf.BusFactory) busClazz.newInstance();
@@ -115,11 +136,14 @@ public class JCABusFactory {
         ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader cl = this.getClass().getClassLoader();
+
             // ensure resourceadapter: url handler can be found by URLFactory
             Thread.currentThread().setContextClassLoader(cl);
+            //Thread.currentThread().setContextClassLoader(appserverClassLoader);
             //TODO Check for the managed connection factory properties
             //mcf.validateProperties();            
             bus = initBus(cl);
+            //bus = initBus(appserverClassLoader);
             initialiseServants();
         } catch (Exception ex) {
             if (ex instanceof ResourceAdapterInternalException) {
@@ -160,6 +184,7 @@ public class JCABusFactory {
                        + ne, ne);
         }
 
+        // *** So far CXF can't deregister server and clean up resources, so there have memory leak problem.
         deregisterServants(bus);
 
         LOG.config("Initialising EJB endpoints...");
@@ -188,47 +213,119 @@ public class JCABusFactory {
     }
     
     void initialiseServant(String jndiName, String serviceName) throws ResourceException {
-        Endpoint ei = null;
-        QName serviceQName = null;
+
+        Object servant = null;
+//         EJBObject ejb = null;
+//         QName serviceQName = null;
         String wsdlLocation = "";
-        String portName = "";
+//         String portName = "";
+//         String nameSpace = "";
         if ("".equals(serviceName)) {
             throw new ResourceAdapterInternalException(
                           "A WSDL service QName must be specified as the value of the EJB JNDI name key: "
                           + jndiName);
         } else {
-            serviceQName = serviceQNameFromString(serviceName);
+//             serviceQName = serviceQNameFromString(serviceName);
+            serviceQNameFromString(serviceName);
+            // Get ejbObject
+//            ejb = getEJBObject(jndiName); 
+
+//             nameSpace = serviceQName.getNamespaceURI();
             wsdlLocation = wsdlLocFromString(serviceName);
             if (wsdlLocation == null) {
-                throw new ResourceAdapterInternalException(
-                          "Service string value:"
-                          + serviceName
-                          + " for key="
-                          + jndiName
-                          + " is incomplete. You must specify wsdl location using the '@' notation, "
-                          + "eg: jndiName={namespace url}ServiceName@WsdlURL or configure"
-                          + " the relevant bus:" + "initial_contract in configuration");
+//                 servant = publishServantWithoutWSDL(ejb, jndiName, nameSpace);
+            } else {
+                mcf.validateURLString(wsdlLocation,
+                        "WSDL location specified using '@' notation"
+                        + " in service string is invalid, value="
+                        + wsdlLocation);
+//                 portName = portNameFromString(serviceName);
+
             }
-        }
-        mcf.validateURLString(wsdlLocation,
-                              "WSDL location specified using '@' notation"
-                              + " in service string is invalid, value="
-                              + wsdlLocation);
-        portName = portNameFromString(serviceName);
-        try {
-            ei = processWSDL(jndiName, serviceQName, wsdlLocation, portName);
-        } catch (Exception e) {
-            throw new ResourceAdapterInternalException("Failed to register EJBServant for jnidName "
-                                                       + jndiName, e);
         }
         
         synchronized (servantsCache) {
-            if (ei instanceof Endpoint) {
-                servantsCache.add(ei);
+            if (servant != null) {
+                servantsCache.add(servant);
             }
         }
     }
+    /*
+    private Object publishServantWithoutWSDL (EJBObject ejb, String jndiName, String nameSpace) {
+        // Get interface of ejbObject
+        String interfaceClassPackage = ProcessorUtil.parsePackageName(nameSpace, null);
+        String interfaceClassString = interfaceClassPackage + "." + portTypeQName.getLocalPart();
+        Class seiClass = Class.forName(interfaceClassString);
 
+        // Added by unreal for simple frontend
+        SoapBindingFactory bindingFactory = new SoapBindingFactory();
+
+        bus.getExtension(BindingFactoryManager.class)
+            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
+
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
+
+        HTTPTransportFactory httpTransport = new HTTPTransportFactory();
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", httpTransport);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", httpTransport);
+
+        ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
+        extension.registerConduitInitiator(HTTPTransportFactory.TRANSPORT_ID, httpTransport);
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", httpTransport);
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", httpTransport);
+
+        // create service 
+        ReflectionServiceFactoryBean serviceFactory = new ReflectionServiceFactoryBean();
+        serviceFactory.setDataBinding(new JaxBDataBinnding(ejbinterfaceClass));
+        serviceFactory.setBus(bus);
+        serviceFactory.setServiceClass(ejbinterfaceClass);
+        Service service = serviceFactory.create();
+        
+        // set invoker to ejbObject
+        service.setInvoker(new JAXWSMethodInvoker(ejb));
+        
+        // create server 
+        ServerFactoryBean serverFactory = new ServerFactoryBean();
+        
+        serverFactory.setAddress(nameSpace);
+//        serverFactory.setAddress("http://localhost/Hello");
+        serverFactory.setTransportId("http://schemas.xmlsoap.org/soap/");
+        serverFactory.setServiceFactory(serviceFactory);
+        serverFactory.setBus(bus);
+        
+        Server servant = serverFactory.create();
+        return servant;
+    }
+    
+    private EJBObject getEJBObject(String jndi) {
+        try {
+            EJBHome home = getEJBHome(jndiContext, jndi);
+
+//      ejbHomeClassLoader = home.getClass().getClassLoader();
+
+            Method createMethod = home.getClass().getMethod("create", new Class[0]);
+
+            return (EJBObject) createMethod.invoke(home, new Object[0]);
+        } catch (NamingException e) {
+            throw new BusException(e);
+        } catch (NoSuchMethodException e) {
+            throw new BusException(e);
+        } catch (IllegalAccessException e) {
+            throw new BusException(e);
+        } catch (InvocationTargetException itex) {
+            Throwable thrownException = itex.getTargetException();
+            throw new BusException(thrownException);
+        }
+    }
+    
+    protected EJBHome getEJBHome(Context ejbContext, String jndiName) throws NamingException {
+        Object obj = ejbContext.lookup(jndiName);
+        return (EJBHome) PortableRemoteObject.narrow(obj, EJBHome.class);
+    }
+    
     private Endpoint processWSDL(String jndiName, QName serviceQName, String wsdlLocation, String portName)
         throws Exception {
         Endpoint ei = null;
@@ -312,7 +409,7 @@ public class JCABusFactory {
         ei.publish(address);
         return ei;
     }
-    
+    */
     void startPropertiesMonitorThread() throws ResourceException {
         Integer pollIntervalInteger = mcf.getEJBServicePropertiesPollInterval();
         int pollInterval = pollIntervalInteger.intValue();
@@ -354,6 +451,13 @@ public class JCABusFactory {
 //                     EndpointRegistry er = aBus.getEndpointRegistry();
 //                     er.unregisterEndpoint(ed);
 //                 }
+                Iterator servants = servantsCache.iterator();
+                while (servants.hasNext()) {
+                    Object servant = servants.next();
+                    if (servant instanceof Server) {
+                        ((Server) servant).stop();
+                    }
+                }
                 servantsCache.clear();
             }
         }
@@ -391,6 +495,7 @@ public class JCABusFactory {
     
     QName serviceQNameFromString(String qns) throws ResourceAdapterInternalException {
         String lp = null;
+        String nameSpace = null;
 
         // String re = "(\[(.*)\])?([^\@]+)(@?(.*))??";
         // String[] qna = qns.split("(\[?+[^\]]*\])([^@])@?+(.*)");

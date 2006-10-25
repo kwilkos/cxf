@@ -101,15 +101,12 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
             <version>1.0.1</version>
-            <scope>provided</scope>
         </dependency>
 
-        <!--TODO It's pretty unclear why there is code requiring ejb classes. Perhaps the code doesn't belong here? -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_2.1_spec</artifactId>
             <version>1.0.1</version>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>

@@ -126,6 +126,7 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         assertEquals(re.getCause(), cause);
     }
 
+    /*
     public void testGetLinkedExceptionReturnNullIfNoCause() throws Exception {
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex");
         assertNull("getLinkedException return null", re.getLinkedException());
@@ -142,4 +143,5 @@ public class ResourceAdapterInternalExceptionTest extends TestCase {
         ResourceAdapterInternalException re = new ResourceAdapterInternalException("ex", cause);
         assertEquals("get same exception", cause, re.getLinkedException());
     }
+    */
 }

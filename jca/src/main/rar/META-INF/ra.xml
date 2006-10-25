@@ -17,6 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
+
 <connector xmlns="http://java.sun.com/xml/ns/j2ee"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
@@ -24,11 +25,15 @@ http://java/sun.com/xml/ns/j2ee/connector_1_5.xsd" version="1.5">
   <display-name>CXFConnector</display-name>
   <vendor-name>Apache</vendor-name>
   <eis-type>CXF</eis-type>
-  <resourceadapter-version>2.0</resourceadapter-version>
+  <resourceadapter-version>1.0</resourceadapter-version>
   <license>
     <license-required>false</license-required>
   </license>
   <resourceadapter>
+    <!--
+    <connectionfactory-interface>org.apache.cxf.connector.CXFConnectionFactory</connectionfactory-interface>
+    <connection-interface>org.apache.cxf.connector.Connection</connection-interface>
+    -->
     <resourceadapter-class>org.apache.cxf.jca.cxf.ResourceAdapterImpl</resourceadapter-class>
     <outbound-resourceadapter>
       <connection-definition>
@@ -36,7 +41,7 @@ http://java/sun.com/xml/ns/j2ee/connector_1_5.xsd" version="1.5">
         <config-property>
           <config-property-name>LogLevel</config-property-name> 
           <config-property-type>java.lang.String</config-property-type> 
-          <config-property-value>WARNING</config-property-value> 
+          <config-property-value>INFO</config-property-value> 
         </config-property> 
         <config-property>
           <config-property-name>ConfigurationDomain</config-property-name> 
@@ -63,7 +68,7 @@ http://java/sun.com/xml/ns/j2ee/connector_1_5.xsd" version="1.5">
           <config-property-type>java.lang.Integer</config-property-type>
           <config-property-value>30</config-property-value>
         </config-property>
-        <connectionfactory-interface>org.apache.cxf.connector.CxfConnectionFactory</connectionfactory-interface>
+        <connectionfactory-interface>org.apache.cxf.connector.CXFConnectionFactory</connectionfactory-interface>
         <connectionfactory-impl-class>org.apache.cxf.jca.cxf.ConnectionFactoryImpl</connectionfactory-impl-class>
         <connection-interface>org.apache.cxf.connector.Connection</connection-interface>
         <connection-impl-class>org.apache.cxf.jca.cxf.ManagedConnectionImpl</connection-impl-class>

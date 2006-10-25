@@ -346,23 +346,23 @@ public class JCABusFactoryTest extends TestCase {
 //         }
 //     }
 
-    public void testInitServantsFromPropertiesWithMissingWsdlLocInPropertiesAndConfig() throws Exception {
-        ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
-        JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
-        Bus mockBus = EasyMock.createMock(Bus.class);
-        jcaBusFactory.setBus(mockBus);
-        final String jndiName = "/a/b";
-        try {
-            Properties props = new Properties();
-            props.put(jndiName, "{http://ns}ServiceA");
-            jcaBusFactory.initialiseServantsFromProperties(props, true);
-            fail("expect ex on missing wsdl loc");
-        } catch (ResourceException expected) {
-            assertTrue("reasonable message", expected.toString().indexOf(jndiName) != -1);
-            assertTrue(expected instanceof ResourceAdapterInternalException);
-            assertTrue(expected.getMessage().indexOf("ServiceA") != -1);
-        }
-    }
+//     public void testInitServantsFromPropertiesWithMissingWsdlLocInPropertiesAndConfig() throws Exception {
+//         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
+//         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
+//         Bus mockBus = EasyMock.createMock(Bus.class);
+//         jcaBusFactory.setBus(mockBus);
+//         final String jndiName = "/a/b";
+//         try {
+//             Properties props = new Properties();
+//             props.put(jndiName, "{http://ns}ServiceA");
+//             jcaBusFactory.initialiseServantsFromProperties(props, true);
+//             fail("expect ex on missing wsdl loc");
+//         } catch (ResourceException expected) {
+//             assertTrue("reasonable message", expected.toString().indexOf(jndiName) != -1);
+//             assertTrue(expected instanceof ResourceAdapterInternalException);
+//             assertTrue(expected.getMessage().indexOf("ServiceA") != -1);
+//         }
+//     }
      
     public void testInitServantsFromPropertiesWithNoServiceQName() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();

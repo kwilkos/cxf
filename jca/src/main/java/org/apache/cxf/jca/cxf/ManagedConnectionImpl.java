@@ -21,6 +21,7 @@ package org.apache.cxf.jca.cxf;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+//import java.util.Iterator;
 import java.util.logging.Logger;
 
 import javax.resource.NotSupportedException;
@@ -30,6 +31,7 @@ import javax.resource.spi.LocalTransaction;
 import javax.resource.spi.ManagedConnectionMetaData;
 import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
+//import javax.wsdl.Port;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceException;
@@ -111,6 +113,7 @@ public class ManagedConnectionImpl
         if (getCXFService() == null) {
             initialiseCXFService(crInfo, subject);
             connection = getCXFService();
+            
         } else {
             if (!connectionHandleActive && this.crinfo.equals(crInfo)) {
                 connection = getCXFService();
@@ -124,12 +127,13 @@ public class ManagedConnectionImpl
 
     public synchronized Object getCXFServiceFromBus(Subject subject, ConnectionRequestInfo crInfo)
         throws ResourceException {
+
         CXFConnectionRequestInfo arReqInfo = (CXFConnectionRequestInfo)crInfo;
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
 
-        Bus bus = getBus();
+//         Bus bus = getBus();
 
-        Thread.currentThread().setContextClassLoader(bus.getClass().getClassLoader());
+        //Thread.currentThread().setContextClassLoader(bus.getClass().getClassLoader());
 
         QName serviceName = arReqInfo.getServiceQName();
         URL wsdlLocationUrl = arReqInfo.getWsdlLocationUrl();
@@ -138,6 +142,7 @@ public class ManagedConnectionImpl
             try {
                 Object obj = null;
                 Service service = Service.create(serviceName);
+            
                 obj = service.getPort(arReqInfo.getInterface());
                 setSubject(subject);
                 return createConnectionProxy(obj, arReqInfo, subject);
@@ -145,7 +150,7 @@ public class ManagedConnectionImpl
                 throw new ResourceAdapterInternalException("Failed to create proxy client for service "
                                                            + crInfo, wse);
             } finally {
-                Thread.currentThread().setContextClassLoader(orig);
+//                Thread.currentThread().setContextClassLoader(orig);
             }
 
         }
@@ -153,9 +158,8 @@ public class ManagedConnectionImpl
         try {
             Object obj = null;
             Service service = Service.create(wsdlLocationUrl, serviceName);
-            if (arReqInfo.getPortQName() != null) {                                
+            if (arReqInfo.getPortQName() != null) {                
                 obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
-               
             } else {
                 obj = service.getPort(arReqInfo.getInterface());
                 //obj = bus.createClient(wsdlLocationUrl, serviceName, arReqInfo.getInterface());
