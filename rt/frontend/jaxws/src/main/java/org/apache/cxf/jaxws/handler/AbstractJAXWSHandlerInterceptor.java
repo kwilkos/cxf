@@ -53,6 +53,11 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
                                               isOutbound(message));
             message.getExchange().put(HandlerChainInvoker.class, invoker);
         }
+        if (isOutbound(message)) {
+            invoker.setOutbound();
+        } else {
+            invoker.setInbound();
+        }
         return invoker;
     }
     

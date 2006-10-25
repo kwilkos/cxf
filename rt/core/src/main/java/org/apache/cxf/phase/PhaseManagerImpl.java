@@ -101,13 +101,13 @@ public class PhaseManagerImpl implements PhaseManager {
         outPhases.add(new Phase(Phase.PRE_STREAM, ++i * 1000));
         
         outPhases.add(new Phase(Phase.PRE_PROTOCOL, ++i * 1000));        
-        
-        outPhases.add(new Phase(Phase.WRITE, ++i * 1000));
-        outPhases.add(new Phase(Phase.MARSHAL, ++i * 1000));
-        
+
         outPhases.add(new Phase(Phase.USER_PROTOCOL, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_PROTOCOL, ++i * 1000));
 
+        outPhases.add(new Phase(Phase.WRITE, ++i * 1000));
+        outPhases.add(new Phase(Phase.MARSHAL, ++i * 1000));
+        
         
         outPhases.add(new Phase(Phase.USER_STREAM, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_STREAM, ++i * 1000));

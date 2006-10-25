@@ -68,9 +68,10 @@ public class StreamHandlerInterceptorTest extends TestCase {
     }
 
     public void testInterceptSuccess() {
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(invoker.invokeStreamHandlers(isA(StreamMessageContext.class))).andReturn(true);
+        expect(exchange.getOutMessage()).andReturn(message);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(binding);
         assertEquals("unexpected phase", "user-stream", si.getPhase());
@@ -78,9 +79,10 @@ public class StreamHandlerInterceptorTest extends TestCase {
     }
     
     public void testInterceptFailure() {
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(invoker.invokeStreamHandlers(isA(StreamMessageContext.class))).andReturn(false);
+        expect(exchange.getOutMessage()).andReturn(message);
         control.replay();
         StreamHandlerInterceptor si = new StreamHandlerInterceptor(binding);
         si.handleMessage(message); 

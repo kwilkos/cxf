@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
@@ -32,11 +33,13 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.w3c.dom.Element;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 
@@ -55,11 +58,26 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
         if (null == message) {
 
             try {
-                MessageFactory factory = MessageFactory.newInstance();
-                // getMimeHeaders from message
-                MimeHeaders mhs = null;
-                InputStream is = getWrappedMessage().getContent(InputStream.class);
-                message = factory.createMessage(mhs, is);
+                Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+                if (outboundProperty) {
+                    MessageFactory factory = MessageFactory.newInstance();
+                    // getMimeHeaders from message
+                    MimeHeaders mhs = null;
+                    //Safe to do this cast as SOAPHandlerInterceptor explictly 
+                    //replace OutputStream with an AbstractCachedOutputStream.
+                    AbstractCachedOutputStream out = (AbstractCachedOutputStream)getWrappedMessage()
+                        .getContent(OutputStream.class);
+                    InputStream is = out.getInputStream();
+                    message = factory.createMessage(mhs, is);
+                } else {
+                    MessageFactory factory = MessageFactory.newInstance();
+                    // getMimeHeaders from message
+                    MimeHeaders mhs = null;
+                    InputStream is = getWrappedMessage().getContent(InputStream.class);
+                    message = factory.createMessage(mhs, is);
+                }
+                
                 getWrappedMessage().setContent(SOAPMessage.class, message);
             } catch (SOAPException ex) {
                 // do something
@@ -67,6 +85,7 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                 // do something
             }
         }
+
         return message;
     }
 

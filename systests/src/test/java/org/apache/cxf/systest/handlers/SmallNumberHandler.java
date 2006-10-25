@@ -19,22 +19,25 @@
 package org.apache.cxf.systest.handlers;
 
 import java.util.Map;
-/*import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.ws.LogicalMessage;
-import javax.xml.ws.ProtocolException;*/
+/*
+ * import javax.xml.bind.JAXBContext; import javax.xml.bind.JAXBException;
+ * import javax.xml.ws.LogicalMessage; import javax.xml.ws.ProtocolException;
+ */
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
-//import org.apache.handlers.types.AddNumbers;
 
-//import org.apache.handlers.types.AddNumbersResponse;
+// import org.apache.handlers.types.AddNumbers;
+
+// import org.apache.handlers.types.AddNumbersResponse;
 
 /**
  * handles addition of small numbers.
  */
-public class SmallNumberHandler implements LogicalHandler<LogicalMessageContext> {
+public class SmallNumberHandler implements
+        LogicalHandler<LogicalMessageContext> {
     public final boolean handleMessage(LogicalMessageContext messageContext) {
+        //System.out.println("SmallNumberHandler : handleMessage Called....");
         return true;
     }
 

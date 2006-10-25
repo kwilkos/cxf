@@ -13,5 +13,13 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
 			<param-value>String</param-value>
 		</init-param>
 	</handler>
+	<handler>
+		<handler-name>ph1</handler-name>
+		<handler-class>org.apache.cxf.systest.handlers.LoggingHandler</handler-class>
+		<init-param>
+			<param-name>token</param-name>
+			<param-value>String</param-value>
+		</init-param>
+	</handler>
     </handler-chain>
 </handler-chains>

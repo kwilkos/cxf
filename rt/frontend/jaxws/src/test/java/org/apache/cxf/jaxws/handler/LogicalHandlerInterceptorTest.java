@@ -72,8 +72,9 @@ public class LogicalHandlerInterceptorTest extends TestCase {
             }
         });
         expect(invoker.getLogicalHandlers()).andReturn(list);
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
+        expect(exchange.getOutMessage()).andReturn(message);
         expect(invoker.invokeLogicalHandlers(eq(true),
             isA(LogicalMessageContext.class))).andReturn(true);
         control.replay();
@@ -95,8 +96,9 @@ public class LogicalHandlerInterceptorTest extends TestCase {
             }
         });
         expect(invoker.getLogicalHandlers()).andReturn(list);
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
+        expect(exchange.getOutMessage()).andReturn(message);
         expect(invoker.invokeLogicalHandlers(eq(true), 
             isA(LogicalMessageContext.class))).andReturn(false);
         control.replay();
@@ -105,8 +107,9 @@ public class LogicalHandlerInterceptorTest extends TestCase {
     }
     
     public void testOnCompletion() {
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
+        expect(exchange.getOutMessage()).andReturn(message);
         invoker.mepComplete(message);
         expectLastCall();
         control.replay();

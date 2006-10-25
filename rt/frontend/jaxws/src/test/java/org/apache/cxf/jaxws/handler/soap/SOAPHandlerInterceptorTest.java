@@ -19,6 +19,8 @@
 
 package org.apache.cxf.jaxws.handler.soap;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,12 +36,16 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import junit.framework.TestCase;
 
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.handler.HandlerChainInvoker;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 
 import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
 public class SOAPHandlerInterceptorTest extends TestCase {
@@ -69,14 +75,24 @@ public class SOAPHandlerInterceptorTest extends TestCase {
             }
         });
         HandlerChainInvoker invoker = new HandlerChainInvoker(list);
+        invoker.setInbound();
 
         IMocksControl control = createNiceControl();
         Binding binding = control.createMock(Binding.class);
         SoapMessage message = control.createMock(SoapMessage.class);
         Exchange exchange = control.createMock(Exchange.class);
-        expect(message.getExchange()).andReturn(exchange);
-        expect(message.keySet()).andReturn(new HashSet<String>());
+        InterceptorChain chain = control.createMock(InterceptorChain.class);
+        expect(chain.doInterceptInSubChain(isA(Message.class))).andReturn(true);
+        
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
+        
+        expect(message.getInterceptorChain()).andReturn(chain);
+         //EasyMock.expectLastCall().anyTimes();
+        //message.setInterceptorChain(chain);
+        
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
+        expect(exchange.getOutMessage()).andReturn(message);
+        expect(message.getContent(OutputStream.class)).andReturn(new CachedStream());
         control.replay();
 
         SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
@@ -118,6 +134,18 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         Set<QName> understood = li.getUnderstoodHeaders();
         assertNotNull(understood);
         assertTrue(understood.isEmpty());
+    }
+    
+    private class CachedStream extends AbstractCachedOutputStream {
+        protected void doFlush() throws IOException {
+            currentStream.flush();
+        }
+
+        protected void doClose() throws IOException {
+        }
+
+        protected void onWrite() throws IOException {
+        }
     }
 
 }

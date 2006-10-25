@@ -56,22 +56,28 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
     }
 
     public void testInterceptSuccess() {
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
-        expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(true);
+        expect(
+                invoker.invokeProtocolHandlers(eq(true),
+                        isA(MessageContext.class))).andReturn(true);
+        expect(exchange.getOutMessage()).andReturn(message);
         control.replay();
         IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(binding);
         assertEquals("unexpected phase", "user-protocol", pi.getPhase());
         pi.handleMessage(message);
     }
-    
+
     public void testInterceptFailure() {
-        expect(message.getExchange()).andReturn(exchange);
+        expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
-        expect(invoker.invokeProtocolHandlers(eq(true), isA(MessageContext.class))).andReturn(false);
+        expect(exchange.getOutMessage()).andReturn(message);
+        expect(
+                invoker.invokeProtocolHandlers(eq(true),
+                        isA(MessageContext.class))).andReturn(false);
         control.replay();
         IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(binding);
-        pi.handleMessage(message);  
+        pi.handleMessage(message);
     }
 
     class IIOPMessage extends AbstractWrappedMessage {
