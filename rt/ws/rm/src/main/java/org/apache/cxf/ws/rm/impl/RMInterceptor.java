@@ -176,14 +176,11 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         }
 
         boolean isApplicationMessage = isAplicationMessage(action);
-        System.out.println("isApplicationMessage: " + isApplicationMessage);
         
         RMProperties rmpsOut = (RMProperties)RMContextUtils.retrieveRMProperties(message, true);
         if (null == rmpsOut) {
             rmpsOut = new RMProperties();
             RMContextUtils.storeRMProperties(message, rmpsOut, true);
-        } else {
-            System.out.println("Got existing RMPropertiesImpl");
         }
         
         RMProperties rmpsIn = null;

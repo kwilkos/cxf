@@ -74,6 +74,15 @@ public final class RMConstants {
      * The set of headers understood by the protocol binding.
      */
     private static final Set<QName> HEADERS;
+    
+    private static final QName WSRM_CREATE_SEQUENCE_QNAME =
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequence");
+    
+    private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_QNAME =
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponse");
+    
+    private static final QName WSRM_TERMINATE_SEQUENCE_QNAME =
+        new QName(WSRM_NAMESPACE_NAME, "TerminateSequence");
 
     private static final String WSRM_CREATE_SEQUENCE_ACTION =
         WSRM_NAMESPACE_NAME + "/CreateSequence";
@@ -124,6 +133,18 @@ public final class RMConstants {
     
     public static Set<QName> getHeaders() {
         return HEADERS;
+    }
+    
+    public static QName getCreateSequenceOperationName() {
+        return WSRM_CREATE_SEQUENCE_QNAME;
+    }
+    
+    public static QName getCreateSequenceResponseOperationName() {
+        return WSRM_CREATE_SEQUENCE_RESPONSE_QNAME;
+    }
+    
+    public static QName getTerminateSequenceOperationName() {
+        return WSRM_TERMINATE_SEQUENCE_QNAME;
     }
     
     public static String getCreateSequenceAction() {

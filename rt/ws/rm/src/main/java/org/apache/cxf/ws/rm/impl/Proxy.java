@@ -24,37 +24,47 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
-import org.apache.cxf.Bus;
+import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.ServiceImpl;
+import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.DestinationSequence;
+import org.apache.cxf.ws.rm.RMConstants;
 
- 
 /**
  * 
  */
 public class Proxy {
 
+    static final QName SERVICE_NAME = 
+        new QName(RMConstants.WSRM_NAMESPACE_NAME, "SequenceAbstractService");
+    static final QName INTERFACE_NAME = 
+         new QName(RMConstants.WSRM_NAMESPACE_NAME, "SequenceAbstractPortType");
+
     private static final Logger LOG = Logger.getLogger(Proxy.class.getName());
 
     private RMEndpoint reliableEndpoint;
     private Service service;
-    
-    Proxy(Bus bus, RMEndpoint rme) {
+
+    Proxy(RMEndpoint rme) {
         reliableEndpoint = rme;
-        if (null != bus) {
-            buildService(bus);
-        }
+        buildService();
     }
-   
+
     RMEndpoint getReliableEndpoint() {
         return reliableEndpoint;
     }
-    
+
     Source getSource() {
         return reliableEndpoint.getSource();
     }
@@ -62,27 +72,71 @@ public class Proxy {
     Service getService() {
         return service;
     }
-    
+
     void acknowledge(DestinationSequence ds) throws IOException {
-        
-    }
-    
-    void createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, 
-                        EndpointReferenceType acksTo, 
-                        RelatesToType relatesTo) throws IOException {
-        service.getServiceInfo();    
+
     }
 
-    final void buildService(Bus bus) {
-        ReflectionServiceFactoryBean serviceFactory = new ReflectionServiceFactoryBean();
+    void createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, EndpointReferenceType acksTo,
+                        RelatesToType relatesTo) throws IOException {
+        OperationInfo oi = service.getServiceInfo().getInterface()
+            .getOperation(RMConstants.getCreateSequenceOperationName());
+        invokeOneway(oi, null);
+    }
+
+    final void buildService() {
+        ServiceInfo si = new ServiceInfo();
+        si.setName(SERVICE_NAME);
+        buildInterfaceInfo(si);
+        buildBindingInfo(si);
+        service = new ServiceImpl(si);
+        DataBinding dataBinding = null;
         try {
-            serviceFactory.setDataBinding(new JAXBDataBinding(SequenceService.class));
-        } catch (JAXBException ex) {
-            LOG.log(Level.SEVERE, "Failed to build service.", ex);
+            dataBinding = new JAXBDataBinding(SequenceService.class);
+        } catch (JAXBException e) {
+            throw new ServiceConstructionException(e);
         }
-        serviceFactory.setBus(bus);
-        serviceFactory.setServiceClass(SequenceService.class);
-        // that's the default: serviceFactory.setWrapped(true);
-        service = serviceFactory.create();
+
+        service.setDataBinding(dataBinding);
+    }
+
+    final void buildInterfaceInfo(ServiceInfo si) {
+        InterfaceInfo ii = new InterfaceInfo(si, INTERFACE_NAME);
+        buildOperationInfo(ii);
+    }
+
+    final void buildOperationInfo(InterfaceInfo ii) {
+        OperationInfo oi = null;
+        MessageInfo mi = null;
+
+        oi = ii.addOperation(RMConstants.getCreateSequenceOperationName());
+        mi = oi.createMessage(RMConstants.getCreateSequenceOperationName());
+        oi.setInput(mi.getName().getLocalPart(), mi);
+
+        oi = ii.addOperation(RMConstants.getCreateSequenceResponseOperationName());
+        mi = oi.createMessage(RMConstants.getCreateSequenceResponseOperationName());
+        oi.setInput(mi.getName().getLocalPart(), mi);
+
+        oi = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
+        mi = oi.createMessage(RMConstants.getTerminateSequenceOperationName());
+        oi.setInput(mi.getName().getLocalPart(), mi);
+    }
+
+    final void buildBindingInfo(ServiceInfo si) {
+        // use same binding id as for application endpoint
+        if (null != reliableEndpoint) {
+            String bindingId = reliableEndpoint.getEndpoint().getEndpointInfo().getBinding().getBindingId();
+            BindingInfo bi = new BindingInfo(si, bindingId);
+            bi.buildOperation(RMConstants.getCreateSequenceOperationName(), "create", null);
+            bi.buildOperation(RMConstants.getCreateSequenceResponseOperationName(), "createResponse", null);
+            bi.buildOperation(RMConstants.getTerminateSequenceOperationName(), "terminate", null);
+            si.addBinding(bi);
+        }
+    }
+
+    void invokeOneway(OperationInfo oi, Object[] params) {
+        LOG
+            .log(Level.INFO, "Invoking out-of-band RM protocol message {0}.", oi == null ? null : oi
+                .getName());
     }
 }

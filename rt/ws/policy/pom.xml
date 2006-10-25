@@ -57,7 +57,7 @@
                                 <xsdOption>
                                     <xsd>${basedir}/src/main/resources/schemas/ws-policy.xsd</xsd>
                                     <bindingFile>${basedir}/src/main/resources/schemas/ws-policy.xjb</bindingFile>
-                                    <catalog>catalog.cat</catalog>
+                                    <catalog>${basedir}/src/main/resources/schemas/catalog.cat</catalog>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/oasis_open</deleteDir>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/w3</deleteDir>

@@ -36,7 +36,9 @@ public class RMEndpoint {
         endpoint = e;
         source = new Source(this);
         destination = new Destination(this);
-        proxy = new Proxy(interceptor.getBus(), this);
+        if (null != endpoint) {
+            proxy = new Proxy(this);
+        }
     }
     
     public QName getName() {

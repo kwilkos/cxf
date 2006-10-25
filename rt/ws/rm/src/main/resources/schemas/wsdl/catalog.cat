@@ -19,5 +19,5 @@
 --
 
 
-SYSTEM "http://schemas.xmlsoap.org/ws/2004/08/addressing" "addressing.xsd"
+SYSTEM "http://schemas.xmlsoap.org/ws/2004/08/addressing" "../../../../../../../../common/metacode/src/main/resources/schemas/wsdl/addressing.xsd"
 
