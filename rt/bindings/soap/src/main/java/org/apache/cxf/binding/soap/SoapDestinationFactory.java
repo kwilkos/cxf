@@ -31,6 +31,7 @@ import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import com.ibm.wsdl.extensions.soap.SOAPOperationImpl;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
@@ -47,25 +48,21 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
-public class SoapDestinationFactory extends AbstractTransportFactory
-    implements DestinationFactory, WSDLEndpointFactory {
+public class SoapDestinationFactory extends AbstractTransportFactory implements DestinationFactory,
+    WSDLEndpointFactory {
     public static final String TRANSPORT_ID = "http://schemas.xmlsoap.org/soap/";
-    private DestinationFactoryManager destinationFactoryManager;
+    private Bus bus;
 
     public SoapDestinationFactory() {
         super();
     }
-    
-    public SoapDestinationFactory(DestinationFactoryManager destinationFactoyrManager) {
-        super();
-        this.destinationFactoryManager = destinationFactoyrManager;
-    }
-    
+
     public Destination getDestination(EndpointInfo ei) throws IOException {
         SoapBindingInfo binding = (SoapBindingInfo)ei.getBinding();
         DestinationFactory destinationFactory;
         try {
-            destinationFactory = destinationFactoryManager.getDestinationFactory(binding.getTransportURI());
+            destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                .getDestinationFactory(binding.getTransportURI());
 
             return destinationFactory.getDestination(ei);
         } catch (BusException e) {
@@ -75,7 +72,7 @@ public class SoapDestinationFactory extends AbstractTransportFactory
     }
 
     public void createPortExtensors(EndpointInfo ei, Service service) {
-        SoapBindingInfo bi = (SoapBindingInfo) ei.getBinding();
+        SoapBindingInfo bi = (SoapBindingInfo)ei.getBinding();
         if (bi.getSoapVersion() instanceof Soap11) {
             createSoap11Extensors(ei, bi);
         }
@@ -84,22 +81,21 @@ public class SoapDestinationFactory extends AbstractTransportFactory
     private void createSoap11Extensors(EndpointInfo ei, SoapBindingInfo bi) {
         SOAPAddress address = new SOAPAddressImpl();
         address.setLocationURI(ei.getAddress());
-        
+
         ei.addExtensor(address);
-        
-        
+
         SOAPBindingImpl sbind = new SOAPBindingImpl();
         sbind.setStyle(bi.getStyle());
         sbind.setTransportURI(bi.getTransportURI());
         bi.addExtensor(sbind);
-        
+
         for (BindingOperationInfo b : bi.getOperations()) {
             SoapOperationInfo soi = b.getExtensor(SoapOperationInfo.class);
-            
+
             SOAPOperationImpl op = new SOAPOperationImpl();
             op.setSoapActionURI(soi.getAction());
             op.setStyle(soi.getStyle());
-            
+
             b.addExtensor(op);
         }
     }
@@ -112,7 +108,7 @@ public class SoapDestinationFactory extends AbstractTransportFactory
             if (SOAPBindingUtil.isSOAPAddress(extensor)) {
                 SoapAddress sa = SOAPBindingUtil.getSoapAddress(extensor);
 
-                SoapBindingInfo sbi = (SoapBindingInfo) b;
+                SoapBindingInfo sbi = (SoapBindingInfo)b;
                 EndpointInfo info = new EndpointInfo(serviceInfo, sbi.getTransportURI());
                 info.setAddress(sa.getLocationURI());
                 return info;
@@ -122,12 +118,13 @@ public class SoapDestinationFactory extends AbstractTransportFactory
         return null;
     }
 
-    public DestinationFactoryManager getDestinationFactoryManager() {
-        return destinationFactoryManager;
+    public Bus getBus() {
+        return bus;
     }
 
     @Resource
-    public void setDestinationFactoryManager(DestinationFactoryManager destinationFactoryManager) {
-        this.destinationFactoryManager = destinationFactoryManager;
+    public void setBus(Bus bus) {
+        this.bus = bus;
     }
+
 }

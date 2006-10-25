@@ -49,5 +49,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 				<value>http://schemas.xmlsoap.org/wsdl/soap12/</value>
             </list>
         </property>
+        <property name="bus" ref="cxf"/>
     </bean>
 </beans>

@@ -18,6 +18,7 @@
  */
 package org.apache.cxf.service.factory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +26,6 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.endpoint.Endpoint;
@@ -42,38 +39,9 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.test.AbstractCXFTest;
-import org.apache.cxf.transport.ConduitInitiatorManager;
-import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.transport.local.LocalTransportFactory;
 
-public class ReflectionServiceFactoryTest extends AbstractCXFTest {
+public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
     private ReflectionServiceFactoryBean serviceFactory;
-
-    public void setUp() throws Exception {
-        super.setUp();
-        
-        Bus bus = getBus();
-        
-        SoapBindingFactory bindingFactory = new SoapBindingFactory();
-
-        bus.getExtension(BindingFactoryManager.class)
-            .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
-
-        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
-
-        LocalTransportFactory localTransport = new LocalTransportFactory();
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
-
-        ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
-        extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
-        extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
-    }
 
     public void testUnwrappedBuild() throws Exception {
         Service service = createService(false);
@@ -153,17 +121,27 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         serviceFactory.setServiceClass(HelloService.class);
         serviceFactory.setWrapped(wrapped);
         
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("test", "test");
+        serviceFactory.setProperties(props);
+        
         return serviceFactory.create();        
     }
     
     public void testServerFactoryBean() throws Exception {
         Service service = createService(true);
+        assertEquals("test", service.get("test"));
         
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");
         svrBean.setTransportId("http://schemas.xmlsoap.org/soap/http");
         svrBean.setServiceFactory(serviceFactory);
         svrBean.setBus(getBus());
+        
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("test", "test");
+        serviceFactory.setProperties(props);
+        svrBean.setProperties(props);
         
         Server server = svrBean.create();
         assertNotNull(server);
@@ -172,6 +150,8 @@ public class ReflectionServiceFactoryTest extends AbstractCXFTest {
         
         Endpoint ep = eps.values().iterator().next();
         EndpointInfo endpointInfo = ep.getEndpointInfo();
+        
+        assertEquals("test", endpointInfo.getProperty("test"));
         
         SOAPAddress soapAddress = endpointInfo.getExtensor(SOAPAddress.class);
         assertNotNull(soapAddress);

@@ -320,7 +320,8 @@ public class ConfiguredEndpointTest extends TestCase {
             .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        SoapDestinationFactory soapDF = new SoapDestinationFactory(dfm);
+        SoapDestinationFactory soapDF = new SoapDestinationFactory();
+        soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
 

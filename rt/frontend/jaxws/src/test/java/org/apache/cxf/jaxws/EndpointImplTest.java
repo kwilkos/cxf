@@ -25,6 +25,9 @@ import java.io.OutputStream;
 
 import javax.xml.ws.WebServiceContext;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.BeanInvoker;
@@ -33,6 +36,13 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class EndpointImplTest extends AbstractJaxWsTest {
+
+    
+    @Override
+    protected Bus createBus() throws BusException {
+        return BusFactoryHelper.newInstance().getDefaultBus();
+    }
+
 
     public void testEndpoint() throws Exception {   
         GreeterImpl greeter = new GreeterImpl();

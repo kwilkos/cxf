@@ -47,7 +47,7 @@ public class ServiceModelHttpConfigurationProvider implements ConfigurationProvi
             return info.getExtensor(HTTPClientPolicy.class);
         }
 
-        return null;
+        return info.getProperty(name);
     }
 
     /**

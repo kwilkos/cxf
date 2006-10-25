@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -91,6 +92,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private List<String> ignoredClasses = new ArrayList<String>();
     private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
     private boolean wrappedStyle = true;
+    private Map<String, Object> properties;
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
@@ -193,6 +195,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
             
             setService(service);
+        }
+        
+        if (properties != null) {
+            getService().putAll(properties);
         }
     }
 
@@ -788,6 +794,14 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public void setWrapped(boolean style) {
         this.wrappedStyle = style;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
     }
     
 }
