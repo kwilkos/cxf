@@ -303,6 +303,11 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/addNumbers.wsdl</wsdl>
                                 </wsdlOption>
+
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/addNumbers_2int.wsdl</wsdl>
+                                </wsdlOption>
+
                             </wsdlOptions>
                         </configuration>
                         <goals>

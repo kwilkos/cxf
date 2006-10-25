@@ -117,9 +117,8 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
             client.getEndpoint().getOutInterceptors().add(new FaultThrower());
             client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
             fail("Should have returned a fault!");
-        } catch (Fault fault) {
-            assertEquals("Foo", fault.getCode());
-            assertEquals("Foo", fault.getMessage());
+        } catch (RuntimeException ex) {
+            assertEquals(true, ex.getMessage().indexOf("Foo") > 0);
         } 
     }
 

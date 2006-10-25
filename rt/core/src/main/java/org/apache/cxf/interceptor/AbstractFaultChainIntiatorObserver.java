@@ -20,9 +20,12 @@
 package org.apache.cxf.interceptor;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -31,6 +34,9 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.MessageObserver;
 
 public abstract class AbstractFaultChainIntiatorObserver implements MessageObserver {
+    
+    private static final Logger LOG = Logger.getLogger(AbstractFaultChainIntiatorObserver.class.getName());
+    
     private Bus bus;
 
     public AbstractFaultChainIntiatorObserver(Bus bus) {
@@ -62,7 +68,11 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         initializeInterceptors(faultMessage.getExchange(), chain);
         
         faultMessage.setInterceptorChain(chain);
-        chain.doIntercept(faultMessage);
+        try {
+            chain.doIntercept(faultMessage);
+        } catch (Exception ex) {
+            LogUtils.log(LOG, Level.INFO, "Error occured during error handling, give up!", ex);
+        }
     }
 
     protected abstract List<Phase> getPhases();

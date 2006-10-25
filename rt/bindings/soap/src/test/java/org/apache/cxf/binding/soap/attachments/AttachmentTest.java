@@ -46,6 +46,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.cxf.binding.attachment.AttachmentDeserializer;
+import org.apache.cxf.binding.attachment.AttachmentSerializer;
 import org.apache.cxf.binding.attachment.CachedOutputStream;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
@@ -54,8 +56,6 @@ import org.apache.cxf.binding.soap.TestBase;
 import org.apache.cxf.binding.soap.TestUtil;
 import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.bindings.soap.attachments.types.DetailType;
-import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
-import org.apache.cxf.jaxb.attachment.AttachmentSerializer;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Attachment;

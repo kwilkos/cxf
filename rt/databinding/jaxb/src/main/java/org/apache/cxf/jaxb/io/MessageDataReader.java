@@ -26,10 +26,10 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
 
+import org.apache.cxf.binding.attachment.AttachmentDeserializer;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
-import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Message;
 

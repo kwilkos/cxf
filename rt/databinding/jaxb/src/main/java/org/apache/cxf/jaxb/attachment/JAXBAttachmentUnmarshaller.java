@@ -29,6 +29,7 @@ import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.xml.bind.attachment.AttachmentUnmarshaller;
 
+import org.apache.cxf.binding.attachment.AttachmentDeserializer;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;

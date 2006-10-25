@@ -21,10 +21,10 @@ package org.apache.cxf.systest.mtom;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.binding.attachment.AttachmentDeserializer;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
 
 public class TestMultipartMessageInterceptor extends MultipartMessageInterceptor {
 

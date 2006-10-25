@@ -30,7 +30,6 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
-//import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.type_test.doc.TypeTestPortType;
@@ -596,10 +595,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
         }
     }
-    public void testDate() throws Exception {
-        assertEquals(true, true);
-    }
-    /* Revisit When client Fault is ready. Comment should be removed
+
+    // Revisit When client Fault is ready. Comment should be removed
+    
     public void testDate() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
@@ -645,10 +643,11 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             }
             fail("Expected to catch WebServiceException when calling"
                  + " testDate() with uninitialized parameters.");
-        } catch (WebServiceException e) {
-            // Ignore expected //failure.
+        } catch (RuntimeException re) {
+            assertNotNull(re);
         }
-    }*/
+    }
+    
 
     public void testDateTime() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();

@@ -19,7 +19,7 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
-import org.apache.cxf.jaxb.attachment.AttachmentDeserializer;
+import org.apache.cxf.binding.attachment.AttachmentDeserializer;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;

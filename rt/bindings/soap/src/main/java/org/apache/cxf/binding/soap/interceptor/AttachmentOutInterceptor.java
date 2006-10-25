@@ -24,13 +24,13 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
+import org.apache.cxf.binding.attachment.AttachmentSerializer;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.AbstractCachedOutputStream;
-import org.apache.cxf.jaxb.attachment.AttachmentSerializer;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.phase.Phase;
 

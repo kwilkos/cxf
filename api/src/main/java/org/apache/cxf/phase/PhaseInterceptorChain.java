@@ -154,6 +154,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 
                 if (faultObserver != null) {
                     faultObserver.onMessage(message);
+                } else {
+                    // Client out-bound message, directly throw exception back to client
+                    if (message.getExchange() != null 
+                            && message == message.getExchange().getOutMessage() 
+                            && message.containsKey(Message.REQUESTOR_ROLE)) {
+                        throw new RuntimeException(ex);
+                    }
                 }
                 state = State.ABORTED;
             } 
