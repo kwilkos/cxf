@@ -19,6 +19,7 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.net.URL;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -72,9 +73,20 @@ public class SpringBusFactoryTest extends TestCase {
         
     }
     
-    public void testCustom() {
+    public void testCustomFileName() {
         String cfgFile = "org/apache/cxf/bus/spring/resources/bus-overwrite.xml";
         Bus bus = new SpringBusFactory().createBus(cfgFile, true);
+        checkCustomerConfiguration(bus);
+    }
+    
+    public void testCustomFileURL() {
+        URL cfgFileURL = this.getClass().getResource("resources/bus-overwrite.xml");        
+        System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_URL, cfgFileURL.toString());
+        Bus bus = new SpringBusFactory().createBus(null, true);
+        checkCustomerConfiguration(bus);
+    }
+    
+    private void checkCustomerConfiguration(Bus bus) {
         assertNotNull(bus);
         List<Interceptor> interceptors = bus.getInInterceptors();
         assertEquals("Unexpected number of interceptors", 2, interceptors.size());
@@ -89,7 +101,6 @@ public class SpringBusFactoryTest extends TestCase {
         interceptors = bus.getOutInterceptors();
         assertEquals("Unexpected number of interceptors", 1, interceptors.size());
         assertEquals("Unexpected interceptor", "out", interceptors.get(0).toString());
-        
     }
     
     public void testForLifeCycle() {

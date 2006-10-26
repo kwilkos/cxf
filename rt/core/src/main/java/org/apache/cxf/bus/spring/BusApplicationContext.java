@@ -20,6 +20,7 @@
 package org.apache.cxf.bus.spring;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -83,7 +84,7 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
         
         if (null == cfgFile) {
             cfgFile = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME);
-        }
+        }        
         if (null == cfgFile) {
             cfgFile = Configurer.DEFAULT_USER_CFG_FILE;
         }
@@ -92,6 +93,22 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
             resources.add(cpr);
         } else {
             LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
+        }
+        
+        String cfgFileUrl = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
+        if (null != cfgFileUrl) {
+            try {
+                UrlResource ur = new UrlResource(cfgFileUrl);
+                if (ur.exists()) {
+                    resources.add(ur);
+                } else {
+                    LOG.log(Level.INFO, 
+                            new Message("USER_CFG_FILE_URL_NOT_FOUND_MSG", LOG, cfgFileUrl).toString());
+                }            
+            } catch (MalformedURLException e) {            
+                LOG.log(Level.WARNING, 
+                        new Message("USER_CFG_FILE_URL_ERROR_MSG", LOG, cfgFileUrl).toString());
+            }
         }
         
         if (LOG.isLoggable(Level.FINE)) {

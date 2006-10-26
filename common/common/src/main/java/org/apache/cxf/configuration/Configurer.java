@@ -24,6 +24,8 @@ public interface Configurer {
     String DEFAULT_USER_CFG_FILE = "cxf.xml";
 
     String USER_CFG_FILE_PROPERTY_NAME = "cxf.config.file";
+    
+    String USER_CFG_FILE_PROPERTY_URL = "cxf.config.file.url";
 
     void configureBean(Object beanInstance);
 }
