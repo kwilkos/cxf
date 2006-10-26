@@ -31,7 +31,7 @@ import org.apache.cxf.configuration.security.SSLClientPolicy;
 
 public class HttpsURLConnectionFactoryTest extends TestCase {
 
-    private static final String DROP_BACK_SRC_DIR = 
+    protected static final String DROP_BACK_SRC_DIR = 
         "../../../../../../../"
         + "src/test/java/org/apache/cxf/transport/https/";
 
@@ -132,7 +132,7 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
         sslClientPolicy.setKeyPassword("defaultkeypass");
         sslClientPolicy.setKeystorePassword("defaultkeypass");
         sslClientPolicy.setTrustStoreType("JKS");
-        sslClientPolicy.setTrustStoreAlgorithm("JKS");
+        //sslClientPolicy.setTrustStoreAlgorithm("JKS");
         sslClientPolicy.setSecureSocketProtocol("TLSv1");
         sslClientPolicy.setSessionCacheKey("Anything");
         sslClientPolicy.setSessionCaching(true);
@@ -435,22 +435,22 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
     }
 
     public void testAllElementsHaveSetupMethod() throws Exception {
-        SSLClientPolicy sslClientPolicy = new SSLClientPolicy();
+        SSLClientPolicy policy = new SSLClientPolicy();
         TestLogHandler handler = new TestLogHandler();
-        HttpsURLConnectionFactory factory = createFactory(sslClientPolicy,
+        HttpsURLConnectionFactory factory = createFactory(policy,
                                                           "https://dummyurl",
                                                           handler);
         assertTrue("A new element has been " + "added to SSLClientPolicy without a corresponding "
-                   + "setup method in the configurer.", factory.testAllDataHasSetupMethod());
+                   + "setup method in the configurer.",
+                   SSLUtils.testAllDataHasSetupMethod(policy, factory.getUnSupported()));
     }
 
-    private HttpsURLConnectionFactory createFactory(SSLClientPolicy sslClientPolicy,
+    private HttpsURLConnectionFactory createFactory(SSLClientPolicy policy,
                                                     String urlStr,
                                                     TestLogHandler handler) 
         throws Exception {
         HttpsURLConnectionFactory factory =
-            new HttpsURLConnectionFactory();
-        factory.setSSLPolicy(sslClientPolicy);
+            new HttpsURLConnectionFactory(policy);
         factory.addLogHandler(handler);
         return factory;
     }

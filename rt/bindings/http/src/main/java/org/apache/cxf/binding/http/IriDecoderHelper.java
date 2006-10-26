@@ -222,7 +222,7 @@ public final class IriDecoderHelper {
                 }
                 
                 // insert the element at the appropriate position
-                Element insertBeforeEl = getElement(root, i);
+                Element insertBeforeEl = getIndexedElement(root, i);
                 if (insertBeforeEl != null) {
                     root.insertBefore(ec, insertBeforeEl);
                 } else {
@@ -244,7 +244,7 @@ public final class IriDecoderHelper {
         return doc;
     }
 
-    private static Element getElement(Element e, int i) {
+    private static Element getIndexedElement(Element e, int i) {
         NodeList childNodes = e.getChildNodes();
         int elNum = 0;
         for (int j = 0; j < childNodes.getLength(); j++) {

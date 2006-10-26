@@ -42,7 +42,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
@@ -139,7 +138,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         endpointInfo = ei;
         connectionFactory = factory != null
                             ? factory
-                            : getDefaultConnectionFactory();
+                            : HTTPTransportFactory.getConnectionFactory(sslClient);
         decoupledEngine = eng;
         url = t == null
               ? new URL(getAddress())
@@ -285,20 +284,6 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      */
     protected URL getURL() {
         return url;
-    }
-    
-    /**
-     * @return default URLConnectionFactory
-     */
-    private URLConnectionFactory getDefaultConnectionFactory() {
-        return new URLConnectionFactory() {
-            public URLConnection createConnection(Proxy proxy, URL u)
-                throws IOException {
-                return proxy != null 
-                       ? u.openConnection(proxy)
-                       : u.openConnection();
-            }
-        };
     }
     
     /**
@@ -605,9 +590,6 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         }
         if (!isSetProxyAuthorization()) {
             setProxyAuthorization(new AuthorizationPolicy());
-        }
-        if (!isSetSslClient()) {
-            setSslClient(new SSLClientPolicy());
         }
 
         List <ConfigurationProvider> providers = getOverwriteProviders();

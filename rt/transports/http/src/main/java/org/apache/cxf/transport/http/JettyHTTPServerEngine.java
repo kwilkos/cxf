@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.mortbay.http.HttpContext;
@@ -64,6 +64,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         JettyHTTPServerEngine ref = portMap.get(p);
         if (ref == null) {
             ref = new JettyHTTPServerEngine(bus, protocol, p);
+            configure(bus, ref);
             portMap.put(p, ref);
         }
         return ref;
@@ -100,7 +101,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         if (server == null) {
             server = new HttpServer();
             
-            // REVISIT creare SSL listener if neccessary
+            // REVISIT create SSL listener if neccessary
             listener = new SocketListener(new InetAddrPort(port));
            
             if (getListener().isSetMinThreads()) {
@@ -245,13 +246,17 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         }
         return ret;
     }
+    
+    protected static void configure(Bus bus, Object bean) {
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(bean);
+        }
+    }
 
     private void init() {
         if (!isSetListener()) {
             setListener(new HTTPListenerPolicy());
-        }
-        if (!isSetSslServer()) {
-            setSslServer(new SSLServerPolicy());
         }
     }
 }

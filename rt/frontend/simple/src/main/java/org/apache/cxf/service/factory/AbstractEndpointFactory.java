@@ -68,7 +68,7 @@ public abstract class AbstractEndpointFactory {
             ei.setAddress(getAddress()); 
         }                        
         
-        setProperties(ei);
+        setProps(ei);
         
         ep = service.getEndpoints().get(ei.getName());
         if (ep == null) {
@@ -78,7 +78,7 @@ public abstract class AbstractEndpointFactory {
         return ep;
     }
 
-    private void setProperties(EndpointInfo ei) {
+    private void setProps(EndpointInfo ei) {
         if (properties == null) {
             return;
         }

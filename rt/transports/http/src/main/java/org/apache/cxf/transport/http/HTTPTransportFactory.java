@@ -20,6 +20,9 @@
 package org.apache.cxf.transport.http;
 
 import java.io.IOException;
+import java.net.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,6 +36,8 @@ import javax.wsdl.extensions.http.HTTPAddress;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.configuration.security.SSLClientPolicy;
+import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -44,8 +49,12 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
+import org.apache.cxf.transport.https.JettySslListenerFactory;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
+import org.mortbay.http.SocketListener;
+import org.mortbay.util.InetAddrPort;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 public class HTTPTransportFactory extends AbstractTransportFactory implements ConduitInitiator,
@@ -100,19 +109,13 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
     public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
         HTTPConduit conduit = target == null
             ? new HTTPConduit(bus, endpointInfo) : new HTTPConduit(bus, endpointInfo, target);
-        Configurer configurer = bus.getExtension(Configurer.class);
-        if (null != configurer) {
-            configurer.configureBean(conduit);
-        }
+        configure(conduit);
         return conduit;
     }
 
     public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
         JettyHTTPDestination destination = new JettyHTTPDestination(bus, this, endpointInfo);
-        Configurer configurer = bus.getExtension(Configurer.class);
-        if (null != configurer) {
-            configurer.configureBean(destination);
-        }
+        configure(destination);
         return destination;
     }
 
@@ -145,5 +148,35 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
 
     public Set<String> getUriPrefixes() {
         return URI_PREFIXES;
+    }
+
+    protected void configure(Object bean) {
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(bean);
+        }
+    }
+
+    protected static URLConnectionFactory getConnectionFactory(SSLClientPolicy policy) {
+        return policy == null
+               ? new URLConnectionFactory() {
+                       public URLConnection createConnection(Proxy proxy, URL u)
+                           throws IOException {
+                           return proxy != null 
+                                  ? u.openConnection(proxy)
+                                  : u.openConnection();
+                       }
+                   }
+               : new HttpsURLConnectionFactory(policy);
+    }
+    
+    protected static JettyListenerFactory getListenerFactory(SSLServerPolicy policy) {
+        return policy == null
+               ? new JettyListenerFactory() {
+                       public SocketListener createListener(int port) {
+                           return new SocketListener(new InetAddrPort(port));
+                       }
+                   }
+               : new JettySslListenerFactory(policy);
     }
 }

@@ -80,15 +80,14 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     msg.writeTo(os);
                 }
             } else if (message instanceof XMLMessage) {
-                if (m == Service.Mode.MESSAGE) {
-                    if (obj instanceof SOAPMessage) {
-                        throw new RuntimeException("SOAPMessage is not valid in MESSAGE mode with XML/HTTP");
-                    }
-                } else if (m == Service.Mode.PAYLOAD) {
-                    if (obj instanceof SOAPMessage || obj instanceof DataSource) {
-                        throw new RuntimeException(obj.getClass()
-                                                   + " is not valid in PAYLOAD mode with XML/HTTP");
-                    }
+                if (m == Service.Mode.MESSAGE
+                    && obj instanceof SOAPMessage) {
+                    throw new RuntimeException("SOAPMessage is not valid in MESSAGE mode with XML/HTTP");
+                } else if (m == Service.Mode.PAYLOAD
+                           && (obj instanceof SOAPMessage
+                               || obj instanceof DataSource)) {
+                    throw new RuntimeException(obj.getClass()
+                                               + " is not valid in PAYLOAD mode with XML/HTTP");
                 }
                 doTransform(obj, os);
             }
