@@ -93,7 +93,7 @@ public class HeaderClientServerTest extends ClientServerTestBase {
     
     
      
-    public void stestInHeader() throws Exception {
+    public void testInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
         
@@ -112,7 +112,7 @@ public class HeaderClientServerTest extends ClientServerTestBase {
         }
     } 
 
-    public void stestOutHeader() throws Exception {
+    public void testOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
         
@@ -138,7 +138,7 @@ public class HeaderClientServerTest extends ClientServerTestBase {
         } 
     } 
 
-    public void stestInOutHeader() throws Exception {
+    public void testInOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
         

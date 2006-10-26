@@ -21,7 +21,8 @@ package org.apache.cxf.anonymous_complex_type;
 
 import javax.jws.WebService;
 
-import org.apache.cxf.anonymous_complex_type.SplitNameResponse.Names;
+
+
 
 @WebService(serviceName = "anonymous_complex_type_service", 
         portName = "anonymous_complex_typeSOAP", 
@@ -30,10 +31,9 @@ import org.apache.cxf.anonymous_complex_type.SplitNameResponse.Names;
         
 public class AnonymousComplexTypeImpl implements AnonymousComplexType {
 
-    public Names splitName(String name) {
-        // TODO Auto-generated method stub
+    public SplitNameResponse.Names splitName(String name) {
         if (name != null) {
-            Names names = new Names();
+            SplitNameResponse.Names names = new SplitNameResponse.Names();
             int pos = name.indexOf(" ");
             if (pos > 0) {
                 names.setFirst(name.substring(0, pos));
@@ -45,4 +45,28 @@ public class AnonymousComplexTypeImpl implements AnonymousComplexType {
         }
         return null;
     }
+
+    public SplitNameResponse refSplitName(SplitName splitName) {
+        if (splitName.getName() != null) {
+            String name = splitName.getName();
+            SplitNameResponse.Names names = new SplitNameResponse.Names();
+            int pos = name.indexOf(" ");
+            SplitNameResponse response = null;
+            if (pos > 0) {
+                names.setFirst(name.substring(0, pos));
+                names.setSecond(name.substring(pos + 1));
+            } else {
+                names.setFirst(name);
+            
+                
+                
+            }
+            response = new SplitNameResponse();
+            response.setNames(names);
+            return response;
+        }
+        return null;
+    }
 }
+
+

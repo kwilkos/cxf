@@ -44,7 +44,25 @@
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
+
+            <xsd:element name="RefSplitNameResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:SplitNameResponse" />
+                    </xsd:sequence>
+                </xsd:complexType> 
+            </xsd:element>
+            <xsd:element name="RefSplitName">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element ref="tns:SplitName" />
+                    </xsd:sequence>
+                </xsd:complexType> 
+	    </xsd:element>
+
+
         </xsd:schema>
+
     </wsdl:types>
     <wsdl:message name="SplitNameResponse">
         <wsdl:part element="tns:SplitNameResponse" name="SplitNameResponse" />
@@ -52,15 +70,34 @@
     <wsdl:message name="SplitNameRequest">
         <wsdl:part element="tns:SplitName" name="SplitName" />
     </wsdl:message>
+    <wsdl:message name="RefSplitNameResponse">
+        <wsdl:part element="tns:RefSplitNameResponse" name="RefSplitNameResponse" />
+    </wsdl:message>
+    <wsdl:message name="RefSplitNameRequest">
+        <wsdl:part element="tns:RefSplitName" name="RefSplitName" />
+    </wsdl:message>
     <wsdl:portType name="anonymous_complex_type">
         <wsdl:operation name="SplitName">
             <wsdl:input message="tns:SplitNameRequest" />
             <wsdl:output message="tns:SplitNameResponse" />
         </wsdl:operation>
+        <wsdl:operation name="RefSplitName">
+            <wsdl:input message="tns:RefSplitNameRequest" />
+            <wsdl:output message="tns:RefSplitNameResponse" />
+        </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="anonymous_complex_typeSOAP" type="tns:anonymous_complex_type">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
         <wsdl:operation name="SplitName">
+            <soap:operation soapAction="http://cxf.apache.org/anonymous_complex_type/SplitName" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="RefSplitName">
             <soap:operation soapAction="http://cxf.apache.org/anonymous_complex_type/SplitName" />
             <wsdl:input>
                 <soap:body use="literal" />

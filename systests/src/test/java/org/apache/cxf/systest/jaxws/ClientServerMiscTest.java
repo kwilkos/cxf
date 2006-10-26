@@ -30,6 +30,8 @@ import junit.framework.TestSuite;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexType;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeImpl;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeService;
+import org.apache.cxf.anonymous_complex_type.SplitName;
+import org.apache.cxf.anonymous_complex_type.SplitNameResponse;
 import org.apache.cxf.anonymous_complex_type.SplitNameResponse.Names;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
@@ -86,4 +88,21 @@ public class ClientServerMiscTest extends ClientServerTestBase {
         }
     }
 
+    public void testRefAnonymousComplexType() throws Exception {
+
+        AnonymousComplexTypeService actService = new AnonymousComplexTypeService();
+        assertNotNull(actService);
+        AnonymousComplexType act = actService.getPort(portName, AnonymousComplexType.class);
+        
+        try {
+            SplitName name = new SplitName();
+            name.setName("Tom Li");
+            SplitNameResponse reply = act.refSplitName(name);
+            assertNotNull("no response received from service", reply);
+            assertEquals("Tom", reply.getNames().getFirst());
+            assertEquals("Li", reply.getNames().getSecond());
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception) ex.getCause();
+        }
+    }
 }
