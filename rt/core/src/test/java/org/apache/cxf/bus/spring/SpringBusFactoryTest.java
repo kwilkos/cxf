@@ -84,6 +84,7 @@ public class SpringBusFactoryTest extends TestCase {
         System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_URL, cfgFileURL.toString());
         Bus bus = new SpringBusFactory().createBus(null, true);
         checkCustomerConfiguration(bus);
+        System.clearProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
     }
     
     private void checkCustomerConfiguration(Bus bus) {
