@@ -2,7 +2,7 @@ HELLO WORLD (SOAP OVER HTTP) CXF J2EE DEMO
 ============================================
 ============================================
 
-This demo will show how to connect with a CXF Web service using a
+This demo will show how to connect with an Apache CXF Web service using a
 Servlet deployed in an application server.
 
 
@@ -43,16 +43,16 @@ Launch the application server
 
     
 
-Deploy the CXF J2EE Connector
+Deploy the Apache CXF J2EE Connector
 ===============================
 
-    The CXF J2EE Connector must be deployed to the application
+    The Apache CXF J2EE Connector must be deployed to the application
     server before running the demo.  A single resource adapter
     deployment will be shared by all of the demos, so this step need
     only be completed once.  
 
 
-    How to deploy the CXF J2EE Connector is dependent on your 
+    How to deploy the Apache CXF J2EE Connector is dependent on your 
     application server. Please consult your vendor documentation
     on connector deployment. Here are basic instructions to deploy
     the connector in JBoss application servers.
@@ -60,7 +60,7 @@ Deploy the CXF J2EE Connector
 
 JBoss
 -----
-Copy the connector RAR from its location in the CXF installation to
+Copy the connector RAR from its location in the Apache CXF installation to
 the JBoss deployment directory.
 
   (Unix)    % cd $CXF_HOME/lib/
@@ -71,18 +71,18 @@ the JBoss deployment directory.
             > copy cxf.rar 
               <jboss-home>\server\default\deploy
 
-Copy the celtix_j2ee_1_5-ds.xml file to the JBoss deployment directory.
+Copy the cxf_j2ee_1_5-ds.xml file to the JBoss deployment directory.
 
-  (Unix)    % cp ./etc/celtixj2ee_1_5-ds.xml <jboss-home>/server/default/deploy
+  (Unix)    % cp ./etc/cxfj2ee_1_5-ds.xml <jboss-home>/server/default/deploy
 
-  (Windows) > copy .\etc\celtixj2ee_1_5-ds.xml 
+  (Windows) > copy .\etc\cxfj2ee_1_5-ds.xml 
                 <jboss-home>\server\default\deploy
 
 Building the Demo
 =================
 
 Building the demo requires that there is a JDK available and that the
-CXF environment is correctly set. 
+Apache CXF environment is correctly set. 
 
 Before building this demo, build common dir first.
   (Unix)    % cd common
@@ -100,10 +100,10 @@ Issue the command:
 
 
 
-Launch the CXF Service
+Launch the Apache CXF Service
 ========================
 
-Run the CXF service provided by the basic/hello_world_soap_http
+Run the Apache CXF service provided by the basic/hello_world_soap_http
 demo.
 
 To launch the service:
@@ -154,6 +154,3 @@ http://localhost:8080/helloworld/*.do
 
 The web application provides a simple Web front-end to the Hello World
 Application. 
-
-
-

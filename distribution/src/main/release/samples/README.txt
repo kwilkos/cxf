@@ -1,7 +1,7 @@
 Basic Setup for Building and Running the Demos
 ==============================================
 
-As described in the installation notes, extract the celtixfire
+As described in the installation notes, extract the Apache CXF
 binary distribution archive into an installation directory
 under the root drive.  This creates the sub-directory cxf,
 which includes all of the product directories.
@@ -12,13 +12,13 @@ Kit (JDK) 5.0
 If you want to use ant to build and run the demos, you must
 install the Apache ant 1.6 build utility.
 
-To build and run the demos provided in the celtixfire binary
+To build and run the demos provided in the Apache CXF binary
 distribution using either ant or wsdl2java, javac and java,
 you need to set the environment so that the file cxf-incubator.jar
 is on the CLASSPATH and to insure that the JDK, ant and
-celtixfire bin directories are on the PATH.
+CXF_HOME/bin directories are on the PATH.
 
-To build and run the demos provided in the cxf source distribution
+To build and run the demos provided in the Apache CXF source distribution
 using ant you will need to edit the common_build.xml file.
 Uncomment the line:
 <import file="../../../target/srcbuild_paths.xml" optional="true"/>
@@ -48,14 +48,14 @@ For Windows:
   set PATH=%JAVA_HOME%\bin;%ANT_HOME%\bin;%CXF_HOME%\bin;%PATH%
   set CLASSPATH=.;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
 
-Save a copy of this script in the Celtixfire samples directory.  Run the
+Save a copy of this script in CXF_HOME/samples.  Run the
 script prior to building and running the demos.
 
 
 Basic Setup for Building and Running the Demos in a Servlet Container
 =====================================================================
 
-Since celtixfire requires JDK/JRE 5.0, you must use a servlet container
+Since Apache CXF requires JDK/JRE 5.0, you must use a servlet container
 that is compatible with this JDK/JRE.  A suitable servlet container is
 Tomcat 5.5 or above.
 
@@ -63,5 +63,4 @@ Be certain to start the servlet container under an environment in which
 the JAVA_HOME environment variable points to the JDK/JRE 5.0 installation
 and the JAVA_HOME bin directory is included in the system PATH.
 
-Make sure copy all jars from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
-.
+Make sure copy all jars from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib.

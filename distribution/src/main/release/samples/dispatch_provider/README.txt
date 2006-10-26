@@ -1,23 +1,22 @@
 Hello World Dispatch Demo using Document/Literal Style
-=============================================
+======================================================
 
 The demo demonstrates the use of JAX-WS Dispatch and Provider interface.
-The client side Dispatch instance invokes upon a endpoint using a JAX-WS provider implementor 
-There are three differnt invocations from the client, 
-the first uses a SOAPMessage data in MESSAGE mode
-the second uses a DOMSource data in MESSAGE mode and 
-the third uses a DOMSource in PAYLOAD mode.
-The three different messages are constructed by reading in the XML files found in the src/demo/hwDispatch/client directory.
+The client side Dispatch instance invokes upon a endpoint using a JAX-WS 
+provider implementor. There are three differnt invocations from the client. 
+The first uses a SOAPMessage data in MESSAGE mode. The second uses a DOMSource 
+data in MESSAGE mode. The third uses a DOMSource in PAYLOAD mode. The three 
+different messages are constructed by reading in the XML files found in the 
+src/demo/hwDispatch/client directory.
 
 Please review the README in the samples directory before
 continuing.
 
 
-
 Prerequisite
 ------------
 
-If your environment already includes cxf.jar on the
+If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
 it is not necessary to run the environment script described in
 the samples directory README.  If your environment is not
@@ -69,12 +68,12 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
   javac -d build/classes src/demo/hwDispatch/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
   javac -d build\classes src\demo\hwDispatch\client\*.java
   javac -d build\classes src\demo\hwDispatch\server\*.java
 

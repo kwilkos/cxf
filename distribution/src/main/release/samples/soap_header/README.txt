@@ -1,7 +1,7 @@
 SOAP Headers
 ============
 
-This demo illustrates celtixfire's support for SOAP headers.  In the
+This demo illustrates Apache CSF's support for SOAP headers.  In the
 WSDL file, the SOAP header is included as an additiona part within
 message and binding definitions.  With this approach to defining a
 SOAP header, celtixfire treats the header content as another parameter

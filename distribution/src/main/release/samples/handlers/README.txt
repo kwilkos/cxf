@@ -32,7 +32,7 @@ Please review the README in the samples directory before continuing.
 Prerequisite
 ------------
 
-If your environment already includes celtix.jar on the CLASSPATH,
+If your environment already includes cxf-incubator.jar on the CLASSPATH,
 and the JDK and ant bin directories on the PATH, it is not necessary to
 run the environment script described in the samples directory README.
 If your environment is not properly configured, or if you are planning
@@ -65,7 +65,7 @@ use of the configuration file.  For example:
   <target name="client" description="run demo client" depends="build">
     <celtixrun classname="demo.handlers.client.Client"
                param1="${basedir}/wsdl/addNumbers.wsdl"
-               jvmarg1="-Dceltix.config.file=file:///${basedir}/celtix-client.xml"/>
+               jvmarg1="-Dcxf.config.file=file:///${basedir}/cxf-client.xml"/>
   </target>
 
 After running the client, terminate the server process.
@@ -120,13 +120,13 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CELTIX_HOME/lib/celtix.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
   javac -d build/classes src/demo/handlers/common/*.java
   javac -d build/classes src/demo/handlers/client/*.java
   javac -d build/classes src/demo/handlers/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CELTIX_HOME%\lib\celtix.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
   javac -d build\classes src\demo\handlers\common\*.java
   javac -d build\classes src\demo\handlers\client\*.java
   javac -d build\classes src\demo\handlers\server\*.java
@@ -184,20 +184,20 @@ Now run the server process using the LoggingHandler.  The client does not use a 
 From the samples/handlers directory run the commands (entered on a single command line):
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.handlers.server.Server &
 
-    java -Djava.util.logging.config.file=$CELTIX_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.handlers.client.Client ./wsdl/addNumbers.wsdl
 
 The server process starts in the background.
 
 For Windows (may use either forward or back slashes):
   start 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
          demo.handlers.server.Server
 
-    java -Djava.util.logging.config.file=%CELTIX_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
          demo.handlers.client.Client .\wsdl\addNumbers.wsdl
 
 The server process starts in a new command window.
