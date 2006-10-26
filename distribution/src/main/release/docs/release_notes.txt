@@ -28,7 +28,7 @@ After installing the JDK, set or modify the following environment variables:
 
 2.2 Apache Ant 1.6.5
 
-To run samples included in the binary distribution of Celtix, you must
+To run samples included in the binary distribution of Apache CXF, you must
 install the Apache Ant 1.6.5 build utility, which can be downloaded from:
 
     http://ant.apache.org/bindownload.cgi
