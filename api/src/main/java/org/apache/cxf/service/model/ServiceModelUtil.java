@@ -80,8 +80,4 @@ public final class ServiceModelUtil {
         return name;
     }
 
-    public static QName getRPCPartName(MessagePartInfo part) {
-        QName name = getPartName(part);
-        return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
-    }
 }

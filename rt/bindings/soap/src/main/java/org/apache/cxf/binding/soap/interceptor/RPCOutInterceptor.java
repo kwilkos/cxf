@@ -45,6 +45,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public void handleMessage(Message message) {
         try {
+            
             NSStack nsStack = new NSStack();
             nsStack.push();
 
@@ -56,7 +57,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
             DataWriter<Message> dataWriter = getMessageDataWriter(message);
 
-            addOperationNode(nsStack, message, xmlWriter);
+            String opNs = addOperationNode(nsStack, message, xmlWriter);
 
             int countParts = 0;
             List<MessagePartInfo> parts = null;
@@ -78,7 +79,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                 for (int idx = 0; idx < countParts; idx++) {
                     Object arg = objs.get(idx);
                     MessagePartInfo part = (MessagePartInfo) parts.get(idx);
-                    QName elName = getPartName(part);
+                    QName elName = new QName(opNs, part.getName().getLocalPart());
                     dataWriter.write(arg, elName, message);
                 }
             }
@@ -91,7 +92,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
         }
     }
 
-    protected void addOperationNode(NSStack nsStack, Message message, XMLStreamWriter xmlWriter) 
+    protected String addOperationNode(NSStack nsStack, Message message, XMLStreamWriter xmlWriter) 
         throws XMLStreamException {
         String responseSuffix = !isRequestor(message) ? "Response" : "";
         String namespaceURI = ServiceModelUtil.getTargetNamespace(message.getExchange());
@@ -101,7 +102,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
         String operationName = getOperationName(message) + responseSuffix;
 
         StaxUtils.writeStartElement(xmlWriter, prefix, operationName, namespaceURI);
-        xmlWriter.flush();
+        return namespaceURI;
     }
 
     protected XMLStreamWriter getXMLStreamWriter(Message message) {
@@ -112,14 +113,6 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
         BindingOperationInfo boi = (BindingOperationInfo) message.getExchange().get(
                         BindingOperationInfo.class);       
         return boi.getOperationInfo().getName().getLocalPart();
-    }
-
-    private QName getPartName(MessagePartInfo part) {
-        QName name = part.getElementQName();
-        if (name == null) {
-            name = part.getTypeQName();
-        }
-        return new QName(name.getNamespaceURI(), part.getName().getLocalPart());
     }
 
 }

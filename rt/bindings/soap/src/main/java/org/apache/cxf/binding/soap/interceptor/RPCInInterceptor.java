@@ -89,7 +89,8 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                                                                          + " does not exist!"));
             }
             QName name = xmlReader.getName();
-            QName elName = ServiceModelUtil.getRPCPartName(p);
+            QName elName = new QName(operation.getOperationInfo().getName().getNamespaceURI(), 
+                    p.getName().getLocalPart());
 
             if (!elName.getLocalPart().equals(name.getLocalPart())) {
                 String expMessage = "Parameter " + name + " does not equal to the name ["
