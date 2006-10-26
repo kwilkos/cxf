@@ -22,7 +22,7 @@ package org.apache.cxf.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractBasicInterceptorProvider implements InterceptorProvider {
+public abstract class AbstractBasicInterceptorProvider  implements InterceptorProvider {
 
     private List<Interceptor> in = new ArrayList<Interceptor>();
     private List<Interceptor> out = new ArrayList<Interceptor>();

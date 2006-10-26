@@ -33,12 +33,16 @@ import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public class ServiceImpl extends AbstractAttributedInterceptorProvider implements Service, Configurable {
-
     private ServiceInfo serviceInfo;
     private DataBinding dataBinding;
     private Executor executor;
     private Invoker invoker;
     private Map<QName, Endpoint> endpoints = new HashMap<QName, Endpoint>();
+    private boolean enableSchemaValidationForAllPort;
+    
+    public ServiceImpl() {
+        
+    }
     
     public ServiceImpl(ServiceInfo si) {
         serviceInfo = si;
@@ -87,5 +91,11 @@ public class ServiceImpl extends AbstractAttributedInterceptorProvider implement
     public void setEndpoints(Map<QName, Endpoint> endpoints) {
         this.endpoints = endpoints;
     }
+    public void setEnableSchemaValidationForAllPort(boolean value) {
+        enableSchemaValidationForAllPort = value;
+    }
     
+    public boolean getEnableSchemaValidationForAllPort() {
+        return enableSchemaValidationForAllPort;
+    }
 }

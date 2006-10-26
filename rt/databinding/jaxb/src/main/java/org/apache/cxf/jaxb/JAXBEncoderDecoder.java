@@ -104,7 +104,9 @@ public final class JAXBEncoderDecoder {
 
         if (cls == Object.class || cls == String.class || cls == Holder.class) {
             cls = null;
-        } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
+        } else if (cls.isPrimitive()) {
+            return cls;
+        } else if (cls.isInterface() || cls.isAnnotation()) {
             cls = null;
         }
         if (cls != null) {
@@ -351,8 +353,15 @@ public final class JAXBEncoderDecoder {
             } else {
                 throw new Fault(new Message("UNKNOWN_SOURCE", BUNDLE, source.getClass().getName()));
             }
+       
         } catch (Exception ex) {
-            throw new Fault(new Message("MARSHAL_ERROR", BUNDLE), ex);
+            if (ex instanceof javax.xml.bind.UnmarshalException) {
+                javax.xml.bind.UnmarshalException unmarshalEx = (javax.xml.bind.UnmarshalException)ex;
+                throw new Fault(new Message("UNMARSHAL_ERROR", 
+                                            BUNDLE, unmarshalEx.getLinkedException().getMessage()), ex); 
+            } else {
+                throw new Fault(new Message("UNMARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
+            }
         }
         return getElementValue(obj, elName);
     }

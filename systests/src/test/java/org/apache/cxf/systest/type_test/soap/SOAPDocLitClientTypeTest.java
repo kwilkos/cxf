@@ -42,6 +42,8 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
         super(name);
     }
     
+    
+    
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(SOAPDocLitClientTypeTest.class);
         return new ClientServerSetupBase(suite) {
@@ -51,11 +53,6 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
             }
 
             public void setUp() throws Exception {
-                // set up configuration to enable schema validation
-                // URL url = getClass().getResource("../cxf-config.xml");
-                // assertNotNull("cannot find test resource", url);
-                // configFileName = url.toString();
-                configFileName = null;
                 super.setUp();
                 initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
             }

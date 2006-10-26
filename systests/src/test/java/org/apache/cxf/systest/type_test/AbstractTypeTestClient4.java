@@ -1830,7 +1830,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             try {
                 ret = testDocLiteral ? docClient.testAnyURIRestriction(x, y, z) 
                         : xmlClient.testAnyURIRestriction(x, y, z);
-                //fail("maxLength=50 restriction is violated.");
+                fail("maxLength=50 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }

@@ -39,6 +39,7 @@ public abstract class AbstractServiceFactoryBean {
         service.getInInterceptors().add(new OutgoingChainSetupInterceptor());
         service.getInInterceptors().add(new OutgoingChainInterceptor());
         service.getOutInterceptors().add(new MessageSenderInterceptor());
+        service.getOutFaultInterceptors().add(new OutgoingChainSetupInterceptor());
         service.getOutFaultInterceptors().add(new MessageSenderInterceptor());
     }
     

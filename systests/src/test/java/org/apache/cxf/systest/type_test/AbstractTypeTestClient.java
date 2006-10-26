@@ -1541,7 +1541,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<String>();
             try {
                 ret = docClient.testSimpleRestriction(x, y, z);
-                //fail("x parameter maxLength=10 restriction is violated.");
+                fail("x parameter maxLength=10 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1554,7 +1554,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleRestriction(x, y, z) 
                         : xmlClient.testSimpleRestriction(x, y, z);
-                //fail("y parameter maxLength=10 restriction is violated.");
+                fail("y parameter maxLength=10 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1591,7 +1591,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleRestriction2(x, y, z) 
                         : xmlClient.testSimpleRestriction2(x, y, z);
-                //fail("minLength=5 restriction is violated.");
+                fail("minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1627,7 +1627,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<String>();
             try {
                 ret = docClient.testSimpleRestriction3(x, y, z);
-                //fail("x parameter maxLength=10 && minLength=5 restriction is violated.");
+                fail("x parameter maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1640,7 +1640,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleRestriction3(x, y, z) 
                         : xmlClient.testSimpleRestriction3(x, y, z);
-                //fail("y parameter maxLength=10 && minLength=5 restriction is violated.");
+                fail("y parameter maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1677,7 +1677,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleRestriction4(x, y, z) 
                         : xmlClient.testSimpleRestriction4(x, y, z);
-                //fail("x parameter minLength=5 restriction is violated.");
+                fail("x parameter minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1714,7 +1714,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<String>();
             try {
                 ret = docClient.testSimpleRestriction5(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                //ex.printStackTrace();
             }
@@ -1727,7 +1727,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleRestriction5(x, y, z) 
                         : xmlClient.testSimpleRestriction5(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1764,7 +1764,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleRestriction6(x, y, z) 
                         : xmlClient.testSimpleRestriction6(x, y, z);
-                //fail("maxLength=10 && minLength=5 restriction is violated.");
+                fail("maxLength=10 && minLength=5 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1802,7 +1802,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<byte[]>();
             try {
                 ret = docClient.testHexBinaryRestriction(x, y, z);
-                //fail("maxLength=10 && minLength=1 restriction is violated.");
+                fail("maxLength=10 && minLength=1 restriction is violated.");
             } catch (Exception ex) {
                //ex.printStackTrace();
             }
@@ -1815,7 +1815,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testHexBinaryRestriction(x, y, z) 
                         : xmlClient.testHexBinaryRestriction(x, y, z);
-                //fail("maxLength=10 && minLength=1 restriction is violated.");
+                fail("maxLength=10 && minLength=1 restriction is violated.");
             } catch (Exception ex) {
                 //ex.printStackTrace();
             }
@@ -1858,9 +1858,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             z = new Holder<byte[]>();
             try {
                 ret = docClient.testBase64BinaryRestriction(x, y, z);
-                //fail("length=10 restriction is violated.");
+                fail("length=10 restriction is violated.");
             } catch (Exception ex) {
-                ex.printStackTrace();
+               // ex.printStackTrace();
             }
         }
     }
@@ -1884,9 +1884,9 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             try {
                 ret = testDocLiteral ? docClient.testSimpleListRestriction2(x, y, z) 
                         : xmlClient.testSimpleListRestriction2(x, y, z);                     
-                //fail("length=10 restriction is violated.");
+                fail("length=10 restriction is violated.");
             } catch (Exception ex) {
-                ex.printStackTrace();
+                //ex.printStackTrace();
             }
         } else {
             String[] x = {"I", "am", "SimpleList"};

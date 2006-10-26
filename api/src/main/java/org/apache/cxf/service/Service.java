@@ -49,4 +49,8 @@ public interface Service extends Map<String, Object>, InterceptorProvider {
     void setInvoker(Invoker invoker);
     
     Map<QName, Endpoint> getEndpoints();
+    
+    void setEnableSchemaValidationForAllPort(boolean value);
+    
+    boolean getEnableSchemaValidationForAllPort();
 }

@@ -47,6 +47,7 @@ import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
@@ -103,7 +104,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         serviceFactory.setBus(bus);
         service = serviceFactory.create();
+        
         configureObject(service);
+        
+        service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
         
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
@@ -227,8 +231,14 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         if (implInfo.isWebServiceProvider()) {
             getServer().setMessageObserver(new ProviderChainObserver(getEndpoint(), bus, implInfo));
         }
-        configureObject(getEndpoint());
         
+        org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
+        
+        configureObject(endpoint);
+        
+        if (endpoint.getEnableSchemaValidation()) {
+            endpoint.put(Message.SCHEMA_VALIDATION_ENABLED, endpoint.getEnableSchemaValidation());
+        }
         server.start();
     }
     

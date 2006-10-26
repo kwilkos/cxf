@@ -55,7 +55,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean>
     
     <bean name="{http://apache.org/hello_world_soap_http}SoapPort" abstract="true">
-        <property name="validating" value="true"/>
+        <property name="enableSchemaValidation" value="true"/>
         <property name="inInterceptors">
             <list>
                 <bean class="org.apache.cxf.jaxws.ConfiguredEndpointTest$TestInterceptor">

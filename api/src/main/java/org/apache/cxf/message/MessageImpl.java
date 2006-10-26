@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
@@ -126,14 +126,14 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
         }
         
         if (val == null) {
-            EndpointInfo ep = get(EndpointInfo.class); 
+            Endpoint ep = getExchange().get(Endpoint.class); 
             if (ep != null) {
-                val = ep.getProperty(key);
+                val = ep.get(key);
             }
         }
         
         if (val == null) {
-            Service ep = get(Service.class); 
+            Service ep = getExchange().get(Service.class); 
             if (ep != null) {
                 val = ep.get(key);
             }

@@ -90,7 +90,7 @@ public class ConfiguredEndpointTest extends TestCase {
         Client client = eih.getClient();
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        assertTrue("Unexpected value for property validating", !endpoint.getValidating());
+        assertTrue("Unexpected value for property validating", !endpoint.getEnableSchemaValidation());
    
         // System.out.println("endpoint interceptors");
         List<Interceptor> interceptors = endpoint.getInInterceptors();
@@ -218,7 +218,7 @@ public class ConfiguredEndpointTest extends TestCase {
         
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        assertTrue("Unexpected value for property validating", !endpoint.getValidating());
+        assertTrue("Unexpected value for property validating", !endpoint.getEnableSchemaValidation());
    
         List<Interceptor> interceptors = endpoint.getInInterceptors();
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
@@ -273,7 +273,7 @@ public class ConfiguredEndpointTest extends TestCase {
         
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)ei.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
-        assertTrue("Unexpected value for property validating", endpoint.getValidating());
+        assertTrue("Unexpected value for property validating", endpoint.getEnableSchemaValidation());
         List<Interceptor> interceptors = endpoint.getInInterceptors();
         assertEquals("Unexpected number of interceptors.", 1, interceptors.size());
         assertEquals("Unexpected interceptor id.", "endpoint-in", 
