@@ -42,11 +42,7 @@ public class JettySslListenerFactoryTest extends TestCase {
 
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(JettySslListenerFactoryTest.class);
-        return new TestSetup(suite) {
-            protected void tearDown() throws Exception {
-                super.tearDown();
-            }
-        };
+        return new TestSetup(suite);
     }
 
     public static void main(String[] args) {
