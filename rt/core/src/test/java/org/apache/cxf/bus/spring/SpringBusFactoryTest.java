@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.ServerRegistry;
@@ -38,6 +39,7 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.workqueue.WorkQueueManager;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.easymock.EasyMock;
 
 public class SpringBusFactoryTest extends TestCase {
 
@@ -87,6 +89,22 @@ public class SpringBusFactoryTest extends TestCase {
         interceptors = bus.getOutInterceptors();
         assertEquals("Unexpected number of interceptors", 1, interceptors.size());
         assertEquals("Unexpected interceptor", "out", interceptors.get(0).toString());
+        
+    }
+    
+    public void testForLifeCycle() {
+        BusLifeCycleListener bl = EasyMock.createMock(BusLifeCycleListener.class);
+        Bus bus = new SpringBusFactory().createBus();
+        BusLifeCycleManager lifeCycleManager = bus.getExtension(BusLifeCycleManager.class);
+        lifeCycleManager.registerLifeCycleListener(bl);
+        
+        bl.preShutdown();
+        EasyMock.expectLastCall();
+        bl.postShutdown();
+        EasyMock.expectLastCall();
+        EasyMock.replay(bl);
+        bus.shutdown(true);
+        EasyMock.verify(bl);
         
     }
     

@@ -24,18 +24,23 @@ import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.BusState;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 
 public class SpringBusImpl extends AbstractBasicInterceptorProvider implements Bus {
     
     private Map<Class, Object> extensions;
-    
+    private BusLifeCycleManager lifeCycleManager;
     private String id;
     private BusState state;      
     
     public SpringBusImpl() {
         extensions = new HashMap<Class, Object>();
         state = BusState.INITIAL;
+        lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
+        if (null != lifeCycleManager) {
+            lifeCycleManager.initComplete();
+        }
     }
     
     public void setExtensions(Map<Class, Object> e) {
@@ -82,7 +87,17 @@ public class SpringBusImpl extends AbstractBasicInterceptorProvider implements B
     }
 
     public void shutdown(boolean wait) {
-        // TODO
+        lifeCycleManager = this.getExtension(BusLifeCycleManager.class);
+        if (null != lifeCycleManager) {
+            lifeCycleManager.preShutdown();
+        }
+        synchronized (this) {
+            state = BusState.SHUTDOWN;
+            notifyAll();
+        }
+        if (null != lifeCycleManager) {
+            lifeCycleManager.postShutdown();
+        }
     }
     
     protected BusState getState() {
