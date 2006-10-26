@@ -46,7 +46,8 @@
 	         <include>**/*</include>
              </includes>
              <excludes>
-		 <exclude>**/build.xml</exclude>
+		 <exclude>build.xml</exclude>
+		 <exclude>distribution/build.xml</exclude>
 		 <exclude>**/benchmark</exclude>
 		 <exclude>**/benchmark/**/*</exclude>
 	         <exclude>**/target</exclude>
@@ -59,8 +60,8 @@
 		 <exclude>**/.wtpmodules</exclude>
 		 <exclude>**/surefire*</exclude>
 		 <exclude>**/cobertura.ser</exclude>
-		 <exclude>**/bin</exclude>
-		 <exclude>**/bin/*</exclude>
+		 <exclude>bin</exclude>
+		 <exclude>bin/*</exclude>
 		 <exclude>**/var/journal</exclude>
 		 <exclude>**/build.out*</exclude>
              </excludes>

@@ -41,7 +41,7 @@
 	 <fileSet>
 	     <directory>src/main/release/bin</directory>
 	     <outputDirectory>cxf-${cxf.version}/bin</outputDirectory>
-	     <fileMode>775</fileMode>
+	     <fileMode>711</fileMode>
 	 </fileSet>
 	 <fileSet>
 	     <directory>src/main/release/etc</directory>
