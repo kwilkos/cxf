@@ -19,22 +19,39 @@
 
 package org.apache.cxf.systest.common;
 
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import junit.framework.TestCase;
 
 import org.apache.cxf.jaxws.spi.ProviderImpl;
 
-
 public abstract class ClientServerTestBase extends TestCase {
-    
-    static { 
+
+    static {
         System.setProperty("javax.xml.ws.spi.Provider", ProviderImpl.class.getName());
     }
 
-    protected ClientServerTestBase() { 
-    } 
+    protected ClientServerTestBase() {
+    }
 
-    protected ClientServerTestBase(String name) { 
-        super(name); 
-    } 
+    protected ClientServerTestBase(String name) {
+        super(name);
+    }
 
+    protected boolean runClient(Runnable clientImpl, long timeOut, TimeUnit timeUnit)
+        throws InterruptedException {
+        FutureTask<?> client = new FutureTask<Object>(clientImpl, null);
+        ThreadPoolExecutor tpe = new ThreadPoolExecutor(1, 1, 10000L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        tpe.execute(client);
+        tpe.shutdown();
+        tpe.awaitTermination(timeOut, timeUnit);
+        if (!client.isDone()) {
+            return false;
+        }
+        return true;
+    }
 }
