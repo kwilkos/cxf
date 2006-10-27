@@ -162,7 +162,7 @@ public class ManagedConnectionImpl
                 obj = service.getPort(arReqInfo.getPortQName(), arReqInfo.getInterface());
             } else {
                 obj = service.getPort(arReqInfo.getInterface());
-                //obj = bus.createClient(wsdlLocationUrl, serviceName, arReqInfo.getInterface());
+                
             }
 
             setSubject(subject);

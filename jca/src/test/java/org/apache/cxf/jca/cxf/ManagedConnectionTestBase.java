@@ -49,8 +49,8 @@ public abstract class ManagedConnectionTestBase extends TestCase {
     protected ManagedConnectionFactoryImpl factory = 
         EasyMock.createMock(ManagedConnectionFactoryImpl.class);
 
-    protected Bus mockBus;
-    //EasyMock.createMock(Bus.class);
+    protected Bus bus;
+    
 
     protected ConnectionEventListener mockListener = 
         EasyMock.createMock(ConnectionEventListener.class);
@@ -78,14 +78,15 @@ public abstract class ManagedConnectionTestBase extends TestCase {
         cri2 = new CXFConnectionRequestInfo(Greeter.class, wsdl, serviceName2, portName2);
         
         BusFactory bf = BusFactoryHelper.newInstance();
-        mockBus = bf.getDefaultBus();
+        bus = bf.createBus();
+        bf.setDefaultBus(bus);
         
         
         EasyMock.reset(factory); 
         
         factory.getBus();
         
-        EasyMock.expectLastCall().andReturn(mockBus).anyTimes();
+        EasyMock.expectLastCall().andReturn(bus).anyTimes();
         EasyMock.replay(factory);
         
         
