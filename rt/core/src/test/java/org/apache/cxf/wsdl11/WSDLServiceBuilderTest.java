@@ -28,6 +28,7 @@ import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.validation.Schema;
 
 import junit.framework.TestCase;
 
@@ -45,6 +46,7 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.easymock.classextension.EasyMock;
@@ -303,6 +305,9 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals(schemaInfo.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types");
         assertEquals(schemas.read(schemaInfo.getElement()).getTargetNamespace(),
                      "http://apache.org/hello_world_soap_http/types");
+        // add below code to test the creation of javax.xml.validation.Schema with schema in serviceInfo
+        Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);
+        assertNotNull(schema);
     }
     public void testBare() throws Exception {
         setUpWSDL(BARE_WSDL_PATH);

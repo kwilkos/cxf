@@ -19,75 +19,95 @@
 
 package org.apache.cxf.binding.soap;
 
+import java.util.List;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
+
+import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.hello_world_rpclit.types.MyComplexStruct;
+import org.apache.hello_world_soap_http.RPCLitGreeterImpl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class RPCInInterceptorTest extends TestBase {
-//    
-//    public void setUp() throws Exception {
-//        super.setUp();
-//
-//        soapMessage.getExchange().put(SoapMessage.DATAREADER_FACTORY_KEY, "test.reader.factory");
-//        soapMessage.put(SoapMessage.BINDING_INFO,
-//                        getTestService("resources/wsdl/hello_world_rpc_lit.wsdl", "SoapPortRPCLit"));
-//        soapMessage.put("IMPLEMENTOR_METHOD", getTestMethod(GreeterRPCLit.class, "sendReceiveData"));
-//    }
-//
-    public void testInterceptorRPCLitInbound() throws Exception {
-//        RPCInInterceptor interceptor = new RPCInInterceptor();
-//
-//        soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
-//            .createXMLStreamReader(getTestStream(getClass(), "resources/greetMeRpcLitReq.xml")));
-//        soapMessage.put(Message.INBOUND_MESSAGE, Message.INBOUND_MESSAGE);
-//
-//        interceptor.handleMessage(soapMessage);
-//
-//        List<?> parameters = (List<?>) soapMessage.get(Message.INVOCATION_OBJECTS);
-//        assertEquals(1, parameters.size());
-//
-//        assertEquals("sendReceiveData", (String) soapMessage.get(Message.INVOCATION_OPERATION));
-//        
-//        Object obj = parameters.get(0);
-//        assertTrue(obj instanceof MyComplexStruct);
-//        MyComplexStruct s = (MyComplexStruct) obj;
-//        assertEquals("this is element 2", s.getElem2());
+
+    private static final String TNS = "http://apache.org/hello_world_rpclit";
+
+    private static final String OPNAME = "sendReceiveData";
+
+    private IMocksControl control = EasyMock.createNiceControl();
+    
+    public void setUp() throws Exception {
+        super.setUp();
+        ServiceInfo si = getMockedServiceModel(this.getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl")
+                .toString());
+        BindingInfo bi = si.getBinding(new QName(TNS, "Greeter_SOAPBinding_RPCLit"));
+        BindingOperationInfo boi = bi.getOperation(new QName(TNS, OPNAME));
+        boi.getOperationInfo().getInput().getMessagePartByIndex(0).setProperty(Class.class.getName(), 
+                MyComplexStruct.class);
+        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setProperty(Class.class.getName(), 
+                MyComplexStruct.class);
+        soapMessage.getExchange().put(BindingOperationInfo.class, boi);
+
+        control.reset(); 
+        Service service = control.createMock(Service.class);
+        JAXBDataBinding dataBinding = new JAXBDataBinding(RPCLitGreeterImpl.class);
+        service.getDataBinding();
+        EasyMock.expectLastCall().andReturn(dataBinding).anyTimes();
+        service.getServiceInfo();
+        EasyMock.expectLastCall().andReturn(si).anyTimes();
+        
+        soapMessage.getExchange().put(Service.class, service);
+        soapMessage.getExchange().put(Message.SCHEMA_VALIDATION_ENABLED, Boolean.FALSE);
+        control.replay();
     }
-//
-//    public void testInterceptorRPCLitOutbound() throws Exception {
-//        RPCInInterceptor interceptor = new RPCInInterceptor();
-//        soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance()
-//            .createXMLStreamReader(getTestStream(getClass(), "resources/greetMeRpcLitResp.xml")));
-//        interceptor.handleMessage(soapMessage);
-//
-//        List<?> objs = (List<?>) soapMessage.get(Message.INVOCATION_OBJECTS);
-//        assertEquals(1, objs.size());
-//        
-//        Object retValue = objs.get(0);
-//        assertNotNull(retValue);
-//        
-//        assertTrue(retValue instanceof MyComplexStruct);
-//        MyComplexStruct s = (MyComplexStruct) retValue;
-//        assertEquals("return is element 2", s.getElem2());
-//    }
-//
-//    protected BindingInfo getTestService(String wsdlUrl, String port) throws Exception {
-//        BindingInfo binding = super.getTestService(wsdlUrl, port);
-//
-//        assertEquals(3, binding.getOperations().size());
-//
-//        BindingOperationInfo op = binding.getOperation(new QName("http://apache.org/hello_world_rpclit",
-//                                                                 "sendReceiveData"));
-//        assertNotNull(op);
-//        assertEquals(1, op.getInput().getMessageInfo().size());
-//        assertEquals(1, op.getOutput().getMessageInfo().size());
-//        MessageInfo msg = op.getInput().getMessageInfo();
-//        assertEquals(1, msg.getMessageParts().size());
-//        MessagePartInfo part = msg.getMessageParts().get(0);
-//        assertEquals(new QName("http://apache.org/hello_world_rpclit", "in"), part.getName());
-//
-//        OperationInfo oi = op.getOperationInfo();
-//        oi.setProperty("test.reader.factory", getTestReaderFactory(GreeterRPCLit.class));
-//
-//        return binding;
-//    }
+
+    
+    public void testInterceptorRPCLitOutbound() throws Exception {
+        RPCInInterceptor interceptor = new RPCInInterceptor();
+
+        soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(
+                getTestStream(getClass(), "/rpc-resp.xml")));
+        soapMessage.put(Message.REQUESTOR_ROLE, Boolean.TRUE);
+
+        interceptor.handleMessage(soapMessage);
+
+        List<?> parameters = (List<?>) soapMessage.getContent(List.class);
+        assertEquals(1, parameters.size());
+
+        Object obj = parameters.get(0);
+        assertTrue(obj instanceof MyComplexStruct);
+        MyComplexStruct s = (MyComplexStruct) obj;
+        assertEquals("elem1", s.getElem1());
+        assertEquals("elem2", s.getElem2());
+        assertEquals(45, s.getElem3());
+    }
+
+    public void testInterceptorRPCLitInbound() throws Exception {
+        RPCInInterceptor interceptor = new RPCInInterceptor();
+        soapMessage.setContent(XMLStreamReader.class, XMLInputFactory.newInstance().createXMLStreamReader(
+                getTestStream(getClass(), "/rpc-req.xml")));
+
+        interceptor.handleMessage(soapMessage);
+
+        List<?> parameters = (List<?>) soapMessage.getContent(List.class);
+        assertEquals(1, parameters.size());
+
+        Object obj = parameters.get(0);
+        assertTrue(obj instanceof MyComplexStruct);
+        MyComplexStruct s = (MyComplexStruct) obj;
+        assertEquals("elem1", s.getElem1());
+        assertEquals("elem2", s.getElem2());
+        assertEquals(45, s.getElem3());
+    }
 
 }
-
