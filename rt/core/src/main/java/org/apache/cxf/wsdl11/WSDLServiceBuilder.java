@@ -188,7 +188,7 @@ public class WSDLServiceBuilder {
                 if (schemaElem != null) {
                     for (Object prefix : def.getNamespaces().keySet()) {
                         String ns = (String)def.getNamespaces().get(prefix);
-                        if (!prefix.equals("") && !schemaElem.hasAttribute("xmlns:" + prefix)) {
+                        if (!"".equals(prefix) && !schemaElem.hasAttribute("xmlns:" + prefix)) {
                             schemaElem.setAttribute("xmlns:" + prefix, ns);
                         }
                     }
