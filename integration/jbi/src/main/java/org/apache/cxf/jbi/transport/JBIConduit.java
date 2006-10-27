@@ -20,43 +20,68 @@
 package org.apache.cxf.jbi.transport;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import javax.jbi.messaging.DeliveryChannel;
+
+
+
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
+
 public class JBIConduit implements Conduit {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(JBIConduit.class);
+       
+    private MessageObserver incomingObserver;
+    private EndpointReferenceType target;
+    private DeliveryChannel channel;
+           
+    
+    
+    public JBIConduit(EndpointReferenceType target, DeliveryChannel dc) {           
+        this.target = target;
+        channel = dc;
+    }
 
     public void send(Message message) throws IOException {
-        // TODO Auto-generated method stub
-
+        LOG.log(Level.FINE, "JBIConduit send message");
+                
+        message.setContent(OutputStream.class,
+                           new JBIConduitOutputStream(message, channel, target, this));
     }
 
     public void close(Message message) throws IOException {
-        // TODO Auto-generated method stub
-
+        message.getContent(OutputStream.class).close();        
     }
 
     public EndpointReferenceType getTarget() {
-        // TODO Auto-generated method stub
-        return null;
+        return target;
     }
 
     public Destination getBackChannel() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public void close() {
-        // TODO Auto-generated method stub
-
+        
     }
 
     public void setMessageObserver(MessageObserver observer) {
-        // TODO Auto-generated method stub
-
+        incomingObserver = observer;     
+    }
+    
+    public MessageObserver getMessageObserver() {
+        return incomingObserver;
     }
 
+    
+     
 }
