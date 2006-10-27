@@ -23,8 +23,10 @@ import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 //import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 //import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
+import org.apache.cxf.jca.cxf.ManagedConnectionFactoryImpl;
 
 /**
  * The object returned to the application
@@ -45,10 +47,10 @@ public class ProxyInvocationHandler extends CXFInvocationHandlerBase  {
                                final Object args[]) throws Throwable {
        
         LOG.fine(this + " on " + method);
-//         Object o = getData().getManagedConnection().getManagedConnectionFactory();
-//         ManagedConnectionFactoryImpl mcf = (ManagedConnectionFactoryImpl)o;
-//         //NOTE reset the inited bus to current ,so CXF-rt can play with JCA setup bus
-//         Bus.setCurrent(mcf.getBus());
+        Object o = getData().getManagedConnection().getManagedConnectionFactory();
+        ManagedConnectionFactoryImpl mcf = (ManagedConnectionFactoryImpl)o;
+        //NOTE reset the inited bus to current ,so CXF-rt can play with JCA setup bus
+        BusFactoryHelper.newInstance().setDefaultBus(mcf.getBus());        
         return invokeNext(proxy, method, args);
     }
 }

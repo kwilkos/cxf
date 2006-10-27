@@ -23,6 +23,9 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 //import org.apache.cxf.Bus;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 import org.apache.cxf.jca.cxf.CXFManagedConnection;
@@ -53,17 +56,17 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
     }
 
    
-//     public void testInvokeSetsBusCurrent() throws Throwable {
+    public void testInvokeSetsBusCurrent() throws Throwable {
         
-//         testObject.invoke(target, testMethod, new Object[] {});
+        testObject.invoke(target, testMethod, new Object[] {});
 
-//         BusFactory bf = new CXFBusFactory();
-//         Bus b = bf.getDefaultBus();
+        BusFactory bf = BusFactoryHelper.newInstance();
+        Bus b = bf.getDefaultBus();
        
-//         assertSame("Current Bus has been set and is as expected, val=" + b, b, mockBus);
-//         // set back the JVM current local variable
-//         Bus.setCurrent(null);
-//     }
+        assertSame("Current Bus has been set and is as expected, val=" + b, b, mockBus);
+         // set back the JVM current local variable
+        bf.setDefaultBus(null);
+    }
 
     public static Test suite() {
         return new TestSuite(ProxyInvocationHandlerTest.class);

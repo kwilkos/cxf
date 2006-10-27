@@ -32,7 +32,7 @@ import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.hello_world_soap_http.Greeter;
 import org.easymock.classextension.EasyMock;
 
@@ -77,9 +77,9 @@ public abstract class ManagedConnectionTestBase extends TestCase {
 
         cri2 = new CXFConnectionRequestInfo(Greeter.class, wsdl, serviceName2, portName2);
         
-        BusFactory bf = new CXFBusFactory();
+        BusFactory bf = BusFactoryHelper.newInstance();
         mockBus = bf.getDefaultBus();
-        //        mockBus = Bus.init();
+        
         
         EasyMock.reset(factory); 
         
