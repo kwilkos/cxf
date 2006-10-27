@@ -76,9 +76,7 @@
     <xsl:if test="$tns_suffix='xml'">
       <definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
-          xmlns:x1="http://apache.org/type_test/types1"
-          xmlns:x2="http://apache.org/type_test/types2"
-          xmlns:x3="http://apache.org/type_test/types3"
+          
           xmlns:tns="http://apache.org/type_test/xml"
           targetNamespace="http://apache.org/type_test/xml"
           name="type_test">
@@ -94,7 +92,8 @@
   <xsl:template match="/xsd:schema" mode="schema"
         xmlns="http://schemas.xmlsoap.org/wsdl/">
     <types>
-      <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+      <xsd:schema xmlns:iona="iona.iona"
+                  xmlns="http://www.w3.org/2001/XMLSchema"
                   xmlns:x1="http://apache.org/type_test/types1"
                   xmlns:x2="http://apache.org/type_test/types2"
                   xmlns:x3="http://apache.org/type_test/types3"

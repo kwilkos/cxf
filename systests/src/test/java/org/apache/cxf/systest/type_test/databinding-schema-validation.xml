@@ -26,9 +26,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="{http://apache.org/type_test/doc}SOAPService" abstract="true">
         <property name="enableSchemaValidationForAllPort" value="true"/>
     </bean>
-     <bean id="{http://apache.org/type_test/rpc}SOAPService" abstract="true">
-        <property name="enableSchemaValidationForAllPort" value="true"/>
-    </bean>
+
      <bean id="{http://apache.org/type_test/xml}XMLService" abstract="true">
         <property name="enableSchemaValidationForAllPort" value="true"/>
     </bean>
