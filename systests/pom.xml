@@ -135,7 +135,21 @@
             <scope>test</scope>
         </dependency>
 	
-	<dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derby.version}</version>
+            <scope>test</scope>
+        </dependency>
+       
+        <dependency>
+                <groupId>incubator-activemq</groupId>
+                <artifactId>activemq-core</artifactId>
+                <version>${activemq-version}</version>
+                <scope>test</scope>
+        </dependency>
+
+	<!--dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <version>3.2</version>
@@ -210,7 +224,7 @@
                     <artifactId>xbean</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency> 
+        </dependency--> 
 
         <dependency>
             <groupId>org.springframework</groupId>

@@ -18,30 +18,29 @@
  */
 package org.apache.cxf.systest.jms;
 
-import org.activemq.broker.BrokerContainer;
-import org.activemq.broker.impl.BrokerContainerImpl;
-import org.activemq.store.vm.VMPersistenceAdapter;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 import org.apache.cxf.systest.common.TestServerBase;
 
 
 
 public class EmbeddedJMSBrokerLauncher extends TestServerBase {
     
-    BrokerContainer container;
+    BrokerService broker;
     final String brokerUrl1 = "tcp://localhost:61500";            
             
     public void tearDown() throws Exception {
-        if (container != null) {
-            container.stop();
+        if (broker != null) {
+            broker.stop();
         }
     }
             
     public void run() {
         try {                
-            container = new BrokerContainerImpl();
-            container.addConnector(brokerUrl1);
-            container.setPersistenceAdapter(new VMPersistenceAdapter());
-            container.start();
+            broker = new BrokerService();
+            broker.setPersistenceAdapter(new MemoryPersistenceAdapter());
+            broker.addConnector(brokerUrl1);
+            broker.start();            
         } catch (Exception e) {
             e.printStackTrace();
         }

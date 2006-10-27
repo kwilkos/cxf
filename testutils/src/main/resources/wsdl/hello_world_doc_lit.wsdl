@@ -187,7 +187,7 @@ targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
                <jms:address
                    jndiConnectionFactoryName="ConnectionFactory"
                    jndiDestinationName="dynamicQueues/routertest.SOAPService2Q.text">
-                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
                </jms:address>
         </wsdl:port>
@@ -202,7 +202,7 @@ targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
                <jms:address
                    jndiConnectionFactoryName="ConnectionFactory"
                    jndiDestinationName="dynamicQueues/routertest.SOAPService4Q.text">
-                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
                </jms:address>
         </wsdl:port>
@@ -224,7 +224,7 @@ targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
        <jms:address
            jndiConnectionFactoryName="ConnectionFactory"
            jndiDestinationName="dynamicQueues/routertest.XMLService2Q.text">
-           <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+           <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
            <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
        </jms:address>
         </wsdl:port>
@@ -234,7 +234,7 @@ targetNamespace="http://apache.org/hello_world_doc_lit" name="HelloWorld">
        <jms:address
            jndiConnectionFactoryName="ConnectionFactory"
            jndiDestinationName="dynamicQueues/routertest.XMLService3Q.text">
-           <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+           <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
            <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
        </jms:address>
         </wsdl:port>

@@ -338,7 +338,7 @@
                <jms:address
                    jndiConnectionFactoryName="ConnectionFactory" 
                    jndiDestinationName="dynamicQueues/test.jmstransport.text">
-                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                   <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                    <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
                </jms:address>
             
@@ -352,7 +352,7 @@
                 jndiConnectionFactoryName="ConnectionFactory" 
                 jndiDestinationName="dynamicQueues/test.jmstransport.binary"
                 jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary">
-                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                 <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -367,7 +367,7 @@
                 jndiConnectionFactoryName="ConnectionFactory" 
                 jndiDestinationName="dynamicQueues/test.jmstransport.binary"
                 jndiReplyDestinationName="dynamicQueues/test.jmstransport.binary.reply">
-                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+                <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                 <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -383,7 +383,7 @@
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jmstransport.text"
                jndiReplyDestinationName="dynamicQueues/test.jmstransport.text.reply">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -396,7 +396,7 @@
             <jms:address
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jmstransport.oneway">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             
@@ -410,7 +410,7 @@
                destinationStyle="topic"
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicTopics/test.jmstransport.oneway.topic">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
         </port>
@@ -422,7 +422,7 @@
                jndiConnectionFactoryName="ConnectionFactory" 
                jndiDestinationName="dynamicQueues/test.jms.addr.queue"
                jndiReplyDestinationName="dynamicQueues/test.jms.addr.reply.queue">
-               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.activemq.jndi.ActiveMQInitialContextFactory"/>
+               <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61500"/>
             </jms:address>
             <wswa:UsingAddressing xmlns:wswa="http://www.w3.org/2005/08/addressing/wsdl"/>

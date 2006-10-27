@@ -22,8 +22,8 @@ package org.apache.cxf.transport.jms;
 import junit.extensions.TestSetup;
 import junit.framework.TestSuite;
 
-import org.activemq.broker.impl.BrokerContainerImpl;
-import org.activemq.store.vm.VMPersistenceAdapter;
+import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
 
 
 class JMSBrokerSetup extends TestSetup {
@@ -82,12 +82,12 @@ class JMSBrokerSetup extends TestSetup {
         
         public void run() {
             try {  
-                ContainerWapper container;
-                synchronized (this) {
-                    container = new ContainerWapper();
-                    container.addConnector(brokerUrl);
-                    container.setPersistenceAdapter(new VMPersistenceAdapter());
-                    container.start();
+                //ContainerWapper container;
+                BrokerService broker = new BrokerService();
+                synchronized (this) {                                     
+                    broker.setPersistenceAdapter(new MemoryPersistenceAdapter());
+                    broker.addConnector(brokerUrl);
+                    broker.start();
                     Thread.sleep(200);
                     notifyAll();
                 }
@@ -95,9 +95,9 @@ class JMSBrokerSetup extends TestSetup {
                     while (!shutdownBroker) {
                         wait(1000);
                     }
-                }
-                container.shutdown();
-                container = null;
+                }                
+                broker.stop();              
+                broker = null;                
             } catch (Exception e) {
                 exception = e;
                 e.printStackTrace();
@@ -107,10 +107,10 @@ class JMSBrokerSetup extends TestSetup {
        
     }
     
-    class ContainerWapper extends  BrokerContainerImpl {
+    /*class ContainerWapper extends  BrokerContainerImpl {
         
         public void shutdown() {
             super.containerShutdown();
         }
-    }
+    }*/
 }
