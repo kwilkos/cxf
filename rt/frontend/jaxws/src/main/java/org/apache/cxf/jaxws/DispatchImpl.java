@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
@@ -68,13 +69,13 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
     private Endpoint endpoint;
 
-    DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {
+    DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {        
         bus = b;
         cl = clazz;
         executor = e;
         mode = m;
-
         endpoint = ep;
+        setupEndpointAddressContext();
     }
 
     DispatchImpl(Bus b, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e, Endpoint ep) {
@@ -83,10 +84,19 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         context = ctx;
         cl = clazz;
         mode = m;
-
         endpoint = ep;
+        setupEndpointAddressContext();
     }
 
+    private void setupEndpointAddressContext() {
+        //NOTE for jms transport the address would be null
+        if (null != endpoint
+            && null != endpoint.getEndpointInfo().getAddress()) {
+            Map<String, Object> requestContext = this.getRequestContext();
+            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                           endpoint.getEndpointInfo().getAddress());
+        }    
+    }
     public T invoke(T obj) {
         return invoke(obj, false);
     }

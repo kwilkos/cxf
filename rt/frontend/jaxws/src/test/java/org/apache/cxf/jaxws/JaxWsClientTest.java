@@ -22,10 +22,14 @@ package org.apache.cxf.jaxws;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.interceptor.Fault;
@@ -43,18 +47,23 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
+import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class JaxWsClientTest extends AbstractJaxWsTest {
 
     static String responseMessage;
-
+    private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
+                    "SOAPService");    
+    private final QName portName = new QName("http://apache.org/hello_world_soap_http",
+                    "SoapPort");
+    private final String address = "http://localhost:9000/SoapContext/SoapPort";
     @Override
     public void setUp() throws Exception {
         super.setUp();
 
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
-        ei.setAddress("http://localhost:9000/SoapContext/SoapPort");
+        ei.setAddress(address);
 
         Destination d = localTransport.getDestination(ei);
         d.setMessageObserver(new EchoObserver());
@@ -64,12 +73,32 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         javax.xml.ws.Service s = javax.xml.ws.Service
             .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
         assertNotNull(s);
-
+        
         try {
             s = javax.xml.ws.Service.create(new URL("file:/does/not/exist.wsdl"),
                                             new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
         } catch (ServiceConstructionException sce) {
             // ignore, this is expected
+        }
+    }
+    
+    public void testRequestContext() throws Exception {
+        javax.xml.ws.Service s = javax.xml.ws.Service
+        .create(serviceName);
+        Greeter greeter = s.getPort(portName, Greeter.class);
+        InvocationHandler handler  = Proxy.getInvocationHandler(greeter);
+        BindingProvider  bp = null;
+        
+        if (handler instanceof BindingProvider) {
+            bp = (BindingProvider)handler;
+            //System.out.println(bp.toString());
+            Map<String, Object> requestContext = bp.getRequestContext();
+            String reqAddr = 
+                (String)requestContext.get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+            assertEquals("the address get from requestContext is not equal",
+                         reqAddr, address);
+        } else {
+            fail("can't get the requset context");
         }
     }
 

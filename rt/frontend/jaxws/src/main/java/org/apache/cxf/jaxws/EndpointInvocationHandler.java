@@ -57,6 +57,17 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         super(b);
         endpoint = c.getEndpoint();
         client = c;
+        setupEndpointAddressContext();
+    }
+    
+    private void setupEndpointAddressContext() {
+        //NOTE for jms transport the address would be null
+        if (null != endpoint 
+            && null != endpoint.getEndpointInfo().getAddress()) {
+            Map<String, Object> requestContext = this.getRequestContext();
+            requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,
+                           endpoint.getEndpointInfo().getAddress());
+        }    
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
