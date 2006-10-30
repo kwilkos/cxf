@@ -48,8 +48,8 @@
              <excludes>
 		 <exclude>build.xml</exclude>
 		 <exclude>distribution/build.xml</exclude>
-		 <exclude>**/benchmark</exclude>
-		 <exclude>**/benchmark/**/*</exclude>
+		 <exclude>benchmark</exclude>
+		 <exclude>benchmark/**/*</exclude>
 	         <exclude>**/target</exclude>
 		 <exclude>**/target/**/*</exclude>
 		 <exclude>**/build</exclude>

@@ -107,7 +107,8 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_2.1_spec</artifactId>
             <version>1.0.1</version>
-        </dependency>
+	    <scope>provided</scope>
+        </dependency> 
 
     </dependencies>
 
