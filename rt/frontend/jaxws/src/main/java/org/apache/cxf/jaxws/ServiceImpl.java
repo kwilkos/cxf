@@ -81,14 +81,14 @@ public class ServiceImpl extends ServiceDelegate {
     private Map<QName, PortInfo> portInfos = new HashMap<QName, PortInfo>();
     private Executor executor;
     private QName serviceName;
-    private Class<?> clazz;
+//    private Class<?> clazz;
 
     public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
         wsdlURL = url;
         this.serviceName = name;
-        clazz = cls;
-
+//        clazz = cls;
+        
         handlerResolver = new HandlerResolverImpl(bus, name);
     }
 
@@ -123,7 +123,17 @@ public class ServiceImpl extends ServiceDelegate {
         }
     }
 
-    private AbstractServiceFactoryBean createDispatchService(Class<?> type) {
+    private AbstractServiceFactoryBean createDispatchService() {
+        try {
+            return createDispatchService(new JAXBDataBinding(new Class[0]));
+        } catch (JAXBException e) {
+            throw new WebServiceException("Could not create Databinding.", e);
+        }
+    }
+    private AbstractServiceFactoryBean createDispatchService(JAXBContext context) {
+        return createDispatchService(new JAXBDataBinding(context));
+    }
+    private AbstractServiceFactoryBean createDispatchService(JAXBDataBinding db) {
         AbstractServiceFactoryBean serviceFactory;
 
         Service dispatchService = null;        
@@ -131,11 +141,7 @@ public class ServiceImpl extends ServiceDelegate {
         if (null != wsdlURL) {
             WSDLServiceFactory sf = new WSDLServiceFactory(bus, wsdlURL, serviceName);
             dispatchService = sf.create();            
-            try {
-                dispatchService.setDataBinding(new JAXBDataBinding(clazz));
-            } catch (JAXBException e) {
-                new WebServiceException(e);
-            }          
+            dispatchService.setDataBinding(db);
             serviceFactory = sf;
         } else {
             JaxWsServiceFactoryBean sf = new JaxWsServiceFactoryBean();
@@ -143,11 +149,7 @@ public class ServiceImpl extends ServiceDelegate {
             sf.setServiceName(serviceName);
             // maybe we can find another way to create service which have no SEI
             sf.setServiceClass(DummyImpl.class);
-            try {                
-                sf.setDataBinding(new JAXBDataBinding(type));                 
-            } catch (JAXBException e) {
-                new WebServiceException(e);
-            } 
+            sf.setDataBinding(db);
             dispatchService = sf.create();
             serviceFactory = sf;
         }    
@@ -156,7 +158,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
-        AbstractServiceFactoryBean sf = createDispatchService(type);
+        AbstractServiceFactoryBean sf = createDispatchService();
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
 
         Dispatch<T> disp = new DispatchImpl<T>(bus, mode, type, getExecutor(), endpoint);
@@ -168,7 +170,7 @@ public class ServiceImpl extends ServiceDelegate {
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
 
-        AbstractServiceFactoryBean sf = createDispatchService(null);
+        AbstractServiceFactoryBean sf = createDispatchService(context);
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
         Dispatch<Object> disp = new DispatchImpl<Object>(bus, mode, context, Object.class, getExecutor(),
                                                          endpoint);

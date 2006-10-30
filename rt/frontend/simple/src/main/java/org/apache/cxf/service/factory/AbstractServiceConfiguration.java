@@ -122,6 +122,14 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public QName getInPartName(final OperationInfo op, final Method method, final int paramNumber) {
+        return null;
+    }
+
+    public QName getOutPartName(final OperationInfo op, final Method method, final int paramNumber) {
+        return null;
+    }
+    
     public QName getInterfaceName() {
         return null;
     }

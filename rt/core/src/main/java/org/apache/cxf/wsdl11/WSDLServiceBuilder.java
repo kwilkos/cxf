@@ -479,13 +479,22 @@ public class WSDLServiceBuilder {
                 }
                 XmlSchemaElement el = (XmlSchemaElement)o;
 
-                // Handle anonymous ref
-                QName elQname = el.getQName();
-                if (elQname == null) {
-                    elQname = new QName(namespaceURI, el.getRefName().getLocalPart());
+                if (el.getSchemaTypeName() != null) {
+                    MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
+                    mpi.setTypeQName(el.getSchemaTypeName());
+                    mpi.setXmlSchema(el);
+                } else if (el.getRefName() != null) {
+                    MessagePartInfo mpi = wrapper.addMessagePart(el.getRefName());
+                    mpi.setTypeQName(el.getRefName());
+                    mpi.setXmlSchema(el);
+                } else {
+                    // anonymous type
+                    MessagePartInfo mpi = wrapper.addMessagePart(
+                        new QName(namespaceURI, el.getName()));
+                    mpi.setElementQName(mpi.getName());
+                    mpi.setElement(true);
+                    mpi.setXmlSchema(el);
                 }
-                MessagePartInfo mpi = wrapper.addMessagePart(elQname); 
-                mpi.setTypeQName(el.getSchemaTypeName());
             }
 
             return true;

@@ -30,7 +30,6 @@ import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
-import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -39,9 +38,6 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
-import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
@@ -140,19 +136,5 @@ public class TestBase extends TestCase {
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_DEFINITION, null);
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SERVICE, null);
         return serviceInfo;
-    }
-
-    protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
-        readerFacotry.setJAXBContext(ctx);
-        return readerFacotry;
-    }
-
-    protected JAXBDataWriterFactory getTestWriterFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFacotry = new JAXBDataWriterFactory();
-        writerFacotry.setJAXBContext(ctx);
-        return writerFacotry;
     }
 }

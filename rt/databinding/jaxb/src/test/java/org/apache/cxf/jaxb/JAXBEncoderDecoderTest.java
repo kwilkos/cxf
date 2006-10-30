@@ -48,10 +48,12 @@ import org.w3c.dom.Node;
 import junit.framework.TestCase;
 
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxStreamFilter;
 import org.apache.cxf.testutil.common.TestUtil;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.types.GreetMe;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.StringStruct;
 import org.apache.type_test.doc.TypeTestPortType;
 
@@ -80,7 +82,11 @@ public class JAXBEncoderDecoderTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        context = JAXBEncoderDecoder.createJAXBContextForClass(Greeter.class);
+        context = JAXBContext.newInstance(new Class[] {
+            GreetMe.class,
+            GreetMeResponse.class,
+            StringStruct.class
+        });
         Method method = TestUtil.getMethod(Greeter.class, "greetMe");
         wrapperAnnotation = method.getAnnotation(RequestWrapper.class);
         
@@ -95,13 +101,17 @@ public class JAXBEncoderDecoderTest extends TestCase {
     public void testMarshallIntoDOM() throws Exception {
         String str = new String("Hello");
         QName inCorrectElName = new QName("http://test_jaxb_marshall", "requestType");
+        MessagePartInfo part = new MessagePartInfo(inCorrectElName, null);
+        part.setElement(true);
+        part.setElementQName(inCorrectElName);
+        
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
         Element elNode = soapElFactory.createElement(inCorrectElName);
         assertNotNull(elNode);
 
         Node node;
         try {
-            JAXBEncoderDecoder.marshall(context, null, null, inCorrectElName,  elNode);
+            JAXBEncoderDecoder.marshall(context, null, null, part, elNode);
             fail("Should have thrown a Fault");
         } catch (Fault ex) {
             //expected - not a valid object
@@ -111,7 +121,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
         obj.setRequestType("Hello");
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
-        JAXBEncoderDecoder.marshall(context, null, obj, elName, elNode);
+        part.setElementQName(elName);
+        JAXBEncoderDecoder.marshall(context, null, obj, part, elNode);
         node = elNode.getLastChild();
         //The XML Tree Looks like
         //<GreetMe><requestType>Hello</requestType></GreetMe>
@@ -128,10 +139,10 @@ public class JAXBEncoderDecoderTest extends TestCase {
         //stringStruct.setArg0("hello");
         stringStruct.setArg1("world");
         // Marshal without the schema should work.
-        JAXBEncoderDecoder.marshall(context, null, stringStruct, elName,  elNode);
+        JAXBEncoderDecoder.marshall(context, null, stringStruct, part,  elNode);
         try {
             // Marshal with the schema should get an exception.
-            JAXBEncoderDecoder.marshall(context, schema, stringStruct, elName,  elNode);
+            JAXBEncoderDecoder.marshall(context, schema, stringStruct, part,  elNode);
             fail("Marshal with schema should have thrown a Fault");
         } catch (Fault ex) {
             //expected - not a valid object
@@ -143,7 +154,10 @@ public class JAXBEncoderDecoderTest extends TestCase {
         obj.setRequestType("Hello");
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
-        
+        MessagePartInfo part = new MessagePartInfo(elName, null);
+        part.setElement(true);
+        part.setElementQName(elName);
+                
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLOutputFactory opFactory = XMLOutputFactory.newInstance();
         opFactory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
@@ -151,7 +165,7 @@ public class JAXBEncoderDecoderTest extends TestCase {
 
         //STARTDOCUMENT/ENDDOCUMENT is not required
         //writer.add(eFactory.createStartDocument("utf-8", "1.0"));        
-        JAXBEncoderDecoder.marshall(context, null, obj, elName, writer);
+        JAXBEncoderDecoder.marshall(context, null, obj, part, writer);
         //writer.add(eFactory.createEndDocument());
         writer.flush();
         writer.close();
@@ -174,7 +188,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
     public void testUnmarshallFromStax() throws Exception {
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
-        
+        MessagePartInfo part = new MessagePartInfo(elName, null);
+
         InputStream is =  getClass().getResourceAsStream("resources/GreetMeDocLiteralReq.xml");
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader reader = 
@@ -186,7 +201,8 @@ public class JAXBEncoderDecoderTest extends TestCase {
 
         //Remove START_DOCUMENT & START_ELEMENT pertaining to Envelope and Body Tags.
 
-        Object val = JAXBEncoderDecoder.unmarshall(context, null, reader, elName, GreetMe.class);
+        part.setTypeClass(GreetMe.class);
+        Object val = JAXBEncoderDecoder.unmarshall(context, null, reader, part, null);
         assertNotNull(val);
         assertTrue(val instanceof GreetMe);
         assertEquals("TestSOAPInputPMessage", 
@@ -198,8 +214,12 @@ public class JAXBEncoderDecoderTest extends TestCase {
     public void testMarshalRPCLit() throws Exception {
         SOAPFactory soapElFactory = SOAPFactory.newInstance();
         QName elName = new QName("http://test_jaxb_marshall", "in");
+        MessagePartInfo part = new MessagePartInfo(elName, null);
+        part.setElement(true);
+        part.setElementQName(elName);
+        
         SOAPElement elNode = soapElFactory.createElement(elName);
-        JAXBEncoderDecoder.marshall(context, null, new String("TestSOAPMessage"), elName,  elNode);
+        JAXBEncoderDecoder.marshall(context, null, new String("TestSOAPMessage"), part,  elNode);
         
         assertNotNull(elNode.getChildNodes());
         assertEquals("TestSOAPMessage", elNode.getFirstChild().getFirstChild().getNodeValue());
@@ -220,22 +240,27 @@ public class JAXBEncoderDecoderTest extends TestCase {
         QName elName = new QName(wrapperAnnotation.targetNamespace(),
                                  wrapperAnnotation.localName());
 
+        MessagePartInfo part = new MessagePartInfo(elName, null);
+        part.setElement(true);
+        part.setElementQName(elName);
+        part.setTypeClass(Class.forName(wrapperAnnotation.className()));
+        
         SOAPElement elNode = getTestSOAPElement(elName);
         String str = new String("Hello Test");
         elNode.addChildElement("requestType").setValue(str);
 
-        
         Object obj = JAXBEncoderDecoder.unmarshall(context, null,
-                         elNode, elName, Class.forName(wrapperAnnotation.className()));
+                         elNode, part, null);
         assertNotNull(obj);
 
         //Add a Node and then test
         assertEquals(GreetMe.class,  obj.getClass());
         assertEquals(str, ((GreetMe)obj).getRequestType());
         
+        part.setTypeClass(String.class);
         Node n = null;
         try {
-            JAXBEncoderDecoder.unmarshall(context, null, n, null, String.class);
+            JAXBEncoderDecoder.unmarshall(context, null, n, part, null);
             fail("Should have received a Fault");
         } catch (Fault pe) {
             //Expected Exception
@@ -250,19 +275,24 @@ public class JAXBEncoderDecoderTest extends TestCase {
         // <StringStruct><arg1>World</arg1></StringStruct>
 //         elNode = soapElFactory.createElement(elName);
 //         elNode.addNamespaceDeclaration("", elName.getNamespaceURI());
+
+        part = new MessagePartInfo(elName, null);
+        part.setElement(true);
+        part.setElementQName(elName);
+        part.setTypeClass(Class.forName("org.apache.hello_world_soap_http.types.StringStruct"));
+        
         elNode = getTestSOAPElement(elName);
         str = new String("World");
         elNode.addChildElement("arg1").setValue(str);
         // Should unmarshal without problems when no schema used.
-        obj = JAXBEncoderDecoder.unmarshall(context, null, elNode,  elName,
-            Class.forName("org.apache.hello_world_soap_http.types.StringStruct"));
+        obj = JAXBEncoderDecoder.unmarshall(context, null, elNode, part, null);
         assertNotNull(obj);
         assertEquals(StringStruct.class,  obj.getClass());
         assertEquals(str, ((StringStruct)obj).getArg1());
+        
         try {
             // unmarshal with schema should raise exception.
-            obj = JAXBEncoderDecoder.unmarshall(context, schema, elNode,  elName,
-                Class.forName("org.apache.hello_world_soap_http.types.StringStruct"));
+            obj = JAXBEncoderDecoder.unmarshall(context, schema, elNode, part, null);
             fail("Should have thrown a Fault");
         } catch (Fault ex) {
             // expected - schema validation should fail.

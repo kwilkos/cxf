@@ -21,7 +21,6 @@ package org.apache.cxf.jaxb.io;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPBody;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
@@ -33,6 +32,7 @@ import org.w3c.dom.Document;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class SOAPBodyDataWriter implements DataWriter<SOAPBody> {
     protected SOAPBody dest;
@@ -76,7 +76,7 @@ public class SOAPBodyDataWriter implements DataWriter<SOAPBody> {
     
 
 
-    public void write(Object obj, QName elName, SOAPBody output) {
+    public void write(Object obj, MessagePartInfo part, SOAPBody output) {
         // Complete      
 
     }

@@ -100,12 +100,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
             }
             
-            Class<?> cls = (Class) p.getProperty(Class.class.getName());
-            if (cls != null && !filter.contains(cls.getName()) && !cls.isArray()) {
-                o = dr.read(p.getConcreteName(), message, cls);
-            } else {
-                o = dr.read(p.getConcreteName(), message, null);
-            }
+            o = dr.read(p, message);
             
             if (o != null) {
                 parameters.add(o);

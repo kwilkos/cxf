@@ -34,8 +34,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 
 public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message> {
-    public static final String WRAPPER_CLASS = "wrapper.class";
-
     public WrapperClassOutInterceptor() {
         super();
         setPhase(Phase.PRE_LOGICAL);
@@ -44,13 +42,27 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
+
         MessageInfo messageInfo = message.get(MessageInfo.class);
-        if (messageInfo == null) {
+        if (messageInfo == null || bop == null || !bop.isUnwrapped()) {
             return;
         }
-        Class<?> wrapped = (Class)messageInfo.getProperty(WRAPPER_CLASS);
+        
+        BindingOperationInfo newbop = bop.getWrappedOperation();
+        MessageInfo wrappedMsgInfo;
+        if (Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE))) {
+            wrappedMsgInfo = newbop.getInput().getMessageInfo();
+        } else {
+            wrappedMsgInfo = newbop.getOutput().getMessageInfo();
+        }
+             
+        Class<?> wrapped = null;
+        List<MessagePartInfo> parts = wrappedMsgInfo.getMessageParts();
+        if (parts.size() > 0) {
+            wrapped = parts.get(0).getTypeClass();
+        }
 
-        if (bop != null && wrapped != null) {
+        if (wrapped != null) {
             List<Object> objs = message.getContent(List.class);
             
             try {
@@ -71,7 +83,6 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
             }
             
             // we've now wrapped the object, so use the wrapped binding op
-            BindingOperationInfo newbop = bop.getWrappedOperation();
             message.getExchange().put(BindingOperationInfo.class, newbop);
             message.getExchange().put(OperationInfo.class, newbop.getOperationInfo());
             

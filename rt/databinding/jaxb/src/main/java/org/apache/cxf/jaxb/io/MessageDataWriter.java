@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxb.io;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -30,7 +29,7 @@ import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
 import org.apache.cxf.message.Message;
-
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class MessageDataWriter implements DataWriter<Message> {
 
@@ -44,7 +43,7 @@ public class MessageDataWriter implements DataWriter<Message> {
         write(obj, null, output);
     }
 
-    public void write(Object obj, QName elName, Message output) {
+    public void write(Object obj, MessagePartInfo part, Message output) {
         // if the mtom is enabled, we need to create the attachment mashaller
         JAXBAttachmentMarshaller am = null;
         if (output.containsKey(Message.MTOM_ENABLED)) {
@@ -52,15 +51,15 @@ public class MessageDataWriter implements DataWriter<Message> {
             am.setXOPPackage(true);
         }
         Object source = null;
-        XMLStreamWriter xsw = (XMLStreamWriter) output.getContent(XMLStreamWriter.class);
+        XMLStreamWriter xsw = (XMLStreamWriter)output.getContent(XMLStreamWriter.class);
         if (xsw != null) {
             source = xsw;
         } else {
-            XMLEventWriter xew = (XMLEventWriter) output.getContent(XMLEventWriter.class);
+            XMLEventWriter xew = (XMLEventWriter)output.getContent(XMLEventWriter.class);
             if (xew != null) {
                 source = xew;
             } else {
-                Node node = (Node) output.getContent(Node.class);
+                Node node = (Node)output.getContent(Node.class);
                 source = node;
             }
         }
@@ -69,9 +68,7 @@ public class MessageDataWriter implements DataWriter<Message> {
         }
 
         if (obj != null) {
-            JAXBEncoderDecoder.marshall(factory.getJAXBContext(), factory.getSchema(), obj, elName, source,
-                            am);
+            JAXBEncoderDecoder.marshall(factory.getJAXBContext(), factory.getSchema(), obj, part, source, am);
         }
     }
-
 }

@@ -26,7 +26,6 @@ import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.mtom_xop.HelloImpl;
 import org.apache.cxf.service.Service;
@@ -61,12 +60,10 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         
         OperationInfo op = intf.getOperation(new QName(ns, "sayHi"));
         
-        Class wrapper = (Class) 
-            op.getUnwrappedOperation().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS);
+        Class wrapper = (Class) op.getInput().getMessageParts().get(0).getTypeClass();
         assertNotNull(wrapper);
         
-        wrapper = (Class) 
-            op.getUnwrappedOperation().getOutput().getProperty(WrappedInInterceptor.WRAPPER_CLASS);
+        wrapper = (Class) op.getOutput().getMessageParts().get(0).getTypeClass();
         assertNotNull(wrapper);
     
         assertEquals(invoker, service.getInvoker());
@@ -82,8 +79,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         
         assertEquals(1, f.getMessageParts().size());
         MessagePartInfo mpi = f.getMessagePartByIndex(0);
-        c = mpi.getProperty(Class.class.getName(), Class.class);
-        assertNotNull(c);
+        assertNotNull(mpi.getTypeClass());
     }
     
     public void testHolder() throws Exception {
@@ -105,12 +101,12 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertTrue(itr.hasNext());
         MessagePartInfo part = itr.next();
         assertEquals("body", part.getName().getLocalPart());
-        assertEquals(String.class, part.getProperty(Class.class.getName(), Class.class));
+        assertEquals(String.class, part.getTypeClass());
         
         assertTrue(itr.hasNext());
         part = itr.next();
         assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
-        assertEquals(byte[].class, part.getProperty(Class.class.getName(), Class.class));
+        assertEquals(byte[].class, part.getTypeClass());
         
         assertFalse(itr.hasNext());
         

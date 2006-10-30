@@ -19,7 +19,6 @@
 
 package org.apache.cxf.jaxb.io;
 
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamReader;
@@ -32,6 +31,7 @@ import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class MessageDataReader implements DataReader<Message> {
     
@@ -45,11 +45,7 @@ public class MessageDataReader implements DataReader<Message> {
         return read(null, input);
     }
     
-    public Object read(QName name, Message input) {
-        return read(name, input, null);
-    }
-    
-    public Object read(QName name, Message input, Class cls) {
+    public Object read(MessagePartInfo part, Message input) {
         JAXBAttachmentUnmarshaller au = null;        
         if (input.get(AttachmentDeserializer.class) != null) {
             au = new JAXBAttachmentUnmarshaller(input);            
@@ -71,20 +67,17 @@ public class MessageDataReader implements DataReader<Message> {
             return null;
         }
         Object o = JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
-                                                 factory.getSchema(), source,
-                                                 name,
-                                                 cls, 
+                                                 factory.getSchema(), 
+                                                 source,
+                                                 part, 
                                                  au);
-        o = getValue(o);
-        
         return o;
     }
 
-    private Object getValue(Object o) {
-        if (o instanceof JAXBElement) {
-            return ((JAXBElement)o).getValue();
-        }
-        return o;
+    public Object read(QName name, Message input, Class type) {
+        // TODO Auto-generated method stub
+        return null;
     }
+
 
 }

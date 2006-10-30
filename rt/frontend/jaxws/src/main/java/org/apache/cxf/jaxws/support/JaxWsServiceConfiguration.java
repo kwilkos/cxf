@@ -20,12 +20,19 @@
 package org.apache.cxf.jaxws.support;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebParam.Mode;
+import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.ParameterStyle;
+import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
@@ -37,6 +44,7 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
+import org.apache.cxf.service.factory.DefaultServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -50,7 +58,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         super.setServiceFactory(serviceFactory);
-        implInfo = ((JaxWsServiceFactoryBean) serviceFactory).getJaxWsImplementorInfo();        
+        implInfo = ((JaxWsServiceFactoryBean)serviceFactory).getJaxWsImplementorInfo();
     }
 
     WebService getConcreteWebServiceAttribute() {
@@ -106,10 +114,8 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                     throw new WebServiceException("Could not find WSDL with URL " + ws.wsdlLocation());
                 }
             } catch (IOException e) {
-                throw new ServiceConstructionException(new Message("LOAD_WSDL_EXC", 
-                                                                   BUNDLE, 
-                                                                   ws.wsdlLocation()),
-                                                       e);
+                throw new ServiceConstructionException(
+                    new Message("LOAD_WSDL_EXC", BUNDLE, ws.wsdlLocation()), e);
             }
         }
         return null;
@@ -164,16 +170,177 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
         return method;
     }
-    
+
+    @Override
+    public QName getInPartName(OperationInfo op, Method method, int paramNumber) {
+        if (paramNumber < 0) {
+            return null;
+        }
+        
+        return getPartName(op, method, paramNumber, "in");
+    }
+
+    @Override
+    public QName getInParameterName(OperationInfo op, Method method, int paramNumber) {
+        if (paramNumber < 0) {
+            return null;
+        }
+        
+        return getParameterName(op, method, paramNumber, "in");
+    }
+
+    private QName getPartName(OperationInfo op, Method method, int paramNumber, String prefix) {
+        WebParam param = getWebParam(method, paramNumber);
+        if (param != null) {
+            String tns = op.getName().getNamespaceURI();
+            String local = param.partName();
+
+            if (local.length() == 0) {
+                local = param.name();
+            }
+
+            if (local.length() == 0) {
+                getDefaultLocalName(op, method, paramNumber, prefix);
+            }
+
+            return new QName(tns, local);
+        }
+        return null;
+    }
+
+    private QName getParameterName(OperationInfo op, Method method, int paramNumber, String prefix) {
+        WebParam param = getWebParam(method, paramNumber);
+        if (param != null) {
+            String tns = param.targetNamespace();
+            String local = param.name();
+
+            if (tns.length() == 0) {
+                tns = op.getName().getNamespaceURI();
+            }
+
+            if (local.length() == 0) {
+                local = getDefaultLocalName(op, method, paramNumber, prefix);
+            }
+
+            return new QName(tns, local);
+        }
+        return null;
+    }
+
+    private String getDefaultLocalName(OperationInfo op, Method method, int paramNumber, String prefix) {
+        Class<?> impl = implInfo.getImplementorClass(); 
+        // try to grab the implementation class so we can read the debug symbols from it
+        if (impl == null) {
+            try {
+                method = impl.getMethod(method.getName(), method.getParameterTypes());
+            } catch (Exception e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        return DefaultServiceConfiguration.createName(method, paramNumber, op.getInput()
+            .getMessageParts().size(), false, prefix);
+    }
+
+    private WebParam getWebParam(Method method, int parameter) {
+        Annotation[][] annotations = method.getParameterAnnotations();
+        if (parameter >= annotations.length) {
+            return null;
+        } else {
+            for (int i = 0; i < annotations[parameter].length; i++) {
+                Annotation annotation = annotations[parameter][i];
+                if (annotation.annotationType().equals(WebParam.class)) {
+                    return (WebParam)annotation;
+                }
+            }
+            return null;
+        }
+    }
+
+    @Override
+    public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {
+        if (paramNumber >= 0) {
+            return getParameterName(op, method, paramNumber, "out");
+        } else {
+            WebResult webResult = getWebResult(method);
+
+            if (webResult != null) {
+                String tns = webResult.targetNamespace();
+                String local = webResult.name();
+
+                if (tns.length() == 0) {
+                    tns = op.getName().getNamespaceURI();
+                }
+
+                if (local.length() == 0) {
+                    local = getDefaultLocalName(op, method, paramNumber, "out");
+                }
+
+                return new QName(tns, local);
+            }
+        }
+        return super.getOutParameterName(op, method, paramNumber);
+    }
+
+    @Override
+    public QName getOutPartName(OperationInfo op, Method method, int paramNumber) {
+        if (paramNumber >= 0) {
+            return getPartName(op, method, paramNumber, "out");
+        } else {
+            WebResult webResult = getWebResult(method);
+
+            if (webResult != null) {
+                String tns = op.getName().getNamespaceURI();
+                String local = webResult.partName();
+
+                if (local.length() == 0) {
+                    local = webResult.name();
+                }
+
+                if (local.length() == 0) {
+                    local = getDefaultLocalName(op, method, paramNumber, "out");
+                }
+                return new QName(tns, local);
+            }
+        }
+        return super.getOutPartName(op, method, paramNumber);
+    }
+
+    @Override
+    public Boolean isInParam(Method method, int j) {
+        if (j < 0) {
+            return Boolean.FALSE;
+        }
+            
+        WebParam webParam = getWebParam(method, j);
+
+        return webParam == null || (webParam.mode().equals(Mode.IN) || webParam.mode().equals(Mode.INOUT));
+    }
+
+    private WebResult getWebResult(Method method) {
+        return method.getAnnotation(WebResult.class);
+    }
+
+    @Override
+    public Boolean isOutParam(Method method, int j) {
+        if (j == -1) {
+            return !method.getReturnType().equals(void.class);
+        }
+
+        WebParam webParam = getWebParam(method, j);
+
+        return webParam != null && (webParam.mode().equals(Mode.OUT) || webParam.mode().equals(Mode.INOUT));
+    }
+
     @Override
     public Class getResponseWrapper(Method selected) {
         Method m = getDeclaredMethod(selected);
-        
+
         ResponseWrapper rw = m.getAnnotation(ResponseWrapper.class);
         if (rw == null) {
             return null;
         }
-        
+
         String clsName = rw.className();
         if (clsName.length() > 0) {
             try {
@@ -182,19 +349,19 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                 throw new ServiceConstructionException(e);
             }
         }
-        
+
         return null;
     }
 
     @Override
     public Class getRequestWrapper(Method selected) {
         Method m = getDeclaredMethod(selected);
-        
+
         RequestWrapper rw = m.getAnnotation(RequestWrapper.class);
         if (rw == null) {
             return null;
         }
-        
+
         String clsName = rw.className();
 
         if (clsName.length() > 0) {
@@ -204,7 +371,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                 throw new ServiceConstructionException(e);
             }
         }
-        
+
         return null;
     }
 
@@ -220,10 +387,30 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             if (ns.length() == 0) {
                 ns = service.getName().getNamespaceURI();
             }
-            
+
             return new QName(ns, name);
         }
         return null;
     }
-    
+
+    @Override
+    public Boolean isWrapped(Method m) {
+        // see if someone overrode the default value
+        if (!getServiceFactory().isWrapped()) {
+            return Boolean.FALSE;
+        }
+
+        SOAPBinding ann = m.getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return !(ann.parameterStyle().equals(ParameterStyle.BARE) || ann.style().equals(Style.RPC));
+        }
+
+        ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
+        if (ann != null) {
+            return !(ann.parameterStyle().equals(ParameterStyle.BARE) || ann.style().equals(Style.RPC));
+        }
+
+        return null;
+    }
+
 }

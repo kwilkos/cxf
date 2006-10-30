@@ -38,8 +38,12 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
+import org.apache.cxf.ws.rm.CreateSequenceResponseType;
+import org.apache.cxf.ws.rm.CreateSequenceType;
 import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.RMConstants;
+import org.apache.cxf.ws.rm.SequenceFaultType;
+import org.apache.cxf.ws.rm.TerminateSequenceType;
 
 /**
  * 
@@ -92,7 +96,10 @@ public class Proxy {
         service = new ServiceImpl(si);
         DataBinding dataBinding = null;
         try {
-            dataBinding = new JAXBDataBinding(SequenceService.class);
+            dataBinding = new JAXBDataBinding(CreateSequenceType.class,
+                                              CreateSequenceResponseType.class,
+                                              TerminateSequenceType.class,
+                                              SequenceFaultType.class);
         } catch (JAXBException e) {
             throw new ServiceConstructionException(e);
         }

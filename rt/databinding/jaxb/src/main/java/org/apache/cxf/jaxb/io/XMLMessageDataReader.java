@@ -39,6 +39,7 @@ import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.message.XMLMessage;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class XMLMessageDataReader implements DataReader<XMLMessage> {
     final JAXBDataReaderFactory factory;
@@ -52,17 +53,11 @@ public class XMLMessageDataReader implements DataReader<XMLMessage> {
         return null;
     }
 
-    public Object read(QName name, XMLMessage input) {
-        // Complete
+    public Object read(MessagePartInfo part, XMLMessage input) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    /**
-     * @param name
-     * @param input
-     * @param type
-     * @return
-     */
     public Object read(QName name, XMLMessage input, Class type) {
         Object obj = null;
         InputStream is = input.getContent(InputStream.class);

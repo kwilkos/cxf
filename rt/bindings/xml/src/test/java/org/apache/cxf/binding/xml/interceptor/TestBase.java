@@ -39,9 +39,6 @@ import org.apache.cxf.binding.xml.XMLBindingFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
-import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -111,22 +108,8 @@ public class TestBase extends TestCase {
         }
         return null;
     }
-
-    protected JAXBDataReaderFactory getTestReaderFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
-        readerFacotry.setJAXBContext(ctx);
-        return readerFacotry;
-    }
-
-    protected JAXBDataWriterFactory getTestWriterFactory(Class<?> clz) throws Exception {
-        JAXBContext ctx = JAXBEncoderDecoder.createJAXBContextForClass(clz);
-        JAXBDataWriterFactory writerFacotry = new JAXBDataWriterFactory();
-        writerFacotry.setJAXBContext(ctx);
-        return writerFacotry;
-    }
     
-    protected void common(String wsdl, QName portName, Class seiClazz) throws Exception {
+    protected void common(String wsdl, QName portName, Class... jaxbClasses) throws Exception {
         control = EasyMock.createNiceControl();
         
         bus = control.createMock(Bus.class);
@@ -154,7 +137,9 @@ public class TestBase extends TestCase {
         Binding xmlBinding = new XMLBindingFactory().createBinding(epi.getBinding());
 
         control.reset();
-        service.setDataBinding(new JAXBDataBinding(seiClazz));
+        JAXBDataBinding db = new JAXBDataBinding();
+        db.setContext(JAXBContext.newInstance(jaxbClasses));
+        service.setDataBinding(db);
 
         Endpoint endpoint = control.createMock(EndpointImpl.class);
         EasyMock.expect(endpoint.getEndpointInfo()).andStubReturn(epi);

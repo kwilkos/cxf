@@ -35,6 +35,7 @@ import org.xml.sax.InputSource;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class SOAPBodyDataReader implements DataReader<SOAPBody> {
     final JAXBDataReaderFactory factory;
@@ -48,7 +49,7 @@ public class SOAPBodyDataReader implements DataReader<SOAPBody> {
         return null;
     }
 
-    public Object read(QName name, SOAPBody input) {
+    public Object read(MessagePartInfo part, SOAPBody input) {
         // Complete
         return null;
     }

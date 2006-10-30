@@ -111,18 +111,6 @@ public final class ServiceWSDLBuilder {
 
 
     public List<ExtensibilityElement> getWSDL11Extensors(AbstractPropertiesHolder holder) {
-//        List<?> extensors = holder.getExtensors()
-//        if (extensors.get() == null) {
-//            return null;
-//        }
-//        List<ExtensibilityElement> list
-//            = new ArrayList<ExtensibilityElement>(extensors.get().length);
-//        for (Object obj : extensors.get()) {
-//            if (obj instanceof ExtensibilityElement) {
-//                list.add((ExtensibilityElement)obj);
-//            }
-//        }
-//        return Collections.unmodifiableList(list);
         return holder.getExtensors(ExtensibilityElement.class);
     }
     

@@ -43,6 +43,7 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.invoker.ApplicationScopePolicy;
@@ -77,6 +78,7 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
  */
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
+    public static final String GENERIC_TYPE = "generic.type";
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
     
@@ -96,7 +98,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     
     public ReflectionServiceFactoryBean() {
         getServiceConfigurations().add(0, new DefaultServiceConfiguration());
-
+        setDataBinding(new JAXBDataBinding());
+        
         ignoredClasses.add("java.lang.Object");
         ignoredClasses.add("java.lang.Throwable");
         ignoredClasses.add("org.omg.CORBA_2_3.portable.ObjectImpl");
@@ -172,6 +175,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             setService(factory.create());
 
             initializeWSDLOperations();
+
+            if (getDataBinding() != null) {
+                getDataBinding().initialize(getService().getServiceInfo());
+            }
         } else {
             LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
             // If we can't find the wsdlLocation, then we should build a service model ufrom the class.
@@ -400,7 +407,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (!isHeader(method, j) && isInParam(method, j)) {
                 final QName q = getInParameterName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q);
-                part.setProperty(Class.class.getName(), paramClasses[j]);
+                part.setTypeClass(paramClasses[j]);
+                part.setProperty(GENERIC_TYPE, method.getGenericParameterTypes()[j]);
             }
         }
 
@@ -413,7 +421,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             if (!returnType.isAssignableFrom(void.class) && !isHeader(method, -1)) {
                 final QName q = getOutParameterName(op, method, -1);
                 MessagePartInfo part = outMsg.addMessagePart(q);
-                part.setProperty(Class.class.getName(), method.getReturnType());
+                part.setTypeClass(method.getReturnType());
+                part.setProperty(GENERIC_TYPE, method.getGenericReturnType());
             }
 
             for (int j = 0; j < paramClasses.length; j++) {
@@ -421,7 +430,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     && isOutParam(method, j)) {
                     final QName q = getInParameterName(op, method, j);
                     MessagePartInfo part = outMsg.addMessagePart(q);
-                    part.setProperty(Class.class.getName(), paramClasses[j]);
+                    part.setTypeClass(paramClasses[j]);
+                    part.setProperty(GENERIC_TYPE, method.getGenericParameterTypes()[j]);
                 }
             }
         }
@@ -593,7 +603,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         fi.setProperty(Class.class.getName(), exClass);
         
         MessagePartInfo mpi = fi.addMessagePart(faultName);
-        mpi.setProperty(Class.class.getName(), beanClass);
+        mpi.setTypeClass(beanClass);
         
         return fi;
     }
@@ -667,11 +677,32 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return true;
     }
 
+    protected QName getInPartName(final OperationInfo op, 
+                                  final Method method,
+                                  final int paramNumber) {
+        if (paramNumber == -1) {
+            return null;
+        }
+        
+        if (isWrapped(method)) {
+            return getInParameterName(op, method, paramNumber);
+        }
+        
+        for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
+            AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
+            QName q = c.getInPartName(op, method, paramNumber);
+            if (q != null) {
+                return q;
+            }
+        }
+        throw new IllegalStateException("ServiceConfiguration must provide a value!");
+    }
+    
     protected QName getInParameterName(final OperationInfo op, 
                                        final Method method,
                                        final int paramNumber) {
         if (paramNumber == -1) {
-            throw new RuntimeException();
+            return null;
         }
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
@@ -696,7 +727,23 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-
+    protected QName getOutPartName(final OperationInfo op, 
+                                   final Method method,
+                                   final int paramNumber) {
+        if (isWrapped(method)) {
+            return getOutParameterName(op, method, paramNumber);
+        }
+        
+        for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
+            AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
+            QName q = c.getOutPartName(op, method, paramNumber);
+            if (q != null) {
+                return q;
+            }
+        }
+        throw new IllegalStateException("ServiceConfiguration must provide a value!");
+    }
+    
     protected Class getResponseWrapper(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Class cls = c.getResponseWrapper(selected);

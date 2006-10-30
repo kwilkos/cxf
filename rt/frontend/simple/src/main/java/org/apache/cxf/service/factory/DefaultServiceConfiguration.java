@@ -44,9 +44,19 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
+    public QName getInPartName(OperationInfo op, Method method, int paramNumber) {
+        return getInParameterName(op, method, paramNumber);
+    }
+
+    @Override
+    public QName getOutPartName(OperationInfo op, Method method, int paramNumber) {
+        return getOutParameterName(op, method, paramNumber);
+    }
+
+    @Override
     public QName getInParameterName(OperationInfo op, Method method, int paramNumber) {
-        return new QName(op.getName().getNamespaceURI(), createName(method, paramNumber, op.getInput()
-            .getMessageParts().size(), false, "in"));
+        return new QName(op.getName().getNamespaceURI(), 
+                         getDefaultLocalName(op, method, paramNumber, "in"));
     }
 
     @Override
@@ -56,11 +66,26 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {
-        return new QName(op.getName().getNamespaceURI(), createName(method, paramNumber, op.getOutput()
-            .getMessageParts().size(), false, "out"));
+        return new QName(op.getName().getNamespaceURI(), 
+                         getDefaultLocalName(op, method, paramNumber, "out"));
     }
 
-    private String createName(final Method method, final int paramNumber, final int currentSize,
+    private String getDefaultLocalName(OperationInfo op, Method method, int paramNumber, String prefix) {
+        Class<?> impl = getServiceFactory().getServiceClass();
+        // try to grab the implementation class so we can read the debug symbols from it
+        if (impl == null) {
+            try {
+                method = impl.getMethod(method.getName(), method.getParameterTypes());
+            } catch (Exception e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        return DefaultServiceConfiguration.createName(method, paramNumber, op.getInput()
+            .getMessageParts().size(), false, prefix);
+    }
+
+    public static String createName(final Method method, final int paramNumber, final int currentSize,
                               boolean addMethodName, final String flow) {
         String paramName = "";
 

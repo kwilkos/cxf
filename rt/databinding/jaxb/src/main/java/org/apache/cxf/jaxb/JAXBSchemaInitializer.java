@@ -36,11 +36,11 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 /**
  * Walks the service model and sets up the element/type names.
  */
-class JAXBServiceModelInitializer extends ServiceModelVisitor {
+class JAXBSchemaInitializer extends ServiceModelVisitor {
 
     private XmlSchemaCollection schemas;
 
-    public JAXBServiceModelInitializer(ServiceInfo serviceInfo, XmlSchemaCollection col) {
+    public JAXBSchemaInitializer(ServiceInfo serviceInfo, XmlSchemaCollection col) {
         super(serviceInfo);
         schemas = col;
     }
@@ -52,11 +52,11 @@ class JAXBServiceModelInitializer extends ServiceModelVisitor {
             return;
         }
         
-        Class<?> clazz = (Class<?>)part.getProperty(Class.class.getName());
+        Class<?> clazz = part.getTypeClass();
         if (clazz == null) {
             return;
         }
-
+        
         RuntimeModelBuilder builder = new RuntimeModelBuilder(new RuntimeInlineAnnotationReader(), null);
         NonElement<Type, Class> typeInfo = builder.getTypeInfo(clazz, null);
 

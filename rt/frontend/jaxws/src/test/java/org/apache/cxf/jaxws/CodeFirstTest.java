@@ -27,7 +27,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
@@ -42,9 +41,8 @@ public class CodeFirstTest extends AbstractJaxWsTest {
     
     public void testDocLitModel() throws Exception {
         Definition d = createService(false);
-        
+
         Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
-        
         addNamespace("svc", "http://service.jaxws.cxf.apache.org");
         
         assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
@@ -83,12 +81,11 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         bean.setBus(bus);
         bean.setServiceClass(Hello.class);
         bean.setWrapped(wrapped);
-        bean.setDataBinding(new JAXBDataBinding(Hello.class));
         
         Service service = bean.create();
 
         InterfaceInfo i = service.getServiceInfo().getInterface();
-        assertEquals(1, i.getOperations().size());
+        assertEquals(2, i.getOperations().size());
 
         ServerFactoryBean svrFactory = new ServerFactoryBean();
         svrFactory.setBus(bus);
@@ -118,5 +115,14 @@ public class CodeFirstTest extends AbstractJaxWsTest {
 
         addNamespace("h", "http://service.jaxws.cxf.apache.org");
         assertValid("//s:Body/h:sayHiResponse/h:out", res);
+        
+        res = invoke("http://localhost:9090/hello", 
+                     LocalTransportFactory.TRANSPORT_ID,
+                     "getGreetings.xml");
+
+        assertNotNull(res);
+
+        addNamespace("h", "http://service.jaxws.cxf.apache.org");
+        assertValid("//s:Body/h:getGreetingsResponse/h:out/item", res);
     }
 }

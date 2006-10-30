@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
@@ -82,23 +84,23 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
         StaxUtils.nextEvent(xmlReader);
         while (StaxUtils.toNextElement(xmlReader)) {
+            QName name = xmlReader.getName();
             int idx = parameters.size();
             MessagePartInfo p = msg.getMessageParts().get(idx);
             if (p == null) {
-                message.setContent(Exception.class, new RuntimeException("Parameter " + xmlReader.getName()
-                                                                         + " does not exist!"));
+                throw new SoapFault("Parameter " + xmlReader.getName() + " does not exist!",
+                                    ((SoapMessage)message).getVersion().getSender());
             }
-            QName name = xmlReader.getName();
             QName elName = new QName(operation.getOperationInfo().getName().getNamespaceURI(), 
                     p.getName().getLocalPart());
 
             if (!elName.getLocalPart().equals(name.getLocalPart())) {
                 String expMessage = "Parameter " + name + " does not equal to the name ["
                                     + elName.getLocalPart() + "] in the servicemodel!";
-                message.setContent(Exception.class, new RuntimeException(expMessage));
+                throw new SoapFault(expMessage, ((SoapMessage)message).getVersion().getSender());
             }
             Object param = null;
-            param = dr.read(elName, message, (Class)p.getProperty(Class.class.getName()));
+            param = dr.read(p, message);
             if (param != null) {
                 parameters.add(param);
             } else {

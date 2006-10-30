@@ -37,6 +37,11 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.FaultInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
+import org.apache.cxf.service.model.UnwrappedOperationInfo;
 
 public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JaxWsServiceConfiguration.class);
@@ -61,8 +66,10 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 DataWriterFactory writerFactory = service.getDataBinding().getDataWriterFactory();
                 DataWriter<Node> writer = writerFactory.createWriter(Node.class);
 
+                OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
                 QName faultName = getFaultName(ex);
-                writer.write(faultInfo, faultName, f.getOrCreateDetail());
+                MessagePartInfo part = getFaultMessagePart(faultName, op);
+                writer.write(faultInfo, part, f.getOrCreateDetail());
 
                 f.setMessage(ex.getMessage());
             } catch (InvocationTargetException e) {
@@ -81,6 +88,29 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
         WebFault wf = webFault.getClass().getAnnotation(WebFault.class);
 
         return new QName(wf.targetNamespace(), wf.name());
+    }
+    
+    private MessagePartInfo getFaultMessagePart(QName qname, OperationInfo op) {
+        if (op.isUnwrapped()) {
+            op = ((UnwrappedOperationInfo)op).getWrappedOperation();
+        }
+        
+        for (FaultInfo faultInfo : op.getFaults()) {
+            for (MessagePartInfo mpi : faultInfo.getMessageParts()) {
+                String ns = null;
+                if (mpi.isElement()) {
+                    ns = mpi.getElementQName().getNamespaceURI();
+                } else {
+                    ns = mpi.getTypeQName().getNamespaceURI();
+                }
+                if (qname.getLocalPart().equals(mpi.getConcreteName().getLocalPart()) 
+                        && qname.getNamespaceURI().equals(ns)) {
+                    return mpi;
+                }
+            }
+            
+        }
+        return null;
     }
 
 }

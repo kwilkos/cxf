@@ -16,15 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.jaxws;
 
-package org.apache.cxf.databinding;
-
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.service.model.MessagePartInfo;
-
-public interface DataReader<T> {
-    Object read(T input);
-    Object read(MessagePartInfo part, T input);
-    Object read(QName name, T input, Class type);
+public class ServiceImplTest extends AbstractJaxWsTest {
+    public void testServiceImpl() throws Exception {
+        // new ServiceImpl(getBus(), )
+    }
 }

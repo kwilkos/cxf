@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.binding.http.bare;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.w3c.dom.Document;
 
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -28,7 +31,6 @@ import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.transport.http.JettyHTTPDestination;
 
 public class BareServiceTest extends AbstractRestTest {
     public void testCreation() throws Exception {
@@ -41,12 +43,13 @@ public class BareServiceTest extends AbstractRestTest {
         sf.getServiceFactory().setWrapped(false);
         sf.setBindingFactory(new HttpBindingInfoFactoryBean());
         sf.setAddress("http://localhost:9001/");
-        sf.setStart(false);
+
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("contextMatchStrategy", "stem");
+        sf.setProperties(props);
         
         ServerImpl svr = (ServerImpl) sf.create();
-        ((JettyHTTPDestination) svr.getDestination()).setContextMatchStrategy("stem");
-        svr.start();
-                
+
         URIMapper mapper = (URIMapper) svr.getEndpoint().getService().get(URIMapper.class.getName());
         assertNotNull(mapper);
         

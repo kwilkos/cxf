@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -84,8 +83,8 @@ public class SimpleMethodDispatcher implements MethodDispatcher {
         BindingOperationInfo unwrappedOp = bop.getUnwrappedOperation();
         if (unwrappedOp != null
             && unwrappedOp.getOperationInfo().equals(o.getUnwrappedOperation())
-            && unwrappedOp.getOperationInfo().getInput()
-                .getProperty(WrappedInInterceptor.WRAPPER_CLASS) != null) {
+            && unwrappedOp.getWrappedOperation().getInput().getMessageInfo()
+                .getMessagePartByIndex(0).getTypeClass() != null) {
             bop = unwrappedOp;
         }
         return bop;

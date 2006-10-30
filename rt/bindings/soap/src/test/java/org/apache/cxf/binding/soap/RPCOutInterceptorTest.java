@@ -39,7 +39,6 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
-import org.apache.hello_world_soap_http.RPCLitGreeterImpl;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
@@ -63,7 +62,7 @@ public class RPCOutInterceptorTest extends TestBase {
 
         control.reset();
         Service service = control.createMock(Service.class);
-        JAXBDataBinding dataBinding = new JAXBDataBinding(RPCLitGreeterImpl.class);
+        JAXBDataBinding dataBinding = new JAXBDataBinding(MyComplexStruct.class);
         service.getDataBinding();
         EasyMock.expectLastCall().andReturn(dataBinding).anyTimes();
         service.getServiceInfo();

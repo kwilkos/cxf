@@ -33,6 +33,7 @@ import org.xml.sax.InputSource;
 
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class SOAPMessageDataReader implements DataReader<SOAPMessage> {
     final JAXBDataReaderFactory factory;
@@ -46,8 +47,7 @@ public class SOAPMessageDataReader implements DataReader<SOAPMessage> {
         return null;
     }
 
-    public Object read(QName name, SOAPMessage input) {
-        // Complete
+    public Object read(MessagePartInfo part, SOAPMessage input) {
         return null;
     }
 

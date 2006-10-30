@@ -74,7 +74,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                         continue;
                     }
                     
-                    dataWriter.write(arg, part.getConcreteName(), message);
+                    dataWriter.write(arg, part, message);
                 }
             }
         }

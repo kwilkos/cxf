@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -73,11 +72,11 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
             // call data writer to marshal exception
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
             if (bop != null) {
-                QName elName = null;
                 if (!bop.isUnwrappedCapable()) {
                     bop = bop.getUnwrappedOperation();
                 }
                 Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
+                MessagePartInfo part = null;
                 while (it.hasNext()) {
                     FaultInfo fi = it.next();
                     for (MessagePartInfo mpi : fi.getMessageParts()) {
@@ -85,20 +84,16 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                         Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
                         Class sub = method.getReturnType();
                         if (cls != null && cls.equals(sub)) {
-                            if (mpi.isElement()) {
-                                elName = mpi.getElementQName();
-                            } else {
-                                elName = mpi.getTypeQName();
-                            }
+                            part = mpi;
                             break;
                         }
                     }
                 }
-                if (elName != null) {
+                if (part != null) {
                     StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
                             XMLConstants.NS_XML_FORMAT);
                     DataWriter<Message> dataWriter = getMessageDataWriter(message);
-                    dataWriter.write(getFaultInfo(t), elName, message);
+                    dataWriter.write(getFaultInfo(t), part, message);
                     writer.writeEndElement();
                 }
             }

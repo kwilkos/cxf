@@ -71,13 +71,4 @@ public final class ServiceModelUtil {
         }
         return schemaInfo;
     }
-
-    public static QName getPartName(MessagePartInfo part) {
-        QName name = part.getElementQName();
-        if (name == null) {
-            name = part.getTypeQName();
-        }
-        return name;
-    }
-
 }

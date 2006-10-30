@@ -20,6 +20,8 @@ package org.apache.cxf.configuration.spring;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -44,6 +46,11 @@ public class SpringBeanMapTest extends TestCase {
         Person p2 = values.iterator().next();
         assertNotNull(p2);
         assertEquals(p, p2);
+        
+        Set<Entry<String, Person>> entries = beans.entrySet();
+        Entry<String, Person> e = entries.iterator().next();
+        assertEquals("dan", e.getKey());
+        assertEquals(p, e.getValue());
         
         Person p3 = new PersonImpl();
         beans.put("foo", p3);

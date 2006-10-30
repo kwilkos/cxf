@@ -72,11 +72,10 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
             } else if (message instanceof XMLMessage) {
                 DataReader<XMLMessage> dataReader = getDataReader(message, XMLMessage.class);
                 message.setContent(Object.class, 
-                                   dataReader.read(null, 
-                                                   (XMLMessage)message, type));                
+                                   dataReader.read(null, (XMLMessage)message, type));                
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new Fault(e);
         }
     }
 

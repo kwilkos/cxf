@@ -32,8 +32,9 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     private QName elementName;
     private boolean isInSoapHeader;
     private XmlSchemaAnnotated xmlSchema;
+    private Class<?> typeClass;
     
-    MessagePartInfo(QName n, AbstractMessageContainer info) {
+    public MessagePartInfo(QName n, AbstractMessageContainer info) {
         mInfo = info;
         pname = n;
     }
@@ -99,5 +100,13 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
 
     public void setXmlSchema(XmlSchemaAnnotated xmlSchema) {
         this.xmlSchema = xmlSchema;
+    }
+
+    public Class<?> getTypeClass() {
+        return typeClass;
+    }
+
+    public void setTypeClass(Class<?> typeClass) {
+        this.typeClass = typeClass;
     }
 }

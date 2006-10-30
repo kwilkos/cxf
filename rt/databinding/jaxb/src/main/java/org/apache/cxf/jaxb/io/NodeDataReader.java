@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class NodeDataReader implements DataReader<Node> {
     final JAXBDataReaderFactory factory;
@@ -39,18 +40,21 @@ public class NodeDataReader implements DataReader<Node> {
         return read(null, input);
     }
 
-    public Object read(QName name, Node xmlNode) {
-        return read(name, xmlNode, null);
-    }
-    
-    public Object read(QName name, Node xmlNode, Class cls) {
+    public Object read(MessagePartInfo part, Node xmlNode) {
         return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
                                              factory.getSchema(),
                                              xmlNode,
+                                             part,
+                                             null);
+    }
+
+    public Object read(QName name, Node input, Class type) {
+        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
+                                             factory.getSchema(),
+                                             input,
                                              name,
-                                             cls,
+                                             type,
                                              null);
     }
     
-   
 }

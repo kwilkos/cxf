@@ -39,7 +39,6 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
-    public static final String WRAPPER_CLASS = "wrapper.class";
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
 
     public WrappedInInterceptor() {
@@ -76,15 +75,14 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         DataReader<Message> dr = getMessageDataReader(message);
         List<Object> objects;
 
+        MessageInfo msgInfo = setMessage(message, operation, requestor);
+        
         // Determine if there is a wrapper class
         if ((operation.isUnwrapped() || operation.isUnwrappedCapable())
-            && operation.getOperationInfo().getUnwrappedOperation().getInput()
-                .getProperty(WRAPPER_CLASS) != null) {
+            && msgInfo.getMessageParts().get(0).getTypeClass() != null) {
             objects = new ArrayList<Object>();
-            Object wrappedObject = dr.read(message);
+            Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), message);
             objects.add(wrappedObject);
-
-            setMessage(message, operation, requestor);
         } else {
             // Unwrap each part individually if we don't have a wrapper
             objects = new ArrayList<Object>();
@@ -93,7 +91,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
                 operation = operation.getUnwrappedOperation();
             }
 
-            MessageInfo msgInfo = setMessage(message, operation, requestor);
+            msgInfo = setMessage(message, operation, requestor);
             List<MessagePartInfo> messageParts = msgInfo.getMessageParts();
             Iterator<MessagePartInfo> itr = messageParts.iterator();
 
@@ -105,8 +103,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             // loop through each child element
             while (StaxUtils.toNextElement(xmlReader)) {
                 MessagePartInfo part = itr.next();
-                Class c = (Class)part.getProperty(Class.class.getName());
-                objects.add(dr.read(part.getConcreteName(), message, c));
+                objects.add(dr.read(part, message));
             }
 
         }

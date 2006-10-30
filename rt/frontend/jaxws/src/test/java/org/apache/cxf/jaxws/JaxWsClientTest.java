@@ -133,6 +133,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
 
         // test fault handling
         bop = ei.getBinding().getOperation(new QName(namespace, "testDocLitFault"));
+        bop = bop.getUnwrappedOperation();
         responseMessage = "testDocLitFault.xml";
         try {
             client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
@@ -168,14 +169,15 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
 
         public void onMessage(Message message) {
             try {
-                Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
-
-                backChannel.send(message);
 
                 InputStream in = message.getContent(InputStream.class);
                 while (in.available() > 0) {
                     in.read();
                 }
+                
+                Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
+
+                backChannel.send(message);
 
                 OutputStream out = message.getContent(OutputStream.class);
                 assertNotNull(out);

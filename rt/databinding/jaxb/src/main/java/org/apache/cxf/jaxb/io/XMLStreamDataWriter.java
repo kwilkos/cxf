@@ -19,12 +19,12 @@
 
 package org.apache.cxf.jaxb.io;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.jaxb.JAXBDataWriterFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
     final JAXBDataWriterFactory factory;
@@ -37,12 +37,12 @@ public class XMLStreamDataWriter implements DataWriter<XMLStreamWriter> {
         write(obj, null, output);
     }
     
-    public void write(Object obj, QName elName, XMLStreamWriter output) {
+    public void write(Object obj, MessagePartInfo part, XMLStreamWriter output) {
         if (obj != null) {
             JAXBEncoderDecoder.marshall(factory.getJAXBContext(),
                                         factory.getSchema(),
                                         obj,
-                                        elName,
+                                        part,
                                         output,
                                         null);
         }

@@ -82,7 +82,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         params.add(myComplexStruct);
 
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(bareNs, "XMLPort"),
-                        org.apache.hello_world_xml_http.bare.Greeter.class);
+                        MyComplexStructType.class);
 
         BindingInfo bi = super.serviceInfo.getBinding(new QName(bareNs, "Greeter_XMLBinding"));
         BindingOperationInfo boi = bi.getOperation(new QName(bareNs, "sendReceiveData"));
@@ -112,7 +112,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         params.add("tli");
 
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(bareNs, "XMLPort"),
-                        org.apache.hello_world_xml_http.bare.Greeter.class);
+                        MyComplexStructType.class);
 
         BindingInfo bi = super.serviceInfo.getBinding(new QName(bareNs, "Greeter_XMLBinding"));
         BindingOperationInfo boi = bi.getOperation(new QName(bareNs, "testMultiParamPart"));
@@ -153,8 +153,7 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         GreetMe greetMe = new GreetMe();
         greetMe.setRequestType("tli");
         params.add(greetMe);
-        common("/wsdl/hello_world_xml_wrapped.wsdl", new QName(wrapNs, "XMLPort"),
-                        org.apache.hello_world_xml_http.wrapped.Greeter.class);
+        common("/wsdl/hello_world_xml_wrapped.wsdl", new QName(wrapNs, "XMLPort"), GreetMe.class);
 
         BindingInfo bi = super.serviceInfo.getBinding(new QName(wrapNs, "Greeter_XMLBinding"));
         BindingOperationInfo boi = bi.getOperation(new QName(wrapNs, "greetMe"));

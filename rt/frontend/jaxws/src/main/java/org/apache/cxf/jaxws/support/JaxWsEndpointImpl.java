@@ -41,7 +41,7 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.EndpointInfo;
 
 /**
- * A JAX-WS specific implementation of the CXF {@link Endpoint} interface.
+ * A JAX-WS specific implementation of the CXF {@link org.apache.cxf.endpoint.Endpoint} interface.
  * Extends the interceptor provider functionality of its base class by adding 
  * interceptors in which to execute the JAX-WS handlers.
  * Creates and owns an implementation of {@link Binding} in addition to the

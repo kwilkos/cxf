@@ -18,6 +18,9 @@
  */
 package org.apache.cxf.jaxws.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
@@ -27,5 +30,13 @@ public class Hello {
     @WebMethod
     public String sayHi(String text) {
         return text;
+    }
+    
+    @WebMethod
+    public List<String> getGreetings() {
+        List<String> strings = new ArrayList<String>();
+        strings.add("Hello");
+        strings.add("Bonjour");
+        return strings;
     }
 }

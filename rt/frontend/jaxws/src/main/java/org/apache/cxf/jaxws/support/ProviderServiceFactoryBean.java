@@ -22,11 +22,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.xml.XMLConstants;
-import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
@@ -60,8 +58,6 @@ public class ProviderServiceFactoryBean extends AbstractJaxWsServiceFactoryBean 
         
         try {
             Method invoke = getServiceClass().getMethod("invoke", c);
-            
-            
             
             // Bind each operation to the invoke method.
             for (OperationInfo o : getService().getServiceInfo().getInterface().getOperations()) {
@@ -141,12 +137,7 @@ public class ProviderServiceFactoryBean extends AbstractJaxWsServiceFactoryBean 
 
     @Override
     protected void initializeDataBindings() {   
-        try {
-            DataBinding dataBinding = new JAXBDataBinding(getServiceClass());
-            setDataBinding(dataBinding);
-        } catch (JAXBException e) {
-            throw new ServiceConstructionException(e);
-        }
+        setDataBinding(new JAXBDataBinding());
         
         super.initializeDataBindings();
     }

@@ -138,7 +138,12 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     
     protected DepthXMLStreamReader getXMLStreamReader(Message message) {
         XMLStreamReader xr = message.getContent(XMLStreamReader.class);
-        return new DepthXMLStreamReader(xr);
+        if (xr instanceof DepthXMLStreamReader) {
+            return (DepthXMLStreamReader) xr;
+        }
+        DepthXMLStreamReader dr = new DepthXMLStreamReader(xr);
+        message.setContent(XMLStreamReader.class, dr);
+        return dr;
     }
 
     /**

@@ -24,15 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-
-
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
-
-
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -40,12 +35,10 @@ import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.DataWriterFactory;
-
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -161,9 +154,8 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                         
                         startedHeader = true;
                     }
-                    QName elName = ServiceModelUtil.getPartName(part);
                     DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
-                    dataWriter.write(arg, elName, xtw);
+                    dataWriter.write(arg, part, xtw);
                 }
                  
             }

@@ -30,7 +30,6 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -67,7 +66,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         
         MessagePartInfo mpi = messageParts.get(0);
         assertEquals("out", mpi.getName().getLocalPart());
-        assertEquals(String.class, mpi.getProperty(Class.class.getName()));
+        assertEquals(String.class, mpi.getTypeClass());
 
         
         OperationInfo op = si.getInterface().getOperation(new QName(ns, "echoWithExchange"));
@@ -111,12 +110,11 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         assertEquals(1, messageParts.size());
         MessagePartInfo mpi = messageParts.get(0);
         assertEquals("out", mpi.getName().getLocalPart());
-        assertEquals(String.class, mpi.getProperty(Class.class.getName()));
+        assertEquals(String.class, mpi.getTypeClass());
     }
 
     private Service createService(boolean wrapped) throws JAXBException {
         serviceFactory = new ReflectionServiceFactoryBean();
-        serviceFactory.setDataBinding(new JAXBDataBinding(HelloService.class));
         serviceFactory.setBus(getBus());
         serviceFactory.setServiceClass(HelloService.class);
         serviceFactory.setWrapped(wrapped);

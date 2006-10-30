@@ -21,11 +21,14 @@ package org.apache.cxf.jaxb;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,16 +76,23 @@ public final class JAXBDataBinding implements DataBinding {
 
     Class cls;
 
-    public JAXBDataBinding() throws JAXBException {
+    public JAXBDataBinding() {
         reader = new JAXBDataReaderFactory();
         writer = new JAXBDataWriterFactory();
     }
+    
+    public JAXBDataBinding(Class<?>...classes) throws JAXBException {
+        reader = new JAXBDataReaderFactory();
+        writer = new JAXBDataWriterFactory();
+        
+        Set<Class<?>> classSet = new HashSet<Class<?>>();
+        classSet.addAll(Arrays.asList(classes));
+        setContext(createJAXBContext(classSet));
+    }
 
-    public JAXBDataBinding(Class<?> cls) throws JAXBException {
+    public JAXBDataBinding(JAXBContext context) {
         this();
-        context = JAXBEncoderDecoder.createJAXBContextForClass(cls);
-        reader.setJAXBContext(context);
-        writer.setJAXBContext(context);
+        setContext(context);
     }
 
     public void setContext(JAXBContext ctx) {
@@ -159,6 +169,17 @@ public final class JAXBDataBinding implements DataBinding {
     }
 
     public void initialize(ServiceInfo serviceInfo) {
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        JAXBContextInitializer initializer = 
+            new JAXBContextInitializer(serviceInfo, classes);
+        initializer.walk();
+
+        try {
+            setContext(createJAXBContext(classes));
+        } catch (JAXBException e1) {
+            throw new ServiceConstructionException(e1);
+        }
+        
         XmlSchemaCollection col = (XmlSchemaCollection)serviceInfo
             .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
 
@@ -190,6 +211,7 @@ public final class JAXBDataBinding implements DataBinding {
 
                 SchemaInfo schema = new SchemaInfo(typeInfo, ns);
                 schema.setElement(d.getDocumentElement());
+                typeInfo.addSchema(schema);
                 col.read(d.getDocumentElement());
             }
         } catch (IOException e) {
@@ -197,8 +219,8 @@ public final class JAXBDataBinding implements DataBinding {
         }
 
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
-        JAXBServiceModelInitializer initializer = new JAXBServiceModelInitializer(serviceInfo, col);
-        initializer.walk();
+        JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col);
+        schemaInit.walk();
 
     }
 
@@ -210,7 +232,6 @@ public final class JAXBDataBinding implements DataBinding {
             public Result createOutput(String ns, String file) throws IOException {
                 DOMResult result = new DOMResult();
                 result.setSystemId(file);
-
                 results.add(result);
 
                 return result;
@@ -219,4 +240,21 @@ public final class JAXBDataBinding implements DataBinding {
 
         return results;
     }
+    
+
+
+    public static JAXBContext createJAXBContext(Set<Class<?>> classes) throws JAXBException {
+        try {
+            classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
+            classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));
+            classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ServiceNameType"));
+        } catch (ClassNotFoundException e) {
+            // REVISIT - ignorable if WS-ADDRESSING not available?
+            // maybe add a way to allow interceptors to add stuff to the
+            // context?
+        }
+       
+        return  JAXBContext.newInstance(classes.toArray(new Class[classes.size()]));
+    }
+
 }

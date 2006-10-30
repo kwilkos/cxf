@@ -21,13 +21,15 @@ package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.List;
 
-import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.cxf.binding.soap.SoapFault;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -45,7 +47,6 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     public void handleMessage(Message message) {
         try {
-            
             NSStack nsStack = new NSStack();
             nsStack.push();
 
@@ -57,11 +58,15 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
             DataWriter<Message> dataWriter = getMessageDataWriter(message);
 
-            String opNs = addOperationNode(nsStack, message, xmlWriter);
+            addOperationNode(nsStack, message, xmlWriter);
 
             int countParts = 0;
             List<MessagePartInfo> parts = null;
 
+            System.out.println("operation " + operation);
+            System.out.println("name " + operation.getName());
+            System.out.println("output " + operation.getOutput());
+            
             if (!isRequestor(message)) {
                 parts = operation.getOutput().getMessageInfo().getMessageParts();
             } else {
@@ -72,23 +77,22 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             if (countParts > 0) {
                 List<?> objs = (List<?>) message.getContent(List.class);                
                 if (objs.size() < parts.size()) {
-                    message.setContent(Exception.class, new RuntimeException(
-                                    "The number of arguments is not equal!"));
+                    throw new SoapFault("The number of arguments is not equal!", 
+                                        ((SoapMessage) message).getVersion().getSender());
                 }
 
                 for (int idx = 0; idx < countParts; idx++) {
                     Object arg = objs.get(idx);
                     MessagePartInfo part = (MessagePartInfo) parts.get(idx);
-                    QName elName = new QName(opNs, part.getName().getLocalPart());
-                    dataWriter.write(arg, elName, message);
+
+                    dataWriter.write(arg, part, message);
                 }
             }
             // Finishing the writing.
             xmlWriter.writeEndElement();            
             message.getInterceptorChain().finishSubChain();
-        } catch (Exception e) {
-            e.printStackTrace();
-            message.setContent(Exception.class, e);
+        } catch (XMLStreamException e) {
+            throw new Fault(e);
         }
     }
 

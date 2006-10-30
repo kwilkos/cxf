@@ -47,7 +47,6 @@ public class BareInInterceptorTest extends TestBase {
         assertEquals(1, parameters.size());
 
         Object obj = parameters.get(0);
-
         assertTrue(obj instanceof GreetMe);
         GreetMe greet = (GreetMe)obj;
         assertEquals("TestSOAPInputPMessage", greet.getRequestType());

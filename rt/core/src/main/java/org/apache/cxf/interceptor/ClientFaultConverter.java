@@ -59,21 +59,17 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
     protected void processFaultDetail(Fault fault, Message msg) {
         Element exDetail = (Element) DOMUtils.getChild(fault.getDetail(), Node.ELEMENT_NODE);
         QName qname = new QName(exDetail.getNamespaceURI(), exDetail.getLocalName());
-        FaultInfo faultWanted = null;        
-        Class cls = null;
+        FaultInfo faultWanted = null;    
+        MessagePartInfo part = null;
         BindingOperationInfo boi = msg.getExchange().get(BindingOperationInfo.class);
+        if (boi.isUnwrapped()) {
+            boi = boi.getWrappedOperation();
+        }
         for (FaultInfo faultInfo : boi.getOperationInfo().getFaults()) {
             for (MessagePartInfo mpi : faultInfo.getMessageParts()) {
-                String ns = null;
-                if (mpi.isElement()) {
-                    ns = mpi.getElementQName().getNamespaceURI();
-                } else {
-                    ns = mpi.getTypeQName().getNamespaceURI();
-                }
-                if (qname.getLocalPart().equals(mpi.getConcreteName().getLocalPart()) 
-                        && qname.getNamespaceURI().equals(ns)) {
-                    cls = (Class)mpi.getProperty(Class.class.getName());
+                if (qname.equals(mpi.getConcreteName())) {
                     faultWanted = faultInfo;
+                    part = mpi;
                     break;
                 }
             }
@@ -90,7 +86,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         DataBinding dataBinding = s.getDataBinding();
 
         DataReader<Node> reader = dataBinding.getDataReaderFactory().createReader(Node.class);
-        Object e = reader.read(qname, exDetail, cls);
+        Object e = reader.read(part, exDetail);
 
         if (!(e instanceof Exception)) {
             Class exClass = faultWanted.getProperty(Class.class.getName(), Class.class);

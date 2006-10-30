@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.jaxb.JAXBDataReaderFactory;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     final JAXBDataReaderFactory factory;
@@ -36,15 +37,14 @@ public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
     public Object read(XMLStreamReader input) {
         return read(null, input);
     }
-
-    public Object read(QName name, XMLStreamReader reader) {
-
-        return read(name, reader, null);
-
+    public Object read(MessagePartInfo part, XMLStreamReader reader) {
+        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), 
+                                             factory.getSchema(), reader, part, null);
     }
 
-    public Object read(QName name, XMLStreamReader reader, Class cls) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), factory.getSchema(), reader, name,
-                        cls, null);
+    public Object read(QName name, XMLStreamReader input, Class type) {
+        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), 
+                                             factory.getSchema(), input, name, type, null);
     }
+    
 }

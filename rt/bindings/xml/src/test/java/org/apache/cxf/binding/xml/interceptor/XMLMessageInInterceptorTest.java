@@ -25,7 +25,6 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
@@ -45,7 +44,12 @@ public class XMLMessageInInterceptorTest extends TestBase {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-multi-param.xml");
         common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"),
-                        org.apache.hello_world_xml_http.bare.Greeter.class);
+                        MyComplexStructType.class);
+        
+        OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "testMultiParamPart"));
+        op.getInput().getMessagePartByIndex(0).setTypeClass(MyComplexStructType.class);
+        op.getInput().getMessagePartByIndex(1).setTypeClass(String.class);
+        
         in.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
@@ -58,8 +62,11 @@ public class XMLMessageInInterceptorTest extends TestBase {
     public void testHandleMessageOnBareSingleChild() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
         prepareMessage("/message-bare-single-param-element.xml");
-        common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"),
-                        org.apache.hello_world_xml_http.bare.Greeter.class);
+        common("/wsdl/hello_world_xml_bare.wsdl", new QName(ns, "XMLPort"));
+        
+        OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "greetMe"));
+        op.getInput().getMessagePartByIndex(0).setTypeClass(String.class);
+        
         in.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
@@ -71,10 +78,10 @@ public class XMLMessageInInterceptorTest extends TestBase {
         String ns = "http://apache.org/hello_world_xml_http/wrapped";
         prepareMessage("/message-wrap.xml");
         common("/wsdl/hello_world_xml_wrapped.wsdl", new QName(ns, "XMLPort"),
-                        org.apache.hello_world_xml_http.wrapped.Greeter.class);
+               GreetMe.class);
         
         OperationInfo op = serviceInfo.getInterface().getOperation(new QName(ns, "greetMe"));
-        op.getUnwrappedOperation().getInput().setProperty(WrappedInInterceptor.WRAPPER_CLASS, GreetMe.class);
+        op.getInput().getMessagePartByIndex(0).setTypeClass(GreetMe.class);
         
         in.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);

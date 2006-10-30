@@ -26,7 +26,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
-
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
@@ -34,7 +33,6 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.hello_world_rpclit.types.MyComplexStruct;
-import org.apache.hello_world_soap_http.RPCLitGreeterImpl;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
@@ -52,15 +50,13 @@ public class RPCInInterceptorTest extends TestBase {
                 .toString());
         BindingInfo bi = si.getBinding(new QName(TNS, "Greeter_SOAPBinding_RPCLit"));
         BindingOperationInfo boi = bi.getOperation(new QName(TNS, OPNAME));
-        boi.getOperationInfo().getInput().getMessagePartByIndex(0).setProperty(Class.class.getName(), 
-                MyComplexStruct.class);
-        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setProperty(Class.class.getName(), 
-                MyComplexStruct.class);
+        boi.getOperationInfo().getInput().getMessagePartByIndex(0).setTypeClass(MyComplexStruct.class);
+        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setTypeClass(MyComplexStruct.class);
         soapMessage.getExchange().put(BindingOperationInfo.class, boi);
 
         control.reset(); 
         Service service = control.createMock(Service.class);
-        JAXBDataBinding dataBinding = new JAXBDataBinding(RPCLitGreeterImpl.class);
+        JAXBDataBinding dataBinding = new JAXBDataBinding(MyComplexStruct.class);
         service.getDataBinding();
         EasyMock.expectLastCall().andReturn(dataBinding).anyTimes();
         service.getServiceInfo();

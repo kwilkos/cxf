@@ -146,7 +146,11 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
     }
 
     public Set<java.util.Map.Entry<String, V>> entrySet() {
-        throw new UnsupportedOperationException();
+        Set<Map.Entry<String, V>> entries = new HashSet<Map.Entry<String, V>>();
+        for (String k : keySet()) {
+            entries.add(new Entry<V>(this, k));
+        }
+        return entries;
     }
 
     @SuppressWarnings("unchecked")
@@ -202,5 +206,27 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
             values.add(get(id));
         }
         return values;
+    }
+    
+    public static class Entry<V> implements Map.Entry<String, V> {
+        private SpringBeanMap<V> map;
+        private String key;
+
+        public Entry(SpringBeanMap<V> map, String key) {
+            this.map = map;
+            this.key = key;
+        }
+        
+        public String getKey() {
+            return key;
+        }
+
+        public V getValue() {
+            return map.get(key);
+        }
+
+        public V setValue(V value) {
+            return map.put(key, value);
+        }
     }
 }

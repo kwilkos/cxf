@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Provider;
@@ -39,7 +38,6 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
@@ -96,11 +94,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             serviceFactory = new ProviderServiceFactoryBean(implInfo);
         } else {
             serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-            try {
-                serviceFactory.setDataBinding(new JAXBDataBinding(implInfo.getImplementorClass()));
-            } catch (JAXBException e) {
-                throw new WebServiceException("Could not create databinding.", e);
-            }
         }
         serviceFactory.setBus(bus);
         service = serviceFactory.create();

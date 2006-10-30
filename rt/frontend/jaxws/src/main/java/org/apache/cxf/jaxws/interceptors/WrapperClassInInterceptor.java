@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.jaxb.WrapperHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -76,13 +75,12 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
             // Sometimes, an uperation can be unwrapped according to WSDLServiceFactory,
             // but not according to JAX-WS. We should unify these at some point, but
             // for now check for the wrapper class.
-            if (boi2.getOperationInfo().getInput().getProperty(WrappedInInterceptor.WRAPPER_CLASS) 
-                == null) {
+            MessageInfo messageInfo = message.get(MessageInfo.class);
+            if (messageInfo != null && messageInfo.getMessageParts().get(0).getTypeClass() == null) {
                 return;
             }
             
             OperationInfo op = boi2.getOperationInfo();
-            MessageInfo messageInfo = message.get(MessageInfo.class);
             BindingMessageInfo bmi;
             if (messageInfo == boi.getOperationInfo().getInput()) {
                 messageInfo = op.getInput();

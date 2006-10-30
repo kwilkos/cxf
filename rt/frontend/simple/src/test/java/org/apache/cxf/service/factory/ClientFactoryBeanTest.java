@@ -27,7 +27,6 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -42,7 +41,6 @@ public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
         cfBean.setTransportId("http://schemas.xmlsoap.org/soap/http");
         cfBean.setBus(getBus());
         cfBean.setServiceClass(HelloService.class);
-        cfBean.getServiceFactory().setDataBinding(new JAXBDataBinding(HelloService.class));
         
         Client client = cfBean.create();
         assertNotNull(client);
