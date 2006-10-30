@@ -115,7 +115,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
         
         assertEquals("Fault+Occurred", httpConnection.getResponseMessage());
 
-        InputStream in = httpConnection.getErrorStream();                  
+        InputStream in = httpConnection.getErrorStream();
         assertNotNull(in);     
         assertEquals("application/soap+xml", httpConnection.getContentType());
         
