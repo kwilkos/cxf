@@ -83,9 +83,9 @@ public class AbstractCXFTest extends TestCase {
         return new CXFBusFactory().createBus();
     }
 
-    protected Node invoke(String address, 
-                          String transport,
-                          String message) throws Exception {
+    protected byte[] invokeBytes(String address, 
+                                 String transport,
+                                 String message) throws Exception {
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
         ei.setAddress(address);
 
@@ -109,12 +109,20 @@ public class AbstractCXFTest extends TestCase {
 
         byte[] bs = obs.getResponseStream().toByteArray();
         
+        return bs;
+    }
+    
+    protected Node invoke(String address, 
+                          String transport,
+                          String message) throws Exception {
+        byte[] bs = invokeBytes(address, transport, message);
+        
         ByteArrayInputStream input = new ByteArrayInputStream(bs);
         try {
             return DOMUtils.readXml(input);
         } catch (SAXParseException e) {
             throw new IllegalStateException("Could not parse message:\n" 
-                                            + obs.getResponseStream().toString());
+                                            + new String(bs));
         }
     }
    
