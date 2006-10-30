@@ -43,6 +43,7 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         this.bus = bus;
     }
 
+    @SuppressWarnings("unchecked")
     public void onMessage(Message m) {
         Message faultMessage = m.getExchange().getFaultMessage();
         if (faultMessage == null) {
@@ -51,7 +52,9 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         
         faultMessage = m.getExchange().get(Binding.class).createMessage(faultMessage);
         m.getExchange().setFaultMessage(faultMessage);
+        m.putAll(faultMessage);
         faultMessage.putAll(m);
+
         MessageImpl.copyContent(m, faultMessage);
         
         Exception e = m.getContent(Exception.class);

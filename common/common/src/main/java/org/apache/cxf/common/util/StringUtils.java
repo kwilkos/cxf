@@ -68,6 +68,19 @@ public final class StringUtils {
         }
         return true;
     }
+    
+    public static String trim(String target, String token) {
+        int tokenLength = token.length();
+        int targetLength = target.length();
+        
+        if (target.startsWith(token)) {            
+            return trim(target.substring(tokenLength), token);
+        }
+        if (target.endsWith(token)) {            
+            return trim(target.substring(0, targetLength - tokenLength), token);
+        }
+        return target;
+    }
 
     public static boolean isEqualUri(String uri1, String uri2) {
 

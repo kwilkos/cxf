@@ -19,7 +19,14 @@
 
 package org.apache.cxf.interceptor;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -33,7 +40,7 @@ import org.apache.cxf.phase.PhaseManager;
  * @author Dan Diephouse
  */
 public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Message> {
-
+    private static final Logger LOG = Logger.getLogger(OutgoingChainSetupInterceptor.class.getName());
     public OutgoingChainSetupInterceptor() {
         super();
         setPhase(Phase.PRE_LOGICAL);
@@ -52,14 +59,36 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             outMessage = ep.getBinding().createMessage();
             ex.setOutMessage(outMessage);
         }
+        setUpContentType(outMessage);
 
         Message faultMessage = message.getExchange().getFaultMessage();
         if (faultMessage == null) {
-            faultMessage = ep.getBinding().createMessage();
+            faultMessage = ep.getBinding().createMessage();            
             ex.setFaultMessage(faultMessage);
         }
+
+        setUpContentType(faultMessage);
         
         outMessage.setInterceptorChain(getOutInterceptorChain(ex));
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void setUpContentType(Message message) {
+        if (StringUtils.isEmpty((String)message.get(Message.CONTENT_TYPE))) {
+            return;
+        }
+        
+        Map<String, List<String>> headers = (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
+        if (headers == null) {
+            headers = new HashMap<String, List<String>>();
+            message.put(Message.PROTOCOL_HEADERS, headers);         
+        }
+        
+        LOG.info("OutgoingChainSetupInterceptor set the content-type to: " 
+                 + message.get(Message.CONTENT_TYPE));
+
+        headers.put("Content-Type",  
+                    Arrays.asList(new String[] {(String)message.get(Message.CONTENT_TYPE)}));
     }
     
     public static InterceptorChain getOutInterceptorChain(Exchange ex) {

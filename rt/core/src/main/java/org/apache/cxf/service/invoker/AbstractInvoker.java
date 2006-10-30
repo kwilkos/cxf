@@ -58,7 +58,10 @@ public abstract class AbstractInvoker implements Invoker {
     protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
         Object res;
         try {
-            Object[] paramArray = params.toArray();
+            Object[] paramArray = new Object[]{};
+            if (params != null) {
+                paramArray = params.toArray();
+            }
             
             insertExchange(m, paramArray, exchange);
             

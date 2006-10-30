@@ -200,7 +200,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private void unwind(Message message) {
         while (iterator.hasPrevious()) {
             Interceptor currentInterceptor = iterator.previous();
-            if (LOG.isLoggable(Level.FINE)) {
+            if (LOG.isLoggable(Level.INFO)) {
                 LOG.fine("Invoking handleFault on interceptor " + currentInterceptor);
             }
             currentInterceptor.handleFault(message);

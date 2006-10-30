@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -43,7 +44,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
 public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
-
+    private static final Logger LOG = Logger.getLogger(URIParameterInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIParameterInterceptor.class);
 
     public URIParameterInterceptor() {
@@ -55,8 +56,11 @@ public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
     public void handleMessage(Message message) {
         String path = (String)message.get(Message.PATH_INFO);
         String method = (String)message.get(Message.HTTP_REQUEST_METHOD);
-        String contentType = (String)message.get(HttpConstants.CONTENT_TYPE);
+        String contentType = (String)message.get(Message.CONTENT_TYPE);
 
+        LOG.info("URIParameterInterceptor handle message on path [" + path 
+                 + "] with Content-Type ["  + contentType + "]");
+        
         BindingOperationInfo op = message.getExchange().get(BindingOperationInfo.class);
 
         URIMapper mapper = (URIMapper)message.getExchange().get(Service.class).get(URIMapper.class.getName());
@@ -81,6 +85,8 @@ public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
         if ("application/x-www-form-urlencoded.".equals(contentType)) {
             params = IriDecoderHelper.decode(path, location, message.getContent(InputStream.class));
         } else if ("application/xml".equals(contentType)) {
+            params = IriDecoderHelper.decodeIri(path, location);
+        } else if ("text/xml".equals(contentType)) {
             params = IriDecoderHelper.decodeIri(path, location);
         } else if ("multipart/form-data".equals(contentType)) {
             // TODO

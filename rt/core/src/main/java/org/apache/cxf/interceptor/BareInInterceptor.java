@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -47,7 +48,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class BareInInterceptor extends AbstractInDatabindingInterceptor {
-
+    private static final Logger LOG = Logger.getLogger(BareInInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(BareInInterceptor.class);
 
     private static Set<String> filter = new HashSet<String>();
@@ -60,9 +61,15 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
     public BareInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
+        addAfter(URIMappingInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) {
+        if (isGET(message) && message.getContent(List.class) != null) {  
+            LOG.info("BareInInterceptor skipped in HTTP GET method");
+            return;
+        }        
+
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         Exchange exchange = message.getExchange();
 

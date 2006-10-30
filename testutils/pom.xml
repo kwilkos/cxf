@@ -303,6 +303,10 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/addNumbers.wsdl</wsdl>
                                 </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/calculator.wsdl</wsdl>
+                                </wsdlOption>
+
                             </wsdlOptions>
                         </configuration>
                         <goals>

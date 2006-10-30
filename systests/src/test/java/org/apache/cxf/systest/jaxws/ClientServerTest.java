@@ -19,8 +19,11 @@
 
 package org.apache.cxf.systest.jaxws;
 
+import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +36,17 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
@@ -462,8 +472,67 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertEquals("BadRecordLitFault", brlf.getFaultInfo());
             }
         }
-    } 
+    }
+    
+    public void testGetSayHi() throws Exception {
+        HttpURLConnection httpConnection = 
+            getHttpConnection("http://localhost:9000/SoapContext/SoapPort/sayHi");    
+        httpConnection.connect(); 
+        
+        httpConnection.connect();
+        
+        assertEquals(200, httpConnection.getResponseCode());
+        
+        assertEquals("text/xml", httpConnection.getContentType());
+        assertEquals("OK", httpConnection.getResponseMessage());
+        
+        InputStream in = httpConnection.getInputStream();
+        assertNotNull(in);        
+       
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+        
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("soap", Soap11.SOAP_NAMESPACE);
+        ns.put("ns2", "http://apache.org/hello_world_soap_http/types");
+        XPathUtils xu = new XPathUtils(ns);
+        Node body = (Node) xu.getValue("/soap:Envelope/soap:Body", doc, XPathConstants.NODE);
+        assertNotNull(body);
+        String response = (String) xu.getValue("//ns2:sayHiResponse/ns2:responseType/text()", 
+                                               body, 
+                                               XPathConstants.STRING);
+        assertEquals("Bonjour", response);
+    }
 
+    public void testGetGreetMe() throws Exception {
+        HttpURLConnection httpConnection = 
+            getHttpConnection("http://localhost:9000/SoapContext/SoapPort/greetMe/me/cxf");    
+        httpConnection.connect();        
+        
+        assertEquals(200, httpConnection.getResponseCode());
+    
+        assertEquals("text/xml", httpConnection.getContentType());
+        assertEquals("OK", httpConnection.getResponseMessage());
+        
+        InputStream in = httpConnection.getInputStream();
+        assertNotNull(in);
+        
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+        
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("soap", Soap11.SOAP_NAMESPACE);
+        ns.put("ns2", "http://apache.org/hello_world_soap_http/types");
+        XPathUtils xu = new XPathUtils(ns);
+        Node body = (Node) xu.getValue("/soap:Envelope/soap:Body", doc, XPathConstants.NODE);
+        assertNotNull(body);
+        String response = (String) xu.getValue("//ns2:greetMeResponse/ns2:responseType/text()", 
+                                               body, 
+                                               XPathConstants.STRING);
+        // TODO:wrong return type, should Hello cxf
+        assertEquals("Hello null", response);
+    }
+    
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);
     }

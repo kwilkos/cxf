@@ -21,12 +21,24 @@
 
 package org.apache.cxf.systest.soap12;
 
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.hello_world_soap12_http.Greeter;
@@ -47,7 +59,6 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
-        
     }
 
     public void testBasicConnection() throws Exception {
@@ -71,6 +82,101 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
             assertEquals("PingMeFault raised by server", ex.getMessage());            
         }
     }
+    
+    public void testGetSayHi() throws Exception {
+        HttpURLConnection httpConnection = 
+            getHttpConnection("http://localhost:9012/SoapContext/SoapPort/sayHi");    
+        httpConnection.connect();        
+        
+        InputStream in = httpConnection.getInputStream();        
+        assertNotNull(in);
+        assertEquals("application/soap+xml", httpConnection.getContentType());
+       
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("soap12", Soap12.SOAP_NAMESPACE);
+        ns.put("ns2", "http://apache.org/hello_world_soap12_http/types");
+        XPathUtils xu = new XPathUtils(ns);
+        Node body = (Node) xu.getValue("/soap12:Envelope/soap12:Body", doc, XPathConstants.NODE);
+        assertNotNull(body);
+        String response = (String) xu.getValue("//ns2:sayHiResponse/ns2:responseType/text()", 
+                                               body, 
+                                               XPathConstants.STRING);
+        assertEquals("Bonjour", response);
+    }
+
+    public void testGetPingMe() throws Exception  {
+        HttpURLConnection httpConnection = 
+            getHttpConnection("http://localhost:9012/SoapContext/SoapPort/pingMe");    
+        httpConnection.connect();
+        
+        assertEquals(500, httpConnection.getResponseCode());
+        
+        assertEquals("Fault+Occurred", httpConnection.getResponseMessage());
+
+        InputStream in = httpConnection.getErrorStream();                  
+        assertNotNull(in);     
+        assertEquals("application/soap+xml", httpConnection.getContentType());
+        
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);        
+
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("s", Soap12.SOAP_NAMESPACE);
+        ns.put("ns2", "http://apache.org/hello_world_soap12_http/types");
+        XPathUtils xu = new XPathUtils(ns);
+        String codeValue  = (String) xu.getValue("/s:Envelope/s:Body/s:Fault/s:Code/s:Value/text()", 
+                                                 doc, 
+                                                 XPathConstants.STRING);
+       
+        assertEquals("soap:Receiver", codeValue);
+        String reason = (String) xu.getValue("//s:Reason//text()", 
+                                             doc, 
+                                             XPathConstants.STRING);
+        assertEquals("PingMeFault raised by server", reason);
+        
+        String minor = (String) xu.getValue("//s:Detail//ns2:faultDetail/ns2:minor/text()", 
+                                               doc, 
+                                               XPathConstants.STRING);
+        assertEquals("1", minor);
+        String major = (String) xu.getValue("//s:Detail//ns2:faultDetail/ns2:major/text()", 
+                                            doc, 
+                                            XPathConstants.STRING);
+        assertEquals("2", major);
+    }
+    
+    public void testGetMethodNotExist() throws Exception  {
+        HttpURLConnection httpConnection = 
+            getHttpConnection("http://localhost:9012/SoapContext/SoapPort/greetMe");
+        httpConnection.connect();
+        
+        assertEquals(500, httpConnection.getResponseCode());
+
+        assertEquals("application/soap+xml", httpConnection.getContentType());
+        
+        assertEquals("Fault+Occurred", httpConnection.getResponseMessage());
+
+        InputStream in = httpConnection.getErrorStream();                  
+        assertNotNull(in);        
+            
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("s", Soap12.SOAP_NAMESPACE);
+        ns.put("ns2", "http://apache.org/hello_world_soap12_http/types");
+        XPathUtils xu = new XPathUtils(ns);
+        String codeValue  = (String) xu.getValue("/s:Envelope/s:Body/s:Fault/s:Code/s:Value/text()", 
+                                                 doc, 
+                                                 XPathConstants.STRING);
+       
+        assertEquals("soap:Receiver", codeValue);
+        String reason = (String) xu.getValue("//s:Reason//text()", 
+                                             doc, 
+                                             XPathConstants.STRING);
+        assertEquals("No such operation: greetMe", reason);        
+    }
+    
 
     private Greeter getGreeter() {
         URL wsdl = getClass().getResource("/wsdl/hello_world_soap12.wsdl");
@@ -78,9 +184,8 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
 
         SOAPService service = new SOAPService(wsdl, serviceName);
         assertNotNull("Service is ull ", service);
-
-        return service.getPort(portName,
-                               Greeter.class);
+        
+        return service.getPort(portName, Greeter.class);
     }
 
     public static void main(String[] args) {

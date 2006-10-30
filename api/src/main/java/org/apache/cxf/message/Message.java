@@ -48,6 +48,7 @@ public interface Message extends Map<String, Object> {
     String MTOM_ENABLED = Message.class.getName() + ".isMtomEnabled";
     String SCHEMA_VALIDATION_ENABLED = Message.class.getCanonicalName() + ".schemaValidationEnabled";
     String CONTENT_TYPE = Message.class.getName() + ".ContentType";
+    String BASE_PATH = Message.class.getName() + ".BASE_PATH";
 
     String getId();
     void setId(String id);

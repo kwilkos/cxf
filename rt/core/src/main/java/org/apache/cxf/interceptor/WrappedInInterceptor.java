@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamConstants;
 
@@ -39,14 +40,21 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
+    private static final Logger LOG = Logger.getLogger(WrappedInInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WrappedInInterceptor.class);
 
     public WrappedInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
+        addAfter(URIMappingInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) {
+        if (isGET(message) && message.getContent(List.class) != null) {
+            LOG.info("XMLMessageInInterceptor skipped in HTTP GET method");
+            return;
+        }
+        
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
 
         // Trying to find the operation name from the XML.

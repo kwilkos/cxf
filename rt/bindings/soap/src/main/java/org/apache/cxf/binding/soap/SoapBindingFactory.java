@@ -60,6 +60,7 @@ import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
+import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
@@ -181,6 +182,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getOutInterceptors().add(new BareOutInterceptor());
         }
         
+        sb.getInInterceptors().add(new URIMappingInterceptor());
         return sb;
     }
 

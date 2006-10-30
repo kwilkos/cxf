@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -40,6 +41,8 @@ import org.apache.cxf.staxutils.StaxUtils;
  */
 public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(StaxInInterceptor.class);
+    private static final Logger LOG = Logger.getLogger(StaxInInterceptor.class.getName());    
+
     private static Map<Object, XMLInputFactory> factories = new HashMap<Object, XMLInputFactory>();
 
     public StaxInInterceptor() {
@@ -48,6 +51,10 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     public void handleMessage(Message message) {
+        if (isGET(message)) {
+            LOG.info("StaxInInterceptor skipped in HTTP GET method");
+            return;
+        }
         InputStream is = message.getContent(InputStream.class);
         assert is != null;
 

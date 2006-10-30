@@ -35,6 +35,7 @@ import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
+import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
@@ -85,6 +86,8 @@ public class XMLBindingFactory extends AbstractBindingFactory {
         
         xb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         xb.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
+        
+        xb.getInInterceptors().add(new URIMappingInterceptor());
 
         return xb;
     }

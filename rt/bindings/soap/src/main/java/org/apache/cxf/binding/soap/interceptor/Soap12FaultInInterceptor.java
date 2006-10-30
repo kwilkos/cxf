@@ -61,40 +61,40 @@ public class Soap12FaultInInterceptor extends AbstractSoapInterceptor {
 
         XMLStreamReader reader = message.getContent(XMLStreamReader.class);
         Map<String, String> ns = new HashMap<String, String>();
-        ns.put("soap12", Soap12.SOAP_NAMESPACE);
+        ns.put("s", Soap12.SOAP_NAMESPACE);
         XPathUtils xu = new XPathUtils(ns);        
         
         try {
             Document fault = StaxUtils.read(new FragmentStreamReader(reader));
-            String faultCodeString = (String) xu.getValue("//soap12:Fault/Code/Value/text()", 
+            String faultCodeString = (String) xu.getValue("//s:Fault/s:Code/s:Value/text()", 
                                                         fault, 
                                                         XPathConstants.STRING);
             
             faultCode = XMLUtils.getQName(faultCodeString, fault);
             
-            String subCodeString = (String) xu.getValue("//soap12:Fault/Code/Subcode/Value/text()", 
+            String subCodeString = (String) xu.getValue("//s:Fault/s:Code/s:Subcode/s:Value/text()", 
                                                         fault,
                                                         XPathConstants.STRING);
             if (StringUtils.isEmpty(subCodeString)) {
                 subCode = XMLUtils.getQName(subCodeString, fault);
             }
             
-            exMessage = (String) xu.getValue("//soap12:Fault/Reason/Text/text()", 
+            exMessage = (String) xu.getValue("//s:Fault/s:Reason/s:Text/text()", 
                                              fault,
                                              XPathConstants.STRING);
             
-            Node detailNode = (Node) xu.getValue("//soap12:Fault/Detail",
+            Node detailNode = (Node) xu.getValue("//s:Fault/s:Detail",
                                                  fault,
                                                  XPathConstants.NODE);
             if (detailNode != null) {
                 detail = (Element) detailNode;
             }
             
-            role = (String) xu.getValue("//soap12:Fault/Role/text()", 
+            role = (String) xu.getValue("//s:Fault/s:Role/text()", 
                                         fault,
                                         XPathConstants.STRING);
 
-            node = (String) xu.getValue("//soap12:Fault/Node/text()", 
+            node = (String) xu.getValue("//s:Fault/s:Node/text()", 
                                         fault,
                                         XPathConstants.STRING);                       
         } catch (XMLStreamException e) {

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -47,7 +48,7 @@ import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
-
+    private static final Logger LOG = Logger.getLogger(XMLMessageInInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageInInterceptor.class);
     
     // TODO: this should be part of the chain!!
@@ -60,8 +61,14 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     public void handleMessage(Message message) throws Fault {
+        if (isGET(message)) {            
+            LOG.info("XMLMessageInInterceptor skipped in HTTP GET method");
+            return;
+        }
         XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
+        
         DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
+        
         Endpoint ep = message.getExchange().get(Endpoint.class);
         BindingInfo service = ep.getEndpointInfo().getBinding();
         

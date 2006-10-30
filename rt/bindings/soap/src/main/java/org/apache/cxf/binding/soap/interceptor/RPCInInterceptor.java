@@ -21,6 +21,7 @@ package org.apache.cxf.binding.soap.interceptor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
@@ -29,6 +30,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
+import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -40,9 +42,12 @@ import org.apache.cxf.staxutils.StaxUtils;
 
 public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
+    private static final Logger LOG = Logger.getLogger(RPCInInterceptor.class.getName());
+    
     public RPCInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
+        addAfter(URIMappingInterceptor.class.getName());
     }
 
     private BindingOperationInfo getOperation(Message message, QName opName) {
@@ -50,6 +55,10 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     public void handleMessage(Message message) {
+        if (isGET(message)) {
+            LOG.info("RPCInInterceptor skipped in HTTP GET method");
+            return;
+        }
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
 
         BindingOperationInfo operation = null;

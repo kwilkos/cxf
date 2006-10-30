@@ -19,6 +19,10 @@
 
 package org.apache.cxf.systest.common;
 
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -39,6 +43,15 @@ public abstract class ClientServerTestBase extends TestCase {
 
     protected ClientServerTestBase(String name) {
         super(name);
+    }
+    
+    protected HttpURLConnection getHttpConnection(String target) throws Exception {
+        URL url = new URL(target);        
+        
+        URLConnection connection = url.openConnection();            
+        
+        assertTrue(connection instanceof HttpURLConnection);
+        return (HttpURLConnection)connection;        
     }
 
     protected boolean runClient(Runnable clientImpl, long timeOut, TimeUnit timeUnit)

@@ -21,6 +21,7 @@ package org.apache.cxf.binding.soap.interceptor;
 
 import java.io.InputStream;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
@@ -42,6 +43,7 @@ import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
+    private static final Logger LOG = Logger.getLogger(ReadHeadersInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReadHeadersInterceptor.class);
 
     public ReadHeadersInterceptor() {
@@ -50,7 +52,10 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) {
-        
+        if (isGET(message)) {
+            LOG.info("ReadHeadersInterceptor skipped in HTTP GET method");
+            return;
+        }
         XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
         
         if (xmlReader == null) {

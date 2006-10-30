@@ -48,13 +48,15 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
         return createMessage(new MessageImpl());
     }
 
+    @SuppressWarnings("unchecked")
     public Message createMessage(Message m) {
         SoapMessage soapMessage = new SoapMessage(m);
         soapMessage.setVersion(version);
+
         soapMessage.put(Message.CONTENT_TYPE, version.getContentType());
 
         if (mtomEnabled) {
-            m.put(Message.MTOM_ENABLED, Boolean.TRUE);
+            soapMessage.put(Message.MTOM_ENABLED, Boolean.TRUE);
         }
         return soapMessage;
     }

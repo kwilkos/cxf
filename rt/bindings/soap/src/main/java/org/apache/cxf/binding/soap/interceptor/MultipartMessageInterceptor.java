@@ -19,6 +19,8 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
+import java.util.logging.Logger;
+
 import org.apache.cxf.binding.attachment.AttachmentDeserializer;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -29,6 +31,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
     public static final int THRESHHOLD = 1024 * 100;
+    private static final Logger LOG = Logger.getLogger(MultipartMessageInterceptor.class.getName());
 
     /**
      * contruct the soap message with attachments from mime input stream
@@ -42,7 +45,10 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
     }
     
     public void handleMessage(Message message) {
-        
+        if (isGET(message)) {
+            LOG.info("MultipartMessageInterceptor skipped in HTTP GET method");
+            return;
+        }
         AttachmentDeserializer ad = new AttachmentDeserializer(message);
         if (ad.preprocessMessage()) {
             message.put(AttachmentDeserializer.class, ad);

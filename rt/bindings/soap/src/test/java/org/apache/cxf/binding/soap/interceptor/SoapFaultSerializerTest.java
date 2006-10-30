@@ -105,10 +105,14 @@ public class SoapFaultSerializerTest extends AbstractCXFTest {
 
         Document faultDoc = DOMUtils.readXml(new ByteArrayInputStream(out.toByteArray()));
         
-        assertValid("//soap12env:Fault/Code/Value[text()='ns1:Sender']", faultDoc);
-        assertValid("//soap12env:Fault/Code/Subcode[text()='ns2:invalidsoap']", faultDoc);
-        assertValid("//soap12env:Fault/Reason/Text[@xml:lang='en']", faultDoc);
-        assertValid("//soap12env:Fault/Reason/Text[text()='" + faultString + "']", faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Code/soap12env:Value[text()='ns1:Sender']", 
+                    faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Code/soap12env:Subcode[text()='ns2:invalidsoap']", 
+                    faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Reason/soap12env:Text[@xml:lang='en']", 
+                    faultDoc);
+        assertValid("//soap12env:Fault/soap12env:Reason/soap12env:Text[text()='" + faultString + "']", 
+                    faultDoc);
 
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(new ByteArrayInputStream(out.toByteArray()));
         m.setContent(XMLStreamReader.class, reader);
@@ -120,8 +124,8 @@ public class SoapFaultSerializerTest extends AbstractCXFTest {
 
         SoapFault fault2 = (SoapFault)m.getContent(Exception.class);
         assertNotNull(fault2);
-        assertEquals(fault.getMessage(), fault2.getMessage());
         assertEquals(Soap12.getInstance().getSender(), fault2.getFaultCode());
+        assertEquals(fault.getMessage(), fault2.getMessage());        
     }
     
 }

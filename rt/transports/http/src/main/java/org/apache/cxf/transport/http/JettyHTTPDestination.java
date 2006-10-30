@@ -19,7 +19,6 @@
 
 package org.apache.cxf.transport.http;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,17 +52,13 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 
-
 public class JettyHTTPDestination extends AbstractHTTPDestination {
-    
-    public static final String HTTP_REQUEST =
-        JettyHTTPDestination.class.getName() + ".REQUEST";
-    public static final String HTTP_RESPONSE =
-        JettyHTTPDestination.class.getName() + ".RESPONSE";
-    
-    protected static final String ANONYMOUS_ADDRESS =
-        "http://www.w3.org/2005/08/addressing/anonymous";
-    
+
+    public static final String HTTP_REQUEST = JettyHTTPDestination.class.getName() + ".REQUEST";
+    public static final String HTTP_RESPONSE = JettyHTTPDestination.class.getName() + ".RESPONSE";
+
+    protected static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
+
     protected ServerEngine engine;
     protected MessageObserver incomingObserver;
 
@@ -75,10 +70,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param endpointInfo the endpoint info of the destination
      * @throws IOException
      */
-    public JettyHTTPDestination(Bus b,
-                                ConduitInitiator ci,
-                                EndpointInfo endpointInfo)
-        throws IOException {
+    public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo) throws IOException {
         this(b, ci, endpointInfo, null);
     }
 
@@ -92,15 +84,11 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @throws IOException
      */
 
-    public JettyHTTPDestination(Bus b,
-                                ConduitInitiator ci,
-                                EndpointInfo endpointInfo,
-                                ServerEngine eng)
+    public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
         super(b, ci, endpointInfo);
-        engine = eng != null 
-                 ? eng
-                 : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort());
+        engine = eng != null ? eng : JettyHTTPServerEngine
+            .getForPort(bus, nurl.getProtocol(), nurl.getPort());
     }
 
     /**
@@ -115,36 +103,34 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 URL url = new URL(getAddressValue());
                 if (contextMatchOnStem()) {
                     engine.addServant(url, new AbstractHttpHandler() {
-                            public void handle(String pathInContext, String pathParams,
-                                               HttpRequest req, HttpResponse resp)
-                                throws IOException {
-                                String name = getName();
-                                if (pathInContext.startsWith(name)) {
-                                    doService(req, resp);                    
-                                }
+                        public void handle(String pathInContext, String pathParams, HttpRequest req,
+                                           HttpResponse resp) throws IOException {
+                            String name = getName();
+                            if (pathInContext.startsWith(name)) {
+                                doService(req, resp);
                             }
-                        });
+                        }
+                    });
                 } else {
                     engine.addServant(url, new AbstractHttpHandler() {
-                            public void handle(String pathInContext, String pathParams,
-                                               HttpRequest req, HttpResponse resp)
-                                throws IOException {
-                                if (pathInContext.equals(getName())) {
-                                    doService(req, resp);
-                                }
+                        public void handle(String pathInContext, String pathParams, HttpRequest req,
+                                           HttpResponse resp) throws IOException {
+                            if (pathInContext.startsWith(getName())) {
+                                doService(req, resp, getName());
                             }
-                        });
+                        }
+                    });
                 }
             } catch (Exception e) {
                 LOG.log(Level.WARNING, "URL creation failed: ", e);
             }
         } else {
             LOG.info("unregistering incoming observer: " + incomingObserver);
-            engine.removeServant(nurl);            
+            engine.removeServant(nurl);
         }
         incomingObserver = observer;
     }
-    
+
     /**
      * Retreive a back-channel Conduit, which must be policy-compatible
      * with the current Message and associated Destination. For example
@@ -158,23 +144,18 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param address the backchannel address (null to indicate anonymous)
      * @return a suitable Conduit
      */
-    public Conduit getBackChannel(Message inMessage,
-                                  Message partialResponse,
-                                  EndpointReferenceType address)
+    public Conduit getBackChannel(Message inMessage, Message partialResponse, EndpointReferenceType address)
         throws IOException {
         HttpResponse response = (HttpResponse)inMessage.get(HTTP_RESPONSE);
         Conduit backChannel = null;
         Exchange ex = inMessage.getExchange();
-        EndpointReferenceType target = address != null
-                                       ? address
-                                       : ex.get(EndpointReferenceType.class);
+        EndpointReferenceType target = address != null ? address : ex.get(EndpointReferenceType.class);
         if (target == null) {
             backChannel = new BackChannelConduit(response);
         } else {
             if (partialResponse != null) {
                 // setup the outbound message to for 202 Accepted
-                partialResponse.put(Message.RESPONSE_CODE,
-                                    HttpURLConnection.HTTP_ACCEPTED);
+                partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
                 backChannel = new BackChannelConduit(response);
                 ex.put(EndpointReferenceType.class, target);
             } else {
@@ -200,17 +181,16 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     /**
      * Shutdown the Destination, i.e. stop accepting incoming messages.
      */
-    public void shutdown() {  
+    public void shutdown() {
     }
-        
+
     /**
      * Copy the request headers into the message.
      * 
      * @param message the current message
      * @param headers the current set of headers
      */
-    protected void copyRequestHeaders(Message message,
-                                      Map<String, List<String>> headers) {
+    protected void copyRequestHeaders(Message message, Map<String, List<String>> headers) {
         HttpRequest req = (HttpRequest)message.get(HTTP_REQUEST);
         for (Enumeration e = req.getFieldNames(); e.hasMoreElements();) {
             String fname = (String)e.nextElement();
@@ -225,9 +205,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 String val = (String)e2.nextElement();
                 values.add(val);
             }
-        }        
+        }
     }
-    
+
     /**
      * Copy the response headers into the response.
      * 
@@ -246,25 +226,26 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             }
         }
     }
-    
-    protected void doService(HttpRequest req, HttpResponse resp)
-        throws IOException {
+
+    protected void doService(HttpRequest req, HttpResponse resp) throws IOException {
+        doService(req, resp, null);
+    }
+
+    protected void doService(HttpRequest req, HttpResponse resp, String pathInContext) throws IOException {
         if (getServer().isSetRedirectURL()) {
             resp.sendRedirect(getServer().getRedirectURL());
             resp.commit();
             req.setHandled(true);
             return;
-        }    
-      
-         
+        }
+
         if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
             try {
-                
-                
+
                 resp.addField("Content-Type", "text/xml");
-                
+
                 OutputStream os = resp.getOutputStream();
-                
+
                 WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
                 Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
                 wsdlWriter.writeWSDL(def, os);
@@ -273,23 +254,26 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 req.setHandled(true);
                 return;
             } catch (Exception ex) {
-                
+
                 ex.printStackTrace();
             }
         }
-        
-        
+
         // REVISIT: service on executor if associated with endpoint
-        serviceRequest(req, resp);
+        serviceRequest(req, resp, pathInContext);
     }
-    
-    protected void serviceRequest(final HttpRequest req, final HttpResponse resp)
+
+    protected void serviceRequest(final HttpRequest req, final HttpResponse resp) throws IOException {
+        serviceRequest(req, resp, null);
+    }
+
+    protected void serviceRequest(final HttpRequest req, final HttpResponse resp, String base)
         throws IOException {
         try {
             if (LOG.isLoggable(Level.INFO)) {
                 LOG.info("Service http request on thread: " + Thread.currentThread());
             }
-            
+
             MessageImpl inMessage = new MessageImpl();
             inMessage.setContent(InputStream.class, req.getInputStream());
             inMessage.put(HTTP_REQUEST, req);
@@ -297,13 +281,15 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
             inMessage.put(Message.PATH_INFO, req.getPath());
             inMessage.put(Message.QUERY_STRING, req.getQuery());
+            inMessage.put(Message.CONTENT_TYPE, req.getContentType());
+            inMessage.put(Message.BASE_PATH, base);
 
             setHeaders(inMessage);
-            
-            inMessage.setDestination(this);            
-            
+
+            inMessage.setDestination(this);
+
             incomingObserver.onMessage(inMessage);
-            
+
             resp.commit();
             req.setHandled(true);
         } finally {
@@ -319,7 +305,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         OutputStream responseStream = null;
         if (responseObj instanceof HttpResponse) {
             HttpResponse response = (HttpResponse)responseObj;
-                
+
             Integer i = (Integer)outMessage.get(Message.RESPONSE_CODE);
             if (i != null) {
                 int status = i.intValue();
@@ -333,10 +319,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             } else {
                 response.setStatus(HttpURLConnection.HTTP_OK);
             }
-            
+
             copyResponseHeaders(outMessage, response);
             responseStream = response.getOutputStream();
-                    
+
             if (isOneWay(outMessage)) {
                 response.commit();
             }
@@ -344,28 +330,28 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             LOG.log(Level.WARNING, "UNEXPECTED_RESPONSE_TYPE_MSG", responseObj.getClass());
             throw new IOException("UNEXPECTED_RESPONSE_TYPE_MSG" + responseObj.getClass());
         }
-    
+
         if (isOneWay(outMessage)) {
             outMessage.remove(HTTP_RESPONSE);
         }
         return responseStream;
     }
-    
+
     /**
      * Backchannel conduit.
      */
     protected class BackChannelConduit implements Conduit {
-        
+
         protected HttpResponse response;
         protected EndpointReferenceType target;
-        
+
         BackChannelConduit(HttpResponse resp) {
             response = resp;
-            target =
-                EndpointReferenceUtils.getEndpointReference(ANONYMOUS_ADDRESS);
+            target = EndpointReferenceUtils.getEndpointReference(ANONYMOUS_ADDRESS);
         }
+
         public void close(Message msg) throws IOException {
-            msg.getContent(OutputStream.class).close();        
+            msg.getContent(OutputStream.class).close();
         }
 
         /**
@@ -383,19 +369,19 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
          * 
          * @param message the message to be sent.
          */
+        @SuppressWarnings("unchecked")
         public void send(Message message) throws IOException {
             message.put(HTTP_RESPONSE, response);
-            message.setContent(OutputStream.class,
-                               new WrappedOutputStream(message, response));
+            message.setContent(OutputStream.class, new WrappedOutputStream(message, response));
         }
-        
+
         /**
          * @return the reference associated with the target Destination
-         */    
+         */
         public EndpointReferenceType getTarget() {
             return target;
         }
-        
+
         /**
          * Retreive the back-channel Destination.
          * 
@@ -405,22 +391,22 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         public Destination getBackChannel() {
             return null;
         }
-        
+
         /**
          * Close the conduit
          */
         public void close() {
         }
     }
-    
+
     /**
      * Wrapper stream responsible for flushing headers and committing outgoing
      * HTTP-level response.
      */
     private class WrappedOutputStream extends AbstractWrappedOutputStream {
-        
+
         protected HttpResponse response;
-        
+
         WrappedOutputStream(Message m, HttpResponse resp) {
             super(m);
             response = resp;
@@ -444,9 +430,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             commitResponse();
         }
 
-        protected void onWrite() throws IOException {            
+        protected void onWrite() throws IOException {
         }
-        
+
         private void commitResponse() {
             try {
                 response.commit();

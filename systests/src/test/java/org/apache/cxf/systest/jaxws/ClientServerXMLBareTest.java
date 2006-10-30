@@ -19,23 +19,32 @@
 
 package org.apache.cxf.systest.jaxws;
 
+import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Document;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
+import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.hello_world_xml_http.bare.Greeter;
 import org.apache.hello_world_xml_http.bare.GreeterImpl;
 import org.apache.hello_world_xml_http.bare.XMLService;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
 
-public class ClientServerXMLBareTest extends TestCase {
+public class ClientServerXMLBareTest extends ClientServerTestBase {
 
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/bare", "XMLPort");
 
@@ -106,6 +115,31 @@ public class ClientServerXMLBareTest extends TestCase {
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
+    }
+    
+    public void testGetGreetMe() throws Exception {
+        HttpURLConnection httpConnection = 
+            getHttpConnection("http://localhost:9031/XMLService/XMLPort/greetMe/me/cxf");    
+        httpConnection.connect();        
+        
+        assertEquals(200, httpConnection.getResponseCode());
+    
+        assertEquals("text/xml", httpConnection.getContentType());
+        assertEquals("OK", httpConnection.getResponseMessage());
+        
+        InputStream in = httpConnection.getInputStream();
+        assertNotNull(in);
+        
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+        
+        Map<String, String> ns = new HashMap<String, String>();       
+        ns.put("ns2", "http://apache.org/hello_world_xml_http/bare/types");
+        XPathUtils xu = new XPathUtils(ns);        
+        String response = (String) xu.getValue("//ns2:responseType/text()", 
+                                               doc, 
+                                               XPathConstants.STRING);
+        assertEquals("Hello cxf", response);
     }
 
 }
