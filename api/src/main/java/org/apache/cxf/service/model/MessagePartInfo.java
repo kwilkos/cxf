@@ -24,6 +24,9 @@ import javax.xml.namespace.QName;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 
 public final class MessagePartInfo extends AbstractPropertiesHolder {
+    
+    public static final String KEY_SKIPPED = "SKIPPED";
+    
     private QName pname;
     private AbstractMessageContainer mInfo;
     

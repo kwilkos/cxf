@@ -22,16 +22,12 @@ package org.apache.cxf.interceptor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
@@ -114,62 +110,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             }
             paramNum++;
         }
-
-        if (message.get(Element.class) != null) {
-            parameters.addAll(abstractParamsFromHeader(message.get(Element.class), ep, message));
-        }
-
-        // if we didn't know the operation going into this, find it.
-        if (bop == null) {
-            OperationInfo op = ops.iterator().next();
-            bop = ep.getEndpointInfo().getBinding().getOperation(op);
-            if (bop != null) {
-                exchange.put(BindingOperationInfo.class, bop);
-                exchange.setOneWay(op.isOneWay());
-            }
-        }
-        
         message.setContent(List.class, parameters);
-    }
-    
-    private List<Object> abstractParamsFromHeader(Element headerElement, Endpoint ep, Message message) {
-        List<Object> paramInHeader = new ArrayList<Object>();
-        List<MessagePartInfo> parts = null;
-        List<Element> elemInHeader = new ArrayList<Element>();
-        for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
-
-            if (isRequestor(message)) {
-                parts = bop.getOutput().getMessageInfo().getMessageParts();
-            } else {
-                parts = bop.getInput().getMessageInfo().getMessageParts();
-            }
-
-            for (MessagePartInfo mpi : parts) {
-                if (mpi.isInSoapHeader()) {
-                    NodeList nodeList = headerElement.getChildNodes();
-                    if (nodeList != null) {
-                        for (int i = 0; i < nodeList.getLength(); i++) {
-                            if (nodeList.item(i).getNamespaceURI().equals(
-                                            mpi.getElementQName().getNamespaceURI())
-                                            && nodeList.item(i).getLocalName().equals(
-                                                            mpi.getElementQName().getLocalPart())) {
-                                Element param = (Element) nodeList.item(i);
-                                if (!elemInHeader.contains(param)) {
-                                    elemInHeader.add(param);
-                                }
-                            }
-                        }
-
-                    }
-
-                }
-            }
-        }
-
-        for (Iterator iter = elemInHeader.iterator(); iter.hasNext();) {
-            Element element = (Element)iter.next();
-            paramInHeader.add(getNodeDataReader(message).read(element));
-        }
-        return paramInHeader;
+        
     }
 }

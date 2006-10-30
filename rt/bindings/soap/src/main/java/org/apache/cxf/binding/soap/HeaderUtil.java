@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -39,6 +40,15 @@ public final class HeaderUtil {
     private HeaderUtil() {
     }
 
+    public static boolean isHeaderParam(List<SoapHeaderInfo> headers, MessagePartInfo part) {
+        for (SoapHeaderInfo shi : headers) {
+            if (shi.getPart() == part) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private static Set<QName> getHeaderParts(BindingMessageInfo bmi) {
         Object obj = bmi.getProperty(HEADERS_PROPERTY);
         if (obj == null) {

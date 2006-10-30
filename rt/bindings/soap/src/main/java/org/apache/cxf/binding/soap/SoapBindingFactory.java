@@ -49,6 +49,7 @@ import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapInPostInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -175,6 +176,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
                         && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
             sb.getInInterceptors().add(new BareInInterceptor());
+            sb.getInInterceptors().add(new SoapInPostInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         } else {
             sb.getInInterceptors().add(new WrappedInInterceptor());
@@ -247,15 +249,10 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             for (SoapHeader header : headers) {
                 SoapHeaderInfo headerInfo = new SoapHeaderInfo();
                 headerInfo.setUse(header.getUse());
-
                 MessagePartInfo part = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
                                 .getPart()));
-                if (part != null) {
-                    part.setInSoapHeader(true);
-                }
                 headerInfo.setPart(part);
                 messageParts.remove(part);
-
                 bmsg.addExtensor(headerInfo);
             }
         }

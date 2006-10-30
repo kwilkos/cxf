@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataReaderFactory;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -185,6 +186,10 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             MessagePartInfo p = (MessagePartInfo)msgInfo.getMessageParts().get(index);
 
             if (name.equals(p.getConcreteName())) {
+                Endpoint ep = exchange.get(Endpoint.class);
+                BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
+                exchange.put(BindingOperationInfo.class, boi);
+                exchange.setOneWay(op.isOneWay());
                 return p;
             }
 

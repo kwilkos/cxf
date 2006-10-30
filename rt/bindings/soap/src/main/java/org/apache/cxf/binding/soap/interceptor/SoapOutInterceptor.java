@@ -29,9 +29,12 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.binding.soap.HeaderUtil;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
+import org.apache.cxf.binding.soap.model.SoapBodyInfo;
+import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.databinding.DataWriterFactory;
@@ -40,6 +43,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
@@ -110,15 +114,18 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                  
         int countParts = 0;
         List<MessagePartInfo> parts = null;
+        BindingMessageInfo bmi = null;
         if (!isRequestor(message)) {
             if (operation.getOperationInfo().hasOutput()) {
                 parts = operation.getOutput().getMessageInfo().getMessageParts();
+                bmi = operation.getOutput();
             } else {
                 parts = new ArrayList<MessagePartInfo>();
             }
         } else {
             if (operation.getOperationInfo().hasInput()) {
                 parts = operation.getInput().getMessageInfo().getMessageParts();
+                bmi = operation.getInput();
             } else {
                 parts = new ArrayList<MessagePartInfo>();
             }
@@ -135,10 +142,11 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             Object[] els = parts.toArray();
             
             SoapVersion soapVersion = message.getVersion();
+            List<SoapHeaderInfo> headers = bmi.getExtensors(SoapHeaderInfo.class);
             for (int idx = 0; idx < countParts; idx++) {
                 Object arg = args[idx];
                 MessagePartInfo part = (MessagePartInfo)els[idx];
-                if (!part.isInSoapHeader()) {
+                if (headers == null || !HeaderUtil.isHeaderParam(headers, part)) {
                     continue;
                 } else {
                     if (!(startedHeader || preexistingHeaders)) {
@@ -158,6 +166,12 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                     dataWriter.write(arg, part, xtw);
                 }
                  
+            }
+            for (MessagePartInfo part : parts) {
+                if (bmi.getExtensor(SoapBodyInfo.class) != null 
+                        && !bmi.getExtensor(SoapBodyInfo.class).getParts().contains(part)) {
+                    part.setProperty(MessagePartInfo.KEY_SKIPPED, Boolean.TRUE);
+                }
             }
             if (startedHeader || preexistingHeaders) {
                 try {
