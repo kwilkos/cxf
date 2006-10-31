@@ -78,7 +78,7 @@ public class CXFServiceUnit {
         } 
         bus = b;
         rootPath = path;
-        parent.addResource(url);
+        parent.addResource(url.toString());
         parentLoader = parent;
         parseJbiDescriptor(); 
     }

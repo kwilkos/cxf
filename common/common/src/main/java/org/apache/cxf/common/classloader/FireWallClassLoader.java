@@ -206,6 +206,28 @@ public class FireWallClassLoader extends SecureClassLoader {
         throw new ClassNotFoundException(name);
     }
 
+    /*protected Class<?> findClass(String name) throws ClassNotFoundException {
+        if (negativeFilters != null) {
+            for (int i = 0; i < negativeFilters.length; i++) {
+                if (name.startsWith(negativeFilters[i])) {
+                    throw new ClassNotFoundException(name);
+                }
+            }
+        }
+
+        if (filters != null) {
+            for (int i = 0; i < filters.length; i++) {
+                if (name.startsWith(filters[i])) {
+                    return super.findClass(name);
+                }
+            }
+        } else {
+            return super.loadClass(name);
+        }
+        throw new ClassNotFoundException(name);
+    }*/
+
+    
     public java.net.URL getResource(String name) {
         if (negativeFNFilters != null) {
             for (int i = 0; i < negativeFNFilters.length; i++) {

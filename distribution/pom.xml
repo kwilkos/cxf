@@ -98,6 +98,14 @@
             <version>${pom.version}</version>
         </dependency>
 
+	<dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-int-jbi</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+
+
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-core</artifactId>

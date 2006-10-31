@@ -42,7 +42,6 @@ public final class BusFactoryHelper {
         BusFactory instance = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String className = getBusFactoryClass(null, classLoader);
-            
         Class<? extends BusFactory> busFactoryClass;
         try {
             busFactoryClass = Class.forName(className, true, classLoader).asSubclass(BusFactory.class);

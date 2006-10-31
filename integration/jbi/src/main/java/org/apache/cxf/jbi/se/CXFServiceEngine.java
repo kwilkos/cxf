@@ -46,7 +46,7 @@ import org.apache.cxf.jbi.se.state.ServiceEngineStateMachine;
  */
 public class CXFServiceEngine implements ComponentLifeCycle, Component {
     
-    public static final String JBI_TRANSPORT_ID = "http://celtix.object.org/transport/jbi";
+    public static final String JBI_TRANSPORT_ID = "http://apache.org/transport/jbi";
     
     
     

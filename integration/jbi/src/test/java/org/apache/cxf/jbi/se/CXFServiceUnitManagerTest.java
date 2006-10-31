@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.jbi.se;
 
-import java.net.URL;
 import java.util.logging.Logger;
 
 import javax.jbi.component.ComponentContext;
@@ -48,7 +47,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         
         bus = new SpringBusFactory().createBus();
         ComponentClassLoader componentClassLoader = 
-            new ComponentClassLoader(new URL[0], getClass().getClassLoader());
+            new ComponentClassLoader(new String[0], getClass().getClassLoader());
         csuManager = new CXFServiceUnitManager(bus, ctx, componentClassLoader);
     }
     
