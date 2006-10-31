@@ -53,7 +53,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
                                    new SoapBindingFactory());
         message = new MessageImpl();
         message.put(Message.HTTP_REQUEST_METHOD, "GET");
-        message.put(Message.BASE_PATH, "SoapPort");
+        message.put(Message.BASE_PATH, "/SOAPServiceRPCLit/SoapPort/");
         
         Exchange exchange = new ExchangeImpl();
         message.setExchange(exchange);        

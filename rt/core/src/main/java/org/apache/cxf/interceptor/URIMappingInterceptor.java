@@ -159,39 +159,32 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             return queries;
         }
 
-        String path = (String)message.get(Message.PATH_INFO);
-        String basePath = getBasePath(message);
-        List<String> parts = Arrays.asList(path.split("/"));
-        int baseIndex = parts.indexOf(basePath);
-        if (baseIndex + 2 > parts.size()) {
-            return null;
-        }
-        for (int i = baseIndex + 2; i < parts.size(); i += 2) {
+        String rest = getRest(message);
+        List<String> parts = StringUtils.getParts(rest, "/");
+        
+        for (int i = 1; i < parts.size(); i+=2) {
             if (i + 1 > parts.size()) {
                 queries.put(parts.get(i), null);
+            } else {
+                queries.put(parts.get(i), parts.get(i + 1));
             }
-            queries.put(parts.get(i), parts.get(i + 1));
         }
         return queries;
     }
     
     private String getBasePath(Message message) {
-        String basePath = (String)message.get(Message.BASE_PATH);     
-        return StringUtils.trim(basePath, "/");
+        return (String)message.get(Message.BASE_PATH);        
     }
-
-    protected String getOperationName(Message message) {
+    
+    private String getRest(Message message) {
         String path = (String)message.get(Message.PATH_INFO);
-
-        String basePath = getBasePath(message);
-
-        List<String> parts = Arrays.asList(path.split("/"));
-
-        int baseIndex = parts.indexOf(basePath);
-        if (baseIndex + 1 > parts.size()) {
-            return null;
-        }
-        String opName = parts.get(baseIndex + 1);
+        String basePath = getBasePath(message);        
+        return StringUtils.diff(path, basePath);        
+    }
+    
+    protected String getOperationName(Message message) {
+        String rest = getRest(message);        
+        String opName = StringUtils.getFirstNotEmpty(rest, "/");
         if (opName.indexOf("?") != -1) {
             opName = opName.split("\\?")[0];
         }

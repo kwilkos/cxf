@@ -19,11 +19,36 @@
 
 package org.apache.cxf.common.util;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 public class StringUtilsTest extends TestCase {
     public void testTrim() throws Exception {
         String target = "////soapport///";
         assertEquals("soapport", StringUtils.trim(target, "/"));
+    }
+    
+    public void testDiff() throws Exception {
+        String str1 = "http://local/SoapContext/SoapPort/greetMe/me/CXF";
+        String str2 = "http://local/SoapContext/SoapPort";
+        String str3 = "http://local/SoapContext/SoapPort/";
+        assertEquals("/greetMe/me/CXF", StringUtils.diff(str1, str2));
+        assertEquals("greetMe/me/CXF", StringUtils.diff(str1, str3));
+        assertEquals("http://local/SoapContext/SoapPort/", StringUtils.diff(str3, str1));
+    }
+    
+    public void testGetFirstNotEmpty() throws Exception {        
+        assertEquals("greetMe", StringUtils.getFirstNotEmpty("/greetMe/me/CXF", "/"));
+        assertEquals("greetMe", StringUtils.getFirstNotEmpty("greetMe/me/CXF", "/"));
+    }
+    
+    public void testGetParts() throws Exception {
+        String str = "/greetMe/me/CXF";
+        List<String> parts = StringUtils.getParts(str, "/");
+        assertEquals(3, parts.size());
+        assertEquals("greetMe", parts.get(0));
+        assertEquals("me", parts.get(1));
+        assertEquals("CXF", parts.get(2));
     }
 }

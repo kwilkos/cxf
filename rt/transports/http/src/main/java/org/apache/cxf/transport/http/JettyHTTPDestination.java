@@ -36,6 +36,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -114,9 +115,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 } else {
                     engine.addServant(url, new AbstractHttpHandler() {
                         public void handle(String pathInContext, String pathParams, HttpRequest req,
-                                           HttpResponse resp) throws IOException {
+                                           HttpResponse resp) throws IOException {                            
                             if (pathInContext.startsWith(getName())) {
-                                doService(req, resp, getName());
+                                doService(req, resp);
                             }
                         }
                     });
@@ -228,10 +229,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     protected void doService(HttpRequest req, HttpResponse resp) throws IOException {
-        doService(req, resp, null);
-    }
-
-    protected void doService(HttpRequest req, HttpResponse resp, String pathInContext) throws IOException {
         if (getServer().isSetRedirectURL()) {
             resp.sendRedirect(getServer().getRedirectURL());
             resp.commit();
@@ -260,14 +257,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         }
 
         // REVISIT: service on executor if associated with endpoint
-        serviceRequest(req, resp, pathInContext);
+        serviceRequest(req, resp);
     }
 
-    protected void serviceRequest(final HttpRequest req, final HttpResponse resp) throws IOException {
-        serviceRequest(req, resp, null);
-    }
-
-    protected void serviceRequest(final HttpRequest req, final HttpResponse resp, String base)
+    protected void serviceRequest(final HttpRequest req, final HttpResponse resp)
         throws IOException {
         try {
             if (LOG.isLoggable(Level.INFO)) {
@@ -282,7 +275,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.PATH_INFO, req.getPath());
             inMessage.put(Message.QUERY_STRING, req.getQuery());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
-            inMessage.put(Message.BASE_PATH, base);
+            if (!StringUtils.isEmpty(getAddressValue())) {
+                inMessage.put(Message.BASE_PATH, new URL(getAddressValue()).getPath());
+            }
 
             setHeaders(inMessage);
 

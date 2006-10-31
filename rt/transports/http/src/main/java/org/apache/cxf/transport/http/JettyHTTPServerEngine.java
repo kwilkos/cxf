@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
 import org.mortbay.http.HttpContext;
@@ -95,9 +96,6 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
      * @param handler notified on incoming HTTP requests
      */
     public synchronized void addServant(URL url, AbstractHttpHandler handler) {
-
-        String lpath = url.getPath();
-
         if (server == null) {
             server = new HttpServer();
             
@@ -133,16 +131,9 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
                 }    
             }
         }
-
-        String contextName = "";
-        String servletMap = lpath;
-        int idx = lpath.lastIndexOf('/');
-        if (idx > 0) {
-            contextName = lpath.substring(0, idx);
-            servletMap = lpath.substring(idx);
-        }
-        final String smap = servletMap;
         
+        String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
         
         HttpContext context = server.getContext(contextName);
         try {

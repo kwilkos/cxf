@@ -19,8 +19,12 @@
 
 package org.apache.cxf.common.util;
 
-import java.io.*;
-import java.net.*;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public final class StringUtils {
 
@@ -92,5 +96,34 @@ public final class StringUtils {
         } else {
             return uri1.equals(uri2);
         }
+    }
+    
+    public static String diff(String str1, String str2) {
+        int index = str1.lastIndexOf(str2);
+        if (index > -1) {
+            return str1.substring(str2.length());
+        }
+        return str1;
+    }
+    
+    public static List<String> getParts(String str, String sperator) {
+        List<String> ret = new ArrayList<String>();
+        List<String> parts = Arrays.asList(str.split("/"));
+        for (String part : parts) {
+            if (!isEmpty(part)) {
+                ret.add(part);
+            }
+        }
+        return ret;
+    }
+    
+    public static String getFirstNotEmpty(String str, String sperator) {
+        List<String> parts = Arrays.asList(str.split("/"));
+        for (String part : parts) {
+            if (!isEmpty(part)) {
+                return part;
+            }
+        }
+        return str;
     }
 }

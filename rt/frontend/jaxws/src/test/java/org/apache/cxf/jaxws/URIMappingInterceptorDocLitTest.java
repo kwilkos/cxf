@@ -54,7 +54,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         
         message = new MessageImpl();
         message.put(Message.HTTP_REQUEST_METHOD, "GET");
-        message.put(Message.BASE_PATH, "SoapPort");
+        message.put(Message.BASE_PATH, "/CalculatorService/SoapPort");
         
         Exchange exchange = new ExchangeImpl();
         message.setExchange(exchange);        
