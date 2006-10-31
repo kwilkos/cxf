@@ -256,6 +256,7 @@
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
+                                <suppressionsLocation>cxf-checkstyle-suppressions.xml</suppressionsLocation>
                                 <sourceDirectory>${basedir}/src</sourceDirectory>
                                 <propertyExpansion>
                                     apache.header.file=${basedir}/${topDirectoryLocation}/etc/apache-header.txt

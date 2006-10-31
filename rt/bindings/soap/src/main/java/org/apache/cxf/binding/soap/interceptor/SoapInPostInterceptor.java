@@ -32,6 +32,7 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.binding.soap.HeaderUtil;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
@@ -55,7 +56,7 @@ public class SoapInPostInterceptor extends AbstractInDatabindingInterceptor {
     public void handleMessage(Message message) throws Fault {
         Exchange exchange = message.getExchange();
 
-        List<Object> parameters = (List<Object>) message.getContent(List.class);
+        List<Object> parameters = CastUtils.cast(message.getContent(List.class));
 
         Endpoint ep = exchange.get(Endpoint.class);
         Service service = ep.getService();
