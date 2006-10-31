@@ -589,7 +589,7 @@ public class MAPAggregatorTest extends TestCase {
         OperationInfo opInfo = new OperationInfo(); 
         opInfo.setProperty(Method.class.getName(), method);
         BindingOperationInfo bindingOpInfo = new TestBindingOperationInfo(opInfo);
-        setUpExchangeGet(exchange, BindingOperationInfo.class, bindingOpInfo);
+        setUpExchangeGet(exchange, BindingOperationInfo.class, bindingOpInfo, 2);
         // Usual fun with EasyMock not always working as expected
         //BindingOperationInfo bindingOpInfo =
         //    EasyMock.createMock(BindingOperationInfo.class); 
@@ -630,8 +630,12 @@ public class MAPAggregatorTest extends TestCase {
     }
 
     private <T> void setUpExchangeGet(Exchange exchange, Class<T> clz, T value) {
+        setUpExchangeGet(exchange, clz, value, 1);
+    }
+
+    private <T> void setUpExchangeGet(Exchange exchange, Class<T> clz, T value, int n) {
         exchange.get(clz);
-        EasyMock.expectLastCall().andReturn(value);
+        EasyMock.expectLastCall().andReturn(value).times(n);
         //exchange.put(Endpoint.class, value);
     }
 

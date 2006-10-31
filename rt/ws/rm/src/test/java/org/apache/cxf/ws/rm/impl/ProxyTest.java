@@ -19,7 +19,6 @@
 
 package org.apache.cxf.ws.rm.impl;
 
-
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
@@ -30,10 +29,11 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public class ProxyTest extends TestCase {
-
-    public void testConstruction() {
-  
-        Proxy proxy = new Proxy(null);
+    
+    public void testCreateService() throws NoSuchMethodException {
+        Proxy proxy = new Proxy(null, null);
+        proxy.createService();
+        
         Service service = proxy.getService();
         ServiceInfo si = service.getServiceInfo();
         assertNotNull("service info is null", si);
@@ -45,5 +45,9 @@ public class ProxyTest extends TestCase {
         String ns = si.getName().getNamespaceURI();
         OperationInfo oi = intf.getOperation(new QName(ns, "CreateSequence"));
         assertNotNull("No operation info.", oi);
+        
     }
+    
+
+    
 }

@@ -81,7 +81,7 @@ public class Source extends AbstractEndpoint {
         }
     }
     
-    public Collection<SourceSequence> getAllSequences() {                 
+    public Collection<SourceSequenceImpl> getAllSequences() {                 
         return CastUtils.cast(map.values());
     } 
     

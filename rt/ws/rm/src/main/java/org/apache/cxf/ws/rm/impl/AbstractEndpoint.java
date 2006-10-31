@@ -63,6 +63,13 @@ public class AbstractEndpoint {
     public Proxy getProxy() {
         return reliableEndpoint.getProxy();
     }
+    
+    /**
+     * @return Returns the servant.
+     */
+    public Servant getServant() {
+        return reliableEndpoint.getServant();
+    }
 
     /**
      * Generates and returns a new sequence identifier.

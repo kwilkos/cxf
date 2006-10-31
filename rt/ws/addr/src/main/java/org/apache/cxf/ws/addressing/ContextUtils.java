@@ -33,6 +33,7 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Endpoint;
@@ -504,7 +505,20 @@ public final class ContextUtils {
         // from the wsaw:Action WSDL element)
         LOG.fine("Determining action");
         Exception fault = message.getContent(Exception.class);
-        Method method = getMethod(message);
+        if (null == fault) {
+            BindingOperationInfo bindingOpInfo =
+                message.getExchange().get(BindingOperationInfo.class);
+            if (bindingOpInfo != null) {
+                SoapOperationInfo soi = bindingOpInfo.getExtensor(SoapOperationInfo.class);
+                if (null != soi) {
+                    action = soi.getAction();
+                }
+            }
+        }
+        Method method = null;
+        if (null == action) {
+            method = getMethod(message);
+        }
         LOG.fine("method: " + method + ", fault: " + fault);
         if (method != null) {
             if (fault != null) {
@@ -557,6 +571,7 @@ public final class ContextUtils {
                 }
             }
         }
+        LOG.fine("action: " + action);
         return action != null ? getAttributedURI(action) : null;
     }
 

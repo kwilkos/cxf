@@ -19,14 +19,10 @@
 
 package org.apache.cxf.ws.rm.impl;
 
-
 import org.apache.cxf.ws.rm.CreateSequenceResponseType;
 import org.apache.cxf.ws.rm.CreateSequenceType;
 import org.apache.cxf.ws.rm.SequenceFault;
 import org.apache.cxf.ws.rm.TerminateSequenceType;
-
-
-
 
 public interface SequenceService {
     void createSequence(CreateSequenceType create) throws SequenceFault;

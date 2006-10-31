@@ -22,13 +22,9 @@ package org.apache.cxf.ws.rm.impl;
 import org.apache.cxf.ws.addressing.AddressingConstants;
 import org.apache.cxf.ws.addressing.AddressingConstantsImpl;
 import org.apache.cxf.ws.addressing.VersionTransformer;
-import org.apache.cxf.ws.addressing.v200408.AttributedURI;
-import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyConstantsImpl;
-
-// import org.apache.cxf.ws.rm.persistence.PersistenceUtils;
 
 public final class RMUtils {
    
@@ -36,14 +32,12 @@ public final class RMUtils {
     private static final org.apache.cxf.ws.rm.ObjectFactory WSRM_FACTORY;
     private static final AddressingConstants WSA_CONSTANTS; 
     private static final PolicyConstants WSP_CONSTANTS;
-    // private static final PersistenceUtils WSRM_PERSISTENCE_UTILS;
     
     static {
         WSA_FACTORY = new org.apache.cxf.ws.addressing.v200408.ObjectFactory();
         WSRM_FACTORY = new org.apache.cxf.ws.rm.ObjectFactory();        
         WSA_CONSTANTS = new AddressingConstantsImpl();
-        WSP_CONSTANTS = new PolicyConstantsImpl();
-        // WSRM_PERSISTENCE_UTILS = new PersistenceUtils();       
+        WSP_CONSTANTS = new PolicyConstantsImpl();       
     }
     
     protected RMUtils() {        
@@ -65,19 +59,41 @@ public final class RMUtils {
         return WSP_CONSTANTS;
     }
     
-    /*
-    public static PersistenceUtils getPersistenceUtils() {
-        return WSRM_PERSISTENCE_UTILS;
+    public static org.apache.cxf.ws.addressing.EndpointReferenceType createAnonymousReference() {
+        return createReference(org.apache.cxf.ws.addressing.Names.WSA_ANONYMOUS_ADDRESS);
     }
-    */
     
-    public static EndpointReferenceType createReference(String address) {
-        EndpointReferenceType ref = 
-            VersionTransformer.Names200408.WSA_OBJECT_FACTORY.createEndpointReferenceType();
-        AttributedURI value =
-            VersionTransformer.Names200408.WSA_OBJECT_FACTORY.createAttributedURI();
-        value.setValue(address);
-        ref.setAddress(value);
-        return ref;
+    public static org.apache.cxf.ws.addressing.v200408.EndpointReferenceType createAnonymousReference2004() {
+        return VersionTransformer.convert(createAnonymousReference());
     }
+    
+    public static org.apache.cxf.ws.addressing.EndpointReferenceType createNoneReference() {
+        return createReference(org.apache.cxf.ws.addressing.Names.WSA_NONE_ADDRESS);
+    }
+    
+    public static org.apache.cxf.ws.addressing.v200408.EndpointReferenceType createNoneReference2004() {
+        return VersionTransformer.convert(createNoneReference());
+    }
+    
+    public static org.apache.cxf.ws.addressing.EndpointReferenceType createReference(String address) {
+        org.apache.cxf.ws.addressing.ObjectFactory factory = 
+            new org.apache.cxf.ws.addressing.ObjectFactory();
+        org.apache.cxf.ws.addressing.EndpointReferenceType epr = factory.createEndpointReferenceType();
+        org.apache.cxf.ws.addressing.AttributedURIType uri = factory.createAttributedURIType();
+        uri.setValue(address);
+        epr.setAddress(uri);        
+        return epr;        
+    }
+    
+    public static org.apache.cxf.ws.addressing.v200408.EndpointReferenceType 
+    createReference2004(String address) {
+        org.apache.cxf.ws.addressing.v200408.ObjectFactory factory = 
+            new org.apache.cxf.ws.addressing.v200408.ObjectFactory();
+        org.apache.cxf.ws.addressing.v200408.EndpointReferenceType epr = 
+            factory.createEndpointReferenceType();
+        org.apache.cxf.ws.addressing.v200408.AttributedURI uri = factory.createAttributedURI();
+        uri.setValue(address);
+        epr.setAddress(uri);
+        return epr;
+    } 
 }

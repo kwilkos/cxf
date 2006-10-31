@@ -49,8 +49,7 @@ public class SourceSequenceImplTest extends TestCase {
     private RMInterceptor interceptor;
     private SourcePolicyType sp;
     private SequenceTerminationPolicyType stp;
-   
- 
+  
     public void setUp() {        
         factory = new ObjectFactory();
         id = factory.createIdentifier();

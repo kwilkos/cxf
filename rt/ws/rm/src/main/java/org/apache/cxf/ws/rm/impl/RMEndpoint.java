@@ -30,15 +30,16 @@ public class RMEndpoint {
     private Source source;
     private Destination destination;
     private Proxy proxy;
+    private Servant servant;
     
     public RMEndpoint(RMInterceptor i, Endpoint e) {
         interceptor = i;
         endpoint = e;
         source = new Source(this);
         destination = new Destination(this);
-        if (null != endpoint) {
-            proxy = new Proxy(this);
-        }
+        proxy = new Proxy(interceptor.getBus(), this);
+        proxy.initialise();
+        servant = new Servant(this);
     }
     
     public QName getName() {
@@ -83,8 +84,22 @@ public class RMEndpoint {
     /**
      * @param proxy The proxy to set.
      */
-    public void setProxy(Proxy proxy) {
-        this.proxy = proxy;
+    public void setProxy(Proxy p) {
+        proxy = p;
+    }
+    
+    /**
+     * @return Returns the servant.
+     */
+    public Servant getServant() {
+        return servant;
+    }
+    
+    /**
+     * @param servant The servant to set.
+     */
+    public void setServant(Servant s) {
+        servant = s;
     }
     
     /** 

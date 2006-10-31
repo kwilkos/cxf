@@ -54,4 +54,14 @@ public interface SourceSequence {
      * @return the expiry data of this sequence
      */
     Date getExpires();
+    
+    /**
+     * Returns true if this sequence was constructed from an offer for an inbound sequence
+     * includes in the CreateSequenceRequest in response to which the sequence with
+     * the specified identifier was created.
+     * 
+     * @param id the sequence identifier
+     * @return true if the sequence was constructed from an offer.
+     */
+    boolean offeredBy(Identifier sid);
 }

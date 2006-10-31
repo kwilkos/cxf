@@ -230,8 +230,62 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         }     
     }
     
-    void handleInbound(Message message, boolean isFault) {
+    void handleInbound(Message message, boolean isFault) throws SequenceFault {
         LOG.entering(getClass().getName(), "handleInbound");
+        
+        RMProperties rmps = RMContextUtils.retrieveRMProperties(message, false);
+        
+        final AddressingPropertiesImpl maps = ContextUtils.retrieveMAPs(message, false, false);
+        assert null != maps;
+
+        String action = null;
+        if (null != maps.getAction()) {
+            action = maps.getAction().getValue();
+        }
+
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Action: " + action);
+        }
+        
+        Destination destination = getDestination(message);
+        Servant servant = destination.getServant();
+        
+        if (RMConstants.getCreateSequenceResponseAction().equals(action)) {
+            servant.createSequenceResponse(message);
+            return;
+        } else if (RMConstants.getCreateSequenceAction().equals(action)) {
+            servant.createSequence(message);
+            /*
+            Runnable response = new Runnable() {
+                public void run() {
+                    try {
+                        getProxy().createSequenceResponse(maps, csr);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (SequenceFault sf) {
+                        sf.printStackTrace();
+                    }
+                }
+            };
+            getBinding().getBus().getWorkQueueManager().getAutomaticWorkQueue().execute(response);
+            */    
+            return;
+        } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
+            servant.terminateSequence(message);
+        }
+        
+        // for application AND out of band messages
+
+        if (null != rmps) {            
+            
+            processAcknowledgments(rmps);
+
+            processAcknowledgmentRequests(rmps);  
+            
+            processSequence(rmps, maps);
+            
+            processDeliveryAssurance(rmps);
+        }
     }
     
     @PostConstruct
@@ -352,7 +406,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
                     
                     AddressingPropertiesImpl inMaps = ContextUtils.retrieveMAPs(message, false, false);
                     inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
-                    acksTo = RMUtils.createReference(inMaps.getTo().getValue());
+                    acksTo = RMUtils.createReference2004(inMaps.getTo().getValue());
                     to = inMaps.getReplyTo();
                     // getServant().setUnattachedIdentifier(inSeqId);
                     relatesTo = (new org.apache.cxf.ws.addressing.ObjectFactory()).createRelatesToType();
@@ -364,7 +418,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
                     acksTo = VersionTransformer.convert(maps.getReplyTo());
                     // for oneways
                     if (RMConstants.WSA_NONE_ADDRESS.equals(acksTo.getAddress().getValue())) {
-                        acksTo = RMUtils.createReference(RMConstants.WSA_ANONYMOUS_ADDRESS);
+                        acksTo = RMUtils.createAnonymousReference2004();
                     }
                 }
                 
@@ -379,7 +433,22 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
 
         return seq;
     }
+    
+    void processAcknowledgments(RMProperties rmps) {
+        
+    }
 
+    void processAcknowledgmentRequests(RMProperties rmps) {
+        
+    }
+    
+    void processSequence(RMProperties rmps, AddressingProperties maps) {
+        
+    }
+    
+    void processDeliveryAssurance(RMProperties rmps) {
+        
+    }
 
 
     /*
@@ -551,5 +620,7 @@ public class RMInterceptor extends RMInterceptorConfigBean implements PhaseInter
         initialise();
     }
     */
+    
+    
     
 }

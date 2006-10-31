@@ -104,6 +104,13 @@ public class SourceSequenceImpl extends AbstractSequenceImpl implements SourceSe
         return expires;
     }
     
+    /* (non-Javadoc)
+     * @see org.apache.cxf.ws.rm.SourceSequence#offeredBy()
+     */
+    public boolean offeredBy(Identifier sid) {
+        return null != offeringId && offeringId.getValue().equals(sid.getValue());
+    }
+    
     // end SourceSequence interface
     
     /**
@@ -140,18 +147,6 @@ public class SourceSequenceImpl extends AbstractSequenceImpl implements SourceSe
     
     void setLastMessage(boolean lm) {
         lastMessage = lm;
-    }
-    
-    /**
-     * Returns true if this sequence was constructed from an offer for an inbound sequence
-     * includes in the CreateSequenceRequest in response to which the sequence with
-     * the specified identifier was created.
-     * 
-     * @param id the sequence identifier
-     * @return true if the sequence was constructed from an offer.
-     */
-    boolean offeredBy(Identifier sid) {
-        return null != offeringId && offeringId.getValue().equals(sid.getValue());
     }
     
     /**

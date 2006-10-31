@@ -100,7 +100,7 @@ public final class ContextUtils {
         if (isRequestor(message)) {
             return message.getExchange().get(Endpoint.class);
         } else {
-            return null;
+            return message.getExchange().get(Endpoint.class);
         }
     }
 
