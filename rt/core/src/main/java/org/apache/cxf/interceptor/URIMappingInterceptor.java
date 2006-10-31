@@ -39,7 +39,6 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
