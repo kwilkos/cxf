@@ -162,7 +162,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         String rest = getRest(message);
         List<String> parts = StringUtils.getParts(rest, "/");
         
-        for (int i = 1; i < parts.size(); i+=2) {
+        for (int i = 1; i < parts.size(); i += 2) {
             if (i + 1 > parts.size()) {
                 queries.put(parts.get(i), null);
             } else {
