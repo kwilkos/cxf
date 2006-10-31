@@ -17,14 +17,16 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm;
+package org.apache.cxf.interceptor;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Set;
+import java.util.logging.Logger;
 
-import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.StaxOutInterceptor;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -33,7 +35,8 @@ import org.apache.cxf.phase.Phase;
  * 
  */
 public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
-    
+   
+    private static final Logger LOG = LogUtils.getL7dLogger(LoggingOutInterceptor.class); 
     private Set<String> before = Collections.singleton(StaxOutInterceptor.class.getName());
 
     public LoggingOutInterceptor() {
@@ -46,7 +49,7 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
             return;
         }
 
-        ForkOutputStream fos = new ForkOutputStream(os, System.out);        
+        ForkOutputStream fos = new ForkOutputStream(os);
         message.setContent(OutputStream.class, fos);
     }
 
@@ -54,8 +57,51 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
     public Set<String> getBefore() {
         return before;
     }
+
+    /**
+      * Output stream that multicasts its data to several underlying output streams.
+     */
+    public class ForkOutputStream extends OutputStream {
+
+        final OutputStream original;
+        final ByteArrayOutputStream bos;
     
+        public ForkOutputStream(OutputStream o) {
+            original = o;
+            bos = new ByteArrayOutputStream();
+        }
     
+        @Override
+        public void close() throws IOException {
+            bos.close();
+            LOG.info("Message: " + bos.toString());
+            original.close();
+        }
+
+        @Override
+        public void flush() throws IOException {
+            bos.flush();
+            original.flush();
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            bos.write(b, off, len);
+            original.write(b, off, len);
+        }
+    
+        @Override
+        public void write(byte[] b) throws IOException {
+            bos.write(b);
+            original.write(b);
+        }
+    
+        @Override
+        public void write(int b) throws IOException {
+            bos.write(b);
+            original.write(b);
+        }
+    }
     
     
 }
