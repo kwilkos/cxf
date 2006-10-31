@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -36,6 +37,8 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger LOG = Logger.getLogger(WrapperClassInInterceptor.class.getName());
+    
     public WrapperClassInInterceptor() {
         super();
         setPhase(Phase.POST_LOGICAL);
@@ -98,7 +101,10 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 message.getExchange().put(BindingOperationInfo.class, boi2);
                 message.getExchange().put(OperationInfo.class, op);
             }
-            
+            if (isGET(message)) {
+                LOG.info("WrapperClassInInterceptor skipped in HTTP GET method");
+                return;
+            }
             if (lst != null && lst.size() == 1) {
                 if (messageInfo.getMessageParts().size() > 0) {
                     Object wrappedObject = lst.get(0);

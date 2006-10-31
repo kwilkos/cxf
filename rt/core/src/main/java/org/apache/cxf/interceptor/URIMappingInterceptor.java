@@ -39,6 +39,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
@@ -55,7 +56,8 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         String method = (String)message.get(Message.HTTP_REQUEST_METHOD);
         LOG.info("Invoking HTTP method " + method);
         BindingOperationInfo op = message.getExchange().get(BindingOperationInfo.class);
-        if (!"GET".equalsIgnoreCase(method)) {
+        if (!isGET(message)) {
+            LOG.info("URIMappingInterceptor can only handle HTTP GET, not HTTP " + method);
             return;
         }
         if (op != null) {
@@ -74,7 +76,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         message.setContent(List.class, getParameters(message, op));
     }
 
-    private Method getMethod(Message message, BindingOperationInfo operation) {
+    private Method getMethod(Message message, BindingOperationInfo operation) {        
         MethodDispatcher md = (MethodDispatcher) message.getExchange().
             get(Service.class).get(MethodDispatcher.class.getName());
         return md.getMethod(operation);

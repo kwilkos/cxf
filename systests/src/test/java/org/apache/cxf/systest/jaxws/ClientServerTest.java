@@ -529,8 +529,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response = (String) xu.getValue("//ns2:greetMeResponse/ns2:responseType/text()", 
                                                body, 
                                                XPathConstants.STRING);
-        // TODO:wrong return type, should Hello cxf
-        assertEquals("Hello null", response);
+        assertEquals("Hello cxf", response);
     }
     
     public static void main(String[] args) {

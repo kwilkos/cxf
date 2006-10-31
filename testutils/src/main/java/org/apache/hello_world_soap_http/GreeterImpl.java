@@ -56,7 +56,7 @@ public class GreeterImpl implements Greeter {
     }
 
     public String greetMe(String me) {
-        LOG.info("Invoking greetMe");
+        LOG.info("Invoking greetMe " + me);
         invocationCount++;
         return "Hello " + me;
     }
