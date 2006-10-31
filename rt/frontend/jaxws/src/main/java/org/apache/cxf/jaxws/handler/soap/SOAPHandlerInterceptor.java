@@ -36,6 +36,7 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
@@ -81,7 +82,10 @@ public class SOAPHandlerInterceptor extends
             CachedStream cs = new CachedStream();
             message.setContent(OutputStream.class, cs);
 
-            message.getInterceptorChain().doInterceptInSubChain(message);
+            if (message.getInterceptorChain().doInterceptInSubChain(message) 
+                && message.getContent(Exception.class) != null) {
+                throw new Fault(message.getContent(Exception.class));
+            }
 
             super.handleMessage(message);
 

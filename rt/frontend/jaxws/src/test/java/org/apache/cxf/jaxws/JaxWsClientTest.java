@@ -144,14 +144,35 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         }
         
         try {
+            client.getEndpoint().getOutInterceptors().add(new NestedFaultThrower());
             client.getEndpoint().getOutInterceptors().add(new FaultThrower());
             client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
             fail("Should have returned a fault!");
-        } catch (RuntimeException ex) {
-            assertEquals(true, ex.getMessage().indexOf("Foo") > 0);
-        } 
+        } catch (Fault fault) {
+            assertEquals(true, fault.getMessage().indexOf("Foo") >= 0);
+        }         
+        
     }
 
+    
+    public static class NestedFaultThrower extends AbstractPhaseInterceptor<Message> {
+        
+        public NestedFaultThrower() {
+            super();
+            setPhase(Phase.PRE_LOGICAL);
+            addBefore(FaultThrower.class.getName());
+        }
+
+        public void handleMessage(Message message) throws Fault {
+            boolean result = message.getInterceptorChain().doIntercept(message);
+            assertEquals("doIntercept not return false", result, false);
+            assertNotNull(message.getContent(Exception.class));
+            throw new Fault(message.getContent(Exception.class));
+        }
+
+    }
+
+    
     public static class FaultThrower extends AbstractPhaseInterceptor<Message> {
         
         public FaultThrower() {

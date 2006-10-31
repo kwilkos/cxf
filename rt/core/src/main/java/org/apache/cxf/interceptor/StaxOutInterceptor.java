@@ -66,10 +66,16 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
         message.setContent(XMLStreamWriter.class, writer);
 
-        message.getInterceptorChain().doIntercept(message);
-
+        boolean result = message.getInterceptorChain().doIntercept(message);
+        
         try {
-            writer.close();
+            if (writer != null) {
+                writer.close();
+            }
+            
+            if (!result && message.getContent(Exception.class) != null) {
+                throw new Fault(message.getContent(Exception.class));
+            }            
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
         }

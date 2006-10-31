@@ -54,9 +54,13 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
         try {
             conduit.send(message);
 
-            message.getInterceptorChain().doIntercept(message);
-
-            conduit.close(message);
+            if (message.getInterceptorChain().doIntercept(message)) {
+                conduit.close(message);
+            } else {
+                if (message.getContent(Exception.class) != null) {
+                    throw new Fault(message.getContent(Exception.class));
+                }
+            }
         } catch (IOException ex) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("COULD_NOT_SEND", BUNDLE), ex);
         }

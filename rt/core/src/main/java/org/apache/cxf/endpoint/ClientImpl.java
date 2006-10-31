@@ -31,6 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
+import org.apache.cxf.interceptor.ClientOutFaultObserver;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
@@ -63,12 +64,14 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     private Bus bus;
     private Endpoint endpoint;
     private Conduit initedConduit;
+    private ClientOutFaultObserver outFaultObserver; 
     private int synchronousTimeout = 100000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
         bus = b;
         endpoint = e;
         getOutInterceptors().add(new MessageSenderInterceptor());
+        outFaultObserver = new ClientOutFaultObserver(bus);
     }
 
     public Endpoint getEndpoint() {
@@ -130,7 +133,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         chain.add(il);        
         
         modifyChain(chain, requestContext);
-        
+        chain.setFaultObserver(outFaultObserver);
         // setup conduit
         Conduit conduit = getConduit();
         exchange.setConduit(conduit);

@@ -65,6 +65,10 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private Message pausedMessage;
     private MessageObserver faultObserver;
     
+    // currently one chain for one request/response, use below as signal to avoid duplicate fault processing
+    // on nested calling of doIntercept(), which will throw same fault multi-times
+    private boolean faultOccured;
+    
     public PhaseInterceptorChain(List<Phase> ps) {
         state = State.EXECUTING;
         subChainState = new Stack<State>();
@@ -146,20 +150,16 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     return true;
                 }
             } catch (Exception ex) {
-                if (LOG.isLoggable(Level.INFO)) {
-                    LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
-                }
-                message.setContent(Exception.class, ex);
-                unwind(message);
-                
-                if (faultObserver != null) {
-                    faultObserver.onMessage(message);
-                } else {
-                    // Client out-bound message, directly throw exception back to client
-                    if (message.getExchange() != null 
-                            && message == message.getExchange().getOutMessage() 
-                            && message.containsKey(Message.REQUESTOR_ROLE)) {
-                        throw new RuntimeException(ex);
+                if (!faultOccured) {
+                    faultOccured = true;
+                    if (LOG.isLoggable(Level.INFO)) {
+                        LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
+                    }
+                    message.setContent(Exception.class, ex);
+                    unwind(message);
+                    
+                    if (faultObserver != null) {
+                        faultObserver.onMessage(message);
                     }
                 }
                 state = State.ABORTED;
