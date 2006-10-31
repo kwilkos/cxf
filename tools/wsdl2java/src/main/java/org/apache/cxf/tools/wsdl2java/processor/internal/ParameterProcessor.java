@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.wsdl2java.processor.internal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,15 +28,26 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jws.soap.SOAPBinding;
+import javax.wsdl.Definition;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.xml.sax.SAXException;
+
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
 
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
@@ -44,14 +56,23 @@ import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ProcessorUtil;
 
 public class ParameterProcessor extends AbstractProcessor {
-   
-    public ParameterProcessor(ToolContext penv) {      
-           super(penv);
+    
+    private Map<String, Element> wsdlElementMap = new HashMap<String, Element>();
+    private Map<String, String>  wsdlLoc = new HashMap<String, String>();
+    
+    @SuppressWarnings("unchecked")
+    public ParameterProcessor(ToolContext penv) {
+        super(penv);
+        Definition definition = (Definition)penv.get(ToolConstants.WSDL_DEFINITION);
+        wsdlLoc.put(definition.getTargetNamespace(), definition.getDocumentBaseURI());
+        List<Definition> defs = (List<Definition>)penv.get(ToolConstants.IMPORTED_DEFINITION);
+        for (Definition def : defs) {
+            wsdlLoc.put(def.getTargetNamespace(), def.getDocumentBaseURI());
+        }
     }
 
     public void process(JavaMethod method, Message inputMessage, Message outputMessage,
-                        boolean isRequestResponse, List<String> parameterOrder) throws ToolException {
-
+                        boolean isRequestResponse, List<String> parameterOrder) throws ToolException {     
         boolean parameterOrderPresent = false;
 
         if (parameterOrder != null && !parameterOrder.isEmpty()) {
@@ -158,12 +179,85 @@ public class ParameterProcessor extends AbstractProcessor {
 
     @SuppressWarnings("unchecked")
     private void processInput(JavaMethod method, Message inputMessage) throws ToolException {
-        Map<String, Part> inputPartsMap = inputMessage.getParts();
-        Collection<Part> inputParts = inputPartsMap.values();
+        List<Part> inputParts = getDefaultOrderParts(inputMessage);
         for (Part part : inputParts) {
             addParameter(method, getParameterFromPart(method, part, JavaType.Style.IN));
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    private List<Part> getDefaultOrderParts(Message message) {
+        Map<String, Part> partsMap = message.getParts();
+        List<Part> parts = new ArrayList<Part>();
+        if (message.getParts().size() > 1) {
+            List<String> paraOrder = getDefaultOrderPartNameList(message);
+            parts = message.getOrderedParts(paraOrder);
+        } else {
+            Collection<Part> partsValues = partsMap.values();
+            for (Part part : partsValues) {
+                parts.add(part);
+            }
+        }
+        return parts;
+    }
+    
+    
+    private Element getWSDLElement(Message message) {
+        String ns = message.getQName().getNamespaceURI();
+        String wsdlLocation = wsdlLoc.get(ns);
+        Element wsdlElement = wsdlElementMap.get(ns);
+        if (wsdlElementMap.get(ns) == null) {
+            Document doc = null;
+            try {
+                doc = DOMUtils.createDocumentBuilder().parse(wsdlLocation);
+                wsdlElement = doc.getDocumentElement();
+                wsdlElementMap.put(ns, wsdlElement);
+            } catch (SAXException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return wsdlElement;
+    }
+    
+    
+    private List<String> getDefaultOrderPartNameList(Message message) {
+        List<String> nameList = new ArrayList<String>(); 
+        Element wsdlElement = getWSDLElement(message);     
+        NodeList messageNodeList = wsdlElement.getElementsByTagNameNS(message.getQName().getNamespaceURI(),
+                                   WSDLConstants.QNAME_MESSAGE.getLocalPart());       
+        Node messageNode = null;
+        
+        for (int i = 0; i < messageNodeList.getLength(); i++) {
+            Node node = messageNodeList.item(i);
+            if (DOMUtils.getAttribute(node, 
+                                      WSDLConstants.ATTR_NAME).
+                                          equals(message.getQName().getLocalPart())) {
+                messageNode = node;
+                break;
+            }
+        }
+        if (messageNode == null) {
+            return null;
+        }
+        Node partNode = DOMUtils.getChild(messageNode, Node.ELEMENT_NODE);
+        nameList.add(DOMUtils.getAttribute(partNode, WSDLConstants.ATTR_NAME));
+        while (partNode.getNextSibling() != null) {
+            partNode = partNode.getNextSibling();
+            if (partNode.getNodeType() == Node.ELEMENT_NODE) {
+                nameList.add(DOMUtils.getAttribute(partNode, WSDLConstants.ATTR_NAME));
+            }
+        }
+        
+        
+        return nameList;
+        
+        
+    }
+    
 
     @SuppressWarnings("unchecked")
     private void processWrappedInput(JavaMethod method, Message inputMessage) throws ToolException {
@@ -193,9 +287,8 @@ public class ParameterProcessor extends AbstractProcessor {
                                boolean isRequestResponse) throws ToolException {
         Map<String, Part> inputPartsMap = 
             inputMessage == null ? new HashMap<String, Part>() : inputMessage.getParts();
-        Map<String, Part> outputPartsMap = 
-            outputMessage == null ? new HashMap<String, Part>() : outputMessage.getParts();
-        Collection<Part> outputParts = outputPartsMap.values();
+        List<Part> outputParts = 
+            outputMessage == null ? new ArrayList<Part>() : this.getDefaultOrderParts(outputMessage);
         // figure out output parts that are not present in input parts
         List<Part> outParts = new ArrayList<Part>();
         if (isRequestResponse) {

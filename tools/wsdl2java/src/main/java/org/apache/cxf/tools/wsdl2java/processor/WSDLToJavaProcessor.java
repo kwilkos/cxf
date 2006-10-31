@@ -162,7 +162,7 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         }
         
         bindingGenerator.generate();
-        //env.put(ToolConstants.BINDING_GENERATOR, bindingGenerator);
+       
         
 
     }

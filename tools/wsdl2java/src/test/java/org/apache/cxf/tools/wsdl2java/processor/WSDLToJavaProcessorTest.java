@@ -1103,7 +1103,17 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.process();
     }
     
-
+    public void testDefaultParameterOrder() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug161/header2.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+        Class clz = classLoader.loadClass("org.apache.header2.Header2Test");
+        Class headerData = classLoader.loadClass("org.apache.header2.HeaderData");
+        Class header = classLoader.loadClass("org.apache.header2.Header");
+        Method method = clz.getMethod("headerMethod", new Class[] {headerData, header});       
+        assertNotNull("method should be generated", method);
+    }
+    
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
     }

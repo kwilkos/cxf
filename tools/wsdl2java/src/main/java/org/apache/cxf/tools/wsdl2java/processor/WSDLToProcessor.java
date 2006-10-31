@@ -240,6 +240,11 @@ public class WSDLToProcessor implements Processor {
         for (Definition def : importedDefinitions) {
             extractSchema(def);
         }
+        env.put(ToolConstants.WSDL_DEFINITION, wsdlDefinition);
+        env.put(ToolConstants.IMPORTED_DEFINITION, importedDefinitions);
+        env.put(ToolConstants.SCHEMA_LIST, schemaList);
+        env.put(ToolConstants.SCHEMA_TARGET_NAMESPACES, schemaTargetNamespaces);
+        env.put(ToolConstants.PORTTYPE_MAP, getPortTypes(wsdlDefinition));
 
         if (schemaList.size() == 0) {
             if (env.isVerbose()) {
@@ -248,13 +253,7 @@ public class WSDLToProcessor implements Processor {
             return;
         }
 
-        schemaTargetNamespaces.clear();
         try {
-            env.put(ToolConstants.WSDL_DEFINITION, wsdlDefinition);
-            env.put(ToolConstants.IMPORTED_DEFINITION, importedDefinitions);
-            env.put(ToolConstants.SCHEMA_LIST, schemaList);
-            env.put(ToolConstants.SCHEMA_TARGET_NAMESPACES, schemaTargetNamespaces);
-            env.put(ToolConstants.PORTTYPE_MAP, getPortTypes(wsdlDefinition));
             bindingGenerator = (DataBindingGenerator)new JAXBBindingGenerator();
             bindingGenerator.initialize(env);
             env.put(ToolConstants.BINDING_GENERATOR, bindingGenerator);
