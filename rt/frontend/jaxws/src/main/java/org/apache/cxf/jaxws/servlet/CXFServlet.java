@@ -22,18 +22,27 @@ package org.apache.cxf.jaxws.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.factory.WSDLFactory;
+import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,24 +56,29 @@ import org.xml.sax.SAXException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
-import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.service.Service;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
+import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 
 public class CXFServlet extends HttpServlet {
+    
+    
     static final String HTTP_REQUEST =
-        CXFServlet.class.getName() + ".REQUEST";
+        "HTTP_SERVLET_REQUEST";
     static final String HTTP_RESPONSE =
-        CXFServlet.class.getName() + ".RESPONSE";
+        "HTTP_SERVLET_RESPONSE";
     
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
-    
+    static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
     protected Bus bus;
     protected Map<String, ServletDestination> servantMap 
         = new HashMap<String, ServletDestination>();
@@ -110,14 +124,11 @@ public class CXFServlet extends HttpServlet {
                     nd = nd.getNextSibling();
                 }
             } catch (SAXException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
+                throw new ServletException(ex);
             } catch (IOException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
+                throw new ServletException(ex);
             } catch (ParserConfigurationException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
+                throw new ServletException(ex);
             }
         }
     }
@@ -146,7 +157,7 @@ public class CXFServlet extends HttpServlet {
                              String serviceName,
                              String wsdlName,
                              String portName,
-                             String urlPat) {
+                             String urlPat) throws ServletException {
 
         try {
             
@@ -179,23 +190,17 @@ public class CXFServlet extends HttpServlet {
             replaceDestionFactory();
 //          doesn't really matter what URL is used here
             ep.publish("http://localhost" + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
-            JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(impl.getClass());
-            // build up the Service model
-            JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-            serviceFactory.setBus(bus);
-            serviceFactory.setServiceClass(impl.getClass());
-            Service service = serviceFactory.create();
-
-            // create the endpoint        
-            QName endpointName = implInfo.getEndpointName();
-            ei = service.getServiceInfo().getEndpoint(endpointName);
+            
+            ei = ep.getServer().getEndpoint().getEndpointInfo();
+            
+            
 
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
+            throw new ServletException(ex);
         } catch (InstantiationException ex) {
-            ex.printStackTrace();
+            throw new ServletException(ex);
         } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
+            throw new ServletException(ex);
         }    
     }
 
@@ -218,7 +223,8 @@ public class CXFServlet extends HttpServlet {
         registerTransport(factory, "http://cxf.apache.org/bindings/xformat");
     }
 
-    public void loadEndpoint(ServletConfig servletConfig, Node node) {
+    public void loadEndpoint(ServletConfig servletConfig, Node node) 
+        throws ServletException {
         Element el = (Element)node;
         String implName = el.getAttribute("implementation");
         String serviceName = el.getAttribute("service");
@@ -245,19 +251,56 @@ public class CXFServlet extends HttpServlet {
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         try {
-            ((ServletDestination)ep.getServer().getDestination()).doService(request, response);
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Service http request on thread: " + Thread.currentThread());
+            }
+            
+            MessageImpl inMessage = new MessageImpl();
+            inMessage.setContent(InputStream.class, request.getInputStream());
+            inMessage.put(HTTP_REQUEST, request);
+            inMessage.put(HTTP_RESPONSE, response);
+            inMessage.put(Message.HTTP_REQUEST_METHOD, request.getMethod());
+            inMessage.put(Message.PATH_INFO, request.getPathInfo());
+            inMessage.put(Message.QUERY_STRING, request.getQueryString());
+            
+            ((ServletDestination)ep.getServer().getDestination()).doMessage(inMessage);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new ServletException(e);
         }
       
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         try {
-            ((ServletDestination)servletTransportFactory.
-                getDestination(ei)).doService(request, response);
-        } catch (IOException e) {
-            e.printStackTrace();
+            
+            
+            response.setHeader("Content-Type", "text/xml");
+            
+            OutputStream os = response.getOutputStream();
+            
+            WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
+            Definition def = new ServiceWSDLBuilder(ei.getService()).build();
+            Port port = def.getService(ei.getService().getName()).getPort(
+                                       ei.getName().getLocalPart());
+            List<?> exts = port.getExtensibilityElements();
+            if (exts.size() > 0) {
+                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
+                if (SOAPBindingUtil.isSOAPAddress(el)) {
+                    SoapAddress add = SOAPBindingUtil.getSoapAddress(el);
+                    add.setLocationURI(request.getRequestURL().toString());
+                }
+                if (el instanceof AddressType) {
+                    AddressType add = (AddressType)el;
+                    add.setLocation(request.getRequestURL().toString());
+                }
+            }
+            
+            wsdlWriter.writeWSDL(def, os);
+            response.getOutputStream().flush();
+            return;
+        } catch (Exception ex) {
+            
+            throw new ServletException(ex);
         }
     }
 

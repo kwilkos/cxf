@@ -36,13 +36,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
+
 import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
+
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Exception;
@@ -52,22 +48,19 @@ import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+
 
 public class ServletDestination implements Destination {
 
     public static final String HTTP_REQUEST =
-        ServletDestination.class.getName() + ".REQUEST";
+        "HTTP_SERVLET_REQUEST";
     public static final String HTTP_RESPONSE =
-        ServletDestination.class.getName() + ".RESPONSE"; 
+        "HTTP_SERVLET_RESPONSE"; 
     
     static final Logger LOG = Logger.getLogger(ServletDestination.class.getName());
         
@@ -240,35 +233,11 @@ public class ServletDestination implements Destination {
     protected void copyResponseHeaders(Message message, HttpServletResponse response) {
     }
     
-    protected void doService(HttpServletRequest req, HttpServletResponse resp)
-        throws IOException {
-          
-             
-        if ("GET".equals(req.getMethod())) {
-            doGet(req, resp);
-        } else {
-            doPost(req, resp);
-        }
-        
-        
-        // REVISIT: service on executor if associated with endpoint
-        //serviceRequest(req, resp);
-    }
     
-    private void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    
+    protected void doMessage(MessageImpl inMessage) throws IOException {
         try {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
-            }
             
-            MessageImpl inMessage = new MessageImpl();
-            inMessage.setContent(InputStream.class, req.getInputStream());
-            inMessage.put(HTTP_REQUEST, req);
-            inMessage.put(HTTP_RESPONSE, resp);
-            inMessage.put(Message.HTTP_REQUEST_METHOD, req.getMethod());
-            inMessage.put(Message.PATH_INFO, req.getPathInfo());
-            inMessage.put(Message.QUERY_STRING, req.getQueryString());
-
             setHeaders(inMessage);
             
             inMessage.setDestination(this);            
@@ -284,39 +253,6 @@ public class ServletDestination implements Destination {
         
     }
 
-    private void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        try {
-                        
-                        
-            resp.setHeader("Content-Type", "text/xml");
-            
-            OutputStream os = resp.getOutputStream();
-            
-            WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-            Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
-            Port port = def.getService(endpointInfo.getService().getName()).getPort(
-                                       endpointInfo.getName().getLocalPart());
-            List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {
-                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
-                if (SOAPBindingUtil.isSOAPAddress(el)) {
-                    SoapAddress add = SOAPBindingUtil.getSoapAddress(el);
-                    add.setLocationURI(req.getRequestURL().toString());
-                }
-                if (el instanceof AddressType) {
-                    AddressType add = (AddressType)el;
-                    add.setLocation(req.getRequestURL().toString());
-                }
-            }
-            
-            wsdlWriter.writeWSDL(def, os);
-            resp.getOutputStream().flush();
-            return;
-        } catch (Exception ex) {
-            
-            ex.printStackTrace();
-        }
-    }
     
     protected class BackChannelConduit implements Conduit {
         
@@ -410,7 +346,7 @@ public class ServletDestination implements Destination {
             try {
                 response.flushBuffer();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.severe(e.getMessage());
             }
         }
     }
