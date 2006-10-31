@@ -74,7 +74,8 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         
         EndpointInfo endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "CalculatorPort"));
         Endpoint endpoint = new EndpointImpl(getBus(), service, endpointInfo);
-        exchange.put(Endpoint.class, endpoint);
+        exchange.put(Service.class, service);
+        exchange.put(Endpoint.class, endpoint);        
     }
     
     public void testGetAddFromPath() throws Exception {
@@ -88,12 +89,12 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         Object parameters = message.getContent(List.class);
         assertNotNull(parameters);
         assertEquals(2, ((List)parameters).size());
-        // TODO: should return int, service factory is broken, check it later.
-        //        Integer value = (Integer) ((List)parameters).get(0);
-        //        assertEquals(1, value.intValue());
-        //        
-        //        value = (Integer) ((List)parameters).get(1);        
-        //        assertEquals(2, value.intValue());
+         
+        Integer value = (Integer) ((List)parameters).get(0);
+        assertEquals(1, value.intValue());
+        
+        value = (Integer) ((List)parameters).get(1);        
+        assertEquals(2, value.intValue());
         
         BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
         assertNotNull(boi);
@@ -112,11 +113,10 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         Object parameters = message.getContent(List.class);
         assertNotNull(parameters);
         assertEquals(2, ((List)parameters).size());
-        
-        // TODO: should return int
-        //        Integer value = (Integer) ((List)parameters).get(0);       
-        //        assertEquals(1, value.intValue());
-        //        value = (Integer) ((List)parameters).get(1);
-        //        assertEquals(2, value.intValue());
+                 
+        Integer value = (Integer) ((List)parameters).get(0);       
+        assertEquals(1, value.intValue());
+        value = (Integer) ((List)parameters).get(1);
+        assertEquals(2, value.intValue());
     }
 }

@@ -73,6 +73,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         
         EndpointInfo endpointInfo = service.getServiceInfo().getEndpoint(new QName(ns, "SoapPortRPCLit"));
         Endpoint endpoint = new EndpointImpl(getBus(), service, endpointInfo);
+        exchange.put(Service.class, service);
         exchange.put(Endpoint.class, endpoint);
     }
     

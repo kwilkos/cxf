@@ -19,6 +19,8 @@
 
 package org.apache.cxf.interceptor;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -27,14 +29,16 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import javax.jws.WebParam;
+
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.MessageInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
@@ -70,15 +74,55 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         message.setContent(List.class, getParameters(message, op));
     }
 
+    private Method getMethod(Message message, BindingOperationInfo operation) {
+        MethodDispatcher md = (MethodDispatcher) message.getExchange().
+            get(Service.class).get(MethodDispatcher.class.getName());
+        return md.getMethod(operation);
+    }
+    
+    private boolean isValidParameter(Annotation[][] parameterAnnotation, int index, String parameterName) {
+        if (parameterAnnotation == null || parameterAnnotation.length < index) {
+            return true;
+        }
+        Annotation[] annotations = parameterAnnotation[index];
+        if (annotations == null || annotations.length < 1) {
+            return true;
+        }
+        WebParam webParam = null;
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType() == WebParam.class) {
+                webParam = (WebParam) annotation;
+            }
+        }
+        if (webParam == null 
+            || StringUtils.isEmpty(webParam.name()) 
+            || webParam.name().equals(parameterName)) {
+            return true;
+        }
+        LOG.warning("The parameter name [" + parameterName 
+                    + "] is not match the one defined in the WebParam name [" + webParam.name() + "]");
+        return false;
+    }
+    
     protected List<Object> getParameters(Message message, BindingOperationInfo operation) {
         List<Object> parameters = new ArrayList<Object>();
-        MessageInfo msg = operation.getOperationInfo().getInput();
         int idx = parameters.size();
 
-        Map<String, String> queries = getQueries(message);
+        Map<String, String> queries = getQueries(message);        
+        
+        Method method = getMethod(message, operation);        
+        
+        Class[] types = method.getParameterTypes();
+        
+        Annotation[][] parameterAnnotation = method.getParameterAnnotations();
+        
         for (String key : queries.keySet()) {
-            MessagePartInfo p = msg.getMessageParts().get(idx);
-            if (p == null) {
+            Class<?> type = types[idx];
+            
+            // Do we need to fail the processing if the parameter not match the WebParam?
+            isValidParameter(parameterAnnotation, idx, key);
+            
+            if (type == null) {
                 LOG.warning("URIMappingInterceptor MessagePartInfo NULL ");
                 throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, 
                                                                        "index: " + idx + " on key " + key));
@@ -86,8 +130,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
 
             // TODO check the parameter name here
             Object param = null;
-            Class type = (Class)p.getProperty(Class.class.getName());
-            
+                        
             if (type != null && type.isPrimitive()) {
                 param = PrimitiveUtils.read(queries.get(key), type);
             } else {
@@ -96,15 +139,16 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             if (param != null) {
                 parameters.add(param);
             } else {
-                throw new RuntimeException(p.getName() + " can not be unmarshalled");
+                throw new RuntimeException(type.getName() + " can not be unmarshalled");
             }
-        }        
+            idx = parameters.size();
+        }
         return parameters;
     }
 
     protected Map<String, String> getQueries(Message message) {
         Map<String, String> queries = new LinkedHashMap<String, String>();
-        String query = (String)message.get(Message.QUERY_STRING);   
+        String query = (String)message.get(Message.QUERY_STRING);
         if (!StringUtils.isEmpty(query)) {
             List<String> parts = Arrays.asList(query.split("&"));
             for (String part : parts) {
