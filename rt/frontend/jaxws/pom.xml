@@ -102,19 +102,13 @@
             <artifactId>saaj-api</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-	<plugins>
+    
+    <build>    
+        <pluginManagement>
+          <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-buildtools</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                </dependencies>
                 <executions>
                     <execution>
                         <id>process-sources</id>
@@ -122,9 +116,6 @@
                         <configuration>
                             <suppressionsLocation>${basedir}/checkstyle-suppressions.xml</suppressionsLocation>
                         </configuration>
-                        <goals>
-                            <goal>checkstyle</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -137,8 +128,8 @@
                     </excludes>
                 </configuration>
             </plugin>
-                
-	<!--
+            
+	    <!--
 	    <plugin>
 		<groupId>org.apache.cxf</groupId>
 		<artifactId>cxf-common-xsd</artifactId>
@@ -184,7 +175,9 @@
                 </dependencies>
 	    </plugin>
 	    -->
-	</plugins>
+
+          </plugins>
+        </pluginManagement>
     </build>
 
 </project>
