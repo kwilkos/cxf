@@ -195,7 +195,6 @@ public class RMSoapInterceptorTest extends TestCase {
                                              RMConstants.WSRM_ACK_REQUESTED_NAME});
     }
 
-
     public void testDecodeSequence() throws XMLStreamException {
         SoapMessage message = setUpInboundMessage("resources/Message1.xml");
         RMSoapInterceptor codec = new RMSoapInterceptor();

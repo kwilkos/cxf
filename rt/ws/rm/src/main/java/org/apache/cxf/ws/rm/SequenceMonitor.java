@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.util.ArrayList;
 import java.util.List;

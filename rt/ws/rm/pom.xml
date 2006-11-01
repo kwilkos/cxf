@@ -129,7 +129,7 @@
                                 </deleteDirs>
                             </xsdOption>
                             <xsdOption>
-                                <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-interceptor.xsd</xsd>
+                                <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-manager.xsd</xsd>
                                 <bindingFile>${basedir}/src/main/resources/schemas/configuration/wsrm-policy.xjb</bindingFile>
                                 <extension>true</extension>
                                 <extensionArgs>

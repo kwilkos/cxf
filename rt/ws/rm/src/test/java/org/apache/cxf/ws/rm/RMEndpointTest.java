@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import javax.xml.namespace.QName;
 
@@ -28,13 +28,13 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
-public class ProxyTest extends TestCase {
+public class RMEndpointTest extends TestCase {
     
     public void testCreateService() throws NoSuchMethodException {
-        Proxy proxy = new Proxy(null, null);
-        proxy.createService();
+        RMEndpoint rme = new RMEndpoint(null, null);
+        rme.createService();
         
-        Service service = proxy.getService();
+        Service service = rme.getService();
         ServiceInfo si = service.getServiceInfo();
         assertNotNull("service info is null", si);
 

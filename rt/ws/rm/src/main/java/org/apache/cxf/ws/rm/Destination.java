@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -29,10 +29,6 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.ws.rm.DestinationSequence;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.SequenceFault;
-import org.apache.cxf.ws.rm.SequenceType;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 
 
@@ -40,26 +36,30 @@ public class Destination extends AbstractEndpoint {
 
     private static final Logger LOG = LogUtils.getL7dLogger(Destination.class);
     
-    private Map<String, DestinationSequenceImpl> map;
+    private Map<String, DestinationSequence> map;
     
     Destination(RMEndpoint reliableEndpoint) {
         super(reliableEndpoint);
-        map = new HashMap<String, DestinationSequenceImpl>();    
+        map = new HashMap<String, DestinationSequence>();    
     }  
     
     public DestinationSequence getSequence(Identifier id) {        
         return map.get(id.getValue());
     }
     
-    public void addSequence(DestinationSequenceImpl seq) {
+    public Collection<DestinationSequence> getAllSequences() {  
+        return CastUtils.cast(map.values());
+    }
+    
+    public void addSequence(DestinationSequence seq) {
         addSequence(seq, true);
     }
     
-    public void addSequence(DestinationSequenceImpl seq, boolean persist) {  
-        // seq.setDestination(this);
+    public void addSequence(DestinationSequence seq, boolean persist) {  
+        seq.setDestination(this);
         map.put(seq.getIdentifier().getValue(), seq);
         if (persist) {
-            RMStore store = getInterceptor().getStore();
+            RMStore store = getReliableEndpoint().getManager().getStore();
             if (null != store) {
                 store.createDestinationSequence(seq);
             }
@@ -68,7 +68,7 @@ public class Destination extends AbstractEndpoint {
     
     public void removeSequence(DestinationSequence seq) {        
         map.remove(seq.getIdentifier().getValue());
-        RMStore store = getInterceptor().getStore();
+        RMStore store = getReliableEndpoint().getManager().getStore();
         if (null != store) {
             store.removeDestinationSequence(seq.getIdentifier());
         }
@@ -86,7 +86,7 @@ public class Destination extends AbstractEndpoint {
     */
     public void acknowledge(SequenceType sequenceType, String replyToAddress) 
         throws SequenceFault {
-        DestinationSequenceImpl seq = getSequenceImpl(sequenceType.getIdentifier());
+        DestinationSequence seq = getSequence(sequenceType.getIdentifier());
         if (null != seq) {
             seq.acknowledge(sequenceType.getMessageNumber());
             
@@ -102,7 +102,7 @@ public class Destination extends AbstractEndpoint {
                 if (!(seq.getAcksTo().getAddress().getValue().equals(replyToAddress)
                     || seq.canPiggybackAckOnPartialResponse())) {
                     try {
-                        getProxy().acknowledge(seq);
+                        getReliableEndpoint().getProxy().acknowledge(seq);
                     } catch (IOException ex) {
                         Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, seq);
                         LOG.log(Level.SEVERE, msg.toString(), ex);
@@ -115,11 +115,5 @@ public class Destination extends AbstractEndpoint {
         }
     }
     
-    Collection<DestinationSequenceImpl> getAllSequences() {  
-        return CastUtils.cast(map.values());
-    }
     
-    DestinationSequenceImpl getSequenceImpl(Identifier sid) {
-        return map.get(sid.getValue());
-    }
 }

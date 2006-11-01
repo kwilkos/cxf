@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,25 +28,22 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.SequenceAcknowledgement;
-import org.apache.cxf.ws.rm.SourceSequence;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 
 public class Source extends AbstractEndpoint {
 
     private static final String REQUESTOR_SEQUENCE_ID = "";
     
-    private Map<String, SourceSequenceImpl> map;
-    private Map<String, SourceSequenceImpl> current;     
+    private Map<String, SourceSequence> map;
+    private Map<String, SourceSequence> current;     
     private Lock sequenceCreationLock;
     private Condition sequenceCreationCondition;
     private boolean sequenceCreationNotified;
 
     Source(RMEndpoint reliableEndpoint) {
         super(reliableEndpoint);
-        map = new HashMap<String, SourceSequenceImpl>();
-        current = new HashMap<String, SourceSequenceImpl>();
+        map = new HashMap<String, SourceSequence>();
+        current = new HashMap<String, SourceSequence>();
              
         sequenceCreationLock = new ReentrantLock();
         sequenceCreationCondition = sequenceCreationLock.newCondition();
@@ -58,15 +55,19 @@ public class Source extends AbstractEndpoint {
         return map.get(id.getValue());
     }
     
-    public void addSequence(SourceSequenceImpl seq) { 
+    public Collection<SourceSequence> getAllSequences() {                 
+        return CastUtils.cast(map.values());
+    } 
+    
+    public void addSequence(SourceSequence seq) { 
         addSequence(seq, true);
     }
     
-    public void addSequence(SourceSequenceImpl seq, boolean persist) {
+    public void addSequence(SourceSequence seq, boolean persist) {
         seq.setSource(this);
         map.put(seq.getIdentifier().getValue(), seq);
         if (persist) {
-            RMStore store = getInterceptor().getStore();
+            RMStore store = getReliableEndpoint().getManager().getStore();
             if (null != store) {
                 store.createSourceSequence(seq);
             }
@@ -75,15 +76,11 @@ public class Source extends AbstractEndpoint {
     
     public void removeSequence(SourceSequence seq) {        
         map.remove(seq.getIdentifier().getValue());
-        RMStore store = getInterceptor().getStore();
+        RMStore store = getReliableEndpoint().getManager().getStore();
         if (null != store) {
             store.removeSourceSequence(seq.getIdentifier());
         }
     }
-    
-    public Collection<SourceSequenceImpl> getAllSequences() {                 
-        return CastUtils.cast(map.values());
-    } 
     
     /**
      * Stores the received acknowledgment in the Sequence object identified in
@@ -95,10 +92,10 @@ public class Source extends AbstractEndpoint {
      */
     public void setAcknowledged(SequenceAcknowledgement acknowledgment) {
         Identifier sid = acknowledgment.getIdentifier();
-        SourceSequenceImpl seq = getSequenceImpl(sid);        
+        SourceSequence seq = getSequence(sid);        
         if (null != seq) {
             seq.setAcknowledged(acknowledgment);
-            getInterceptor().getRetransmissionQueue().purgeAcknowledged(seq);
+            getManager().getRetransmissionQueue().purgeAcknowledged(seq);
             if (seq.allAcknowledged()) {
                 // TODO
                 /*
@@ -122,7 +119,7 @@ public class Source extends AbstractEndpoint {
      */
     public Collection<SourceSequence> getAllUnacknowledgedSequences() {
         Collection<SourceSequence> seqs = new ArrayList<SourceSequence>();
-        for (SourceSequenceImpl seq : map.values()) {
+        for (SourceSequence seq : map.values()) {
             if (!seq.allAcknowledged()) {
                 seqs.add(seq);
             }
@@ -143,7 +140,7 @@ public class Source extends AbstractEndpoint {
      * Sets the current sequence used by a client side source.
      * @param s the current sequence.
      */
-    void setCurrent(SourceSequenceImpl s) {
+    public void setCurrent(SourceSequence s) {
         setCurrent(null, s);
     }
     
@@ -153,7 +150,7 @@ public class Source extends AbstractEndpoint {
      * 
      * @return the current sequence.
      */
-    SourceSequenceImpl getCurrent(Identifier i) {        
+    SourceSequence getCurrent(Identifier i) {        
         sequenceCreationLock.lock();
         try {
             return getAssociatedSequence(i);
@@ -169,7 +166,7 @@ public class Source extends AbstractEndpoint {
      * @return the associated sequence
      * @pre the sequenceCreationLock is already held
      */
-    SourceSequenceImpl getAssociatedSequence(Identifier i) {        
+    SourceSequence getAssociatedSequence(Identifier i) {        
         return current.get(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue());
     }
     
@@ -179,10 +176,10 @@ public class Source extends AbstractEndpoint {
      * @param i the sequence identifier
      * @return
      */
-    SourceSequenceImpl awaitCurrent(Identifier i) {
+    SourceSequence awaitCurrent(Identifier i) {
         sequenceCreationLock.lock();
         try {
-            SourceSequenceImpl seq = getAssociatedSequence(i);
+            SourceSequence seq = getAssociatedSequence(i);
             while (seq == null) {
                 while (!sequenceCreationNotified) {
                     try {
@@ -204,7 +201,7 @@ public class Source extends AbstractEndpoint {
      * sent as part of the inbound sequence with the specified identifier.
      * @param s the current sequence.
      */
-    void setCurrent(Identifier i, SourceSequenceImpl s) {        
+    void setCurrent(Identifier i, SourceSequence s) {        
         sequenceCreationLock.lock();
         try {
             current.put(i == null ? REQUESTOR_SEQUENCE_ID : i.getValue(), s);
@@ -213,9 +210,5 @@ public class Source extends AbstractEndpoint {
         } finally {
             sequenceCreationLock.unlock();
         }
-    }
-    
-    SourceSequenceImpl getSequenceImpl(Identifier id) {        
-        return map.get(id.getValue());
     }
 }

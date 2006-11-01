@@ -22,8 +22,6 @@ package org.apache.cxf.ws.rm;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.cxf.ws.rm.impl.RMUtils;
-
 public class RMProperties {
     private SequenceType sequence;
     private Collection<SequenceAcknowledgement> acks;

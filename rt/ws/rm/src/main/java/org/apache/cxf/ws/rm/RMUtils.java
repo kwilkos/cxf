@@ -17,27 +17,22 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import org.apache.cxf.ws.addressing.AddressingConstants;
 import org.apache.cxf.ws.addressing.AddressingConstantsImpl;
 import org.apache.cxf.ws.addressing.VersionTransformer;
-
-import org.apache.cxf.ws.policy.PolicyConstants;
-import org.apache.cxf.ws.policy.PolicyConstantsImpl;
 
 public final class RMUtils {
    
     private static final org.apache.cxf.ws.addressing.v200408.ObjectFactory WSA_FACTORY;
     private static final org.apache.cxf.ws.rm.ObjectFactory WSRM_FACTORY;
     private static final AddressingConstants WSA_CONSTANTS; 
-    private static final PolicyConstants WSP_CONSTANTS;
     
     static {
         WSA_FACTORY = new org.apache.cxf.ws.addressing.v200408.ObjectFactory();
         WSRM_FACTORY = new org.apache.cxf.ws.rm.ObjectFactory();        
-        WSA_CONSTANTS = new AddressingConstantsImpl();
-        WSP_CONSTANTS = new PolicyConstantsImpl();       
+        WSA_CONSTANTS = new AddressingConstantsImpl();      
     }
     
     protected RMUtils() {        
@@ -53,10 +48,6 @@ public final class RMUtils {
     
     public static AddressingConstants getAddressingConstants() {
         return WSA_CONSTANTS;
-    }
-    
-    public static PolicyConstants getPolicyConstants() {
-        return WSP_CONSTANTS;
     }
     
     public static org.apache.cxf.ws.addressing.EndpointReferenceType createAnonymousReference() {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -30,28 +30,24 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.ObjectFactory;
-import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
-import org.apache.cxf.ws.rm.SequenceFault;
-import org.apache.cxf.ws.rm.interceptor.AcksPolicyType;
-import org.apache.cxf.ws.rm.interceptor.DeliveryAssuranceType;
-import org.apache.cxf.ws.rm.interceptor.DestinationPolicyType;
+import org.apache.cxf.ws.rm.manager.AcksPolicyType;
+import org.apache.cxf.ws.rm.manager.DeliveryAssuranceType;
+import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.apache.cxf.ws.rm.policy.RMAssertion.AcknowledgementInterval;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
-public class DestinationSequenceImplTest extends TestCase {
+public class DestinationSequenceTest extends TestCase {
 
     private IMocksControl control;
     private ObjectFactory factory;
     private Identifier id;
     private EndpointReferenceType ref;
     private Destination destination;
-    private RMInterceptor interceptor;
+    private RMManager manager;
     private RMAssertion rma;
     private AcksPolicyType ap;
     private DestinationPolicyType dp;
@@ -63,13 +59,12 @@ public class DestinationSequenceImplTest extends TestCase {
         ref = control.createMock(EndpointReferenceType.class);                
         id = factory.createIdentifier();
         id.setValue("seq");
-
     }
     
     public void tearDown() {
         ref = null;
         destination = null;
-        interceptor = null;
+        manager = null;
         rma = null;
         dp = null;
         ap = null;
@@ -81,7 +76,7 @@ public class DestinationSequenceImplTest extends TestCase {
         Identifier otherId = factory.createIdentifier();
         otherId.setValue("otherSeq");
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertEquals(id, seq.getIdentifier());
         assertNull(seq.getLastMessageNumber());
         assertSame(ref, seq.getAcksTo());
@@ -89,7 +84,7 @@ public class DestinationSequenceImplTest extends TestCase {
         assertNotNull(seq.getMonitor());   
         
         SequenceAcknowledgement ack = RMUtils.getWSRMFactory().createSequenceAcknowledgement();        
-        seq = new DestinationSequenceImpl(id, ref, BigInteger.TEN, ack);
+        seq = new DestinationSequence(id, ref, BigInteger.TEN, ack);
         assertEquals(id, seq.getIdentifier());
         assertEquals(BigInteger.TEN, seq.getLastMessageNumber());
         assertSame(ref, seq.getAcksTo());
@@ -100,15 +95,15 @@ public class DestinationSequenceImplTest extends TestCase {
     
     public void testEqualsAndHashCode() {     
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
-        DestinationSequenceImpl otherSeq = null;
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        DestinationSequence otherSeq = null;
         assertTrue(!seq.equals(otherSeq));
-        otherSeq = new DestinationSequenceImpl(id, ref, destination);
+        otherSeq = new DestinationSequence(id, ref, destination);
         assertEquals(seq, otherSeq);
         assertEquals(seq.hashCode(), otherSeq.hashCode());
         Identifier otherId = factory.createIdentifier();
         otherId.setValue("otherSeq");
-        otherSeq = new DestinationSequenceImpl(otherId, ref, destination);
+        otherSeq = new DestinationSequence(otherId, ref, destination);
         assertTrue(!seq.equals(otherSeq));
         assertTrue(seq.hashCode() != otherSeq.hashCode()); 
         assertTrue(!seq.equals(this));
@@ -116,7 +111,7 @@ public class DestinationSequenceImplTest extends TestCase {
     
     public void testGetSetDestination() {
         control.replay();
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         seq.setDestination(destination);
         assertSame(destination, seq.getDestination());
     }
@@ -127,7 +122,7 @@ public class DestinationSequenceImplTest extends TestCase {
         EasyMock.expect(destination.getName()).andReturn(qn);
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertEquals("Unexpected endpoint identifier", "{abc}xyz", seq.getEndpointIdentifier());
         control.verify();
     }
@@ -161,7 +156,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
         assertEquals(0, ranges.size());
               
@@ -184,7 +179,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         
         seq.acknowledge(BigInteger.ONE);
         seq.setLastMessageNumber(BigInteger.ONE);
@@ -202,7 +197,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));  
@@ -224,7 +219,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();        
         seq.acknowledge(new BigInteger("1"));
         seq.acknowledge(new BigInteger("2"));
@@ -252,7 +247,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
         seq.acknowledge(new BigInteger("4"));
         seq.acknowledge(new BigInteger("5"));
@@ -275,7 +270,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
                 
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         SequenceMonitor monitor = seq.getMonitor();
         assertNotNull(monitor);
         monitor.setMonitorInterval(500);
@@ -316,7 +311,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         control.replay();
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         assertTrue(!seq.sendAcknowledgement());
               
         seq.acknowledge(new BigInteger("1")); 
@@ -332,7 +327,7 @@ public class DestinationSequenceImplTest extends TestCase {
         Timer timer = new Timer();
         setUpDestination(timer);
         
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         RMEndpoint rme = control.createMock(RMEndpoint.class);
         EasyMock.expect(destination.getReliableEndpoint()).andReturn(rme).anyTimes();
         Proxy proxy = control.createMock(Proxy.class);
@@ -370,7 +365,7 @@ public class DestinationSequenceImplTest extends TestCase {
     
     public void testCorrelationID() {
         setUpDestination();
-        DestinationSequenceImpl seq = new DestinationSequenceImpl(id, ref, destination);
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
         String correlationID = "abdc1234";
         assertNull("unexpected correlation ID", seq.getCorrelationID());
         seq.setCorrelationID(correlationID);
@@ -388,19 +383,19 @@ public class DestinationSequenceImplTest extends TestCase {
         AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
         EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
-        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da);
+        EasyMock.expect(manager.getDeliveryAssurance()).andReturn(da);
         EasyMock.expect(da.isSetAtMostOnce()).andReturn(true);                    
         
         control.replay();        
-        DestinationSequenceImpl ds = new DestinationSequenceImpl(id, ref, null, ack);
+        DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
         assertTrue("message had already been delivered", ds.applyDeliveryAssurance(mn));
         control.verify();
         
         control.reset();
         ranges.add(r);
-        EasyMock.expect(destination.getInterceptor()).andReturn(interceptor);
-        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da);
+        EasyMock.expect(destination.getManager()).andReturn(manager);
+        EasyMock.expect(manager.getDeliveryAssurance()).andReturn(da);
         EasyMock.expect(da.isSetAtMostOnce()).andReturn(true);            
         EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         EasyMock.expect(r.getLower()).andReturn(new BigInteger("5"));
@@ -417,7 +412,7 @@ public class DestinationSequenceImplTest extends TestCase {
         BigInteger mn = BigInteger.TEN;
         
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
-        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da).anyTimes();
+        EasyMock.expect(manager.getDeliveryAssurance()).andReturn(da);
         EasyMock.expect(da.isSetAtMostOnce()).andReturn(false);
         EasyMock.expect(da.isSetAtLeastOnce()).andReturn(true);
         EasyMock.expect(da.isSetInOrder()).andReturn(true); 
@@ -432,7 +427,7 @@ public class DestinationSequenceImplTest extends TestCase {
         
         control.replay(); 
         
-        DestinationSequenceImpl ds = new DestinationSequenceImpl(id, ref, null, ack);
+        DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
         assertTrue(ds.applyDeliveryAssurance(mn));
         control.verify();
@@ -442,7 +437,7 @@ public class DestinationSequenceImplTest extends TestCase {
         setUpDestination();
         
         DeliveryAssuranceType da = control.createMock(DeliveryAssuranceType.class);
-        EasyMock.expect(interceptor.getDeliveryAssurance()).andReturn(da).anyTimes();
+        EasyMock.expect(manager.getDeliveryAssurance()).andReturn(da).anyTimes();
         EasyMock.expect(da.isSetAtMostOnce()).andReturn(false).anyTimes();
         EasyMock.expect(da.isSetAtLeastOnce()).andReturn(true).anyTimes();
         EasyMock.expect(da.isSetInOrder()).andReturn(true).anyTimes(); 
@@ -454,7 +449,7 @@ public class DestinationSequenceImplTest extends TestCase {
             factory.createSequenceAcknowledgementAcknowledgementRange();
         r.setUpper(new BigInteger(Integer.toString(n)));
         ranges.add(r);
-        final DestinationSequenceImpl ds = new DestinationSequenceImpl(id, ref, null, ack);
+        final DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
           
         class Acknowledger extends Thread {
@@ -507,7 +502,7 @@ public class DestinationSequenceImplTest extends TestCase {
         AcknowledgementRange r = control.createMock(AcknowledgementRange.class);
         EasyMock.expect(ack.getAcknowledgementRange()).andReturn(ranges);
         control.replay();
-        DestinationSequenceImpl ds = new DestinationSequenceImpl(id, ref, null, ack);
+        DestinationSequence ds = new DestinationSequence(id, ref, null, ack);
         ds.setDestination(destination);
         assertTrue("all predecessors acknowledged", !ds.allPredecessorsAcknowledged(BigInteger.TEN));
         control.verify();
@@ -550,10 +545,10 @@ public class DestinationSequenceImplTest extends TestCase {
     
     private void setUpDestination(Timer timer) {
         
-        interceptor = control.createMock(RMInterceptor.class);
+        manager = control.createMock(RMManager.class);
 
-        org.apache.cxf.ws.rm.interceptor.ObjectFactory cfgFactory =
-            new org.apache.cxf.ws.rm.interceptor.ObjectFactory();
+        org.apache.cxf.ws.rm.manager.ObjectFactory cfgFactory =
+            new org.apache.cxf.ws.rm.manager.ObjectFactory();
         dp = cfgFactory.createDestinationPolicyType();
         ap = cfgFactory.createAcksPolicyType();
         dp.setAcksPolicy(ap);
@@ -566,15 +561,15 @@ public class DestinationSequenceImplTest extends TestCase {
         bri.setMilliseconds(new BigInteger("3000"));
         rma.setBaseRetransmissionInterval(bri);  
 
-        EasyMock.expect(interceptor.getRMAssertion()).andReturn(rma).anyTimes();
-        EasyMock.expect(interceptor.getDestinationPolicy()).andReturn(dp).anyTimes();
-        EasyMock.expect(interceptor.getStore()).andReturn(null).anyTimes();
+        EasyMock.expect(manager.getRMAssertion()).andReturn(rma).anyTimes();
+        EasyMock.expect(manager.getDestinationPolicy()).andReturn(dp).anyTimes();
+        EasyMock.expect(manager.getStore()).andReturn(null).anyTimes();
         
         destination = control.createMock(Destination.class);
-        EasyMock.expect(destination.getInterceptor()).andReturn(interceptor).anyTimes();
+        EasyMock.expect(destination.getManager()).andReturn(manager).anyTimes();
         
         if (null != timer) {
-            EasyMock.expect(interceptor.getTimer()).andReturn(timer).anyTimes();
+            EasyMock.expect(manager.getTimer()).andReturn(timer).anyTimes();
         }
 
     }

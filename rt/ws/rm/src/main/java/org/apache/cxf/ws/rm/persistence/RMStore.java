@@ -27,7 +27,6 @@ import org.apache.cxf.ws.rm.DestinationSequence;
 import org.apache.cxf.ws.rm.Identifier;
 import org.apache.cxf.ws.rm.SourceSequence;
 
-
 public interface RMStore {
    
     /**

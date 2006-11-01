@@ -17,21 +17,19 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.math.BigInteger;
 
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement.AcknowledgementRange;
 
 
-public abstract class AbstractSequenceImpl {
+public abstract class AbstractSequence {
     
     protected final Identifier id;
     protected SequenceAcknowledgement acknowledgement;
     
-    protected AbstractSequenceImpl(Identifier i) {
+    protected AbstractSequence(Identifier i) {
         id = i;
     }
     
@@ -50,8 +48,8 @@ public abstract class AbstractSequenceImpl {
         if (other == this) {
             return true;            
         }
-        if (other instanceof AbstractSequenceImpl) {
-            AbstractSequenceImpl otherSeq = (AbstractSequenceImpl)other;
+        if (other instanceof AbstractSequence) {
+            AbstractSequence otherSeq = (AbstractSequence)other;
             return otherSeq.getIdentifier().getValue().equals(getIdentifier().getValue());
         }        
         return false;
@@ -61,7 +59,7 @@ public abstract class AbstractSequenceImpl {
         return getIdentifier().getValue().hashCode();
     }
     
-    static boolean identifierEquals(Identifier id1, Identifier id2) {
+    public static boolean identifierEquals(Identifier id1, Identifier id2) {
         if (null == id1) {
             return null == id2;
         } else {

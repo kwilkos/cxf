@@ -16,16 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.ws.rm;
 
-package org.apache.cxf.ws.rm.impl;
+import junit.framework.TestCase;
 
-import org.apache.cxf.ws.rm.CreateSequenceResponseType;
-import org.apache.cxf.ws.rm.CreateSequenceType;
-import org.apache.cxf.ws.rm.SequenceFault;
-import org.apache.cxf.ws.rm.TerminateSequenceType;
+public class AbstractSequenceTest extends TestCase {
 
-public interface SequenceService {
-    void createSequence(CreateSequenceType create) throws SequenceFault;
-    void createSequenceResponse(CreateSequenceResponseType response) throws SequenceFault;
-    void terminateSequence(TerminateSequenceType terminate) throws SequenceFault;
+    public void testIdentifierEquals() {
+        Identifier id1 = null;
+        Identifier id2 = null;   
+        assertTrue(AbstractSequence.identifierEquals(id1, id2));
+        
+        ObjectFactory factory = new ObjectFactory();
+        id1 = factory.createIdentifier();
+        id1.setValue("seq1"); 
+        assertTrue(!AbstractSequence.identifierEquals(id1, id2));
+        
+        id2 = factory.createIdentifier();
+        id2.setValue("seq2"); 
+        assertTrue(!AbstractSequence.identifierEquals(id1, id2));
+        
+        id2.setValue("seq1");
+        assertTrue(AbstractSequence.identifierEquals(id1, id2));
+    }
+
 }

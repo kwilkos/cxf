@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.math.BigInteger;
 import java.util.Date;
@@ -28,25 +28,19 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.jaxb.DatatypeFactory;
-import org.apache.cxf.ws.rm.Expires;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.ObjectFactory;
-import org.apache.cxf.ws.rm.SequenceAcknowledgement;
-import org.apache.cxf.ws.rm.SequenceFault;
-import org.apache.cxf.ws.rm.interceptor.SequenceTerminationPolicyType;
-import org.apache.cxf.ws.rm.interceptor.SourcePolicyType;
-
+import org.apache.cxf.ws.rm.manager.SequenceTerminationPolicyType;
+import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
-public class SourceSequenceImplTest extends TestCase {
+public class SourceSequenceTest extends TestCase {
 
     private IMocksControl control;
     private ObjectFactory factory;
     private Identifier id;
 
     private Source source;
-    private RMInterceptor interceptor;
+    private RMManager manager;
     private SourcePolicyType sp;
     private SequenceTerminationPolicyType stp;
   
@@ -60,25 +54,25 @@ public class SourceSequenceImplTest extends TestCase {
     
     public void tearDown() {
         source = null;
-        interceptor = null;
+        manager = null;
         sp = null;
         stp = null;
     }
     
     void setUpSource() {
         source = control.createMock(Source.class); 
-        interceptor = control.createMock(RMInterceptor.class);
-        EasyMock.expect(source.getInterceptor()).andReturn(interceptor).anyTimes();
+        manager = control.createMock(RMManager.class);
+        EasyMock.expect(source.getManager()).andReturn(manager).anyTimes();
 
         // default termination policy
         
-        org.apache.cxf.ws.rm.interceptor.ObjectFactory cfgFactory = 
-            new org.apache.cxf.ws.rm.interceptor.ObjectFactory();
+        org.apache.cxf.ws.rm.manager.ObjectFactory cfgFactory = 
+            new org.apache.cxf.ws.rm.manager.ObjectFactory();
         sp = cfgFactory.createSourcePolicyType();
         stp = cfgFactory
             .createSequenceTerminationPolicyType(); 
         sp.setSequenceTerminationPolicy(stp);
-        EasyMock.expect(interceptor.getSourcePolicy()).andReturn(sp).anyTimes();
+        EasyMock.expect(manager.getSourcePolicy()).andReturn(sp).anyTimes();
     }
     
 
@@ -87,9 +81,9 @@ public class SourceSequenceImplTest extends TestCase {
         Identifier otherId = factory.createIdentifier();
         otherId.setValue("otherSeq");
        
-        SourceSequenceImpl seq = null;
+        SourceSequence seq = null;
         
-        seq = new SourceSequenceImpl(id);
+        seq = new SourceSequence(id);
         assertEquals(id, seq.getIdentifier());
         assertTrue(!seq.isLastMessage());
         assertTrue(!seq.isExpired());
@@ -101,7 +95,7 @@ public class SourceSequenceImplTest extends TestCase {
         
         Date expiry = new Date(System.currentTimeMillis() + 3600 * 1000);
         
-        seq = new SourceSequenceImpl(id, expiry, null);
+        seq = new SourceSequence(id, expiry, null);
         assertEquals(id, seq.getIdentifier());
         assertTrue(!seq.isLastMessage());
         assertTrue(!seq.isExpired());
@@ -111,13 +105,13 @@ public class SourceSequenceImplTest extends TestCase {
         assertTrue(!seq.allAcknowledged());
         assertFalse(seq.offeredBy(otherId));
         
-        seq = new SourceSequenceImpl(id, expiry, otherId);
+        seq = new SourceSequence(id, expiry, otherId);
         assertTrue(seq.offeredBy(otherId));
         assertFalse(seq.offeredBy(id));
     }
     
     public void testSetExpires() {
-        SourceSequenceImpl seq = new SourceSequenceImpl(id);
+        SourceSequence seq = new SourceSequence(id);
         
         Expires expires = factory.createExpires();
         seq.setExpires(expires);
@@ -145,15 +139,15 @@ public class SourceSequenceImplTest extends TestCase {
     }
 
     public void testEqualsAndHashCode() {
-        SourceSequenceImpl seq = new SourceSequenceImpl(id);
-        SourceSequenceImpl otherSeq = null;
+        SourceSequence seq = new SourceSequence(id);
+        SourceSequence otherSeq = null;
         assertTrue(!seq.equals(otherSeq));
-        otherSeq = new SourceSequenceImpl(id);
+        otherSeq = new SourceSequence(id);
         assertEquals(seq, otherSeq);
         assertEquals(seq.hashCode(), otherSeq.hashCode());
         Identifier otherId = factory.createIdentifier();
         otherId.setValue("otherSeq");
-        otherSeq = new SourceSequenceImpl(otherId);
+        otherSeq = new SourceSequence(otherId);
         assertTrue(!seq.equals(otherSeq));
         assertTrue(seq.hashCode() != otherSeq.hashCode()); 
         assertTrue(!seq.equals(this));
@@ -161,7 +155,7 @@ public class SourceSequenceImplTest extends TestCase {
     
 
     public void testSetAcknowledged() {
-        SourceSequenceImpl seq = new SourceSequenceImpl(id);
+        SourceSequence seq = new SourceSequence(id);
         SequenceAcknowledgement ack = seq.getAcknowledgement();
         ack = factory.createSequenceAcknowledgement();
         SequenceAcknowledgement.AcknowledgementRange r = 
@@ -186,7 +180,7 @@ public class SourceSequenceImplTest extends TestCase {
 
     public void testAllAcknowledged() throws SequenceFault {
         
-        SourceSequenceImpl seq = new SourceSequenceImpl(id, null, null, new BigInteger("4"), false);        
+        SourceSequence seq = new SourceSequence(id, null, null, new BigInteger("4"), false);        
         
         assertTrue(!seq.allAcknowledged());
         seq.setLastMessage(true);
@@ -204,20 +198,20 @@ public class SourceSequenceImplTest extends TestCase {
     }
     
     public void testNextMessageNumber() {     
-        SourceSequenceImpl seq = null;        
+        SourceSequence seq = null;        
         setUpSource();
         control.replay();
         
         // default termination policy
 
-        seq = new SourceSequenceImpl(id);  
+        seq = new SourceSequence(id);  
         seq.setSource(source);
         assertTrue(!nextMessages(seq, 10));
         control.verify();
         
         // termination policy max length = 1
         
-        seq = new SourceSequenceImpl(id); 
+        seq = new SourceSequence(id); 
         seq.setSource(source);
         stp.setMaxLength(BigInteger.ONE);
         assertTrue(nextMessages(seq, 10));
@@ -225,7 +219,7 @@ public class SourceSequenceImplTest extends TestCase {
         control.verify();
         
         // termination policy max length = 5
-        seq = new SourceSequenceImpl(id); 
+        seq = new SourceSequence(id); 
         seq.setSource(source);
         stp.setMaxLength(new BigInteger("5"));
         assertTrue(!nextMessages(seq, 2));
@@ -233,7 +227,7 @@ public class SourceSequenceImplTest extends TestCase {
         
         // termination policy max range exceeded
         
-        seq = new SourceSequenceImpl(id); 
+        seq = new SourceSequence(id); 
         seq.setSource(source);
         stp.setMaxLength(null);
         stp.setMaxRanges(new Integer(3));
@@ -244,7 +238,7 @@ public class SourceSequenceImplTest extends TestCase {
         
         // termination policy max range not exceeded
         
-        seq = new SourceSequenceImpl(id); 
+        seq = new SourceSequence(id); 
         seq.setSource(source);
         stp.setMaxLength(null);
         stp.setMaxRanges(new Integer(4));
@@ -261,14 +255,14 @@ public class SourceSequenceImplTest extends TestCase {
         EasyMock.expect(source.getName()).andReturn(qn);
         control.replay();
         
-        SourceSequenceImpl seq = new SourceSequenceImpl(id);
+        SourceSequence seq = new SourceSequence(id);
         seq.setSource(source);
         assertEquals("Unexpected endpoint identifier", "{abc}xyz", seq.getEndpointIdentifier());
         control.verify();
     }
     
     public void testCheckOfferingSequenceClosed() {
-        SourceSequenceImpl seq = null;
+        SourceSequence seq = null;
         
         setUpSource();
  
@@ -276,15 +270,15 @@ public class SourceSequenceImplTest extends TestCase {
         EasyMock.expect(source.getReliableEndpoint()).andReturn(rme).anyTimes();
         Destination destination = control.createMock(Destination.class);
         EasyMock.expect(rme.getDestination()).andReturn(destination).anyTimes();
-        DestinationSequenceImpl dseq = control.createMock(DestinationSequenceImpl.class); 
+        DestinationSequence dseq = control.createMock(DestinationSequence.class); 
         Identifier did = control.createMock(Identifier.class);
-        EasyMock.expect(destination.getSequenceImpl(did)).andReturn(dseq).anyTimes();
+        EasyMock.expect(destination.getSequence(did)).andReturn(dseq).anyTimes();
         EasyMock.expect(dseq.getLastMessageNumber()).andReturn(BigInteger.ONE).anyTimes();
         EasyMock.expect(did.getValue()).andReturn("dseq").anyTimes();
         
         control.replay();
         
-        seq = new SourceSequenceImpl(id, null, did);  
+        seq = new SourceSequence(id, null, did);  
         seq.setSource(source);        
         seq.nextMessageNumber(did, BigInteger.ONE);
         assertTrue(seq.isLastMessage());
@@ -292,7 +286,7 @@ public class SourceSequenceImplTest extends TestCase {
         control.verify();
     }
    
-    private boolean nextMessages(SourceSequenceImpl seq, 
+    private boolean nextMessages(SourceSequence seq, 
                                  int n) {
         int i = 0;
         while ((i < n) && !seq.isLastMessage()) {            
@@ -302,7 +296,7 @@ public class SourceSequenceImplTest extends TestCase {
         return seq.isLastMessage();
     }
     
-    protected void acknowledge(SourceSequenceImpl seq, int... messageNumbers) {
+    protected void acknowledge(SourceSequence seq, int... messageNumbers) {
         SequenceAcknowledgement ack = factory.createSequenceAcknowledgement();
         int i = 0;
         while (i < messageNumbers.length) {

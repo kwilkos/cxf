@@ -18,8 +18,8 @@
   under the License.
 -->
 
-<xs:schema targetNamespace="http://cxf.apache.org/ws/rm/interceptor" 
-           xmlns:tns="http://cxf.apache.org/ws/rm/interceptor"
+<xs:schema targetNamespace="http://cxf.apache.org/ws/rm/manager" 
+           xmlns:tns="http://cxf.apache.org/ws/rm/manager"
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            xmlns:wsrmp="http://schemas.xmlsoap.org/ws/2005/02/rm/policy" 
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
@@ -191,7 +191,7 @@
     <xs:element name="sourcePolicy" type="tns:SourcePolicyType"/>
     <xs:element name="destinationPolicy" type="tns:DestinationPolicyType"/>
 
-    <xs:complexType name="RMInterceptorConfigBean">        
+    <xs:complexType name="RMManagerConfigBean">        
         <xs:annotation>
             <xs:appinfo>                
                 <cfg:configurable/>

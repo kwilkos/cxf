@@ -90,7 +90,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     }
 
     public String getPhase() {
-        return Phase.PRE_LOGICAL;
+        return Phase.PRE_PROTOCOL;
     }
       
     // AbstractSoapInterceptor interface 
@@ -363,6 +363,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             */
         }
     }
+    
     
     /**
      * When invoked inbound, check if the action indicates that this is one of the 

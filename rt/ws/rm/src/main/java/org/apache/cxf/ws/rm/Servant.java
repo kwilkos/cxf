@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,22 +32,14 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
-import org.apache.cxf.ws.rm.AcceptType;
-import org.apache.cxf.ws.rm.CreateSequenceResponseType;
-import org.apache.cxf.ws.rm.CreateSequenceType;
-import org.apache.cxf.ws.rm.Expires;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.OfferType;
-import org.apache.cxf.ws.rm.SequenceFault;
-import org.apache.cxf.ws.rm.TerminateSequenceType;
-import org.apache.cxf.ws.rm.interceptor.DestinationPolicyType;
+import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
 
 /**
  * 
  */
 public class Servant {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(RMInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(AbstractRMInterceptor.class);
     private RMEndpoint reliableEndpoint;
     // REVISIT assumption there is only a single outstanding unattached Identifier
     private Identifier unattachedIdentifier;
@@ -67,7 +59,7 @@ public class Servant {
             RMUtils.getWSRMFactory().createCreateSequenceResponseType();        
         createResponse.setIdentifier(destination.generateSequenceIdentifier());
         
-        DestinationPolicyType dp = reliableEndpoint.getInterceptor().getDestinationPolicy();
+        DestinationPolicyType dp = reliableEndpoint.getManager().getDestinationPolicy();
         Duration supportedDuration = dp.getSequenceExpiration();
         if (null == supportedDuration) {
             supportedDuration = DatatypeFactory.PT0S;
@@ -90,10 +82,10 @@ public class Servant {
             if (dp.isAcceptOffers()) {
                 Source source = reliableEndpoint.getSource();
                 LOG.fine("Accepting inbound sequence offer");
-                AddressingProperties maps = ContextUtils.retrieveMAPs(message, false, false);
+                AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
                 AttributedURI to = VersionTransformer.convert(maps.getTo());
                 accept.setAcksTo(RMUtils.createReference2004(to.getValue()));
-                SourceSequenceImpl seq = new SourceSequenceImpl(offer.getIdentifier(), 
+                SourceSequence seq = new SourceSequence(offer.getIdentifier(), 
                                                                     null, 
                                                                     createResponse.getIdentifier());
                 seq.setExpires(offer.getExpires());
@@ -120,7 +112,7 @@ public class Servant {
         LOG.fine("Creating sequence response");
         
         CreateSequenceResponseType createResponse = (CreateSequenceResponseType)getParameter(message);
-        SourceSequenceImpl seq = new SourceSequenceImpl(createResponse.getIdentifier());
+        SourceSequence seq = new SourceSequence(createResponse.getIdentifier());
         seq.setExpires(createResponse.getExpires());
         Source source  = reliableEndpoint.getSource();
         source.addSequence(seq);
@@ -134,15 +126,15 @@ public class Servant {
         // to the local destination sequence list, otherwise we have to wait for
         // and incoming CreateSequence request
         
-        Identifier offeredId = reliableEndpoint.getProxy().getOfferedIdentifier();
+        Identifier offeredId = reliableEndpoint.getOfferedIdentifier();
         if (null != offeredId) {
             AcceptType accept = createResponse.getAccept();
             assert null != accept;
             Destination dest = reliableEndpoint.getDestination();
             String address = accept.getAcksTo().getAddress().getValue();
             if (!RMUtils.getAddressingConstants().getNoneURI().equals(address)) {
-                DestinationSequenceImpl ds = 
-                    new DestinationSequenceImpl(offeredId, accept.getAcksTo(), dest);
+                DestinationSequence ds = 
+                    new DestinationSequence(offeredId, accept.getAcksTo(), dest);
                 dest.addSequence(ds);
             }
         }
@@ -158,7 +150,7 @@ public class Servant {
         
         Destination destination = reliableEndpoint.getDestination();
         Identifier sid = terminate.getIdentifier();
-        DestinationSequenceImpl terminatedSeq = destination.getSequenceImpl(sid);
+        DestinationSequence terminatedSeq = destination.getSequence(sid);
         if (null == terminatedSeq) {
             //  TODO
             LOG.severe("No such sequence.");
@@ -170,13 +162,13 @@ public class Servant {
         // the following may be necessary if the last message for this sequence was a oneway
         // request and hence there was no response to which a last message could have been added
         
-        for (SourceSequenceImpl outboundSeq : reliableEndpoint.getSource().getAllSequences()) {
+        for (SourceSequence outboundSeq : reliableEndpoint.getSource().getAllSequences()) {
             if (outboundSeq.offeredBy(sid) && !outboundSeq.isLastMessage()) {
                 
                 // send an out of band message with an empty body and a 
                 // sequence header containing a lastMessage element.
                
-                Proxy proxy = reliableEndpoint.getProxy();
+                Proxy proxy = new Proxy(reliableEndpoint);
                 try {
                     proxy.lastMessage(outboundSeq);
                 } catch (IOException ex) {

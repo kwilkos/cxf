@@ -17,22 +17,18 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.ws.rm.Identifier;
-import org.apache.cxf.ws.rm.RMConstants;
-import org.apache.cxf.ws.rm.SequenceFault;
-import org.apache.cxf.ws.rm.SequenceFaultType;
 
 /**
- * 
+ * Utility class to construct SequenceFaults.
  */
 
-public class SequenceFaultFactory { 
+class SequenceFaultFactory { 
 
     private static final Logger LOG = LogUtils.getL7dLogger(SequenceFaultFactory.class);
 

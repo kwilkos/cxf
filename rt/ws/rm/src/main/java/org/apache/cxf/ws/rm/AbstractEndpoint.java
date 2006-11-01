@@ -17,12 +17,11 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.rm.impl;
+package org.apache.cxf.ws.rm;
 
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.ws.rm.Identifier;
 
 public class AbstractEndpoint {
     
@@ -42,33 +41,19 @@ public class AbstractEndpoint {
     public RMEndpoint getReliableEndpoint() {
         return reliableEndpoint;
     }
-
-    /**
-     * @return Returns the interceptor.
-     */
-    public RMInterceptor getInterceptor() {
-        return reliableEndpoint.getInterceptor();
-    }
     
     /**
      * @return Returns the endpoint.
      */
     public Endpoint getEndpoint() {
-        return reliableEndpoint.getEndpoint();
+        return reliableEndpoint.getApplicationEndpoint();
     }
     
     /**
-     * @return Returns the proxy.
+     * @return Returns the manager.
      */
-    public Proxy getProxy() {
-        return reliableEndpoint.getProxy();
-    }
-    
-    /**
-     * @return Returns the servant.
-     */
-    public Servant getServant() {
-        return reliableEndpoint.getServant();
+    public RMManager getManager() {
+        return reliableEndpoint.getManager();
     }
 
     /**
@@ -77,7 +62,7 @@ public class AbstractEndpoint {
      * @return the sequence identifier.
      */
     public Identifier generateSequenceIdentifier() {
-        String sequenceID = ContextUtils.generateUUID();
+        String sequenceID = RMContextUtils.generateUUID();
         Identifier sid = RMUtils.getWSRMFactory().createIdentifier();
         sid.setValue(sequenceID);        
         return sid;
