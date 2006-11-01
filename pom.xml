@@ -824,15 +824,14 @@
                                         <whichresource resource="/cxf-checkstyle.xml" property="checkstyle.url"/>
 
 
-                                        <get src="${pmdruleset.url}" dest=".ruleset"/>
-                                        <get src="${pmd.url}" dest=".pmd"/>
-                                        <get src="${eclipse.checkstyle.url}" dest=".checkstyle"/>
-                                        <get src="${checkstyle.url}" dest="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
-
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
                                         <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/net.sourceforge.pmd.eclipse"/>
 
+                                        <get src="${pmdruleset.url}" dest=".ruleset"/>
+                                        <get src="${pmd.url}" dest=".pmd"/>
+                                        <get src="${eclipse.checkstyle.url}" dest=".checkstyle"/>
+                                        <get src="${checkstyle.url}" dest="${full.eclipse.workspace}/cxf-checkstyle.xml"/>
 
                                         <copy file="${basedir}/${topDirectoryLocation}/etc/apache-header.txt" tofile="${full.eclipse.workspace}/apache-header.txt"/>
         
