@@ -19,14 +19,19 @@
 
 package org.apache.cxf.service.model;
 
+import java.util.List;
+
 public class BindingMessageInfo extends AbstractPropertiesHolder {
 
     MessageInfo msg;
     BindingOperationInfo op;
+    private List<MessagePartInfo> messageParts;
     
-    BindingMessageInfo(MessageInfo m, BindingOperationInfo boi) {
+    
+    protected BindingMessageInfo(MessageInfo m, BindingOperationInfo boi) {
         op = boi;
         msg = m;
+        messageParts = msg.getMessageParts();
     }
     
     public MessageInfo getMessageInfo() {
@@ -35,5 +40,13 @@ public class BindingMessageInfo extends AbstractPropertiesHolder {
     
     public BindingOperationInfo getBindingOperation() {
         return op;
+    }
+
+    public List<MessagePartInfo> getMessageParts() {
+        return messageParts;
+    }
+
+    public void setMessageParts(List<MessagePartInfo> messageParts) {
+        this.messageParts = messageParts;
     }
 }

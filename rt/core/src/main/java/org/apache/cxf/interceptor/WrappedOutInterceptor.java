@@ -63,7 +63,11 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
                 xmlWriter.writeDefaultNamespace(name.getNamespaceURI());
                 if (!message.getInterceptorChain().doIntercept(message) 
                         && message.getContent(Exception.class) != null) {                    
-                    throw new Fault(message.getContent(Exception.class));                    
+                    if (message.getContent(Exception.class) instanceof Fault) {
+                        throw (Fault)message.getContent(Exception.class);
+                    } else {
+                        throw new Fault(message.getContent(Exception.class));
+                    }                    
                 }
                 xmlWriter.writeEndElement();
             } catch (XMLStreamException e) {

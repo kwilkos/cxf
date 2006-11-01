@@ -37,6 +37,7 @@ import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
 import org.apache.cxf.message.Exchange;
@@ -330,7 +331,14 @@ public final class ContextUtils {
                     partialResponse.setInterceptorChain(chain);
                     exchange.setConduit(backChannel);
                     
-                    partialResponse.getInterceptorChain().doIntercept(partialResponse);
+                    if (!partialResponse.getInterceptorChain().doIntercept(partialResponse) 
+                            && partialResponse.getContent(Exception.class) != null) {
+                        if (partialResponse.getContent(Exception.class) instanceof Fault) {
+                            throw (Fault)partialResponse.getContent(Exception.class);
+                        } else {
+                            throw new Fault(partialResponse.getContent(Exception.class));
+                        }
+                    }
                     
                     partialResponse.getInterceptorChain().reset();
                     exchange.setConduit(null);

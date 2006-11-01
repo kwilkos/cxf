@@ -88,7 +88,11 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             //message.getInterceptorChain().doIntercept(message);            
             if (!message.getInterceptorChain().doInterceptInSubChain(message) 
                 && message.getContent(Exception.class) != null) {
-                throw new Fault(message.getContent(Exception.class));
+                if (message.getContent(Exception.class) instanceof Fault) {
+                    throw (Fault)message.getContent(Exception.class);
+                } else {
+                    throw new Fault(message.getContent(Exception.class));
+                }
             }
             xtw.writeEndElement();            
             // Write Envelop end element

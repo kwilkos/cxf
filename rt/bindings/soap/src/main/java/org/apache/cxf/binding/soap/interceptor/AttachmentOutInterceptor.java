@@ -51,8 +51,12 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
         
         // Calling for soap out interceptor
         if (!message.getInterceptorChain().doIntercept(message) 
-            && message.getContent(Exception.class) != null) {            
-            throw new Fault(message.getContent(Exception.class));            
+            && message.getContent(Exception.class) != null) {
+            if (message.getContent(Exception.class) instanceof Fault) {
+                throw (Fault)message.getContent(Exception.class);
+            } else {
+                throw new Fault(message.getContent(Exception.class));
+            }
         }
         // Set back the output stream
         message.setContent(OutputStream.class, os);        

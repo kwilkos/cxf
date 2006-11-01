@@ -74,7 +74,11 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
             }
             
             if (!result && message.getContent(Exception.class) != null) {
-                throw new Fault(message.getContent(Exception.class));
+                if (message.getContent(Exception.class) instanceof Fault) {
+                    throw (Fault)message.getContent(Exception.class);
+                } else {
+                    throw new Fault(message.getContent(Exception.class));
+                }
             }            
         } catch (XMLStreamException e) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);

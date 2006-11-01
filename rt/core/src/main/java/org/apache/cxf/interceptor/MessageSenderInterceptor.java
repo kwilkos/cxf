@@ -58,7 +58,11 @@ public class MessageSenderInterceptor extends AbstractPhaseInterceptor<Message> 
                 conduit.close(message);
             } else {
                 if (message.getContent(Exception.class) != null) {
-                    throw new Fault(message.getContent(Exception.class));
+                    if (message.getContent(Exception.class) instanceof Fault) {
+                        throw (Fault)message.getContent(Exception.class);
+                    } else {
+                        throw new Fault(message.getContent(Exception.class));
+                    }
                 }
             }
         } catch (IOException ex) {

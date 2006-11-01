@@ -90,7 +90,11 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
 
             if (message.getInterceptorChain().doInterceptInSubChain(message)
                 && message.getContent(Exception.class) != null) {
-                throw new Fault(message.getContent(Exception.class));
+                if (message.getContent(Exception.class) instanceof Fault) {
+                    throw (Fault)message.getContent(Exception.class);
+                } else {
+                    throw new Fault(message.getContent(Exception.class));
+                }
             }
 
             super.handleMessage(message);
