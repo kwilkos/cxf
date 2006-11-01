@@ -71,6 +71,9 @@ public class ProviderChainObserver implements MessageObserver {
 
         message.setInterceptorChain(chain);
         chain.add(bus.getInInterceptors());
+        
+        //TODO: support handlers for dispatch/provider. At the moment, we do not register any jax-ws handlers.
+        endpoint.getInInterceptors().clear();
         chain.add(endpoint.getInInterceptors());
 
         // Modified the binding in interceptors
