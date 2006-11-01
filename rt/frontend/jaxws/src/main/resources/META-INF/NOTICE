@@ -40,6 +40,9 @@
    This Product also includes schemas developed by OASIS
    (http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd)
    (http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd) 
+   Java classes (source and binary) under org.apache.cxf.jaxws.javaee
+   are generated from schema available here:
+   (http://java.sun.com/xml/ns/javaee/javaee_5.xsd)
 
    Additional copyright notices and license terms applicable are
    present in the licenses directory of this distribution.
