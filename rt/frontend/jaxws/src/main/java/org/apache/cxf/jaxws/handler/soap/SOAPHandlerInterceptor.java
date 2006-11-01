@@ -51,10 +51,12 @@ import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
-public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<SoapMessage> implements
-    SoapInterceptor {
+public class SOAPHandlerInterceptor extends
+        AbstractProtocolHandlerInterceptor<SoapMessage> implements
+        SoapInterceptor {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SOAPHandlerInterceptor.class);
+    private static final ResourceBundle BUNDLE = BundleUtils
+            .getBundle(SOAPHandlerInterceptor.class);
 
     public SOAPHandlerInterceptor(Binding binding) {
         super(binding);
@@ -73,7 +75,7 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
         Set<QName> understood = new HashSet<QName>();
         for (Handler h : getBinding().getHandlerChain()) {
             if (h instanceof SOAPHandler) {
-                Set<QName> headers = ((SOAPHandler)h).getHeaders();
+                Set<QName> headers = ((SOAPHandler) h).getHeaders();
                 if (headers != null) {
                     understood.addAll(headers);
                 }
@@ -89,7 +91,7 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
             message.setContent(OutputStream.class, cs);
 
             if (message.getInterceptorChain().doInterceptInSubChain(message)
-                && message.getContent(Exception.class) != null) {
+                    && message.getContent(Exception.class) != null) {
                 if (message.getContent(Exception.class) instanceof Fault) {
                     throw (Fault)message.getContent(Exception.class);
                 } else {
@@ -99,25 +101,35 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
 
             super.handleMessage(message);
 
-            // TODO: Stream SOAPMessage back to output stream if SOAPMessage has
-            // been changed
-
             try {
-                cs.flush();
-                AbstractCachedOutputStream.copyStream(cs.getInputStream(), os, 64 * 1024);
-                cs.close();
+                // Stream SOAPMessage back to output stream if necessary
+                SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
+                if (soapMessage != null) {
+                    soapMessage.writeTo(os);
+                } else {
+                    cs.flush();
+                    AbstractCachedOutputStream csnew = (AbstractCachedOutputStream) message
+                            .getContent(OutputStream.class);
+                    AbstractCachedOutputStream.copyStream(csnew
+                            .getInputStream(), os, 64 * 1024);
+                    cs.close();
+                }
+
                 os.flush();
                 message.setContent(OutputStream.class, os);
             } catch (IOException ioe) {
-                throw new SoapFault(
-                                    new org.apache.cxf.common.i18n.Message(
-                                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), ioe,
-                                        message.getVersion().getSender());
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), ioe,
+                        message.getVersion().getSender());
+            } catch (SOAPException soape) {
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), soape,
+                        message.getVersion().getSender());
             }
         } else {
             super.handleMessage(message);
 
-            //SOAPMessageContextImpl ctx = (SOAPMessageContextImpl)createProtocolMessageContext(message);
+            //SOAPMessageContextImpl ctx = (SOAPMessageContextImpl) createProtocolMessageContext(message);
             //ctx.getMessage();
 
             try {
@@ -128,17 +140,16 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
                 }
 
                 // soapMessage is not null means stax reader has been consumed
-                // by SAAJ,
-                // we need to replace stax reader with a new stax reader built
-                // from the content
-                // streamed from SAAJ SOAPBody.
+                // by SAAJ, we need to replace stax reader with a new stax reader built
+                // built from the content streamed from SAAJ SOAPBody.
                 SOAPBody body = soapMessage.getSOAPBody();
 
                 CachedStream outStream = new CachedStream();
                 XMLUtils.writeTo(body, outStream);
 
                 XMLStreamReader reader = null;
-                reader = XMLInputFactory.newInstance().createXMLStreamReader(outStream.getInputStream());
+                reader = XMLInputFactory.newInstance().createXMLStreamReader(
+                        outStream.getInputStream());
                 // skip the start element of soap body.
                 if (reader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                     reader.getName();
@@ -146,20 +157,17 @@ public class SOAPHandlerInterceptor extends AbstractProtocolHandlerInterceptor<S
                 reader.next();
                 message.setContent(XMLStreamReader.class, reader);
             } catch (IOException ioe) {
-                throw new SoapFault(
-                                    new org.apache.cxf.common.i18n.Message(
-                                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), ioe,
-                                        message.getVersion().getSender());
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), ioe,
+                        message.getVersion().getSender());
             } catch (SOAPException soape) {
-                throw new SoapFault(
-                                    new org.apache.cxf.common.i18n.Message(
-                                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), soape,
-                                        message.getVersion().getSender());
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), soape,
+                        message.getVersion().getSender());
             } catch (XMLStreamException e) {
-                throw new SoapFault(
-                                    new org.apache.cxf.common.i18n.Message(
-                                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), e,
-                                        message.getVersion().getSender());
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), e, message
+                        .getVersion().getSender());
             }
 
         }
