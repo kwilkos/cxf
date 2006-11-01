@@ -75,6 +75,11 @@ public class EclipsePluginMojo extends AbstractMojo {
      * @parameter
      */
     String[] excludes;
+    
+    /**
+     * @parameter
+     */
+    String license;
 
     private File baseDir;
     private File libPath;
@@ -115,6 +120,15 @@ public class EclipsePluginMojo extends AbstractMojo {
         }
         return false;
     }
+    
+    private void copyLicense() throws IOException {
+        File licFile = new File(license); 
+        if (licFile != null && licFile.exists()) {
+            org.apache.tools.ant.util.FileUtils fileUtils = org.apache.tools.ant.util.FileUtils
+            .newFileUtils();
+            fileUtils.copyFile(licFile, new File(baseDir, "LICENSE"));
+        }
+    }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         init();
@@ -145,8 +159,9 @@ public class EclipsePluginMojo extends AbstractMojo {
                 jars.add(newJar);
             }
 
-            try {
+            try {                
                 generatePluginXML(jars, new File(baseDir, PLUGIN_XML));
+                copyLicense();
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new MojoExecutionException(e.getMessage(), e);

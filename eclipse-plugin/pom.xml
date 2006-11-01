@@ -63,6 +63,7 @@
 			<id>eclipse-package</id>
 			<phase>package</phase>
 			<configuration>
+			    <license>${basedir}/src/main/resources/LICENSE</license>
 			    <excludes>
 				<exclude>spring</exclude>
 				<exclude>aopalliance</exclude>
