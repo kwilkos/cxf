@@ -51,4 +51,12 @@ public class StringUtilsTest extends TestCase {
         assertEquals("me", parts.get(1));
         assertEquals("CXF", parts.get(2));
     }
+    
+    public void testGetFound() throws Exception {
+        String regex = "velocity-\\d+\\.\\d+\\.jar";
+        
+        assertTrue(StringUtils.isEmpty(StringUtils.getFound("velocity-dep-1.4.jar", regex)));
+        assertFalse(StringUtils.isEmpty(StringUtils.getFound("velocity-1.4.jar", regex)));
+        assertTrue(StringUtils.isEmpty(StringUtils.getFound(null, regex)));
+    }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Automatically generated from plugin.xsl.-->
+<?eclipse version="${ECLIPSE_VERSION}"?>
+
+<plugin id="${GROUP_ID}" name="Apache CXF Tools Plug-in" provider-name="Apache CXF" version="${PLUGIN_VERSION}">
+    <runtime>
+        #foreach ($jarfile in $jars)
+	<library name="${libPath}/$jarfile.name">
+	    <export name="*"/>
+	</library>
+        #end
+    </runtime>
+</plugin>
