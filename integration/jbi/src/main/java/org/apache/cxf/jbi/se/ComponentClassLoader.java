@@ -21,48 +21,34 @@ package org.apache.cxf.jbi.se;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.ProtectionDomain;
-import java.security.SecureClassLoader;
+import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.classloader.FireWallClassLoader;
 
-
-public class ComponentClassLoader extends SecureClassLoader {
+public class ComponentClassLoader extends URLClassLoader {
 
     private static final Logger LOG =  Logger.getLogger(ComponentClassLoader.class.getName());
-    private static final String FILE_COLON = "file:";
-    private static final String ZIP_COLON = "zip:";
-    private static final String URL_SCHEME_COLON = "classloader:";
     private static final String FILTERS_PROPS_FILE = "filters.properties";
     private static final String NEFILTERS_PROPS_FILE = "negativefilters.properties";
-    private String jarUrls[] = new String[0];
-    private final ProtectionDomain protectionDomain;
-    
-    private ClassLoader ploader;
 
-    public ComponentClassLoader(String[] urls, ClassLoader p) throws IOException {        
-        super(new FireWallClassLoader(p, 
+    
+    public ComponentClassLoader(URL[] urls, ClassLoader p) throws IOException {
+        
+        super(urls, new FireWallClassLoader(p, 
                                       getFilterList(p, FILTERS_PROPS_FILE),
                                       getFilterList(p, NEFILTERS_PROPS_FILE)));
-        ploader = p;
-        protectionDomain = getClass().getProtectionDomain();
-        jarUrls = urls;
-        processJarUrls(jarUrls);
+        
     }
-
-    private void processJarUrls(String urls[]) {
-        for (int i = 0; i < urls.length; i++) {
-            if (urls[i].startsWith(ZIP_COLON)) {
-                urls[i] = FILE_COLON + urls[i].substring(ZIP_COLON.length());                              
-            }
-        }
+    
+    public void addResource(URL url) {
+        addURL(url);
     }
-
+    
+        
     private static String[] getFilterList(ClassLoader parent, String propFile) throws IOException {
         Properties filtersProps = getProperties(parent, propFile);
         Iterator<Object> i = filtersProps.keySet().iterator();
@@ -79,7 +65,7 @@ public class ComponentClassLoader extends SecureClassLoader {
             in = ComponentClassLoader.class.getResourceAsStream(propsFileName);
 
             if (null == in) {
-                String msg = "Internal rar classloader failed to locate configuration resource: "
+                String msg = "Internal component classloader failed to locate configuration resource: "
                         + propsFileName;
                 IOException ioe = new IOException(msg);
 
@@ -95,74 +81,5 @@ public class ComponentClassLoader extends SecureClassLoader {
 
         return props;
     }
-
-    
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
-        String path = name.replace('.', '/').concat(".class");
-        LOG.fine("findClass " + path);
-        byte bytes[] = null;
-
-        for (int i = 0; i < jarUrls.length; i++) {
-            String fullpath = jarUrls[i] + "!/" + path;           
-            try {
-                bytes = ComponentClassLoaderHelper.getResourceAsBytes(fullpath);
-
-                if (bytes != null) {
-                    break;
-                }
-            } catch (IOException ex) {
-                // we should find everything we look for but if we don't our
-                // parent can when we throw cnf below
-                LOG.fine("findClass: " + name + ": " + ex.toString());
-            }
-        }
-
-        if (bytes != null) {
-            return defineClass(name, bytes, 0, bytes.length, protectionDomain);
-        } else {
-            LOG.config("can't find name " + name + " , try to using the ploader");
-            Class<?> result = ploader.loadClass(name);
-            if (null == result) {
-                throw new ClassNotFoundException(name);
-            } else {
-                return result;
-            }                
-        }
-    }
-    
-   
-    protected URL findResource(String name) {
-        LOG.fine("findResource: " + name);
-        for (int i = 0; i < jarUrls.length; i++) {
-            String fullpath = jarUrls[i] + "!/" + name;         
-              
-            if (ComponentClassLoaderHelper.hasResource(fullpath)) {                
-                return genURL(fullpath);
-            }
-        }
-        
-        return null;
-    }
-
-    protected URL genURL(String path) {
-        URL url = null;
-        String urlString = URL_SCHEME_COLON + path;
-
-        try {
-            url = new URL(null, urlString, new Handler());
-        } catch (MalformedURLException mue) {
-            LOG.warning(mue.toString());
-        }
-
-        return url;
-    }
-    
-    public void addResource(String url) {
-        String[] tmp = new String[jarUrls.length + 1];
-        for (int i = 0; i < tmp.length - 1; i++) {
-            tmp[i] = jarUrls[i];
-        }
-        tmp[jarUrls.length] = url;
-        jarUrls = tmp;
-    }
+     
 }

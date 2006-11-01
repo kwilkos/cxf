@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -109,24 +110,25 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
     } 
     
 
-    private ComponentClassLoader createClassLoader() throws JBIException, IOException { 
+    private ComponentClassLoader createClassLoader() throws JBIException, 
+        IOException, ClassNotFoundException { 
         
         try { 
-            
             File root = new File(ctx.getInstallRoot());
+            
             File[] jars = root.listFiles(new FilenameFilter() {
                 public boolean accept(File f, String name) { 
                     return name.endsWith(".jar");
                 }
             });
-            String[] urls;
+            URL[] urls;
             if (jars.length == 0) {
-                urls = new String[0];
+                urls = new URL[0];
             } else {
-                urls = new String[jars.length];
+                urls = new URL[jars.length];
                 int i = 0;
                 for (File jar : jars) { 
-                    urls[i] = jar.toURL().toString();
+                    urls[i] = jar.toURL();
                     i++;
                 }
             }

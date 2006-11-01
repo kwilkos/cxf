@@ -21,8 +21,10 @@
 package org.apache.cxf.jbi.transport;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.jbi.messaging.DeliveryChannel;
 
@@ -34,8 +36,10 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class JBITransportFactory extends AbstractTransportFactory implements ConduitInitiator,
@@ -43,9 +47,12 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     
     private static final Logger LOG = LogUtils.getL7dLogger(JBITransportFactory.class);
 
-    private CXFServiceUnitManager suManager; 
-    private DeliveryChannel deliveryChannel;
+    private static CXFServiceUnitManager suManager; 
+    private static DeliveryChannel deliveryChannel;
     private Bus bus;
+    
+
+    private Collection<String> activationNamespaces;
     
     @Resource
     public void setBus(Bus b) {
@@ -55,13 +62,39 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     public Bus getBus() {
         return bus;
     }
+    
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
+    }
 
+
+    @PostConstruct
+    void registerWithBindingManager() {
+        if (null == bus) {
+            return;
+        }
+        ConduitInitiatorManager cim = bus.getExtension(ConduitInitiatorManager.class);
+        if (null != cim) {
+            for (String ns : activationNamespaces) {
+                cim.registerConduitInitiator(ns, this);
+            }
+        }
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        if (null != dfm) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
+        }
+    }
+
+    
     public DeliveryChannel getDeliveryChannel() {
         return deliveryChannel;
     }
 
     public void setDeliveryChannel(DeliveryChannel newDeliverychannel) {
-        LOG.fine(new org.apache.cxf.common.i18n.Message(
+        LOG.info(new org.apache.cxf.common.i18n.Message(
             "CONFIG.DELIVERY.CHANNEL", LOG).toString() + newDeliverychannel);
         deliveryChannel = newDeliverychannel;
     }

@@ -61,6 +61,7 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
         this.channel = channel;
         this.conduit = conduit;
         this.target = target;
+        
     }
 
     @Override
@@ -72,7 +73,9 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
     protected void doClose() throws IOException {
         isOneWay = message.getExchange().isOneWay();
         commitOutputMessage();
-
+        if (target != null) {
+            target.getClass();
+        }
     }
 
     private void commitOutputMessage() throws IOException {
@@ -85,7 +88,18 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
             WebService ws = clz.getAnnotation(WebService.class);
             assert ws != null;
             QName interfaceName = new QName(ws.targetNamespace(), ws.name());
-            QName serviceName = EndpointReferenceUtils.getServiceName(target);
+            QName serviceName = null;
+            if (target != null) {
+                serviceName = EndpointReferenceUtils.getServiceName(target);
+            } else {
+                serviceName = message.getExchange().get(org.apache.cxf.service.Service.class).
+                getServiceInfo().getName();
+            }
+
+            
+            
+          
+          
             MessageExchangeFactory factory = channel.createExchangeFactoryForService(serviceName);
             LOG.info(new org.apache.cxf.common.i18n.Message("CREATE.MESSAGE.EXCHANGE", LOG).toString()
                      + serviceName);

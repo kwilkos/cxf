@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import javax.jbi.JBIException;
 import javax.jbi.component.ComponentContext;
+import javax.jbi.messaging.MessagingException;
 import javax.jbi.servicedesc.ServiceEndpoint;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
@@ -42,11 +43,14 @@ import org.w3c.dom.NodeList;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.EndpointUtils;
 import org.apache.cxf.jbi.ServiceConsumer;
+import org.apache.cxf.jbi.transport.JBITransportFactory;
+import org.apache.cxf.transport.ConduitInitiatorManager;
 
 /**
  * Wraps a Celtix service or client.
@@ -78,7 +82,7 @@ public class CXFServiceUnit {
         } 
         bus = b;
         rootPath = path;
-        parent.addResource(url.toString());
+        parent.addResource(url);
         parentLoader = parent;
         parseJbiDescriptor(); 
     }
@@ -115,6 +119,17 @@ public class CXFServiceUnit {
             
         } else {
             LOG.info(new Message("SU.START.CONSUMER", LOG).toString());
+            try {
+                ((JBITransportFactory)bus.getExtension(ConduitInitiatorManager.class).
+                        getConduitInitiator(CXFServiceEngine.JBI_TRANSPORT_ID)).
+                        setDeliveryChannel(ctx.getDeliveryChannel());
+            } catch (BusException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (MessagingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             new Thread(serviceConsumer).start();
         }
     }
@@ -153,8 +168,8 @@ public class CXFServiceUnit {
         return endpointName;
     } 
     
-    public void prepare(ComponentContext ctx) { 
-        
+    public void prepare(ComponentContext ctx) throws ClassNotFoundException {
+
         try { 
             WebServiceClassFinder finder = new WebServiceClassFinder(rootPath, parentLoader);
             Collection<Class<?>> classes = finder.findWebServiceClasses(); 
@@ -270,54 +285,11 @@ public class CXFServiceUnit {
     } 
     
     private void createProviderConfiguration() {
-        //String oldConfiguration = System.getProperty("celtix.config.file");
-        File metaInfDir = new File(rootPath, "META-INF");
-        File celtixConfig = new File(metaInfDir, "celtix-server.xml"); 
-        if (celtixConfig.exists()) { 
-            try {
-                System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
-        } else { 
-            LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
-        } 
-        
-        /*Configuration busCfg = bus.getConfiguration();
-        if (null == busCfg) {
-            return;
-        }
-
-        String id = getServiceName().toString();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        cb.buildConfiguration(EndpointImpl.ENDPOINT_CONFIGURATION_URI, id, busCfg);
-        System.setProperty("celtix.config.file", oldConfiguration);*/
+        //revisit later on
     }
     
     private void createConsumerConfiguration() {
-        //String oldConfiguration = System.getProperty("celtix.config.file");
-        File metaInfDir = new File(rootPath, "META-INF");
-        File celtixConfig = new File(metaInfDir, "celtix-client.xml"); 
-        if (celtixConfig.exists()) { 
-            try {
-                System.setProperty("celtix.config.file", celtixConfig.toURL().toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + System.getProperty("celtix.config.file"));
-        } else { 
-            LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
-        } 
-        
-        /*Configuration busCfg = bus.getConfiguration();
-        if (null == busCfg) {
-            return;
-        }
-        String id = getServiceName().toString() + "/" + getEndpointName();
-        ConfigurationBuilder cb = ConfigurationBuilderFactory.getBuilder(null);
-        cb.buildConfiguration(ServiceImpl.PORT_CONFIGURATION_URI, id, busCfg);
-        System.setProperty("celtix.config.file", oldConfiguration);*/
+        //revisit later on        
     }
 
 }
