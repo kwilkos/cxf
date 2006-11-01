@@ -188,7 +188,9 @@ public class JMSDestinationTest extends AbstractJMSTester {
         // create the thread to handler the Destination incomming message
                
         waitForReceiveInMessage();
-        verifyDestinationReceivedMessage(inMessage);        
+        verifyDestinationReceivedMessage(inMessage);
+        // wait for a while for the jms session recycling
+        Thread.sleep(1000);
         destination.shutdown();
     }
     
