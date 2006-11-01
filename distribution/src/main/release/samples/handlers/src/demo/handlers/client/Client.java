@@ -20,11 +20,18 @@
 package demo.handlers.client;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
+
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.handler.Handler;
+
+import demo.handlers.common.SmallNumberHandler;
 import org.apache.handlers.AddNumbers;
 import org.apache.handlers.AddNumbersFault;
 import org.apache.handlers.AddNumbersService;
-
 
 public final class Client {
 
@@ -48,16 +55,13 @@ public final class Client {
         AddNumbersService service = new AddNumbersService(wsdl.toURL(), serviceName);
         AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
 
+        //Add client side handlers programmatically
+        SmallNumberHandler sh = new SmallNumberHandler();
+        List<Handler> newHandlerChain = new ArrayList<Handler>();
+        newHandlerChain.add(sh);
+        ((BindingProvider)port).getBinding().setHandlerChain(newHandlerChain);
+
         try {
-            String number1 = "10";
-            System.out.printf("Invoking addNumbers\n");
-            port.addNumbers(number1);
-            System.out.printf("Invoking addNumbers done\n");
-            //System.out.printf("The result of adding %d and %d is %d.\n\n", number1, number2, result);
-
-            //Comment below out as int type doesnt work. see jira 136
-
-/*
             int number1 = 10;
             int number2 = 20;
 
@@ -76,7 +80,7 @@ public final class Client {
             System.out.printf("Invoking addNumbers(%d, %d)\n", number1, number2);
             result = port.addNumbers(number1, number2);
             System.out.printf("The result of adding %d and %d is %d.\n", number1, number2, result);
-*/
+
         } catch (AddNumbersFault ex) {
             System.out.printf("Caught AddNumbersFault: %s\n", ex.getFaultInfo().getMessage());
         }

@@ -29,14 +29,6 @@
         <cxfrun classname="demo.handlers.server.Server" param1="${basedir}/wsdl/addNumbers.wsdl"/>
     </target>
 
-    <target name="client2" description="run demo client with out handlers" depends="build">
-        <cxfrun classname="demo.handlers.client.Client" param1="${basedir}/wsdl/addNumbers.wsdl"/>
-    </target>
-
-    <target name="server2" description="run demo server with out handlers" depends="build">
-        <cxfrun classname="demo.handlers.server.Server" param1="${basedir}/wsdl/addNumbers.wsdl"/>
-    </target>
-
     <target name="generate.code">
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java file="addNumbers.wsdl"/>

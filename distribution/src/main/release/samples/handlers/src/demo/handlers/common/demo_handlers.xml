@@ -24,8 +24,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
 	<handler>
-		<handler-name>SmallNumberHandler</handler-name>
-		<handler-class>demo.handlers.common.SmallNumberHandler</handler-class>
+		<handler-name>LoggingHandler</handler-name>
+		<handler-class>demo.handlers.common.LoggingHandler</handler-class>
 	</handler>
     </handler-chain>
 </handler-chains>

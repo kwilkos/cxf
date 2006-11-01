@@ -41,8 +41,9 @@ public class AddNumbersImpl implements AddNumbers {
      * @throws AddNumbersException
      *             if any of the numbers to be added is negative.
      */
-    public void addNumbers(String number1) throws AddNumbersFault {
-        System.out.println("addNumbers called....." + number1);
+    public int addNumbers(int number1, int number2) throws AddNumbersFault {
+        System.out.println("addNumbers called....., number1: " + number1 + " number2: " + number2);
+        return number1 * number2;
     }
 
 }

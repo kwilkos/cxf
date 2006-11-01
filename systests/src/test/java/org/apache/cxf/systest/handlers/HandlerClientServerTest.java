@@ -20,11 +20,15 @@
 package org.apache.cxf.systest.handlers;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
 //import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.handler.Handler;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -76,11 +80,18 @@ public class HandlerClientServerTest extends ClientServerTestBase {
 
         AddNumbersService service = new AddNumbersService(wsdl, serviceName);
         AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
+        
+        //Add client side handlers programmatically
+        SmallNumberHandler sh = new SmallNumberHandler();
+        List<Handler> newHandlerChain = new ArrayList<Handler>();
+        newHandlerChain.add(sh);
+        ((BindingProvider)port).getBinding().setHandlerChain(newHandlerChain);
 
-        port.addNumbers("20");
-
-        //This assertion can not pass due to jira CXF-136: int type or more than two parameters dont work
-        //assertEquals("2020", result);
+        int result = port.addNumbers(10, 20);
+        assertEquals(200, result);
+        int result1 = port.addNumbers(5, 6);
+        //TODO: This test can not pass due to jira cxf-195
+        //assertEquals(11, result1);
     }
 
 }

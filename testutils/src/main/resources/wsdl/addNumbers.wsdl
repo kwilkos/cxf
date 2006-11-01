@@ -35,13 +35,15 @@
 
             <complexType name="addNumbersResponse">
                 <sequence>
+                    <element name="return" type="xsd:int" />
                 </sequence>
             </complexType>
             <element name="addNumbersResponse" type="x1:addNumbersResponse"/>
 
             <complexType name="addNumbers">
                 <sequence>
-                    <element name="arg0" type="xsd:string" />
+                    <element name="arg0" type="xsd:int" />
+                    <element name="arg1" type="xsd:int" />
                 </sequence>
             </complexType>
             <element name="addNumbers" type="x1:addNumbers"/>
@@ -53,7 +55,7 @@
                     <element name="message" type="xsd:string" />
                 </sequence>
             </complexType>
-        </xsd:schema>
+       </xsd:schema>
     </types>
     <message name="addNumbers">
         <part name="parameters" element="x1:addNumbers" />

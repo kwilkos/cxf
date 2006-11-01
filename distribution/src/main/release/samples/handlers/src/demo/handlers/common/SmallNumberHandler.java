@@ -20,15 +20,15 @@
 package demo.handlers.common;
 
 import java.util.Map;
-//import javax.xml.bind.JAXBContext;
-//import javax.xml.bind.JAXBException;
-//import javax.xml.ws.LogicalMessage;
-//import javax.xml.ws.ProtocolException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.ws.LogicalMessage;
+import javax.xml.ws.ProtocolException;
 import javax.xml.ws.handler.LogicalHandler;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
-//import org.objectweb.handlers.types.AddNumbers;
-//import org.objectweb.handlers.types.AddNumbersResponse;
+import org.apache.handlers.types.AddNumbers;
+import org.apache.handlers.types.AddNumbersResponse;
 
 
 
@@ -42,8 +42,7 @@ public class SmallNumberHandler implements LogicalHandler<LogicalMessageContext>
 
     public final boolean handleMessage(LogicalMessageContext messageContext) {
         System.out.println("LogicalMessageHandler handleMessage called");
-        //Comment below out as int type doesnt work. see jira 136
-/*
+
         try {
             boolean outbound = (Boolean)messageContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
@@ -86,8 +85,7 @@ public class SmallNumberHandler implements LogicalHandler<LogicalMessageContext>
         } catch (JAXBException ex) {
             throw new ProtocolException(ex);
         }
-        */
-        return true;
+
     }
 
     public final boolean handleFault(LogicalMessageContext messageContext) {

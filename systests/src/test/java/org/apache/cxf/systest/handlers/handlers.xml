@@ -5,15 +5,7 @@ xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
-	<handler>
-		<handler-name>lh1</handler-name>
-		<handler-class>org.apache.cxf.systest.handlers.SmallNumberHandler</handler-class>
-		<init-param>
-			<param-name>token</param-name>
-			<param-value>String</param-value>
-		</init-param>
-	</handler>
-	<handler>
+        <handler>
 		<handler-name>ph1</handler-name>
 		<handler-class>org.apache.cxf.systest.handlers.LoggingHandler</handler-class>
 		<init-param>
