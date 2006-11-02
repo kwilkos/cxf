@@ -25,6 +25,8 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import java.util.logging.Logger;
 import javax.jws.WebParam;
 
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.message.Message;
@@ -41,6 +44,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 
 public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
@@ -107,11 +111,63 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         return false;
     }
     
+    private boolean requireCheckParameterName(Message message) {
+        // TODO add a configuration, if return false, then the parameter should be given by order.
+        Boolean order = (Boolean) message.get("HTTP_GET_CHECK_PARAM_NAME");
+        return order != null && order;
+    }
+    
+    protected Map<String, String> keepInOrder(Map<String, String> params, 
+                                              OperationInfo operation,
+                                              List<String> order) {
+        if (params == null || params.size() == 0) {
+            return params;
+        }
+        
+        if (order == null || order.size() == 0) {
+            return params;
+        }
+                
+        Map<String, String> orderedParameters = new LinkedHashMap<String, String>();
+        for (String name : order) {
+            orderedParameters.put(name, params.get(name));
+        }
+        
+        if (order.size() != params.size()) {
+            LOG.info(order.size()
+                     + " parameters definded in WSDL but found " 
+                     + params.size() + " in request!");            
+            Collection rest = CollectionUtils.diff(order, params.keySet());
+            if (rest != null && rest.size() > 0) {
+                LOG.info("Set the following parameters to null: " + rest);
+                for (Iterator iter = rest.iterator(); iter.hasNext();) {
+                    String key = (String)iter.next();
+                    orderedParameters.put(key, null);
+                }
+            }
+        }
+        
+        return orderedParameters;
+    }
+    
     protected List<Object> getParameters(Message message, BindingOperationInfo operation) {
         List<Object> parameters = new ArrayList<Object>();
         int idx = parameters.size();
 
-        Map<String, String> queries = getQueries(message);        
+        Map<String, String> queries = getQueries(message);
+        
+        if (requireCheckParameterName(message)) {
+            boolean emptyQueries = CollectionUtils.isEmpty(queries.keySet());
+            List<String> names = ServiceModelUtil.getOperationInputPartNames(operation.getOperationInfo());
+            queries = keepInOrder(queries, 
+                                  operation.getOperationInfo(),
+                                  names);
+            if (!emptyQueries && CollectionUtils.isEmpty(queries.keySet())) {
+                throw new Fault(new org.apache.cxf.common.i18n.Message("ORDERED_PARAM_REQUIRED", 
+                                                                       BUNDLE, 
+                                                                       names.toString()));
+            }
+        }
         
         Method method = getMethod(message, operation);        
         
@@ -134,16 +190,14 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             // TODO check the parameter name here
             Object param = null;
                         
-            if (type != null && type.isPrimitive()) {
+            if (type != null && type.isPrimitive() && queries.get(key) != null) {
                 param = PrimitiveUtils.read(queries.get(key), type);
             } else {
                 param = queries.get(key);
             }
-            if (param != null) {
-                parameters.add(param);
-            } else {
-                throw new RuntimeException(type.getName() + " can not be unmarshalled");
-            }
+            
+            parameters.add(param);
+            
             idx = parameters.size();
         }
         return parameters;
@@ -161,12 +215,11 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
     protected Map<String, String> getQueries(Message message) {
         Map<String, String> queries = new LinkedHashMap<String, String>();
         String query = (String)message.get(Message.QUERY_STRING);
-        if (!StringUtils.isEmpty(query)) {
-            query = uriDecode(query);
+        if (!StringUtils.isEmpty(query)) {            
             List<String> parts = Arrays.asList(query.split("&"));
             for (String part : parts) {
                 String[] keyValue = part.split("=");
-                queries.put(keyValue[0], keyValue[1]);
+                queries.put(keyValue[0], uriDecode(keyValue[1]));
             }
             return queries;
         }

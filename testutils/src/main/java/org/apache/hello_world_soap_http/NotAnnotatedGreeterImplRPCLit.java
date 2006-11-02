@@ -36,4 +36,8 @@ public class NotAnnotatedGreeterImplRPCLit implements GreeterRPCLit {
     public MyComplexStruct sendReceiveData(MyComplexStruct in) {
         return in;
     }
+
+    public String greetUs(String you, String me) {        
+        return "Hello " + you + " and " + me;
+    }
 }

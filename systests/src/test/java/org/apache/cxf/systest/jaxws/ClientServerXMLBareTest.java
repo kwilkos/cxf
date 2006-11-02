@@ -119,7 +119,7 @@ public class ClientServerXMLBareTest extends ClientServerTestBase {
     
     public void testGetGreetMe() throws Exception {
         HttpURLConnection httpConnection = 
-            getHttpConnection("http://localhost:9031/XMLService/XMLPort/greetMe/me/cxf");    
+            getHttpConnection("http://localhost:9031/XMLService/XMLPort/greetMe/requestType/cxf");    
         httpConnection.connect();        
         
         assertEquals(200, httpConnection.getResponseCode());

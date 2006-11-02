@@ -51,5 +51,11 @@ public class RPCLitGreeterImpl implements GreeterRPCLit {
         return in;
     }
 
+    public String greetUs(String you, String me) {
+        System.out.println("Executing operation greetUs");
+        System.out.println("Message received: you are " + you + " I'm " + me + "\n");
+        return "Hello " + you + " and " + me;
+    }
+
 
 }

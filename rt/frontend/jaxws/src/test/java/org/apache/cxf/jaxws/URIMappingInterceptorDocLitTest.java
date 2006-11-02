@@ -103,7 +103,27 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
     
     public void testGetAddFromQuery() throws Exception {
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
-        message.put(Message.QUERY_STRING, "?arg0=1&arg0=2");
+        message.put(Message.QUERY_STRING, "arg0=1&arg1=2");
+        
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        interceptor.handleMessage(message);
+        
+        assertNull(message.getContent(Exception.class));
+        
+        Object parameters = message.getContent(List.class);
+        assertNotNull(parameters);
+        assertEquals(2, ((List)parameters).size());
+                 
+        Integer value = (Integer) ((List)parameters).get(0);
+        assertEquals(1, value.intValue());
+        value = (Integer) ((List)parameters).get(1);
+        assertEquals(2, value.intValue());
+    }
+    
+    public void testGetAddFromQueryOrdered() throws Exception {
+        message.put("HTTP_GET_CHECK_PARAM_NAME", Boolean.TRUE);
+        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
+        message.put(Message.QUERY_STRING, "arg1=0&arg0=1");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();
         interceptor.handleMessage(message);
@@ -117,6 +137,22 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         Integer value = (Integer) ((List)parameters).get(0);       
         assertEquals(1, value.intValue());
         value = (Integer) ((List)parameters).get(1);
-        assertEquals(2, value.intValue());
+        assertEquals(0, value.intValue());
     }
+    
+    public void testGetAddFromQueryOrderedNull() throws Exception {
+        message.put("HTTP_GET_CHECK_PARAM_NAME", Boolean.TRUE);
+        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
+        message.put(Message.QUERY_STRING, "one=1&two=2");
+        
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        interceptor.handleMessage(message);
+        assertNull(message.getContent(Exception.class));
+        Object parameters = message.getContent(List.class);
+        assertNotNull(parameters);
+        assertEquals(2, ((List)parameters).size());        
+        
+        assertNull(((List)parameters).get(0));
+        assertNull(((List)parameters).get(1));        
+    }    
 }

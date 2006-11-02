@@ -19,11 +19,20 @@
 
 package org.apache.cxf.service.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
+import org.apache.ws.commons.schema.XmlSchemaAnnotated;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaDatatype;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
+import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 
 public final class ServiceModelUtil {
 
@@ -71,4 +80,33 @@ public final class ServiceModelUtil {
         }
         return schemaInfo;
     }
+    
+    public static List<String> getOperationInputPartNames(OperationInfo operation) {
+        List<String> names = new ArrayList<String>();
+        List<MessagePartInfo> parts = operation.getInput().getMessageParts();
+        if (parts == null && parts.size() == 0) {
+            return names;
+        }
+
+        for (MessagePartInfo part : parts) {
+            XmlSchemaAnnotated schema = part.getXmlSchema();
+
+            if (schema instanceof XmlSchemaElement
+                && ((XmlSchemaElement)schema).getSchemaType() instanceof XmlSchemaComplexType) {
+                XmlSchemaElement element = (XmlSchemaElement)schema;    
+                XmlSchemaComplexType cplxType = (XmlSchemaComplexType)element.getSchemaType();
+                XmlSchemaSequence seq = (XmlSchemaSequence)cplxType.getParticle();
+                if (seq == null || seq.getItems() == null) {
+                    return names;
+                }
+                for (int i = 0; i < seq.getItems().getCount(); i++) {
+                    XmlSchemaElement elChild = (XmlSchemaElement)seq.getItems().getItem(i);
+                    names.add(elChild.getName());
+                }
+            } else {
+                names.add(part.getConcreteName().getLocalPart());
+            }
+        }
+        return names;
+    }    
 }
