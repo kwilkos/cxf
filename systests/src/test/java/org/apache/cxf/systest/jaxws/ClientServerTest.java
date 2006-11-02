@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -476,7 +477,7 @@ public class ClientServerTest extends ClientServerTestBase {
     
     public void testGetSayHi() throws Exception {
         HttpURLConnection httpConnection = 
-            getHttpConnection("http://localhost:9000/SoapContext/SoapPort/sayHi");    
+            getHttpConnection("http://localhost:9000/SoapContext/SoapPort/sayHi");
         httpConnection.connect(); 
         
         httpConnection.connect();
@@ -531,6 +532,36 @@ public class ClientServerTest extends ClientServerTestBase {
                                                XPathConstants.STRING);
         assertEquals("Hello cxf", response);
     }
+    
+    public void testGetGreetMeFromQuery() throws Exception {
+        String url = 
+            URLEncoder.encode("http://localhost:9000/SoapContext/SoapPort/greetMe?me=cxf (was CeltixFire)",
+                              "UTF-8"); 
+        HttpURLConnection httpConnection = getHttpConnection(url);    
+        httpConnection.connect();        
+        
+        assertEquals(200, httpConnection.getResponseCode());
+    
+        assertEquals("text/xml", httpConnection.getContentType());
+        assertEquals("OK", httpConnection.getResponseMessage());
+        
+        InputStream in = httpConnection.getInputStream();
+        assertNotNull(in);
+        
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+        
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("soap", Soap11.SOAP_NAMESPACE);
+        ns.put("ns2", "http://apache.org/hello_world_soap_http/types");
+        XPathUtils xu = new XPathUtils(ns);
+        Node body = (Node) xu.getValue("/soap:Envelope/soap:Body", doc, XPathConstants.NODE);
+        assertNotNull(body);
+        String response = (String) xu.getValue("//ns2:greetMeResponse/ns2:responseType/text()", 
+                                               body, 
+                                               XPathConstants.STRING);
+        assertEquals("Hello cxf", response);
+    }    
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);

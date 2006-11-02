@@ -19,8 +19,10 @@
 
 package org.apache.cxf.interceptor;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -146,11 +148,21 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         }
         return parameters;
     }
+    
+    private String uriDecode(String query) {
+        try {
+            query = URLDecoder.decode(query, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOG.warning(query + " can not be decoded: " + e.getMessage());            
+        }
+        return query;
+    }
 
     protected Map<String, String> getQueries(Message message) {
         Map<String, String> queries = new LinkedHashMap<String, String>();
         String query = (String)message.get(Message.QUERY_STRING);
         if (!StringUtils.isEmpty(query)) {
+            query = uriDecode(query);
             List<String> parts = Arrays.asList(query.split("&"));
             for (String part : parts) {
                 String[] keyValue = part.split("=");
@@ -166,7 +178,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             if (i + 1 > parts.size()) {
                 queries.put(parts.get(i), null);
             } else {
-                queries.put(parts.get(i), parts.get(i + 1));
+                queries.put(parts.get(i), uriDecode(parts.get(i + 1)));
             }
         }
         return queries;

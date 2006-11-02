@@ -49,8 +49,7 @@ import org.apache.velocity.app.Velocity;
 public class EclipsePluginMojo extends AbstractMojo {
     private static final String LIB_PATH = "lib";
     private static final String PLUGIN_XML = "plugin.xml";
-    private static final String ECLIPSE_PLUGIN_TEMPLATE = 
-        "/org/apache/cxf/maven_plugin/eclipse/3.0/plugin.xml.vm";
+    private static final String ECLIPSE_PLUGIN_TEMPLATE = "/org/apache/cxf/maven_plugin/eclipse/3.0/plugin.xml.vm";
     /**
      * @parameter expression="${project}"
      * @required
@@ -75,7 +74,7 @@ public class EclipsePluginMojo extends AbstractMojo {
      * @parameter
      */
     String[] excludes;
-    
+
     /**
      * @parameter
      */
@@ -89,7 +88,7 @@ public class EclipsePluginMojo extends AbstractMojo {
         baseDir = new File(targetDirectory, project.getGroupId() + "_" + project.getVersion());
         libPath = new File(baseDir, LIB_PATH);
         zipFile = new File(targetDirectory, project.getGroupId() + "_" + project.getVersion() + ".zip");
-     
+
         if (baseDir.exists()) {
             FileUtils.removeDir(baseDir);
         }
@@ -119,21 +118,19 @@ public class EclipsePluginMojo extends AbstractMojo {
         }
         return false;
     }
-    
+
     private void copyLicense() throws IOException {
-        File licFile = new File(license); 
+        File licFile = new File(license);
         if (licFile != null && licFile.exists()) {
             org.apache.tools.ant.util.FileUtils fileUtils = org.apache.tools.ant.util.FileUtils
-            .newFileUtils();
+                .newFileUtils();
             fileUtils.copyFile(licFile, new File(baseDir, "LICENSE"));
         }
     }
 
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        init();
-
-        if (dependencies != null && !dependencies.isEmpty()) {
-            List jars = new ArrayList();
+    private List copyJars() throws Exception {
+        List jars = new ArrayList();
+        if (dependencies != null && !dependencies.isEmpty()) {            
             org.apache.tools.ant.util.FileUtils fileUtils = org.apache.tools.ant.util.FileUtils
                 .newFileUtils();
             for (Iterator it = dependencies.iterator(); it.hasNext();) {
@@ -154,22 +151,25 @@ public class EclipsePluginMojo extends AbstractMojo {
                     e.printStackTrace();
                     throw new MojoExecutionException(e.getMessage(), e);
                 }
-
                 jars.add(newJar);
-            }
-
-            try {                
-                generatePluginXML(jars, new File(baseDir, PLUGIN_XML));
-                copyLicense();
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new MojoExecutionException(e.getMessage(), e);
-            }
-
-            zip();
-
-            cleanUp();
+            }            
         }
+        return jars;
+    }
+
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        init();
+        
+        try {
+            generatePluginXML(copyJars(), new File(baseDir, PLUGIN_XML));
+            copyLicense();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+        
+        zip();
+        cleanUp();
     }
 
     private void cleanUp() {
@@ -183,7 +183,7 @@ public class EclipsePluginMojo extends AbstractMojo {
     private String getVelocityLogFile(String log) {
         return new File(targetDirectory, log).toString();
     }
-    
+
     private String getVersion() {
         return StringUtils.formatVersionNumber(project.getVersion());
     }
@@ -203,11 +203,13 @@ public class EclipsePluginMojo extends AbstractMojo {
     private void generatePluginXML(List jars, File targetFile) throws Exception {
         initVelocity();
 
-        String templateName = ECLIPSE_PLUGIN_TEMPLATE;
-
         Template tmpl = null;
 
-        tmpl = Velocity.getTemplate(templateName);
+        tmpl = Velocity.getTemplate(ECLIPSE_PLUGIN_TEMPLATE);
+
+        if (tmpl == null) {
+            throw new RuntimeException("Can not load template file: " + ECLIPSE_PLUGIN_TEMPLATE);
+        }
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("ECLIPSE_VERSION", "3.0");
@@ -220,9 +222,6 @@ public class EclipsePluginMojo extends AbstractMojo {
 
         outputs = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetFile)), "UTF-8");
         VelocityWriter writer = new VelocityWriter(outputs);
-        if (tmpl == null) {
-            throw new RuntimeException("Can not load template file: " + templateName);
-        }
 
         tmpl.merge(ctx, writer);
         writer.close();

@@ -94,7 +94,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
     }
     
     public void testGetGreetMeFromPath() throws Exception {
-        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe/me/king");
+        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe/me/king+author");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();        
         interceptor.handleMessage(message);
@@ -105,7 +105,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertNotNull(parameters);
         assertEquals(1, ((List)parameters).size());
         String value = (String) ((List)parameters).get(0);
-        assertEquals("king", value);
+        assertEquals("king author", value);
     }
     
     public void testGetSayHiFromQuery() throws Exception {
@@ -122,5 +122,21 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertEquals(1, ((List)parameters).size());
         String value = (String) ((List)parameters).get(0);
         assertEquals("king", value);
+    }
+    
+    public void testGetSayHiFromQueryEncoded() throws Exception {
+        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
+        message.put(Message.QUERY_STRING, "?me=king+author");
+        
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        interceptor.handleMessage(message);
+        
+        assertNull(message.getContent(Exception.class));
+        
+        Object parameters = message.getContent(List.class);
+        assertNotNull(parameters);
+        assertEquals(1, ((List)parameters).size());
+        String value = (String) ((List)parameters).get(0);        
+        assertEquals("king author", value);
     }
 }
