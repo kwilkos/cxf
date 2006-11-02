@@ -139,6 +139,18 @@ public final class StringUtils {
         return str;
     }
     
+    public static String getFirstNotEmpty(List<String> list) {
+        if (isEmpty(list)) {
+            return null;
+        }
+        for (String item : list) {
+            if (!isEmpty(item)) {
+                return item;
+            }       
+        }
+        return null;
+    }
+    
     public static List<String> getFound(String contents, String regex) {
         if (isEmpty(regex) || isEmpty(contents)) {
             return null;
@@ -156,4 +168,12 @@ public final class StringUtils {
         }
         return results;
     } 
+    
+    public static String formatVersionNumber(String target) {
+        List<String> found = StringUtils.getFound(target, "\\d+\\.\\d+\\.?\\d*");
+        if (isEmpty(found)) {
+            return target;
+        }
+        return getFirstNotEmpty(found);
+    }
 }

@@ -59,4 +59,9 @@ public class StringUtilsTest extends TestCase {
         assertFalse(StringUtils.isEmpty(StringUtils.getFound("velocity-1.4.jar", regex)));
         assertTrue(StringUtils.isEmpty(StringUtils.getFound(null, regex)));
     }
+    
+    public void testFormatVersionNumber() throws Exception {
+        assertEquals("2.0", StringUtils.formatVersionNumber("2.0-incubator-M1-SNAPSHOT"));
+        assertEquals("2.0.12", StringUtils.formatVersionNumber("2.0.12-incubator-M1-SNAPSHOT"));
+    }
 }

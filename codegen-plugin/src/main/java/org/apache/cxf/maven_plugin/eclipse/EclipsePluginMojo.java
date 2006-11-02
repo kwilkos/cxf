@@ -89,8 +89,7 @@ public class EclipsePluginMojo extends AbstractMojo {
         baseDir = new File(targetDirectory, project.getGroupId() + "_" + project.getVersion());
         libPath = new File(baseDir, LIB_PATH);
         zipFile = new File(targetDirectory, project.getGroupId() + "_" + project.getVersion() + ".zip");
-
-        // TODO: reuse the file create/detele in tools.
+     
         if (baseDir.exists()) {
             FileUtils.removeDir(baseDir);
         }
@@ -184,6 +183,10 @@ public class EclipsePluginMojo extends AbstractMojo {
     private String getVelocityLogFile(String log) {
         return new File(targetDirectory, log).toString();
     }
+    
+    private String getVersion() {
+        return StringUtils.formatVersionNumber(project.getVersion());
+    }
 
     // TODO: Reuse the velocity in the tools 
     private void initVelocity() throws Exception {
@@ -208,7 +211,7 @@ public class EclipsePluginMojo extends AbstractMojo {
 
         VelocityContext ctx = new VelocityContext();
         ctx.put("ECLIPSE_VERSION", "3.0");
-        ctx.put("PLUGIN_VERSION", project.getVersion());
+        ctx.put("PLUGIN_VERSION", getVersion());
         ctx.put("GROUP_ID", project.getGroupId());
         ctx.put("libPath", LIB_PATH);
         ctx.put("jars", jars);
