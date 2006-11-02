@@ -31,7 +31,7 @@ public class WSDLValidationTest extends ToolTestBase {
     public void setUp() {
         super.setUp();
         try {
-            schemaDir = getLocation("/validator_schemas");
+            schemaDir = getLocation("/schemas/wsdl");
         } catch (IOException ex) {
             ex.printStackTrace();
         }

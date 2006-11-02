@@ -19,6 +19,12 @@
 
 package org.apache.cxf.tools.wsdl2java.processor;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
@@ -36,7 +42,7 @@ public class WSDLToJavaXMLFormatTest
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_format_fail.wsdl"));
         env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
-        System.setProperty(ToolConstants.CXF_SCHEMA_DIR, getLocation("/wsdl2java_schemas"));
+        System.setProperty(ToolConstants.CXF_SCHEMA_DIR, getSchemaLocation("/schemas/wsdl"));
         processor.setEnvironment(env);
         try {
             processor.process();
@@ -59,4 +65,19 @@ public class WSDLToJavaXMLFormatTest
     private String getLocation(String wsdlFile) {
         return WSDLToJavaXMLFormatTest.class.getResource(wsdlFile).getFile();
     }
+    
+    private String getSchemaLocation(String schemaDir) throws IOException {
+        Enumeration<URL> e = LogUtils.class.getClassLoader().getResources(schemaDir);
+        
+        while (e.hasMoreElements()) {
+            URL u = e.nextElement();
+            File f = new File(u.getFile());
+            if (f.exists() && f.isDirectory()) {
+                return f.toString();
+            }
+        }
+
+        return LogUtils.class.getResource(schemaDir).getFile();
+    }
+    
 }
