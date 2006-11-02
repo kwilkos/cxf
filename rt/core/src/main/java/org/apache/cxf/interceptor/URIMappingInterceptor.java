@@ -145,9 +145,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         
         Method method = getMethod(message, operation);        
         
-        Class[] types = method.getParameterTypes();
-        
-        Annotation[][] parameterAnnotation = method.getParameterAnnotations();
+        Class[] types = method.getParameterTypes();        
         
         for (String key : queries.keySet()) {
             Class<?> type = types[idx];
