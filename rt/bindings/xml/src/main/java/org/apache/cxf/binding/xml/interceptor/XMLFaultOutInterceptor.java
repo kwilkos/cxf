@@ -59,7 +59,7 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
         try {
             nsStack.add(XMLConstants.NS_XML_FORMAT);
             String prefix = nsStack.getPrefix(XMLConstants.NS_XML_FORMAT);
-
+            
             StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_ROOT, XMLConstants.NS_XML_FORMAT);
 
             StaxUtils
@@ -80,7 +80,7 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                 while (it.hasNext()) {
                     FaultInfo fi = it.next();
                     for (MessagePartInfo mpi : fi.getMessageParts()) {
-                        Class cls = mpi.getProperty(Class.class.getName(), Class.class);
+                        Class cls = mpi.getTypeClass();
                         Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
                         Class sub = method.getReturnType();
                         if (cls != null && cls.equals(sub)) {
@@ -96,7 +96,7 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                     dataWriter.write(getFaultInfo(t), part, message);
                     writer.writeEndElement();
                 }
-            }
+            } 
             // fault root
             writer.writeEndElement();
 

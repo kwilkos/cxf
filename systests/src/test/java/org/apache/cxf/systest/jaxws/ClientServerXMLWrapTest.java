@@ -156,9 +156,6 @@ public class ClientServerXMLWrapTest extends TestCase {
             assertEquals("text/xml", contentType);
             Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);
             assertEquals(500, responseCode.intValue());                                    
-        } catch (Exception ex) {
-            assertTrue("did not catch expected PingMeFault exception", 
-                       !(ex instanceof PingMeFault));
         }
     }
 }
