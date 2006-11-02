@@ -49,7 +49,8 @@ import org.apache.velocity.app.Velocity;
 public class EclipsePluginMojo extends AbstractMojo {
     private static final String LIB_PATH = "lib";
     private static final String PLUGIN_XML = "plugin.xml";
-    private static final String ECLIPSE_PLUGIN_TEMPLATE = "/org/apache/cxf/maven_plugin/eclipse/3.0/plugin.xml.vm";
+    private static final String ECLIPSE_PLUGIN_TEMPLATE = 
+        "/org/apache/cxf/maven_plugin/eclipse/3.0/plugin.xml.vm";
     /**
      * @parameter expression="${project}"
      * @required
