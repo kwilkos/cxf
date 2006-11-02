@@ -29,10 +29,8 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
 import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaDatatype;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
-import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 
 public final class ServiceModelUtil {
 

@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import javax.jws.WebParam;
-
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.common.util.PrimitiveUtils;
@@ -86,31 +84,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
             get(Service.class).get(MethodDispatcher.class.getName());
         return md.getMethod(operation);
     }
-    
-    private boolean isValidParameter(Annotation[][] parameterAnnotation, int index, String parameterName) {
-        if (parameterAnnotation == null || parameterAnnotation.length < index) {
-            return true;
-        }
-        Annotation[] annotations = parameterAnnotation[index];
-        if (annotations == null || annotations.length < 1) {
-            return true;
-        }
-        WebParam webParam = null;
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType() == WebParam.class) {
-                webParam = (WebParam) annotation;
-            }
-        }
-        if (webParam == null 
-            || StringUtils.isEmpty(webParam.name()) 
-            || webParam.name().equals(parameterName)) {
-            return true;
-        }
-        LOG.warning("The parameter name [" + parameterName 
-                    + "] is not match the one defined in the WebParam name [" + webParam.name() + "]");
-        return false;
-    }
-    
+       
     private boolean requireCheckParameterName(Message message) {
         // TODO add a configuration, if return false, then the parameter should be given by order.
         Boolean order = (Boolean) message.get("HTTP_GET_CHECK_PARAM_NAME");
@@ -177,10 +151,7 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         
         for (String key : queries.keySet()) {
             Class<?> type = types[idx];
-            
-            // Do we need to fail the processing if the parameter not match the WebParam?
-            isValidParameter(parameterAnnotation, idx, key);
-            
+                       
             if (type == null) {
                 LOG.warning("URIMappingInterceptor MessagePartInfo NULL ");
                 throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, 
