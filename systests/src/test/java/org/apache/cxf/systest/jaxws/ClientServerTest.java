@@ -534,9 +534,9 @@ public class ClientServerTest extends ClientServerTestBase {
     }
     
     public void testGetGreetMeFromQuery() throws Exception {
-        String url = 
-            URLEncoder.encode("http://localhost:9000/SoapContext/SoapPort/greetMe?me=cxf (was CeltixFire)",
-                              "UTF-8"); 
+        String url = "http://localhost:9000/SoapContext/SoapPort/greetMe?" 
+            + URLEncoder.encode("me=cxf (was CeltixFire)", "UTF-8"); 
+        
         HttpURLConnection httpConnection = getHttpConnection(url);    
         httpConnection.connect();        
         
@@ -560,7 +560,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response = (String) xu.getValue("//ns2:greetMeResponse/ns2:responseType/text()", 
                                                body, 
                                                XPathConstants.STRING);
-        assertEquals("Hello cxf", response);
+        assertEquals("Hello cxf (was CeltixFire)", response);
     }    
     
     public static void main(String[] args) {
