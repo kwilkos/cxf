@@ -45,7 +45,7 @@ public class JAXBDataBindingTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(JAXBDataBindingTest.class.getName());
     private static final String WSDL_PATH = "/wsdl/hello_world.wsdl";
-    private static final String SCHEMA1 = "/schema/wsdl.xsd";
+    private static final String SCHEMA1 = "/schemas/wsdl/wsdl.xsd";
     private static final String SCHEMA2 = "/schema/jms.xsd";
     private Definition def;
     private Service service;

@@ -34,6 +34,30 @@
         <topDirectoryLocation>../../..</topDirectoryLocation>
     </properties>
 
+    <build>
+        <testResources>
+	    <testResource>
+	        <directory>src/test/resources</directory>
+		<includes>
+		    <include>**</include>
+		</includes>
+	    </testResource>
+	    <testResource>
+	        <directory>src/test/java/org/apache/cxf/jaxb/resources</directory>
+		<targetPath>org/apache/cxf/jaxb/resources</targetPath>
+		<includes>
+		    <include>**/*</include>
+		</includes>
+	    </testResource>
+	    <testResource>
+	        <directory>../../../common/metacode/src/main/resources/</directory>
+		<includes>
+		    <include>schemas/wsdl/wsdl.xsd</include>
+		</includes>
+            </testResource>
+	</testResources>
+    </build> 
+
     <dependencies>
 
         <dependency>
