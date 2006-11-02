@@ -138,6 +138,7 @@ public class TestBase extends TestCase {
 
         control.reset();
         JAXBDataBinding db = new JAXBDataBinding();
+        db.initialize(serviceInfo);
         db.setContext(JAXBContext.newInstance(jaxbClasses));
         service.setDataBinding(db);
 

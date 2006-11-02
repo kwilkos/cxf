@@ -19,6 +19,7 @@
 
 package org.apache.cxf.systest.jaxws;
 
+
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.HttpURLConnection;
@@ -472,7 +473,16 @@ public class ClientServerTest extends ClientServerTestBase {
                 assertNotNull(brlf.getFaultInfo());
                 assertEquals("BadRecordLitFault", brlf.getFaultInfo());
             }
+                        
         }
+
+        try {
+            // trigger runtime exception throw of implementor method
+            greeter.testDocLitFault("");
+            fail("Should have thrown Runtime exception");
+        } catch (Exception e) {
+            assertEquals("can't get back original message",  "Unknown source", e.getMessage());
+        } 
     }
     
     public void testGetSayHi() throws Exception {

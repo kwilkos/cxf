@@ -20,6 +20,7 @@
 package org.apache.hello_world_soap_http;
 
 
+import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -81,6 +82,7 @@ public class GreeterImpl implements Greeter {
             nscl.setCode(ec);
             throw new NoSuchCodeLitFault("TestNoSuchCodeLit", nscl);
         }
+        throw new RuntimeException("Unknown source", new IOException("dummy io exception"));
     }
 
     public void greetMeOneWay(String requestType) {

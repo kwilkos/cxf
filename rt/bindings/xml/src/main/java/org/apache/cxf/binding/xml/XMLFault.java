@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.binding.xml;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
 import org.apache.cxf.common.i18n.Message;
@@ -29,7 +28,6 @@ public class XMLFault extends Fault {
     public static final String XML_FAULT_PREFIX = "xfns";
 
     public static final String XML_FAULT_ROOT = "XMLFault";
-
     public static final String XML_FAULT_STRING = "faultstring";
 
     public static final String XML_FAULT_DETAIL = "detail";
@@ -58,9 +56,6 @@ public class XMLFault extends Fault {
             return (XMLFault) f;
         }
         Throwable th = f.getCause();
-        if (f.getCause() instanceof InvocationTargetException) {
-            th = th.getCause();
-        }
         XMLFault xmlFault = new XMLFault(new Message(f.getMessage(), (ResourceBundle) null), th);
         xmlFault.setDetail(f.getDetail());
         return xmlFault;

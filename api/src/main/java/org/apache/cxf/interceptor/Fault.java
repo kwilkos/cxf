@@ -46,7 +46,11 @@ public class Fault extends UncheckedException {
 
     public Fault(Throwable t) {
         super(t);
-        message = super.getMessage();
+        if (super.getMessage() != null) {
+            message = super.getMessage();
+        } else {
+            message = t == null ? null : t.getMessage();
+        }
     }
 
     public String getMessage() {
