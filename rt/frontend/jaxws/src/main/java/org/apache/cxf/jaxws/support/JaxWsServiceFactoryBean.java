@@ -217,6 +217,9 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
     private void initializeParameter(OperationInfo o, Method method, int i, 
                                      Class paramType, Type genericType) {
+        if (isWrapped(method)) {
+            return;
+        }
         boolean isIn = isInParam(method, i);
         boolean isOut = isOutParam(method, i);
         

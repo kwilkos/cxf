@@ -221,6 +221,10 @@
                                     <wsdl>${basedir}/src/main/resources/wsdl/soapheader.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/locator.wsdl</wsdl>
+                                </wsdlOption>
+
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/schema_validation.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
