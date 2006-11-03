@@ -48,18 +48,16 @@ public class Compiler {
                 System.arraycopy(args, 0, cmdArray, 0, sourceFileIndex);
                 cmdArray[sourceFileIndex] = "@" + tmpFile;
             } else {
-                /*//Sun's jdk bug on windows xp and windows 2000. It will be fixed in mustung 
-                //get windows
-                if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
-                    for (int i = 0; i < args.length; i++) {
-                        if (!"/".equals(File.separator) && args[i].indexOf("package-info") == -1) {
-                            args[i] = args[i].replace(File.separatorChar, '/');
-                        }
-                    }
-                }
-               */
                 cmdArray = new String[args.length];
                 System.arraycopy(args, 0, cmdArray, 0, args.length);
+            }
+            
+            if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
+                for (int i = 0; i < cmdArray.length; i++) {
+                    if (cmdArray[i].indexOf("package-info") == -1) {
+                        cmdArray[i] = cmdArray[i].replace('\\', '/');
+                    }
+                }
             }
             
             p = Runtime.getRuntime().exec(cmdArray);
