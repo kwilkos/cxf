@@ -116,7 +116,8 @@
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
                                     <extension>true</extension>
                                     <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
+                                        <extensionArg>-Xdv</extensionArg>
+                                        <extensionArg>-Xcfg</extensionArg>                                    
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>

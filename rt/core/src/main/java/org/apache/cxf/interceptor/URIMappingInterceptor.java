@@ -56,18 +56,15 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
 
     public void handleMessage(Message message) throws Fault {
         String method = (String)message.get(Message.HTTP_REQUEST_METHOD);
-        LOG.info("Invoking HTTP method " + method);
-        BindingOperationInfo op = message.getExchange().get(BindingOperationInfo.class);
+        LOG.info("Invoking HTTP method " + method);        
         if (!isGET(message)) {
             LOG.info("URIMappingInterceptor can only handle HTTP GET, not HTTP " + method);
             return;
         }
-        if (op != null) {
-            return;
-        }
+
         String opName = getOperationName(message);
         LOG.info("URIMappingInterceptor get operation: " + opName);
-        op = ServiceModelUtil.getOperation(message.getExchange(), opName);
+        BindingOperationInfo op = ServiceModelUtil.getOperation(message.getExchange(), opName);
         
         if (op == null || opName == null || op.getName() == null
             || StringUtils.isEmpty(op.getName().getLocalPart())
@@ -84,9 +81,9 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
         return md.getMethod(operation);
     }
        
-    private boolean requireCheckParameterName(Message message) {
-        // TODO add a configuration, if return false, then the parameter should be given by order.
-        Boolean order = (Boolean) message.get("HTTP_GET_CHECK_PARAM_NAME");
+    private boolean isFixedParameterOrder(Message message) {
+        // Default value is false
+        Boolean order = (Boolean)message.get(Message.FIXED_PARAMETER_ORDER);        
         return order != null && order;
     }
     
@@ -129,13 +126,14 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
 
         Map<String, String> queries = getQueries(message);
         
-        if (requireCheckParameterName(message)) {
-            boolean emptyQueries = CollectionUtils.isEmpty(queries.keySet());
+        if (!isFixedParameterOrder(message)) {
+            boolean emptyQueries = CollectionUtils.isEmpty(queries.values());            
+            
             List<String> names = ServiceModelUtil.getOperationInputPartNames(operation.getOperationInfo());
             queries = keepInOrder(queries, 
                                   operation.getOperationInfo(),
                                   names);
-            if (!emptyQueries && CollectionUtils.isEmpty(queries.keySet())) {
+            if (!emptyQueries && CollectionUtils.isEmpty(queries.values())) {            
                 throw new Fault(new org.apache.cxf.common.i18n.Message("ORDERED_PARAM_REQUIRED", 
                                                                        BUNDLE, 
                                                                        names.toString()));

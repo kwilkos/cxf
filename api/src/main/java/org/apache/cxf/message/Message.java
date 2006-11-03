@@ -49,6 +49,7 @@ public interface Message extends Map<String, Object> {
     String SCHEMA_VALIDATION_ENABLED = Message.class.getCanonicalName() + ".schemaValidationEnabled";
     String CONTENT_TYPE = Message.class.getName() + ".ContentType";
     String BASE_PATH = Message.class.getName() + ".BASE_PATH";
+    String FIXED_PARAMETER_ORDER = Message.class.getName() + "FIXED_PARAMETER_ORDER";
 
     String getId();
     void setId(String id);

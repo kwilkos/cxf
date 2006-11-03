@@ -36,7 +36,8 @@
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
     <xs:element name="authorization" type="sec:AuthorizationPolicy"/>
     <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
-    <xs:element name="contextMatchStrategy" type="xs:string" default="exact"/>
+    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
+    <xs:element name="fixedParameterOrder" type="xs:boolean" default="false"/>
 
     <xs:complexType name="HTTPDestinationConfigBean">        
         <xs:annotation>
@@ -49,6 +50,7 @@
             <xs:element ref="tns:authorization" minOccurs="0"/>
             <xs:element ref="tns:sslServer" minOccurs="0"/>
             <xs:element ref="tns:contextMatchStrategy" minOccurs="0"/>
+            <xs:element ref="tns:fixedParameterOrder" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

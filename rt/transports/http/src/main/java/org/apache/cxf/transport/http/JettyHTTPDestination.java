@@ -102,12 +102,11 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             LOG.info("registering incoming observer: " + observer);
             try {
                 URL url = new URL(getAddressValue());
-                if (contextMatchOnStem()) {
+                if (contextMatchOnExact()) {
                     engine.addServant(url, new AbstractHttpHandler() {
                         public void handle(String pathInContext, String pathParams, HttpRequest req,
                                            HttpResponse resp) throws IOException {
-                            String name = getName();
-                            if (pathInContext.startsWith(name)) {
+                            if (pathInContext.equals(getName())) {
                                 doService(req, resp);
                             }
                         }
@@ -278,7 +277,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             if (!StringUtils.isEmpty(getAddressValue())) {
                 inMessage.put(Message.BASE_PATH, new URL(getAddressValue()).getPath());
             }
-
+            inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
+            
             setHeaders(inMessage);
 
             inMessage.setDestination(this);

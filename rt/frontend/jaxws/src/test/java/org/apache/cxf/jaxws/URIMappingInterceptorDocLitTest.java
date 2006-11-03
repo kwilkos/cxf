@@ -29,6 +29,7 @@ import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.calculator.CalculatorImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Exchange;
@@ -79,49 +80,30 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
     }
     
     public void testGetAddFromPath() throws Exception {
-        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add/arg0/1/arg1/2");
+        message.put(Message.FIXED_PARAMETER_ORDER, Boolean.TRUE);
+        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add/arg0/1/arg1/0");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();
         interceptor.handleMessage(message);
         
         assertNull(message.getContent(Exception.class));
         
-        Object parameters = message.getContent(List.class);
-        assertNotNull(parameters);
-        assertEquals(2, ((List)parameters).size());
-         
-        Integer value = (Integer) ((List)parameters).get(0);
-        assertEquals(1, value.intValue());
-        
-        value = (Integer) ((List)parameters).get(1);        
-        assertEquals(2, value.intValue());
-        
-        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
-        assertNotNull(boi);
-        assertEquals(new QName(ns, "add"), boi.getName());
+        assertion();        
     }
     
     public void testGetAddFromQuery() throws Exception {
+        message.put(Message.FIXED_PARAMETER_ORDER, Boolean.TRUE);
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
-        message.put(Message.QUERY_STRING, "arg0=1&arg1=2");
+        message.put(Message.QUERY_STRING, "arg0=1&arg1=0");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();
         interceptor.handleMessage(message);
         
         assertNull(message.getContent(Exception.class));
-        
-        Object parameters = message.getContent(List.class);
-        assertNotNull(parameters);
-        assertEquals(2, ((List)parameters).size());
-                 
-        Integer value = (Integer) ((List)parameters).get(0);
-        assertEquals(1, value.intValue());
-        value = (Integer) ((List)parameters).get(1);
-        assertEquals(2, value.intValue());
+        assertion();
     }
     
     public void testGetAddFromQueryOrdered() throws Exception {
-        message.put("HTTP_GET_CHECK_PARAM_NAME", Boolean.TRUE);
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
         message.put(Message.QUERY_STRING, "arg1=0&arg0=1");
         
@@ -129,7 +111,37 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         interceptor.handleMessage(message);
         
         assertNull(message.getContent(Exception.class));
+        assertion();
+    }
+    
+    public void testGetAddFromPathOrdered() throws Exception {
+        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add/arg1/0/arg0/1");
         
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        interceptor.handleMessage(message);
+        
+        assertNull(message.getContent(Exception.class));
+        assertion();
+    }    
+    
+    public void testGetAddFromQueryOrderedFault() throws Exception {        
+        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
+        message.put(Message.QUERY_STRING, "one=1&two=2");
+        
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        try {
+            interceptor.handleMessage(message);
+        } catch (Exception e) {
+            assertTrue(e instanceof Fault);
+            assertEquals("Parameter should be ordered in the following sequence: [arg0, arg1]", 
+                         e.getMessage());
+        }
+        
+        Object parameters = message.getContent(List.class);
+        assertNull(parameters);
+    }    
+    
+    private void assertion() throws Exception {
         Object parameters = message.getContent(List.class);
         assertNotNull(parameters);
         assertEquals(2, ((List)parameters).size());
@@ -138,21 +150,8 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         assertEquals(1, value.intValue());
         value = (Integer) ((List)parameters).get(1);
         assertEquals(0, value.intValue());
-    }
-    
-    public void testGetAddFromQueryOrderedNull() throws Exception {
-        message.put("HTTP_GET_CHECK_PARAM_NAME", Boolean.TRUE);
-        message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
-        message.put(Message.QUERY_STRING, "one=1&two=2");
-        
-        URIMappingInterceptor interceptor = new URIMappingInterceptor();
-        interceptor.handleMessage(message);
-        assertNull(message.getContent(Exception.class));
-        Object parameters = message.getContent(List.class);
-        assertNotNull(parameters);
-        assertEquals(2, ((List)parameters).size());        
-        
-        assertNull(((List)parameters).get(0));
-        assertNull(((List)parameters).get(1));        
+        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        assertNotNull(boi);
+        assertEquals(new QName(ns, "add"), boi.getName());
     }    
 }

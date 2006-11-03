@@ -28,6 +28,7 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Exchange;
@@ -94,7 +95,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
     }
     
     public void testGetGreetMeFromPath() throws Exception {
-        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe/me/king+author");
+        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe/in/king+author");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();        
         interceptor.handleMessage(message);
@@ -108,25 +109,56 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertEquals("king author", value);
     }
     
-    public void testGetSayHiFromQuery() throws Exception {
+    public void testGetSayHiFromQueryFixedOrder() throws Exception {
+        message.put(Message.FIXED_PARAMETER_ORDER, Boolean.TRUE);
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
-        message.put(Message.QUERY_STRING, "?me=king");
+        message.put(Message.QUERY_STRING, "me=king");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();
         interceptor.handleMessage(message);
         
         assertNull(message.getContent(Exception.class));
         
+        assertion();
+    }
+    
+    public void testGetSayHiFromQueryRandomOrder() throws Exception {
+        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
+        message.put(Message.QUERY_STRING, "in=king");
+        
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        interceptor.handleMessage(message);
+        
+        assertNull(message.getContent(Exception.class));        
+        assertion();
+    }
+    
+    public void testGetSayHiFromQueryRandomOrderFault() throws Exception {
+        message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
+        message.put(Message.QUERY_STRING, "me=king");
+        
+        URIMappingInterceptor interceptor = new URIMappingInterceptor();
+        try {
+            interceptor.handleMessage(message);
+        } catch (Exception e) {
+            assertTrue(e instanceof Fault);
+            assertEquals("Parameter should be ordered in the following sequence: [in]", e.getMessage());
+        }
+        Object parameters = message.getContent(List.class);
+        assertNull(parameters);
+    }
+    
+    private void assertion() throws Exception {
         Object parameters = message.getContent(List.class);
         assertNotNull(parameters);
         assertEquals(1, ((List)parameters).size());
         String value = (String) ((List)parameters).get(0);
-        assertEquals("king", value);
+        assertEquals("king", value);        
     }
     
     public void testGetSayHiFromQueryEncoded() throws Exception {
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
-        message.put(Message.QUERY_STRING, "?me=king+author");
+        message.put(Message.QUERY_STRING, "in=king+author");
         
         URIMappingInterceptor interceptor = new URIMappingInterceptor();
         interceptor.handleMessage(message);

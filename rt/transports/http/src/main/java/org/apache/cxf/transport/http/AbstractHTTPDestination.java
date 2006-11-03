@@ -214,8 +214,7 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
     */
     }
 
-    boolean contextMatchOnStem() {
-        return "stem".equals(getContextMatchStrategy());
-    }
-    
+    boolean contextMatchOnExact() {
+        return "exact".equals(getContextMatchStrategy());
+    }    
 }
