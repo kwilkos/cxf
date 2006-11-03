@@ -2,7 +2,7 @@ JMS Transport Demo using Document-Literal Style
 ==========================================================
 
 This sample demonstrates use of the Document-Literal style 
-binding over JMS Transport using queue mechanism.
+binding over JMS Transport using the queue mechanism.
 
 Please review the README in the samples directory before
 continuing.
@@ -14,19 +14,19 @@ Prerequisite
 
 If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
+it is not necessary to set the environment as described in
 the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
-This demo need to play with ActiveMQ 4.X, Before you run this
-Demo, please make sure you had installed the ActiveMQ 4.X and
+This demo requires ActiveMQ 4.X. Before you run this demo, 
+please make sure you have installed the ActiveMQ 4.X and
 set ACTIVE_HOME and ACTIVE_VERSION environment variables.
 
 Befor you run this demo, please start up the JMS message broker first.
 
-From ActiveMQ 4.X insallation launch ActiveMQ JMS Broker in seperate window
+From ActiveMQ 4.X insallation launch ActiveMQ JMS broker in seperate window
 or in background using the commandline:
 
 For Unix:

@@ -1,9 +1,8 @@
 MTOM Demo for SWA & XOP
 =============================================
 
-This is the demo for using attachment in soap. It illustrate
-the usage of Soap message with Attachment and XML-binary 
-Optimized Packaging.
+This demo illustrates the use of a SOAP message 
+with an attachment and XML-binary Optimized Packaging.
 
 Please review the README in the samples directory before
 continuing.
@@ -15,11 +14,11 @@ Prerequisite
 
 If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
@@ -79,8 +78,8 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/mtom directory run the commands, entered on a
-single command line:
+From the samples/mtom directory run the following commands. 
+They are entered on a single command line.
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties

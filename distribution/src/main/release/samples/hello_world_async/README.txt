@@ -1,13 +1,13 @@
 Hello World Asynchronous Demo using Document/Literal Style
 ==========================================================
 
-This demo illustrates usage of the JAX-WS asynchronous 
+This demo illustrates the use of the JAX-WS asynchronous 
 invocation model. Please refer to the JAX-WS 2.0 specification
 (http://jcp.org/aboutJava/communityProcess/pfd/jsr224/index.html)
 for background.
 
 The asynchronous model allows the client thread to continue after 
-making a twoway invocation without being blocked awaiting a 
+making a two-way invocation without being blocked while awaiting a 
 response from the server. Once the response is available, it is
 delivered to the client application asynchronously using one
 of two alternative approaches:
@@ -41,13 +41,13 @@ continuing.
 Prerequisite
 ------------
 
-If your environment already includes cxf.jar on the
+If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
+it is not necessary to set the environment as described in
 the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
@@ -79,8 +79,8 @@ directory build/classes and then generate code from the WSDL file.
 
 Edit the async_binding.xml.tmpl, substituting the full path to the 
 wsdl for @WSDL_LOCATION@
-Save as async_binding.xml, This file is required by the wsdl2java 
-command to generate classes required in the async case.
+Save the editied file as async_binding.xml, This file is required by 
+the wsdl2java command to generate classes required in the async case.
 
 For UNIX:
   mkdir -p build/classes

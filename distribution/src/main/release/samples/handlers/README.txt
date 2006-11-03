@@ -1,8 +1,8 @@
 Handler Demo
 ============
 
-This demo shows how JAXWS handlers can be used.  The server uses a
-SOAP protocol handler which simply logs incoming and outgoing messages
+This demo shows how JAX-WS handlers are used.  The server uses a
+SOAP protocol handler which logs incoming and outgoing messages
 to the console.  
 
 The server code registers a handler using the @HandlerChain annotation
@@ -21,17 +21,17 @@ Prerequisite
 
 If your environment already includes cxf-incubator.jar on the CLASSPATH,
 and the JDK and ant bin directories on the PATH, it is not necessary to
-run the environment script described in the samples directory README.
+set the environment as described in the samples directory's README.
 If your environment is not properly configured, or if you are planning
 on using wsdl2java, javac, and java to build and run the demos, you must
-set the environment by running the script.
+set the environment.
 
 
 Building and running the demo using ant
 ---------------------------------------
 
 From the samples/handlers directory, the ant build script can be used to
-build and run the demo.  The server and client targets automatically build
+build and run the demo. The server and client targets automatically build
 the demo.
 
 Using either UNIX or Windows:
@@ -40,14 +40,14 @@ Using either UNIX or Windows:
   ant client
 
 When using these ant targets, the server process uses the LoggingHandler
-and the client process uses the SmallNumberHandler.  Notice that the both
-the client and server consoles display short informative messages.  The 
-client handler examines the operation parameters and, depending on the 
-parameter values, may not forward the request to the server. The server 
-handler displays the entire content of each message in its console and
-the client no longer uses a handler.  The @HandlerChain annotation in the
-implementation class indicates that the file demo_handler.xml includes the
-information needed to identify the handler class.
+and the client process uses the SmallNumberHandler. Notice that the both
+the client and server consoles display short informative messages. The 
+client handler examines the operation parameters and, based on the 
+parameter values, may decide not to forward the request to the server. The server 
+handler displays the entire content of each message in its console. 
+The @HandlerChain annotation in the implementation class indicates that 
+the file demo_handler.xml includes the information needed to identify the
+handler class.
 
   @HandlerChain(file = "../common/demo_handlers.xml", name = "DemoHandlerChain")
 

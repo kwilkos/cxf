@@ -1,10 +1,10 @@
-Callback demo
+Callback Demo
 =============================================
 
-This demo demonstrates a client creating a callback object, 
-passing an EndpointReferenceType over to the server.
-The EndpointRefrenceType is then used to allow the server 
-to call back on the callback object 
+This demo showss a client creating a callback object by 
+passing an EndpointReferenceType to the server. The 
+EndpointRefrenceType is then used by the server to call 
+back on the callback object 
 
 Please review the README in the samples directory before
 continuing.
@@ -16,11 +16,11 @@ Prerequisite
 
 If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
@@ -108,5 +108,3 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
-
-

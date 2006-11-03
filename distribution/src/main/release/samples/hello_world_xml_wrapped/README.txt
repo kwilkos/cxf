@@ -1,9 +1,9 @@
 Hello World Demo using WRAPPED Style in XML Binding
 =============================================
 
-This demo illustrates how cxf works with xml binding instead of soap
-binding. And this specific demo shows you how xml binding works
-with the doc-lit wrapped style.
+This demo illustrates the use of CXF's xml binding. This 
+specific demo shows you how xml binding works with the 
+doc-lit wrapped style.
 
 Please review the README in the samples directory before
 continuing.
@@ -14,11 +14,11 @@ Prerequisite
 
 If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 

@@ -2,10 +2,10 @@ Hello World Dispatch Demo using Document/Literal Style
 ======================================================
 
 The demo demonstrates the use of JAX-WS Dispatch and Provider interface.
-The client side Dispatch instance invokes upon a endpoint using a JAX-WS 
-provider implementor. There are three differnt invocations from the client. 
-The first uses a SOAPMessage data in MESSAGE mode. The second uses a DOMSource 
-data in MESSAGE mode. The third uses a DOMSource in PAYLOAD mode. The three 
+The client side Dispatch instance invokes upon an endpoint using a JAX-WS 
+Provider implementor. There are three differnt invocations from the client. 
+The first uses the SOAPMessage data in MESSAGE mode. The second uses the DOMSource 
+data in MESSAGE mode. The third uses the DOMSource in PAYLOAD mode. The three 
 different messages are constructed by reading in the XML files found in the 
 src/demo/hwDispatch/client directory.
 
@@ -18,11 +18,11 @@ Prerequisite
 
 If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 

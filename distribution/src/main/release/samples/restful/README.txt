@@ -1,15 +1,15 @@
 RESTful Hello World Demo 
 ========================
 
-The demo demonstrates the REST based webservices using XML binding and 
-JAX-WS Provider/Dispatch. The rest server provides following services: 
+The demo shows REST based Web services using the XML binding and 
+JAX-WS Provider/Dispatch. The REST server provides the following services: 
 
-A RESTful customer service is provided on URL http://localhost:9000/customerservice/customers, 
-users access this URI to query or update customer info.
+A RESTful customer service is provided on URL http://localhost:9000/customerservice/customers. 
+Users access this URI to query or update customer info.
 
 A HTTP GET request to URL http://localhost:9000/customerservice/customers returns 
-a list of customer hyperlinks, this allows client navigates through the 
-application states. The xml document returned:
+a list of customer hyperlinks. This allows client navigates through the 
+application states. The returned XML document:
 
 <Customers>
   <Customer href="http://localhost/customerservice/customer?id=1234">
@@ -24,7 +24,7 @@ application states. The xml document returned:
 </Customers>
 
 A HTTP GET request to URL http://localhost:9000/customerservice/customers?id=1234 
-returns a customer instance whose id is 1234. The xml document returned:
+returns a customer instance whose id is 1234. The returned XML document returned:
 
 <Customer>
   <id>1234</id>
@@ -32,7 +32,8 @@ returns a customer instance whose id is 1234. The xml document returned:
   <phoneNumber>123456</phoneNumber>
 </Customer>
 
-A HTTP POST request to URL http://localhost:9000/customerservice/customers with data:
+A HTTP POST request to URL http://localhost:9000/customerservice/customers 
+with the data:
 
 <Customer>
   <id>1234</id>
@@ -42,24 +43,24 @@ A HTTP POST request to URL http://localhost:9000/customerservice/customers with 
 
 updates customer 1234 with the data provided. 
 
-The demo client codes demonstrate how to sent HTTP POST with XML data using 
-JAX-WS dispatch and how to sent HTTP GET using URL.openStream().
+The client code demonstrate how to send HTTP POST with XML data using 
+JAX-WS Dispatch and how to send HTTP GET using URL.openStream().
 
 
 Please review the README in the samples directory before
 continuing.
 
 
-Prerequisite
+Prerequisites
 ------------
 
 If your environment already includes cxf-incubator.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
+it is not necessary to set the environment as described in
 the samples directory README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
@@ -119,8 +120,8 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world directory run the commands, entered on a
-single command line:
+From the samples/hello_world directory run the following commands. They 
+are entered on a single command line.
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
@@ -147,4 +148,3 @@ To remove the code generated from the WSDL file and the .class
 files, either delete the build directory and its contents or run:
 
   ant clean
-

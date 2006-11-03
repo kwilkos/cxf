@@ -5,36 +5,37 @@ Initial Setup
 -------------
 
 1) Install J2SE 5.0 SDK, which can be downloaded from 
-   http://java.sun.com/j2se/1.5.0/download.jsp, use version of 1.5.0_06 JDK.
+   http://java.sun.com/j2se/1.5.0/download.jsp. Use version of 1.5.0_06 JDK.
 
-2) Make sure your JAVA_HOME environment variable is set to newly installed 
-   JDK location, and your PATH includes %JAVA_HOME%\bin (windows) or 
-   $JAVA_HOME$/bin (unix) directory.
+2) Make sure that your JAVA_HOME environment variable is set to the newly installed 
+   JDK location, and that your PATH includes %JAVA_HOME%\bin (windows) or 
+   $JAVA_HOME$/bin (unix).
 
 3) Install Maven 2.0.4, which can be downloaded from 
    http://maven.apache.org/download.html. Make sure that your PATH includes 
-   MVN_HOME/bin directory. 
+   the MVN_HOME/bin directory. 
 
 
 Building
 --------
 
 1) Change to the top level directory of Apache CXF source distribution.
-2) run 
-         $> mvn
-   which will compile Apache CXF and run all tests under Apache CXF source
-   distribution. Alternatively, you can also run
-         $> mvn -Pfastinstall
-   which will compile Apache CXF without running all tests and takes short
-   time to build. Depending on the load of remote Maven 2.0 repositories, 
-   you may have to run "mvn" several times util required dependencies are 
-   all located in your local maven repository. It usually takes some for 
+2) Run
+	$> mvn.
+   This will compile Apache CXF and run all of the tests in the Apache CXF source
+   distribution. Alternatively, you can run
+         $> mvn -Pfastinstall.
+   This will compile Apache CXF without running the tests and takes less
+   time to build.
+   Depending on the load of remote Maven 2.0 repositories, you may have 
+   to run "mvn" several times utill the required dependencies are 
+   all located in your local maven repository. It usually takes some time for 
    maven to download required dependencies in the first build.
 
 Building kit
 ------------
-1) change to the "distribution" directory of Apache CXF source distribution.
-2) run 
+1) Change to the "distribution" directory of Apache CXF source distribution.
+2) Run 
          $> mvn
-   which will build Apache CXF distribution kit under "distribution/target"
+   This will build an Apache CXF distribution kit under "distribution/target"
    directory.

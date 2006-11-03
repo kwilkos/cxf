@@ -1,8 +1,8 @@
 Apache CXF 2.0 M1 Release Notes
 
-1. Apache CXF 2.0 M1 release delivers the merge of Celtix project
-(http://celtix.objectweb.org) and Xfire project (http://xfire.codehaus.org),
-thus this release includes all major features from historical Celtix and Xfire
+Apache CXF 2.0 M1 release delivers the merge of the Celtix project
+(http://celtix.objectweb.org) and the Xfire project (http://xfire.codehaus.org). 
+This release includes all major features of both the Celtix and the Xfire
 projects:
     * JAX-WS 2.0 implementation
     * Transports: HTTP 1.1, HTTPS, and JMS
@@ -55,9 +55,9 @@ For more details, see the Apache CXF Installation Guide.
 
 3. Building samples
 
-Building samples included in binary distribution is easy. Please change to
-samples directory and following build instruction readme.txt under each
-sample.
+Building the samples included in the binary distribution is easy. Change to
+the samples directory and follow the build instructions in the README.txt file 
+included with each sample.
 
 4. Known Problems
 
@@ -65,10 +65,10 @@ sample.
 There is an issue with Jetty HTTP that prevents Apache CXF from being able to 
 shut down the actual port listener.  If you programmatically remove the last endpoint
 published on a port, the listener remains running on the port, but only 404
-(page not found) errors are served to all client connections.
+(page not found) errors are served to subsequent client connections.
 
 3.2 Schema Definitions
-There is no support for nillable elements in XML Schema and xsi:nil attribute 
+There is no support for nillable elements in XML Schema and xsi:nil attributes
 in XML documents.
 
 4. Reporting Problems
@@ -76,11 +76,12 @@ in XML documents.
 If you have any problems or want to send feedback of any kind, please e-mail the
 cxf dev list, cxf-dev@incupator.apache.org. 
 
-5. Specific issues, features, improvements fixed in CXF 2.0 M1 release:
+5. Specific issues, features, and improvements fixed in the 
+CXF 2.0 M1 release:
 
 Release Notes - CXF - Version 2.0-M1
 
-** Bug
+** Bugs
     * [CXF-6] - jaxws-api, jsr181-api should be optional in cxf-common pom
     * [CXF-18] - addPort not implemented
     * [CXF-53] - Remove JAX-WS dependency of HTTP transport
@@ -111,14 +112,14 @@ Release Notes - CXF - Version 2.0-M1
     * [CXF-174] - Allow overriding the default stax parser/writer
     * [CXF-178] - Schema parser cannot resolve relative import locations (case of multiple imports).
 
-** Improvement
+** Improvements
     * [CXF-98] - get schema validation working for jaxb mashall and unmashall
     * [CXF-109] - Remove isInSoapHeader() from service model
     * [CXF-115] - org.apache.cxf.jaxws.EndpointImpl needs additional constructors
     * [CXF-116] - Remove references to HTTPAddress/SOAPAddress/etc in EndpointInfo
     * [CXF-187] - Provide Eclipse plugin from CXF to faciliate STP Integration
 
-** New Feature
+** New Features
     * [CXF-2] - Complete JAX-WS frontend
     * [CXF-15] - JCA supportting
     * [CXF-83] - Support the injection of WebServiceContext
@@ -127,7 +128,7 @@ Release Notes - CXF - Version 2.0-M1
     * [CXF-130] - Add Handler demo
     * [CXF-144] - Conduits/DestinationFactorys should be able to provide interceptors
 
-** Task
+** Tasks
     * [CXF-1] - set up distribution build, meet incubator requirements etc...
     * [CXF-7] - Dispatch
     * [CXF-13] - CXF JMS Transport support
@@ -156,7 +157,7 @@ Release Notes - CXF - Version 2.0-M1
     * [CXF-165] - addd dotnet integration demos
     * [CXF-167] - Upgrade CXF jms transport to use ActiveMQ 4.0.x 
 
-** Test
+** Tests
     * [CXF-66] - Port Celtix type tests to CeltiXfire
     * [CXF-111] - MTOM Interop testing (MicroSoft, Axis, and JAX-WS RI etc)
     * [CXF-112] - CXF performance testing and tuning
@@ -165,5 +166,5 @@ Release Notes - CXF - Version 2.0-M1
     * [CXF-176] - add test for anonymous ref in wsdl schema defination
     * [CXF-182] - Port remaining system tests from Celtix
 
-** Wish
+** Wishes
     * [CXF-146] - Add Bus factory method that takes a URL

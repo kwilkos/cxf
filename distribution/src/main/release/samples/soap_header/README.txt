@@ -1,10 +1,10 @@
 SOAP Headers
 ============
 
-This demo illustrates Apache CSF's support for SOAP headers.  In the
-WSDL file, the SOAP header is included as an additiona part within
-message and binding definitions.  With this approach to defining a
-SOAP header, celtixfire treats the header content as another parameter
+This demo illustrates Apache CxF's support for SOAP headers.  In the
+WSDL file, the SOAP header is included as an additional part within
+the message and binding definitions.  Using this approach to defining a
+SOAP header, CXF treats the header content as another parameter
 to the operation.  Consequently, the header content is simply
 manipulated within the method body.
 
@@ -18,16 +18,16 @@ continuing.
 
 
 
-Prerequisite
-------------
+Prerequisites
+-------------
 
 If your environment already includes cxf.jar on the
 CLASSPATH, and the JDK and ant bin directories on the PATH
-it is not necessary to run the environment script described in
-the samples directory README.  If your environment is not
+it is not necessary to set the environment as described in
+the samples directory's README.  If your environment is not
 properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
-environment by running the script.
+environment.
 
 
 
@@ -85,8 +85,8 @@ For Windows:
 Running the demo using java
 ---------------------------
 
-From the samples/soap_header directory run the commands, entered on a
-single command line:
+From the samples/soap_header directory run the following commands.
+They are entered on a single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
