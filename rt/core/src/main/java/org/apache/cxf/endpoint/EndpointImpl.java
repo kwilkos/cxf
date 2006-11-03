@@ -36,6 +36,7 @@ import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
 import org.apache.cxf.interceptor.AbstractFaultChainIntiatorObserver;
 import org.apache.cxf.interceptor.InFaultChainInitiatorObserver;
+import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.interceptor.OutFaultChainInitiatorObserver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
@@ -74,6 +75,9 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
         
         inFaultObserver = new InFaultChainInitiatorObserver(bus);
         outFaultObserver = new OutFaultChainInitiatorObserver(bus);
+
+        getOutInterceptors().add(new MessageSenderInterceptor());
+        getOutFaultInterceptors().add(new MessageSenderInterceptor());
     }
     
     public String getBeanName() {

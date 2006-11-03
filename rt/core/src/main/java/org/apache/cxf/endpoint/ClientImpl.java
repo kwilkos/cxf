@@ -35,7 +35,6 @@ import org.apache.cxf.interceptor.ClientOutFaultObserver;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -70,7 +69,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     public ClientImpl(Bus b, Endpoint e) {
         bus = b;
         endpoint = e;
-        getOutInterceptors().add(new MessageSenderInterceptor());
         outFaultObserver = new ClientOutFaultObserver(bus);
     }
 

@@ -42,7 +42,6 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
@@ -197,7 +196,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         chain.add(il);
 
         List<Interceptor> outInterceptors = new ArrayList<Interceptor>();
-        outInterceptors.add(new MessageSenderInterceptor());
         outInterceptors.add(new DispatchOutInterceptor());
 
         chain.add(outInterceptors);
