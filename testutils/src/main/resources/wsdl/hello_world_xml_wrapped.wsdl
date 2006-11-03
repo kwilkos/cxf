@@ -178,6 +178,13 @@
 			<http:address
 				location="http://localhost:9023/XMLService/RestProviderPort/Customer" />
 		</wsdl:port>		
+
+		<wsdl:port binding="tns:Greeter_XMLBinding" name="XMLFaultPort">
+			<http:address
+				location="http://localhost:9033/XMLService/XMLFaultPort" />
+		</wsdl:port>		
+
 	</wsdl:service>
+
 </wsdl:definitions>
 
