@@ -29,7 +29,6 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import org.apache.cxf.binding.soap.HeaderUtil;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
@@ -107,36 +106,31 @@ public class SoapInPostInterceptor extends AbstractInDatabindingInterceptor {
     
     private List<Object> abstractParamsFromHeader(Element headerElement, Endpoint ep, Message message) {
         List<Object> paramInHeader = new ArrayList<Object>();
-        List<MessagePartInfo> parts = null;
         List<Element> elemInHeader = new ArrayList<Element>();
         for (BindingOperationInfo bop : ep.getEndpointInfo().getBinding().getOperations()) {
-            BindingMessageInfo bmi = null;
-            if (isRequestor(message)) {
-                parts = bop.getOutput().getMessageInfo().getMessageParts();
-                bmi = bop.getOutput();
-            } else {
-                parts = bop.getInput().getMessageInfo().getMessageParts();
-                bmi = bop.getInput();
+            BindingMessageInfo bmi = isRequestor(message) ? bop.getOutput() : bop.getInput();
+            if (bmi == null) {
+                return paramInHeader;
             }
             List<SoapHeaderInfo> headers = bmi.getExtensors(SoapHeaderInfo.class);
-            for (MessagePartInfo mpi : parts) {
-                if (HeaderUtil.isHeaderParam(headers, mpi)) {
-                    NodeList nodeList = headerElement.getChildNodes();
-                    if (nodeList != null) {
-                        for (int i = 0; i < nodeList.getLength(); i++) {
-                            if (nodeList.item(i).getNamespaceURI().equals(
-                                    mpi.getElementQName().getNamespaceURI())
-                                    && nodeList.item(i).getLocalName().equals(
-                                            mpi.getElementQName().getLocalPart())) {
-                                Element param = (Element) nodeList.item(i);
-                                if (!elemInHeader.contains(param)) {
-                                    elemInHeader.add(param);
-                                }
+            if (headers == null) {
+                return paramInHeader;
+            }
+            for (SoapHeaderInfo header : headers) {
+                MessagePartInfo mpi = header.getPart();
+                NodeList nodeList = headerElement.getChildNodes();
+                if (nodeList != null) {
+                    for (int i = 0; i < nodeList.getLength(); i++) {
+                        if (nodeList.item(i).getNamespaceURI().equals(
+                                mpi.getElementQName().getNamespaceURI())
+                                && nodeList.item(i).getLocalName().equals(
+                                        mpi.getElementQName().getLocalPart())) {
+                            Element param = (Element) nodeList.item(i);
+                            if (!elemInHeader.contains(param)) {
+                                elemInHeader.add(param);
                             }
                         }
-
                     }
-
                 }
             }
         }

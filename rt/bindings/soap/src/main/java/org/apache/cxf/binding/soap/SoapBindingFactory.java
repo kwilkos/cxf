@@ -251,9 +251,16 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 headerInfo.setUse(header.getUse());
                 MessagePartInfo part = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
                                 .getPart()));
-                headerInfo.setPart(part);
-                messageParts.remove(part);
-                bmsg.addExtensor(headerInfo);
+                if (part != null) {
+                    for (int i = 0; i < msg.getMessageParts().size(); i++) {
+                        if (msg.getMessagePartByIndex(i) == part) {
+                            headerInfo.setSequence(i);
+                        }
+                    }
+                    headerInfo.setPart(part);
+                    messageParts.remove(part);
+                    bmsg.addExtensor(headerInfo);
+                }
             }
         }
 
