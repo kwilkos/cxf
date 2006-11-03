@@ -23,7 +23,7 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
-import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.Invoker;
 
@@ -38,14 +38,21 @@ public class ProviderInvoker<T> implements Invoker {
 
     @SuppressWarnings("unchecked")
     public Object invoke(Exchange exchange, Object o) {
-        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage());
+        Object result = null;
+        //set up the webservcie request context 
+        MessageContext ctx = 
+            ContextPropertiesMapping.createWebServiceContext(exchange);
         WebServiceContextImpl.setMessageContext(ctx);
  
         if (provider != null) {
-            return (T)provider.invoke((T)o);
+            result = (T)provider.invoke((T)o);            
+            //update the webservice response context
+            ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);
         } else {
-            System.err.println("TODO: Should return fault instead of null");
-            return null;
+            System.err.println("TODO: Should return fault instead of null");            
         }
+        return result;
+        
+        
     }
 }

@@ -116,7 +116,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         Map<String, Object> responseContext = this.getResponseContext();
         message.putAll(requestContext);
         //need to do context mapping from jax-ws to cxf message
-        ContextPropertiesMapping.mapJaxws2Cxf(message);
+        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(message);
         
         Exchange exchange = new ExchangeImpl();
         exchange.put(Service.Mode.class, mode);
@@ -156,7 +156,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
                 Message inMsg = waitResponse(exchange);
                 responseContext.putAll(inMsg);
                 //need to do context mapping from cxf message to jax-ws 
-                ContextPropertiesMapping.mapJaxws2Cxf(responseContext);
+                ContextPropertiesMapping.mapResponsefromCxf2Jaxws(responseContext);
                 return cl.cast(inMsg.getContent(Object.class));
             }
         }

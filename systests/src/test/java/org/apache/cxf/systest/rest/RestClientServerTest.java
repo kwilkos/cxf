@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -97,6 +98,7 @@ public class RestClientServerTest extends ClientServerTestBase {
     }
 
    
+    @SuppressWarnings("unchecked")
     public void testHttpGETDispatcher() throws Exception { 
         String endpointAddress =
             "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
@@ -111,11 +113,22 @@ public class RestClientServerTest extends ClientServerTestBase {
         service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress.toString());
         Dispatch<Source> d = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
         Map<String, Object> requestContext = d.getRequestContext();
+        Map<String, Object> responseContext = d.getResponseContext();
+        
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
         requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
         //this is the original path part of uri 
         requestContext.put(MessageContext.PATH_INFO, path);        
         Source result = d.invoke(null);
+        
+        // varify the responseContext;
+        Map<String, List<String>> responseHeader =
+            (Map<String, List<String>>)responseContext.get(MessageContext.HTTP_RESPONSE_HEADERS);
+        assertNotNull("the response header should not be null", responseHeader);
+        
+        List<String> values = responseHeader.get("REST");
+        assertNotNull("the response rest header should not be null", values);
+        assertEquals("the list size wrong", 2, values.size());        
         assertNotNull("result shoud not be null", result);        
         String tempstring = source2String(result);
         assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));

@@ -19,12 +19,15 @@
 package org.apache.cxf.jaxws.support;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 
 // Do some context mapping work from rt-core to jaxws stander
@@ -58,6 +61,7 @@ public final class ContextPropertiesMapping {
                          Message.USERNAME);
         jaxws2cxfMap.put(BindingProvider.PASSWORD_PROPERTY,
                          Message.PASSWORD);
+                
         jaxws2cxfMap.put(MessageContext.HTTP_REQUEST_METHOD,
                          Message.HTTP_REQUEST_METHOD);
         jaxws2cxfMap.put(MessageContext.HTTP_RESPONSE_CODE,
@@ -86,14 +90,61 @@ public final class ContextPropertiesMapping {
             }
         }
     }
-    
-    
-    public static void mapJaxws2Cxf(Map<String, Object> context) {
-        mapContext(context, jaxws2cxfMap);
+   
+    public static void mapRequestfromJaxws2Cxf(Map<String, Object> context) {
+        //deal with PROTOCOL_HEADERS mapping  
+        Object requestHeaders = 
+            context.get(MessageContext.HTTP_REQUEST_HEADERS);
+        if (null != requestHeaders) {
+            context.put(Message.PROTOCOL_HEADERS, requestHeaders);
+        }       
+        mapJaxws2Cxf(context);
     }
     
-    public static void mapCxf2Jaxws(Map<String, Object> context) {
+    public static void mapResponsefromCxf2Jaxws(Map<String, Object> context) {
+        //deal with PROTOCOL_HEADERS mapping
+        Object responseHeaders = 
+            context.get(Message.PROTOCOL_HEADERS);
+        if (null != responseHeaders) {
+            context.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeaders);
+        }  
+        mapCxf2Jaxws(context);
+    }
+    
+    private static void mapJaxws2Cxf(Map<String, Object> context) {
+        mapContext(context, jaxws2cxfMap);
+    }
+        
+    private static void mapCxf2Jaxws(Map<String, Object> context) {
         mapContext(context, cxf2jaxwsMap);
+    }
+    
+    
+    public static MessageContext createWebServiceContext(Exchange exchange) {
+        MessageContext ctx = new WrappedMessageContext(exchange.getInMessage());
+        mapCxf2Jaxws(ctx);        
+        Object requestHeaders = 
+            exchange.getInMessage().get(Message.PROTOCOL_HEADERS);
+        if (null != requestHeaders) {
+            ctx.put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
+        }       
+               
+        Message outMessage = exchange.getOutMessage();
+        if (null != outMessage) {
+            Object responseHeaders =
+                outMessage.get(Message.PROTOCOL_HEADERS);
+            if (responseHeaders == null) {
+                responseHeaders = new HashMap<String, List<String>>();
+                outMessage.put(Message.PROTOCOL_HEADERS, responseHeaders);         
+            }
+            ctx.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeaders);
+        }   
+        return ctx;
+    }
+    
+    public static void updateWebServiceContext(Exchange exchange, MessageContext ctx) {
+        //get the context response code and setback to out message
+        
     }
    
 

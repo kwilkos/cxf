@@ -98,7 +98,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
         Map<String, Object> context = new HashMap<String, Object>();
         
         //need to do context mapping from jax-ws to cxf message
-        ContextPropertiesMapping.mapJaxws2Cxf(requestContext);
+        ContextPropertiesMapping.mapRequestfromJaxws2Cxf(requestContext);
         
         context.put(Client.REQUEST_CONTEXT, requestContext);
         context.put(Client.RESPONSE_CONTEXT, responseContext);
@@ -114,7 +114,7 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
             result = invokeSync(method, oi, params, paramsWithOutHolder, context);
         }
         // need to do context mapping from cxf message to jax-ws 
-        ContextPropertiesMapping.mapJaxws2Cxf(responseContext);
+        ContextPropertiesMapping.mapResponsefromCxf2Jaxws(responseContext);
         return result;
         
     }

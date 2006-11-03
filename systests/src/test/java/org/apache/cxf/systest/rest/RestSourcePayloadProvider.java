@@ -20,6 +20,9 @@
 package org.apache.cxf.systest.rest;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
@@ -47,13 +50,23 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
     public RestSourcePayloadProvider() {
     }
 
+    @SuppressWarnings("unchecked")
     public DOMSource invoke(DOMSource request) {
         MessageContext mc = wsContext.getMessageContext();
         String path = (String)mc.get(MessageContext.PATH_INFO);
         String query = (String)mc.get(MessageContext.QUERY_STRING);
         String httpMethod = (String)mc.get(MessageContext.HTTP_REQUEST_METHOD);
-
         
+      
+        /*Map<String, List<String>> requestHeader = 
+            (Map<String, List<String>>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);*/
+        
+        Map<String, List<String>> responseHeader =
+            (Map<String, List<String>>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+        List<String> values = new ArrayList<String>();
+        values.add("hello1");
+        values.add("hello2");
+        responseHeader.put("REST", values);
 //        System.out.println("--path--- " + path);
 //        System.out.println("--query--- " + query);
 //        System.out.println("--httpMethod--- " + httpMethod);
@@ -68,6 +81,7 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
                 return getAllCustomers();
             } else if ("/XMLService/RestProviderPort/Customer".equals(path) && query != null) {
                 // System.out.println("--GET:getCustomer--- ");
+                // setup return context
                 return getCustomer(query);
             }
         }

@@ -27,7 +27,10 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.xml.ws.Holder;
+import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.jaxws.context.WebServiceContextImpl;
+import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.invoker.BeanInvoker;
 
@@ -40,13 +43,19 @@ public class JAXWSMethodInvoker extends BeanInvoker {
     @SuppressWarnings("unchecked")
     protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
         checkHolder(m, params, exchange);
-
+        //set up the webservcie request context 
+        MessageContext ctx = 
+            ContextPropertiesMapping.createWebServiceContext(exchange);
+        WebServiceContextImpl.setMessageContext(ctx);
+        
         List<Object> res = (List<Object>) super.invoke(exchange, serviceObject, m, params);
         for (Object o : params) {
             if (o instanceof Holder) {
                 res.add(((Holder) o).value);
             }
         }
+        //update the webservice response context
+        ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);
         return res;
     }
 
