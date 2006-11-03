@@ -93,10 +93,18 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                     writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope()
                         .getLocalPart(), soapVersion.getNamespace());
                     writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
+                    
+                    //Write headers                    
+                    if (getWrappedSoapMessage().hasHeaders(Element.class)) {
+                        Element headerElements = getWrappedSoapMessage().getHeaders(Element.class);
+                        StaxUtils.writeElement(headerElements, writer, true);
+                    }
+                    
                     writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getBody().getLocalPart(),
                                              soapVersion.getNamespace());
                     writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
-
+                   
+                    //Write soap body
                     StaxUtils.copy(xmlReader, writer);
 
                     xmlReader.close();
@@ -107,16 +115,15 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                     MessageFactory factory = MessageFactory.newInstance();
                     MimeHeaders mhs = null;
                     message = factory.createMessage(mhs, newIs);
-
-                    /*
-                     System.out.println("------------------");
-                     PrintStream out = System.out;
-                     message.writeTo(out);
-                     out.println();
-                     System.out.println("------------------");
-                     */
                 }
 
+                
+/*                System.out.println("11111------------------");
+                PrintStream out = System.out;
+                message.writeTo(out);
+                out.println();
+                System.out.println("11111------------------");
+*/
                 getWrappedMessage().setContent(SOAPMessage.class, message);
 
             } catch (IOException ioe) {
