@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jbi version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/jbi"  xsi:schemaLocation="http://java.sun.com/xml/ns/jbi ./jbi.xsd">
+
+  <component type="service-engine"> 
+    <identification> 
+      <name>CXFServiceEngine</name> 
+      <description>This is a cxf service engine</description> 
+    </identification> 
+    <component-class-name description="description">org.apache.cxf.jbi.se.CXFServiceEngine</component-class-name> 
+    <component-class-path> 
+      <path-element>cxf-incubator.jar</path-element> 
+    </component-class-path> 
+    <bootstrap-class-name>org.apache.cxf.jbi.se.CXFBootstrap</bootstrap-class-name> 
+    <bootstrap-class-path> 
+      <path-element>cxf-incubator.jar</path-element> 
+    </bootstrap-class-path> 
+  </component> 
+</jbi>

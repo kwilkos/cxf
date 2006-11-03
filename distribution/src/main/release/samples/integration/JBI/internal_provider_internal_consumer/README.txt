@@ -28,7 +28,9 @@ Deploy CXF Service Engine into ServiceMix
 Build Instructions
 ------------------
 . Download & Install ServiceMix 
-  http://people.apache.org/maven-snapshot-repository/org/apache/servicemix/incubating-servicemix/3.0-SNAPSHOT/
+
+  http://incubator.apache.org/servicemix/main/download.html
+
   Note: Must isntall the lastest 3.0 SNAPSHOT version since any previous version still
 	has bugs for CXF ServiceMix integration.
 

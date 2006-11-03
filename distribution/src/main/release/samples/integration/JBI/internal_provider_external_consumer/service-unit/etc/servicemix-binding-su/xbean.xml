@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<beans xmlns:http="http://servicemix.apache.org/http/1.0"
+       xmlns:demo="urn:servicemix:soap-binding"
+       xmlns:sns1="http://apache.org/hello_world">
+
+	<http:endpoint service="sns1:HelloWorldService"
+		       endpoint="SoapPort"
+                       interfaceName="sns1:Greeter"
+                       role="consumer" 
+	               locationURI="http://localhost:9000/"
+	               defaultMep="http://www.w3.org/2004/08/wsdl/in-out" 
+                       soapVersion="1.1"
+                       soap="true"
+                       />
+                       
+	               
+</beans>
