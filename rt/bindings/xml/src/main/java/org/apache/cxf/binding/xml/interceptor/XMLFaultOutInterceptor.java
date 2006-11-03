@@ -59,19 +59,17 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
         try {
             nsStack.add(XMLConstants.NS_XML_FORMAT);
             String prefix = nsStack.getPrefix(XMLConstants.NS_XML_FORMAT);
-            
-            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_ROOT, XMLConstants.NS_XML_FORMAT);
-
-            StaxUtils
-                    .writeStartElement(writer, prefix, XMLFault.XML_FAULT_STRING, XMLConstants.NS_XML_FORMAT);
-            Throwable t = xmlFault.getCause();            
+            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_ROOT, 
+                    XMLConstants.NS_XML_FORMAT);
+            StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_STRING, 
+                    XMLConstants.NS_XML_FORMAT);
+            Throwable t = xmlFault.getCause();
             writer.writeCharacters(t == null ? xmlFault.getMessage() : t.toString());
             // fault string
             writer.writeEndElement();
-
             // call data writer to marshal exception
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-            if (bop != null) {
+            if (t != null && bop != null) {
                 if (!bop.isUnwrappedCapable()) {
                     bop = bop.getUnwrappedOperation();
                 }
@@ -81,11 +79,15 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                     FaultInfo fi = it.next();
                     for (MessagePartInfo mpi : fi.getMessageParts()) {
                         Class cls = mpi.getTypeClass();
-                        Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
-                        Class sub = method.getReturnType();
-                        if (cls != null && cls.equals(sub)) {
-                            part = mpi;
-                            break;
+                        try {
+                            Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
+                            Class sub = method.getReturnType();
+                            if (cls != null && cls.equals(sub)) {
+                                part = mpi;
+                                break;
+                            }
+                        } catch (NoSuchMethodException ne) {
+                            // Ignore as it is not a User Defined Fault.
                         }
                     }
                 }
@@ -96,18 +98,13 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
                     dataWriter.write(getFaultInfo(t), part, message);
                     writer.writeEndElement();
                 }
-            } 
+            }
             // fault root
             writer.writeEndElement();
-
             writer.flush();
-
-        } catch (NoSuchMethodException ne) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("UNKNOWN_EXCEPTION", BUNDLE), ne);
         } catch (XMLStreamException xe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), xe);
         }
-
     }
 
     private static Object getFaultInfo(Throwable fault) {
@@ -119,7 +116,6 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
         } catch (Exception ex) {
             throw new RuntimeException("Could not get faultInfo out of Exception", ex);
         }
-
         return null;
     }
 }
