@@ -29,12 +29,12 @@
 
     <parent>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf</artifactId>
+        <artifactId>cxf-tools</artifactId>
         <version>2.0-incubator-M1-SNAPSHOT</version>
     </parent>
 
     <properties>
-        <topDirectoryLocation>..</topDirectoryLocation>
+        <topDirectoryLocation>../../</topDirectoryLocation>
     </properties>
 
     <dependencies>
