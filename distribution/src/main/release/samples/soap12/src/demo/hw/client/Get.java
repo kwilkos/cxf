@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.soap12;
+package demo.hw.client;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -49,9 +49,26 @@ public final class Get {
         StreamSource source = new StreamSource(in);
         printSource(source);
 
+        // Sent HTTP GET request to invoke greetMe FAULT
+        target = "http://localhost:9000/SoapContext/SoapPort/greetMe/me/CXF";
+        url = new URL(target);
+        httpConnection = (HttpURLConnection) url.openConnection();
+        httpConnection.connect();
+        System.out.println("Invoking server through HTTP GET to invoke greetMe");
+
+        try {
+            in = httpConnection.getInputStream();
+            source = new StreamSource(in);
+            printSource(source);
+        } catch (Exception e) {
+            System.err.println("GreetMe Fault: " + e.getMessage());
+        }
+        InputStream err = httpConnection.getErrorStream();
+        source = new StreamSource(err);
+        printSource(source);
 
         // Sent HTTP GET request to invoke greetMe
-        target = "http://localhost:9000/SoapContext/SoapPort/greetMe/me/CXF";
+        target = "http://localhost:9000/SoapContext/SoapPort/greetMe/requestType/CXF";
         url = new URL(target);
         httpConnection = (HttpURLConnection) url.openConnection();
         httpConnection.connect();
@@ -73,7 +90,7 @@ public final class Get {
         } catch (Exception e) {
             System.out.println("PingMe fault raised");
         }
-        InputStream err = httpConnection.getErrorStream();
+        err = httpConnection.getErrorStream();
         source = new StreamSource(err);
         printSource(source);
     }
