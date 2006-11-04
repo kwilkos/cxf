@@ -144,7 +144,9 @@ public final class ContextPropertiesMapping {
     
     public static void updateWebServiceContext(Exchange exchange, MessageContext ctx) {
         //get the context response code and setback to out message
-        
+        if (ctx.containsKey(MessageContext.HTTP_RESPONSE_CODE)) {
+            exchange.getOutMessage().put(Message.RESPONSE_CODE, ctx.get(MessageContext.HTTP_RESPONSE_CODE));
+        }
     }
    
 

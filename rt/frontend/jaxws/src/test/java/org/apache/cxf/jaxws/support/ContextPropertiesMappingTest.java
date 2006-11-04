@@ -30,11 +30,14 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.easymock.EasyMock;
 
 public class ContextPropertiesMappingTest extends TestCase {
     private static final String ADDRESS = "test address";
     private static final String REQUEST_METHOD = "GET";
     private static final String HEADER = "header";
+    private static final Integer RESPONSE_CODE = 401; 
+    
     private Map<String, Object> message = new HashMap<String, Object>();
     private Map<String, Object> requestContext = new HashMap<String, Object>();
     private Map<String, Object> responseContext = new HashMap<String, Object>();
@@ -45,6 +48,7 @@ public class ContextPropertiesMappingTest extends TestCase {
         message.put(Message.ENDPOINT_ADDRESS, ADDRESS);
         message.put(Message.HTTP_REQUEST_METHOD, REQUEST_METHOD);
         message.put(Message.PROTOCOL_HEADERS, HEADER);
+        
         requestContext.clear();
         requestContext.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, ADDRESS + "jaxws");
         requestContext.put(MessageContext.HTTP_REQUEST_HEADERS, HEADER + "jaxws");
@@ -101,5 +105,24 @@ public class ContextPropertiesMappingTest extends TestCase {
         
     }
     
+    public void testUpdateWebServiceContext() {
+        Exchange xchng = new ExchangeImpl();
+        Message outMsg = new MessageImpl();
+        xchng.setOutMessage(outMsg);
+        
+        responseContext.put(MessageContext.HTTP_RESPONSE_CODE, RESPONSE_CODE);
+        
+        MessageContext ctx = EasyMock.createMock(MessageContext.class);
+        ctx.containsKey(MessageContext.HTTP_RESPONSE_CODE);
+        EasyMock.expectLastCall().andReturn(true);
+        ctx.get(MessageContext.HTTP_RESPONSE_CODE);
+        EasyMock.expectLastCall().andReturn(RESPONSE_CODE);
+        EasyMock.replay(ctx);
+        
+        ContextPropertiesMapping.updateWebServiceContext(xchng, ctx);
+        Integer respCode = (Integer)outMsg.get(Message.RESPONSE_CODE);
+        assertNotNull("no response code set on out message", respCode);
+        assertEquals("incorrect response code returned", RESPONSE_CODE, respCode);
+    }
 
 }
