@@ -68,7 +68,7 @@
 <!--<rule ref="rulesets/controversial.xml/SingularField"/>-->
 <!--<rule ref="rulesets/controversial.xml/SuspiciousOctalEscape"/>-->
 <!--<rule ref="rulesets/controversial.xml/UnnecessaryConstructor"/>-->
-<rule ref="rulesets/controversial.xml/UnnecessaryParentheses"/>
+<!--<rule ref="rulesets/controversial.xml/UnnecessaryParentheses"/>-->
 <!--<rule ref="rulesets/controversial.xml/UnusedModifier"/>-->
 
 <!--<rule ref="rulesets/coupling.xml/CouplingBetweenObjects"/>-->

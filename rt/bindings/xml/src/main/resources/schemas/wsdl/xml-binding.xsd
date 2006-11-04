@@ -25,7 +25,7 @@
 	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="2.0">
 
 	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/"
-		schemaLocation="../../../../../../../../common/metacode/src/main/resources/schemas/wsdl/wsdl.xsd" />
+		schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd" />
 
 	<xs:complexType name="XMLBindingMessageFormat">
 		<xs:complexContent>

@@ -31,7 +31,7 @@
            jaxb:version="2.0">
 
     <xs:import namespace="http://cxf.apache.org/transports/http/configuration" schemaLocation="../wsdl/http-conf.xsd"/>
-    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="../../../../../../../../common/metacode/src/main/resources/schemas/configuration/security.xsd"/>
+    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/configuration/security.xsd"/>
 
     <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
     <xs:element name="authorization" type="sec:AuthorizationPolicy"/>

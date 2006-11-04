@@ -61,7 +61,7 @@
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-common-metacode</artifactId>
+            <artifactId>cxf-metacode</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

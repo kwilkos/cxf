@@ -166,7 +166,7 @@
         <module>buildtools</module>
         <module>common</module>
         <module>tools</module>
-        <module>common/metacode</module>
+        <module>metacode</module>
         <module>codegen-plugin</module>
         <module>api</module>
         <module>testutils</module>
@@ -223,6 +223,12 @@
                     <exclude>**/*.xml</exclude>
                 </includes>
                 <filtering>true</filtering>
+            </testResource>
+            <testResource>
+                <directory>target/generated/src/test/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
             </testResource>
         </testResources>
         <pluginManagement>
@@ -389,6 +395,7 @@
                 </exclusions>
             </dependency>
     
+
 
 
 
@@ -660,9 +667,9 @@
             </snapshots>
         </repository>
         <repository>
-        <id>ActiveMQ</id>
-        <name>ActiveMQ Maven2 Temp Repository</name>
-        <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC5/maven2</url>
+            <id>ActiveMQ</id>
+            <name>ActiveMQ Maven2 Temp Repository</name>
+            <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC5/maven2</url>
         </repository>
         <repository>
             <id>java.net</id>

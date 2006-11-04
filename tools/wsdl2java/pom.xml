@@ -35,21 +35,6 @@
     <properties>
         <topDirectoryLocation>../../</topDirectoryLocation>
     </properties>
-     <build>        
-                <testResources>
-                    <testResource>
-        		 <directory>src/test/resources</directory>
-        		     <includes>
-        		        <include>**</include>
-        		     </includes> 
-                    </testResource>
-        		           
-                    <testResource>
-                            <directory>./${topDirectoryLocation}common/metacode/src/main/resources/</directory>                                      
-                    </testResource>
-                       
-                </testResources>
-    </build>
 
     <dependencies>
         <dependency>
@@ -84,8 +69,6 @@
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
-       
-
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
@@ -98,12 +81,10 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
-       
         <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
-	    </dependency>
-
+        </dependency>
         <dependency>
             <groupId>javax.xml.soap</groupId>
             <artifactId>saaj-api</artifactId>
@@ -113,12 +94,39 @@
             <artifactId>wstx-asl</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
-         <dependency>
-		    <groupId>org.apache.cxf</groupId>
-		    <artifactId>cxf-common-utilities</artifactId>
-		    <version>${project.version}</version>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
-        
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>dependency-maven-plugin</artifactId>
+                <version>${dependency.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>unpack-schemas</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/generated/src/test/resources</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.cxf</groupId>
+                                    <artifactId>cxf-common-schemas</artifactId>
+                                    <version>${project.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

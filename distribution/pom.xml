@@ -52,7 +52,12 @@
         </dependency>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-common-metacode</artifactId>
+            <artifactId>cxf-common-schemas</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-metacode</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
