@@ -22,7 +22,6 @@ package org.apache.cxf.jaxws.handler.soap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-// import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -108,14 +107,10 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         IMocksControl control = createNiceControl();
         Binding binding = control.createMock(Binding.class);
         Exchange exchange = control.createMock(Exchange.class);
-        SoapMessage message = new SoapMessage(new MessageImpl());
-        message.setExchange(exchange);
-
-        XMLStreamReader reader = preparemXMLStreamReader("resources/greetMeRpcLitReq.xml");
-        message.setContent(XMLStreamReader.class, reader);
-
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
-        // This is to set direction to inbound
+        SoapMessage message = new SoapMessage(new MessageImpl());
+        message.setExchange(exchange);        
+        // This is to set direction to outbound
         expect(exchange.getOutMessage()).andReturn(message).anyTimes();
         CachedStream originalEmptyOs = new CachedStream();
         message.setContent(OutputStream.class, originalEmptyOs);
@@ -153,7 +148,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
     // SAAJ tree is created on if SOAPMessageContext.getMessage() is
     // called. Any changes to SOAPMessage should be streamed back to
     // outputStream
-    public void xtestSOAPBodyChangedOutBound() throws Exception {
+    public void testChangeSOAPBodyOutBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
             public boolean handleMessage(SOAPMessageContext smc) {
@@ -185,14 +180,10 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         IMocksControl control = createNiceControl();
         Binding binding = control.createMock(Binding.class);
         Exchange exchange = control.createMock(Exchange.class);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
         SoapMessage message = new SoapMessage(new MessageImpl());
         message.setExchange(exchange);
-
-        XMLStreamReader reader = preparemXMLStreamReader("resources/greetMeRpcLitReq.xml");
-        message.setContent(XMLStreamReader.class, reader);
-
-        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
-        // This is to set direction to inbound
+        // This is to set direction to outbound
         expect(exchange.getOutMessage()).andReturn(message).anyTimes();
         CachedStream originalEmptyOs = new CachedStream();
         message.setContent(OutputStream.class, originalEmptyOs);
@@ -238,23 +229,26 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         NodeList elem3NodeList = outElement
             .getElementsByTagNameNS("http://apache.org/hello_world_rpclit/types", "elem3");
         Node elem3Element = elem3NodeList.item(0);
-        assertNotNull("100", elem3Element.getTextContent());
+        assertEquals("100", elem3Element.getTextContent());
     }
 
-    public void xtestGetSOAPHeaderInBound() throws Exception {
+    public void testChangeSOAPHeaderInBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
             public boolean handleMessage(SOAPMessageContext smc) {
                 try {
-                    // change mustUnderstand to false
-                    SOAPMessage message = smc.getMessage();
-                    SOAPHeader soapHeader = message.getSOAPHeader();
-                    Iterator it = soapHeader.getChildElements();
-                    SOAPHeaderElement headerElementNew = (SOAPHeaderElement)it.next();
+                    Boolean outboundProperty = (Boolean)smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                    if (!outboundProperty.booleanValue()) {
+                        // change mustUnderstand to false
+                        SOAPMessage message = smc.getMessage();
+                        SOAPHeader soapHeader = message.getSOAPHeader();
+                        Iterator it = soapHeader.getChildElements();
+                        SOAPHeaderElement headerElementNew = (SOAPHeaderElement)it.next();
 
-                    SoapVersion soapVersion = Soap11.getInstance();
-                    headerElementNew.setAttributeNS(soapVersion.getNamespace(), "SOAP-ENV:mustUnderstand",
-                                                    "false");
+                        SoapVersion soapVersion = Soap11.getInstance();
+                        headerElementNew.setAttributeNS(soapVersion.getNamespace(),
+                                                        "SOAP-ENV:mustUnderstand", "false");
+                    }
                 } catch (Exception e) {
                     throw new Fault(e);
                 }
@@ -280,17 +274,106 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
         // This is to set direction to inbound
         expect(exchange.getOutMessage()).andReturn(null);
-
         SoapMessage message = new SoapMessage(new MessageImpl());
         message.setExchange(exchange);
-
         XMLStreamReader reader = preparemXMLStreamReader("resources/greetMeRpcLitReq.xml");
         message.setContent(XMLStreamReader.class, reader);
         Element headerElement = preparemSOAPHeader();
         message.setHeaders(Element.class, headerElement);
         message.put(Element.class, headerElement);
 
-        // message.setContent(Element.class, preparemSOAPHeader());
+        control.replay();
+
+        SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
+        li.handleMessage(message);
+        control.verify();
+
+        // Verify SOAPMessage header
+        SOAPMessage soapMessageNew = message.getContent(SOAPMessage.class);
+        SOAPHeader soapHeader = soapMessageNew.getSOAPHeader();
+        Iterator itNew = soapHeader.getChildElements();
+        SOAPHeaderElement headerElementNew = (SOAPHeaderElement)itNew.next();
+        SoapVersion soapVersion = Soap11.getInstance();
+        assertEquals("false", headerElementNew.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
+
+        // Verify XMLStreamReader
+        XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
+        QName qn = xmlReader.getName();
+        assertEquals("sendReceiveData", qn.getLocalPart());
+        
+        // Verify Header Element
+        Element element = message.getHeaders(Element.class);      
+        NodeList headerNodeList = element.getElementsByTagNameNS(
+            "http://apache.org/hello_world_rpclit/types", "header1");
+        Element headerElementNew1 = (Element)headerNodeList.item(0);
+        assertEquals("false", headerElementNew1.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
+    }
+
+    public void testChangeSOAPHeaderOutBound() throws Exception {
+        List<Handler> list = new ArrayList<Handler>();
+        list.add(new SOAPHandler<SOAPMessageContext>() {
+            public boolean handleMessage(SOAPMessageContext smc) {
+                try {
+                    Boolean outboundProperty = (Boolean)smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+                    if (outboundProperty.booleanValue()) {
+                        // change mustUnderstand to false
+                        SOAPMessage message = smc.getMessage();
+                         
+                        SOAPHeader soapHeader = message.getSOAPHeader();
+                        Iterator it = soapHeader.getChildElements(new QName(
+                            "http://apache.org/hello_world_rpclit/types", "header1"));
+                        SOAPHeaderElement headerElementNew = (SOAPHeaderElement)it.next();
+
+                        SoapVersion soapVersion = Soap11.getInstance();
+                        headerElementNew.setAttributeNS(soapVersion.getNamespace(),
+                                                        "SOAP-ENV:mustUnderstand", "false");
+                    }
+                } catch (Exception e) {
+                    throw new Fault(e);
+                }
+                return true;
+            }
+
+            public boolean handleFault(SOAPMessageContext smc) {
+                return true;
+            }
+
+            public Set<QName> getHeaders() {
+                return null;
+            }
+
+            public void close(MessageContext messageContext) {
+            }
+        });
+        HandlerChainInvoker invoker = new HandlerChainInvoker(list);
+
+        IMocksControl control = createNiceControl();
+        Binding binding = control.createMock(Binding.class);
+        Exchange exchange = control.createMock(Exchange.class);
+        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
+        SoapMessage message = new SoapMessage(new MessageImpl());
+        message.setExchange(exchange);
+        // This is to set direction to outbound
+        expect(exchange.getOutMessage()).andReturn(message).anyTimes();
+        CachedStream originalEmptyOs = new CachedStream();
+        message.setContent(OutputStream.class, originalEmptyOs);
+
+        InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
+        // This is to simulate interceptors followed by SOAPHandlerInterceptor
+        // write outputStream
+        chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
+            public void handleMessage(SoapMessage message) throws Fault {
+                try {
+                    CachedStream os = prepareOutputStreamFromResource(
+                        "resources/greetMeRpcLitRespWithHeader.xml");
+                    message.setContent(OutputStream.class, os);
+                } catch (Exception e) {
+                    // do nothing
+                }
+            }
+
+        });
+        message.setInterceptorChain(chain);
         control.replay();
 
         SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
@@ -301,18 +384,14 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         SOAPMessage soapMessageNew = message.getContent(SOAPMessage.class);
 
         SOAPHeader soapHeader = soapMessageNew.getSOAPHeader();
-        Iterator itNew = soapHeader.getChildElements();
+        Iterator itNew = soapHeader.getChildElements(new QName("http://apache.org/hello_world_rpclit/types",
+            "header1"));
         SOAPHeaderElement headerElementNew = (SOAPHeaderElement)itNew.next();
         SoapVersion soapVersion = Soap11.getInstance();
         assertEquals("false", headerElementNew.getAttributeNS(soapVersion.getNamespace(), "mustUnderstand"));
-
-        // Verify the XMLStreamReader
-        XMLStreamReader xmlReader = message.getContent(XMLStreamReader.class);
-        QName qn = xmlReader.getName();
-        assertEquals("sendReceiveData", qn.getLocalPart());
     }
 
-    public void xtestGetSOAPMessageInBound() throws Exception {
+    public void testGetSOAPMessageInBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
             public boolean handleMessage(SOAPMessageContext smc) {
@@ -368,7 +447,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("sendReceiveData", qn.getLocalPart());
     }
 
-    public void xtestgetUnderstoodHeadersReturnsNull() {
+    public void testgetUnderstoodHeadersReturnsNull() {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
             public boolean handleMessage(SOAPMessageContext smc) {

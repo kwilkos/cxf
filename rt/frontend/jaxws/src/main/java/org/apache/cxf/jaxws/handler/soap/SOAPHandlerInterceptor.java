@@ -39,6 +39,8 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 
+import org.w3c.dom.Element;
+
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
@@ -156,6 +158,13 @@ public class SOAPHandlerInterceptor extends
                 }
                 reader.next();
                 message.setContent(XMLStreamReader.class, reader);
+                
+                //replace header element if necessary
+                if (message.hasHeaders(Element.class)) {
+                    Element headerElements = message.getHeaders(Element.class);
+                    headerElements = soapMessage.getSOAPHeader();    
+                    message.setHeaders(Element.class, headerElements);
+                }
             } catch (IOException ioe) {
                 throw new SoapFault(new org.apache.cxf.common.i18n.Message(
                         "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), ioe,
