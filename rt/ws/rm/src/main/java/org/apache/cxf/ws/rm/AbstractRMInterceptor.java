@@ -19,12 +19,14 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
@@ -103,6 +105,19 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
             return false;
         }
         return true;
+    }
+    
+    protected boolean isPartialResponse(Message msg) {
+        return RMContextUtils.isOutbound(msg) 
+            && msg.getContent(List.class) == null
+            && getException(msg.getExchange()) == null;   
+    }
+    
+    private Exception getException(Exchange exchange) {
+        if (exchange.getFaultMessage() != null) {
+            return exchange.getFaultMessage().getContent(Exception.class);
+        }
+        return null;
     }
     
     

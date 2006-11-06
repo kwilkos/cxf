@@ -150,12 +150,14 @@ public class RMManager extends RMManagerConfigBean {
                 }
 
                 Proxy proxy = source.getReliableEndpoint().getProxy();
-                proxy.createSequence(to, acksTo, relatesTo);
+                CreateSequenceResponseType createResponse = proxy.createSequence(to, acksTo, relatesTo);
+                Servant servant = source.getReliableEndpoint().getServant();
+                servant.createSequenceResponse(createResponse);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
-            seq = source.awaitCurrent(inSeqId);
+            seq = source.getCurrent(inSeqId);
             seq.setTarget(to);
         }
 

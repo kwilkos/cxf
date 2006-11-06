@@ -112,6 +112,21 @@ public final class RMContextUtils {
                                                     boolean isOutbound) {
         return org.apache.cxf.ws.addressing.ContextUtils.retrieveMAPs(message, isProviderContext, isOutbound);
     }
+    
+    /**
+     * Store MAPs in the message.
+     *
+     * @param maps the MAPs to store
+     * @param message the current message
+     * @param isOutbound true iff the message is outbound
+     * @param isRequestor true iff the current messaging role is that of
+     * requestor
+     * @param handler true if HANDLER scope, APPLICATION scope otherwise
+     */
+    public static void storeMAPs(AddressingProperties maps, Message message, boolean isProviderContext,
+                                                        boolean isOutbound) {
+        org.apache.cxf.ws.addressing.ContextUtils.storeMAPs(maps, message, isProviderContext, isOutbound);
+    }
 
     /**
      * Ensures the appropriate version of WS-Addressing is used.

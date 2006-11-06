@@ -105,30 +105,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         setExchangeProperties(exchange, requestContext, oi);
         
         // setup chain
-        PhaseManager pm = bus.getExtension(PhaseManager.class);
-        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
+
+        PhaseInterceptorChain chain = setupInterceptorChain();
         message.setInterceptorChain(chain);
-        
-        List<Interceptor> il = bus.getOutInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by bus: " + il);
-        }
-        chain.add(il);
-        il = endpoint.getOutInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by endpoint: " + il);
-        }
-        chain.add(il);
-        il = getOutInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by client: " + il);
-        }
-        chain.add(il);
-        il = endpoint.getBinding().getOutInterceptors();
-        if (LOG.isLoggable(Level.FINE)) {
-            LOG.fine("Interceptors contributed by binding: " + il);
-        }
-        chain.add(il);        
         
         modifyChain(chain, requestContext);
         chain.setFaultObserver(outFaultObserver);
@@ -148,8 +127,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
         
         // Wait for a response if we need to
-        if (!oi.getOperationInfo().isOneWay() 
-            && !Boolean.TRUE.equals(exchange.get(FINISHED))) {
+        if (!oi.getOperationInfo().isOneWay()) {
             synchronized (exchange) {
                 waitResponse(exchange);
             }
@@ -194,10 +172,19 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     private void waitResponse(Exchange exchange) {
-        try {
-            exchange.wait(synchronousTimeout);
-        } catch (InterruptedException e) {
-            //TODO - timeout
+        int remaining = synchronousTimeout;
+        while (!Boolean.TRUE.equals(exchange.get(FINISHED)) && remaining > 0) {
+            long start = System.currentTimeMillis();
+            try {
+                exchange.wait(remaining);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+            long end = System.currentTimeMillis();
+            remaining -= (int)(end - start);
+        }
+        if (!Boolean.TRUE.equals(exchange.get(FINISHED))) {
+            LOG.info("RESPONSE_TIMEOUT");
         }
     }
 
@@ -288,9 +275,41 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         exchange.put(BindingOperationInfo.class, boi);
         exchange.put(OperationInfo.class, boi.getOperationInfo());
     }
-    
+
+    protected PhaseInterceptorChain setupInterceptorChain() { 
+
+        PhaseManager pm = bus.getExtension(PhaseManager.class);
+        PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
+        
+        List<Interceptor> il = bus.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + il);
+        }
+        chain.add(il);
+        il = getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by client: " + il);
+        }
+        chain.add(il);
+        il = endpoint.getBinding().getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by binding: " + il);
+        }
+        chain.add(il);        
+        return chain;
+    }
+
     protected void modifyChain(InterceptorChain chain, Map<String, Object> ctx) {
         // no-op
+    }
+
+    protected void setEndpoint(Endpoint e) {
+        endpoint = e;
     }
 
     public int getSynchronousTimeout() {

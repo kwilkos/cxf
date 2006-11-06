@@ -29,12 +29,14 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
+
 
 /**
  * 
@@ -59,7 +61,7 @@ public class Proxy {
 
     }
 
-    public void createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, 
+    public CreateSequenceResponseType createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, 
                         EndpointReferenceType defaultAcksTo,
                         RelatesToType relatesTo) throws IOException {
         
@@ -96,14 +98,17 @@ public class Proxy {
         
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getCreateSequenceOperationName());
-        invokeOneway(oi, new Object[] {create});
+        Object result = invoke(oi, new Object[] {create});
+        LOG.info("result: " + result);
+        return (CreateSequenceResponseType)result;
+        
     }
     
     void lastMessage(SourceSequence s) throws IOException {
         // TODO
     }
        
-    void invokeOneway(OperationInfo oi, Object[] params) {
+    Object invoke(OperationInfo oi, Object[] params) {
         LOG.log(Level.INFO, "Invoking out-of-band RM protocol message {0}.", 
                 oi == null ? null : oi.getName());
         LOG.log(Level.INFO, "params: " + params);
@@ -116,13 +121,37 @@ public class Proxy {
         BindingInfo bi = reliableEndpoint.getBindingInfo();
         
                 
-        Client client = new ClientImpl(bus, endpoint);
+        Client client = new RMClient(bus, endpoint);
         BindingOperationInfo boi = bi.getOperation(oi);
         try {
-            client.invoke(boi, params, null);
+            Object[] result = client.invoke(boi, params, null);
+            if (result != null && result.length > 0) {
+                return result[0];
+            }
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        return null;
+    }
+    
+    class RMClient extends ClientImpl {
+        RMClient(Bus bus, Endpoint endpoint) {
+            super(bus, endpoint);
+        }
+
+        @Override
+        protected PhaseInterceptorChain setupInterceptorChain() {
+            Endpoint originalEndpoint = getEndpoint();
+            setEndpoint(Proxy.this.reliableEndpoint.getApplicationEndpoint());
+            PhaseInterceptorChain chain = super.setupInterceptorChain();
+            setEndpoint(originalEndpoint);
+            return chain;
+        }
+        
+        
+        
+        
     }
     
 

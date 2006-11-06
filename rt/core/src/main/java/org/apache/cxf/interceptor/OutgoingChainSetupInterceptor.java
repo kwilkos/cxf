@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
@@ -97,11 +98,27 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getOutPhases());
         
         Endpoint ep = ex.get(Endpoint.class);
-        chain.add(ep.getOutInterceptors());
-        chain.add(ep.getService().getOutInterceptors());
-        chain.add(bus.getOutInterceptors());        
+        List<Interceptor> il = ep.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by endpoint: " + il);
+        }
+        chain.add(il);
+        il = ep.getService().getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by service: " + il);
+        }
+        chain.add(il);
+        il = bus.getOutInterceptors();
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Interceptors contributed by bus: " + il);
+        }
+        chain.add(il);        
         if (ep.getBinding() != null) {
-            chain.add(ep.getBinding().getOutInterceptors());
+            il = ep.getBinding().getOutInterceptors();
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Interceptors contributed by binding: " + il);
+            }
+            chain.add(il);
         }
         
         return chain;

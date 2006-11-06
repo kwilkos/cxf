@@ -85,7 +85,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         Identifier inSeqId = null;
         BigInteger inMessageNumber = null;
         
-        if (isApplicationMessage) {
+        if (isApplicationMessage && !isPartialResponse(message)) {
                         
             rmpsIn = (RMProperties)RMContextUtils.retrieveRMProperties(message, false);
             
@@ -114,6 +114,11 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
 
             if (seq.isLastMessage()) {
                 source.setCurrent(null);
+            }
+        } else {
+            if (!RMContextUtils.isRequestor(message)
+                && RMConstants.getCreateSequenceAction().equals(action)) {
+                maps.getAction().setValue(RMConstants.getCreateSequenceResponseAction());
             }
         }
         

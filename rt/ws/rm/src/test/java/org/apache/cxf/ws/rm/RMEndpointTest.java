@@ -40,7 +40,7 @@ public class RMEndpointTest extends TestCase {
 
         InterfaceInfo intf = si.getInterface();
         
-        assertEquals(3, intf.getOperations().size());
+        assertEquals(2, intf.getOperations().size());
         
         String ns = si.getName().getNamespaceURI();
         OperationInfo oi = intf.getOperation(new QName(ns, "CreateSequence"));

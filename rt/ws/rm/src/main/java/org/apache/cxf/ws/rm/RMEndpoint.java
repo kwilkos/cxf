@@ -41,6 +41,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.cxf.ws.addressing.wsdl.UsingAddressing;
 
 public class RMEndpoint {
     
@@ -62,6 +63,7 @@ public class RMEndpoint {
     // REVISIT assumption there is only a single outstanding offer
     private Identifier offeredIdentifier;
     private Proxy proxy;
+    private Servant servant;
     
     
     public RMEndpoint(RMManager m, Endpoint ae) {
@@ -70,6 +72,7 @@ public class RMEndpoint {
         source = new Source(this);
         destination = new Destination(this);
         proxy = new Proxy(this);
+        servant = new Servant(this);
     }
     
     public QName getName() {
@@ -116,6 +119,13 @@ public class RMEndpoint {
      */
     public Proxy getProxy() {
         return proxy;
+    }
+    
+    /**
+     * @return Returns the servant.
+     */
+    public Servant getServant() {
+        return servant;
     }
 
     /** 
@@ -168,6 +178,7 @@ public class RMEndpoint {
             throw new ServiceConstructionException(e);
         }
         service.setDataBinding(dataBinding);
+        service.setInvoker(servant);
     }
 
     void createEndpoint() {
@@ -178,6 +189,10 @@ public class RMEndpoint {
         ei.setAddress(applicationEndpoint.getEndpointInfo().getAddress());
         ei.setName(PORT_NAME);
         ei.setBinding(si.getBinding(BINDING_NAME));
+        org.apache.cxf.ws.addressing.wsdl.ObjectFactory aof = 
+            new org.apache.cxf.ws.addressing.wsdl.ObjectFactory();
+        UsingAddressing ua = aof.createUsingAddressing();
+        ei.addExtensor(ua);
         si.addEndpoint(ei);
     
         try {
@@ -185,6 +200,7 @@ public class RMEndpoint {
         } catch (EndpointException ex) {
             ex.printStackTrace();
         }
+        service.setExecutor(applicationEndpoint.getService().getExecutor());
     }
 
     void buildInterfaceInfo(ServiceInfo si) {
@@ -193,48 +209,69 @@ public class RMEndpoint {
     }
 
     void buildOperationInfo(InterfaceInfo ii) {
-        OperationInfo oi = null;
-        MessagePartInfo pi = null;
-        OperationInfo unwrapped = null;
-        MessageInfo mi = null;
-        MessageInfo unwrappedInput = null;
+        
+        OperationInfo operationInfo = null;
+        MessagePartInfo partInfo = null;
+        UnwrappedOperationInfo unwrappedOperationInfo = null;
+        MessageInfo messageInfo = null;
+        MessageInfo unwrappedMessageInfo = null;
 
-        oi = ii.addOperation(RMConstants.getCreateSequenceOperationName());
-        mi = oi.createMessage(RMConstants.getCreateSequenceOperationName());
-        oi.setInput(mi.getName().getLocalPart(), mi);
-        pi = mi.addMessagePart("create");
-        pi.setElementQName(RMConstants.getCreateSequenceOperationName());
-        pi.setElement(true);
-        // pi.setXmlSchema(null);
-        unwrappedInput = new MessageInfo(oi, mi.getName());
-        unwrapped = new UnwrappedOperationInfo(oi);
-        oi.setUnwrappedOperation(unwrapped);
-        unwrapped.setInput(oi.getInputName(), unwrappedInput);
+        operationInfo = ii.addOperation(RMConstants.getCreateSequenceOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
+        partInfo = messageInfo.addMessagePart("create");
+        partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceType.class);
+        
+        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        partInfo = unwrappedMessageInfo.addMessagePart("create");
+        partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceType.class);
+        
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName());
+        operationInfo.setOutput(messageInfo.getName().getLocalPart(), messageInfo);
+        partInfo = messageInfo.addMessagePart("createResponse");
+        partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceResponseType.class);
 
+        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+        unwrappedOperationInfo.setOutput(operationInfo.getOutputName(), unwrappedMessageInfo);
+        partInfo = unwrappedMessageInfo.addMessagePart("createResponse");
+        partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceResponseType.class);
+        
+        /*
         oi = ii.addOperation(RMConstants.getCreateSequenceResponseOperationName());
         mi = oi.createMessage(RMConstants.getCreateSequenceResponseOperationName());
         oi.setInput(mi.getName().getLocalPart(), mi);
         pi = mi.addMessagePart("createResponse");
         pi.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
         pi.setElement(true);
-        // pi.setXmlSchema(null);
+        pi.setTypeClass(CreateSequenceResponseType.class);
         unwrappedInput = new MessageInfo(oi, mi.getName());
         unwrapped = new UnwrappedOperationInfo(oi);
         oi.setUnwrappedOperation(unwrapped);
         unwrapped.setInput(oi.getInputName(), unwrappedInput);
-
-        oi = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
-        mi = oi.createMessage(RMConstants.getTerminateSequenceOperationName());
-        oi.setInput(mi.getName().getLocalPart(), mi);
-        pi = mi.addMessagePart("createResponse");
-        pi.setElementQName(RMConstants.getTerminateSequenceOperationName());
-        pi.setElement(true);
-        // pi.setXmlSchema(null);
-        unwrappedInput = new MessageInfo(oi, mi.getName());
-        unwrapped = new UnwrappedOperationInfo(oi);
-        oi.setUnwrappedOperation(unwrapped);
-        unwrapped.setInput(oi.getInputName(), unwrappedInput);
+        */
         
+        operationInfo = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
+        partInfo = messageInfo.addMessagePart("createResponse");
+        partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(TerminateSequenceType.class);
+        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
     }
 
     void buildBindingInfo(ServiceInfo si) {
@@ -253,13 +290,15 @@ public class RMEndpoint {
             boi.addExtensor(soi);
             bi.addOperation(boi);
             
+            /*
             boi = bi.buildOperation(RMConstants.getCreateSequenceResponseOperationName(), 
                 RMConstants.getCreateSequenceResponseOperationName().getLocalPart(), null);
             soi = new SoapOperationInfo();
             soi.setAction(RMConstants.getCreateSequenceResponseAction());
             boi.addExtensor(soi);
             bi.addOperation(boi);
-
+            */
+            
             boi = bi.buildOperation(RMConstants.getTerminateSequenceOperationName(), 
                 RMConstants.getTerminateSequenceOperationName().getLocalPart(), null);
             soi = new SoapOperationInfo();

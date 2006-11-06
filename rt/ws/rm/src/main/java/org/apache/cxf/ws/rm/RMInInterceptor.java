@@ -20,13 +20,17 @@
 package org.apache.cxf.ws.rm;
 
 import java.util.Collections;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.InterceptorChain;
+// import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.MAPAggregator;
@@ -69,14 +73,25 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         }
         
         // Destination destination = getManager().getDestination(message);
-        RMEndpoint rme = getManager().getReliableEndpoint(message);
-        Servant servant = new Servant(rme);
+        // RMEndpoint rme = getManager().getReliableEndpoint(message);
+        // Servant servant = new Servant(rme);
         
-        if (RMConstants.getCreateSequenceResponseAction().equals(action)) {
-            servant.createSequenceResponse(message);
-            return;
-        } else if (RMConstants.getCreateSequenceAction().equals(action)) {
-            servant.createSequence(message);
+
+        if (RMConstants.getCreateSequenceAction().equals(action)
+            || RMConstants.getCreateSequenceResponseAction().equals(action)
+            || RMConstants.getTerminateSequenceAction().equals(action)) {
+            InterceptorChain chain = message.getInterceptorChain();
+            ListIterator it = chain.getIterator();
+            LOG.fine("Trying to remove WrapperClassInInterceptor");
+            while (it.hasNext()) {
+                PhaseInterceptor pi = (PhaseInterceptor)it.next();
+                if ("org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor".equals(pi.getId())) {
+                    chain.remove(pi);
+                    LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
+                    break;
+                }
+            }
+            // servant.createSequence(message);
             /*
             Runnable response = new Runnable() {
                 public void run() {
@@ -93,7 +108,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
             */    
             return;
         } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
-            servant.terminateSequence(message);
+            // servant.terminateSequence(message);
         }
         
         // for application AND out of band messages

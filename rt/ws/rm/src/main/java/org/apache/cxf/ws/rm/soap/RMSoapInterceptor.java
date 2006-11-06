@@ -23,6 +23,7 @@ package org.apache.cxf.ws.rm.soap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,17 +40,28 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.Service;
+import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.soap.MAPCodec;
+import org.apache.cxf.ws.rm.AbstractRMInterceptor;
 import org.apache.cxf.ws.rm.AckRequestedType;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMContextUtils;
+import org.apache.cxf.ws.rm.RMEndpoint;
+import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceType;
@@ -67,7 +79,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     private static final String WS_RM_PACKAGE = 
         PackageUtils.getPackageName(SequenceType.class);
     
-    private Set<String> before = Collections.singleton(MAPCodec.class.getName());
+    private Set<String> after = Collections.singleton(MAPCodec.class.getName());
 
     /**
      * Constructor.
@@ -77,12 +89,12 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     
     // PhaseInterceptor interface
 
-    public Set<String> getAfter() {
+    public Set<String> getBefore() {
         return CastUtils.cast(Collections.EMPTY_SET);        
     }
 
-    public Set<String> getBefore() {
-        return before;
+    public Set<String> getAfter() {
+        return after;
     }
 
     public String getId() {
@@ -131,7 +143,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             encode(message);
         } else {
             decode(message);
-            // storeBindingInfo(context);
+            updateServiceModelInfo(message);
         }
     }
     
@@ -368,50 +380,52 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
     /**
      * When invoked inbound, check if the action indicates that this is one of the 
      * RM protocol messages (CreateSequence, CreateSequenceResponse, TerminateSequence)
-     * and if so, store method, operation name and data binding callback in the context.
-     * The action has already been extracted from its associated soap header into the
-     * addressing properties as the addressing protocol handler is executed. 
+     * and if so, replace references to the application service model with references to
+     * the RM service model.
+     * The addressing protocol handler must have extracted the action beforehand. 
+     * @see org.apache.cxf.transport.ChainInitiationObserver
      * 
-     * @param context
+     * @param message the message
      */
-    /*
-    private void storeBindingInfo(MessageContext context) {
-        assert !ContextUtils.isOutbound(context);
-        AddressingProperties maps = ContextUtils.retrieveMAPs(context, false, false);
+
+    private void updateServiceModelInfo(SoapMessage message) {
+        
+        assert !RMContextUtils.isOutbound(message);
+        AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
         AttributedURIType actionURI = null == maps ? null : maps.getAction();
         String action = null == actionURI ? null : actionURI.getValue();
-        DataBindingCallback callback = null;
-        String operationName = null;
-        boolean rmProtocolMessage = true;
-
-        if (RMUtils.getRMConstants().getCreateSequenceAction().equals(action)) {
-            callback = CreateSequenceRequest.createDataBindingCallback();
-            operationName = CreateSequenceRequest.getOperationName();
-        } else if (RMUtils.getRMConstants().getCreateSequenceResponseAction().equals(action)) {
-            callback = CreateSequenceResponse.createDataBindingCallback();
-            operationName = CreateSequenceResponse.getOperationName();
-        } else if (RMUtils.getRMConstants().getTerminateSequenceAction().equals(action)) {
-            callback = TerminateSequenceRequest.createDataBindingCallback();
-            operationName = TerminateSequenceRequest.getOperationName();
-        } else if (RMUtils.getRMConstants().getLastMessageAction().equals(action) 
-            || RMUtils.getRMConstants().getSequenceAcknowledgmentAction().equals(action)) {
-            // It does not really matter what callback we are using here as the body
-            // in messages with these actions is always empty
-            callback = TerminateSequenceRequest.createDataBindingCallback();
-            operationName = TerminateSequenceRequest.getOperationName();
-        } else {
-            rmProtocolMessage = false;
+        
+        LOG.info("action: " + action);
+        
+        if (!(RMConstants.getCreateSequenceAction().equals(action)
+            || RMConstants.getCreateSequenceResponseAction().equals(action)
+            || RMConstants.getTerminateSequenceAction().equals(action)
+            || RMConstants.getLastMessageAction().equals(action))) {
+            return;
         }
         
-        if (rmProtocolMessage) {
-            BindingContextUtils.storeDispatch(context, false);
-            BindingContextUtils.storeDataBindingCallback(context, callback);
-            context.put(MessageContext.WSDL_OPERATION, new QName("", operationName));
-            context.put(ObjectMessageContext.MESSAGE_INPUT, Boolean.FALSE);            
-        }
+        LOG.info("Updating service model info in exchange");
+        
+        RMManager manager = getManager(message);
+        RMEndpoint rme = manager.getReliableEndpoint(message);
+        
+        Exchange exchange = message.getExchange();
+        exchange.put(Endpoint.class, rme.getEndpoint());
+        exchange.put(Service.class, rme.getService());
+        exchange.put(Binding.class, rme.getEndpoint().getBinding());
     }
-    */
 
+    private RMManager getManager(SoapMessage message) {
+        InterceptorChain chain = message.getInterceptorChain();
+        ListIterator it = chain.getIterator();
+        while (it.hasNext()) {
+            Interceptor i = (Interceptor)it.next();
+            if (i instanceof AbstractRMInterceptor) {
+                return ((AbstractRMInterceptor)i).getManager();
+            }
+        }
+        return null;
+    }
 }
 
 

@@ -188,17 +188,20 @@ public class RMManagerTest extends TestCase {
         EndpointReferenceType epr = RMUtils.createNoneReference();
         EasyMock.expect(maps.getReplyTo()).andReturn(epr);
         RMEndpoint rme = control.createMock(RMEndpoint.class);
-        EasyMock.expect(source.getReliableEndpoint()).andReturn(rme);
+        EasyMock.expect(source.getReliableEndpoint()).andReturn(rme).times(2);
         Proxy proxy = control.createMock(Proxy.class);
         EasyMock.expect(rme.getProxy()).andReturn(proxy);
+        CreateSequenceResponseType createResponse = control.createMock(CreateSequenceResponseType.class);
         proxy.createSequence((EndpointReferenceType)EasyMock.isNull(),
                              EasyMock.isA(org.apache.cxf.ws.addressing.v200408.EndpointReferenceType.class),
                              (RelatesToType)EasyMock.isNull());
+        EasyMock.expectLastCall().andReturn(createResponse);
+        Servant servant = control.createMock(Servant.class);
+        EasyMock.expect(rme.getServant()).andReturn(servant);
+        servant.createSequenceResponse(createResponse);
         EasyMock.expectLastCall();
         SourceSequence sseq = control.createMock(SourceSequence.class);
-        EasyMock.expect(source.awaitCurrent(inSid)).andReturn(sseq);
-        sseq.setTarget((EndpointReferenceType)EasyMock.isNull());
-        EasyMock.expectLastCall();
+        EasyMock.expect(source.getCurrent(inSid)).andReturn(sseq);
         
         control.replay();
         assertSame(sseq, manager.getSequence(inSid, message, maps));

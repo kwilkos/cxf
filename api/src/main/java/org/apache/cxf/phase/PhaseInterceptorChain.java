@@ -210,6 +210,12 @@ public class PhaseInterceptorChain implements InterceptorChain {
 
     public void remove(Interceptor i) {
         // TODO
+        PhaseInterceptorIterator it = new PhaseInterceptorIterator();
+        while (it.hasNext()) {
+            if (it.next() == i) {
+                it.remove();
+            }
+        }
     }
     
 
@@ -353,7 +359,10 @@ public class PhaseInterceptorChain implements InterceptorChain {
             throw new UnsupportedOperationException();
         }
         public void remove() {
-            throw new UnsupportedOperationException();
+            if (currentPhaseIterator != null) {
+                currentPhaseIterator.remove();
+            }
+            // throw new UnsupportedOperationException();
         }
         public void set(Interceptor o) {
             throw new UnsupportedOperationException();

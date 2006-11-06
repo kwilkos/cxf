@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.rm;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,8 +28,12 @@ import java.util.logging.Logger;
 import javax.xml.datatype.Duration;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxb.DatatypeFactory;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.AttributedURI;
@@ -37,7 +42,7 @@ import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
 /**
  * 
  */
-public class Servant {
+public class Servant implements Invoker {
 
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractRMInterceptor.class);
     private RMEndpoint reliableEndpoint;
@@ -48,11 +53,40 @@ public class Servant {
         reliableEndpoint = rme;
     }
     
+    public Object invoke(Exchange exchange, Object o) {
+        LOG.fine("Invoking on RM Endpoint");
+        List<Object> params = CastUtils.cast((List<?>)o);
+        Object param = params.get(0);
+        LOG.fine("param: " + param);
+        if (param instanceof CreateSequenceType) {
+            CreateSequenceType create = (CreateSequenceType)param;
+            LOG.info("CreateSequenceType: " + create);
+            LOG.info("    acksTo: " + create.getAcksTo());
+            LOG.info("    offer: " + create.getOffer());
+        }
+        OperationInfo oi = exchange.get(OperationInfo.class);
+        if (RMConstants.getCreateSequenceOperationName().equals(oi.getName())) {
+            try {
+                return Collections.singletonList(createSequence(exchange.getInMessage()));
+            } catch (SequenceFault ex) {
+                ex.printStackTrace();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        
+        return null;
+    }
+
+
     CreateSequenceResponseType createSequence(Message message) throws SequenceFault {
         LOG.fine("Creating sequence");
         
-        CreateSequenceType create = (CreateSequenceType)getParameter(message);
+        AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
+        Message outMessage = message.getExchange().getOutMessage();        
+        RMContextUtils.storeMAPs(maps, outMessage, false, false);
         
+        CreateSequenceType create = (CreateSequenceType)getParameter(message);
         Destination destination = reliableEndpoint.getDestination();
         
         CreateSequenceResponseType createResponse = 
@@ -65,6 +99,8 @@ public class Servant {
             supportedDuration = DatatypeFactory.PT0S;
         }
         Expires ex = create.getExpires();
+        LOG.fine("expires: " + ex);
+        LOG.fine("acksTo: " + create.getAcksTo());
         
         if (null != ex || supportedDuration.isShorterThan(DatatypeFactory.PT0S)) {
             Duration effectiveDuration = supportedDuration;
@@ -77,12 +113,13 @@ public class Servant {
         }
         
         OfferType offer = create.getOffer();
+        LOG.fine("offer: " + offer);
         if (null != offer) {
             AcceptType accept = RMUtils.getWSRMFactory().createAcceptType();
             if (dp.isAcceptOffers()) {
                 Source source = reliableEndpoint.getSource();
                 LOG.fine("Accepting inbound sequence offer");
-                AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
+                // AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
                 AttributedURI to = VersionTransformer.convert(maps.getTo());
                 accept.setAcksTo(RMUtils.createReference2004(to.getValue()));
                 SourceSequence seq = new SourceSequence(offer.getIdentifier(), 
@@ -105,13 +142,13 @@ public class Servant {
             createResponse.setAccept(accept);
         }
         
+        LOG.fine("Returning createResponse: " + createResponse);
         return createResponse;
     }
 
-    public void createSequenceResponse(Message message) throws SequenceFault {
+    public void createSequenceResponse(CreateSequenceResponseType createResponse) throws SequenceFault {
         LOG.fine("Creating sequence response");
         
-        CreateSequenceResponseType createResponse = (CreateSequenceResponseType)getParameter(message);
         SourceSequence seq = new SourceSequence(createResponse.getIdentifier());
         seq.setExpires(createResponse.getExpires());
         Source source  = reliableEndpoint.getSource();
