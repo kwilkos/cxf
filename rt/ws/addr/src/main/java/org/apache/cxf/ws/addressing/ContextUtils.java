@@ -348,7 +348,9 @@ public final class ContextUtils {
                     
                     partialResponse.getInterceptorChain().reset();
                     exchange.setConduit(null);
-                    exchange.setOutMessage(fullResponse);
+                    if (fullResponse != null) {
+                        exchange.setOutMessage(fullResponse);
+                    }
                 }
             } catch (Exception e) {
                 LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);

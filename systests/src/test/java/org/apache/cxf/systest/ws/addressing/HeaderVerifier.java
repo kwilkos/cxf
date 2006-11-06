@@ -66,15 +66,19 @@ public class HeaderVerifier extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) {
+        mediate(message);
+    }
+
+    public void handleFault(SoapMessage message) {
+        mediate(message);
+    }
+    
+    private void mediate(SoapMessage message) {
         boolean outgoingPartialResponse = isOutgoingPartialResponse(message);
         if (outgoingPartialResponse) {
             addPartialResponseHeader(message);
         }
         verify(message, outgoingPartialResponse);
-    }
-
-    public void handleFault(SoapMessage message) {
-        verify(message, isOutgoingPartialResponse(message));
     }
 
     private void addPartialResponseHeader(SoapMessage message) {

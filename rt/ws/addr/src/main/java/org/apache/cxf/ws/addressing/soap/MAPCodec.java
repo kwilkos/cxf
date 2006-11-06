@@ -454,7 +454,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                 uncorrelatedExchanges.get(maps.getRelatesTo().getValue());
             if (correlatedExchange != null) {
                 synchronized (correlatedExchange) {
-                    correlatedExchange.setInMessage(message);
+                    message.setExchange(correlatedExchange);
                 }
             }
         }

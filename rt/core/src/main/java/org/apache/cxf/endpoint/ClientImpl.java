@@ -232,6 +232,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             synchronized (message.getExchange()) {
                 if (!isPartialResponse(message)) {
                     message.getExchange().put(FINISHED, Boolean.TRUE);
+                    message.getExchange().setInMessage(message);
                     message.getExchange().notifyAll();
                 }
             }

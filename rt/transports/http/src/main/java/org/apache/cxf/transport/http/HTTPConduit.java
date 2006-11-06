@@ -565,7 +565,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             InputStream responseStream = req.getInputStream();
             Message inMessage = new MessageImpl();
             // disposable exchange, swapped with real Exchange on correlation
-            new ExchangeImpl().setInMessage(inMessage);
+            inMessage.setExchange(new ExchangeImpl());
             // REVISIT: how to get response headers?
             //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
             setHeaders(inMessage);
