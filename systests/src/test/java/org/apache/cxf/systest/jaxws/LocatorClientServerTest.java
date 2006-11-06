@@ -26,9 +26,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
-import com.iona.ws._2005._11.locator.LocatorService;
-import com.iona.ws._2005._11.locator.LocatorService_Service;
-import com.iona.ws._2005._11.locator.query.QuerySelectType;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -38,6 +35,10 @@ import junit.framework.TestSuite;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
+
+import org.apache.cxf.testutils.locator.LocatorService;
+import org.apache.cxf.testutils.locator.LocatorService_Service;
+import org.apache.cxf.testutils.locator.QuerySelectType;
 
 import org.apache.locator_test.LocatorServiceImpl;
 
