@@ -102,8 +102,7 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                     
                     writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getBody().getLocalPart(),
                                              soapVersion.getNamespace());
-                    writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
-                   
+                    
                     //Write soap body
                     StaxUtils.copy(xmlReader, writer);
 
