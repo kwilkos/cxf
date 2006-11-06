@@ -106,10 +106,16 @@ public final class ContextUtils {
     * @return true iff the message direction is outbound
     */
     public static boolean isOutbound(Message message) {
+        if (message == null) {
+            return false;
+        }
+        
         Exchange exchange = message.getExchange();
+        
         return message != null
                && exchange != null
                && message == exchange.getOutMessage();
+        
     }
 
    /**
