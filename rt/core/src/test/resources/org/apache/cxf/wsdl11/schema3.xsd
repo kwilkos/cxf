@@ -19,25 +19,22 @@
 -->
 <xs:schema version="1.0" targetNamespace="http://apache.org/hello_world_soap_http/types" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:import namespace="http://apache.org/hello_world_soap_http/types" schemaLocation="./schema2.xsd"/>
-
-  <xs:import namespace="http://apache.org/hello_world_soap_http/types" schemaLocation="./schema3.xsd"/>
-
-  <xs:element name="pingMe">
-    <xs:complexType/>
-  </xs:element>
-
-  <xs:element name="faultDetail">
+  <xs:element name="greetMe">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="minor" type="xs:short" form="qualified" minOccurs="0"/>
-        <xs:element name="major" type="xs:short" form="qualified" minOccurs="0"/>
+        <xs:element name="requestType" type="xs:string" form="qualified" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="pingMeResponse">
-    <xs:complexType/>
+  <xs:element name="greetMeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="responseType" type="xs:string" form="qualified" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
+
+
 </xs:schema>
 

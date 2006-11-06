@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Stack;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 
@@ -46,6 +47,26 @@ public class URIResolver {
     private InputStream is;
     private Class calling;
     
+    private Stack<Location> history = new Stack<Location>();
+
+    private class Location {
+        private String base;
+        private String relative;
+        public Location(String base, String relative) {
+            this.base = base;
+            this.relative = relative;
+        }
+        public String getBase() {
+            return base;
+        }
+        public String getRelative() {
+            return relative;
+        }
+    }
+
+    public URIResolver() throws IOException {
+    }
+
     public URIResolver(String path) throws IOException {
         this("", path);
     }
@@ -68,6 +89,84 @@ public class URIResolver {
         }
     }
 
+    
+    public void resolveStateful(String baseUriStr, String uriStr, Class callingCls) throws IOException {
+        this.calling = (callingCls != null) ? callingCls : getClass();
+
+        if (uriStr.startsWith("classpath:")) {
+            tryClasspath(uriStr);
+        } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
+            tryJar(baseUriStr, uriStr);
+        } else if (uriStr.startsWith("jar:")) {
+            tryJar(uriStr);
+        } else {
+            tryFileSystemState(baseUriStr, uriStr);
+        }
+    }
+
+    private URI getAbsoluteFileStr(String baseUriStr, String uriStr) throws MalformedURLException {
+        URI relative;
+        URI base;
+        try {            
+            File uriFile = new File(uriStr);
+            uriFile = new File(uriFile.getAbsolutePath());   
+            if (uriFile.exists()) {
+                relative = uriFile.toURI();
+            } else {
+                relative = new URI(uriStr);
+            }            
+            if (relative.isAbsolute()) {
+                return new URI(uriStr);
+            } else if (baseUriStr != null) {
+                base = new URI(baseUriStr);
+                if (base.isAbsolute()) {
+                    return base.resolve(relative);
+                } else {
+                    Location location = null;
+                    // assume that the outmost element of history is parent
+                    if (!history.empty()) {
+                        location = history.pop();
+                    }
+                    if (location != null) {
+                        URI result = getAbsoluteFileStr(location.base, location.relative).resolve(relative);
+                        history.push(location);
+                        return result;
+                    } else {
+                        return null;
+                    }
+                }
+            }            
+        } catch (URISyntaxException e) {
+            return null;
+        }
+        return null;
+    }
+    
+    private void tryFileSystemState(String baseUriStr, String uriStr) 
+        throws IOException, MalformedURLException {
+        if (baseUriStr == null && uriStr == null) {
+            return;
+        }        
+        URI finalRelative = getAbsoluteFileStr(baseUriStr, uriStr);
+        if (finalRelative != null) {
+            history.push(new Location(baseUriStr, uriStr));
+            File targetFile = new File(finalRelative);
+            if (!targetFile.exists() && baseUriStr.startsWith("file:/")) {
+                targetFile = new File(baseUriStr.substring(6));
+            }
+            URI target;
+            if (targetFile.exists()) {
+                target = targetFile.toURI();
+            } else {
+                target = finalRelative;
+            }
+            if (target.isAbsolute()) {
+                uri = target;                
+                is = target.toURL().openStream();
+            }
+        }
+    }
+    
     private void tryFileSystem(String baseUriStr, String uriStr) throws IOException, MalformedURLException {
         try {
             URI relative;

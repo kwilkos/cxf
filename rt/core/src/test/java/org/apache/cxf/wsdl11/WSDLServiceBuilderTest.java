@@ -57,6 +57,7 @@ public class WSDLServiceBuilderTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
     private static final String WSDL_PATH = "hello_world.wsdl";
     private static final String BARE_WSDL_PATH = "hello_world_bare.wsdl";
+    private static final String IMPORT_WSDL_PATH = "hello_world_schema_import.wsdl";
     private Definition def;
     private Service service;
     private ServiceInfo serviceInfo;
@@ -322,6 +323,13 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(greetMe);        
         assertEquals("greetMe OperationInfo name error", greetMe.getName(), name);
         assertFalse("greetMe should be a Unwrapped operation ", greetMe.isUnwrappedCapable());
+    }
+
+    public void testImport() throws Exception {
+        setUpWSDL(IMPORT_WSDL_PATH);
+        TypeInfo types = serviceInfo.getTypeInfo();
+        assertNotNull(types);
+        assertNotNull(types.getSchemas());
     }
 
 }

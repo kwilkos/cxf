@@ -31,17 +31,26 @@ import org.apache.ws.commons.schema.resolver.URIResolver;
  */
 public class XmlSchemaURIResolver implements URIResolver {
 
-    public InputSource resolveEntity(String targetNamespace, String schemaLocation, String baseUri) {
+    private org.apache.cxf.resource.URIResolver resolver;
+
+    public XmlSchemaURIResolver() {
         try {
-            org.apache.cxf.resource.URIResolver resolver = 
-                new org.apache.cxf.resource.URIResolver(baseUri, schemaLocation, getClass());
-            if (resolver.isResolved()) {
-                InputSource source = new InputSource(resolver.getInputStream());
-                source.setSystemId(schemaLocation);
-                return source;
-            }
+            resolver = new org.apache.cxf.resource.URIResolver();
         } catch (IOException e) {
             // move on...
+        }
+    }
+
+    public InputSource resolveEntity(String targetNamespace, String schemaLocation, String baseUri) {
+        try {
+            resolver.resolveStateful(baseUri, schemaLocation, getClass());
+        } catch (IOException e) {
+            // move on...
+        }
+        if (resolver.isResolved()) {
+            InputSource source = new InputSource(resolver.getInputStream());
+            source.setSystemId(schemaLocation);
+            return source;
         }
 
         return new InputSource(schemaLocation);
