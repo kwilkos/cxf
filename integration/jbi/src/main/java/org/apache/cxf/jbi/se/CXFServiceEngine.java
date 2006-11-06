@@ -42,7 +42,7 @@ import org.apache.cxf.jbi.se.state.ServiceEngineStateFactory;
 import org.apache.cxf.jbi.se.state.ServiceEngineStateMachine;
 
 
-/** A JBI component.  Initializes the Celtix JBI transport
+/** A JBI component.  Initializes the CXF JBI transport
  */
 public class CXFServiceEngine implements ComponentLifeCycle, Component {
     
@@ -113,19 +113,19 @@ public class CXFServiceEngine implements ComponentLifeCycle, Component {
     // Implementation of javax.jbi.component.Component
     
     public final ComponentLifeCycle getLifeCycle() {
-        LOG.fine("CeltixServiceEngine returning life cycle");
+        LOG.fine("CXFServiceEngine returning life cycle");
         return this;
     }
     
     public final ServiceUnitManager getServiceUnitManager() {
-        LOG.fine("CeltixServiceEngine return service unit manager");
+        LOG.fine("CXFServiceEngine return service unit manager");
         return AbstractServiceEngineStateMachine.getSUManager();
     }
     
     public final Document getServiceDescription(final ServiceEndpoint serviceEndpoint) {
         Document doc = 
             AbstractServiceEngineStateMachine.getSUManager().getServiceDescription(serviceEndpoint);
-        LOG.fine("CeltixServiceEngine returning service description: " + doc);
+        LOG.fine("CXFServiceEngine returning service description: " + doc);
         return doc;
     }
     

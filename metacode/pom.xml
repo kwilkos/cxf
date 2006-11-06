@@ -75,8 +75,8 @@ under the License.
                     <attach>true</attach>
                     <quiet>true</quiet>
                     <bottom>-</bottom>
-                    <header>CeltiXfire API</header>
-                    <footer>CeltiXfire API</footer>
+                    <header>Apache CXF API</header>
+                    <footer>Apache CXF API</footer>
                     <sourcepath>${basedir}/target/generated/src/main/java</sourcepath>
                     <subpackages>org.apache.cxf</subpackages>
                 </configuration>

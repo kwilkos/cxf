@@ -519,7 +519,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
                 }
             } else {
                 // we will never receive a non-oneway invocation in pub-sub
-                // domain from Celtix client - however a mis-behaving pure JMS
+                // domain from CXF client - however a mis-behaving pure JMS
                 // client could conceivably make suce an invocation, in which
                 // case we silently discard the reply
                 LOG.log(Level.WARNING,

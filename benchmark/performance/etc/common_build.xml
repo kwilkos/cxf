@@ -1,4 +1,4 @@
-<project name="CeltiXfire common build file" default="build">
+<project name="CXF common build file" default="build">
 
 
     <property environment="env"/>
@@ -39,7 +39,7 @@
         <equals arg1="${ant.java.version}" arg2="1.5"/>
     </condition>
 
-    <fail message="CeltiXfire requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
+    <fail message="CXF requires Java version 1.5 or higher. You are currently using Java version ${ant.java.version}."
         unless="is.java.version.15"/>
 
 

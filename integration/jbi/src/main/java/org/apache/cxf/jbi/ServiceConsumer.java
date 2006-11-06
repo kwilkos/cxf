@@ -23,7 +23,7 @@ package org.apache.cxf.jbi;
 import javax.jbi.component.ComponentContext;
 
 /**
- * Defines a service consumer to be started by the Celtix Service
+ * Defines a service consumer to be started by the CXF Service
  * Engine.
  * 
  */

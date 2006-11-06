@@ -22,7 +22,7 @@
     <artifactId>cxf-rt-ws-addr</artifactId>
     <packaging>jar</packaging>
     <name>CXF Runtime WS Addressing</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>

@@ -36,7 +36,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-/** Manage deployment of service units to the Celtix service engine
+/** Manage deployment of service units to the CXF service engine
  * 
  */
 public class CXFServiceUnitManager implements ServiceUnitManager {

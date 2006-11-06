@@ -53,7 +53,7 @@ import org.apache.cxf.jbi.transport.JBITransportFactory;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 
 /**
- * Wraps a Celtix service or client.
+ * Wraps a CXF service or client.
  */
 public class CXFServiceUnit {
     

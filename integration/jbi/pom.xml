@@ -24,7 +24,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-M1-SNAPSHOT</version>
     <name>CXF JBI Integration</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>

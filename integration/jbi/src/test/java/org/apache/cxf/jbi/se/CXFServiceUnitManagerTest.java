@@ -37,7 +37,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
     private static final Logger LOG = LogUtils.getL7dLogger(CXFServiceUnitManagerTest.class);
 
     //private static final String CELTIX_CONFIG = 
-    //    "/components/CeltixServiceEngine/version_1/META-INF/celtix-config.xml";
+    //    "/components/CXFServiceEngine/version_1/META-INF/celtix-config.xml";
     private CXFServiceUnitManager csuManager;
     private ComponentContext ctx = EasyMock.createMock(ComponentContext.class);
     private Bus bus;    

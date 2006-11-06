@@ -57,11 +57,11 @@ public class HeaderTesterImpl implements HeaderTester {
                           Holder<SOAPHeaderData> headerInfo) {
         System.out.println("outHeader invoked");
 
-        System.out.println("\tSetting originator: Celtix server");
+        System.out.println("\tSetting originator: CXF server");
         System.out.println("\tSetting message: outHeader invocation succeeded");
 
         SOAPHeaderData sh = new SOAPHeaderData();
-        sh.setOriginator("Celtix server");
+        sh.setOriginator("CXF server");
         sh.setMessage("outHeader invocation succeeded");
         headerInfo.value = sh;
 
@@ -77,10 +77,10 @@ public class HeaderTesterImpl implements HeaderTester {
         System.out.println("\tGetting Originator: " + headerInfo.value.getOriginator());
         System.out.println("\tGetting Message: " + headerInfo.value.getMessage());
 
-        System.out.println("\tSetting originator: Celtix server");
+        System.out.println("\tSetting originator: CXF server");
         System.out.println("\tSetting message: inoutHeader invocation succeeded");
 
-        headerInfo.value.setOriginator("Celtix server");
+        headerInfo.value.setOriginator("CXF server");
         headerInfo.value.setMessage("inoutHeader invocation succeeded");
 
         InoutHeaderResponse iohr = new InoutHeaderResponse();

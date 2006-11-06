@@ -22,7 +22,7 @@
     <artifactId>cxf-rt-bindings</artifactId>
     <packaging>pom</packaging>
     <name>CXF Runtime Bindings</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/CeltiXfire+space</url>
+    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>

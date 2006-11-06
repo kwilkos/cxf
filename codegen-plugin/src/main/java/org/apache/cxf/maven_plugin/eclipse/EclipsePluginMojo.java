@@ -22,7 +22,6 @@ package org.apache.cxf.maven_plugin.eclipse;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.helpers.FileUtils;
 import org.apache.cxf.tools.wsdl2java.frontend.jaxws.VelocityWriter;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -48,7 +46,6 @@ import org.apache.velocity.app.Velocity;
  */
 public class EclipsePluginMojo extends AbstractMojo {
     private static final String LIB_PATH = "lib";
-    private static final String PLUGIN_XML = "plugin.xml";
     private static final String ECLIPSE_PLUGIN_TEMPLATE = 
         "/org/apache/cxf/maven_plugin/eclipse/3.0/plugin.xml.vm";
     /**
@@ -66,123 +63,38 @@ public class EclipsePluginMojo extends AbstractMojo {
     java.util.Set dependencies;
 
     /**
-     * @parameter  expression="${project.build.directory}"
+     * @parameter  expression="${project.build.directory}/plugin.xml";
      * @required
      */
-    String targetDirectory;
+    File targetFile;
 
-    /**
-     * @parameter
-     */
-    String[] excludes;
 
-    /**
-     * @parameter
-     */
-    String license;
 
-    private File baseDir;
-    private File libPath;
-    private File zipFile;
-
-    private void init() {
-        baseDir = new File(targetDirectory, project.getGroupId() + "_" + project.getVersion());
-        libPath = new File(baseDir, LIB_PATH);
-        zipFile = new File(targetDirectory, project.getGroupId() + "_" + project.getVersion() + ".zip");
-
-        if (baseDir.exists()) {
-            FileUtils.removeDir(baseDir);
-        }
-
-        if (!libPath.exists()) {
-            FileUtils.mkDir(libPath);
-        }
-
-        if (!libPath.exists()) {
-            throw new RuntimeException("Can not create lib dir: " + libPath);
-        }
-    }
-
-    // This exclude support regular expression ;-)
-    private boolean isExclued(File file) {
-        if (file == null || !file.exists()) {
-            return true;
-        }
-        if (excludes == null || excludes.length == 0) {
-            System.err.println(" excludes is NULL");
-            return false;
-        }
-        for (int i = 0; i < excludes.length; i++) {
-            if (!StringUtils.isEmpty(StringUtils.getFound(file.getName(), excludes[i]))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void copyLicense() throws IOException {
-        File licFile = new File(license);
-        if (licFile != null && licFile.exists()) {
-            org.apache.tools.ant.util.FileUtils fileUtils = org.apache.tools.ant.util.FileUtils
-                .newFileUtils();
-            fileUtils.copyFile(licFile, new File(baseDir, "LICENSE"));
-        }
-    }
-
-    private List copyJars() throws Exception {
+    private List listJars() throws Exception {
         List jars = new ArrayList();
         if (dependencies != null && !dependencies.isEmpty()) {            
-            org.apache.tools.ant.util.FileUtils fileUtils = org.apache.tools.ant.util.FileUtils
-                .newFileUtils();
             for (Iterator it = dependencies.iterator(); it.hasNext();) {
                 Artifact artifact = (Artifact)it.next();
                 File oldJar = artifact.getFile();
-                if (isExclued(oldJar)) {
-                    continue;
-                }
-
-                File newJar = new File(libPath, artifact.getFile().getName());
-                if (!oldJar.exists()) {
-                    System.err.println("file : " + oldJar + " is not exist");
-                }
-                try {
-                    fileUtils.copyFile(oldJar, newJar);
-                } catch (IOException e) {
-                    System.err.println("Copy file " + oldJar + " to " + newJar + " failed!");
-                    e.printStackTrace();
-                    throw new MojoExecutionException(e.getMessage(), e);
-                }
-                jars.add(newJar);
+                jars.add(oldJar);
             }            
         }
         return jars;
     }
 
     public void execute() throws MojoExecutionException, MojoFailureException {
-        init();
         
         try {
-            generatePluginXML(copyJars(), new File(baseDir, PLUGIN_XML));
-            copyLicense();
+            generatePluginXML(listJars());
         } catch (Exception e) {
             e.printStackTrace();
             throw new MojoExecutionException(e.getMessage(), e);
         }
-        
-        zip();
-        cleanUp();
     }
 
-    private void cleanUp() {
-        FileUtils.removeDir(baseDir);
-    }
-
-    private void zip() {
-        Zipper.zip(baseDir, zipFile);
-    }
 
     private String getVelocityLogFile(String log) {
-        return new File(targetDirectory, log).toString();
+        return new File(targetFile.getParentFile(), log).toString();
     }
 
     private String getVersion() {
@@ -201,7 +113,7 @@ public class EclipsePluginMojo extends AbstractMojo {
 
     }
 
-    private void generatePluginXML(List jars, File targetFile) throws Exception {
+    private void generatePluginXML(List jars) throws Exception {
         initVelocity();
 
         Template tmpl = null;
