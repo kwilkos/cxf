@@ -200,6 +200,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         File file = null;
         try {
             file = File.createTempFile(xsdFile, ".xsd");
+            file.deleteOnExit();
         } catch (IOException e) {
             e.printStackTrace();
         }

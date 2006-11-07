@@ -92,7 +92,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
         if (paramNumber != -1) {
             String[] names = ParamReader.getParameterNamesFromDebugInfo(method);
 
-            // get the spcific parameter name from the parameter Number
+            // get the specific parameter name from the parameter Number
             if (names != null && names[paramNumber] != null) {
                 paramName = names[paramNumber];
                 addMethodName = false;

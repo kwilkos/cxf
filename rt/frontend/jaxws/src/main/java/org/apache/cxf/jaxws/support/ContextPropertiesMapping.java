@@ -30,8 +30,9 @@ import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 
-// Do some context mapping work from rt-core to jaxws stander
-// NOTE if there some change in cxf Message property name, this class should be update
+// Do some context mapping work from rt-core to jaxws standard.
+// NOTE if there are changes in cxf Message property names, this
+// class should be updated.
 
 public final class ContextPropertiesMapping {    
     

@@ -104,7 +104,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                     p.getName().getLocalPart());
 
             if (!elName.getLocalPart().equals(name.getLocalPart())) {
-                String expMessage = "Parameter " + name + " does not equal to the name ["
+                String expMessage = "Parameter " + name + " is not equal to the name ["
                                     + elName.getLocalPart() + "] in the servicemodel!";
                 throw new SoapFault(expMessage, ((SoapMessage)message).getVersion().getSender());
             }

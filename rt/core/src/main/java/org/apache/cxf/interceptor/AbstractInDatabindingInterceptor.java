@@ -37,6 +37,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -161,15 +162,17 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
      */
     protected MessagePartInfo findMessagePart(Exchange exchange, Collection<OperationInfo> operations,
                                               QName name, boolean client, int index) {
+        Endpoint ep = exchange.get(Endpoint.class);
         MessagePartInfo lastChoice = null;
         for (Iterator<OperationInfo> itr = operations.iterator(); itr.hasNext();) {
             OperationInfo op = itr.next();
 
-            MessageInfo msgInfo = null;
+            BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
+            BindingMessageInfo msgInfo = null;
             if (client) {
-                msgInfo = op.getOutput();
+                msgInfo = boi.getOutput();
             } else {
-                msgInfo = op.getInput();
+                msgInfo = boi.getInput();
             }
 
             if (msgInfo == null) {
@@ -184,10 +187,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             }
 
             MessagePartInfo p = (MessagePartInfo)msgInfo.getMessageParts().get(index);
-
             if (name.equals(p.getConcreteName())) {
-                Endpoint ep = exchange.get(Endpoint.class);
-                BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
                 exchange.put(BindingOperationInfo.class, boi);
                 exchange.setOneWay(op.isOneWay());
                 return p;

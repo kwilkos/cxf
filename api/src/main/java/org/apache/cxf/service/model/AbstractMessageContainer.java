@@ -59,7 +59,7 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     }
 
     /**
-     * Adds an message part to this conainer.
+     * Adds a message part to this container.
      *
      * @param name  the qualified name of the message part.
      * @param clazz the type of the message part.
@@ -78,7 +78,7 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
                                         name));
     }    
     /**
-     * Adds an message part to this container.
+     * Adds a message part to this container.
      *
      * @param part the message part.
      */

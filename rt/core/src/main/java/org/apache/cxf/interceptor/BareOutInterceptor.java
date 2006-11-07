@@ -34,7 +34,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
         setPhase(Phase.MARSHAL);
     }
 
-    public void handleMessage(Message message) {      
+    public void handleMessage(Message message) {
         Exchange exchange = message.getExchange();
         BindingOperationInfo operation = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
             .getName());
@@ -65,19 +65,18 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             if (objs != null) {
                 Object[] args = objs.toArray();
                 Object[] els = parts.toArray();
-                        
+
                 for (int idx = 0; idx < countParts; idx++) {
                     Object arg = args[idx];
                     MessagePartInfo part = (MessagePartInfo)els[idx];
                     if (part.getProperty(MessagePartInfo.KEY_SKIPPED) == null) {
-                        //this part should be in header, should donot write to soap body
+                        // not in header, write to soap body
                         dataWriter.write(arg, part, message);
-                    }                                        
+                    }
                 }
             }
         }
         message.getInterceptorChain().finishSubChain();
     }
-    
     
 }

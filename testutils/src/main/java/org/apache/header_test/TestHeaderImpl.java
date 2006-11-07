@@ -29,6 +29,8 @@ import org.apache.header_test.types.TestHeader2Response;
 import org.apache.header_test.types.TestHeader3;
 import org.apache.header_test.types.TestHeader3Response;
 import org.apache.header_test.types.TestHeader5;
+import org.apache.header_test.types.TestHeader6;
+import org.apache.header_test.types.TestHeader6Response;
 
 
 @WebService(serviceName = "SOAPHeaderService", 
@@ -97,4 +99,18 @@ public class TestHeaderImpl implements TestHeader {
         return in;
     }
     
+    public TestHeader6Response testHeaderPartBeforeBodyPart(
+        Holder<TestHeader3> inoutHeader,
+        TestHeader6 in) {
+        
+        if (inoutHeader.value == null) {
+            throw new IllegalArgumentException("TestHeader3 part not found.");
+        }
+        TestHeader6Response returnVal = new TestHeader6Response();
+        returnVal.setResponseType(inoutHeader.value.getRequestType());
+        
+        inoutHeader.value.setRequestType(in.getRequestType());
+        return returnVal;
+    }
+
 }

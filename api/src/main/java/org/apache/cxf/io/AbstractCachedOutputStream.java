@@ -203,6 +203,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
         } else {
             tempFile = File.createTempFile("att", "tmp", outputDir);
         }
+        tempFile.deleteOnExit();
         currentStream = new BufferedOutputStream(new FileOutputStream(tempFile));
         currentStream.write(bytes);
         inmem = false;

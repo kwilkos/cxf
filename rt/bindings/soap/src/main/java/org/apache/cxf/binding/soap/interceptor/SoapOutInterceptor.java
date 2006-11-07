@@ -94,7 +94,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 }
             }
             xtw.writeEndElement();            
-            // Write Envelop end element
+            // Write Envelope end element
             xtw.writeEndElement();
             
             xtw.flush();
@@ -120,7 +120,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         if (bmi == null) {
             return;
         } else {
-            parts = bmi.getMessageParts();
+            parts = bmi.getMessageInfo().getMessageParts();
         } 
         if (parts.size() > 0) {
             List<?> objs = message.getContent(List.class);

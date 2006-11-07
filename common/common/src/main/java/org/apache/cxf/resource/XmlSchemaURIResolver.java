@@ -48,6 +48,13 @@ public class XmlSchemaURIResolver implements URIResolver {
             // move on...
         }
         if (resolver.isResolved()) {
+            if (resolver.getURI().isAbsolute()) {
+                // When importing a relative file,
+                // setSystemId with an absolute path so the
+                // resolver finds any files which that file
+                // imports with locations relative to it.
+                schemaLocation = resolver.getURI().toString();
+            }
             InputSource source = new InputSource(resolver.getInputStream());
             source.setSystemId(schemaLocation);
             return source;

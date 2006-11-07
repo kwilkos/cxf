@@ -34,11 +34,11 @@ import org.apache.type_test.types2.StructWithAnyArrayLax;
 import org.apache.type_test.types2.StructWithAnyStrict;
 
 public class SOAPRpcLitClientTypeTest extends AbstractTypeTestClient5 {
-    static final String WSDL_PATH = "/wsdl/type_test/type_test_rpclit_soap.wsdl";
+    protected static final String WSDL_PATH = "/wsdl/type_test/type_test_rpclit_soap.wsdl";
 
-    static final QName SERVICE_NAME = new QName("http://apache.org/type_test/rpc", "SOAPService");
+    protected static final QName SERVICE_NAME = new QName("http://apache.org/type_test/rpc", "SOAPService");
 
-    static final QName PORT_NAME = new QName("http://apache.org/type_test/rpc", "SOAPPort");
+    protected static final QName PORT_NAME = new QName("http://apache.org/type_test/rpc", "SOAPPort");
 
     public SOAPRpcLitClientTypeTest(String name) {
         super(name);

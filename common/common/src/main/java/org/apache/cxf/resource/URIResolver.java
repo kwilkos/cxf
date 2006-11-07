@@ -290,7 +290,10 @@ public class URIResolver {
     }
 
     public boolean isFile() {
-        return file.exists();
+        if (file != null) {
+            return file.exists();
+        }
+        return false;
     }
 
     public File getFile() {

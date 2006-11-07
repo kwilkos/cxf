@@ -119,7 +119,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
         // rpc out-message-part-info class mapping
         Operation op = (Operation)o.getProperty(WSDLServiceBuilder.WSDL_OPERATION);
-        initalizeClassInfo(o, method, op == null ? null : op.getParameterOrdering());
+        initializeClassInfo(o, method, op == null ? null : op.getParameterOrdering());
 
     }
 
@@ -172,7 +172,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
      * @param o
      * @param method
      */
-    protected void initalizeClassInfo(OperationInfo o, Method method, List<String> paramOrder) {
+    protected void initializeClassInfo(OperationInfo o, Method method, List<String> paramOrder) {
         if (isWrapped(method)) {
             if (o.hasInput()) {
                 MessageInfo input = o.getInput();
@@ -189,7 +189,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             setFaultClassInfo(o, method);
             o = o.getUnwrappedOperation();
         } else if (o.isUnwrappedCapable()) {
-            // remove the unrwrapped operation because it will break the
+            // remove the unwrapped operation because it will break the
             // the WrapperClassOutInterceptor, and in general makes
             // life more confusing
             o.setUnwrappedOperation(null);
@@ -197,7 +197,6 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             setFaultClassInfo(o, method);
         }
         
-        // Initialize return type
         Class<?>[] paramTypes = method.getParameterTypes(); 
         Type[] genericTypes = method.getGenericParameterTypes();
         for (int i = 0; i < paramTypes.length; i++) {
@@ -207,6 +206,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             initializeParameter(o, method, i, paramType, genericType);
         }
         
+        // Initialize return type
         Class paramType = method.getReturnType();
         Type genericType = method.getGenericReturnType();
         
@@ -226,33 +226,33 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         if (isIn && !isOut) {
             QName name = getInPartName(o, method, i);
             MessagePartInfo part = o.getInput().getMessagePart(name);
-            initializeParameter(part, paramType, genericType, i);
+            initializeParameter(part, paramType, genericType);
         } else if (!isIn && isOut) {
             QName name = getOutPartName(o, method, i);
             MessagePartInfo part = o.getOutput().getMessagePart(name);
-            initializeParameter(part, paramType, genericType, i);
+            initializeParameter(part, paramType, genericType);
         } else if (isIn && isOut) {
             QName name = getOutPartName(o, method, i);
             MessagePartInfo part = o.getInput().getMessagePart(name);
             part.setProperty(JaxWsServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
-            initializeParameter(part, paramType, genericType, i);
+            initializeParameter(part, paramType, genericType);
             
             part = o.getOutput().getMessagePart(name);
             part.setProperty(JaxWsServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
-            initializeParameter(part, paramType, genericType, i);
+            initializeParameter(part, paramType, genericType);
         }
     }
 
-    private void initializeParameter(MessagePartInfo part, Class rawClass, Type type, int i) {
+    private void initializeParameter(MessagePartInfo part, Class rawClass, Type type) {
         if (rawClass.equals(Holder.class) && type instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType)type;
-            rawClass = getHolderClass(paramType, i);
+            rawClass = getHolderClass(paramType);
         }
         part.setProperty(GENERIC_TYPE, type);
         part.setTypeClass(rawClass);
     }
 
-    private static Class getHolderClass(ParameterizedType paramType, int idx) {
+    private static Class getHolderClass(ParameterizedType paramType) {
         Object rawType = paramType.getActualTypeArguments()[0];
         Class rawClass;
         if (rawType instanceof GenericArrayType) {

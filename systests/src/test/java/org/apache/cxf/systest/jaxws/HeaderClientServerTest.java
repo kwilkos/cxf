@@ -45,6 +45,8 @@ import org.apache.header_test.types.TestHeader2Response;
 import org.apache.header_test.types.TestHeader3;
 import org.apache.header_test.types.TestHeader3Response;
 import org.apache.header_test.types.TestHeader5;
+import org.apache.header_test.types.TestHeader6;
+import org.apache.header_test.types.TestHeader6Response;
 
 
 public class HeaderClientServerTest extends ClientServerTestBase {
@@ -90,9 +92,6 @@ public class HeaderClientServerTest extends ClientServerTestBase {
                        
     }  
 
-    
-    
-     
     public void testInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -197,6 +196,41 @@ public class HeaderClientServerTest extends ClientServerTestBase {
         } 
     } 
     
+    public void testHeaderPartBeforeBodyPart() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
+        assertNotNull(service);
+        proxy = service.getPort(portName, TestHeader.class);
+        
+        try {
+            TestHeader6 in = new TestHeader6();
+            String val = new String(TestHeader6.class.getSimpleName());
+            Holder<TestHeader3> inoutHeader = new Holder<TestHeader3>();
+            for (int idx = 0; idx < 2; idx++) {
+                val += idx;                
+                in.setRequestType(val);
+                inoutHeader.value = new TestHeader3();
+                TestHeader6Response returnVal = proxy.testHeaderPartBeforeBodyPart(inoutHeader, in);
+                //inoutHeader copied to return
+                //in copied to inoutHeader
+                assertNotNull(returnVal);
+                assertNull(returnVal.getResponseType());
+                assertEquals(val, inoutHeader.value.getRequestType());
+                
+                in.setRequestType(null);
+                inoutHeader.value.setRequestType(val);
+                returnVal = proxy.testHeaderPartBeforeBodyPart(inoutHeader, in);
+                assertNotNull(returnVal);
+                assertEquals(val, returnVal.getResponseType());
+                assertNull(inoutHeader.value.getRequestType());
+            }
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        } 
+    }
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HeaderClientServerTest.class);
     }

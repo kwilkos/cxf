@@ -57,11 +57,11 @@ public interface Exchange extends Map<String, Object> {
      */
     void setConduit(Conduit conduit);
     
-
     /**
      * @return true if the exchange is known to be a one-way exchange
      */
     boolean isOneWay();
+
     /**
      * 
      * @param b true if the exchange is known to be a one-way exchange
@@ -69,15 +69,15 @@ public interface Exchange extends Map<String, Object> {
     void setOneWay(boolean b);
     
     /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  (T)get(key.getName());
+     * Convenience method for storing/retrieving typed objects from the map.
+     * equivalent to:  (T)get(key.getName());
      * @param <T> key
      * @return
      */
     <T> T get(Class<T> key);
     /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  put(key.getName(), value);
+     * Convenience method for storing/retrieving typed objects from the map.
+     * equivalent to:  put(key.getName(), value);
      * @param <T> key
      * @return
      */

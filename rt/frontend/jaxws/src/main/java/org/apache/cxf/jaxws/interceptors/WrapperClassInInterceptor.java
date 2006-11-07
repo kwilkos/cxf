@@ -49,7 +49,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         if (boi == null) {
             return;
         }
-                
+               
         Method method = message.getExchange().get(Method.class);
 
         if (method != null && method.getName().endsWith("Async")) {
@@ -61,21 +61,10 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
         }        
 
         
-        if (method != null && method.getName().endsWith("Async")) {
-            Class<?> retType = method.getReturnType();
-            if (retType.getName().equals("java.util.concurrent.Future") 
-                || retType.getName().equals("javax.xml.ws.Response")) {
-                return;
-            }
-
-        }
-      
-
-
         if (boi != null && boi.isUnwrappedCapable()) {
             BindingOperationInfo boi2 = boi.getUnwrappedOperation();
             
-            // Sometimes, an uperation can be unwrapped according to WSDLServiceFactory,
+            // Sometimes, an operation can be unwrapped according to WSDLServiceFactory,
             // but not according to JAX-WS. We should unify these at some point, but
             // for now check for the wrapper class.
             MessageInfo messageInfo = message.get(MessageInfo.class);
@@ -136,7 +125,7 @@ public class WrapperClassInInterceptor extends AbstractPhaseInterceptor<Message>
                 } else {
                     lst.clear();
                 }
-            }           
+            }
         }
     }
 

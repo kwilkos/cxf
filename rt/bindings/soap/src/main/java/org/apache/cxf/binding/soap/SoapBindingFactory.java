@@ -262,6 +262,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                     bmsg.addExtensor(headerInfo);
                 }
             }
+            // Exclude the header parts from the message part list.
+            bmsg.setMessageParts(messageParts);
         }
 
         SoapBodyInfo bodyInfo = new SoapBodyInfo();

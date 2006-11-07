@@ -36,8 +36,9 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.MessageInfo;
+//import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -75,17 +76,30 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         Endpoint ep = exchange.get(Endpoint.class);
         Service service = ep.getService();
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
-        MessageInfo msgInfo = message.get(MessageInfo.class);
+        // XXX - Should the BindingMessageInfo.class be put on
+        // the message?
+        //MessageInfo msgInfo = message.get(MessageInfo.class);
+        BindingMessageInfo msgInfo = null;
+        
+        boolean client = isRequestor(message);
         
         Collection<OperationInfo> ops = null;
         if (bop == null) {
             ops = new ArrayList<OperationInfo>();
             ops.addAll(service.getServiceInfo().getInterface().getOperations());
         } else if (msgInfo == null) {
-            msgInfo = getMessageInfo(message, bop, exchange);
+            // XXX - Is the call to
+            // AbstractInDatabindingInterceptor.getMessageInfo()
+            // necessary?  Should we put the BindingMessageInfo on
+            // the message instead of the MessageInfo?
+            // msgInfo = getMessageInfo(message, bop, exchange);
+            getMessageInfo(message, bop, exchange);
+            if (client) {
+                msgInfo = bop.getOutput();
+            } else {
+                msgInfo = bop.getInput();
+            }
         }
-        
-        boolean client = isRequestor(message);
         
         int paramNum = 0;
         while (StaxUtils.toNextElement(xmlReader)) {
@@ -93,12 +107,13 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             Object o = null;
             
             MessagePartInfo p;
-            if (msgInfo != null) {
-                p = msgInfo.getMessagePartByIndex(paramNum);
+            if (msgInfo != null && msgInfo.getMessageParts() != null) {
+                assert msgInfo.getMessageParts().size() > paramNum;
+                p = msgInfo.getMessageParts().get(paramNum);
             } else {
                 p = findMessagePart(exchange, ops, elName, client, paramNum);
             }
-            
+
             if (p == null) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
             }

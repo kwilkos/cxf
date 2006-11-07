@@ -80,7 +80,7 @@ public interface Message extends Map<String, Object> {
     String getAttachmentMimeType();
 
     /**
-     * Retreive the encapsulated content as a particular type (a result type
+     * Retrieve the encapsulated content as a particular type (a result type
      * if message is outbound, a source type if message is inbound)
      * 
      * @param format the expected content format 
@@ -103,15 +103,15 @@ public interface Message extends Map<String, Object> {
     Set<Class<?>> getContentFormats();
     
     /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  (T)get(key.getName());
+     * Convenience method for storing/retrieving typed objects from the map.
+     * equivalent to:  (T)get(key.getName());
      * @param <T> key
      * @return
      */
     <T> T get(Class<T> key);
     /**
-     * Convienience method for storing/retrieving typed objects from the map.
-     * equivilent to:  put(key.getName(), value);
+     * Convenience method for storing/retrieving typed objects from the map.
+     * equivalent to:  put(key.getName(), value);
      * @param <T> key
      * @return
      */

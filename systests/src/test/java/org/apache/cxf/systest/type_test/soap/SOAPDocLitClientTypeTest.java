@@ -34,9 +34,9 @@ import org.apache.type_test.types2.StructWithAnyArrayLax;
 import org.apache.type_test.types2.StructWithAnyStrict;
 
 public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
-    static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
-    static final QName SERVICE_NAME = new QName("http://apache.org/type_test/doc", "SOAPService");
-    static final QName PORT_NAME = new QName("http://apache.org/type_test/doc", "SOAPPort");
+    protected static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
+    protected static final QName SERVICE_NAME = new QName("http://apache.org/type_test/doc", "SOAPService");
+    protected static final QName PORT_NAME = new QName("http://apache.org/type_test/doc", "SOAPPort");
 
     public SOAPDocLitClientTypeTest(String name) {
         super(name);
