@@ -71,7 +71,6 @@ public class WrappedServiceTest extends AbstractRestTest {
         assertEquals("updateCustomer", bop.getName().getLocalPart());
         
         // TEST POST/GETs
-        Thread.sleep(100000000);
         Document res = get("http://localhost:9001/customers");
         assertNotNull(res);
         
