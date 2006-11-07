@@ -77,8 +77,11 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                     StaxUtils.writeElement(eleHeaders, xtw, true, false);
                 }
             }
-            handleHeaderPart(preexistingHeaders, message);
-       
+            boolean endedHeader = handleHeaderPart(preexistingHeaders, message);
+            if (preexistingHeaders && !endedHeader) {
+                xtw.writeEndElement();
+            }
+
             xtw.writeStartElement(soapVersion.getPrefix(), 
                                   soapVersion.getBody().getLocalPart(),
                                   soapVersion.getNamespace());
@@ -105,33 +108,34 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         }
     }
     
-    private void handleHeaderPart(boolean preexistingHeaders, SoapMessage message) {
+    private boolean handleHeaderPart(boolean preexistingHeaders, SoapMessage message) {
         //add MessagePart to soapHeader if necessary
+        boolean endedHeader = false;
         Exchange exchange = message.getExchange();
         BindingOperationInfo bop = (BindingOperationInfo)exchange.get(BindingOperationInfo.class
                                                                             .getName());
         if (bop == null) {
-            return;
+            return endedHeader;
         }
         XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);        
         boolean startedHeader = false;
         List<MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
         BindingMessageInfo bmi = isRequestor(message) ? bop.getInput() : bop.getOutput();
         if (bmi == null) {
-            return;
+            return endedHeader;
         } else {
             parts = bmi.getMessageInfo().getMessageParts();
         } 
         if (parts.size() > 0) {
             List<?> objs = message.getContent(List.class);
             if (objs == null) {
-                return;
+                return endedHeader;
             }            
             Object[] args = objs.toArray();
             SoapVersion soapVersion = message.getVersion();
             List<SoapHeaderInfo> headers = bmi.getExtensors(SoapHeaderInfo.class);
             if (headers == null) {
-                return;
+                return endedHeader;
             }
             for (SoapHeaderInfo header : headers) {
                 Object arg = args[header.getSequence()];
@@ -161,6 +165,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             if (startedHeader || preexistingHeaders) {
                 try {
                     xtw.writeEndElement();
+                    endedHeader = true;
                 } catch (XMLStreamException e) {
                     throw new SoapFault(
                         new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
@@ -168,6 +173,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
                 }
             }
         }
+        return endedHeader;
     }       
     
     protected boolean isRequestor(Message message) {

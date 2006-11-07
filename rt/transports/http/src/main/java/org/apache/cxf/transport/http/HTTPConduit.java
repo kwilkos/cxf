@@ -449,18 +449,22 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
 
         private void handleResponse() throws IOException {
             Exchange exchange = outMessage.getExchange();
-            if (exchange != null && exchange.isOneWay()) {
+            int responseCode = getResponseCode(connection);
+            if (exchange != null
+                && exchange.isOneWay()
+                && responseCode != HttpURLConnection.HTTP_ACCEPTED) {
                 //oneway operation
                 connection.getInputStream().close();
                 return;
             }
+            
             Message inMessage = new MessageImpl();
             if (exchange != null) {
                 exchange.setInMessage(inMessage);
             }
             InputStream in = null;
             inMessage.put(Message.PROTOCOL_HEADERS, connection.getHeaderFields());
-            inMessage.put(Message.RESPONSE_CODE, getResponseCode(connection));
+            inMessage.put(Message.RESPONSE_CODE, responseCode);
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)connection;
                 in = hc.getErrorStream();

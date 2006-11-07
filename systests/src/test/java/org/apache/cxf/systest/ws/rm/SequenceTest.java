@@ -102,8 +102,11 @@ public class SequenceTest extends ClientServerTestBase {
         }
         setupGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml");
 
+        System.out.println("*** calling once");
         greeter.greetMeOneWay("once");
+        System.out.println("*** calling twice");
         greeter.greetMeOneWay("twice");
+        System.out.println("*** calling thrice");
         greeter.greetMeOneWay("thrice");
 
         // three application messages plus createSequence
@@ -115,13 +118,13 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
-        // createSequenceResponse plus ? partial responses
-        // partial responses not sent!
-        mf.verifyMessages(1, false);
-        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
+        // createSequenceResponse plus 3 partial responses
+        
+        mf.verifyMessages(4, false);
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), null, null, null};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null}, false);
-        mf.verifyAcknowledgements(new boolean[] {false}, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, false}, false);
     }
 
     // --- test utilities ---
