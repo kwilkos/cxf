@@ -155,9 +155,9 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                 Boolean outboundProperty = (Boolean)smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
                 if (outboundProperty.booleanValue()) {
                     try {
-                        SOAPMessage message = null;
-                        message.getSOAPBody();                                               
-                        message = preparemSOAPMessage("resources/greetMeRpcLitRespChanged.xml");
+                        //SOAPMessage message = smc.getMessage();
+                        //message.getSOAPBody();                                               
+                        smc.setMessage(preparemSOAPMessage("resources/greetMeRpcLitRespChanged.xml"));
                     } catch (Exception e) {
                         throw new Fault(e);
                     }
