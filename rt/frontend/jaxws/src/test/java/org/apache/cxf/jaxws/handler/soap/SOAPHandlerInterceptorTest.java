@@ -155,7 +155,8 @@ public class SOAPHandlerInterceptorTest extends TestCase {
                 Boolean outboundProperty = (Boolean)smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
                 if (outboundProperty.booleanValue()) {
                     try {
-                        SOAPMessage message = smc.getMessage();
+                        SOAPMessage message = null;
+                        message.getSOAPBody();                                               
                         message = preparemSOAPMessage("resources/greetMeRpcLitRespChanged.xml");
                     } catch (Exception e) {
                         throw new Fault(e);
@@ -396,7 +397,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         list.add(new SOAPHandler<SOAPMessageContext>() {
             public boolean handleMessage(SOAPMessageContext smc) {
                 try {
-                    SOAPMessage message = smc.getMessage();
+                    smc.getMessage();
                 } catch (Exception e) {
                     throw new Fault(e);
                 }
@@ -515,7 +516,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
             if (qn.equals(soapVersion.getHeader())) {
                 XMLStreamReader filteredReader = new PartialXMLStreamReader(xmlReader, soapVersion.getBody());
 
-                Document doc = StaxUtils.read(filteredReader);
+                StaxUtils.read(filteredReader);
             }
             // advance just past body.
             xmlReader.next();
@@ -555,12 +556,12 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         soapMessage.writeTo(os);
         return os;
     }
-
+/*
     private CachedStream prepareOutputStreamFromSOAPMessage(SOAPMessage soapMessage) throws Exception {
         CachedStream os = new CachedStream();
         soapMessage.writeTo(os);
         return os;
-    }
+    }*/
 
     private class CachedStream extends AbstractCachedOutputStream {
         protected void doFlush() throws IOException {
