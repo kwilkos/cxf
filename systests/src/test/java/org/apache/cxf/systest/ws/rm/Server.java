@@ -28,16 +28,16 @@ import org.apache.cxf.systest.common.TestServerBase;
 
 public class Server extends TestServerBase {
    
-    private static final String ADDRESS = "http://localhost:9020/SoapContext/GreeterPort";
+    private static final String ADDRESS = "http://localhost:9001/SoapContext/ControlPort";
  
     protected void run()  {
 
         SpringBusFactory factory = new SpringBusFactory();
-        Bus bus = factory.createBus("org/apache/cxf/systest/ws/rm/cxf.xml");
+        Bus bus = factory.createBus();
         factory.setDefaultBus(bus);
         setBus(bus);
 
-        GreeterImpl implementor = new GreeterImpl();
+        ControlImpl implementor = new ControlImpl();
         Endpoint.publish(ADDRESS, implementor);
     }
 

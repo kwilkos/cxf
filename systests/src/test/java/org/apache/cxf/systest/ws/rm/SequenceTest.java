@@ -19,16 +19,20 @@
 
 package org.apache.cxf.systest.ws.rm;
 
+import java.util.logging.Logger;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.greeter_control.Control;
+import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.ws.rm.RMConstants;
 
 
 /**
@@ -37,7 +41,19 @@ import org.apache.cxf.systest.common.ClientServerTestBase;
  */
 public class SequenceTest extends ClientServerTestBase {
 
+    private static final Logger LOG = Logger.getLogger(SequenceTest.class.getName());
+    private static final String APP_NAMESPACE = "http://celtix.objectweb.org/greeter_control";
+    private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE + "/types/Greeter/greetMeOneWay";
+    //private static final String GREETME_ACTION = APP_NAMESPACE + "/types/Greeter/greetMe";
+    //private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION + "Response";
+
+    private Control control;
+    private Bus greeterBus;
     private Greeter greeter;
+    private String currentCfgResource;
+    private MessageFlow mf;
+
+    private boolean doTestOnewayAnonymousAcks = true;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -47,45 +63,89 @@ public class SequenceTest extends ClientServerTestBase {
         TestSuite suite = new TestSuite(SequenceTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
-                // special case handling for WS-Addressing system test to avoid
-                // UUID related issue when server is run as separate process
-                // via maven on Win2k
-                /*
-                boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
-                assertTrue("server did not launch correctly", 
-                           launchServer(Server.class, inProcess));
-                */
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
             
             public void setUp() throws Exception {
                 startServers();
-                System.out.println("Started server");
+                LOG.fine("Started server");
 
                 SpringBusFactory bf = new SpringBusFactory();
-                Bus bus = bf.createBus("org/apache/cxf/systest/ws/rm/cxf.xml");
+                Bus bus = bf.createBus();
                 bf.setDefaultBus(bus);
                 setBus(bus);
-                System.out.println("Created client bus");
+                LOG.fine("Created client bus");
             }
         };
     }
 
     public void setUp() throws Exception {
         super.setUp();
-        GreeterService service = new GreeterService(); 
-        System.out.println("Created GreeterService");
-        greeter = service.getGreeterPort();
-        System.out.println("Created Greeter");
+        ControlService service = new ControlService(); 
+        LOG.fine("Created ControlService");
+        control = service.getControlPort();
+        LOG.fine("Created Control");
     }
     
     public void tearDown() {
+        if (null != greeter) {
+            assertTrue("Failed to stop greeter", control.stopGreeter());
+            greeterBus.shutdown(true);
+        }
     }
 
-    //--Tests
+    // --- tests ---
     
-    public void testOneway() {
-        System.out.println("Invoking greetMeOneWay ...");
-        greeter.greetMeOneWay("cxf"); 
+    public void testOnewayAnonymousAcks() throws Exception {
+        if (!doTestOnewayAnonymousAcks) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml");
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+        greeter.greetMeOneWay("thrice");
+
+        // three application messages plus createSequence
+
+        mf.verifyMessages(4, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
+        expectedActions = new String[] {RMConstants.getCreateSequenceAction(), "", "", ""};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
+        // createSequenceResponse plus ? partial responses
+        // partial responses not sent!
+        mf.verifyMessages(1, false);
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false}, false);
+    }
+
+    // --- test utilities ---
+
+    private void setupGreeter(String cfgResource) {
+        
+        SpringBusFactory bf = new SpringBusFactory();
+        greeterBus = bf.createBus(cfgResource);
+        bf.setDefaultBus(greeterBus);
+
+        OutMessageRecorder outRecorder = new OutMessageRecorder();
+        greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
+        greeterBus.getOutInterceptors().add(outRecorder);
+        InMessageRecorder inRecorder = new InMessageRecorder();
+        greeterBus.getInInterceptors().add(inRecorder);
+        currentCfgResource = cfgResource;
+
+        assertTrue("Failed to start greeter", control.startGreeter(cfgResource));
+        
+        GreeterService service = new GreeterService();
+        greeter = service.getGreeterPort();
+ 
+        mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        
     }
 }

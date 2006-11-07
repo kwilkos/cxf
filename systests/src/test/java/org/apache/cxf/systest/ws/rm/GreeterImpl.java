@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.ws.rm;
 
 import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
@@ -41,11 +42,12 @@ import org.apache.cxf.greeter_control.types.SayHiResponse;
             targetNamespace = "http://cxf.apache.org/greeter_control")
 public class GreeterImpl implements Greeter {
 
+    private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
     
     public String greetMe(String arg0) {
-        System.out.println("Executing operation greetMe with parameter: " + arg0);
+        LOG.fine("Executing operation greetMe with parameter: " + arg0);
         String result = arg0.toUpperCase();
-        System.out.println("returning: " + result);
+        LOG.fine("returning: " + result);
         return result;
     }
 
@@ -60,11 +62,11 @@ public class GreeterImpl implements Greeter {
     }
 
     public void greetMeOneWay(String arg0) {
-        System.out.println("Executing operation greetMeOneWay with parameter: " + arg0);
+        LOG.fine("Executing operation greetMeOneWay with parameter: " + arg0);
     }
 
     public void pingMe() throws PingMeFault {
-        System.out.println("Executing operation pingMe");        
+        LOG.fine("Executing operation pingMe");        
     }
 
     public Response<PingMeResponse> pingMeAsync() {
