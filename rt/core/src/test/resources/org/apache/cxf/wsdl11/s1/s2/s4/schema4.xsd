@@ -17,7 +17,9 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<xs:schema version="1.0" targetNamespace="http://apache.org/hello_world_soap_http/types" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema version="1.0" targetNamespace="http://apache.org/hello_world_soap_http/types/s4" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="http://apache.org/hello_world_soap_http/types/s5" schemaLocation="./s5/schema5.xsd"/>
 
   <xs:element name="greetMeOneWay">
     <xs:complexType>

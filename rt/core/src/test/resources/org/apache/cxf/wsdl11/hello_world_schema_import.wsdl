@@ -26,7 +26,7 @@
 		  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <wsdl:types>
 	<xsd:schema>
-	    <xsd:import namespace="http://apache.org/hello_world_soap_http/types" schemaLocation="schema1.xsd"/>
+	    <xsd:import namespace="http://apache.org/hello_world_soap_http/types" schemaLocation="./s1/schema1.xsd"/>
 	</xsd:schema>
     </wsdl:types>
     <wsdl:message name="sayHiRequest">

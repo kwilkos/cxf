@@ -35,26 +35,18 @@ public class URIResolverTest extends TestCase {
         assertEquals("check level 1: ", "file:/c:/tmp1/tmp2/b.xsd", uriResolver.getURI().toString());
 
         try {
-            uriResolver.resolveStateful("./b.xsd", "./tmp3/c.xsd", getClass());
+            uriResolver.resolveStateful("./tmp2/b.xsd", "./tmp3/c.xsd", getClass());
         } catch (IOException ioe) {
             // ignore the io exception, due to file not exist
         }
         assertEquals("check level 2: ", "file:/c:/tmp1/tmp2/tmp3/c.xsd", uriResolver.getURI().toString());
 
         try {
-            uriResolver.resolveStateful("./c.xsd", "./tmp4/d.xsd", getClass());
+            uriResolver.resolveStateful("./tmp3/c.xsd", "./tmp4/d.xsd", getClass());
         } catch (IOException ioe) {
             // ignore the io exception, due to file not exist
         }
         assertEquals("check level 3: ", "file:/c:/tmp1/tmp2/tmp3/tmp4/d.xsd", uriResolver.getURI()
-            .toString());
-
-        try {
-            uriResolver.resolveStateful("file:/c:/tmp1/tmp2/b.xsd", "./tmp4/d.xsd", getClass());
-        } catch (IOException ioe) {
-            // ignore the io exception, due to file not exist
-        }
-        assertEquals("check level 2 again: ", "file:/c:/tmp1/tmp2/tmp4/d.xsd", uriResolver.getURI()
             .toString());
 
     }

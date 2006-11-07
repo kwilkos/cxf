@@ -19,6 +19,9 @@
 
 package org.apache.cxf.wsdl11;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -28,13 +31,19 @@ import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.validation.Schema;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -55,16 +64,25 @@ import org.easymock.classextension.IMocksControl;
 public class WSDLServiceBuilderTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
+
     private static final String WSDL_PATH = "hello_world.wsdl";
+
     private static final String BARE_WSDL_PATH = "hello_world_bare.wsdl";
+
     private static final String IMPORT_WSDL_PATH = "hello_world_schema_import.wsdl";
+
     private Definition def;
+
     private Service service;
+
     private ServiceInfo serviceInfo;
 
     private IMocksControl control;
+
     private Bus bus;
+
     private BindingFactoryManager bindingFactoryManager;
+
     private DestinationFactoryManager destinationFactoryManager;
 
     public void setUp() throws Exception {
@@ -94,8 +112,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
         EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
-        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class))
-            .andReturn(destinationFactoryManager);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andReturn(
+                destinationFactoryManager);
 
         control.replay();
         serviceInfo = wsdlServiceBuilder.buildService(def, service);
@@ -115,7 +133,7 @@ public class WSDLServiceBuilderTest extends TestCase {
 
         assertEquals("Incorrect number of endpoints", serviceInfo.getEndpoints().size(), 1);
         EndpointInfo ei = serviceInfo.getEndpoint(new QName("http://apache.org/hello_world_soap_http",
-                                                            "SoapPort"));
+                "SoapPort"));
         assertNotNull(ei);
         assertEquals("http://schemas.xmlsoap.org/wsdl/soap/", ei.getTransportId());
         assertNotNull(ei.getBinding());
@@ -129,8 +147,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         QName name = new QName(serviceInfo.getName().getNamespaceURI(), "sayHi");
         assertEquals(serviceInfo.getInterface().getOperations().size(), 4);
         OperationInfo sayHi = serviceInfo.getInterface().getOperation(
-                                                                      new QName(serviceInfo.getName()
-                                                                          .getNamespaceURI(), "sayHi"));
+                new QName(serviceInfo.getName().getNamespaceURI(), "sayHi"));
         assertNotNull(sayHi);
         assertEquals(sayHi.getName(), name);
         assertFalse(sayHi.isOneWay());
@@ -150,13 +167,13 @@ public class WSDLServiceBuilderTest extends TestCase {
         MessagePartInfo part = inParts.get(0);
         assertNotNull(part.getXmlSchema());
         assertTrue(part.getXmlSchema() instanceof XmlSchemaElement);
-        
+
         List<MessagePartInfo> outParts = greetMe.getOutput().getMessageParts();
         assertEquals(1, outParts.size());
         part = outParts.get(0);
         assertNotNull(part.getXmlSchema());
         assertTrue(part.getXmlSchema() instanceof XmlSchemaElement);
-        
+
         assertTrue("greatMe should be wrapped", greetMe.isUnwrappedCapable());
         OperationInfo greetMeUnwrapped = greetMe.getUnwrappedOperation();
 
@@ -165,14 +182,14 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals("wrapped part not set", 1, greetMeUnwrapped.getInput().size());
         assertEquals("wrapped part not set", 1, greetMeUnwrapped.getOutput().size());
         assertEquals("wrapper part name wrong", "requestType", greetMeUnwrapped.getInput()
-            .getMessagePartByIndex(0).getName().getLocalPart());
+                .getMessagePartByIndex(0).getName().getLocalPart());
         assertEquals("wrapper part type name wrong", "MyStringType", greetMeUnwrapped.getInput()
-            .getMessagePartByIndex(0).getTypeQName().getLocalPart());
+                .getMessagePartByIndex(0).getTypeQName().getLocalPart());
 
         assertEquals("wrapper part name wrong", "responseType", greetMeUnwrapped.getOutput()
-            .getMessagePartByIndex(0).getName().getLocalPart());
+                .getMessagePartByIndex(0).getName().getLocalPart());
         assertEquals("wrapper part type name wrong", "string", greetMeUnwrapped.getOutput()
-            .getMessagePartByIndex(0).getTypeQName().getLocalPart());
+                .getMessagePartByIndex(0).getTypeQName().getLocalPart());
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
         OperationInfo greetMeOneWay = serviceInfo.getInterface().getOperation(name);
@@ -225,7 +242,7 @@ public class WSDLServiceBuilderTest extends TestCase {
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
         BindingOperationInfo greetMe = bindingInfo.getOperation(name);
         assertNotNull(greetMe);
-        assertEquals(greetMe.getName(), name);        
+        assertEquals(greetMe.getName(), name);
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMeOneWay");
         BindingOperationInfo greetMeOneWay = bindingInfo.getOperation(name);
@@ -248,11 +265,11 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(input);
         assertEquals(input.getMessageInfo().getName().getLocalPart(), "sayHiRequest");
         assertEquals(input.getMessageInfo().getName().getNamespaceURI(),
-                     "http://apache.org/hello_world_soap_http");
+                "http://apache.org/hello_world_soap_http");
         assertEquals(input.getMessageInfo().getMessageParts().size(), 1);
         assertEquals(input.getMessageInfo().getMessageParts().get(0).getName().getLocalPart(), "in");
         assertEquals(input.getMessageInfo().getMessageParts().get(0).getName().getNamespaceURI(),
-                     "http://apache.org/hello_world_soap_http");
+                "http://apache.org/hello_world_soap_http");
         assertTrue(input.getMessageInfo().getMessageParts().get(0).isElement());
         QName elementName = input.getMessageInfo().getMessageParts().get(0).getElementQName();
         assertEquals(elementName.getLocalPart(), "sayHi");
@@ -262,11 +279,11 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(output);
         assertEquals(output.getMessageInfo().getName().getLocalPart(), "sayHiResponse");
         assertEquals(output.getMessageInfo().getName().getNamespaceURI(),
-                     "http://apache.org/hello_world_soap_http");
+                "http://apache.org/hello_world_soap_http");
         assertEquals(output.getMessageInfo().getMessageParts().size(), 1);
         assertEquals(output.getMessageInfo().getMessageParts().get(0).getName().getLocalPart(), "out");
         assertEquals(output.getMessageInfo().getMessageParts().get(0).getName().getNamespaceURI(),
-                     "http://apache.org/hello_world_soap_http");
+                "http://apache.org/hello_world_soap_http");
         assertTrue(output.getMessageInfo().getMessageParts().get(0).isElement());
         elementName = output.getMessageInfo().getMessageParts().get(0).getElementQName();
         assertEquals(elementName.getLocalPart(), "sayHiResponse");
@@ -283,11 +300,11 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(fault);
         assertEquals(fault.getFaultInfo().getName().getLocalPart(), "pingMeFault");
         assertEquals(fault.getFaultInfo().getName().getNamespaceURI(),
-                     "http://apache.org/hello_world_soap_http");
+                "http://apache.org/hello_world_soap_http");
         assertEquals(fault.getFaultInfo().getMessageParts().size(), 1);
         assertEquals(fault.getFaultInfo().getMessageParts().get(0).getName().getLocalPart(), "faultDetail");
         assertEquals(fault.getFaultInfo().getMessageParts().get(0).getName().getNamespaceURI(),
-                     "http://apache.org/hello_world_soap_http");
+                "http://apache.org/hello_world_soap_http");
         assertTrue(fault.getFaultInfo().getMessageParts().get(0).isElement());
         elementName = fault.getFaultInfo().getMessageParts().get(0).getElementQName();
         assertEquals(elementName.getLocalPart(), "faultDetail");
@@ -296,7 +313,7 @@ public class WSDLServiceBuilderTest extends TestCase {
 
     public void testSchema() {
         XmlSchemaCollection schemas = serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST,
-                                                              XmlSchemaCollection.class);
+                XmlSchemaCollection.class);
         assertNotNull(schemas);
         TypeInfo typeInfo = serviceInfo.getTypeInfo();
         assertNotNull(typeInfo);
@@ -305,11 +322,13 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(schemaInfo);
         assertEquals(schemaInfo.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types");
         assertEquals(schemas.read(schemaInfo.getElement()).getTargetNamespace(),
-                     "http://apache.org/hello_world_soap_http/types");
-        // add below code to test the creation of javax.xml.validation.Schema with schema in serviceInfo
+                "http://apache.org/hello_world_soap_http/types");
+        // add below code to test the creation of javax.xml.validation.Schema
+        // with schema in serviceInfo
         Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);
         assertNotNull(schema);
     }
+
     public void testBare() throws Exception {
         setUpWSDL(BARE_WSDL_PATH);
         BindingInfo bindingInfo = null;
@@ -320,16 +339,54 @@ public class WSDLServiceBuilderTest extends TestCase {
         LOG.info("the binding operation is " + bindingOperationInfos.iterator().next().getName());
         QName name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
         BindingOperationInfo greetMe = bindingInfo.getOperation(name);
-        assertNotNull(greetMe);        
+        assertNotNull(greetMe);
         assertEquals("greetMe OperationInfo name error", greetMe.getName(), name);
         assertFalse("greetMe should be a Unwrapped operation ", greetMe.isUnwrappedCapable());
     }
 
     public void testImport() throws Exception {
+        // rewrite the schema1.xsd to import schema2.xsd with absolute path.
+        DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document doc = db.parse(this.getClass().getResourceAsStream("./s1/s2/schema2.xsd"));
+        Element schemaImport = null;
+        for (int i = 0; i < doc.getChildNodes().getLength(); i++) {
+            if (doc.getChildNodes().item(i) instanceof Element) {
+                Element schema = (Element) doc.getChildNodes().item(i);
+                for (int j = 0; j < schema.getChildNodes().getLength(); j++) {
+                    if (schema.getChildNodes().item(j) instanceof Element) {
+                        schemaImport = (Element) schema.getChildNodes().item(j);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        if (schemaImport == null) {
+            fail("Can't find import element");
+        }
+        String filePath = this.getClass().getResource("./s1/s2/s4/schema4.xsd").getFile();
+        String importPath = schemaImport.getAttributeNode("schemaLocation").getValue();
+        if (!new URI(importPath).isAbsolute()) {
+            schemaImport.getAttributeNode("schemaLocation").setNodeValue("file:" + filePath);            
+            String fileStr = this.getClass().getResource("./s1/s2/schema2.xsd").getFile();
+            File file = new File(fileStr);
+            if (file.exists()) {
+                file.delete();
+            }
+            FileOutputStream fout = new FileOutputStream(fileStr);
+            XMLUtils.writeTo(doc, fout);
+            fout.flush();
+            fout.close();
+        }
         setUpWSDL(IMPORT_WSDL_PATH);
         TypeInfo types = serviceInfo.getTypeInfo();
         assertNotNull(types);
         assertNotNull(types.getSchemas());
+        System.out.println(types.getSchemas().size());
+        // XMLStreamWriter xsw = StaxUtils.createXMLStreamWriter(System.out);
+        Element ele = types.getSchemas().iterator().next().getElement();
+        Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);        
+        assertNotNull(schema);        
     }
 
 }

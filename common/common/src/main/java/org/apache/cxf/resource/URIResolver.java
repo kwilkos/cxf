@@ -124,8 +124,13 @@ public class URIResolver {
                 } else {
                     Location location = null;
                     // assume that the outmost element of history is parent
-                    if (!history.empty()) {
+                    while (!history.empty()) {
                         location = history.pop();
+                        if (location.getRelative().equals(baseUriStr)) {
+                            break;
+                        } else {
+                            location = null;
+                        }
                     }
                     if (location != null) {
                         URI result = getAbsoluteFileStr(location.base, location.relative).resolve(relative);
@@ -146,10 +151,16 @@ public class URIResolver {
         throws IOException, MalformedURLException {
         if (baseUriStr == null && uriStr == null) {
             return;
-        }        
+        }                
         URI finalRelative = getAbsoluteFileStr(baseUriStr, uriStr);
+        try {
+            if (!(new URI(uriStr)).isAbsolute()) {
+                history.push(new Location(baseUriStr, uriStr));
+            } 
+        } catch (URISyntaxException ue) {
+            // move on
+        }
         if (finalRelative != null) {
-            history.push(new Location(baseUriStr, uriStr));
             File targetFile = new File(finalRelative);
             if (!targetFile.exists() && baseUriStr.startsWith("file:/")) {
                 targetFile = new File(baseUriStr.substring(6));

@@ -19,6 +19,9 @@
 package org.apache.cxf.resource;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Stack;
 
 import org.xml.sax.InputSource;
 
@@ -31,36 +34,64 @@ import org.apache.ws.commons.schema.resolver.URIResolver;
  */
 public class XmlSchemaURIResolver implements URIResolver {
 
-    private org.apache.cxf.resource.URIResolver resolver;
-
-    public XmlSchemaURIResolver() {
-        try {
-            resolver = new org.apache.cxf.resource.URIResolver();
-        } catch (IOException e) {
-            // move on...
+    private Stack<ResolverInfo> stack = new Stack<ResolverInfo>();
+    private org.apache.cxf.resource.URIResolver currentResolver;
+    
+    private class ResolverInfo {
+        String uri;
+        org.apache.cxf.resource.URIResolver resolver;
+        public ResolverInfo(String uri, org.apache.cxf.resource.URIResolver resolver) {
+            this.uri = uri;
+            this.resolver = resolver;
+        }
+        public String getUri() {
+            return uri;
+        }
+        public org.apache.cxf.resource.URIResolver getResolver() {
+            return resolver;
         }
     }
-
     public InputSource resolveEntity(String targetNamespace, String schemaLocation, String baseUri) {
-        try {
-            resolver.resolveStateful(baseUri, schemaLocation, getClass());
+        try {            
+            if (new URI(baseUri).isAbsolute()) {
+                currentResolver = new org.apache.cxf.resource.URIResolver();
+                stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
+            } else {
+                while (!stack.isEmpty()) {
+                    ResolverInfo ri = stack.pop();
+                    if (ri.getUri().equals(baseUri)) {
+                        currentResolver = ri.getResolver();
+                        stack.addElement(ri);
+                        break;
+                    }
+                }
+                stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
+            }
+            if (currentResolver == null) {
+                throw new RuntimeException("invalidate schema import");
+            }
+            currentResolver.resolveStateful(baseUri, schemaLocation, getClass());
+            if (currentResolver.isResolved()) {
+                if (currentResolver.getURI().isAbsolute()) {
+                    // When importing a relative file,
+                    // setSystemId with an absolute path so the
+                    // resolver finds any files which that file
+                    // imports with locations relative to it.
+                    schemaLocation = currentResolver.getURI().toString();
+                }
+                InputSource source = new InputSource(currentResolver.getInputStream());
+                source.setSystemId(schemaLocation);
+                return source;
+            }
+
         } catch (IOException e) {
             // move on...
-        }
-        if (resolver.isResolved()) {
-            if (resolver.getURI().isAbsolute()) {
-                // When importing a relative file,
-                // setSystemId with an absolute path so the
-                // resolver finds any files which that file
-                // imports with locations relative to it.
-                schemaLocation = resolver.getURI().toString();
-            }
-            InputSource source = new InputSource(resolver.getInputStream());
-            source.setSystemId(schemaLocation);
-            return source;
+        } catch (URISyntaxException use) {            
+            // move on...
         }
 
         return new InputSource(schemaLocation);
+
     }
 
 }
