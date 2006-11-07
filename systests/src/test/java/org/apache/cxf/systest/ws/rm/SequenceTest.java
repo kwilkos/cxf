@@ -102,11 +102,8 @@ public class SequenceTest extends ClientServerTestBase {
         }
         setupGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml");
 
-        System.out.println("*** calling once");
         greeter.greetMeOneWay("once");
-        System.out.println("*** calling twice");
         greeter.greetMeOneWay("twice");
-        System.out.println("*** calling thrice");
         greeter.greetMeOneWay("thrice");
 
         // three application messages plus createSequence

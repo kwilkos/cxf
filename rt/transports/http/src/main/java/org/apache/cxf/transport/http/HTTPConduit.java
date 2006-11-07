@@ -459,9 +459,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             }
             
             Message inMessage = new MessageImpl();
-            if (exchange != null) {
-                exchange.setInMessage(inMessage);
-            }
+            inMessage.setExchange(exchange);
             InputStream in = null;
             inMessage.put(Message.PROTOCOL_HEADERS, connection.getHeaderFields());
             inMessage.put(Message.RESPONSE_CODE, responseCode);
