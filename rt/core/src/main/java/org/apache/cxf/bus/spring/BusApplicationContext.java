@@ -21,9 +21,8 @@ package org.apache.cxf.bus.spring;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,26 +31,33 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     
     private static final String DEFAULT_CXF_CFG_FILE = "META-INF/cxf/cxf.xml";
-    private static final String DEFAULT_CXF_EXT_CFG_FILE = "META-INF/cxf/cxf-extension.xml";
-    private static final String CXF_PROPERTY_EDITORS_CFG_FILE = "META-INF/cxf/cxf-property-editors.xml";
+    private static final String DEFAULT_CXF_EXT_CFG_FILE = "classpath*:META-INF/cxf/cxf-extension-*.xml";
+    private static final String CXF_PROPERTY_EDITORS_CFG_FILE = 
+        "classpath*:META-INF/cxf/cxf-property-editors.xml";
     private static final Logger LOG = LogUtils.getL7dLogger(BusApplicationContext.class);
     
     private boolean includeDefaults;
     private String cfgFile;
     
     BusApplicationContext(String cf, boolean include) {
-        super((String[])null);
+        this(cf, include, null);
+    }
+
+    BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
+        super((String[])null, parent);
         cfgFile = cf;
         includeDefaults = include;
     }
-
+    
     @Override
     protected Resource[] getConfigResources() {
   
@@ -59,24 +65,12 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
        
         if (includeDefaults) {
             try {
-                Enumeration<URL> urls = Thread.currentThread().getContextClassLoader()
-                    .getResources(DEFAULT_CXF_CFG_FILE);
-                while (urls.hasMoreElements()) {
-                    resources.add(new UrlResource(urls.nextElement()));
-                }
+                PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(Thread
+                    .currentThread().getContextClassLoader());
                 
-                urls = Thread.currentThread().getContextClassLoader()
-                    .getResources(DEFAULT_CXF_EXT_CFG_FILE);
-                while (urls.hasMoreElements()) {
-                    resources.add(new UrlResource(urls.nextElement()));
-                } 
-                
-                urls = Thread.currentThread().getContextClassLoader()
-                    .getResources(CXF_PROPERTY_EDITORS_CFG_FILE);
-                while (urls.hasMoreElements()) {
-                    resources.add(new UrlResource(urls.nextElement()));
-                } 
-                
+                Collections.addAll(resources, resolver.getResources(DEFAULT_CXF_CFG_FILE));
+                Collections.addAll(resources, resolver.getResources(DEFAULT_CXF_EXT_CFG_FILE));
+                Collections.addAll(resources, resolver.getResources(CXF_PROPERTY_EDITORS_CFG_FILE));
             } catch (IOException ex) {
                 // ignore  
             }  

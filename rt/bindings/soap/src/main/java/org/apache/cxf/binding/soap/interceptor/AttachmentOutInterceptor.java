@@ -36,7 +36,7 @@ import org.apache.cxf.phase.Phase;
 
 public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
 
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SoapOutInterceptor.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AttachmentOutInterceptor.class);
 
     public AttachmentOutInterceptor() {
         super();

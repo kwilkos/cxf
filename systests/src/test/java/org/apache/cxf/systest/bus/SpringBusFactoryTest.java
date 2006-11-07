@@ -91,8 +91,6 @@ public class SpringBusFactoryTest extends TestCase {
                       cim.getConduitInitiator("http://cxf.apache.org/transports/jms"));
         assertNotNull("conduit initiator not available", 
                       cim.getConduitInitiator("http://cxf.apache.org/transports/jms/configuration"));
-        assertNotNull("conduit initiator not available", 
-                      cim.getConduitInitiator("http://schemas.xmlsoap.org/wsdl/servlet"));
         
         try {
             dfm.getDestinationFactory("http://cxf.apache.org/unknown");
@@ -113,8 +111,6 @@ public class SpringBusFactoryTest extends TestCase {
                       dfm.getDestinationFactory("http://cxf.apache.org/transports/jms"));
         assertNotNull("destination factory not available", 
                       dfm.getDestinationFactory("http://cxf.apache.org/transports/jms/configuration"));
-        assertNotNull("destination factory not available", 
-                      dfm.getDestinationFactory("http://schemas.xmlsoap.org/wsdl/servlet"));
         
         
     }

@@ -40,7 +40,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 public class LocalTransportFactory extends AbstractTransportFactory
     implements DestinationFactory, ConduitInitiator {
    
-    public static final String TRANSPORT_ID = "http://cxf.apache.org/local-transport";
+    public static final String TRANSPORT_ID = "http://cxf.apache.org/transports/local";
     
     private static final Logger LOG = Logger.getLogger(LocalTransportFactory.class.getName());
     private static final Set<String> URI_PREFIXES = new HashSet<String>();

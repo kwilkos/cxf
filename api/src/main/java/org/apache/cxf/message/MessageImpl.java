@@ -129,6 +129,10 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
             Endpoint ep = getExchange().get(Endpoint.class); 
             if (ep != null) {
                 val = ep.get(key);
+                
+                if (val == null) {
+                    val = ep.getEndpointInfo().getProperty(key);
+                }
             }
         }
         

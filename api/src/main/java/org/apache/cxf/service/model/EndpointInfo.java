@@ -22,11 +22,14 @@ package org.apache.cxf.service.model;
 import javax.xml.namespace.QName;
 
 public class EndpointInfo extends AbstractPropertiesHolder {
-    final String transportId;
+    String transportId;
     ServiceInfo service;
     BindingInfo binding;
     QName name;
     String address;
+    
+    public EndpointInfo() {
+    }
     
     public EndpointInfo(ServiceInfo serv, String ns) {
         transportId = ns;

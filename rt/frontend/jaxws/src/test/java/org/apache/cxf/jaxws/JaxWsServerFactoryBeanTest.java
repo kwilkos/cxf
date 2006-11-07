@@ -20,6 +20,7 @@ package org.apache.cxf.jaxws;
 
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.service.Hello;
+import org.apache.hello_world_doc_lit.GreeterImplDoc;
 
 public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
     public void testBean() {
@@ -27,6 +28,16 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
         sf.setBus(getBus());
         sf.setAddress("http://localhost:9000/test");
         sf.setServiceClass(Hello.class);
+        sf.setStart(false);
+        
+        Server server = sf.create();
+        assertNotNull(server);
+    }
+    
+    public void testBareGreeter() throws Exception {
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setBus(getBus());
+        sf.setServiceClass(GreeterImplDoc.class);
         sf.setStart(false);
         
         Server server = sf.create();

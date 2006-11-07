@@ -17,33 +17,21 @@
  * under the License.
  */
 
-
 package org.apache.cxf.jaxws.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.wsdl.Port;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -54,44 +42,42 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusException;
+import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
-import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
-import org.xmlsoap.schemas.wsdl.http.AddressType;
+import org.springframework.context.ApplicationContext;
 
-
+/**
+ * A Servlet which supports loading of JAX-WS endpoints from an
+ * XML file and handling requests for endpoints created via other means
+ * such as Spring beans, or the Java API. All requests are passed on
+ * to the {@link ServletController}.
+ *
+ */
 public class CXFServlet extends HttpServlet {
-    
-    
-    static final String HTTP_REQUEST =
-        "HTTP_SERVLET_REQUEST";
-    static final String HTTP_RESPONSE =
-        "HTTP_SERVLET_RESPONSE";
-    
+
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
     static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
     protected Bus bus;
-    protected Map<String, ServletDestination> servantMap 
-        = new HashMap<String, ServletDestination>();
-    
-    
-    EndpointReferenceType reference;
-    ServletTransportFactory servletTransportFactory;
-    EndpointImpl ep;
-    EndpointInfo ei;
-    
+
+    private ServletTransportFactory servletTransportFactory;
+    private ServletController controller;
+
+    public ServletController createServletController() {
+        return new ServletController(servletTransportFactory);
+    }
+
+    public ServletController getController() {
+        return controller;
+    }
+
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
-        
+
         String busid = servletConfig.getInitParameter("bus.id");
         if (null != busid) {
             WeakReference<Bus> ref = BUS_MAP.get(busid);
@@ -100,26 +86,59 @@ public class CXFServlet extends HttpServlet {
             }
         }
         if (null == bus) {
-            bus = BusFactoryHelper.newInstance().createBus();
+            // try to pull an existing ApplicationContext out of the
+            // ServletContext
+            ServletContext svCtx = getServletContext();
+            ApplicationContext ctx = (ApplicationContext)svCtx
+                .getAttribute("interface org.springframework.web.context.WebApplicationContext.ROOT");
+
+            // This constructor works whether there is a context or not
+            bus = new SpringBusFactory(ctx).getDefaultBus();
         }
         if (null != busid) {
             BUS_MAP.put(busid, new WeakReference<Bus>(bus));
         }
 
-        InputStream ins = servletConfig.getServletContext()
-            .getResourceAsStream("/WEB-INF/cxf-servlet.xml");
+        replaceDestionFactory();
+
+        // Set up the servlet as the default server side destination factory
+        controller = createServletController();
+
+        // build endpoints from the web.xml or a config file
+        buildEndpoints(servletConfig);
+    }
+
+    protected void buildEndpoints(ServletConfig servletConfig) throws ServletException {
+        String location = servletConfig.getInitParameter("config-location");
+        if (location == null) {
+            location = "/WEB-INF/cxf-servlet.xml";
+        }
+        InputStream ins = servletConfig.getServletContext().getResourceAsStream(location);
+
+        if (ins == null) {
+            try {
+                URIResolver resolver = new URIResolver(location);
+
+                if (resolver.isResolved()) {
+                    ins = resolver.getInputStream();
+                }
+            } catch (IOException e) {
+                // ignore
+            }
+
+        }
+
         if (ins != null) {
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
             builderFactory.setNamespaceAware(true);
             builderFactory.setValidating(false);
-            
-            
+
             try {
                 Document doc = builderFactory.newDocumentBuilder().parse(ins);
                 Node nd = doc.getDocumentElement().getFirstChild();
                 while (nd != null) {
                     if ("endpoint".equals(nd.getLocalName())) {
-                        loadEndpoint(servletConfig, nd);
+                        buildEndpoint(servletConfig, nd);
                     }
                     nd = nd.getNextSibling();
                 }
@@ -133,88 +152,88 @@ public class CXFServlet extends HttpServlet {
         }
     }
 
-    private void deregisterTransport(String transportId) {
-        bus.getExtension(DestinationFactoryManager.class).deregisterDestinationFactory(transportId);        
-    }
-
     /**
      * @return
      */
     protected DestinationFactory createServletTransportFactory() {
         if (servletTransportFactory == null) {
-            servletTransportFactory = new ServletTransportFactory(bus, reference);
+            servletTransportFactory = new ServletTransportFactory(bus);
         }
         return servletTransportFactory;
     }
 
     private void registerTransport(DestinationFactory factory, String namespace) {
-        bus.getExtension(DestinationFactoryManager.class).registerDestinationFactory(
-                                                                  namespace,
-                                                                  factory);
+        bus.getExtension(DestinationFactoryManager.class).registerDestinationFactory(namespace, factory);
     }
 
-    public void loadEndpoint(String implName,
-                             String serviceName,
-                             String wsdlName,
-                             String portName,
-                             String urlPat) throws ServletException {
+    public void buildEndpoint(ServletConfig servletConfig, Node node) throws ServletException {
+        Element el = (Element)node;
+        String implName = el.getAttribute("implementation");
+        String serviceName = el.getAttribute("service");
+        String wsdlName = el.getAttribute("wsdl");
+        String portName = el.getAttribute("port");
+        String urlPat = el.getAttribute("url-pattern");
+
+        buildEndpoint(implName, serviceName, wsdlName, portName, urlPat);
+    }
+
+    public void buildEndpoint(String implName, String serviceName, String wsdlName, String portName,
+                              String urlPat) throws ServletException {
 
         try {
-            
-            URL url = null;
-            if (wsdlName != null) {
-                try {
-                    url = getServletConfig().getServletContext().getResource(wsdlName);
-                } catch (MalformedURLException ex) {
-                    try {
-                        url = new URL(wsdlName);
-                    } catch (MalformedURLException ex2) {
-                        try {
-                            url = getServletConfig().getServletContext().getResource("/" + wsdlName);
-                        } catch (MalformedURLException ex3) {
-                            url = null;
-                        }
-                    }
-                }
-            }
-            Class cls = Class.forName(implName, false, Thread.currentThread().getContextClassLoader());
+
+            // TODO: This wasn't doing anything before. We need to pass this to
+            // the
+            // EndpointImpl so the service factory can use it...
+            // URL url = null;
+            // if (wsdlName != null && wsdlName.length() > 0) {
+            // try {
+            // url =
+            // getServletConfig().getServletContext().getResource(wsdlName);
+            // } catch (MalformedURLException ex) {
+            // try {
+            // url = new URL(wsdlName);
+            // } catch (MalformedURLException ex2) {
+            // try {
+            // url = getServletConfig().getServletContext().getResource("/" +
+            // wsdlName);
+            // } catch (MalformedURLException ex3) {
+            // url = null;
+            // }
+            // }
+            // }
+            // }
+            Class cls = ClassLoaderUtils.loadClass(implName, getClass());
             Object impl = cls.newInstance();
-            reference = EndpointReferenceUtils
-                    .getEndpointReference(url,
-                                      QName.valueOf(serviceName),
-                                      portName);
-            
 
-            
-            ep = new EndpointImpl(bus, impl, url.toString());
-            replaceDestionFactory();
-//          doesn't really matter what URL is used here
+            EndpointImpl ep = new EndpointImpl(bus, impl, (String)null);
+
+            // doesn't really matter what URL is used here
             ep.publish("http://localhost" + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
-            
-            ei = ep.getServer().getEndpoint().getEndpointInfo();
-            
-            
-
         } catch (ClassNotFoundException ex) {
             throw new ServletException(ex);
         } catch (InstantiationException ex) {
             throw new ServletException(ex);
         } catch (IllegalAccessException ex) {
             throw new ServletException(ex);
-        }    
+        }
     }
 
-    private void replaceDestionFactory() {
-        DestinationFactory factory = createServletTransportFactory();
-        
+    private void replaceDestionFactory() throws ServletException {
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        try {
+            DestinationFactory df = dfm
+                .getDestinationFactory("http://cxf.apache.org/transports/http/configuration");
+            if (df instanceof ServletTransportFactory) {
+                servletTransportFactory = (ServletTransportFactory)df;
+                return;
+            }
+        } catch (BusException e) {
+            // why are we throwing a busexception if the DF isn't found?
+        }
 
-        deregisterTransport("http://schemas.xmlsoap.org/wsdl/soap/http");
-        deregisterTransport("http://schemas.xmlsoap.org/soap/http");
-        deregisterTransport("http://www.w3.org/2003/05/soap/bindings/HTTP/");
-        deregisterTransport("http://schemas.xmlsoap.org/wsdl/http/");
-        deregisterTransport("http://cxf.apache.org/transports/http/configuration");
-        deregisterTransport("http://cxf.apache.org/bindings/xformat");
-        
+        DestinationFactory factory = createServletTransportFactory();
+
         registerTransport(factory, "http://schemas.xmlsoap.org/wsdl/soap/http");
         registerTransport(factory, "http://schemas.xmlsoap.org/soap/http");
         registerTransport(factory, "http://www.w3.org/2003/05/soap/bindings/HTTP/");
@@ -223,85 +242,30 @@ public class CXFServlet extends HttpServlet {
         registerTransport(factory, "http://cxf.apache.org/bindings/xformat");
     }
 
-    public void loadEndpoint(ServletConfig servletConfig, Node node) 
-        throws ServletException {
-        Element el = (Element)node;
-        String implName = el.getAttribute("implementation");
-        String serviceName = el.getAttribute("service");
-        String wsdlName = el.getAttribute("wsdl");
-        String portName = el.getAttribute("port");
-        String urlPat = el.getAttribute("url-pattern");
-        
-        loadEndpoint(implName, serviceName, wsdlName, portName, urlPat);
-    }
-
     public void destroy() {
         String s = bus.getId();
         BUS_MAP.remove(s);
-        
+
         bus.shutdown(true);
     }
-    
-    void addServant(URL url, ServletDestination servant) {
-        servantMap.put(url.getPath(), servant);
-    }
-    void removeServant(URL url, ServletDestination servant) {
-        servantMap.remove(url.getPath());
-    }
-    
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
-            }
-            
-            MessageImpl inMessage = new MessageImpl();
-            inMessage.setContent(InputStream.class, request.getInputStream());
-            inMessage.put(HTTP_REQUEST, request);
-            inMessage.put(HTTP_RESPONSE, response);
-            inMessage.put(Message.HTTP_REQUEST_METHOD, request.getMethod());
-            inMessage.put(Message.PATH_INFO, request.getPathInfo());
-            inMessage.put(Message.QUERY_STRING, request.getQueryString());
-            
-            ((ServletDestination)ep.getServer().getDestination()).doMessage(inMessage);
-        } catch (IOException e) {
-            throw new ServletException(e);
-        }
-      
+        controller.invoke(request, response);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try {
-            
-            
-            response.setHeader("Content-Type", "text/xml");
-            
-            OutputStream os = response.getOutputStream();
-            
-            WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-            Definition def = new ServiceWSDLBuilder(ei.getService()).build();
-            Port port = def.getService(ei.getService().getName()).getPort(
-                                       ei.getName().getLocalPart());
-            List<?> exts = port.getExtensibilityElements();
-            if (exts.size() > 0) {
-                ExtensibilityElement el = (ExtensibilityElement)exts.get(0);
-                if (SOAPBindingUtil.isSOAPAddress(el)) {
-                    SoapAddress add = SOAPBindingUtil.getSoapAddress(el);
-                    add.setLocationURI(request.getRequestURL().toString());
-                }
-                if (el instanceof AddressType) {
-                    AddressType add = (AddressType)el;
-                    add.setLocation(request.getRequestURL().toString());
-                }
-            }
-            
-            wsdlWriter.writeWSDL(def, os);
-            response.getOutputStream().flush();
-            return;
-        } catch (Exception ex) {
-            
-            throw new ServletException(ex);
-        }
+        controller.invoke(request, response);
     }
 
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        controller.invoke(request, response);
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+        IOException {
+        controller.invoke(request, response);
+    }
 }

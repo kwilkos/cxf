@@ -29,6 +29,7 @@ import javax.wsdl.extensions.soap.SOAPAddress;
 
 import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
+import com.ibm.wsdl.extensions.soap.SOAPBodyImpl;
 import com.ibm.wsdl.extensions.soap.SOAPOperationImpl;
 
 import org.apache.cxf.Bus;
@@ -97,6 +98,18 @@ public class SoapDestinationFactory extends AbstractTransportFactory implements 
             op.setStyle(soi.getStyle());
 
             b.addExtensor(op);
+            
+            if (b.getInput() != null) {
+                SOAPBodyImpl body = new SOAPBodyImpl();
+                body.setUse("literal");
+                b.getInput().addExtensor(body);
+            }
+            
+            if (b.getOutput() != null) {
+                SOAPBodyImpl body = new SOAPBodyImpl();
+                body.setUse("literal");
+                b.getOutput().addExtensor(body);
+            }
         }
     }
 

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.dom.DOMSource;
@@ -34,6 +35,7 @@ import org.apache.cxf.binding.http.IriDecoderHelper.Param;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -54,7 +56,7 @@ public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
     }
 
     public void handleMessage(Message message) {
-        String path = (String)message.get(Message.PATH_INFO);
+        String path = (String)message.get(DispatchInterceptor.RELATIVE_PATH);
         String method = (String)message.get(Message.HTTP_REQUEST_METHOD);
         String contentType = (String)message.get(Message.CONTENT_TYPE);
 
@@ -103,8 +105,10 @@ public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
         // incoming doc
         Document doc;
         if ("POST".equals(method) || "PUT".equals(method)) {
-            XMLStreamReader reader = StaxUtils.createXMLStreamReader(message.getContent(InputStream.class));
+            XMLInputFactory inputFactory = StaxInInterceptor.getXMLInputFactory(message);
             try {
+                XMLStreamReader reader = 
+                    inputFactory.createXMLStreamReader(message.getContent(InputStream.class));
                 doc = StaxUtils.read(reader);
             } catch (XMLStreamException e) {
                 throw new Fault(e);

@@ -65,6 +65,7 @@ import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaForm;
 import org.apache.ws.commons.schema.XmlSchemaSequence;
 import org.apache.ws.commons.schema.XmlSchemaSerializer;
 import org.apache.ws.commons.schema.XmlSchemaSerializer.XmlSchemaSerializerException;
@@ -186,6 +187,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             ServiceImpl service = new ServiceImpl(serviceInfo);
             
             serviceInfo.setName(getServiceQName());
+            serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
             
             createInterface(serviceInfo);
 
@@ -332,6 +334,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected void initializeWrappedSchema(ServiceInfo serviceInfo) {
         XmlSchemaCollection col = new XmlSchemaCollection();
         XmlSchema schema = new XmlSchema(getServiceNamespace(), col);
+        schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
         
         NamespaceMap nsMap = new NamespaceMap();
         nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");

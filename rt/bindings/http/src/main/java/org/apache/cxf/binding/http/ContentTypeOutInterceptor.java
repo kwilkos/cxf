@@ -42,8 +42,12 @@ public class ContentTypeOutInterceptor extends AbstractPhaseInterceptor<Message>
             headers = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, headers);
         }
+        String ct = (String) message.getContextualProperty("Content-Type");
+        if (ct == null) {
+            ct = "application/xml";
+        }
         List<String> contentType = new ArrayList<String>();
-        contentType.add("application/xml");
+        contentType.add(ct);
         headers.put("Content-Type", contentType);
     }
 

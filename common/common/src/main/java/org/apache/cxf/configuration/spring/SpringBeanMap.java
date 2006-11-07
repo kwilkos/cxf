@@ -73,7 +73,8 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
                 continue;
             }
 
-            if (!type.isAssignableFrom(ctxt.getType(beanNames[i]))) {
+            Class beanType = ctxt.getType(beanNames[i]);
+            if (beanType == null || !type.isAssignableFrom(beanType)) {
                 continue;
             }
 

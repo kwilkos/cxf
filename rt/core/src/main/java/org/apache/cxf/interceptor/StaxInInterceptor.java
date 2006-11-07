@@ -58,8 +58,8 @@ public class StaxInInterceptor extends AbstractPhaseInterceptor<Message> {
         InputStream is = message.getContent(InputStream.class);
         assert is != null;
 
-        // TODO: where does encoding constant go?
-        String encoding = (String)message.get("Encoding");
+        String encoding = (String)message.get(Message.ENCODING);
+        
         XMLStreamReader reader;
         try {
             reader = getXMLInputFactory(message).createXMLStreamReader(is, encoding);

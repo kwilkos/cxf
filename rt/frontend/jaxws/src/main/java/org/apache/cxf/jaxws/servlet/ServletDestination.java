@@ -17,13 +17,7 @@
  * under the License.
  */
 
-
 package org.apache.cxf.jaxws.servlet;
-
-
-
-
-
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 import javax.servlet.http.HttpServletResponse;
-
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Exception;
@@ -52,6 +44,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
@@ -86,16 +79,16 @@ public class ServletDestination implements Destination {
      */    
     public ServletDestination(Bus b,
                               ConduitInitiator ci,
-                              EndpointInfo ei,
-                              EndpointReferenceType ref)
+                              EndpointInfo ei)
         throws IOException {
         bus = b;
         conduitInitiator = ci;
         endpointInfo = ei;
         
-        reference = ref;
-        
-             
+        reference = new EndpointReferenceType();
+        AttributedURIType add = new AttributedURIType();
+        add.setValue(ei.getAddress());
+        reference.setAddress(add);
     }
 
     /**
@@ -231,6 +224,17 @@ public class ServletDestination implements Destination {
      * @param headers the current set of headers
      */
     protected void copyResponseHeaders(Message message, HttpServletResponse response) {
+        String ct = (String) message.get(Message.CONTENT_TYPE);
+        String enc = (String) message.get(Message.ENCODING);
+        
+        if (null != ct) {
+            if (enc != null && ct.indexOf("charset=") == -1) {
+                ct = ct + "; charset=" + enc;
+            }
+            response.setContentType(ct);
+        } else if (enc != null) {
+            response.setContentType("text/xml; charset=" + enc);
+        }
     }
     
     
@@ -391,6 +395,14 @@ public class ServletDestination implements Destination {
     
     protected boolean isOneWay(Message message) {
         return message.getExchange() != null && message.getExchange().isOneWay();
+    }
+
+    public MessageObserver getMessageObserver() {
+        return this.incomingObserver;
+    }
+
+    public EndpointInfo getEndpointInfo() {
+        return endpointInfo;
     }
 
 }

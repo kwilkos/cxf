@@ -32,7 +32,7 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     private SoapVersion soapVersion = Soap11.getInstance();
     private String style = "document";
     private String use;
-    private String transportURI = "http://schemas.xmlsoap.org/wsdl/soap/http";
+    private String transportURI = "http://schemas.xmlsoap.org/soap/http";
     
     @Override
     public BindingInfo create() {

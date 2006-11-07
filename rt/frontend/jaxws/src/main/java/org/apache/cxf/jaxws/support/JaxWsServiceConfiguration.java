@@ -149,8 +149,8 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                 } else {
                     return Boolean.TRUE;
                 }
-            } else if (!method.getDeclaringClass().isInterface()) {
-                return Boolean.FALSE;
+            } else {
+                return method.getDeclaringClass().isInterface();
             }
         }
         return Boolean.FALSE;

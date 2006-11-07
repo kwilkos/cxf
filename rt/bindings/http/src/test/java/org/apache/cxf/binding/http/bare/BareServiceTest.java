@@ -42,7 +42,7 @@ public class BareServiceTest extends AbstractRestTest {
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(false);
         sf.setBindingFactory(new HttpBindingInfoFactoryBean());
-        sf.setAddress("http://localhost:9001/");
+        sf.setAddress("http://localhost:9001/foo/");
 
         Map<String, Object> props = new HashMap<String, Object>();
         props.put("contextMatchStrategy", "stem");
@@ -71,7 +71,7 @@ public class BareServiceTest extends AbstractRestTest {
         
         // TEST POST/GETs
         
-        Document res = get("http://localhost:9001/customers");
+        Document res = get("http://localhost:9001/foo/customers");
         assertNotNull(res);
 
         addNamespace("c", "http://cxf.apache.org/jra");
@@ -79,7 +79,7 @@ public class BareServiceTest extends AbstractRestTest {
         assertValid("/c:customers/c:customer/c:id[text()='123']", res);
         assertValid("/c:customers/c:customer/c:name[text()='Dan Diephouse']", res);
         
-        res = get("http://localhost:9001/customers/123");
+        res = get("http://localhost:9001/foo/customers/123");
         assertNotNull(res);
         
         addNamespace("c", "http://cxf.apache.org/jra");
@@ -87,18 +87,18 @@ public class BareServiceTest extends AbstractRestTest {
         assertValid("/c:customer/c:id[text()='123']", res);
         assertValid("/c:customer/c:name[text()='Dan Diephouse']", res);
         
-        res = put("http://localhost:9001/customers/123", "update.xml");
+        res = put("http://localhost:9001/foo/customers/123", "update.xml");
         assertNotNull(res);
         
         assertValid("/c:updateCustomer", res);
         
-        res = post("http://localhost:9001/customers", "add.xml");
+        res = post("http://localhost:9001/foo/customers", "add.xml");
         assertNotNull(res);
         
         assertValid("/c:addCustomer", res);
 
         // Get the updated document
-        res = get("http://localhost:9001/customers/123");
+        res = get("http://localhost:9001/foo/customers/123");
         assertNotNull(res);
         
         assertValid("/c:customer", res);

@@ -28,6 +28,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 
 public class SpringBusFactory implements BusFactory {
     
@@ -37,6 +38,17 @@ public class SpringBusFactory implements BusFactory {
     
     private static Bus defaultBus;
 
+    private ApplicationContext context;
+
+    public SpringBusFactory() {
+        super();
+    }
+
+    public SpringBusFactory(ApplicationContext context) {
+        super();
+        this.context = context;
+    }
+    
     public synchronized Bus getDefaultBus() {
         if (null == defaultBus) {
             defaultBus = createBus();
@@ -53,14 +65,18 @@ public class SpringBusFactory implements BusFactory {
     }
     
     public Bus createBus(String cfgFile) {
-        return createBus(cfgFile, true);
+        boolean includeDefaults = true;
+        if (context != null) {
+            includeDefaults = !context.containsBean("cxf");
+        }
+        
+        return createBus(cfgFile, includeDefaults);
     }
     
-    public Bus createBus(String cfgFile, boolean includeDefaults) {        
-
+    public Bus createBus(String cfgFile, boolean includeDefaults) {
         BusApplicationContext bac = null;
         try {      
-            bac = new BusApplicationContext(cfgFile, includeDefaults);           
+            bac = new BusApplicationContext(cfgFile, includeDefaults, context);           
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
         }

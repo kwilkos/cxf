@@ -613,7 +613,6 @@ public final class StaxUtils {
      * @return
      */
     public static XMLStreamReader createXMLStreamReader(InputStream in) {
-
         try {
             return getXMLInputFactory().createXMLStreamReader(in);
         } catch (XMLStreamException e) {

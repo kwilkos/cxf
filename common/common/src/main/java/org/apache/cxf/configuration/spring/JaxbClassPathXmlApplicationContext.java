@@ -32,6 +32,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -47,9 +48,14 @@ public class JaxbClassPathXmlApplicationContext extends ClassPathXmlApplicationC
     public JaxbClassPathXmlApplicationContext(String location) throws BeansException {
         super(new String[]{location});
     }
-
+    
     public JaxbClassPathXmlApplicationContext(String[] locations) throws BeansException {
-        super(locations);
+        this(locations, null);
+    }
+    
+    public JaxbClassPathXmlApplicationContext(String[] locations, ApplicationContext parent) 
+        throws BeansException {
+        super(locations, parent);
         cfgFileLocations = locations;
     }
     

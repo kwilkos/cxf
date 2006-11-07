@@ -21,28 +21,25 @@
 package org.apache.cxf.jaxws.servlet;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 public class ServletTransportFactory extends AbstractTransportFactory
-    implements ConduitInitiator, DestinationFactory {
+    implements DestinationFactory {
 
-    EndpointReferenceType reference;
-    
     private Bus bus;    
+    private Map<String, ServletDestination> destinations = new HashMap<String, ServletDestination>();
     
-    public ServletTransportFactory(Bus b, EndpointReferenceType ref) {
-        bus = b;      
-        reference = ref;
+    public ServletTransportFactory(Bus b) {
+        bus = b;
     }
 
     public ServletTransportFactory() {
@@ -57,19 +54,13 @@ public class ServletTransportFactory extends AbstractTransportFactory
         this.bus = bus;
     }
 
-    public Conduit getConduit(EndpointInfo endpointInfo)
+    public synchronized Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
-        return null;
+        ServletDestination d = destinations.get(endpointInfo.getAddress());
+        if (d == null) { 
+            d = new ServletDestination(bus, null, endpointInfo);
+            destinations.put(endpointInfo.getAddress(), d);
+        }
+        return d;
     }
-
-    public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target)
-        throws IOException {
-        return null;
-    }
-
-    public Destination getDestination(EndpointInfo endpointInfo)
-        throws IOException {
-        return new ServletDestination(bus, null, endpointInfo, reference);
-    }
-
 }
