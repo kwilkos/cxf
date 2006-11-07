@@ -89,9 +89,17 @@ public class CXFServlet extends HttpServlet {
             // try to pull an existing ApplicationContext out of the
             // ServletContext
             ServletContext svCtx = getServletContext();
+            
+            // Spring 1.x
             ApplicationContext ctx = (ApplicationContext)svCtx
                 .getAttribute("interface org.springframework.web.context.WebApplicationContext.ROOT");
 
+            // Spring 2.0
+            if (ctx == null) {
+                ctx = (ApplicationContext)svCtx
+                    .getAttribute("org.springframework.web.context.WebApplicationContext.ROOT");
+            }
+            
             // This constructor works whether there is a context or not
             bus = new SpringBusFactory(ctx).getDefaultBus();
         }

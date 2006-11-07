@@ -44,7 +44,7 @@ public class ContentTypeOutInterceptor extends AbstractPhaseInterceptor<Message>
         }
         String ct = (String) message.getContextualProperty("Content-Type");
         if (ct == null) {
-            ct = "application/xml";
+            ct = "text/xml";
         }
         List<String> contentType = new ArrayList<String>();
         contentType.add(ct);
