@@ -151,7 +151,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 }
             } catch (RuntimeException ex) {
                 if (!faultOccured) {
-                    if (subChainState.peek().equals(State.EXECUTING)) {
+                    if (subChainState.size() > 0 
+                        && subChainState.peek().equals(State.EXECUTING)) {
                         throw ex;
                     }
  
