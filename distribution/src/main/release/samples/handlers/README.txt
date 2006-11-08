@@ -55,7 +55,7 @@ Look in the build.xml file to see how an argument to the java executable specifi
 use of the configuration file.  For example:
 
   <target name="client" description="run demo client" depends="build">
-    <celtixrun classname="demo.handlers.client.Client"
+    <cxfrun classname="demo.handlers.client.Client"
                param1="${basedir}/wsdl/addNumbers.wsdl"
                jvmarg1="-Dcxf.config.file=file:///${basedir}/cxf-client.xml"/>
   </target>

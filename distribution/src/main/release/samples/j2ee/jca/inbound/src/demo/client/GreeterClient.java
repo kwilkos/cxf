@@ -31,6 +31,9 @@ import org.apache.cxf.jaxws.ServiceImpl;
  */
 public final class GreeterClient {
 
+    protected GreeterClient() {
+    }
+
     public static void main(String[] args) throws Exception {
         Bus bus = new SpringBusFactory().getDefaultBus();
         QName serviceQName = new QName("http://apache.org/hello_world_soap_http", "Greeter");
@@ -51,7 +54,8 @@ public final class GreeterClient {
         ServiceImpl ss = new ServiceImpl(bus, null, serviceQName, null);
         ss.addPort(portQName, bindingId, address);
         //Hello port = ss.createPort(portQName, Hello.class);
-        org.apache.hello_world_soap_http.Greeter port = ss.getPort(portQName, org.apache.hello_world_soap_http.Greeter.class);
+        org.apache.hello_world_soap_http.Greeter port = ss.getPort(portQName, 
+            org.apache.hello_world_soap_http.Greeter.class);
         String response = port.greetMe(" CXF");
         System.out.println(" server return: " + response);
     }

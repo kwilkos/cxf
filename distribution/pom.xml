@@ -109,8 +109,6 @@
             <version>${pom.version}</version>
         </dependency>
 
-
-
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-core</artifactId>
@@ -135,7 +133,6 @@
             <version>${pom.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-transports-jms</artifactId>
@@ -154,11 +151,27 @@
             <version>${pom.version}</version>
         </dependency>
 
+	<dependency>
+	    <groupId>${pom.groupId}</groupId>
+	    <artifactId>cxf-rt-bindings-http</artifactId>
+	    <version>${pom.version}</version>
+	</dependency>
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-addr</artifactId>
             <version>${pom.version}</version>
         </dependency>
+	<dependency>
+	    <groupId>${pom.groupId}</groupId>
+	    <artifactId>cxf-rt-ws-rm</artifactId>
+	    <version>${pom.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>${pom.groupId}</groupId>
+	    <artifactId>cxf-rt-ws-policy</artifactId>
+	    <version>${pom.version}</version>
+	</dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -168,6 +181,11 @@
 	<dependency>
 	    <groupId>${pom.groupId}</groupId>
 	    <artifactId>cxf-rt-frontend-js</artifactId>
+	    <version>${pom.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>${pom.groupId}</groupId>
+	    <artifactId>cxf-rt-frontend-simple</artifactId>
 	    <version>${pom.version}</version>
 	</dependency>
 
@@ -258,13 +276,9 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                        </manifest>
-			<manifestEntries>
-			    <specification-title>Apache CXF</specification-title>
-			    <specification-vendor>The Apache Software Foundation</specification-vendor>
-			    <specification-version>${pom.version}</specification-version>
-			    <implementation-vendor>The Apache Software Foundation</implementation-vendor>
-			</manifestEntries>
+			    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+			    <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest> 
                     </archive>
                 </configuration>
             </plugin>

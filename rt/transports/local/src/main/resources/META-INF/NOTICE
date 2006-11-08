@@ -1,27 +1,49 @@
    =========================================================================
    ==  NOTICE file corresponding to the section 4 d of                    ==
    ==  the Apache License, Version 2.0,                                   ==
-   ==  in this case for the Apache CeltiXfire distribution.               ==
+   ==  in this case for the Apache CXF distribution.               ==
    =========================================================================
 
    This product includes software developed by
    The Apache Software Foundation (http://www.apache.org/).
 
-   The product includes Web Services Description Language
-   for Java Toolkit (WSDL4J) software in binary form.
-   The source may be obtained at: http://sourceforge.net/projects/wsdl4j.
-
-   This product also includes software developed by:
+   This product also includes schemas and specification developed by:
       - the W3C consortium (http://www.w3c.org) ,
 
    This product also includes software developed by Spring Framework
    Project (http://www.springframework.org)
 
-   This product also includes software developed by SUN MICROSYSTEMS, INC
-   (https://www.dev.java.net/servlets/ProjectList)
+   This product also includes XMLSchema developed at the apache 
+   software foundation. The original software is available from
+   (http://www.apache.org/dyn/closer.cgi/ws/commons/XmlSchema)
 
-   This product also includes specifications developed by Java Community
-   Process (http://jcp.org/en/home/index)
+   This product also includes Wsdl4j (The Web Services Description 
+   Language for Java Toolkit) developed at Sourceforge. The original 
+   software is available from (http://sourceforge.net/projects/wsdl4j)
+
+   This product also inclues SAAJ (The SOAP with Attachments API for Java)
+   The original software is availabe from (http://saaj.dev.java.net/)
+
+   This product also includes JavaMail api developed by Sun MicroSystems, Inc.
+   The original software is avaiable from (http://glassfish.dev.java.net/)
+
+   This product also includes JSR 181 API developed by Java Community Process.
+   The original software is avaliable from (http://glassfish.dev.java.net/)
+
+   This product also includes JSR 250 API developed by Java Community Process.
+   The original software is available from (http://glassfish.dev.java.net/)
+
+   This product also includes Java API for XML Web Service developed by
+   Java Community Process and Sun MicroSystems, Inc. The original software
+   is available from (http://glassfish.dev.java.net/)
+
+   This product also includes Java Architecture for XML Binding developed by Java
+   Community Process and Sun MicroSystems, Inc. The original software is
+   available from (http://jaxb.dev.java.net)
+
+   This product also includes JavaBeans Activation Framework developed by
+   Java Community Process and Sun MicroSystems, Inc. The original software is 
+   available from (http://jcp.org/aboutJava/communityprocess/mrel/jsr925/index.html
 
    This product also includes software developed by Mort Bay Consulting
    Pty (http://jetty.mortbay.org)
@@ -40,6 +62,10 @@
    This Product also includes schemas developed by OASIS
    (http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd)
    (http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd) 
+
+   Java classes (source and binary) under org.apache.cxf.jaxws.javaee
+   are generated from schema available here:
+   (http://java.sun.com/xml/ns/javaee/javaee_5.xsd)
 
    Additional copyright notices and license terms applicable are
    present in the licenses directory of this distribution.

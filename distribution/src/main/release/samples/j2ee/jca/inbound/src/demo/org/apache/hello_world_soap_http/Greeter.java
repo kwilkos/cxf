@@ -19,10 +19,9 @@
 
 package org.apache.hello_world_soap_http;
 
-
 import java.rmi.RemoteException;
-import javax.jws.WebService;
 import javax.jws.WebMethod;
+import javax.jws.WebService;
 
 @WebService
 public interface Greeter {
