@@ -23,6 +23,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -32,6 +34,7 @@ import org.apache.cxf.phase.Phase;
 
 public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger LOG = Logger.getLogger(InMessageRecorder.class.getName());
     private List<byte[]> inbound;
 
     public InMessageRecorder() {
@@ -52,6 +55,9 @@ public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
             is.close();
             bos.close();
             inbound.add(bos.toByteArray());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("inbound: " + bos.toString());
+            }
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
             message.setContent(InputStream.class, bis);
         } catch (Exception ex) {

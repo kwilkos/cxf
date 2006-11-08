@@ -46,8 +46,10 @@ public abstract class ClientServerSetupBase extends AbstractClientServerSetupBas
     
     public void tearDown() throws Exception {
         super.tearDown();
-        bus.shutdown(true);
-        bus = null;
+        if (null != bus) {
+            bus.shutdown(true);
+            bus = null;
+        }
         if (configFileName != null) {
             System.clearProperty("cxf.config.file");
         }

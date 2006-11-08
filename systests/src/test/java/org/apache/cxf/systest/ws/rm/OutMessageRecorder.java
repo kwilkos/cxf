@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 import org.apache.cxf.interceptor.Fault;
@@ -40,6 +42,7 @@ import org.apache.cxf.phase.Phase;
  */
 public class OutMessageRecorder extends AbstractPhaseInterceptor {
     
+    private static final Logger LOG = Logger.getLogger(OutMessageRecorder.class.getName());
     private List<byte[]> outbound;
     private Set<String> before = Collections.singleton(StaxOutInterceptor.class.getName());
 
@@ -85,6 +88,9 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
             bos.close();
             original.close();
             outbound.add(bos.toByteArray());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("outbound: " + bos.toString());
+            }
         }
 
         @Override

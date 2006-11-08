@@ -19,10 +19,31 @@
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+       xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
+       xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-  
+    
+    <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
+        <property name="bus" ref="cxf"/>  
+        <property name="destinationPolicy">
+            <value>
+                <wsrm-mgmt:destinationPolicy>
+                    <wsrm-mgmt:acksPolicy intraMessageThreshold="0"/>                    
+                </wsrm-mgmt:destinationPolicy>
+            </value>
+        </property>
+        
+        <property name="RMAssertion">
+            <value>
+                <wsrm-policy:RMAssertion>         
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="10000"/>           
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>                                                        
+                </wsrm-policy:RMAssertion>
+            </value>
+        </property>   
+    </bean>   
+
     <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
     <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
     <bean id="rmLogicalOut" class="org.apache.cxf.ws.rm.RMOutInterceptor">

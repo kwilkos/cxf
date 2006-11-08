@@ -43,8 +43,7 @@ public class MessageFlow extends Assert {
     private List<byte[]> outStreams;
     private List<Document> outboundMessages;
     private List<Document> inboundMessages;
-    
-    
+      
     public MessageFlow(List<byte[]> out, List<byte[]> in) throws Exception {
         inStreams = in;
         outStreams = out;

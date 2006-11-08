@@ -47,6 +47,7 @@ public class SequenceTest extends ClientServerTestBase {
     //private static final String GREETME_ACTION = APP_NAMESPACE + "/types/Greeter/greetMe";
     //private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION + "Response";
 
+    private Bus controlBus;
     private Control control;
     private Bus greeterBus;
     private Greeter greeter;
@@ -54,6 +55,7 @@ public class SequenceTest extends ClientServerTestBase {
     private InMessageRecorder inRecorder;
 
     private boolean doTestOnewayAnonymousAcks = true;
+    private boolean doTestOnewayDeferredAnonymousAcks = true;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -68,29 +70,42 @@ public class SequenceTest extends ClientServerTestBase {
             
             public void setUp() throws Exception {
                 startServers();
-                LOG.fine("Started server");
+                LOG.fine("Started server.");
 
+                /*
                 SpringBusFactory bf = new SpringBusFactory();
                 Bus bus = bf.createBus();
                 bf.setDefaultBus(bus);
                 setBus(bus);
-                LOG.fine("Created client bus");
+                LOG.fine("Initialised client bus."); 
+                */               
             }
         };
     }
 
     public void setUp() throws Exception {
-        super.setUp();
-        ControlService service = new ControlService(); 
-        LOG.fine("Created ControlService");
+        SpringBusFactory bf = new SpringBusFactory();
+        controlBus = bf.createBus();
+        bf.setDefaultBus(controlBus);
+        LOG.fine("Initialised control bus.");
+        controlBus = new SpringBusFactory().getDefaultBus();
+
+        ControlService service = new ControlService();
+        LOG.fine("Created ControlService.");
         control = service.getControlPort();
-        LOG.fine("Created Control");
+        LOG.fine("Created Control.");
     }
     
     public void tearDown() {
         if (null != greeter) {
-            assertTrue("Failed to stop greeter", control.stopGreeter());
+            assertTrue("Failed to stop greeter.", control.stopGreeter());            
             greeterBus.shutdown(true);
+            LOG.fine("Shutdown greeter bus.");
+            greeterBus = null;
+        }
+        if (null != control) {               
+            controlBus.shutdown(true);
+            LOG.fine("Shutdown control bus.");
         }
     }
 
@@ -125,6 +140,43 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
+    
+    public void testOnewayDeferredAnonymousAcks() throws Exception {
+        if (!doTestOnewayDeferredAnonymousAcks) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-deferred.xml");
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+
+        try {
+            Thread.sleep(3 * 1000);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+
+        greeter.greetMeOneWay("thrice");
+
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+                
+        // three application messages plus createSequence
+        mf.verifyMessages(4, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), null,
+                                                 null, null};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
+        // createSequenceResponse message plus 3 partial responses, only the
+        // last one should include a sequence acknowledgment
+
+        mf.verifyMessages(4, false);
+        expectedActions = 
+            new String[] {RMConstants.getCreateSequenceResponseAction(), null, null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
+    }
 
     // --- test utilities ---
 
@@ -133,6 +185,7 @@ public class SequenceTest extends ClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         greeterBus = bf.createBus(cfgResource);
         bf.setDefaultBus(greeterBus);
+        LOG.fine("Initialised greeter bus.");
 
         outRecorder = new OutMessageRecorder();
         greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
@@ -144,6 +197,7 @@ public class SequenceTest extends ClientServerTestBase {
         
         GreeterService service = new GreeterService();
         greeter = service.getGreeterPort();
+        LOG.fine("Created greeter client.");
  
         
         
