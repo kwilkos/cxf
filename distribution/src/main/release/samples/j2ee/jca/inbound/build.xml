@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+
+<project name="Inbound Connection Demo" default="build" basedir=".">
+
+    <property name="demos.current.dir" value="."/>
+    <property name="build.classes.dir" value="${basedir}/build"/>
+    <property name="cxf.home" value="../../../.."/>
+    <property name="wsdl.dir" value="${basedir}/wsdl"/>
+    <property name="wsdl.location" value="${basedir}/wsdl/hello_world.wsdl"/>
+    <property name="build.archives" value="${basedir}/j2ee-archives"/> 
+    <property name="ejb.xml" location="./etc/ejb.xml"/>
+    
+    <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
+    <property name="servants.props.file" location="${basedir}/../../../../etc/ejb_servants.properties"/>
+    <property file="${servants.props.file}"/>
+    <property name="j2ee.archives" value="j2ee-archives"/>
+
+ 
+    <path id="other.classpath">
+      <pathelement location="${basedir}/../../../../lib/geronimo-j2ee-connector_1.5_spec-1.0.1.jar"/>
+      <pathelement location="${basedir}/../../../../lib/geronimo-ejb_2.1_spec-1.0.1.jar"/>
+      <pathelement location="${repository}/javax/xml/jaxws-api/2.0-JAXWS-2.0-EA3/jaxws-api-2.0-JAXWS-2.0-EA3.jar"/>
+      <pathelement location="${basedir}/../../../../lib/jsr181-api-2.0-JAXWS-2.0-EA3.jar"/>
+    </path>
+    
+
+    <target name="build" depends="clean,init,j2ee.compile,build.ejb.jar"/> 
+
+    <target name="init"> 
+      <mkdir dir="${build.classes.dir}"/>
+      <mkdir dir="${j2ee.archives}"/>
+    </target>
+    
+    <target name="j2ee.compile">
+      <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true" fork="yes">
+	<include name="**/*.java"/>
+	<classpath>
+	  <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
+	  <pathelement location="${build.classes.dir}"/>
+	  <!--path refid="cxf.classpath"/-->
+	  <path refid="other.classpath"/>
+	</classpath>
+      </javac>
+    </target>
+    <target name="clean">
+      <delete failonerror="no">
+	<fileset dir="./src" includes="**/*.class"/>
+	<fileset dir="." includes="**/*.jar"/>
+	<fileset dir="." includes="**/*.rar"/>
+      </delete>
+    </target>
+    
+    <target name="build.ejb.jar"> 
+      <jar destfile="${j2ee.archives}/greeterejb.jar"> 
+	<metainf dir="./etc"> 
+	    <include name="*ejb*.xml"/>
+	</metainf>
+	<fileset dir="${build.classes.dir}/" includes="org/**/*.class"/>
+	<fileset dir="${build.classes.dir}">
+	  <include name="**/ejb/*.class"/>
+	</fileset>
+      </jar>
+    </target> 
+
+    <!-- 
+	 this target appends the necessary entry to ejb_servants.properties 
+	 to activate the web services facade for the greeterejb.jar application.
+    -->
+    <target name="activate" description="updates ejb_servants.properties for demo " unless="GreeterBean">
+      <property name="servant.definition" 
+		value="GreeterBean={http://apache.org/hello_world_soap_http}Greeter@file:"/>
+      <echo message="updating ${servants.props.file}" />
+
+      <echo file="${servants.props.file}" append="true">
+	# entry for the j2ee inbound demo
+	${servant.definition}
+      </echo>
+      <replace file="${servants.props.file}" token="\" value="/"/> 
+    </target>
+
+    <target name="client"> 
+      <java classname="demo.client.GreeterClient" fork="true"> 
+	<arg value="${wsdl.location}"/> 
+	<classpath> 
+	  <pathelement location="${build.classes.dir}"/>
+	  <pathelement path="../../../../lib/cxf.jar"/>
+	</classpath>
+      </java> 
+    </target> 
+</project>

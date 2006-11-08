@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<jboss-ejb-jar>
+
+   <jboss-enterprise-bean>
+      <ejb-name>GreeterBean</ejb-name>
+      <jndi-name>GreeterBean</jndi-name>
+   </jboss-enterprise-bean>
+
+</jboss-ejb-jar>
