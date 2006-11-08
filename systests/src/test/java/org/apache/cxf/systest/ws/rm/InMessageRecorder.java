@@ -24,9 +24,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
-
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -35,10 +32,10 @@ import org.apache.cxf.phase.Phase;
 
 public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
 
-    private List<SOAPMessage> inbound;
+    private List<byte[]> inbound;
 
     public InMessageRecorder() {
-        inbound = new ArrayList<SOAPMessage>();
+        inbound = new ArrayList<byte[]>();
         setPhase(Phase.RECEIVE);
     }
 
@@ -54,18 +51,15 @@ public class InMessageRecorder extends AbstractPhaseInterceptor<Message> {
             IOUtils.copy(is, bos);
             is.close();
             bos.close();
-            MessageFactory mf = MessageFactory.newInstance();
+            inbound.add(bos.toByteArray());
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-            SOAPMessage sm = mf.createMessage(null, bis);
-            inbound.add(sm);
-            bis = new ByteArrayInputStream(bos.toByteArray());
             message.setContent(InputStream.class, bis);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    protected List<SOAPMessage> getInboundMessages() {
+    protected List<byte[]> getInboundMessages() {
         return inbound;
     } 
 }

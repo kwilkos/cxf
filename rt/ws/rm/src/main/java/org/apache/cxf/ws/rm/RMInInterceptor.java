@@ -113,13 +113,15 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         
         // for application AND out of band messages
 
+        Destination destination = getManager().getDestination(message);
+        
         if (null != rmps) {            
             
             processAcknowledgments(rmps);
 
             processAcknowledgmentRequests(rmps);  
             
-            processSequence(rmps, maps);
+            processSequence(destination, rmps, maps);
             
             processDeliveryAssurance(rmps);
         }
@@ -133,8 +135,15 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         
     }
     
-    void processSequence(RMProperties rmps, AddressingProperties maps) {
-        
+    void processSequence(Destination destination, RMProperties rmps, AddressingProperties maps) 
+        throws SequenceFault {
+        SequenceType s = rmps.getSequence();
+        if (null == s) {
+            return;
+        }  
+
+        destination.acknowledge(s, 
+            null == maps.getReplyTo() ? null : maps.getReplyTo().getAddress().getValue());
     }
     
     void processDeliveryAssurance(RMProperties rmps) {

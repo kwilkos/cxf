@@ -31,43 +31,43 @@ import javax.xml.namespace.QName;
  */
 public final class RMConstants {
    
-    public static final String WSRM_NAMESPACE_NAME = 
+    private static final String WSRM_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2005/02/rm";
     
-    public static final String WSRMP_NAMESPACE_NAME = 
+    private static final String WSRMP_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2005/02/rm/policy";
     
-    public static final String WSA_NAMESPACE_NAME = 
+    private static final String WSA_NAMESPACE_NAME = 
         "http://schemas.xmlsoap.org/ws/2004/08/addressing";
     
-    public static final String WSRM_NAMESPACE_PREFIX = "wsrm";
+    private static final String WSRM_NAMESPACE_PREFIX = "wsrm";
     
-    public static final String WSRM_WSDL_NAMESPACE_NAME = 
+    private static final String WSRM_WSDL_NAMESPACE_NAME = 
         WSRM_NAMESPACE_NAME + "/wsdl";
     
   
-    public static final String WSRM_SEQUENCE_NAME =
+    private static final String WSRM_SEQUENCE_NAME =
         "Sequence";
     
-    public static final QName WSRM_SEQUENCE_QNAME =
+    private static final QName WSRM_SEQUENCE_QNAME =
         new QName(WSRM_NAMESPACE_NAME, WSRM_SEQUENCE_NAME);
     
-    public static final String WSRM_SEQUENCE_ACK_NAME =
+    private static final String WSRM_SEQUENCE_ACK_NAME =
         "SequenceAcknowledgement";
     
-    public static final QName WSRM_SEQUENCE_ACK_QNAME =
+    private static final QName WSRM_SEQUENCE_ACK_QNAME =
         new QName(WSRM_NAMESPACE_NAME, WSRM_SEQUENCE_ACK_NAME);
     
-    public static final String WSRM_ACK_REQUESTED_NAME =
+    private static final String WSRM_ACK_REQUESTED_NAME =
         "AckRequested";
     
-    public static final QName WSRM_ACK_REQUESTED_QNAME =
+    private static final QName WSRM_ACK_REQUESTED_QNAME =
         new QName(WSRM_NAMESPACE_NAME, WSRM_ACK_REQUESTED_NAME);
     
-    public static final String WSA_ANONYMOUS_ADDRESS = 
+    private static final String WSA_ANONYMOUS_ADDRESS = 
         WSA_NAMESPACE_NAME + "/anonymous";
     
-    public static final String WSA_NONE_ADDRESS =
+    private static final String WSA_NONE_ADDRESS =
         WSA_NAMESPACE_NAME + "/none";
       
     /**
@@ -133,6 +133,58 @@ public final class RMConstants {
     
     public static Set<QName> getHeaders() {
         return HEADERS;
+    }
+    
+    public static String getNamespace() {
+        return WSRM_NAMESPACE_NAME; 
+    }
+        
+    public static String getPolicyNamespace() {
+        return WSRMP_NAMESPACE_NAME;
+    }
+    
+    public static String getAddressingNamespace() {
+        return WSA_NAMESPACE_NAME;        
+    }
+    
+    public static String getNamespacePrefix() {
+        return WSRM_NAMESPACE_PREFIX;
+    }
+    
+    public static  String getWsdlNamespace() {
+        return WSRM_WSDL_NAMESPACE_NAME;
+    }    
+  
+    public static String getSequenceName() {
+        return WSRM_SEQUENCE_NAME;
+    }
+    
+    public static QName getSequenceQName() {
+        return WSRM_SEQUENCE_QNAME;
+    }
+    
+    public static String getSequenceAckName() {
+        return WSRM_SEQUENCE_ACK_NAME;
+    }
+    
+    public static QName getSequenceAckQName() {
+        return WSRM_SEQUENCE_ACK_QNAME;
+    }
+    
+    public static String getAckRequestedName() {
+        return WSRM_ACK_REQUESTED_NAME;
+    }
+    
+    public static QName getAckRequestedQName() {
+        return WSRM_ACK_REQUESTED_QNAME;
+    }
+    
+    public static String getAnonympusAddress() {
+        return WSA_ANONYMOUS_ADDRESS; 
+    }
+    
+    public static String getNoneAddress() {
+        return WSA_NONE_ADDRESS;
     }
     
     public static QName getCreateSequenceOperationName() {

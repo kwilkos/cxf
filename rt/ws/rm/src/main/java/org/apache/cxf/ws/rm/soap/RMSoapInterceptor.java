@@ -182,15 +182,15 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             // add WSRM namespace declaration to header, instead of
             // repeating in each individual child node
             header.setAttributeNS("http://www.w3.org/2000/xmlns/",
-                                  "xmlns:" + RMConstants.WSRM_NAMESPACE_PREFIX,
-                                 RMConstants.WSRM_NAMESPACE_NAME);
+                                  "xmlns:" + RMConstants.getNamespacePrefix(),
+                                 RMConstants.getNamespace());
             Marshaller marshaller = getJAXBContext().createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
            
             SequenceType seq = rmps.getSequence();
             if (null != seq) {
                 encodeProperty(seq, 
-                               RMConstants.WSRM_SEQUENCE_QNAME, 
+                               RMConstants.getSequenceQName(), 
                                SequenceType.class, 
                                header,
                                marshaller);
@@ -199,7 +199,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             if (null != acks) {
                 for (SequenceAcknowledgement ack : acks) {
                     encodeProperty(ack, 
-                                   RMConstants.WSRM_SEQUENCE_ACK_QNAME, 
+                                   RMConstants.getSequenceAckQName(), 
                                    SequenceAcknowledgement.class, 
                                    header,
                                    marshaller);
@@ -209,7 +209,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
             if (null != requested) {
                 for (AckRequestedType ar : requested) {
                     encodeProperty(ar, 
-                                   RMConstants.WSRM_ACK_REQUESTED_QNAME, 
+                                   RMConstants.getAckRequestedQName(), 
                                    AckRequestedType.class, 
                                    header,
                                    marshaller);
@@ -260,20 +260,20 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                     Element headerElement = (Element)headerElements.item(i);
                     String headerURI = headerElement.getNamespaceURI();
                     String localName = headerElement.getLocalName();
-                    if (RMConstants.WSRM_NAMESPACE_NAME.equals(headerURI)) {
+                    if (RMConstants.getNamespace().equals(headerURI)) {
                         LOG.log(Level.INFO, "decoding RM header {0}", localName);
-                        if (RMConstants.WSRM_SEQUENCE_NAME.equals(localName)) {
+                        if (RMConstants.getSequenceName().equals(localName)) {
                             SequenceType s = decodeProperty(SequenceType.class,
                                                             headerElement,
                                                             unmarshaller);
                             
                             rmps.setSequence(s);
-                        } else if (RMConstants.WSRM_SEQUENCE_ACK_NAME.equals(localName)) {
+                        } else if (RMConstants.getSequenceAckName().equals(localName)) {
                             SequenceAcknowledgement ack = decodeProperty(SequenceAcknowledgement.class,
                                                             headerElement,
                                                             unmarshaller);
                             acks.add(ack);                            
-                        } else if (RMConstants.WSRM_ACK_REQUESTED_NAME.equals(localName)) {
+                        } else if (RMConstants.getAckRequestedName().equals(localName)) {
                             AckRequestedType ar = decodeProperty(AckRequestedType.class,
                                                             headerElement,
                                                             unmarshaller);
@@ -355,11 +355,11 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
      */
     private static void discardRMHeaders(Element header) throws SOAPException {
         NodeList headerElements =
-            header.getElementsByTagNameNS(RMConstants.WSRM_NAMESPACE_NAME, "*");
+            header.getElementsByTagNameNS(RMConstants.getNamespace(), "*");
         
         for (int i = 0; i < headerElements.getLength(); i++) {
             Node headerElement = headerElements.item(i);
-            if (RMConstants.WSRM_NAMESPACE_NAME.equals(headerElement.getNamespaceURI())) {
+            if (RMConstants.getNamespace().equals(headerElement.getNamespaceURI())) {
                 header.removeChild(headerElement);
             }
 

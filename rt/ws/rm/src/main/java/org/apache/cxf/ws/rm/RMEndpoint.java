@@ -46,13 +46,13 @@ import org.apache.cxf.ws.addressing.wsdl.UsingAddressing;
 public class RMEndpoint {
     
     private static final QName SERVICE_NAME = 
-        new QName(RMConstants.WSRM_NAMESPACE_NAME, "SequenceAbstractService");
+        new QName(RMConstants.getNamespace(), "SequenceAbstractService");
     private static final QName INTERFACE_NAME = 
-         new QName(RMConstants.WSRM_NAMESPACE_NAME, "SequenceAbstractPortType");
+         new QName(RMConstants.getNamespace(), "SequenceAbstractPortType");
     private static final QName BINDING_NAME = 
-        new QName(RMConstants.WSRM_NAMESPACE_NAME, "SequenceAbstractSoapBinding");
+        new QName(RMConstants.getNamespace(), "SequenceAbstractSoapBinding");
     private static final QName PORT_NAME = 
-        new QName(RMConstants.WSRM_NAMESPACE_NAME, "SequenceAbstractSoapPort");
+        new QName(RMConstants.getNamespace(), "SequenceAbstractSoapPort");
         
     private final RMManager manager;
     private final Endpoint applicationEndpoint;

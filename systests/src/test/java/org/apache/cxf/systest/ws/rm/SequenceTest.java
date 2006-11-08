@@ -51,7 +51,8 @@ public class SequenceTest extends ClientServerTestBase {
     private Bus greeterBus;
     private Greeter greeter;
     private String currentCfgResource;
-    private MessageFlow mf;
+    private OutMessageRecorder outRecorder;
+    private InMessageRecorder inRecorder;
 
     private boolean doTestOnewayAnonymousAcks = true;
 
@@ -108,10 +109,12 @@ public class SequenceTest extends ClientServerTestBase {
 
         // three application messages plus createSequence
 
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+
         mf.verifyMessages(4, true);
         String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), GREETMEONEWAY_ACTION,
                                                  GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
-        expectedActions = new String[] {RMConstants.getCreateSequenceAction(), "", "", ""};
+        expectedActions = new String[] {RMConstants.getCreateSequenceAction(), null, null, null};
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
@@ -121,7 +124,7 @@ public class SequenceTest extends ClientServerTestBase {
         expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), null, null, null};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, false, false}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
 
     // --- test utilities ---
@@ -132,10 +135,10 @@ public class SequenceTest extends ClientServerTestBase {
         greeterBus = bf.createBus(cfgResource);
         bf.setDefaultBus(greeterBus);
 
-        OutMessageRecorder outRecorder = new OutMessageRecorder();
+        outRecorder = new OutMessageRecorder();
         greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
         greeterBus.getOutInterceptors().add(outRecorder);
-        InMessageRecorder inRecorder = new InMessageRecorder();
+        inRecorder = new InMessageRecorder();
         greeterBus.getInInterceptors().add(inRecorder);
         currentCfgResource = cfgResource;
 
@@ -144,7 +147,6 @@ public class SequenceTest extends ClientServerTestBase {
         GreeterService service = new GreeterService();
         greeter = service.getGreeterPort();
  
-        mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
         
         
     }

@@ -19,7 +19,6 @@
 
 package org.apache.cxf.systest.ws.rm;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,12 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPMessage;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
-//import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -44,12 +40,11 @@ import org.apache.cxf.phase.Phase;
  */
 public class OutMessageRecorder extends AbstractPhaseInterceptor {
     
-    private List<SOAPMessage> outbound;
+    private List<byte[]> outbound;
     private Set<String> before = Collections.singleton(StaxOutInterceptor.class.getName());
 
     public OutMessageRecorder() {
-        outbound = new ArrayList<SOAPMessage>();
-        //setPhase(Phase.POST_STREAM);
+        outbound = new ArrayList<byte[]>();
         setPhase(Phase.PRE_PROTOCOL);
     }
     
@@ -60,20 +55,6 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         }
         ForkOutputStream fos = new ForkOutputStream(os);
         message.setContent(OutputStream.class, fos);
-
-        /*
-        if (os instanceof AbstractCachedOutputStream) {
-            try {
-                String s = ((AbstractCachedOutputStream)os).toString();
-                MessageFactory mf = MessageFactory.newInstance();
-                ByteArrayInputStream bis = new ByteArrayInputStream(s.getBytes()); 
-                SOAPMessage sm = mf.createMessage(null, bis);
-                outbound.add(sm);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        */
     }
    
     @Override
@@ -81,7 +62,8 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         return before;
     }
 
-    protected List<SOAPMessage> getOutboundMessages() {
+
+    protected List<byte[]> getOutboundMessages() {
         return outbound;
     } 
 
@@ -91,7 +73,7 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     class ForkOutputStream extends OutputStream {
 
         final OutputStream original;
-        final ByteArrayOutputStream bos;
+        ByteArrayOutputStream bos;
     
         public ForkOutputStream(OutputStream o) {
             original = o;
@@ -101,15 +83,8 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         @Override
         public void close() throws IOException {
             bos.close();
-            try {
-                MessageFactory mf = MessageFactory.newInstance();
-                ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-                SOAPMessage sm = mf.createMessage(null, bis);
-                outbound.add(sm);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } 
             original.close();
+            outbound.add(bos.toByteArray());
         }
 
         @Override

@@ -180,7 +180,7 @@ public class DestinationSequence extends AbstractSequence {
     boolean canPiggybackAckOnPartialResponse() {
         // TODO: should also check if we allow breaking the WI Profile rule by which no headers
         // can be included in a HTTP response
-        return getAcksTo().getAddress().getValue().equals(RMConstants.WSA_ANONYMOUS_ADDRESS);
+        return getAcksTo().getAddress().getValue().equals(RMConstants.getAnonympusAddress());
     }
        
     /**

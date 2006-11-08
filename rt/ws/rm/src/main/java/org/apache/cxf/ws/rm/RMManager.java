@@ -144,7 +144,7 @@ public class RMManager extends RMManagerConfigBean {
                 } else {
                     acksTo = VersionTransformer.convert(maps.getReplyTo());
                     // for oneways
-                    if (RMConstants.WSA_NONE_ADDRESS.equals(acksTo.getAddress().getValue())) {
+                    if (RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
                         acksTo = RMUtils.createAnonymousReference2004();
                     }
                 }

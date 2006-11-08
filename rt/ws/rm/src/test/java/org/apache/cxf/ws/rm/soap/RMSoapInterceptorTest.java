@@ -74,11 +74,11 @@ public class RMSoapInterceptorTest extends TestCase {
         RMSoapInterceptor codec = new RMSoapInterceptor();
         Set<QName> headers = codec.getUnderstoodHeaders();
         assertTrue("expected Sequence header", 
-                   headers.contains(RMConstants.WSRM_SEQUENCE_QNAME));
+                   headers.contains(RMConstants.getSequenceQName()));
         assertTrue("expected SequenceAcknowledgment header", 
-                   headers.contains(RMConstants.WSRM_SEQUENCE_ACK_QNAME));
+                   headers.contains(RMConstants.getSequenceAckQName()));
         assertTrue("expected AckRequested header", 
-                   headers.contains(RMConstants.WSRM_ACK_REQUESTED_QNAME));
+                   headers.contains(RMConstants.getAckRequestedQName()));
     }
     
     public void testHandleMessage() throws NoSuchMethodException {
@@ -152,7 +152,7 @@ public class RMSoapInterceptorTest extends TestCase {
         RMProperties rmps = RMContextUtils.retrieveRMProperties(message, true);     
         rmps.setSequence(s1);        
         codec.encode(message);
-        verifyHeaders(message, new String[] {RMConstants.WSRM_SEQUENCE_NAME});
+        verifyHeaders(message, new String[] {RMConstants.getSequenceName()});
 
         // one acknowledgment header
 
@@ -162,7 +162,7 @@ public class RMSoapInterceptorTest extends TestCase {
         acks.add(ack1);
         rmps.setAcks(acks);        
         codec.encode(message);
-        verifyHeaders(message, new String[] {RMConstants.WSRM_SEQUENCE_ACK_NAME});
+        verifyHeaders(message, new String[] {RMConstants.getSequenceAckName()});
 
         // two acknowledgment headers
 
@@ -171,8 +171,8 @@ public class RMSoapInterceptorTest extends TestCase {
         acks.add(ack2);
         rmps.setAcks(acks);
         codec.encode(message);
-        verifyHeaders(message, new String[] {RMConstants.WSRM_SEQUENCE_ACK_NAME, 
-                                             RMConstants.WSRM_SEQUENCE_ACK_NAME});
+        verifyHeaders(message, new String[] {RMConstants.getSequenceAckName(), 
+                                             RMConstants.getSequenceAckName()});
 
         // one ack requested header
 
@@ -182,7 +182,7 @@ public class RMSoapInterceptorTest extends TestCase {
         requested.add(ar1);
         rmps.setAcksRequested(requested);
         codec.encode(message);
-        verifyHeaders(message, new String[] {RMConstants.WSRM_ACK_REQUESTED_NAME});
+        verifyHeaders(message, new String[] {RMConstants.getAckRequestedName()});
 
         // two ack requested headers
 
@@ -191,8 +191,8 @@ public class RMSoapInterceptorTest extends TestCase {
         requested.add(ar2);
         rmps.setAcksRequested(requested);
         codec.encode(message);
-        verifyHeaders(message, new String[] {RMConstants.WSRM_ACK_REQUESTED_NAME, 
-                                             RMConstants.WSRM_ACK_REQUESTED_NAME});
+        verifyHeaders(message, new String[] {RMConstants.getAckRequestedName(), 
+                                             RMConstants.getAckRequestedName()});
     }
 
     public void testDecodeSequence() throws XMLStreamException {
@@ -302,11 +302,11 @@ public class RMSoapInterceptorTest extends TestCase {
                 Element headerElement = (Element)headerElements.item(i);
                 String namespace = headerElement.getNamespaceURI();
                 String localName = headerElement.getLocalName();
-                if (RMConstants.WSRM_NAMESPACE_NAME.equals(namespace)
+                if (RMConstants.getNamespace().equals(namespace)
                     && localName.equals(name)) {
                     found = true;
                     break;
-                } else if (RMConstants.WSA_NAMESPACE_NAME.equals(namespace)
+                } else if (RMConstants.getAddressingNamespace().equals(namespace)
                     && localName.equals(name)) {
                     found = true;
                     break;
@@ -322,8 +322,8 @@ public class RMSoapInterceptorTest extends TestCase {
             Element headerElement = (Element)headerElements.item(i);  
             String namespace = headerElement.getNamespaceURI();
             String localName = headerElement.getLocalName();
-            assertTrue(RMConstants.WSRM_NAMESPACE_NAME.equals(namespace) 
-                || RMConstants.WSA_NAMESPACE_NAME.equals(namespace));
+            assertTrue(RMConstants.getNamespace().equals(namespace) 
+                || RMConstants.getAddressingNamespace().equals(namespace));
             boolean found = false;
             for (String name : names) {
                 if (localName.equals(name)) {

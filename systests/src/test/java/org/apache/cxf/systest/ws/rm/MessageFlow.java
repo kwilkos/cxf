@@ -19,17 +19,17 @@
 
 package org.apache.cxf.systest.ws.rm;
 
-import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPEnvelope;
-import javax.xml.soap.SOAPHeader;
-import javax.xml.soap.SOAPHeaderElement;
-import javax.xml.soap.SOAPMessage;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import junit.framework.Assert;
 
@@ -39,21 +39,34 @@ import org.apache.cxf.ws.rm.RMConstants;
 
 public class MessageFlow extends Assert {
     
-    private List<SOAPMessage> outboundMessages;
-    private List<SOAPMessage> inboundMessages;
+    private List<byte[]> inStreams;
+    private List<byte[]> outStreams;
+    private List<Document> outboundMessages;
+    private List<Document> inboundMessages;
     
     
-    public MessageFlow(List<SOAPMessage> o, List<SOAPMessage> i) {
-        outboundMessages = o;
-        inboundMessages = i;
-    }
-    
-    public List<SOAPMessage> getOutboundMessages() {
-        return outboundMessages;
-    }
-    
-    public List<SOAPMessage> getInboundMessages() {
-        return inboundMessages;
+    public MessageFlow(List<byte[]> out, List<byte[]> in) throws Exception {
+        inStreams = in;
+        outStreams = out;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder parser = factory.newDocumentBuilder();
+        inboundMessages = new ArrayList<Document>();
+        for (int i = 0; i < inStreams.size(); i++) {
+            byte[] bytes = inStreams.get(i);
+            String str = new String(bytes);
+            ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+            Document document = parser.parse(is);
+            inboundMessages.add(document);
+        }
+        outboundMessages = new ArrayList<Document>();
+        for (int i = 0; i < outStreams.size(); i++) {
+            byte[] bytes = outStreams.get(i);
+            String str = new String(bytes);
+            ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+            Document document = parser.parse(is);
+            outboundMessages.add(document);
+        }
     }
     
     public void verifyActions(String[] expectedActions, boolean outbound) throws Exception {
@@ -141,25 +154,25 @@ public class MessageFlow extends Assert {
 
         if (exact) {
             for (int i = 0; i < expectedMessageNumbers.length; i++) {
-                SOAPElement se = outbound ? getSequence(outboundMessages.get(i))
+                Element e = outbound ? getSequence(outboundMessages.get(i))
                     : getSequence(inboundMessages.get(i));
                 if (null == expectedMessageNumbers[i]) {
                     assertNull((outbound ? "Outbound" : "Inbound") + " message " + i
-                        + " contains unexpected message number ", se);
+                        + " contains unexpected message number ", e);
                 } else {
                     assertEquals((outbound ? "Outbound" : "Inbound") + " message " + i
                         + " does not contain expected message number "
                                  + expectedMessageNumbers[i], expectedMessageNumbers[i], 
-                                 getMessageNumber(se));
+                                 getMessageNumber(e));
                 }
             }
         } else {
             boolean[] matches = new boolean[expectedMessageNumbers.length];
             for (int i = 0; i < actualMessageCount; i++) {
                 String messageNumber = null;
-                SOAPElement se = outbound ? getSequence(outboundMessages.get(i))
+                Element e = outbound ? getSequence(outboundMessages.get(i))
                     : getSequence(inboundMessages.get(i));
-                messageNumber = null == se ? null : getMessageNumber(se);
+                messageNumber = null == e ? null : getMessageNumber(e);
                 for (int j = 0; j < expectedMessageNumbers.length; j++) {
                     if (messageNumber == null) {
                         if (expectedMessageNumbers[j] == null && !matches[j]) {
@@ -200,9 +213,9 @@ public class MessageFlow extends Assert {
         
         for (int i = 0; i < expectedLastMessages.length; i++) { 
             boolean lastMessage;
-            SOAPElement se = outbound ? getSequence(outboundMessages.get(i))
+            Element e = outbound ? getSequence(outboundMessages.get(i))
                 : getSequence(inboundMessages.get(i));
-            lastMessage = null == se ? false : getLastMessage(se);
+            lastMessage = null == e ? false : getLastMessage(e);
             assertEquals("Outbound message " + i 
                          + (expectedLastMessages[i] ? " does not contain expected last message element."
                              : " contains last message element."),
@@ -249,16 +262,14 @@ public class MessageFlow extends Assert {
             assertTrue("unexpected number of acks: " + ackCount,
                        expectedAcks <= ackCount);
         }
-        
-        
     }
 
 
     public void verifyAckRequestedOutbound(boolean outbound) throws Exception {
         boolean found = false;
-        List<SOAPMessage> messages = outbound ? outboundMessages : inboundMessages;
-        for (SOAPMessage m : messages) {
-            SOAPElement se = getAckRequested(m);
+        List<Document> messages = outbound ? outboundMessages : inboundMessages;
+        for (Document d : messages) {
+            Element se = getAckRequested(d);
             if (se != null) {
                 found = true;
                 break;
@@ -267,82 +278,73 @@ public class MessageFlow extends Assert {
         assertTrue("expected AckRequested", found);
     }
    
-    protected String getAction(SOAPMessage msg) throws Exception {
-        SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
-        SOAPHeader header = env.getHeader();
-        Iterator headerElements = header.examineAllHeaderElements();
-        while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
-            Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName();
-            if ((headerName.getURI().equals(org.apache.cxf.ws.addressing.Names.WSA_NAMESPACE_NAME) 
-                || headerName.getURI().equals(org.apache.cxf.ws.addressing.VersionTransformer
-                                              .Names200408.WSA_NAMESPACE_NAME))
-                && localName.equals(org.apache.cxf.ws.addressing.Names.WSA_ACTION_NAME)) {
-                return headerElement.getTextContent();
-            }
+    protected String getAction(Document document) throws Exception {
+        Element e = getHeaderElement(document, RMConstants.getAddressingNamespace(), "Action");
+        if (null != e) {
+            return getText(e);
         }
         return null;
     }
 
-    protected SOAPElement getSequence(SOAPMessage msg) throws Exception {
-        SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
-        SOAPHeader header = env.getHeader();
-        Iterator headerElements = header.examineAllHeaderElements();
-        while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
-            Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName();
-            if (headerName.getURI().equals(RMConstants.WSRM_NAMESPACE_NAME)
-                && localName.equals(RMConstants.WSRM_SEQUENCE_NAME)) {
-                return headerElement;
+    protected Element getSequence(Document document) throws Exception {
+        return getRMHeaderElement(document, RMConstants.getSequenceName());
+    }
+
+    public String getMessageNumber(Element elem) throws Exception {
+        for (Node nd = elem.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "MessageNumber".equals(nd.getLocalName())) {
+                return getText(nd);
             }
         }
-        return null;
+        return null;    
     }
 
-    public String getMessageNumber(SOAPElement elem) throws Exception {
-        SOAPElement se = (SOAPElement)elem.getChildElements(
-                                                            new QName(RMConstants.WSRM_NAMESPACE_NAME,
-                                                                      "MessageNumber")).next();
-        return se.getTextContent();
+    private boolean getLastMessage(Element element) throws Exception {
+        for (Node nd = element.getFirstChild(); nd != null; nd = nd.getNextSibling()) { 
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "LastMessage".equals(nd.getLocalName())) {
+                return true;
+            }
+        } 
+        return false;
     }
 
-    private boolean getLastMessage(SOAPElement elem) throws Exception {
-        return elem.getChildElements(new QName(RMConstants.WSRM_NAMESPACE_NAME, "LastMessage")).hasNext();
+    protected Element getAcknowledgment(Document document) throws Exception {
+        return getRMHeaderElement(document, RMConstants.getSequenceAckName());
+    }
+    
+    private Element getAckRequested(Document document) throws Exception {
+        return getRMHeaderElement(document, RMConstants.getAckRequestedName());
     }
 
-    protected SOAPElement getAcknowledgment(SOAPMessage msg) throws Exception {
-        SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
-        SOAPHeader header = env.getHeader();
-        Iterator headerElements = header.examineAllHeaderElements();
-        while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
-            Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName();
-            if (headerName.getURI().equals(RMConstants.WSRM_NAMESPACE_NAME)
-                && localName.equals(RMConstants.WSRM_SEQUENCE_ACK_NAME)) {
-                return (SOAPElement)header.getChildElements().next();
+    private Element getRMHeaderElement(Document document, String name) throws Exception {
+        return getHeaderElement(document, RMConstants.getNamespace(),  name);
+    }
+
+    private Element getHeaderElement(Document document, String namespace, String localName)
+        throws Exception {
+        Element envelopeElement = document.getDocumentElement();
+        Element headerElement = null;
+        for (Node nd = envelopeElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "Header".equals(nd.getLocalName())) {
+                headerElement = (Element)nd;
+                break;
+            }
+        }
+        for (Node nd = headerElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) { 
+            if (Node.ELEMENT_NODE != nd.getNodeType()) {
+                continue;
+            } 
+            Element element = (Element)nd;
+            String ns = element.getNamespaceURI();
+            String ln = element.getLocalName();
+            if (namespace.equals(ns)
+                && localName.equals(ln)) {
+                return element;
             }
         }
         return null;
     }
     
-    private SOAPElement getAckRequested(SOAPMessage msg) throws Exception {
-        SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
-        SOAPHeader header = env.getHeader();
-        Iterator headerElements = header.examineAllHeaderElements();
-        while (headerElements.hasNext()) {
-            SOAPHeaderElement headerElement = (SOAPHeaderElement)headerElements.next();
-            Name headerName = headerElement.getElementName();
-            String localName = headerName.getLocalName();
-            if (headerName.getURI().equals(RMConstants.WSRM_NAMESPACE_NAME)
-                && localName.equals(RMConstants.WSRM_ACK_REQUESTED_NAME)) {
-                return (SOAPElement)header.getChildElements().next();
-            }
-        }
-        return null;
-    }
     
     public void verifyMessages(int nExpected, boolean outbound) {
         verifyMessages(nExpected, outbound, true);
@@ -406,27 +408,35 @@ public class MessageFlow extends Assert {
                      nExpected, npr);
     }
     
-    public boolean isPartialResponse(SOAPMessage msg) throws Exception {
-        // return null == getAction(ctx) && emptyBody(msg);
+    public boolean isPartialResponse(Document d) throws Exception {
         return false;
     }
     
-    public boolean emptyBody(SOAPMessage msg) throws Exception {
-        return !msg.getSOAPPart().getEnvelope().getBody().hasChildNodes();
+    public boolean emptyBody(Document d) throws Exception {
+        Element envelopeElement = d.getDocumentElement();
+        Element bodyElement = null;
+        for (Node nd = envelopeElement.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType() && "Body".equals(nd.getLocalName())) {
+                bodyElement = (Element)nd;
+                break;
+            }
+        }
+        if (null != bodyElement && bodyElement.hasChildNodes()) {
+            return false;
+        }
+        return true;
     }
-    
+   
+   
     private String outboundDump() {
         StringBuffer buf = new StringBuffer();
         try {
             buf.append(System.getProperty("line.separator"));
-            for (int i = 0; i < outboundMessages.size(); i++) {
-                SOAPMessage sm = outboundMessages.get(i);
+            for (int i = 0; i < outStreams.size(); i++) {
                 buf.append("[");
                 buf.append(i);
                 buf.append("] : ");
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                sm.writeTo(bos);
-                buf.append(bos.toString());
+                buf.append(new String(outStreams.get(i)));
                 buf.append(System.getProperty("line.separator"));
             }
         } catch (Exception ex) {
@@ -434,6 +444,19 @@ public class MessageFlow extends Assert {
         }
         
         return buf.toString();
+    }
+
+    private String getText(Node node) {
+        for (Node nd = node.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.TEXT_NODE == nd.getNodeType()) {
+                return nd.getNodeValue();
+            }
+        }
+        return null;
+    }
+
+    protected QName getNodeName(Node nd) {
+        return new QName(nd.getNamespaceURI(), nd.getLocalName());
     }
     
 }

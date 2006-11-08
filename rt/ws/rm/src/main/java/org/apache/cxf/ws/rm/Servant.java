@@ -142,6 +142,11 @@ public class Servant implements Invoker {
             createResponse.setAccept(accept);
         }
         
+        DestinationSequence seq = new DestinationSequence(createResponse.getIdentifier(),
+                                                          create.getAcksTo(), destination);
+        seq.setCorrelationID(maps.getMessageID().getValue());
+        destination.addSequence(seq);
+        
         LOG.fine("Returning createResponse: " + createResponse);
         return createResponse;
     }
