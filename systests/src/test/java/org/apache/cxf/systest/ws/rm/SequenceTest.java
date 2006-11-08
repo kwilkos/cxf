@@ -50,7 +50,6 @@ public class SequenceTest extends ClientServerTestBase {
     private Control control;
     private Bus greeterBus;
     private Greeter greeter;
-    private String currentCfgResource;
     private OutMessageRecorder outRecorder;
     private InMessageRecorder inRecorder;
 
@@ -140,7 +139,6 @@ public class SequenceTest extends ClientServerTestBase {
         greeterBus.getOutInterceptors().add(outRecorder);
         inRecorder = new InMessageRecorder();
         greeterBus.getInInterceptors().add(inRecorder);
-        currentCfgResource = cfgResource;
 
         assertTrue("Failed to start greeter", control.startGreeter(cfgResource));
         

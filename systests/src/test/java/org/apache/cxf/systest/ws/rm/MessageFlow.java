@@ -54,7 +54,6 @@ public class MessageFlow extends Assert {
         inboundMessages = new ArrayList<Document>();
         for (int i = 0; i < inStreams.size(); i++) {
             byte[] bytes = inStreams.get(i);
-            String str = new String(bytes);
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);
             Document document = parser.parse(is);
             inboundMessages.add(document);
@@ -62,7 +61,6 @@ public class MessageFlow extends Assert {
         outboundMessages = new ArrayList<Document>();
         for (int i = 0; i < outStreams.size(); i++) {
             byte[] bytes = outStreams.get(i);
-            String str = new String(bytes);
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);
             Document document = parser.parse(is);
             outboundMessages.add(document);

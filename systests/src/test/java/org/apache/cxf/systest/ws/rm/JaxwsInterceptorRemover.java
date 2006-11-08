@@ -19,9 +19,7 @@
 
 package org.apache.cxf.systest.ws.rm;
 
-import java.util.Collections;
 import java.util.ListIterator;
-import java.util.Set;
 
 
 import org.apache.cxf.interceptor.Fault;
@@ -39,9 +37,7 @@ import org.apache.cxf.phase.PhaseInterceptor;
  * 
  */
 public class JaxwsInterceptorRemover extends AbstractPhaseInterceptor {
-    
-    private Set<String> before = Collections.singleton(LogicalHandlerInterceptor.class.getName());
-    
+     
     public JaxwsInterceptorRemover() {
         setPhase(Phase.PRE_LOGICAL);
     }
