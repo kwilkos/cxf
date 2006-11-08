@@ -26,6 +26,7 @@ import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaException;
@@ -59,6 +60,9 @@ public class FaultProcessor extends AbstractProcessor {
     }
 
     private boolean isNameCollision(String packageName, String className) {  
+        if (env.optionSet(ToolConstants.CFG_GEN_OVERWRITE)) {
+            return false;
+        }
         boolean collision = collector.containTypesClass(packageName, className)
             || collector.containSeiClass(packageName, className);
         return collision;

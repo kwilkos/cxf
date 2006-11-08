@@ -34,7 +34,8 @@ public class AntGenerator extends AbstractGenerator {
 
     public boolean passthrough() {
         if (env.optionSet(ToolConstants.CFG_ANT)
-                || env.optionSet(ToolConstants.CFG_ALL)) {
+                || env.optionSet(ToolConstants.CFG_ALL)
+                || env.optionSet(ToolConstants.CFG_GEN_ANT)) {
             return false;
         }
         return true;

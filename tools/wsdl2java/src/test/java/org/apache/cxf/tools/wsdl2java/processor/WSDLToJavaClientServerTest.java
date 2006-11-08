@@ -63,12 +63,12 @@ public class WSDLToJavaClientServerTest extends ProcessorTestBase {
 
             }
         });
-        assertTrue("Should generate 3 files", files != null && files.length == 3);
+        assertTrue("Should generate 1 files", files != null && files.length == 1);
 
     }
 
     public void testGenServerOnly() throws Exception {
-
+ 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
         processor.setEnvironment(env);

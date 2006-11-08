@@ -83,11 +83,14 @@ public abstract class AbstractGenerator implements FrontEndGenerator {
         }
     }
 
-    protected boolean isCollision(String packageName, String filename) throws ToolException {
+    protected boolean isCollision(String packageName, String filename) throws ToolException {        
         return isCollision(packageName, filename, ".java");
     }
 
     protected boolean isCollision(String packageName, String filename, String ext) throws ToolException {
+        if (env.optionSet(ToolConstants.CFG_GEN_OVERWRITE)) {
+            return false;
+        }
         FileWriterUtil fw = new FileWriterUtil((String)env.get(ToolConstants.CFG_OUTPUTDIR));
         return fw.isCollision(packageName, filename + ext);
     }

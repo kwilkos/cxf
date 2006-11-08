@@ -103,7 +103,7 @@ public class DocWrapperMethodProcessor {
             // rule 3.5 suffix -"Response"
             String resName = method.getName() + "Response";
             String resNS = model.getTargetNameSpace();
-            if (!reqWrapper.className().equals("")) {
+            if (!resWrapper.className().equals("")) {
                 resClassName = resWrapper.className();
                 resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
                 resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;

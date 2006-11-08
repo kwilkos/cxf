@@ -39,12 +39,24 @@ public class ImplGenerator extends AbstractGenerator {
         this.name = ToolConstants.IMPL_GENERATOR;
     }
 
-    public boolean passthrough() {
-        if (env.optionSet(ToolConstants.CFG_IMPL)
-                || env.optionSet(ToolConstants.CFG_ALL)) {
+    public boolean passthrough() {       
+        if (env.optionSet(ToolConstants.CFG_GEN_IMPL)
+            || env.optionSet(ToolConstants.CFG_IMPL)
+            || env.optionSet(ToolConstants.CFG_ALL)) {
             return false;
+        } 
+        if (env.optionSet(ToolConstants.CFG_GEN_ANT)
+            || env.optionSet(ToolConstants.CFG_GEN_TYPES)
+            || env.optionSet(ToolConstants.CFG_GEN_CLIENT)
+            || env.optionSet(ToolConstants.CFG_GEN_SEI)
+            || env.optionSet(ToolConstants.CFG_GEN_SERVER)
+            || env.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
+            return true;
         }
+        
         return true;
+        
+        
     }
 
     public void generate(ToolContext penv) throws ToolException {

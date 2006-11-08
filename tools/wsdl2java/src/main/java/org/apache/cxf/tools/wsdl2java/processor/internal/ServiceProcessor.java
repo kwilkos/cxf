@@ -120,6 +120,9 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     private boolean isNameCollision(String packageName, String className) {
+        if (env.optionSet(ToolConstants.CFG_GEN_OVERWRITE)) {
+            return false;
+        }
         return collector.containTypesClass(packageName, className)
                || collector.containSeiClass(packageName, className)
                || collector.containExceptionClass(packageName, className);

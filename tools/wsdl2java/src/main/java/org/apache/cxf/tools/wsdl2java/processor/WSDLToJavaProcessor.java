@@ -152,9 +152,26 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         generators =  profileObj.getPlugins();
     }
-
+   
+    public boolean passthrough() {
+        if (env.optionSet(ToolConstants.CFG_GEN_TYPES)
+            || env.optionSet(ToolConstants.CFG_ALL)) {
+            return false;
+        } 
+        if (env.optionSet(ToolConstants.CFG_GEN_ANT)
+            || env.optionSet(ToolConstants.CFG_GEN_CLIENT)
+            || env.optionSet(ToolConstants.CFG_GEN_IMPL)
+            || env.optionSet(ToolConstants.CFG_GEN_SEI)
+            || env.optionSet(ToolConstants.CFG_GEN_SERVER)
+            || env.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
     private void generateTypes() throws ToolException {
-        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
+        if (passthrough()) {
             return;
         }
         if (bindingGenerator == null) {

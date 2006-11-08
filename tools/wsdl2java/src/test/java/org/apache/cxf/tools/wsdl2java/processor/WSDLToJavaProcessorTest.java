@@ -1113,6 +1113,38 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         Method method = clz.getMethod("headerMethod", new Class[] {headerData, header});       
         assertNotNull("method should be generated", method);
     }
+     
+    public void testFlagForGenStandAlone() throws Exception {
+        env.put(ToolConstants.CFG_GEN_TYPES, ToolConstants.CFG_GEN_TYPES);
+        env.put(ToolConstants.CFG_GEN_SEI, ToolConstants.CFG_GEN_SEI);
+        env.put(ToolConstants.CFG_GEN_IMPL, ToolConstants.CFG_GEN_IMPL);
+        env.put(ToolConstants.CFG_GEN_SERVICE, ToolConstants.CFG_GEN_SERVICE);
+        env.put(ToolConstants.CFG_GEN_SERVER, ToolConstants.CFG_GEN_SERVER);
+        env.put(ToolConstants.CFG_GEN_ANT, ToolConstants.CFG_GEN_ANT);
+        
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
+        processor.setEnvironment(env);
+        processor.process();
+        
+        Class greeterServer = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterServer");
+        assertNotNull("Server should be generated", greeterServer);
+        
+      
+    }
+    
+    public void testFlagForGenAdditional() throws Exception {
+        env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
+        env.put(ToolConstants.CFG_SERVER, ToolConstants.CFG_SERVER);
+               
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
+        processor.setEnvironment(env);
+        processor.process();
+            
+        Class greeterServer = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterServer");
+        assertNotNull("Server should be generated", greeterServer);
+    }
+    
+    
     
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();

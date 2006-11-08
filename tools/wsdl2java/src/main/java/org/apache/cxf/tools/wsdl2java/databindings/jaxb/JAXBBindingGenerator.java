@@ -227,13 +227,14 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
         
     }
 
+    
+    
+    
     public void generate() throws ToolException {
-        if (env.optionSet(ToolConstants.CFG_GEN_CLIENT) || env.optionSet(ToolConstants.CFG_GEN_SERVER)) {
-            return;
-        }
         if (rawJaxbModelGenCode == null) {
             return;
         }
+        
         try {
             String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
 
