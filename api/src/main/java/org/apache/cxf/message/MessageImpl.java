@@ -133,6 +133,11 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
                 if (val == null) {
                     val = ep.getEndpointInfo().getProperty(key);
                 }
+
+                if (val == null) {
+                    val = ep.getEndpointInfo().getBinding().getProperty(key);
+                }
+
             }
         }
         

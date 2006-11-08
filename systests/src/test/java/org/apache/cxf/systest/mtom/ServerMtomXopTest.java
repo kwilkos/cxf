@@ -38,7 +38,7 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
-import org.apache.cxf.binding.soap.SoapBinding;
+
 import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.endpoint.Client;
@@ -80,7 +80,7 @@ public class ServerMtomXopTest extends ClientServerTestBase {
         EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
         service.setInvoker(new JAXWSMethodInvoker(implementor));
         org.apache.cxf.endpoint.EndpointImpl endpoint = new JaxWsEndpointImpl(bus, service, ei);
-        SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl((SoapBinding) endpoint.getBinding());
+        SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding());
         jaxWsSoapBinding.setMTOMEnabled(true);
         modifyBindingInterceptors(endpoint.getBinding().getInInterceptors(), endpoint.getBinding()
                 .getOutInterceptors());
@@ -169,7 +169,7 @@ public class ServerMtomXopTest extends ClientServerTestBase {
         EndpointInfo ei = null;
         ei = si.getEndpoint(portName);
         JaxWsEndpointImpl jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
-        SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl((SoapBinding) jaxwsEndpoint.getBinding());
+        SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding());
         jaxWsSoapBinding.setMTOMEnabled(true);
         modifyBindingInterceptors(jaxwsEndpoint.getBinding().getInInterceptors(), jaxwsEndpoint.getBinding()
                 .getOutInterceptors());

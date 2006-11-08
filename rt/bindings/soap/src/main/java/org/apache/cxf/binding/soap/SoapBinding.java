@@ -25,10 +25,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 
 public class SoapBinding extends AbstractBasicInterceptorProvider implements Binding {
-
-    // default to support mtom, left to config to turn on this feature.
-    private boolean mtomEnabled;
-    
     
     private SoapVersion version;
     
@@ -55,18 +51,7 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
 
         soapMessage.put(Message.CONTENT_TYPE, version.getContentType());
 
-        if (mtomEnabled) {
-            soapMessage.put(Message.MTOM_ENABLED, Boolean.TRUE);
-        }
         return soapMessage;
-    }
-
-    public boolean isMtomEnabled() {
-        return mtomEnabled;
-    }
-
-    public void setMtomEnabled(boolean enabled) {
-        mtomEnabled = enabled;
     }
 
 }

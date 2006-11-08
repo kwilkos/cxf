@@ -46,7 +46,7 @@ public class MessageDataWriter implements DataWriter<Message> {
     public void write(Object obj, MessagePartInfo part, Message output) {
         // if the mtom is enabled, we need to create the attachment mashaller
         JAXBAttachmentMarshaller am = null;
-        if (output.containsKey(Message.MTOM_ENABLED)) {
+        if (Boolean.TRUE.equals(output.getContextualProperty(Message.MTOM_ENABLED))) {
             am = new JAXBAttachmentMarshaller(output);
             am.setXOPPackage(true);
         }

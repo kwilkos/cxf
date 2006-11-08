@@ -20,25 +20,26 @@
 package org.apache.cxf.jaxws.binding.soap;
 
 
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.apache.cxf.binding.soap.SoapBinding;
-import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
 
-    private SoapBinding soapBinding;
+    
+    private BindingInfo soapBinding;
+    
     // private SoapBinding soapBinding;
 
-    public SOAPBindingImpl(SoapBinding sb) {
+    public SOAPBindingImpl(BindingInfo sb) {
         soapBinding = sb;
+        
     }
     
     public Set<String> getRoles() {
@@ -50,25 +51,12 @@ public class SOAPBindingImpl extends BindingImpl implements SOAPBinding {
     }
 
     public boolean isMTOMEnabled() {
-        return soapBinding.isMtomEnabled();
+        return Boolean.TRUE.equals(soapBinding.getProperty(Message.MTOM_ENABLED));
     }
 
     public void setMTOMEnabled(boolean flag) {
-        if (flag != soapBinding.isMtomEnabled()) {
-            soapBinding.setMtomEnabled(flag);
-            if (flag) {
-                soapBinding.getOutInterceptors().add(new AttachmentOutInterceptor());
-            } else {
-                Iterator<Interceptor> it = soapBinding.getOutInterceptors().iterator();
-                while (it.hasNext()) {
-                    Interceptor intc = it.next();
-                    if (intc instanceof AttachmentOutInterceptor) {
-                        soapBinding.getOutInterceptors().remove(intc);
-                        return;
-                    }
-                }
-            }
-        }
+        
+        soapBinding.setProperty(Message.MTOM_ENABLED, flag);
     }
 
     public MessageFactory getMessageFactory() {

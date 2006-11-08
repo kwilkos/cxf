@@ -149,11 +149,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());        
         
-        // TODO: We shouldn't be running this interceptor if MTOM isn't enabled
-        // as caching everything is going to slow us down, should set according to config 
-        if (sb.isMtomEnabled()) {
-            sb.getOutInterceptors().add(new AttachmentOutInterceptor());
-        }
+        sb.getOutInterceptors().add(new AttachmentOutInterceptor());
         
         sb.getOutInterceptors().add(new StaxOutInterceptor());
         sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());

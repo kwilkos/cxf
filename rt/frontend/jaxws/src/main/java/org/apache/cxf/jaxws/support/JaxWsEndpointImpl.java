@@ -87,7 +87,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
     
     final void createJaxwsBinding() {
         if (getBinding() instanceof SoapBinding) {
-            binding = new SOAPBindingImpl((SoapBinding)getBinding());
+            binding = new SOAPBindingImpl(getEndpointInfo().getBinding());
         } else {
             binding = new BindingImpl();
         }

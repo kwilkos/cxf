@@ -44,36 +44,41 @@ public class AttachmentOutInterceptor extends AbstractSoapInterceptor {
     }
 
     public void handleMessage(SoapMessage message) throws Fault {
-        
+
+        if (!Boolean.TRUE.equals(message.getContextualProperty(
+                org.apache.cxf.message.Message.MTOM_ENABLED))) {
+            return;
+        }
+
         OutputStream os = message.getContent(OutputStream.class);
         CachedStream cs = new CachedStream();
         message.setContent(OutputStream.class, cs);
-        
+
         // Calling for soap out interceptor
-        if (!message.getInterceptorChain().doIntercept(message) 
-            && message.getContent(Exception.class) != null) {
+        if (!message.getInterceptorChain().doIntercept(message)
+                && message.getContent(Exception.class) != null) {
             if (message.getContent(Exception.class) instanceof Fault) {
-                throw (Fault)message.getContent(Exception.class);
+                throw (Fault) message.getContent(Exception.class);
             } else {
                 throw new Fault(message.getContent(Exception.class));
             }
         }
         // Set back the output stream
-        message.setContent(OutputStream.class, os);        
+        message.setContent(OutputStream.class, os);
         try {
             Collection<Attachment> attachments = message.getAttachments();
-            cs.flush();            
+            cs.flush();
             if (attachments.size() > 0) {
                 AttachmentSerializer as = new AttachmentSerializer(message, cs.getInputStream(), os);
                 as.serializeMultipartMessage();
             } else {
                 // get wire connection, and copy xml infoset directly into it
                 os.flush();
-                AbstractCachedOutputStream.copyStream(cs.getInputStream(), os, 64 * 1024);                
+                AbstractCachedOutputStream.copyStream(cs.getInputStream(), os, 64 * 1024);
             }
         } catch (IOException ioe) {
             throw new SoapFault(new Message("ATTACHMENT_IO", BUNDLE, ioe.toString()), 
-                            SoapFault.ATTACHMENT_IO);
+                    SoapFault.ATTACHMENT_IO);
         }
     }
 
