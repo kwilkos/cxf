@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!--
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -18,11 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
--->
-<jbi version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://java.sun.com/xml/ns/jbi"  xsi:schemaLocation="http://java.sun.com/xml/ns/jbi ./jbi.xsd">
-  
-  <services binding-component="false" xmlns:sns1="http://objectweb.org/hello_world">
-    <consumes interface-name="sns1:Greeter" service-name="sns1:HelloWorldService"/> 
-  </services>
-</jbi>
+
+package test.provider;
+
+import javax.xml.ws.Endpoint;
+
+public class Server {
+
+    protected Server() throws Exception {
+        System.out.println("Starting Server");
+        Object implementor = new HelloWorldProvider();
+        String address = "http://cxf.apache.org/transports/jms";
+        Endpoint.publish(address, implementor);
+    }
+
+    public static void main(String args[]) throws Exception {
+        new Server();
+        System.out.println("Server ready...");
+
+        Thread.sleep(125 * 60 * 1000);
+        System.out.println("Server exiting");
+        System.exit(0);
+    }
+}

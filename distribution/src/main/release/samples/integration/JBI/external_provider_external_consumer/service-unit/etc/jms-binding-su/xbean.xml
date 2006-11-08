@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -18,22 +19,21 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="cxf-jbi-demo" default="build">
-  
-  <target name="build">
-    <ant dir="service-engine"/>
-    <ant dir="service-unit"/>
-    <ant dir="service-assembly"/>
-  </target>
+<beans xmlns:jms="http://servicemix.apache.org/jms/1.0"
+       xmlns:sns1="http://apache.org/hello_world">
 
-  <target name="clean">
-    <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
-    <ant dir="service-assembly" target="clean"/>
-  </target>
+	<jms:endpoint service="sns1:JMSGreeterService"
+		       endpoint="GreeterPort"
+                       interfaceName="sns1:Greeter"
+                       role="provider" 
+	               initialContextFactory="org.apache.activemq.jndi.ActiveMQInitialContextFactory"
+                       jndiProviderURL="tcp://localhost:61616"
+                       destinationStyle="queue"
+                       jndiConnectionFactoryName="ConnectionFactory"
+                       jmsProviderDestinationName="test.cxf.jmstransport.queue"
+	/>
+                       
+	               
+</beans>
 
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
-  </target>
 
-</project>

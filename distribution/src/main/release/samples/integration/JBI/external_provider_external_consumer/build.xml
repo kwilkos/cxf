@@ -32,8 +32,13 @@
     <ant dir="service-assembly" target="clean"/>
   </target>
 
+  <target name="server">
+    <ant dir="service-unit" target="server"/>
+  </target>
+
   <target name="client">
     <ant dir="service-unit" target="client"/>
   </target>
+
 
 </project>

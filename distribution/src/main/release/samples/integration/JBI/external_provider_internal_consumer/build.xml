@@ -18,6 +18,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
+
 <project name="cxf-jbi-demo" default="build">
   
   <target name="build">
@@ -32,8 +33,9 @@
     <ant dir="service-assembly" target="clean"/>
   </target>
 
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
+  <target name="server">
+    <ant dir="service-unit" target="server"/>
   </target>
+
 
 </project>

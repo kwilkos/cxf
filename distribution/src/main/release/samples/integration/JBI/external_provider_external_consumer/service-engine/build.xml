@@ -18,22 +18,42 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="cxf-jbi-demo" default="build">
+<project name="jbi-demo-service-engine" default="build">
+
+  <property name="build.dir" location="./build"/>
+  <property name="build.classes.dir" location="${build.dir}/classes"/>
+  <property name="build.lib.dir" location="${build.dir}/lib"/>
+  <property name="src.dir" location="./src"/>
+
+  <property file="../build.properties"/>
   
-  <target name="build">
-    <ant dir="service-engine"/>
-    <ant dir="service-unit"/>
-    <ant dir="service-assembly"/>
+  <path id="build.classpath">
+    <fileset dir="${cxf.home}/lib">
+      <include name="cxf-incubator.jar"/>
+    </fileset>
+    <pathelement location="${jbi.sdk.dir}/jbi.jar"/>
+    <pathelement location="./build/classes"/>
+  </path>
+  
+  <target name="build" depends="build-service-engine"/>
+
+  <target name="build-service-engine">
+    <mkdir dir="${build.lib.dir}"/>
+
+    <jar destfile="${build.lib.dir}/cxf-service-engine.jar">
+      <fileset dir="${cxf.home}/lib">
+	<include name="*.jar"/>
+      </fileset>
+      <metainf dir="./etc">
+	<include name="jbi.xml"/>
+	<include name="cxf-config.xml"/>
+      </metainf>
+    </jar>
   </target>
 
   <target name="clean">
-    <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
-    <ant dir="service-assembly" target="clean"/>
-  </target>
-
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
+    <delete dir="${build.dir}"/>
   </target>
 
 </project>
+

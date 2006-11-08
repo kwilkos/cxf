@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -18,22 +19,10 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="cxf-jbi-demo" default="build">
+<jbi version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/jbi"  xsi:schemaLocation="http://java.sun.com/xml/ns/jbi ./jbi.xsd">
   
-  <target name="build">
-    <ant dir="service-engine"/>
-    <ant dir="service-unit"/>
-    <ant dir="service-assembly"/>
-  </target>
-
-  <target name="clean">
-    <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
-    <ant dir="service-assembly" target="clean"/>
-  </target>
-
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
-  </target>
-
-</project>
+  <services binding-component="false" xmlns:sns1="http://apache.org/hello_world">
+    <consumes interface-name="sns1:Greeter" service-name="sns1:JMSGreeterService"/> 
+  </services>
+</jbi>

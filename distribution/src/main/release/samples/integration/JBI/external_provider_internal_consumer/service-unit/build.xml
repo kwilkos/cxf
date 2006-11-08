@@ -18,6 +18,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
+
 <project name="jbi-demo-service-unit" default="build">
 
   <property name="build.dir" location="./build"/>
@@ -29,7 +30,7 @@
 
   <property file="../build.properties"/>
 
-  <!-- reuse the macros defined in CXF samples -->
+  <!-- reuse the macros defined in Celtix samples -->
   <import file="${cxf.home}/samples/common_build.xml"/>        
 
   <path id="build.classpath">
@@ -45,7 +46,7 @@
   <target name="generate-code">
     <mkdir dir="${build.src.dir}"/>
     <echo level="info" message="Generating code using wsdl2java..."/>
-    <wsdl2java file="hello_world.wsdl"/>
+    <wsdl2java file="hello_world_server.wsdl"/>
   </target>
 
   <target name="update-code" description="updates code with actual wsdl location">
@@ -75,16 +76,16 @@
 
   <target name="build-service-units" depends="compile">
     <mkdir dir="${build.lib.dir}"/>
-    <jar destfile="${build.lib.dir}/cxf-service-provider.jar">
+    <jar destfile="${build.lib.dir}/cxf-service-consumer.jar">
       <fileset dir="${build.classes.dir}">
-	<include name="**/provider/**/*.class"/>
+	<include name="**/consumer/**/*.class"/>
 	<include name="org/**/*.class"/>
       </fileset>
-      <metainf dir="./etc/provider">
+      <metainf dir="./etc/consumer">
 	<include name="jbi.xml"/>
       </metainf>
       <metainf dir="./wsdl">
-	<include name="hello_world.wsdl"/>
+	<include name="hello_world_client.wsdl"/>
       </metainf>
     </jar>
 
@@ -99,11 +100,8 @@
     <delete dir="${build.dir}"/>
   </target>
 
-  <target name="client" description="run demo client">
-        <property name="param" value=""/>
-        <cxfrun classname="test.consumer.HelloWorldConsumer"
-            
-            param1="./wsdl/hello_world_client.wsdl"/>
+  <target name="server" description="run demo client">
+      <cxfrun classname="test.provider.Server"/>
   </target>
 
 </project>

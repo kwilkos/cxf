@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -18,22 +19,32 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="cxf-jbi-demo" default="build">
-  
-  <target name="build">
-    <ant dir="service-engine"/>
-    <ant dir="service-unit"/>
-    <ant dir="service-assembly"/>
-  </target>
+<jbi xmlns="http://java.sun.com/xml/ns/jbi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0" xsi:schemaLocation="http://java.sun.com/xml/ns/jbi ./jbi.xsd">
+  <service-assembly> 
+    <identification> 
+      <name>cxf-demo-service-assembly</name> 
+      <description>Service Assembly for JBI Demo Component</description> 
+    </identification> 
+    <service-unit> 
+      <identification> 
+        <name>JBIDemoSE_BConsumer</name> 
+        <description>Service Engine Service Consumer Sub-Assembly for JBI Demo</description> 
+      </identification> 
+      <target> 
+        <artifacts-zip>cxf-service-consumer.jar</artifacts-zip> 
+        <component-name>CXFServiceEngine</component-name> 
+      </target> 
+    </service-unit> 
+    <service-unit>
+       <identification>
+         <name>binding-su</name>
+         <description>Contains the binding</description>
+       </identification>
+       <target>
+         <artifacts-zip>binding-su.zip</artifacts-zip>
+         <component-name>servicemix-jms</component-name>
+       </target>
+     </service-unit>
 
-  <target name="clean">
-    <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
-    <ant dir="service-assembly" target="clean"/>
-  </target>
-
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
-  </target>
-
-</project>
+  </service-assembly> 
+</jbi>

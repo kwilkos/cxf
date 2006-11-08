@@ -1,3 +1,23 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+
 Overview 
 ========
 
@@ -27,13 +47,10 @@ Deploy CXF Service Engine into ServiceMix
 ============================================
 Build Instructions
 ------------------
+
 . Download & Install ServiceMix 
-
-  http://incubator.apache.org/servicemix/main/download.html
-
-  Note: Must isntall the lastest 3.0 SNAPSHOT version since any previous version still
-	has bugs for CXF ServiceMix integration.
-
+  http://incubator.apache.org/servicemix/main/servicemix-30.html
+  Note: Must isntall the  ServiceMix 3.0 Release.
 . export SERVICE_MIX_HOME for your shell envirnoment
 
 . Edit build.properties to sepcify cxf.home and jbi.sdk.jar,
@@ -50,7 +67,7 @@ Start ServiceMix
  >servicemix
 And then you can see logs from the shell which you start servicemix, including
 ServiceEngine install log, Service Assembly deploy log, cxf service
-consumer and provider communication log. To remove noisy log from the
+consumer and provider communication log. To remove noisy CXF log from the
 console, just edit servicemix starup script, add
 -Djava.util.logging.config.file="$CXF_HOME/etc/logging.properties" to
 java launch commandline

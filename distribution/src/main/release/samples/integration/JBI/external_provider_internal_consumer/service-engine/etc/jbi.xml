@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -18,22 +19,21 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="cxf-jbi-demo" default="build">
-  
-  <target name="build">
-    <ant dir="service-engine"/>
-    <ant dir="service-unit"/>
-    <ant dir="service-assembly"/>
-  </target>
+<jbi version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/jbi"  xsi:schemaLocation="http://java.sun.com/xml/ns/jbi ./jbi.xsd">
 
-  <target name="clean">
-    <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
-    <ant dir="service-assembly" target="clean"/>
-  </target>
-
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
-  </target>
-
-</project>
+  <component type="service-engine"> 
+    <identification> 
+      <name>CXFServiceEngine</name> 
+      <description>This is a CXF service engine</description> 
+    </identification> 
+    <component-class-name description="description">org.apache.cxf.jbi.se.CXFServiceEngine</component-class-name> 
+    <component-class-path> 
+      <path-element>cxf-incubator.jar</path-element> 
+    </component-class-path> 
+    <bootstrap-class-name>org.apache.cxf.jbi.se.CXFBootstrap</bootstrap-class-name> 
+    <bootstrap-class-path> 
+      <path-element>cxf-incubator.jar</path-element> 
+    </bootstrap-class-path> 
+  </component> 
+</jbi>

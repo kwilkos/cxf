@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one
   or more contributor license agreements. See the NOTICE file
@@ -18,22 +19,20 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<project name="cxf-jbi-demo" default="build">
-  
-  <target name="build">
-    <ant dir="service-engine"/>
-    <ant dir="service-unit"/>
-    <ant dir="service-assembly"/>
-  </target>
+<beans xmlns:http="http://servicemix.apache.org/http/1.0"
+       xmlns:sns1="http://apache.org/hello_world">
 
-  <target name="clean">
-    <ant dir="service-unit" target="clean"/>
-    <ant dir="service-engine" target="clean"/>
-    <ant dir="service-assembly" target="clean"/>
-  </target>
-
-  <target name="client">
-    <ant dir="service-unit" target="client"/>
-  </target>
-
-</project>
+	<http:endpoint service="sns1:SOAPService"
+		       endpoint="SoapPort"
+                       interfaceName="sns1:Greeter"
+		       targetService="sns1:JMSGreeterService"
+		       targetEndpoint="GreeterPort"
+                       targetInterfaceName="sns1:Greeter"
+                       role="consumer" 
+	               locationURI="http://localhost:9000/"
+	               defaultMep="http://www.w3.org/2004/08/wsdl/in-out" 
+                       soapVersion="1.1"
+                       />
+                       
+	               
+</beans>
