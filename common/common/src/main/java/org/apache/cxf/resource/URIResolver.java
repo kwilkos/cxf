@@ -96,7 +96,7 @@ public class URIResolver {
         if (uriStr.startsWith("classpath:")) {
             tryClasspath(uriStr);
         } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
-            tryJar(baseUriStr, uriStr);
+            tryJarState(baseUriStr, uriStr);
         } else if (uriStr.startsWith("jar:")) {
             tryJar(uriStr);
         } else {
@@ -233,6 +233,22 @@ public class URIResolver {
         }
     }
 
+    private void tryJarState(String baseStr, String uriStr) throws IOException {
+        int i = baseStr.indexOf('!');
+        if (i == -1) {
+            tryFileSystemState(baseStr, uriStr);
+            return;
+        }
+        baseStr = baseStr.substring(i + 1);
+        URI u = getAbsoluteFileStr(baseStr.startsWith("file:") ? baseStr : "file:" + baseStr, uriStr);
+        // remove the prefix "file:"
+        tryClasspath(u.toString().substring(5));
+        if (is != null) {
+            return;
+        }        
+        tryFileSystemState("", uriStr);
+    }
+    
     private void tryJar(String baseStr, String uriStr) throws IOException {
         int i = baseStr.indexOf('!');
         if (i == -1) {
@@ -260,13 +276,12 @@ public class URIResolver {
         uriStr = uriStr.substring(i + 1);
         tryClasspath(uriStr);
     }
+    
     private void tryClasspath(String uriStr) throws IOException {
         if (uriStr.startsWith("classpath:")) {
             uriStr = uriStr.substring(10);
         }
-
         URL url = ClassLoaderUtils.getResource(uriStr, calling);
-
         if (url == null) {
             tryRemote(uriStr);
         } else {

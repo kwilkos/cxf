@@ -52,27 +52,47 @@ public class XmlSchemaURIResolver implements URIResolver {
         }
     }
     public InputSource resolveEntity(String targetNamespace, String schemaLocation, String baseUri) {
-        try {            
-            if (new URI(baseUri).isAbsolute()) {
-                currentResolver = new org.apache.cxf.resource.URIResolver();
-                stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
-            } else {
-                while (!stack.isEmpty()) {
-                    ResolverInfo ri = stack.pop();
-                    if (ri.getUri().equals(baseUri)) {
-                        currentResolver = ri.getResolver();
-                        stack.addElement(ri);
-                        break;
+        try {
+            if (baseUri != null) {
+                URI check = null;
+                if (baseUri.startsWith("classpath:")) {
+                    check = new URI(baseUri.substring(10));
+                } else if (baseUri.startsWith("jar:")) {
+                    int i = baseUri.indexOf("!");
+                    if (i != -1) {
+                        String bu = baseUri.substring(i + 1);
+                        check = new URI(bu.startsWith("file:") ? bu : "file:" + bu);
+                    } else {
+                        check = new URI(baseUri);
                     }
+                } else {
+                    check = new URI(baseUri);
                 }
-                stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
-            }
-            if (currentResolver == null) {
-                throw new RuntimeException("invalidate schema import");
+                if (check.isAbsolute()) {
+                    currentResolver = new org.apache.cxf.resource.URIResolver();
+                    stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
+                } else {
+                    while (!stack.isEmpty()) {
+                        ResolverInfo ri = stack.pop();
+                        if (ri.getUri().equals(baseUri)) {
+                            currentResolver = ri.getResolver();
+                            stack.addElement(ri);
+                            break;
+                        }
+                    }
+                    stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
+                }
+                if (currentResolver == null) {
+                    throw new RuntimeException("invalidate schema import");
+                }
+            } else {
+                if (currentResolver == null) {
+                    currentResolver = new org.apache.cxf.resource.URIResolver();
+                }
             }
             currentResolver.resolveStateful(baseUri, schemaLocation, getClass());
             if (currentResolver.isResolved()) {
-                if (currentResolver.getURI().isAbsolute()) {
+                if (currentResolver.getURI() != null && currentResolver.getURI().isAbsolute()) {
                     // When importing a relative file,
                     // setSystemId with an absolute path so the
                     // resolver finds any files which that file
@@ -94,4 +114,5 @@ public class XmlSchemaURIResolver implements URIResolver {
 
     }
 
+    
 }
