@@ -121,6 +121,7 @@ public final class Client {
         System.out.println("Invoking Restful GET Request with query string ");
         Source returnSource = dispatch.invoke(null);
         printSource(returnSource);
+        System.out.println("Client Invoking is succeeded!");
         System.exit(0);
     }
 
