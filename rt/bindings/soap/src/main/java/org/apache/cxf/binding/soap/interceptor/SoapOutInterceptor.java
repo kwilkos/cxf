@@ -88,14 +88,8 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             
             // Calling for Wrapped/RPC/Doc/ Interceptor for writing SOAP body
             //message.getInterceptorChain().doIntercept(message);            
-            if (!message.getInterceptorChain().doInterceptInSubChain(message) 
-                && message.getContent(Exception.class) != null) {
-                if (message.getContent(Exception.class) instanceof Fault) {
-                    throw (Fault)message.getContent(Exception.class);
-                } else {
-                    throw new Fault(message.getContent(Exception.class));
-                }
-            }
+            message.getInterceptorChain().doInterceptInSubChain(message);
+            
             xtw.writeEndElement();            
             // Write Envelope end element
             xtw.writeEndElement();

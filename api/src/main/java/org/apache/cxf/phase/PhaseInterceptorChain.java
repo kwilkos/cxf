@@ -149,8 +149,12 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 if (!subChainState.empty() && subChainState.peek() == State.SUBCHAIN_COMPLETE) {
                     return true;
                 }
-            } catch (Exception ex) {
+            } catch (RuntimeException ex) {
                 if (!faultOccured) {
+                    if (subChainState.peek().equals(State.EXECUTING)) {
+                        throw ex;
+                    }
+ 
                     faultOccured = true;
                     if (LOG.isLoggable(Level.INFO)) {
                         LogUtils.log(LOG, Level.INFO, "Interceptor has thrown exception, unwinding now", ex);
