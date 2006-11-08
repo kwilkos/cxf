@@ -64,8 +64,8 @@ files, run:
 
 
 
-Buildng the demo using wsdl2java and javac
-------------------------------------------
+Building the demo using wsdl2java and javac
+-------------------------------------------
 
 From the samples/jms_pubsub directory, first create the target
 directory build/classes and then generate code from the WSDL file.

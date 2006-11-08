@@ -51,7 +51,7 @@ files, run:
 
 
 
-Buildng the demo using wsdl2java and javac
+Building the demo using wsdl2java and javac
 ------------------------------------------
 
 From the samples/soap_header directory, first create the target

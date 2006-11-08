@@ -30,11 +30,7 @@
 
 
     <!-- Setup for building in a source build -->
-    <condition property="srcbuild_paths.file" value="./srcbuild_paths.xml">
-        <available file="../../lib/cxf-incubator.jar"/>
-    </condition>
-    <!-- default setting -->
-    <property name="srcbuild_paths.file" value="../../../target/srcbuild_paths.xml"/>
+    <property name="srcbuild_paths.file" value="../../../../target/srcbuild_paths.xml"/>
 
     <import file="${srcbuild_paths.file}" optional="true"/>
     <property name="srcbuild.classpath" value=""/>
@@ -66,6 +62,12 @@
        -->
     <condition property="cxf.home" value="${env.CXF_HOME}">
         <isset property="env.CXF_HOME"/>
+    </condition>
+    <condition property="cxf.home" value="../..">
+        <available file="../../etc" type="dir" property=""/>
+    </condition>
+    <condition property="cxf.home" value="../../..">
+        <available file="../../../etc" type="dir" property=""/>
     </condition>
     <property name="cxf.home" location="../.."/>
     <property name="cxf.etc.dir" location="${cxf.home}/etc"/>
