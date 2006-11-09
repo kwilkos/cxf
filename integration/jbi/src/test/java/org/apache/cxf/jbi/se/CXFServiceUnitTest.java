@@ -45,7 +45,7 @@ public class CXFServiceUnitTest extends TestCase {
     private static final String ROOT_PATH =
         "/service-assemblies/cxf-demo-service-assembly/version_1/sus/"
             + "CXFServiceEngine/JBIDemoSE_AProvider";
-    private static final String CELTIX_CONFIG =
+    private static final String CXF_CONFIG =
         "/components/CXFServiceEngine/version_1/META-INF/cxf-config.xml";
     private CXFServiceUnit csu;
     private CXFServiceUnitManager csuManager;
@@ -60,7 +60,7 @@ public class CXFServiceUnitTest extends TestCase {
         absCsuPath = getClass().getResource(ROOT_PATH).getFile();
         
         System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME,
-            getClass().getResource(CELTIX_CONFIG).toString());
+            getClass().getResource(CXF_CONFIG).toString());
         bus = new SpringBusFactory().createBus();
               
         ComponentClassLoader componentClassLoader =

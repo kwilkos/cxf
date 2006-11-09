@@ -37,7 +37,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
     
     private static final Logger LOG = LogUtils.getL7dLogger(CXFServiceUnitManagerTest.class);
 
-    private static final String CELTIX_CONFIG = 
+    private static final String CXF_CONFIG = 
         "/components/CXFServiceEngine/version_1/META-INF/cxf-config.xml";
     private CXFServiceUnitManager csuManager;
     private ComponentContext ctx = EasyMock.createMock(ComponentContext.class);
@@ -47,7 +47,7 @@ public class CXFServiceUnitManagerTest extends TestCase {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         
         System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-            getClass().getResource(CELTIX_CONFIG).toString());
+            getClass().getResource(CXF_CONFIG).toString());
         bus = new SpringBusFactory().createBus();
         ComponentClassLoader componentClassLoader = 
             new ComponentClassLoader(new URL[0], getClass().getClassLoader());

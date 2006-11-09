@@ -27,7 +27,7 @@
 
   <property file="../build.properties"/>
 
-  <!-- reuse the macros defined in Celtix samples -->
+  <!-- reuse the macros defined in cxf samples -->
   <import file="${cxf.home}/samples/common_build.xml"/>        
 
   <path id="build.classpath">
