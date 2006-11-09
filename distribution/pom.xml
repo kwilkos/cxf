@@ -277,13 +277,6 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                         </manifest> 
-			<manifestEntries>
-			    <Extension-Name>${pom.artifactId}</Extension-Name>
-			    <Specification-Vendor>${pom.organization.name}</Specification-Vendor>
-			    <Implementation-Vendor>${pom.organization.name}</Implementation-Vendor>
-			    <Implementation-Title>${pom.name}</Implementation-Title>
-			    <Implementation-Version>${pom.version}</Implementation-Version>
-			</manifestEntries>
                     </archive>
                 </configuration>
             </plugin>

@@ -70,13 +70,6 @@
              </excludes>
 	 </fileSet>
 	 <fileSet>
-	     <directory>../api/src/main/resources</directory>
-	     <outputDirectory>cxf-${cxf.version}/resources</outputDirectory>
-	     <includes>
-	         <include>**/*</include>
-             </includes>
-	 </fileSet>
-	 <fileSet>
 	     <directory>target/javadoc</directory>
 	     <outputDirectory>cxf-${cxf.version}/docs/api</outputDirectory>
 	     <includes>
