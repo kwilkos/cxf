@@ -16,25 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.resource;
+
+package org.apache.cxf.wsdl4jutils;
+
+import javax.wsdl.xml.WSDLLocator;
 
 import org.xml.sax.InputSource;
 
-import org.apache.ws.commons.schema.resolver.URIResolver;
+import org.apache.cxf.resource.ExtendedURIResolver;
 
-/**
- * Resolves URIs in a more sophisticated fashion than XmlSchema's default URI
- * Resolver does by using our own {@link org.apache.cxf.resource.URIResolver}
- * class.
- */
-public class XmlSchemaURIResolver implements URIResolver {
+public class WSDLLocatorImpl implements WSDLLocator {
 
+    private String wsdlUrl;
     private ExtendedURIResolver resolver;
     
-    public XmlSchemaURIResolver() {
+    private String baseUri;
+    private String importedUri;
+    
+    public WSDLLocatorImpl(String wsdlUrl) {
+        this.wsdlUrl = wsdlUrl;
+        this.baseUri = this.wsdlUrl;
         resolver = new ExtendedURIResolver();
     }
-    public InputSource resolveEntity(String targetNamespace, String schemaLocation, String baseUri) {
-        return resolver.resolve(schemaLocation, baseUri);
+    public InputSource getBaseInputSource() {
+        return resolver.resolve(baseUri, null);
+    }
+    public String getBaseURI() {
+        return baseUri;
+    }
+    public String getLatestImportURI() {
+        return resolver.getLatestImportURI();
+    }
+    public InputSource getImportInputSource(String parent, String importLocation) {
+        this.baseUri = parent;
+        this.importedUri = importLocation;
+        return resolver.resolve(this.importedUri, this.baseUri);        
+    }
+    public void close() {
+        resolver.close();
     }
 }

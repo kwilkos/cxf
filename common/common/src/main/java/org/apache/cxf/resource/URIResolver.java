@@ -162,8 +162,9 @@ public class URIResolver {
         }
         if (finalRelative != null) {
             File targetFile = new File(finalRelative);
-            if (!targetFile.exists() && baseUriStr.startsWith("file:/")) {
-                targetFile = new File(baseUriStr.substring(6));
+            if (!targetFile.exists()) {
+                tryClasspath(finalRelative.toString().substring(5));
+                return;
             }
             URI target;
             if (targetFile.exists()) {

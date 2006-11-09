@@ -56,6 +56,7 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 import org.easymock.classextension.EasyMock;
@@ -89,13 +90,16 @@ public class WSDLServiceBuilderTest extends TestCase {
         setUpWSDL(WSDL_PATH);
     }
 
+
+    
     private void setUpWSDL(String wsdl) throws Exception {
         String wsdlUrl = getClass().getResource(wsdl).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
         wsdlReader.setFeature("javax.wsdl.verbose", false);
-        def = wsdlReader.readWSDL(wsdlUrl);
+        
+        def = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlUrl));
 
         WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
