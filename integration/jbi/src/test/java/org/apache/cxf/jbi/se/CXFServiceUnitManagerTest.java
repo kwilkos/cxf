@@ -30,22 +30,24 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.Configurer;
 import org.easymock.EasyMock;
 
 public class CXFServiceUnitManagerTest extends TestCase {
     
     private static final Logger LOG = LogUtils.getL7dLogger(CXFServiceUnitManagerTest.class);
 
-    //private static final String CELTIX_CONFIG = 
-    //    "/components/CXFServiceEngine/version_1/META-INF/celtix-config.xml";
+    private static final String CELTIX_CONFIG = 
+        "/components/CXFServiceEngine/version_1/META-INF/cxf-config.xml";
     private CXFServiceUnitManager csuManager;
     private ComponentContext ctx = EasyMock.createMock(ComponentContext.class);
     private Bus bus;    
     
     public void setUp() throws Exception {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-        //System.setProperty("celtix.config.file", getClass().getResource(CELTIX_CONFIG).toString());
         
+        System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
+            getClass().getResource(CELTIX_CONFIG).toString());
         bus = new SpringBusFactory().createBus();
         ComponentClassLoader componentClassLoader = 
             new ComponentClassLoader(new URL[0], getClass().getClassLoader());
