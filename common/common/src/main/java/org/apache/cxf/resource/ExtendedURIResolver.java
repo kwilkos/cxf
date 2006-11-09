@@ -21,19 +21,74 @@ package org.apache.cxf.resource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Stack;
 
 import org.xml.sax.InputSource;
 
+
 public class ExtendedURIResolver {
 
-    private URIResolver currentResolver;
+    private Stack<ResolverInfo> stack = new Stack<ResolverInfo>();
+    private org.apache.cxf.resource.URIResolver currentResolver;
     private Stack<InputStream> resourceOpened = new Stack<InputStream>();
 
-
+    private class ResolverInfo {
+        String uri;
+        org.apache.cxf.resource.URIResolver resolver;
+        public ResolverInfo(String uri, org.apache.cxf.resource.URIResolver resolver) {
+            this.uri = uri;
+            this.resolver = resolver;
+        }
+        public String getUri() {
+            return uri;
+        }
+        public org.apache.cxf.resource.URIResolver getResolver() {
+            return resolver;
+        }
+    }
+    
     public InputSource resolve(String schemaLocation, String baseUri) {
         try {
-            currentResolver = new URIResolver();
+            if (baseUri != null) {
+                URI check = null;
+                if (baseUri.startsWith("classpath:")) {
+                    check = new URI(baseUri.substring(10));
+                } else if (baseUri.startsWith("jar:")) {
+                    int i = baseUri.indexOf("!");
+                    if (i != -1) {
+                        String bu = baseUri.substring(i + 1);
+                        check = new URI(bu.startsWith("file:") ? bu : "file:" + bu);
+                    } else {
+                        check = new URI(baseUri);
+                    }
+                } else {
+                    baseUri = baseUri.startsWith("file:") ? baseUri : "file:" + baseUri;
+                    check = new URI(baseUri);
+                }
+                if (check.isAbsolute()) {
+                    currentResolver = new org.apache.cxf.resource.URIResolver();
+                    stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
+                } else {
+                    while (!stack.isEmpty()) {
+                        ResolverInfo ri = stack.pop();
+                        if (ri.getUri().equals(baseUri)) {
+                            currentResolver = ri.getResolver();
+                            stack.addElement(ri);
+                            break;
+                        }
+                    }
+                    stack.addElement(new ResolverInfo(schemaLocation, currentResolver));            
+                }
+                if (currentResolver == null) {
+                    throw new RuntimeException("invalidate schema import");
+                }
+            } else {
+                if (currentResolver == null) {
+                    currentResolver = new org.apache.cxf.resource.URIResolver();
+                }
+            }
             currentResolver.resolveStateful(baseUri, schemaLocation, getClass());
             if (currentResolver.isResolved()) {
                 if (currentResolver.getURI() != null && currentResolver.getURI().isAbsolute()) {
@@ -50,12 +105,14 @@ public class ExtendedURIResolver {
                 return source;
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
+            // move on...
+        } catch (URISyntaxException use) {            
             // move on...
         }
         return new InputSource(schemaLocation);
     }
-
+    
     public void close() {
         try {
             while (!resourceOpened.isEmpty()) {
@@ -66,9 +123,9 @@ public class ExtendedURIResolver {
             // move on...
         }
     }
-
+    
     public String getLatestImportURI() {
         return currentResolver.getURI().toString();
     }
-
+    
 }

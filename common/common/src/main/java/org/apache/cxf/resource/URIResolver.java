@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Stack;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 
@@ -45,8 +46,23 @@ public class URIResolver {
     private URI uri;
     private InputStream is;
     private Class calling;
+    
+    private Stack<Location> history = new Stack<Location>();
 
-    private String lastImportUrl;
+    private class Location {
+        private String base;
+        private String relative;
+        public Location(String base, String relative) {
+            this.base = base;
+            this.relative = relative;
+        }
+        public String getBase() {
+            return base;
+        }
+        public String getRelative() {
+            return relative;
+        }
+    }
 
     public URIResolver() throws IOException {
     }
@@ -58,7 +74,7 @@ public class URIResolver {
     public URIResolver(String baseUriStr, String uriStr) throws IOException {
         this(baseUriStr, uriStr, null);
     }
-
+    
     public URIResolver(String baseUriStr, String uriStr, Class calling) throws IOException {
         this.calling = (calling != null) ? calling : getClass();
 
@@ -73,73 +89,97 @@ public class URIResolver {
         }
     }
 
-    private String getAbsoluteUrlStr(String baseUriStr, String uriStr) throws MalformedURLException {
+    
+    public void resolveStateful(String baseUriStr, String uriStr, Class callingCls) throws IOException {
+        this.calling = (callingCls != null) ? callingCls : getClass();
+
+        if (uriStr.startsWith("classpath:")) {
+            tryClasspath(uriStr);
+        } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
+            tryJarState(baseUriStr, uriStr);
+        } else if (uriStr.startsWith("jar:")) {
+            tryJar(uriStr);
+        } else {
+            tryFileSystemState(baseUriStr, uriStr);
+        }
+    }
+
+    private URI getAbsoluteFileStr(String baseUriStr, String uriStr) throws MalformedURLException {
         URI relative;
         URI base;
-        try {
-            relative = new URI(uriStr);
+        try {            
+            File uriFile = new File(uriStr);
+            uriFile = new File(uriFile.getAbsolutePath());   
+            if (uriFile.exists()) {
+                relative = uriFile.toURI();
+            } else {
+                relative = new URI(uriStr);
+            }            
             if (relative.isAbsolute()) {
-                return new URI(uriStr).toString();
+                return new URI(uriStr);
             } else if (baseUriStr != null) {
-                String prefix = "file:";
-                if (baseUriStr.startsWith("classpath:")) {
-                    baseUriStr = baseUriStr.substring(10);
-                    prefix = "";
-                } else if (baseUriStr.startsWith("jar:")) {
-                    int i = baseUriStr.indexOf("!");
-                    if (i != -1) {
-                        baseUriStr = baseUriStr.substring(i + 1);
-                    } else {
-                        baseUriStr = baseUriStr.substring(4);
-                    }
-                    prefix = "";
-                } else if (baseUriStr.startsWith("file:")) {
-                    prefix = "";
-                }
                 base = new URI(baseUriStr);
                 if (base.isAbsolute()) {
-                    return prefix + base.resolve(relative).toString();
+                    return base.resolve(relative);
                 } else {
+                    Location location = null;
                     // assume that the outmost element of history is parent
-                    if (lastImportUrl != null) {
-                        URI result = new URI(lastImportUrl).resolve(relative);
-                        return prefix + result.toString();
+                    while (!history.empty()) {
+                        location = history.pop();
+                        if (location.getRelative().equals(baseUriStr)) {
+                            break;
+                        } else {
+                            location = null;
+                        }
+                    }
+                    if (location != null) {
+                        URI result = getAbsoluteFileStr(location.base, location.relative).resolve(relative);
+                        history.push(location);
+                        return result;
                     } else {
                         return null;
                     }
                 }
-            }
+            }            
         } catch (URISyntaxException e) {
             return null;
         }
         return null;
     }
-
-    public void resolveStateful(String baseUriStr, String uriStr, Class callingCls) 
-        throws IOException, MalformedURLException, URISyntaxException {
-
-        this.calling = (callingCls != null) ? callingCls : getClass();
-
+    
+    private void tryFileSystemState(String baseUriStr, String uriStr) 
+        throws IOException, MalformedURLException {
         if (baseUriStr == null && uriStr == null) {
             return;
-        }
-        String finalRelative = getAbsoluteUrlStr(baseUriStr, uriStr);
-        if (finalRelative != null) {
-            if (finalRelative.startsWith("file:")) {
-                File targetFile = new File(new URI(finalRelative));
+        }                
+        URI finalRelative = getAbsoluteFileStr(baseUriStr, uriStr);
+        try {
+            if (!(new URI(uriStr)).isAbsolute()) {
+                history.push(new Location(baseUriStr, uriStr));
+            } 
+            if (finalRelative != null) {
+                File targetFile = new File(finalRelative.toString().startsWith("file:") ? finalRelative 
+                    : new URI("file:" + finalRelative.toString()));
                 if (!targetFile.exists()) {
-                    tryClasspath(finalRelative.substring(5));
+                    tryClasspath(finalRelative.toString().substring(5));
                     return;
-                } else {
-                    uri = targetFile.toURI();
-                    is = targetFile.toURI().toURL().openStream();
                 }
-            } else {
-                tryClasspath(finalRelative);
+                URI target;
+                if (targetFile.exists()) {
+                    target = targetFile.toURI();
+                } else {
+                    target = finalRelative;
+                }
+                if (target.isAbsolute()) {
+                    uri = target;                
+                    is = target.toURL().openStream();
+                }
             }
+        } catch (URISyntaxException ue) {
+            // move on
         }
     }
-
+    
     private void tryFileSystem(String baseUriStr, String uriStr) throws IOException, MalformedURLException {
         try {
             URI relative;
@@ -151,7 +191,7 @@ public class URIResolver {
             } else {
                 relative = new URI(uriStr);
             }
-
+            
             if (relative.isAbsolute()) {
                 uri = relative;
                 is = relative.toURL().openStream();
@@ -168,7 +208,7 @@ public class URIResolver {
                 } else {
                     base = new URI(baseUriStr);
                 }
-
+                
                 base = base.resolve(relative);
                 if (base.isAbsolute()) {
                     is = base.toURL().openStream();
@@ -195,7 +235,22 @@ public class URIResolver {
         }
     }
 
-
+    private void tryJarState(String baseStr, String uriStr) throws IOException {
+        int i = baseStr.indexOf('!');
+        if (i == -1) {
+            tryFileSystemState(baseStr, uriStr);
+            return;
+        }
+        baseStr = baseStr.substring(i + 1);
+        URI u = getAbsoluteFileStr(baseStr.startsWith("file:") ? baseStr : "file:" + baseStr, uriStr);
+        // remove the prefix "file:"
+        tryClasspath(u.toString().substring(5));
+        if (is != null) {
+            return;
+        }        
+        tryFileSystemState("", uriStr);
+    }
+    
     private void tryJar(String baseStr, String uriStr) throws IOException {
         int i = baseStr.indexOf('!');
         if (i == -1) {
@@ -211,10 +266,10 @@ public class URIResolver {
         } catch (URISyntaxException e) {
             // do nothing
         }
-
+        
         tryFileSystem("", uriStr);
     }
-
+    
     private void tryJar(String uriStr) throws IOException {
         int i = uriStr.indexOf('!');
         if (i == -1) {
@@ -223,7 +278,7 @@ public class URIResolver {
         uriStr = uriStr.substring(i + 1);
         tryClasspath(uriStr);
     }
-
+    
     private void tryClasspath(String uriStr) throws IOException {
         if (uriStr.startsWith("classpath:")) {
             uriStr = uriStr.substring(10);
@@ -233,17 +288,7 @@ public class URIResolver {
             tryRemote(uriStr);
         } else {
             try {
-                lastImportUrl = url.toString();
-                if (lastImportUrl.startsWith("jar:")) {
-                    int i = lastImportUrl.indexOf("!");
-                    if (i != -1) {
-                        uri = new URI(url.toString().substring(i + 1));
-                    } else {
-                        uri = new URI(url.toString().substring(4));
-                    }
-                } else {
-                    uri = new URI(url.toString());
-                }
+                uri = new URI(url.toString());
             } catch (URISyntaxException e) {
                 // How would this occurr??
             }
@@ -282,12 +327,8 @@ public class URIResolver {
     public File getFile() {
         return file;
     }
-
+    
     public boolean isResolved() {
         return is != null;
-    }
-
-    public String getLastImportUrl() {
-        return lastImportUrl;
     }
 }
