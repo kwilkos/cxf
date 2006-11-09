@@ -34,7 +34,7 @@
     </parent>
 
     <properties>
-        <topDirectoryLocation>..</topDirectoryLocation>
+        <topDirectoryLocation>../..</topDirectoryLocation>
     </properties>
 
     <dependencies>
