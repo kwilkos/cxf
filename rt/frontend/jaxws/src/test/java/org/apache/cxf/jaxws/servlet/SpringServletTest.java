@@ -33,12 +33,11 @@ public class SpringServletTest extends AbstractServletTest {
     }
     
     public void testInvokingSpringBeans() throws Exception {
-        newClient();
-
+        
         WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter", 
             getClass().getResourceAsStream("/org/apache/cxf/jaxws/GreeterMessage.xml"), 
             "text/xml; charset=utf-8");
-
+        
         WebResponse response = newClient().getResponse(req);
 
         assertEquals("text/xml", response.getContentType());

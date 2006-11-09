@@ -45,11 +45,15 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
             sr.newClient().getResponse("http://localhost/services/");
         } catch (HttpNotFoundException e) {
             // ignore, we just want to boot up the servlet
-        }
-        
+        }        
         super.setUp();
 
         HttpUnitOptions.setExceptionsThrownOnErrorStatus(true);        
+    }
+    
+    public void tearDown() {
+        // clean up the BusFactory defualt bus
+        BusFactoryHelper.newInstance().setDefaultBus(null);
     }
 
     @Override

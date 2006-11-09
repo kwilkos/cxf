@@ -253,8 +253,10 @@ public class CXFServlet extends HttpServlet {
     public void destroy() {
         String s = bus.getId();
         BUS_MAP.remove(s);
-
         bus.shutdown(true);
+        //clean up the defaultBus
+        new SpringBusFactory().setDefaultBus(null);
+        
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {

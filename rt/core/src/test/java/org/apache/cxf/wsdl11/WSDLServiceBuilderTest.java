@@ -382,9 +382,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         TypeInfo types = serviceInfo.getTypeInfo();
         assertNotNull(types);
         assertNotNull(types.getSchemas());
-        System.out.println(types.getSchemas().size());
-        // XMLStreamWriter xsw = StaxUtils.createXMLStreamWriter(System.out);
         Element ele = types.getSchemas().iterator().next().getElement();
+        assertNotNull(ele);
         Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);        
         assertNotNull(schema);        
     }
