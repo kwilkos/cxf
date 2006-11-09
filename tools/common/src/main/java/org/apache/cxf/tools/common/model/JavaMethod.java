@@ -121,16 +121,20 @@ public class JavaMethod {
         }
         return false;
     }
-
-    private void removeParameter(JavaParameter param) {
-        parameters.remove(param);
+    
+    private void replaceParameter(JavaParameter p1, JavaParameter p2) {
+        int index = ((ArrayList)parameters).indexOf(p1);
+        parameters.remove(index);
+        parameters.add(index, p2);
     }
 
     public void addParameter(JavaParameter param) {
         if (hasParameter(param.getName())) {
             JavaParameter paramInList = getParameter(param.getName());
             if (paramInList.isIN() || paramInList.isINOUT()) {
-                removeParameter(paramInList);
+                //removeParameter(paramInList);
+                replaceParameter(paramInList, param);
+                return;
             } else {
                 Message message = new Message("PARAMETER_ALREADY_EXIST", LOG, param.getName());
                 throw new ToolException(message);

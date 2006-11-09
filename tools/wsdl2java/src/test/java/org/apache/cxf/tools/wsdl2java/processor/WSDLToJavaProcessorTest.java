@@ -520,7 +520,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertEquals("DOCUMENT", soapBindingAnno.style().name());
 
         Class para = classLoader.loadClass("org.apache.hello_world_holder.types.GreetMe");
-        Method method = clz.getMethod("sayHi", new Class[] {para, Holder.class});
+        Method method = clz.getMethod("sayHi", new Class[] {Holder.class, para});
         assertEquals("GreetMeResponse", method.getReturnType().getSimpleName());
 
         WebParam webParamAnno = AnnotationUtil.getWebParam(method, "greetMe");
@@ -1108,9 +1108,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
         Class clz = classLoader.loadClass("org.apache.header2.Header2Test");
-        Class headerData = classLoader.loadClass("org.apache.header2.HeaderData");
         Class header = classLoader.loadClass("org.apache.header2.Header");
-        Method method = clz.getMethod("headerMethod", new Class[] {headerData, header});       
+        Method method = clz.getMethod("headerMethod", new Class[] {Holder.class, header});       
         assertNotNull("method should be generated", method);
     }
      

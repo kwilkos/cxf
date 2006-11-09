@@ -59,6 +59,7 @@
         <part element="tns:Header" name="the_request"/>
     </message>
     <message name="headerResponse">
+        <part element="tns:HeaderInfo" name="header_info"/>
         <part element="tns:HeaderResponse" name="the_response"/>
     </message>
 
