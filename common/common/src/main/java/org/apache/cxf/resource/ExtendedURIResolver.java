@@ -64,6 +64,7 @@ public class ExtendedURIResolver {
                         check = new URI(baseUri);
                     }
                 } else {
+                    baseUri = baseUri.startsWith("file:") ? baseUri : "file:" + baseUri;
                     check = new URI(baseUri);
                 }
                 if (check.isAbsolute()) {

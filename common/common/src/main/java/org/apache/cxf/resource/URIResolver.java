@@ -157,25 +157,26 @@ public class URIResolver {
             if (!(new URI(uriStr)).isAbsolute()) {
                 history.push(new Location(baseUriStr, uriStr));
             } 
+            if (finalRelative != null) {
+                File targetFile = new File(finalRelative.toString().startsWith("file:") ? finalRelative 
+                    : new URI("file:" + finalRelative.toString()));
+                if (!targetFile.exists()) {
+                    tryClasspath(finalRelative.toString().substring(5));
+                    return;
+                }
+                URI target;
+                if (targetFile.exists()) {
+                    target = targetFile.toURI();
+                } else {
+                    target = finalRelative;
+                }
+                if (target.isAbsolute()) {
+                    uri = target;                
+                    is = target.toURL().openStream();
+                }
+            }
         } catch (URISyntaxException ue) {
             // move on
-        }
-        if (finalRelative != null) {
-            File targetFile = new File(finalRelative);
-            if (!targetFile.exists()) {
-                tryClasspath(finalRelative.toString().substring(5));
-                return;
-            }
-            URI target;
-            if (targetFile.exists()) {
-                target = targetFile.toURI();
-            } else {
-                target = finalRelative;
-            }
-            if (target.isAbsolute()) {
-                uri = target;                
-                is = target.toURL().openStream();
-            }
         }
     }
     
