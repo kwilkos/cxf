@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-//import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -33,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-//import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -45,62 +43,30 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.resource.ResourceException;
 import javax.rmi.PortableRemoteObject;
-//import javax.wsdl.Binding;
-//import javax.wsdl.Definition;
-//import javax.wsdl.Port;
-//import javax.wsdl.PortType;
-//import javax.wsdl.Service;
-//import javax.wsdl.extensions.ExtensibilityElement;
-//import javax.wsdl.extensions.soap.SOAPAddress;
-//import javax.wsdl.factory.WSDLFactory;
-//import javax.wsdl.xml.WSDLReader;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-//import javax.xml.ws.Endpoint;
-//import org.xml.sax.InputSource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
-//import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.common.util.PackageUtils;
-//import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-//import org.apache.cxf.endpoint.EndpointImpl;
-//import org.apache.cxf.binding.BindingFactoryManager;
-//import org.apache.cxf.binding.soap.SoapBindingFactory;
-//import org.apache.cxf.binding.soap.SoapDestinationFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-//import org.apache.cxf.jaxws.EndpointRegistry;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.core.resourceadapter.UriHandlerInit;
-//import org.apache.cxf.jca.servant.CXFConnectEJBServant;
-//import org.apache.cxf.jca.servant.EJBServant;
 import org.apache.cxf.service.Service;
-//import org.apache.cxf.service.factory.HelloService;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServerFactoryBean;
-//import org.apache.cxf.service.model.InterfaceInfo;
-
-//import org.apache.cxf.tools.util.ProcessorUtil;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
-//import org.apache.cxf.transport.local.LocalTransportFactory;
-//import org.apache.cxf.transport.local.LocalTransportFactory;
-//import org.apache.cxf.ws.addressing.EndpointReferenceType;
-//import org.apache.cxf.wsdl.EndpointReferenceUtils;
-//import org.apache.cxf.wsdl.WSDLManager;
-//import org.apache.cxf.wsdl11.WSDLManagerImpl;
-
-//import org.xmlsoap.schemas.wsdl.http.AddressType;
 
 
 public class JCABusFactory {
@@ -109,12 +75,11 @@ public class JCABusFactory {
 
     private Bus bus;
     private BusFactory bf;
-    private List<Object> servantsCache = new ArrayList<Object>();
+    private List<Server> servantsCache = new ArrayList<Server>();
     private InitialContext jndiContext;
     private ClassLoader appserverClassLoader;
     private ManagedConnectionFactoryImpl mcf;
     private Object raBootstrapContext;
-//    private String nameSpace;
 
     public JCABusFactory(ManagedConnectionFactoryImpl aMcf) {
         this.mcf = aMcf;
@@ -133,6 +98,7 @@ public class JCABusFactory {
 
     protected Bus createBus(ClassLoader loader) throws ResourceException {
         try {
+            //REVISIT we need to use the CXF defualt BusFactory
             Class busClazz = Class.forName(getBusClassName(), true, loader);
             bf = (org.apache.cxf.BusFactory) busClazz.newInstance();
             bus = bf.getDefaultBus();
@@ -144,6 +110,7 @@ public class JCABusFactory {
     }
     
     protected void initBus() throws ResourceException {
+        //REVISIT The Bus need to be init with context for better configuration
         try {
             SoapBindingFactory bindingFactory = new SoapBindingFactory();
             bus.getExtension(BindingFactoryManager.class)
@@ -170,7 +137,6 @@ public class JCABusFactory {
             bus.setExtension(new WSDLManagerImpl(), WSDLManager.class);
 
         } catch (Exception ex) {
-//            throw new ResourceAdapterInternalException("Failed to initialize cxf runtime", ex);
             throw new ResourceAdapterInternalException("Failed to initialize cxf runtime", ex);
         }
     }
@@ -187,13 +153,13 @@ public class JCABusFactory {
 
             // ensure resourceadapter: url handler can be found by URLFactory
             Thread.currentThread().setContextClassLoader(cl);
-            //Thread.currentThread().setContextClassLoader(appserverClassLoader);
+            
             //TODO Check for the managed connection factory properties
+            //TODO We may need get the configuration file from properties 
             //mcf.validateProperties();     
             bus = createBus(cl);
             initBus();
-            //bus = initBus(appserverClassLoader);
-
+            
             initialiseServants();
         } catch (Exception ex) {
             if (ex instanceof ResourceAdapterInternalException) {
@@ -261,11 +227,9 @@ public class JCABusFactory {
     
     void initialiseServant(String jndiName, String serviceName) throws ResourceException {
 
-        Object servant = null;
+        Server servant = null;
         EJBObject ejb = null;
         QName serviceQName = null;
-//        String wsdlLocation = "";
-//        String portName = "";
         String nameSpace = "";
         String interfaceName = "";
         String packageName = "";
@@ -281,18 +245,15 @@ public class JCABusFactory {
                 serviceQName = serviceQNameFromString(serviceName);
 
                 serviceQNameFromString(serviceName);
-
-                // so far inbound doesn't support wsdl file
-//                wsdlLocation = wsdlLocFromString(serviceName);
                 
                 // Get ejbObject
                 ejb = getEJBObject(jndiName); 
                 ejbClassLoader = ejb.getClass().getClassLoader();
 
+                //NOTE we can use the ejbClassLoader to load WSDL
                 currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
                 Thread.currentThread().setContextClassLoader(ejbClassLoader);
- 
-                
+                               
                 Thread.currentThread().setContextClassLoader(currentThreadContextClassLoader);
 
                 nameSpace = serviceQName.getNamespaceURI();
@@ -303,23 +264,13 @@ public class JCABusFactory {
                 interfaceName = packageName + "." + interfaceName;
 
                 interfaceClass = Class.forName(interfaceName);
-
-
-
-
-//                if (wsdlLocation == null) {
-                // process service with simple frontend
+                
+                // NOTE We can check the annoation to descide which kind of frontend we will use
+                // Almostly we just need to use the jax-ws frontend
+                // If we have wsdl , then wsdl first,
+                // else code first
+                
                 servant = publishServantWithoutWSDL(ejb, jndiName, nameSpace, interfaceClass);
-//                } else {
-                // process service with jax-ws frontend
-//                }        
-//            } else {
-//                mcf.validateURLString(wsdlLocation,
-//                        "WSDL location specified using '@' notation"
-//                        + " in service string is invalid, value="
-//                        + wsdlLocation);
-//                 portName = portNameFromString(serviceName);
-//            }
             }
         } catch (Exception e) {
             throw new ResourceAdapterInternalException(e.getMessage());
@@ -331,7 +282,7 @@ public class JCABusFactory {
         }
     }
     
-    public Object publishServantWithoutWSDL(EJBObject ejb, String jndiName,
+    public Server publishServantWithoutWSDL(EJBObject ejb, String jndiName,
                                             String nameSpace, Class interfaceClass) 
         throws Exception {
 
@@ -348,6 +299,7 @@ public class JCABusFactory {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         Service service = createService(interfaceClass, bean);
         
+        // REVISIT this is easy to be replace by EJBMethodInvoker
         service.setInvoker(new JAXWSMethodInvoker(ejb));
 
         ServerFactoryBean svrFactory = new ServerFactoryBean();
@@ -441,19 +393,10 @@ public class JCABusFactory {
     protected void deregisterServants(Bus aBus) {
         synchronized (servantsCache) {
             if (!servantsCache.isEmpty()) {
-//                 Endpoint ed;
-//                 Iterator servants = servantsCache.iterator();
-//                 while (servants.hasNext()) {
-//                     ed = (Endpoint)(servants.next());                   
-//                     EndpointRegistry er = aBus.getEndpointRegistry();
-//                     er.unregisterEndpoint(ed);
-//                 }
-                Iterator servants = servantsCache.iterator();
+                Iterator<Server> servants = servantsCache.iterator();
                 while (servants.hasNext()) {
-                    Object servant = servants.next();
-                    if (servant instanceof Server) {
-                        ((Server) servant).stop();
-                    }
+                    Server servant = servants.next();
+                    servant.stop();                    
                 }
                 servantsCache.clear();
             }
