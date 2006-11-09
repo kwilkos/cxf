@@ -20,7 +20,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-int</artifactId>
+    <artifactId>cxf-integration</artifactId>
     <packaging>pom</packaging>
     <version>2.0-incubator-M1-SNAPSHOT</version>
     <name>CXF Integration</name>
@@ -38,5 +38,6 @@
 
     <modules>
         <module>jbi</module>
+	<module>jca</module>
     </modules>
 </project>
