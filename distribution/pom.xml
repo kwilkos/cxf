@@ -42,7 +42,7 @@
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-jca</artifactId>
+            <artifactId>cxf-integration-jca</artifactId>
             <version>${pom.version}</version>
         </dependency>
         <dependency>
