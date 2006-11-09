@@ -171,8 +171,8 @@
         <module>api</module>
         <module>testutils</module>
         <module>rt</module>
-        <module>systests</module>
         <module>integration</module>
+        <module>systests</module>
     </modules>
 
     <build>
