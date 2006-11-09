@@ -97,4 +97,17 @@ public class JavaParameter extends JavaType {
         sb.append(partName);
         return sb.toString();
     }
+    
+    public String getDefaultTypeValue() {
+        if (isHolder()) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("new ");
+            sb.append(getHolderName());
+            sb.append("<");
+            sb.append(getHolderClass());
+            sb.append(">()");
+            return sb.toString(); 
+        }
+        return super.getDefaultTypeValue();
+    }
 }
