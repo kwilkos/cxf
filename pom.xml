@@ -171,7 +171,6 @@
         <module>api</module>
         <module>testutils</module>
         <module>rt</module>
-        <module>jca</module>
         <module>systests</module>
         <module>integration</module>
     </modules>
