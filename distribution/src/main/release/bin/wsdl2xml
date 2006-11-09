@@ -22,7 +22,10 @@
 #
 
 me=`basename $0`
-cxf_home=`dirname $0`/..
+cxf_home=$CXF_HOME
+if [ ! -f  $cxf_home/lib/cxf-incubator.jar ]; then
+    cxf_home=`dirname $0`/..
+fi
 
 cxf_jar=$cxf_home/lib/cxf-incubator.jar
 

@@ -25,8 +25,9 @@ rem  invoke the CXF xsd2wsdl tool
 rem 
 @setlocal
 
-set CXF_HOME=%~dp0..
-
+if not defined CXF_HOME goto set_cxf_home
+                                                                                                                                                             
+:cont
 if not defined JAVA_HOME goto no_java_home
 
 set SUN_TOOL_PATH=%JAVA_HOME%\lib\tools.jar;
@@ -48,4 +49,8 @@ goto end
 :no_java_home
 echo ERROR: Set JAVA_HOME to the path where the J2SE 5.0 (JDK5.0) is installed
 goto end 
+
+:set_cxf_home
+set CXF_HOME=%~dp0..
+goto cont
 :end
