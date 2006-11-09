@@ -45,13 +45,7 @@
     <wsdl:documentation>
     The MTOSI AlarmRetrievalServer porttype
     </wsdl:documentation>
-    <!--
-    N.B. The parameterOrder attribute has been added here as a work
-    around for CXF-161.  When CXF-161 is resolved, this can be
-    removed.
     <wsdl:operation name="getActiveAlarmsCount">
-    -->
-    <wsdl:operation name="getActiveAlarmsCount" parameterOrder="mtosiHeader">
       <wsdl:documentation>
         This is the getActiveAlarmsCount request/response operation
       </wsdl:documentation>
@@ -59,13 +53,7 @@
       <wsdl:output message="tmf854WS:getActiveAlarmsCountResponse"/>
       <wsdl:fault name="ProcessingFailureException" message="tmf854WS:ProcessingFailureException"/>
     </wsdl:operation>
-    <!--
-    N.B. The parameterOrder attribute has been added here as a work
-    around for CXF-161.  When CXF-161 is resolved, this can be
-    removed.
     <wsdl:operation name="getActiveAlarms">
-    -->
-    <wsdl:operation name="getActiveAlarms" parameterOrder="mtosiHeader">
       <wsdl:documentation>
         This is the getActiveAlarms request/response operation
       </wsdl:documentation>
