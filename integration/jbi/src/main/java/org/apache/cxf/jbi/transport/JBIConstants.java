@@ -20,5 +20,5 @@
 package org.apache.cxf.jbi.transport;
 
 public final class JBIConstants {
-    public static final String MESSAGE_EXCHANGE_PROPERTY = "celtix.jbi.message.exchange";
+    public static final String MESSAGE_EXCHANGE_PROPERTY = "cxf.jbi.message.exchange";
 }
