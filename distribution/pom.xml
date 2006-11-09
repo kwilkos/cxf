@@ -105,7 +105,7 @@
 
 	<dependency>
             <groupId>${pom.groupId}</groupId>
-            <artifactId>cxf-int-jbi</artifactId>
+            <artifactId>cxf-integration-jbi</artifactId>
             <version>${pom.version}</version>
         </dependency>
 
