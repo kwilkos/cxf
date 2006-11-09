@@ -129,7 +129,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-jca</artifactId>
+            <artifactId>cxf-integration-jca</artifactId>
             <version>${project.version}</version>
         </dependency>
 
