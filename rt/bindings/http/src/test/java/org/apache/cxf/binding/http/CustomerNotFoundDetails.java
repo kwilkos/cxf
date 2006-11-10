@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http.bare;
+package org.apache.cxf.binding.http;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "GetCustomer")
-public class GetCustomer {
+@XmlRootElement(name = "CustomerNotFoundDetails")
+public class CustomerNotFoundDetails {
     private long id;
 
     public long getId() {

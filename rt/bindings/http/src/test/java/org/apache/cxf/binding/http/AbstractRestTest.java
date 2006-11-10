@@ -47,10 +47,24 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
 
     protected Document get(String urlStr) throws MalformedURLException, IOException, SAXException,
         ParserConfigurationException {
+        return get(urlStr, null);
+    }
+    
+    protected Document get(String urlStr, Integer resCode) 
+        throws MalformedURLException, IOException, SAXException,
+        ParserConfigurationException {
         URL url = new URL(urlStr);
         HttpURLConnection c = (HttpURLConnection)url.openConnection();
-
-        InputStream is = c.getInputStream();
+    
+        if (resCode != null) {
+            assertEquals(resCode.intValue(), c.getResponseCode());
+        }
+        InputStream is;
+        if (c.getResponseCode() >= 400) {
+            is = c.getErrorStream();
+        } else {
+            is = c.getInputStream();
+        }
         return DOMUtils.readXml(is);
     }
 

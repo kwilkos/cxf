@@ -153,19 +153,28 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                     }
                     if (mpi.getConcreteName().getLocalPart().equals(name.getLocalPart()) 
                             && name.getNamespaceURI().equals(ns)) {
-                        try {
-                            Method method = beanClass.getMethod("getFaultInfo", new Class[0]);
-                            Class sub = method.getReturnType();
-                            fi.setProperty(Class.class.getName(), exClass);
-                            mpi.setTypeClass(sub);
-                        } catch (NoSuchMethodException nsme) {
-                            nsme.printStackTrace();
-                        }
+                        fi.setProperty(Class.class.getName(), exClass);
+                        mpi.setTypeClass(beanClass);
                     }
                 }
             }
         }
     }
+    
+    
+    @Override
+    protected Class getBeanClass(Class exClass) {
+        try {
+            Method getFaultInfo = exClass.getMethod("getFaultInfo", new Class[0]);
+            
+            return getFaultInfo.getReturnType();
+        } catch (SecurityException e) {
+            throw new ServiceConstructionException(e);
+        } catch (NoSuchMethodException e) {
+            return super.getBeanClass(exClass);
+        }
+    }
+
     /**
      * set the holder generic type info into message part info
      * 

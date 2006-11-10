@@ -26,6 +26,8 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 
 import org.apache.cxf.binding.http.Customer;
+import org.apache.cxf.binding.http.CustomerNotFoundDetails;
+import org.apache.cxf.binding.http.CustomerNotFoundFault;
 import org.apache.cxf.binding.http.Customers;
 import org.codehaus.jra.Delete;
 import org.codehaus.jra.Get;
@@ -56,8 +58,15 @@ public class CustomerService {
     @Get
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public Customer getCustomer(@WebParam(name = "GetCustomer") GetCustomer getCustomer) {
-        return customers.get(new Long(getCustomer.getId()));
+    public Customer getCustomer(@WebParam(name = "GetCustomer") GetCustomer getCustomer) 
+        throws CustomerNotFoundFault {
+        Customer c = customers.get(getCustomer.getId());
+        if (c == null) {
+            CustomerNotFoundDetails details = new CustomerNotFoundDetails();
+            details.setId(getCustomer.getId());
+            throw new CustomerNotFoundFault(details);
+        }
+        return c;
     }
 
     @Put

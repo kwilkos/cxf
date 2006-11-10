@@ -601,7 +601,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected FaultInfo addFault(final InterfaceInfo service, final OperationInfo op, Class exClass) {
         Class beanClass = getBeanClass(exClass);
         
-        QName faultName = getFaultName(service, op, getBeanClass(exClass), getBeanClass(beanClass));
+        QName faultName = getFaultName(service, op, exClass, beanClass);
         FaultInfo fi = op.addFault(faultName, faultName);
         fi.setProperty(Class.class.getName(), exClass);
         
@@ -618,7 +618,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected QName getFaultName(InterfaceInfo service, OperationInfo o, Class exClass, Class beanClass) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            QName q = c.getFaultName(service, o, getBeanClass(exClass), getBeanClass(beanClass));
+            QName q = c.getFaultName(service, o, exClass, beanClass);
             if (q != null) {
                 return q;
             }
@@ -750,8 +750,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected Class getResponseWrapper(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Class cls = c.getResponseWrapper(selected);
-            if (getBeanClass(cls) != null) {
-                return getBeanClass(cls);
+            if (cls != null) {
+                return cls;
             }
         }
         return null;
@@ -759,8 +759,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     protected Class getRequestWrapper(Method selected) {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             Class cls = c.getRequestWrapper(selected);
-            if (getBeanClass(cls) != null) {
-                return getBeanClass(cls);
+            if (cls != null) {
+                return cls;
             }
         }
         return null;

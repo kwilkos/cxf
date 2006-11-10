@@ -70,8 +70,8 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
             // call data writer to marshal exception
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
             if (t != null && bop != null) {
-                if (!bop.isUnwrappedCapable()) {
-                    bop = bop.getUnwrappedOperation();
+                if (bop.isUnwrapped()) {
+                    bop = bop.getWrappedOperation();
                 }
                 Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
                 MessagePartInfo part = null;

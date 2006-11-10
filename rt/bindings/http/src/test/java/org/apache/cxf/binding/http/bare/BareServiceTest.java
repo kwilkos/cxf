@@ -82,10 +82,15 @@ public class BareServiceTest extends AbstractRestTest {
         res = get("http://localhost:9001/foo/customers/123");
         assertNotNull(res);
         
-        addNamespace("c", "http://cxf.apache.org/jra");
         assertValid("/c:customer", res);
         assertValid("/c:customer/c:id[text()='123']", res);
         assertValid("/c:customer/c:name[text()='Dan Diephouse']", res);
+        
+        // Try invalid customer
+        res = get("http://localhost:9001/foo/customers/0", 500);
+        assertNotNull(res);
+        
+        assertValid("//c:CustomerNotFoundDetails", res);
         
         res = put("http://localhost:9001/foo/customers/123", "update.xml");
         assertNotNull(res);

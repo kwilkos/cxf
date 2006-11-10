@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http.bare;
+package org.apache.cxf.binding.http;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.ws.WebFault;
 
-@XmlRootElement(name = "GetCustomer")
-public class GetCustomer {
-    private long id;
-
-    public long getId() {
-        return id;
+@WebFault
+public class CustomerNotFoundFault extends Exception {
+    private CustomerNotFoundDetails details;
+    
+    public CustomerNotFoundFault(CustomerNotFoundDetails details) {
+        super();
+        this.details = details;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public CustomerNotFoundDetails getFaultInfo() {
+        return details;
     }
-
 }

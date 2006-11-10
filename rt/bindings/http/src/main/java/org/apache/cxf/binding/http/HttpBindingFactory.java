@@ -28,6 +28,8 @@ import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.xml.XMLBinding;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultInInterceptor;
+import org.apache.cxf.binding.xml.interceptor.XMLFaultOutInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageOutInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
@@ -72,6 +74,12 @@ public class HttpBindingFactory extends AbstractBindingFactory {
         binding.getOutInterceptors().add(new ContentTypeOutInterceptor());
         binding.getOutInterceptors().add(new WrappedOutInterceptor());
         binding.getOutInterceptors().add(new XMLMessageOutInterceptor());
+        
+
+        binding.getInFaultInterceptors().add(new XMLFaultInInterceptor());
+        
+        binding.getOutFaultInterceptors().add(new StaxOutInterceptor());
+        binding.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());
         
         return binding;
     }
