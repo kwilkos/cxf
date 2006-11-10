@@ -33,7 +33,7 @@
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
         <java.source.version>1.4</java.source.version>
-	<cxf.version>${pom.version}</cxf.version>
+        <cxf.version>${pom.version}</cxf.version>
     </properties>
 
     <dependencies>
@@ -100,7 +100,7 @@
             <version>${pom.version}</version>
         </dependency>
 
-	<dependency>
+        <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-integration-jbi</artifactId>
             <version>${pom.version}</version>
@@ -148,44 +148,43 @@
             <version>${pom.version}</version>
         </dependency>
 
-	<dependency>
-	    <groupId>${pom.groupId}</groupId>
-	    <artifactId>cxf-rt-bindings-http</artifactId>
-	    <version>${pom.version}</version>
-	</dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-bindings-http</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-ws-addr</artifactId>
             <version>${pom.version}</version>
         </dependency>
-	<dependency>
-	    <groupId>${pom.groupId}</groupId>
-	    <artifactId>cxf-rt-ws-rm</artifactId>
-	    <version>${pom.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>${pom.groupId}</groupId>
-	    <artifactId>cxf-rt-ws-policy</artifactId>
-	    <version>${pom.version}</version>
-	</dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-rm</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-ws-policy</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${pom.version}</version>
         </dependency>
-	<dependency>
-	    <groupId>${pom.groupId}</groupId>
-	    <artifactId>cxf-rt-frontend-js</artifactId>
-	    <version>${pom.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>${pom.groupId}</groupId>
-	    <artifactId>cxf-rt-frontend-simple</artifactId>
-	    <version>${pom.version}</version>
-	</dependency>
-
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-frontend-js</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-frontend-simple</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -273,7 +272,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                        </manifest> 
+                        </manifest>
                     </archive>
                 </configuration>
             </plugin>
