@@ -1,0 +1,51 @@
+Welcome to Apache Incubator CXF!
+======================
+Apache Incubator CXF simplifies the construction, integration, and flexible 
+reuse of technical and business components using a standards-based, 
+service-oriented architecture (SOA). It provides a pluggable architecture that 
+supports not only XML but also non-XML bindings in combination with any type 
+of transport. It also supports several programming models including JAX-WS, 
+JBI, SCA, and CORBA. It is designed for flexible deployment in a variety of 
+containers including Spring-based, JBI, SCA, Servlet and J2EE containers. This 
+broad range of flexibility makes it possible to create and integrate Web 
+services and legacy services using a single framework.
+
+
+Incubation Disclaimer
+=====================
+Apache Incubator CXF is an effort undergoing incubation at the Apache Software 
+Foundation (ASF), sponsored by the Apache Incubator PMC. 
+
+Incubation is required of all newly accepted projects until a further review 
+indicates that the infrastructure, communications, and decision making process 
+have stabilized in a manner consistent with other successful ASF projects. 
+
+While incubation status is not necessarily a reflection of the completeness or 
+stability of the code, it does indicate that the project has yet to be fully 
+endorsed by the ASF.
+
+
+Getting Started
+===============
+
+For an Apache CXF source distribution, please read BUILDING.txt for 
+instructions on building Apache CXF. 
+
+For an Apache CXF binary distribution, please read doc/release_notes.txt
+for installation instructions and list of supported and unsupported 
+features.
+
+Alternatively, you can also find out how to get started here:
+http://cwiki.apache.org/confluence/display/CXF/Index
+
+If you need more help try talking to us on our mailing lists:
+http://cwiki.apache.org/confluence/display/CXF/Mailing+Lists
+ 
+
+We welcome contributions
+
+Many thanks for using Apache Incubator CXF.
+
+
+The Apache Incubator CXF Team
+http://incubator.apache.org/projects/cxf.html

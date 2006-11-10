@@ -1,8 +1,0 @@
-<jaxws:bindings version="1.0" 
-  xmlns:jaxws="http://java.sun.com/xml/ns/jaxws" 
-  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
->
-    <jaxws:bindings wsdlLocation="wsrm.wsdl" node="wsdl:definitions">
-        <jaxws:package name="org.objectweb.celtix.ws.rm.wsdl"/>
-    </jaxws:bindings>
-</jaxws:bindings>

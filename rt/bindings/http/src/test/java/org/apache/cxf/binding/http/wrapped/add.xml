@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addCustomer xmlns="http://cxf.apache.org/jra">
+<customer>
+<name>Hadrian</name>
+</customer>
+</addCustomer>
