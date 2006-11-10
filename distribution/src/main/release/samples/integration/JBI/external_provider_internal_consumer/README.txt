@@ -52,17 +52,17 @@ Build Instructions
   http://incubator.apache.org/servicemix/main/servicemix-30.html
   Note: Must isntall the  ServiceMix 3.0 Release.
 
-. export SERVICE_MIX_HOME for your shell envirnoment
+. export SERVICEMIX_HOMEfor your shell envirnoment
 
 . Edit build.properties to sepcify cxf.home and jbi.sdk.jar,
-  jbi.sdk.jar=$SERVICE_MIX_HOME/lib/servicemix-jbi-3.0-SNAPSHOT.jar
+  jbi.sdk.jar=$SERVICEMIX_HOME/lib/servicemix-jbi-3.0-SNAPSHOT.jar
 
 
 . build everything using ant: 'ant build'
 
 Installation & Deployment
 -------------------------
-Ensure that the $SERVICE_MIX_HOME/bin is on the path.
+Ensure that the $SERVICEMIX_HOME/bin is on the path.
 
 Start ServiceMix
  >servicemix
@@ -74,24 +74,24 @@ console, just edit servicemix starup script, add
 java launch commandline
 
 Start cxf server
-> ant server -Dthirdparty.classpath=$SERVICE_MIX_HOME/lib/activemq-core-4.0.2.jar:$SERVICE_MIX_HOME/lib/backport-util-concurrent-2.1.jar:$SERVICE_MIX_HOME/lib/activeio-core-3.0-beta4.jar:$SERVICE_MIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.0.1.jar
+> ant server -Dthirdparty.classpath=$SERVICEMIX_HOME/lib/activemq-core-4.0.2.jar:$SERVICEMIX_HOME/lib/backport-util-concurrent-2.1.jar:$SERVICEMIX_HOME/lib/activeio-core-3.0-beta4.jar:$SERVICEMIX_HOME/lib/geronimo-j2ee-management_1.0_spec-1.0.1.jar
 Install and start the CXF Service Engine:
 
- > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml install-component -Dsm.install.file=./service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
- > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine -Dsm.username=smx -Dsm.password=smx
+ > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml install-component -Dsm.install.file=./service-engine/build/lib/cxf-service-engine.jar -Dsm.username=smx -Dsm.password=smx
+ > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml start-component -Dsm.component.name=CXFServiceEngine -Dsm.username=smx -Dsm.password=smx
 
 Install and start the ServiceMix jms binding component
 
 copy servicemix-jms-3.0-incubating-installer.zip and
 servicemix-shared-3.0-incubating-installer.zip to the deploy directory
 where servicemix monitor on, for a instance, start servicemix from
-$SERVICE_MIX_HOME/bin, then copy the two zip files into deploy directory under
-$SERVICE_MIX_HOME/bin 
+$SERVICEMIX_HOME/bin, then copy the two zip files into deploy directory under
+$SERVICEMIX_HOME/bin 
 
 Deploy the and start CXF demo service assembly
 
- > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml  deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/cxf-service-assembly.zip -Dsm.username=smx -Dsm.password=smx
- > ant -f $SERVICE_MIX_HOME/ant/servicemix-ant-task.xml start-service-assembly -Dsm.service.assembly.name=cxf-demo-service-assembly -Dsm.username=smx -Dsm.password=smx
+ > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml  deploy-service-assembly -Dsm.deploy.file=./service-assembly/build/lib/cxf-service-assembly.zip -Dsm.username=smx -Dsm.password=smx
+ > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml start-service-assembly -Dsm.service.assembly.name=cxf-demo-service-assembly -Dsm.username=smx -Dsm.password=smx
 
 
 

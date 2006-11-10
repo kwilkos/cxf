@@ -64,8 +64,6 @@ public final class HelloWorldConsumer {
         resp = port.greetMe(System.getProperty("user.name"));
         System.out.println("Server responded with: " + resp);
         System.out.println();
-        System.out.println("Invoking greetMeOneWay...");
-        g.greetMeOneWay("ffang");
 
         System.exit(0);                 
     }
