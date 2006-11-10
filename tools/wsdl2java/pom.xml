@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-tools-wsdl2java</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-incubator-M1-RC1</version>
+    <version>2.0-incubator-M1-SNAPSHOT</version>
     <name>CXF Command Line Tools Wsdl2java</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-tools</artifactId>
-        <version>2.0-incubator-M1-RC1</version>
+        <version>2.0-incubator-M1-SNAPSHOT</version>
     </parent>
 
     <properties>
