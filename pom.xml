@@ -673,7 +673,7 @@
         <repository>
             <id>ActiveMQ</id>
             <name>ActiveMQ Maven2 Temp Repository</name>
-            <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC5/maven2</url>
+            <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC6/maven2</url>
         </repository>
         <repository>
             <id>java.net</id>
