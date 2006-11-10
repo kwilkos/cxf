@@ -180,7 +180,7 @@ public class DestinationSequence extends AbstractSequence {
     boolean canPiggybackAckOnPartialResponse() {
         // TODO: should also check if we allow breaking the WI Profile rule by which no headers
         // can be included in a HTTP response
-        return getAcksTo().getAddress().getValue().equals(RMConstants.getAnonympusAddress());
+        return getAcksTo().getAddress().getValue().equals(RMConstants.getAnonymousAddress());
     }
        
     /**
@@ -277,6 +277,7 @@ public class DestinationSequence extends AbstractSequence {
     }
 
     synchronized void scheduleDeferredAcknowledgement(int delay) {
+        
         if (null == deferredAcknowledgments) {
             deferredAcknowledgments = new ArrayList<DeferredAcknowledgment>();
         }
@@ -290,11 +291,13 @@ public class DestinationSequence extends AbstractSequence {
         DeferredAcknowledgment da = new DeferredAcknowledgment();
         deferredAcknowledgments.add(da);
         destination.getManager().getTimer().schedule(da, delay);
+        LOG.fine("Scheduled acknowledgment to be sent in " + delay + " ms");
     }
 
     final class DeferredAcknowledgment extends TimerTask {
 
         public void run() {
+            LOG.fine("timer task: send acknowledgment.");
             DestinationSequence.this.scheduleImmediateAcknowledgement();
 
             try {                

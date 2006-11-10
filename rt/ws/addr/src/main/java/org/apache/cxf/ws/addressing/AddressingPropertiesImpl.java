@@ -161,4 +161,53 @@ public class AddressingPropertiesImpl implements AddressingProperties {
     public void exposeAs(String uri) {
         namespaceURI = uri;
     }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
+        if (null != messageID) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("MessageId: ");
+            buf.append(messageID.getValue());
+        }
+        if (null != action) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("Action: ");
+            buf.append(action.getValue());
+        }
+        if (null != to) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append("To: ");
+            buf.append(to.getValue()); 
+        }
+        if (null != replyTo) {
+            AttributedURIType address = replyTo.getAddress();
+            if (null != address) {
+                if (buf.length() > 1) {
+                    buf.append(", ");
+                }
+                buf.append("ReplyTo: ");
+                buf.append(address.getValue()); 
+            }
+        }
+        if (null != faultTo) {
+            AttributedURIType address = faultTo.getAddress();
+            if (null != address) {
+                if (buf.length() > 1) {
+                    buf.append(", ");
+                }
+                buf.append("FaultTo: ");
+                buf.append(address.getValue()); 
+            }
+        }
+        buf.append("]");
+        return buf.toString();
+        
+    }
 }

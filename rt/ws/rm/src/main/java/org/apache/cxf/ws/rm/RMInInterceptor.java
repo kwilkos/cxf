@@ -109,16 +109,19 @@ public class RMInInterceptor extends AbstractRMInterceptor {
             return;
         } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
             // servant.terminateSequence(message);
+        } else if (RMConstants.getSequenceAckAction().equals(action)) {
+            processAcknowledgments(rmps);
+            return;
         }
         
         // for application AND out of band messages
-
+        
         Destination destination = getManager().getDestination(message);
         
         if (null != rmps) {            
-            
-            processAcknowledgments(rmps);
 
+            processAcknowledgments(rmps);
+            
             processAcknowledgmentRequests(rmps);  
             
             processSequence(destination, rmps, maps);

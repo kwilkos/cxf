@@ -130,7 +130,11 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             AttributedURI to = VersionTransformer.convert(maps.getTo());
             assert null != to;
             addAcknowledgements(destination, rmpsOut, inSeqId, to);
-        }     
+        } 
+        
+        if (RMConstants.getSequenceAckAction().equals(action)) {
+            maps.setReplyTo(RMUtils.createNoneReference());
+        }
     }
     
     void addAcknowledgements(Destination destination, 
@@ -150,8 +154,8 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
                     LOG.fine("no need to add an acknowledgements for sequence "
                              + seq.getIdentifier().getValue());
                 } else {
-                    LOG.fine("sequences acksTo (" + seq.getAcksTo().getAddress().getValue()
-                             + ") does not match to (" + to.getValue() + ")");
+                    LOG.fine("sequences acksTo address (" + seq.getAcksTo().getAddress().getValue()
+                             + ") does not match to address (" + to.getValue() + ")");
                 }
             }
         }

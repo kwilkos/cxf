@@ -45,19 +45,36 @@ public class MessageFlow extends Assert {
     private List<Document> inboundMessages;
       
     public MessageFlow(List<byte[]> out, List<byte[]> in) throws Exception {
+        inboundMessages = new ArrayList<Document>();
+        outboundMessages = new ArrayList<Document>();
+        reset(out, in);
+    }
+    
+    public void clear() throws Exception {
+        inStreams.clear();
+        outStreams.clear();
+    }
+    
+    public final void reset(List<byte[]> out, List<byte[]> in) throws Exception {
+        for (int i = 0; i < inboundMessages.size(); i++) {
+            in.remove(0);
+        }
         inStreams = in;
+        for (int i = 0; i < outboundMessages.size(); i++) {
+            out.remove(0);
+        }
         outStreams = out;
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder parser = factory.newDocumentBuilder();
-        inboundMessages = new ArrayList<Document>();
+        inboundMessages.clear();
         for (int i = 0; i < inStreams.size(); i++) {
             byte[] bytes = inStreams.get(i);
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);
             Document document = parser.parse(is);
             inboundMessages.add(document);
         }
-        outboundMessages = new ArrayList<Document>();
+        outboundMessages.clear();
         for (int i = 0; i < outStreams.size(); i++) {
             byte[] bytes = outStreams.get(i);
             ByteArrayInputStream is = new ByteArrayInputStream(bytes);

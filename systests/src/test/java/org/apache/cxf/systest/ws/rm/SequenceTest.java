@@ -42,10 +42,11 @@ import org.apache.cxf.ws.rm.RMConstants;
 public class SequenceTest extends ClientServerTestBase {
 
     private static final Logger LOG = Logger.getLogger(SequenceTest.class.getName());
-    private static final String APP_NAMESPACE = "http://celtix.objectweb.org/greeter_control";
-    private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE + "/types/Greeter/greetMeOneWay";
-    //private static final String GREETME_ACTION = APP_NAMESPACE + "/types/Greeter/greetMe";
-    //private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION + "Response";
+    // private static final String APP_NAMESPACE = "http://celtix.objectweb.org/greeter_control";
+    // private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE + "/types/Greeter/greetMeOneWay";
+    // private static final String GREETME_ACTION = APP_NAMESPACE + "/types/Greeter/greetMe";
+    // private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION + "Response";
+    private static final String GREETMEONEWAY_ACTION = null;
 
     private Bus controlBus;
     private Control control;
@@ -56,6 +57,7 @@ public class SequenceTest extends ClientServerTestBase {
 
     private boolean doTestOnewayAnonymousAcks = true;
     private boolean doTestOnewayDeferredAnonymousAcks = true;
+    private boolean doTestOnewayDeferredNonAnonymousAcks = true;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -128,7 +130,6 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessages(4, true);
         String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), GREETMEONEWAY_ACTION,
                                                  GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
-        expectedActions = new String[] {RMConstants.getCreateSequenceAction(), null, null, null};
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
@@ -162,8 +163,8 @@ public class SequenceTest extends ClientServerTestBase {
                 
         // three application messages plus createSequence
         mf.verifyMessages(4, true);
-        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), null,
-                                                 null, null};
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, GREETMEONEWAY_ACTION};
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
 
@@ -177,6 +178,57 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, null, null, null}, false);
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
     }
+    
+    public void testOnewayDeferredNonAnonymousAcks() throws Exception {
+        if (!doTestOnewayDeferredNonAnonymousAcks) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/nonanonymous-deferred.xml");
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+
+        // CreateSequence plus two greetMeOneWay requests
+
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        mf.verifyMessages(3, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, true);
+
+        // CreateSequenceResponse plus two partial responses, no
+        // acknowledgments included
+        
+        Thread.sleep(2000);
+
+        mf.verifyMessages(4, false);
+        expectedActions = new String[] {null, RMConstants.getCreateSequenceResponseAction(), 
+                                        null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[4], false);
+        mf.verifyAcknowledgements(new boolean[4], false);
+
+        // mf.clear();
+
+        try {
+            Thread.sleep(3 * 1000);
+        } catch (InterruptedException ex) {
+            // ignore
+        }
+
+        // a standalone acknowledgement should have been sent from the server
+        // side by now
+        
+        mf.reset(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+
+        mf.verifyMessages(0, true);
+        mf.verifyMessages(1, false);
+
+    }
+
 
     // --- test utilities ---
 

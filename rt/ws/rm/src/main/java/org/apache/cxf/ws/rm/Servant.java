@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import javax.xml.datatype.Duration;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxb.DatatypeFactory;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -44,7 +43,7 @@ import org.apache.cxf.ws.rm.manager.DestinationPolicyType;
  */
 public class Servant implements Invoker {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(AbstractRMInterceptor.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(Servant.class);
     private RMEndpoint reliableEndpoint;
     // REVISIT assumption there is only a single outstanding unattached Identifier
     private Identifier unattachedIdentifier;
@@ -55,15 +54,6 @@ public class Servant implements Invoker {
     
     public Object invoke(Exchange exchange, Object o) {
         LOG.fine("Invoking on RM Endpoint");
-        List<Object> params = CastUtils.cast((List<?>)o);
-        Object param = params.get(0);
-        LOG.fine("param: " + param);
-        if (param instanceof CreateSequenceType) {
-            CreateSequenceType create = (CreateSequenceType)param;
-            LOG.info("CreateSequenceType: " + create);
-            LOG.info("    acksTo: " + create.getAcksTo());
-            LOG.info("    offer: " + create.getOffer());
-        }
         OperationInfo oi = exchange.get(OperationInfo.class);
         if (RMConstants.getCreateSequenceOperationName().equals(oi.getName())) {
             try {
@@ -99,8 +89,6 @@ public class Servant implements Invoker {
             supportedDuration = DatatypeFactory.PT0S;
         }
         Expires ex = create.getExpires();
-        LOG.fine("expires: " + ex);
-        LOG.fine("acksTo: " + create.getAcksTo());
         
         if (null != ex || supportedDuration.isShorterThan(DatatypeFactory.PT0S)) {
             Duration effectiveDuration = supportedDuration;
@@ -113,7 +101,6 @@ public class Servant implements Invoker {
         }
         
         OfferType offer = create.getOffer();
-        LOG.fine("offer: " + offer);
         if (null != offer) {
             AcceptType accept = RMUtils.getWSRMFactory().createAcceptType();
             if (dp.isAcceptOffers()) {
@@ -147,7 +134,6 @@ public class Servant implements Invoker {
         seq.setCorrelationID(maps.getMessageID().getValue());
         destination.addSequence(seq);
         
-        LOG.fine("Returning createResponse: " + createResponse);
         return createResponse;
     }
 

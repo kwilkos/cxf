@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.RelatesToType;
@@ -96,7 +97,20 @@ public class RMManager extends RMManagerConfigBean {
         RMEndpoint rme = reliableEndpoints.get(endpoint);
         if (null == rme) {
             rme = new RMEndpoint(this, endpoint);
-            rme.initialise();
+            Conduit conduit = null;
+            org.apache.cxf.transport.Destination destination = null;
+            if (RMContextUtils.isServerSide(message)) {
+                AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
+                destination = message.getExchange().getDestination();
+                try {
+                    conduit = destination.getBackChannel(message, null, maps.getReplyTo());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                conduit = message.getExchange().getConduit();
+            }
+            rme.initialise(conduit, destination);
             reliableEndpoints.put(endpoint, rme);
         }
         return rme;
@@ -142,10 +156,16 @@ public class RMManager extends RMManagerConfigBean {
                     relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
 
                 } else {
-                    acksTo = VersionTransformer.convert(maps.getReplyTo());
-                    // for oneways
-                    if (RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
-                        acksTo = RMUtils.createAnonymousReference2004();
+                    acksTo = VersionTransformer.convert(maps.getReplyTo()); 
+                    if (!RMContextUtils.isServerSide(message)
+                        && RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
+                        org.apache.cxf.transport.Destination dest = message.getExchange()
+                            .getConduit().getBackChannel();
+                        if (null == dest) {
+                            acksTo = RMUtils.createAnonymousReference2004();
+                        } else {
+                            acksTo = VersionTransformer.convert(dest.getAddress());
+                        }
                     }
                 }
 
@@ -184,8 +204,12 @@ public class RMManager extends RMManagerConfigBean {
         }
         if (!isSetSourcePolicy()) {
             SourcePolicyType sp = factory.createSourcePolicyType();
-            sp.setSequenceTerminationPolicy(factory.createSequenceTerminationPolicyType());
             setSourcePolicy(sp);
+            
+        }
+        if (!getSourcePolicy().isSetSequenceTerminationPolicy()) {
+            getSourcePolicy().setSequenceTerminationPolicy(
+                factory.createSequenceTerminationPolicyType());            
         }
         if (!isSetDestinationPolicy()) {
             DestinationPolicyType dp = factory.createDestinationPolicyType();

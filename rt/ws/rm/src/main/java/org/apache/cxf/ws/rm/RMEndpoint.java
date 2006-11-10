@@ -41,6 +41,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.wsdl.UsingAddressing;
 
 public class RMEndpoint {
@@ -56,6 +57,8 @@ public class RMEndpoint {
         
     private final RMManager manager;
     private final Endpoint applicationEndpoint;
+    private Conduit conduit;
+    private org.apache.cxf.transport.Destination transportDestination;
     private Source source;
     private Destination destination;
     private Service service;
@@ -156,7 +159,23 @@ public class RMEndpoint {
         this.source = source;
     } 
     
-    void initialise() {
+    /** 
+     * @return Returns the conduit.
+     */
+    public Conduit getConduit() {
+        return conduit;
+    }
+    
+    /** 
+     * @return Returns the conduit.
+     */
+    public org.apache.cxf.transport.Destination getTransportDestination() {
+        return transportDestination;
+    }
+    
+    void initialise(Conduit c, org.apache.cxf.transport.Destination d) {
+        conduit = c;
+        transportDestination = d;
         createService();
         createEndpoint();
     }
@@ -223,7 +242,6 @@ public class RMEndpoint {
         partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceType.class);
-        
         unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
         unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
         operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
@@ -239,27 +257,12 @@ public class RMEndpoint {
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceResponseType.class);
-
         unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
         unwrappedOperationInfo.setOutput(operationInfo.getOutputName(), unwrappedMessageInfo);
         partInfo = unwrappedMessageInfo.addMessagePart("createResponse");
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceResponseType.class);
-        
-        /*
-        oi = ii.addOperation(RMConstants.getCreateSequenceResponseOperationName());
-        mi = oi.createMessage(RMConstants.getCreateSequenceResponseOperationName());
-        oi.setInput(mi.getName().getLocalPart(), mi);
-        pi = mi.addMessagePart("createResponse");
-        pi.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
-        pi.setElement(true);
-        pi.setTypeClass(CreateSequenceResponseType.class);
-        unwrappedInput = new MessageInfo(oi, mi.getName());
-        unwrapped = new UnwrappedOperationInfo(oi);
-        oi.setUnwrappedOperation(unwrapped);
-        unwrapped.setInput(oi.getInputName(), unwrappedInput);
-        */
         
         operationInfo = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName());
@@ -268,6 +271,14 @@ public class RMEndpoint {
         partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(TerminateSequenceType.class);
+        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        
+        operationInfo = ii.addOperation(RMConstants.getSequenceAckOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
         unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
         unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
         operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
@@ -290,19 +301,18 @@ public class RMEndpoint {
             boi.addExtensor(soi);
             bi.addOperation(boi);
             
-            /*
-            boi = bi.buildOperation(RMConstants.getCreateSequenceResponseOperationName(), 
-                RMConstants.getCreateSequenceResponseOperationName().getLocalPart(), null);
-            soi = new SoapOperationInfo();
-            soi.setAction(RMConstants.getCreateSequenceResponseAction());
-            boi.addExtensor(soi);
-            bi.addOperation(boi);
-            */
-            
             boi = bi.buildOperation(RMConstants.getTerminateSequenceOperationName(), 
                 RMConstants.getTerminateSequenceOperationName().getLocalPart(), null);
             soi = new SoapOperationInfo();
             soi.setAction(RMConstants.getTerminateSequenceAction());
+            boi.addExtensor(soi);
+            bi.addOperation(boi);
+            
+            boi = bi.buildOperation(RMConstants.getSequenceAckOperationName(), 
+                null, null);
+            assert null != boi;
+            soi = new SoapOperationInfo();
+            soi.setAction(RMConstants.getSequenceAckAction());
             boi.addExtensor(soi);
             bi.addOperation(boi);
 

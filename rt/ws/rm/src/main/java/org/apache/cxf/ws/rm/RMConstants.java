@@ -93,6 +93,9 @@ public final class RMConstants {
     private static final String WSRM_TERMINATE_SEQUENCE_ACTION =
         WSRM_NAMESPACE_NAME + "/TerminateSequence";
     
+    private static final String WSRM_SEQUENCE_ACK_ACTION =
+        WSRM_NAMESPACE_NAME + "/SequenceAcknowledgement";
+    
     private static final String WSRM_LAST_MESSAGE_ACTION =
         WSRM_NAMESPACE_NAME + "/LastMessage";
     
@@ -179,7 +182,7 @@ public final class RMConstants {
         return WSRM_ACK_REQUESTED_QNAME;
     }
     
-    public static String getAnonympusAddress() {
+    public static String getAnonymousAddress() {
         return WSA_ANONYMOUS_ADDRESS; 
     }
     
@@ -199,6 +202,10 @@ public final class RMConstants {
         return WSRM_TERMINATE_SEQUENCE_QNAME;
     }
     
+    public static QName getSequenceAckOperationName() {
+        return WSRM_SEQUENCE_ACK_QNAME;
+    }
+    
     public static String getCreateSequenceAction() {
         return WSRM_CREATE_SEQUENCE_ACTION;
     }
@@ -209,6 +216,10 @@ public final class RMConstants {
     
     public static String getTerminateSequenceAction() {
         return WSRM_TERMINATE_SEQUENCE_ACTION;
+    }
+    
+    public static String getSequenceAckAction() {
+        return WSRM_SEQUENCE_ACK_ACTION;
     }
     
     public static String getLastMessageAction() {

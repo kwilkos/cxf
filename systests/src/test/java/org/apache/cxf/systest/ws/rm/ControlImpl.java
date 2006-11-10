@@ -51,6 +51,9 @@ public class ControlImpl implements Control {
         greeterBus = bf.createBus(cfgResource);
         bf.setDefaultBus(greeterBus);
         LOG.info("Initialised bus with cfg file resource: " + cfgResource);
+        greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
+        greeterBus.getOutInterceptors().add(new OutMessageRecorder());
+        greeterBus.getInInterceptors().add(new InMessageRecorder());
         
         GreeterImpl implementor = new GreeterImpl();
         String address = "http://localhost:9020/SoapContext/GreeterPort";

@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.ClientOutFaultObserver;
 import org.apache.cxf.interceptor.Fault;
@@ -56,7 +57,7 @@ import org.apache.cxf.transport.MessageObserver;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
     
-    private static final Logger LOG = Logger.getLogger(ClientImpl.class.getName());
+    private static final Logger LOG = LogUtils.getL7dLogger(ClientImpl.class);
 
     private static final String FINISHED = "exchange.finished";
     
@@ -64,12 +65,19 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     private Endpoint endpoint;
     private Conduit initedConduit;
     private ClientOutFaultObserver outFaultObserver; 
-    private int synchronousTimeout = 100000; // default 10 second timeout
+    private int synchronousTimeout = 10000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
+        this(b, e, null);
+    }
+
+    public ClientImpl(Bus b, Endpoint e, Conduit c) {
         bus = b;
         endpoint = e;
         outFaultObserver = new ClientOutFaultObserver(bus);
+        if (null != c) {
+            initedConduit = c;
+        }
     }
 
     public Endpoint getEndpoint() {
@@ -184,7 +192,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             remaining -= (int)(end - start);
         }
         if (!Boolean.TRUE.equals(exchange.get(FINISHED))) {
-            LOG.info("RESPONSE_TIMEOUT");
+            LogUtils.log(LOG, Level.WARNING, "RESPONSE_TIMEOUT");
         }
     }
 
