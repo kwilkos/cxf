@@ -20,16 +20,15 @@
 package demo.client;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class Client {
 
-
-    public Client() {
+    protected Client() {
     }
 
     public static void main(String[] args) throws Exception {
@@ -42,10 +41,10 @@ public class Client {
             conn.connect();
 
             BufferedReader in = 
-                new BufferedReader( new InputStreamReader( conn.getInputStream() ) );
+                new BufferedReader(new InputStreamReader(conn.getInputStream()));
             boolean correctReturn = false;
             String response;
-            while ( (response = in.readLine()) != null ) {
+            while ((response = in.readLine()) != null) {
                 if (response.contains("Bonjour")) {
                     System.out.println(" server return: Bonjour");
                     correctReturn = true;
