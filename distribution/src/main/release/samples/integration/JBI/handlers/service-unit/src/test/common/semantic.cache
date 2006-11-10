@@ -1,0 +1,27 @@
+;; Object common/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "common/"
+  :tables (list 
+   (semanticdb-table "FileLoggingHandler.java"
+    :major-mode 'jde-mode
+    :tags '(("test.common" package nil nil [77 97]) ("java.io.FileOutputStream" include nil nil [99 131]) ("java.io.IOException" include nil nil [132 159]) ("java.io.PrintStream" include nil nil [160 187]) ("java.util.Map" include nil nil [189 210]) ("java.util.Set" include nil nil [211 232]) ("javax.xml.namespace.QName" include nil nil [234 267]) ("javax.xml.ws.handler.soap.SOAPMessageContext" include nil nil [268 320]) ("FileLoggingHandler" type (:typemodifiers ("public") :superclasses "LoggingHandler" :members (("FileLoggingHandler" function (:constructor-flag t :typemodifiers ("public")) (reparse-symbol class_member_declaration) [493 732]) ("init" function (:typemodifiers ("public") :arguments (("c" variable (:type "Map") (reparse-symbol formal_parameters) [755 760])) :type "void") (reparse-symbol class_member_declaration) [738 839]) ("getHeaders" function (:constructor-flag t) (reparse-symbol class_member_declaration) [863 904]) ("handleMessage" function (:typemodifiers ("public") :arguments (("smc" variable (:type "SOAPMessageContext") (reparse-symbol formal_parameters) [939 961])) :type "boolean") (reparse-symbol class_member_declaration) [910 1097]) ("handleFault" function (:typemodifiers ("public") :arguments (("smc" variable (:type "SOAPMessageContext") (reparse-symbol formal_parameters) [1130 1152])) :type "boolean") (reparse-symbol class_member_declaration) [1103 1286])) :type "class") nil [431 1288]))
+    :file "FileLoggingHandler.java"
+    :pointmax 1289
+    )
+   (semanticdb-table "LoggingHandler.java"
+    :major-mode 'jde-mode
+    :tags '(("test.common" package nil nil [77 97]) ("java.io.PrintStream" include nil nil [100 127]) ("java.util.Map" include nil nil [128 149]) ("java.util.Set" include nil nil [150 171]) ("javax.xml.namespace.QName" include nil nil [173 206]) ("javax.xml.soap.SOAPMessage" include nil nil [207 241]) ("javax.xml.ws.handler.MessageContext" include nil nil [242 285]) ("javax.xml.ws.handler.soap.SOAPHandler" include nil nil [286 331]) ("javax.xml.ws.handler.soap.SOAPMessageContext" include nil nil [332 384]))
+    :file "LoggingHandler.java"
+    :pointmax 2413
+    )
+   (semanticdb-table "SmallNumberHandler.java"
+    :major-mode 'jde-mode
+    :tags '(("test.common" package nil nil [1 21]) ("java.util.Map" include nil nil [23 44]) ("javax.xml.bind.JAXBContext" include nil nil [45 79]) ("javax.xml.bind.JAXBException" include nil nil [80 116]) ("javax.xml.ws.LogicalMessage" include nil nil [117 152]) ("javax.xml.ws.ProtocolException" include nil nil [153 191]) ("javax.xml.ws.handler.LogicalHandler" include nil nil [192 235]) ("javax.xml.ws.handler.LogicalMessageContext" include nil nil [236 286]) ("javax.xml.ws.handler.MessageContext" include nil nil [287 330]) ("org.objectweb.handlers.types.AddNumbers" include nil nil [331 378]) ("org.objectweb.handlers.types.AddNumbersResponse" include nil nil [379 434]))
+    :file "SmallNumberHandler.java"
+    :pointmax 3284
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0pre3"
+  :semanticdb-version "2.0pre3"
+  )

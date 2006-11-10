@@ -1,0 +1,15 @@
+;; Object provider/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "provider/"
+  :tables (list 
+   (semanticdb-table "HelloWorldProvider.java"
+    :major-mode 'jde-mode
+    :tags '(("test.provider" package nil nil [1 23]) ("javax.jws.HandlerChain" include nil nil [25 55]) ("javax.jws.WebService" include nil nil [56 84]) ("org.objectweb.handlers.AddNumbers" include nil nil [85 126]) ("org.objectweb.handlers.AddNumbersFault" include nil nil [127 173]) ("org.objectweb.handlers.types.FaultDetail" include nil nil [174 222]) ("HelloWorldProvider" type (:typemodifiers ("public") :interfaces ("AddNumbers") :members (("addNumbers" function (:throws ("AddNumbersFault") :typemodifiers ("public") :arguments (("number1" variable (:type "int") (reparse-symbol formal_parameters) [764 775]) ("number2" variable (:type "int") (reparse-symbol formal_parameters) [777 788])) :type "int") (reparse-symbol class_member_declaration) [742 1302])) :type "class") nil [496 1305]))
+    :file "HelloWorldProvider.java"
+    :pointmax 1308
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0pre3"
+  :semanticdb-version "2.0pre3"
+  )
