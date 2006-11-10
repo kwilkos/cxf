@@ -33,7 +33,7 @@
             elementFormDefault="qualified">
 
             <import namespace="http://www.w3.org/2005/08/addressing" 
-                    schemaLocation="../../schemas/wsdl/ws-addr.xsd"/>
+                    schemaLocation="/schemas/wsdl/ws-addr.xsd"/>
 
             <element name="sayHi" type="wsa:EndpointReferenceType"/>
             <element name="sayHiResponse">

@@ -23,10 +23,10 @@ This document and the information contained herein is provided on an "AS IS" bas
   targetNamespace="http://docs.oasis-open.org/wsrf/bf-2">
 
   <xsd:import namespace="http://www.w3.org/2005/08/addressing" 
-              schemaLocation="../../../../schemas/wsdl/ws-addr.xsd" />
+              schemaLocation="/schemas/wsdl/ws-addr.xsd" />
               
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace" 
-              schemaLocation="../../../../schemas/wsdl/xml.xsd">
+              schemaLocation="/schemas/wsdl/xml.xsd">
     <xsd:annotation>
       <xsd:documentation>
         Get access to the xml: attribute groups for xml:lang as declared on 'schema'

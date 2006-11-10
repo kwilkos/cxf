@@ -21,7 +21,7 @@ attributeFormDefault="unqualified" elementFormDefault="qualified">
 	<xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2" 
 	   schemaLocation="./bf-2.xsd" />
 	<xsd:import namespace="http://www.w3.org/2005/08/addressing" 
-	   schemaLocation="../../schemas/wsdl/ws-addr.xsd" />
+	   schemaLocation="/schemas/wsdl/ws-addr.xsd" />
 	<xsd:import namespace="http://docs.oasis-open.org/wsrf/rl-2" 
 	   schemaLocation="./rl-2.xsd" />	
 	<xsd:import namespace="http://docs.oasis-open.org/wsrf/rp-2" 

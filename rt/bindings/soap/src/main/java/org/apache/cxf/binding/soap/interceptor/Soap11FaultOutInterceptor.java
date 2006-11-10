@@ -22,12 +22,16 @@ package org.apache.cxf.binding.soap.interceptor;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -46,11 +50,11 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
 
     public void handleMessage(SoapMessage message) throws Fault {
         message.put(org.apache.cxf.message.Message.RESPONSE_CODE, new Integer(500));
-        
-        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
-        Fault f = (Fault)message.getContent(Exception.class);
 
-        SoapFault fault = SoapFault.createFault(f, message.getVersion());        
+        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
+        Fault f = (Fault) message.getContent(Exception.class);
+
+        SoapFault fault = SoapFault.createFault(f, message.getVersion());
 
         try {
             Map<String, String> namespaces = fault.getNamespaces();
@@ -63,10 +67,10 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
 
             writer.writeStartElement(defaultPrefix, "Fault", ns);
 
-            writer.writeStartElement("faultcode");          
-                
-            String codeString = fault.getCodeString(getFaultCodePrefix(writer, fault.getFaultCode()), 
-                                                    defaultPrefix);           
+            writer.writeStartElement("faultcode");
+
+            String codeString = fault.getCodeString(getFaultCodePrefix(writer, fault.getFaultCode()),
+                    defaultPrefix);
 
             writer.writeCharacters(codeString);
             writer.writeEndElement();
@@ -78,6 +82,27 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
                 writer.writeCharacters("Fault occurred while processing.");
             }
             writer.writeEndElement();
+            Object config = message.getContextualProperty(
+                    org.apache.cxf.message.Message.FAULT_STACKTRACE_ENABLED);
+            if (config != null && Boolean.TRUE.equals(config) && fault.getCause() != null) {                
+                StringBuffer sb = new StringBuffer();
+                for (StackTraceElement stk : fault.getCause().getStackTrace()) {
+                    sb.append(stk.toString());
+                }
+                try {
+                    if (fault.getDetail() == null) {
+                        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                                .newDocument();
+                        Element detail = doc.createElementNS(Soap11.SOAP_NAMESPACE, "detail");
+                        Element stackTrace = doc.createElementNS(Soap11.SOAP_NAMESPACE, "stackTrace");
+                        stackTrace.setTextContent(sb.toString());
+                        detail.appendChild(stackTrace);
+                        fault.setDetail(detail);
+                    }
+                } catch (ParserConfigurationException pe) {
+                    // move on...
+                }
+            }
 
             if (fault.hasDetails()) {
                 Element detail = fault.getDetail();
@@ -103,5 +128,5 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
         } catch (XMLStreamException xe) {
             throw new Fault(new Message("XML_WRITE_EXC", BUNDLE), xe);
         }
-    }   
+    }
 }

@@ -38,7 +38,7 @@
 				schemaLocation="./Printer.xsd" />
 			<xsd:import
 				namespace="http://www.w3.org/2006/02/addressing/wsdl"
-				schemaLocation="../../schemas/wsdl/ws-addr.xsd" />
+				schemaLocation="/schemas/wsdl/ws-addr.xsd" />
 		</xsd:schema>
 	</wsdl:types>
 

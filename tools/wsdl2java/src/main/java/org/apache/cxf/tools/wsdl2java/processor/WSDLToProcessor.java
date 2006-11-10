@@ -64,6 +64,7 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdl2java.databindings.jaxb.JAXBBindingGenerator;
+import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 import org.apache.velocity.app.Velocity;
 
 public class WSDLToProcessor implements Processor {
@@ -146,7 +147,7 @@ public class WSDLToProcessor implements Processor {
             wsdlReader.setFeature("javax.wsdl.verbose", false);
             WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, wsdlReader);
             register.registerExtensions();
-            wsdlDefinition = wsdlReader.readWSDL(wsdlURL);
+            wsdlDefinition = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlURL));
             parseImports(wsdlDefinition);
             buildImportedMaps();
         } catch (WSDLException we) {

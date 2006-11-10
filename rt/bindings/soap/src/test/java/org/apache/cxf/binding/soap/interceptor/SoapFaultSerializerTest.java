@@ -33,6 +33,7 @@ import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.test.AbstractCXFTest;
@@ -43,6 +44,7 @@ public class SoapFaultSerializerTest extends AbstractCXFTest {
         SoapFault fault = new SoapFault(faultString, Soap11.getInstance().getSender());
 
         SoapMessage m = new SoapMessage(new MessageImpl());
+        m.setExchange(new ExchangeImpl());
         m.setContent(Exception.class, fault);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

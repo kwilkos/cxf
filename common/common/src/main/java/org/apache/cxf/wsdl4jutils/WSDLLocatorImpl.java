@@ -39,7 +39,9 @@ public class WSDLLocatorImpl implements WSDLLocator {
         resolver = new ExtendedURIResolver();
     }
     public InputSource getBaseInputSource() {
-        return resolver.resolve(baseUri, null);
+        InputSource result =  resolver.resolve(baseUri, null);
+        baseUri = resolver.getURI();
+        return result;
     }
     public String getBaseURI() {
         return baseUri;
@@ -49,8 +51,8 @@ public class WSDLLocatorImpl implements WSDLLocator {
     }
     public InputSource getImportInputSource(String parent, String importLocation) {
         this.baseUri = parent;
-        this.importedUri = importLocation;
-        return resolver.resolve(this.importedUri, this.baseUri);        
+        this.importedUri = importLocation;        
+        return resolver.resolve(this.importedUri, this.baseUri);
     }
     public void close() {
         resolver.close();
