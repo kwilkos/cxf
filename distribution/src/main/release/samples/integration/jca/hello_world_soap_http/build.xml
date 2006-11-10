@@ -26,8 +26,13 @@
   <property name="wsdl.location" value="${wsdl.dir}/hello_world.wsdl"/>
   <property name="war.name" value="helloworld.war"/>
   <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
-  <property name="thirdparty.classpath" value="${basedir}/../common/common.jar"/>
-    
+  <!--property name="thirdparty.classpath" value="${basedir}/../common/common.jar"/-->
+  
+  <path id="thirdParth.classpath">
+    <pathelement location="${basedir}/../common/common.jar"/>
+  </path>
+
+
   <path id="other.classpath">
    	<pathelement location="${basedir}/../../../../lib/servlet-api-2.4.jar"/>
         <pathelement location="${basedir}/../../../../lib/connector.jar"/>
@@ -104,6 +109,10 @@
     </war>
   </target>
 
+    <target name="client" description="run demo client" depends="build">
+        <property name="param" value=""/>
+        <cxfrun classname="demo.client.Client"/>
+    </target>
 
   <target name="clean">
       <delete failonerror="no">

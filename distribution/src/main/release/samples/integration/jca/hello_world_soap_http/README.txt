@@ -154,3 +154,10 @@ http://localhost:8080/helloworld/*.do
 
 The web application provides a simple Web front-end to the Hello World
 Application. 
+
+command-line
+------------
+We can also running a client in command-line.
+
+  (Unix)    % ant client
+  (Windows) > ant client
