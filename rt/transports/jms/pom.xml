@@ -98,6 +98,7 @@
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
             <version>1.0.1</version>
+	    <scope>provided</scope>
         </dependency>
         <dependency>
                 <groupId>incubator-activemq</groupId>

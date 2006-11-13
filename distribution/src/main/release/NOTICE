@@ -51,6 +51,10 @@
    This product also includes software developed by Codehause
    (http://woodstox.codehaus.org/)
 
+   This product also includes MTOSI wsdl and schemas developed to TeleManagement
+   Forum (http://www.tmforum.org/browse.aspx). The original MTOSI wsdl and schemas
+   can be download here (http://sourceforge.net/projects/mtosi-ri)
+
    This product also includes WS-* schemas developed by International
    Business Machines Corporation, Microsoft Corporation, BEA Systems, 
    TIBCO Software, SAP AG, Sonic Software, and VeriSign

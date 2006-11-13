@@ -77,6 +77,13 @@
              </includes>
 	</fileSet>
 	<fileSet>
+	    <directory>target/additional-libs</directory>
+	    <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
+	    <includes>
+	        <include>**/*</include>
+	    </includes>
+	</fileSet>
+	<fileSet>
 	     <directory>target</directory>
 	     <outputDirectory>cxf-${cxf.version}/lib</outputDirectory>
 	     <includes>
