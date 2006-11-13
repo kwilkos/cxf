@@ -28,6 +28,7 @@
   <property name="wsdl.dir" location="./wsdl"/>
 
   <property file="../build.properties"/>
+  <property file="../../../../../etc/version.properties"/>
 
   <!-- reuse the macros defined in CXF samples -->
   <import file="${cxf.home}/samples/common_build.xml"/>        
@@ -37,7 +38,7 @@
     <pathelement location="${jbi.sdk.jar}"/>
     <fileset dir="${cxf.home}/lib">
       <include name="cxf-incubator.jar"/>
-      <include name="cxf-integration-jbi-2.0-incubator-M1-SNAPSHOT.jar"/>
+      <include name="cxf-integration-jbi-${cxf.version}.jar"/>
     </fileset>
   </path>
   

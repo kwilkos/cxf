@@ -34,6 +34,7 @@ import javax.jbi.messaging.MessageExchangeFactory;
 import javax.jbi.messaging.NormalizedMessage;
 import javax.jws.WebService;
 import javax.xml.namespace.QName;
+//import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
@@ -42,6 +43,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+//import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
@@ -135,6 +137,12 @@ public class JBIConduitOutputStream extends AbstractCachedOutputStream {
 
                     channel.sendSync(xchng);
                     NormalizedMessage outMsg = ((InOut)xchng).getOutMessage();
+                    
+                    //revisit later
+                    /*Source content = outMsg.getContent();
+                    XMLStreamReader reader = StaxUtils.createXMLStreamReader(content);
+                    message.setContent(XMLStreamReader.class, reader);*/
+                    
                     ins = JBIMessageHelper.convertMessageToInputStream(outMsg.getContent());
                     if (ins == null) {
                         throw new IOException(new org.apache.cxf.common.i18n.Message(

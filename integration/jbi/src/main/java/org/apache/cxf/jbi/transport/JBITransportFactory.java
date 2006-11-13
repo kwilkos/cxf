@@ -22,10 +22,13 @@ package org.apache.cxf.jbi.transport;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.jbi.JBIException;
 import javax.jbi.messaging.DeliveryChannel;
 
 import org.apache.cxf.Bus;
@@ -50,6 +53,8 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
     private static CXFServiceUnitManager suManager; 
     private static DeliveryChannel deliveryChannel;
     private Bus bus;
+    private final Map<String, JBIDestination> destinationMap = 
+        new HashMap<String, JBIDestination>();
     
 
     private Collection<String> activationNamespaces;
@@ -131,7 +136,25 @@ public class JBITransportFactory extends AbstractTransportFactory implements Con
         if (null != configurer) {
             configurer.configureBean(destination);
         }
+        try {
+            putDestination(ei.getService().getName().toString() 
+                           + ei.getInterface().getName().toString(), destination);
+        } catch (JBIException e) {
+            throw new IOException(e.getMessage());
+        }
         return destination;
     }
+    
+    public void putDestination(String epName, JBIDestination destination) throws JBIException {
+        if (destinationMap.containsKey(epName)) {
+            throw new JBIException("JBIDestination for Endpoint " 
+                                   + epName + " already be created");
+        } else {
+            destinationMap.put(epName, destination);
+        }
+    }
 
+    public JBIDestination getDestination(String epName) {
+        return destinationMap.get(epName);
+    }
 }

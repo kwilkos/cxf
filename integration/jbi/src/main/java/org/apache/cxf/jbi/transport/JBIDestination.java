@@ -127,6 +127,10 @@ public class JBIDestination implements Destination {
         incomingObserver = observer;
 
     }
+    
+    public MessageObserver getMessageObserver() {
+        return incomingObserver;
+    }
 
     private void deactivate() throws IOException {
         running = false;
@@ -211,13 +215,15 @@ public class JBIDestination implements Destination {
                 running = true;
                 LOG.info(new org.apache.cxf.common.i18n.Message(
                     "RECEIVE.THREAD.START", LOG).toString());
-                do { 
-                    MessageExchange exchange = channel.accept(); 
+                do {
+                    MessageExchange exchange = null;
+                    synchronized (channel) {
+                        exchange = channel.accept();
+                    }
+                                         
                     if (exchange != null) { 
-                        // REVISIT: serialized message handling not such a
-                        // good idea.
-                        // REVISIT: can there be more than one ep?
                         ServiceEndpoint ep = exchange.getEndpoint();
+                        
                         CXFServiceUnit csu = suManager.getServiceUnitForEndpoint(ep);
                         ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
                         
@@ -258,9 +264,15 @@ public class JBIDestination implements Destination {
             inMessage.put(JBIConstants.MESSAGE_EXCHANGE_PROPERTY, exchange);
             inMessage.setContent(InputStream.class, in);
                                            
-            inMessage.setDestination(this);            
-            //handle the incoming message
-            incomingObserver.onMessage(inMessage);
+            //dispatch to correct destination in case of multiple endpoint
+            inMessage.setDestination(((JBITransportFactory)conduitInitiator).
+                                     getDestination(exchange.getService().toString()
+                                     + exchange.getInterfaceName().toString()));
+            ((JBITransportFactory)conduitInitiator).
+            getDestination(exchange.getService().toString()
+                           + exchange.getInterfaceName().toString()).
+                getMessageObserver().onMessage(inMessage);
+            
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
                 "ERROR.PREPARE.MESSAGE", LOG).toString(), ex);
