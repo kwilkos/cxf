@@ -41,6 +41,7 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
@@ -59,6 +60,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 
@@ -66,12 +68,14 @@ public class SchemaValidator extends AbstractValidator {
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
 
     protected String[] defaultSchemas;
-
+   
     protected String schemaLocation = "./";
 
     private String wsdlsrc;
 
     private String[] xsds;
+    
+    private List<InputSource> schemaFromJar;
 
     private DocumentBuilder docBuilder;
 
@@ -87,6 +91,13 @@ public class SchemaValidator extends AbstractValidator {
         super(schemaDir);
         schemaLocation = schemaDir;
         defaultSchemas = getDefaultSchemas();
+        wsdlsrc = wsdl;
+        xsds = schemas;
+    }
+    
+    public SchemaValidator(List<InputSource> defaultSchemas, String wsdl, String[] schemas) {
+        schemaLocation = null;
+        schemaFromJar = defaultSchemas;
         wsdlsrc = wsdl;
         xsds = schemas;
     }
@@ -116,7 +127,37 @@ public class SchemaValidator extends AbstractValidator {
         return validate(is, schemas);
 
     }
+    
+    private Schema createSchema(List<InputSource> xsdsInJar, String[] schemas) 
+        throws SAXException, IOException {
+        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
+        SchemaResourceResolver resourceResolver = new SchemaResourceResolver();
+
+        sf.setResourceResolver(resourceResolver);
+        
+        List<Source> sources = new ArrayList<Source>();
+
+        for (InputSource is : xsdsInJar) {
+            StreamSource stream = new StreamSource(is.getByteStream());
+            stream.setSystemId(is.getSystemId());
+            sources.add(stream);
+        }
+        
+        if (schemas != null) {
+            for (int i = 0; i < schemas.length; i++) {
+                Document doc = docBuilder.parse(schemas[i]);
+                DOMSource stream = new DOMSource(doc, schemas[i]);
+                sources.add(stream);
+            } 
+        }
+        
+        Source[] args = new Source[sources.size()];
+        sources.toArray(args);
+        return sf.newSchema(args);
+    
+    }
+    
     private Schema createSchema(String[] schemas) throws SAXException, IOException {
 
         SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -141,6 +182,7 @@ public class SchemaValidator extends AbstractValidator {
 
     public boolean validate(InputSource wsdlsource, String[] schemas) throws ToolException {
         boolean isValid = false;
+        Schema schema;
         try {
 
             Document document = docBuilder.parse(wsdlsource.getSystemId());
@@ -155,16 +197,19 @@ public class SchemaValidator extends AbstractValidator {
             saxFactory.setFeature("http://xml.org/sax/features/namespaces", true);
             saxParser = saxFactory.newSAXParser();
 
-            schemas = addSchemas(defaultSchemas, schemas);
+            if (defaultSchemas != null) {
+                schemas = addSchemas(defaultSchemas, schemas);
+                schema = createSchema(schemas);
+            } else {
+                schema = createSchema(schemaFromJar, schemas); 
+            }
 
-            SAXSource saxSource = new SAXSource(saxParser.getXMLReader(), wsdlsource);
-
-            Schema schema = createSchema(schemas);
 
             Validator validator = schema.newValidator();
-
+            
             NewStackTraceErrorHandler errHandler = new NewStackTraceErrorHandler();
             validator.setErrorHandler(errHandler);
+            SAXSource saxSource = new SAXSource(saxParser.getXMLReader(), wsdlsource);
             validator.validate(saxSource);
 
             if (!errHandler.isValid()) {
@@ -339,13 +384,20 @@ class NewStackTraceErrorHandler implements ErrorHandler {
 class SchemaResourceResolver implements LSResourceResolver {
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
             String baseURI) {
-        String schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
+        String schemaLocation = null;
+        if (baseURI != null) {
+            schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
 
-        if (systemId.indexOf("http://") < 0) {
-            systemId = schemaLocation + systemId;
+            if (systemId.indexOf("http://") < 0) {
+                systemId = schemaLocation + systemId;
+            }
+        } else {
+            // try to get it from jar
+            systemId = ToolConstants.CXF_SCHEMAS_DIR_INJAR + systemId;
         }
-
+        
         URIResolver resolver = null;
+        
         try {
             resolver = new URIResolver(systemId);
         } catch (IOException e1) {

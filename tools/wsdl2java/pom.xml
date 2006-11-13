@@ -103,36 +103,11 @@
             <artifactId>cxf-common-utilities</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+	     <groupId>org.apache.cxf</groupId>
+	     <artifactId>cxf-common-schemas</artifactId>
+	     <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-<!--
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>dependency-maven-plugin</artifactId>
-                <version>${dependency.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>unpack-schemas</id>
-                        <phase>process-test-sources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/generated/src/test/resources</outputDirectory>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.apache.cxf</groupId>
-                                    <artifactId>cxf-common-schemas</artifactId>
-                                    <version>${project.version}</version>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
--->
-        </plugins>
-    </build>
 </project>

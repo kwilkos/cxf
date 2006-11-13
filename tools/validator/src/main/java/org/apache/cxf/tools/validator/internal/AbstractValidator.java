@@ -32,7 +32,11 @@ public abstract class AbstractValidator {
     protected List<String> errorMessages = new Vector<String>();
     protected Definition def;
     protected ToolContext env;
-
+    
+    public AbstractValidator() {
+        
+    }
+    
     public AbstractValidator(Definition definition) {
         this.def = definition;
     }

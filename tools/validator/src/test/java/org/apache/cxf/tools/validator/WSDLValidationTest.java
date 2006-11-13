@@ -26,23 +26,14 @@ import java.util.Enumeration;
 import org.apache.cxf.tools.common.ToolTestBase;
 
 public class WSDLValidationTest extends ToolTestBase {
-    private String schemaDir;
-
     public void setUp() {
         super.setUp();
-        try {
-            schemaDir = getLocation("/schemas/wsdl");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
     }
 
     public void testValidateUniqueBody() {
         try {
 
-            String[] args = new String[] {"-d", schemaDir,
-                                          "-verbose", getLocation("/validator_wsdl/doc_lit_bare.wsdl")};
+            String[] args = new String[] {"-verbose", getLocation("/validator_wsdl/doc_lit_bare.wsdl")};
             WSDLValidator.main(args);
             assertTrue("Non Unique Body Parts Error should be discovered: " + getStdErr(),
                        getStdErr().indexOf("Non unique body part") > -1);
@@ -54,7 +45,7 @@ public class WSDLValidationTest extends ToolTestBase {
     public void testValidateMixedStyle() {
         try {
 
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_mixed_style.wsdl")};
             WSDLValidator.main(args);
             assertTrue("Mixed style. Error should have been discovered: " + getStdErr(),
@@ -68,7 +59,7 @@ public class WSDLValidationTest extends ToolTestBase {
     public void testValidateTypeElement() {
         try {
 
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_doc_lit_type.wsdl")};
             WSDLValidator.main(args);
             assertTrue("Must refer to type element error should have been discovered: " + getStdErr(),
@@ -81,7 +72,7 @@ public class WSDLValidationTest extends ToolTestBase {
     public void testValidateAttribute() {
         try {
 
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_error_attribute.wsdl")};
             WSDLValidator.main(args);
             assertTrue("Attribute error should be discovered: " + getStdErr(),
@@ -96,7 +87,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
         try {
 
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_error_reference.wsdl")};
             WSDLValidator.main(args);
             assertTrue("Reference error should be discovered: " + getStdErr(),
@@ -110,7 +101,7 @@ public class WSDLValidationTest extends ToolTestBase {
     
     public void testBug305872() throws Exception {
         try {
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/bug305872/http.xsd")};
             WSDLValidator.main(args);
             
@@ -124,7 +115,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
     public void testImportWsdlValidation() throws Exception {
         try {
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_import.wsdl")};
             WSDLValidator.main(args);
             
@@ -138,7 +129,7 @@ public class WSDLValidationTest extends ToolTestBase {
 
     public void testImportSchemaValidation() throws Exception {
         try {
-            String[] args = new String[] {"-d", schemaDir, "-verbose",
+            String[] args = new String[] {"-verbose",
                                           getLocation("/validator_wsdl/hello_world_schema_import.wsdl")};
             WSDLValidator.main(args);
             

@@ -33,7 +33,7 @@ wsdlvalidator -s http://cxf.apache.org/schemas -s http://mycompany/schemas Greet
 
 	<usage>
 		<optionGroup id="options">				
-			<option id="schemaDir" minOccurs="1" maxOccurs="1">
+			<!--option id="schemaDir" minOccurs="1" maxOccurs="1">
 		         <annotation>
 		            The Directory used to search for schemas
 		         </annotation>
@@ -41,7 +41,7 @@ wsdlvalidator -s http://cxf.apache.org/schemas -s http://mycompany/schemas Greet
 				<associatedArgument placement="afterSpace">
 					<annotation>schema-directory</annotation>
 				</associatedArgument>
-			</option>
+			</option-->
 			
 			<option id="schemaURL" maxOccurs="unbounded">
 			<annotation>

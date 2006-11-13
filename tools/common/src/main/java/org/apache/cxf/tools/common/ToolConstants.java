@@ -108,6 +108,7 @@ public final class ToolConstants {
     public static final String CFG_SCHEMA_DIR = "schemaDir";
     public static final String CFG_SCHEMA_URL = "schemaURL";
     public static final String CXF_SCHEMA_DIR = "cxf_schema_dir";
+    public static final String CXF_SCHEMAS_DIR_INJAR = "schemas/wsdl/";
 
 
 

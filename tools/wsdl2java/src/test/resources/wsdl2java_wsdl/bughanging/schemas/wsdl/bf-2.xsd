@@ -22,8 +22,7 @@ This document and the information contained herein is provided on an "AS IS" bas
   elementFormDefault="qualified" attributeFormDefault="unqualified" 
   targetNamespace="http://docs.oasis-open.org/wsrf/bf-2">
 
-  <xsd:import namespace="http://www.w3.org/2005/08/addressing" 
-              schemaLocation="/schemas/wsdl/ws-addr.xsd" />
+  <xsd:import schemaLocation="/schemas/wsdl/ws-addr.xsd" />
               
   <xsd:import namespace="http://www.w3.org/XML/1998/namespace" 
               schemaLocation="/schemas/wsdl/xml.xsd">

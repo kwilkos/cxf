@@ -40,17 +40,20 @@ import javax.wsdl.Port;
 import javax.wsdl.PortType;
 import javax.wsdl.Service;
 import javax.wsdl.Types;
-import javax.wsdl.WSDLException;
+
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.schema.SchemaImport;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import org.xml.sax.InputSource;
+
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.model.Model;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
@@ -64,7 +67,9 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdl2java.databindings.jaxb.JAXBBindingGenerator;
-import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
+
+//import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
+import org.apache.cxf.wsdl4jutils.WSDLResolver;
 import org.apache.velocity.app.Velocity;
 
 public class WSDLToProcessor implements Processor {
@@ -147,10 +152,15 @@ public class WSDLToProcessor implements Processor {
             wsdlReader.setFeature("javax.wsdl.verbose", false);
             WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, wsdlReader);
             register.registerExtensions();
-            wsdlDefinition = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlURL));
+            URIResolver resolver = new URIResolver(wsdlURL);
+            InputSource insource = new InputSource(resolver.getInputStream());
+            wsdlURL = resolver.getURI().toString();
+            wsdlDefinition = wsdlReader.readWSDL(new WSDLResolver(wsdlURL, insource));
+            /*wsdlDefinition = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlURL));*/
+            
             parseImports(wsdlDefinition);
             buildImportedMaps();
-        } catch (WSDLException we) {
+        } catch (Exception we) {
             org.apache.cxf.common.i18n.Message msg =
                 new org.apache.cxf.common.i18n.Message("FAIL_TO_CREATE_WSDL_DEFINITION",
                                                              LOG, wsdlURL);

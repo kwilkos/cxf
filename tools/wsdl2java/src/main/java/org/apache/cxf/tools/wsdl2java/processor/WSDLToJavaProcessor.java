@@ -295,9 +295,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         //Jaxb's bug . Jaxb ClassNameCollecotr may not be invoked when generated class is an enum.
         //So we need recheck whether we add all generated source files to  fileList
         
-       
-        
-
         String[] arguments = new String[argList.size() + fileList.size() + 1];
         arguments[0] = "javac";
         

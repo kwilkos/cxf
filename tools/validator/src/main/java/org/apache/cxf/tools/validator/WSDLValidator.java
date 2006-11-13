@@ -61,12 +61,7 @@ public class WSDLValidator extends AbstractCXFToolContainer {
 
                 env.put(ToolConstants.CFG_CMD_ARG, args);
 
-                String schemaDir = (String)env.get(ToolConstants.CFG_SCHEMA_DIR);
-                if (schemaDir == null) {
-                    throw new ToolException("Schema search directory should "
-                                            + "be defined before validating wsdl.");
-                }
-
+              
                 WSDL11Validator wsdlValidator = new WSDL11Validator(null, env);
                 if (wsdlValidator.isValid()) {
                     System.out.println("Passed Validation : Valid WSDL ");

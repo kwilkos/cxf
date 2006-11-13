@@ -63,7 +63,6 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
     public void tearDown() {
         super.tearDown();
         processor = null;
-
     }
 
     public void testRPCLit() throws Exception {
