@@ -106,23 +106,7 @@
         <delete dir="${activemq.home}/var"/>
     </target>
 
-    <!-- Target to start JMS Broker for JMS samples -->
-    <target name="jmsbroker.start">
-        <property name="derby.system.home" location="${build.var.dir}"/>
-
-        <java classname="org.activemq.spring.Main" fork="yes" dir="${activemq.home}/bin">
-            <classpath>
-                <path refid="cxf.classpath"/>
-            </classpath>
-            <arg value="${activemq.home}/conf/activemq.xml"/>
-            <jvmarg value="-Dactivemq.home=${activemq.home}"/>
-            <jvmarg value="-Dderby.system.home=${derby.system.home}"/>
-            <jvmarg value="-Dderby.storage.fileSyncTransactionLog=true"/>
-            <jvmarg value="-Dderby.storage.dir=${build.var.dir}"/>
-            <sysproperty key="log4j.configuration" value="file:///${cxf.etc.dir}/log4j.properties"/>
-        </java>
-    </target>
-        
+            
     <target name="build"  depends="compile" description="build demo client and server"/>
 
     <macrodef name="cxf.server.run">
@@ -141,7 +125,8 @@
 
     <macrodef name="cxf.client.run">
         <attribute name="classname"/>
-        <attribute name="argline" default=""/>         <sequential>
+        <attribute name="argline" default=""/>
+         <sequential>
             <java classname="@{classname}" fork="yes" maxMemory="512M" >
                 <jvmarg value="-Xms256M"/>
                 <classpath refid="cxf.classpath"/>

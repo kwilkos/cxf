@@ -76,6 +76,7 @@ public final class Client extends TestCaseBase {
             System.out.println("AVG Response Time " + testResult.getAvgResponseTime());
         }
         System.out.println("cxf client is going to shutdown!");
+        System.exit(0);
     }
     
     private SimpleStruct getSimpleStruct() throws DatatypeConfigurationException {
