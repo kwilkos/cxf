@@ -16,8 +16,12 @@ Xfire project:
       lightweight container
     * Servlet container support
     * Complete tooling support, including wsdl2java and java2wsdl, plus a
-      bunch of other convenient tools.
+      bunch of other convenient tools
     * RESTful web service support
+    * JBI container support, CXF services can be deployed into any JBI
+      compliant container (ServiceMix or OpenESB)
+    * JCA 1.0 support, J2EE application can integrate with legacy application
+      through JCA 1.0 support in CXF
 
 2. Installation Prerequisites 
 

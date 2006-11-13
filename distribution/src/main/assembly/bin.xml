@@ -90,6 +90,13 @@
 	         <include>cxf-incubator.jar</include>
              </includes>
 	</fileSet>
+	<fileSet>
+	    <directory>target</directory>
+	    <outputDirectory>cxf-${cxf.version}/etc</outputDirectory>
+	    <includes>
+	        <include>version.properties</include>
+            </includes>
+	</fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>

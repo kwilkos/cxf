@@ -119,6 +119,12 @@
             <version>${pom.version}</version>
         </dependency>
 
+	<dependency>
+	    <groupId>${pom.groupId}</groupId>
+	    <artifactId>cxf-rt-transports-jms</artifactId>
+	    <version>${pom.version}</version>
+	</dependency>
+
         <dependency>
             <groupId>${pom.groupId}</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
@@ -232,11 +238,6 @@
 				    <artifactId>cxf-integration-jca</artifactId>
 				    <version>${pom.version}</version>
 				</artifactItem>
-				<artifactItem>
-				    <groupId>${pom.groupId}</groupId>
-				    <artifactId>cxf-rt-transports-jms</artifactId>
-				    <version>${pom.version}</version>
-				</artifactItem>
 		            </artifactItems>
 			</configuration>
 		    </execution>
@@ -317,6 +318,7 @@
                                 <property name="output.cp" value="export CXF_CLASSPATH=${cp}" />
                                 <property name="output.ext" value="" />
                                 <echo file="${basedir}/target/srcbuild_env${output.ext}" message="${output.cp}" />
+				 <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}"/>
                             </tasks>
                         </configuration>
                         <goals>
