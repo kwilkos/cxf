@@ -36,6 +36,7 @@
     <pathelement location="${jbi.sdk.jar}"/>
     <fileset dir="${cxf.home}/lib">
       <include name="cxf-incubator.jar"/>
+      <include name="cxf-integration-jbi-2.0-incubator-M1-SNAPSHOT.jar"/>
     </fileset>
   </path>
   
