@@ -215,9 +215,11 @@ public class CXFServlet extends HttpServlet {
             Object impl = cls.newInstance();
 
             EndpointImpl ep = new EndpointImpl(bus, impl, (String)null);
-
-            // doesn't really matter what URL is used here
-            ep.publish("http://localhost" + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
+            LOG.info("publish the servcie to {context}/ " + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
+            
+            // TODO we may need to get the url-pattern from servlet context
+            ep.publish("http://localhost/services" + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
+            
         } catch (ClassNotFoundException ex) {
             throw new ServletException(ex);
         } catch (InstantiationException ex) {

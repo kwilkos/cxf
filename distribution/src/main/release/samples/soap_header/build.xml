@@ -42,7 +42,7 @@
 
     <target name="client-servlet" description="run demo client hitting servlet" depends="build">
         <property name="param" value=""/>
-        <cxfrun classname="demo.soap_header.client.Client" param1="${base.url}/soapheader/cxf/soap_header" param2="${op}" param3="${param}"/>
+        <cxfrun classname="demo.soap_header.client.Client" param1="${base.url}/soapheader/services/soap_header?wsdl" param2="${op}" param3="${param}"/>
     </target>     
     
 </project>

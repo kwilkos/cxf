@@ -33,17 +33,35 @@ import javax.xml.ws.Holder;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
+import org.apache.cxf.common.util.factory.Factory;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
-import org.apache.cxf.service.invoker.BeanInvoker;
+import org.apache.cxf.service.invoker.ApplicationScopePolicy;
+import org.apache.cxf.service.invoker.FactoryInvoker;
+import org.apache.cxf.service.invoker.ScopePolicy;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
-public class JAXWSMethodInvoker extends BeanInvoker {
+public class JAXWSMethodInvoker extends FactoryInvoker {
 
-    public JAXWSMethodInvoker(Object bean) {
-        super(bean);
+    public JAXWSMethodInvoker(final Object bean) {
+        super(
+            new Factory() {
+                public Object create() {
+                    return bean;
+                }
+            },
+            ApplicationScopePolicy.instance());
+        
+    }
+    
+    public JAXWSMethodInvoker(Factory factory) {
+        super(factory, ApplicationScopePolicy.instance());
+    }
+    
+    public JAXWSMethodInvoker(Factory factory, ScopePolicy scope) {
+        super(factory, scope);
     }
 
     @SuppressWarnings("unchecked")

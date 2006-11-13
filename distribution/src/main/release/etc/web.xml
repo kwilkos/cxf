@@ -31,7 +31,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>cxf</servlet-name>
-        <url-pattern>/cxf/*</url-pattern>
+        <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>60</session-timeout>

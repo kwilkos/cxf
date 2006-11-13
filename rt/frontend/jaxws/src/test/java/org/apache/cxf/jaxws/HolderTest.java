@@ -18,11 +18,15 @@
  */
 package org.apache.cxf.jaxws;
 
+import org.w3c.dom.Node;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.mtom_xop.HelloImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.transport.local.LocalTransportFactory;
+
+
 
 public class HolderTest extends AbstractJaxWsTest {
     public void testInvocation() throws Exception {
@@ -38,14 +42,16 @@ public class HolderTest extends AbstractJaxWsTest {
         ServerFactoryBean svr = new ServerFactoryBean();
         svr.setBus(bus);
         svr.setServiceFactory(bean);
-        
         svr.create();
 
-//        Node response = invoke("http://localhost:9036/mime-test",
-//                               LocalTransportFactory.TRANSPORT_ID, 
-//                               "echoData.xml");
-//
-//        assertNotNull(response);
-
+        Node response = invoke("http://localhost:9036/mime-test",
+                               LocalTransportFactory.TRANSPORT_ID, 
+                               "echoData.xml");
+        addNamespace("h", "http://cxf.apache.org/mime");        
+        
+        assertValid("//h:data", response);        
+        assertValid("/s:Envelope/s:Body", response); 
+        assertNotNull(response);
+        assertNoFault(response);
     }
 }

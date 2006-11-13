@@ -40,7 +40,12 @@ public class HelloImpl implements Hello {
         name.value = "return detail + " + name.value;        
     }
 
-    public void echoData(String body, Holder<byte[]> data) {
+    public void echoData(String body, Holder<byte[]> data) {        
+        String echo = new String("echo!");
+        byte[] returnData = new byte[data.value.length + 10];
+        System.arraycopy(data.value, 0, returnData, 0, data.value.length);
+        System.arraycopy(echo.getBytes(), 0, returnData, data.value.length, echo.getBytes().length);
+        data.value = returnData;        
     }
 
     public void echoDataWithEnableMIMEContent(String body, Holder<byte[]> data) {

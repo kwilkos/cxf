@@ -65,9 +65,13 @@ public class ServletController {
         try {
             EndpointInfo ei = new EndpointInfo();
             ei.setAddress("http://localhost" + request.getServletPath() + request.getPathInfo());
+            
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
+                LOG.warning("Can't find the the request for" 
+                         + "http://localhost" + request.getServletPath() 
+                         + request.getPathInfo() + " 's Observer ");
                 generateNotFound(request, res);
             } else if (wsdl) {
                 generateWSDL(request, res, d);

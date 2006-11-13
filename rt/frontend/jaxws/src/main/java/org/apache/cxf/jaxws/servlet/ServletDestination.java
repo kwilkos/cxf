@@ -151,6 +151,7 @@ public class ServletDestination implements Destination {
      * @param observer the observer to notify on receipt of incoming
      */
     public synchronized void setMessageObserver(MessageObserver observer) {
+        LOG.info("!!! set the observer for address " + getAddress().getAddress().getValue());
         incomingObserver = observer;
     }
     
@@ -365,13 +366,7 @@ public class ServletDestination implements Destination {
             Integer i = (Integer)outMessage.get(Message.RESPONSE_CODE);
             if (i != null) {
                 int status = i.intValue();
-                if (status == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-                    response.sendError(status, "Fault Occurred");
-                } else if (status == HttpURLConnection.HTTP_ACCEPTED) {
-                    response.setStatus(HttpServletResponse.SC_ACCEPTED);
-                } else {
-                    response.setStatus(status);
-                }
+                response.setStatus(status);                
             } else {
                 response.setStatus(HttpURLConnection.HTTP_OK);
             }
