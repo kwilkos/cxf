@@ -75,6 +75,7 @@
         </dependency>
        
      
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -100,10 +101,10 @@
             <version>1.0.1</version>
         </dependency>
         <dependency>
-                <groupId>incubator-activemq</groupId>
-                <artifactId>activemq-core</artifactId>
-                <version>${activemq-version}</version>
-                <scope>test</scope>
+            <groupId>incubator-activemq</groupId>
+            <artifactId>activemq-core</artifactId>
+            <version>${activemq-version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
@@ -196,4 +197,12 @@
         </plugins>
     </build>
 
+
+    <repositories>
+        <repository>
+            <id>ActiveMQ</id>
+            <name>ActiveMQ Maven2 Temp Repository</name>
+            <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC6/maven2</url>
+        </repository>
+    </repositories>
 </project>

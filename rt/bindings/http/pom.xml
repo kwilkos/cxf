@@ -100,11 +100,5 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>codehaus</id>
-            <name>Codehaus</name>
-            <url>http://repository.codehaus.org</url>
-        </repository>
-    </repositories>
+
 </project>
