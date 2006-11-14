@@ -58,6 +58,7 @@ import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.support.DummyImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
@@ -238,6 +239,7 @@ public class ServiceImpl extends ServiceDelegate {
 
         Service service = serviceFactory.create();
         configureObject(service);
+        service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
 
         QName pn = portName;
         ServiceInfo si = service.getServiceInfo();
@@ -271,7 +273,11 @@ public class ServiceImpl extends ServiceDelegate {
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
-        configureObject(jaxwsEndpoint);
+        configureObject(jaxwsEndpoint);        
+        
+        if (jaxwsEndpoint.getEnableSchemaValidation()) {
+            jaxwsEndpoint.put(Message.SCHEMA_VALIDATION_ENABLED, jaxwsEndpoint.getEnableSchemaValidation());
+        }
 
         Client client = new ClientImpl(bus, jaxwsEndpoint);
 

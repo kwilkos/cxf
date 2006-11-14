@@ -17,18 +17,19 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
-
-import javax.xml.validation.Schema;
+package org.apache.cxf.jaxb;
 
 
-//REVISIT - need to move the Reader/Writer stuff, also probably 
-//need the MessageInfo/OperationInfo as a param 
-public interface DataWriterFactory {
+import junit.framework.TestCase;
+
+public class DatatypeFactoryTest extends TestCase {
     
-    Class<?>[] getSupportedFormats();
-    
-    <T> DataWriter<T> createWriter(Class<T> cls);
-    void setSchema(Schema s);
+    public void testNewFactory() throws Exception {
+        try {
+            Class.forName("org.apache.cxf.jaxb.DatatypeFactory");
+            assertEquals("PT0S", DatatypeFactory.PT0S.toString());
+        } catch (Exception e) {
+            fail("There should have no excpetion during loading of the class DatatypeFactory");
+        }
+    }
 }
-

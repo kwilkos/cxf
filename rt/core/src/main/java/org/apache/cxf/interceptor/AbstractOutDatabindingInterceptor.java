@@ -22,6 +22,7 @@ package org.apache.cxf.interceptor;
 import java.util.ResourceBundle;
 
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.validation.Schema;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
@@ -30,6 +31,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.ServiceModelUtil;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final ResourceBundle BUNDLE = BundleUtils
@@ -42,7 +44,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     protected DataWriter getDataWriter(Message message, Class<?> output) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-
+        setSchemaOutMessage(service, message);
         DataWriter dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == output) {
@@ -63,7 +65,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-
+        setSchemaOutMessage(service, message);
         DataWriter<Message> dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == Message.class) {
@@ -83,7 +85,7 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
         DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-
+        setSchemaOutMessage(service, message);
         DataWriter<XMLStreamWriter> dataWriter = null;
         for (Class<?> cls : factory.getSupportedFormats()) {
             if (cls == XMLStreamWriter.class) {
@@ -98,6 +100,14 @@ public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInt
         }
 
         return dataWriter;
+    }
+    
+    private void setSchemaOutMessage(Service service, Message message) {
+        if (message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED) != null 
+                && Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
+            Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
+            service.getDataBinding().getDataWriterFactory().setSchema(schema);
+        }
     }
 
     protected XMLStreamWriter getXMLStreamWriter(Message message) {

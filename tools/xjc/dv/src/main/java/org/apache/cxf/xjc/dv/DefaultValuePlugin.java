@@ -61,7 +61,7 @@ import org.apache.cxf.jaxb.DatatypeFactory;
  */
 public class DefaultValuePlugin extends Plugin {
     
-    private static final Logger LOG = LogUtils.getL7dLogger(DatatypeFactory.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(DefaultValuePlugin.class);
     
     public DefaultValuePlugin() {
     }

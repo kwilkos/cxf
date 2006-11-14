@@ -133,6 +133,10 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (ex != null) {
             throw ex;
         }
+        ex = message.getExchange().get(Exception.class);
+        if (ex != null) {
+            throw ex;
+        }
         
         // Wait for a response if we need to
         if (!oi.getOperationInfo().isOneWay()) {
