@@ -40,11 +40,13 @@ public class OutgoingChainInterceptor extends AbstractPhaseInterceptor<Message> 
 
     public void handleMessage(Message message) {
         Exchange ex = message.getExchange();
+        BindingOperationInfo bin = ex.get(BindingOperationInfo.class);
+        if (null != bin && null != bin.getOperationInfo() && bin.getOperationInfo().isOneWay()) {
+            return;
+        }
         Message out = ex.getOutMessage();
-        
         if (out != null) {
             getBackChannelConduit(ex);
-            BindingOperationInfo bin = ex.get(BindingOperationInfo.class);
             if (bin != null) {
                 out.put(MessageInfo.class, bin.getOperationInfo().getOutput());
                 out.put(BindingMessageInfo.class, bin.getOutput());

@@ -320,7 +320,9 @@
                         <!-- do not exclude **/Abstract*Test.java **/Abstract*TestCase.java -->
                         <excludes>
                             <exclude>**/*$*</exclude>
+                            <!--
                             <exclude>**/systest/**/SequenceTest.java</exclude>
+                            -->
                             <exclude>**/systest/**/MAPTest.java</exclude>
                         </excludes>
                         <reportFormat>${surefire.format}</reportFormat>
