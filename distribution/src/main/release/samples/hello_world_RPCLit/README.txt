@@ -123,10 +123,13 @@ Build the war file with the command:
 
 The war file will be included in the directory
 samples/hello_world_RPCLit/build/war.  Simply copy the war file into
-the servlet container's deployment directory.  For example,
+the servlet container's deployment directory.   For example,
 with Tomcat copy the war file into the directory
 <installationDirectory>/webapps.  The servlet container will
 extract the war and deploy the application.
+
+Make sure already copy all jars (except cxf-integration-* jars)
+from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
 
 Using ant, run the client application with the command:
 
@@ -140,12 +143,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/cxf/hello_world_rpclit
+         demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/services/hello_world_rpclit
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/cxf/hello_world_rpclit
+       demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/services/hello_world_rpclit
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
