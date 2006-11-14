@@ -105,7 +105,7 @@ public final class Client {
         Image image = ImageIO.read(new ByteArrayInputStream(param.value));
         System.out.println("build image with the returned byte[] back from server successfully, hashCode="
                 + image.hashCode());
-
+        System.out.println("Successfully run demo mtom/xop");
         System.exit(0);
     }
 

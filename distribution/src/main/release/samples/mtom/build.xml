@@ -22,6 +22,7 @@
     <import file="../common_build.xml"/>        
         
     <target name="client" description="run demo client" depends="build">
+        <copy toFile="${build.classes.dir}/demo/mtom/client/me.bmp" file="${basedir}/src/demo/mtom/client/me.bmp"/>
         <property name="param" value=""/>
         <cxfrun classname="demo.mtom.client.Client"
             param1="${basedir}/wsdl/mtom_xop.wsdl" 
@@ -44,6 +45,7 @@
 	</target>
 
     <target name="client-servlet" description="run demo client hitting servlet" depends="build">
+        <copy toFile="${build.classes.dir}/demo/mtom/client/me.bmp" file="${basedir}/src/demo/mtom/client/me.bmp"/>
         <property name="param" value=""/>
         <cxfrun classname="demo.mtom.client.Client" param1="${base.url}/mtom/cxf/mime_test" param2="${op}"/>
     </target> 
