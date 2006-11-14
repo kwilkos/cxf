@@ -46,6 +46,12 @@
             <artifactId>httpunit</artifactId>
             <version>1.6.1</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>rhino</groupId>
+                    <artifactId>js</artifactId>
+                </exclusion>
+	    </exclusions>
         </dependency>
         <dependency>
             <groupId>jtidy</groupId>
