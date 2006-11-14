@@ -53,7 +53,6 @@ import com.sun.xml.xsom.XSType;
 import com.sun.xml.xsom.XmlString;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.jaxb.DatatypeFactory;
 
 /**
  * Modifies the JAXB code model to initialise fields mapped from schema elements 
