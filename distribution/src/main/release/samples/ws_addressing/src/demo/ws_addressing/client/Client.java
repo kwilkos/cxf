@@ -34,7 +34,6 @@ import org.apache.cxf.ws.addressing.AddressingBuilder;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.ObjectFactory;
-import org.apache.cxf.ws.addressing.RelatesToType;
 
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.PingMeFault;
