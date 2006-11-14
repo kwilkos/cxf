@@ -28,14 +28,14 @@
     <fileSets>
         <fileSet>
             <directory>src/main/resources/</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>plugins/org.apache.cxf_${version}</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>target</directory>
-            <outputDirectory></outputDirectory>
+            <outputDirectory>plugins/org.apache.cxf_${version}</outputDirectory>
             <includes>
                 <include>plugin.xml</include>
             </includes>
@@ -43,7 +43,7 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>plugins/org.apache.cxf_${version}/lib</outputDirectory>
             <unpack>false</unpack>
             <scope>runtime</scope>
         </dependencySet>

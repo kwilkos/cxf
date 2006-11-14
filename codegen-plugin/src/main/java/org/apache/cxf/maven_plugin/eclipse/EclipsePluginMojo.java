@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.wsdl2java.frontend.jaxws.VelocityWriter;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -98,7 +97,7 @@ public class EclipsePluginMojo extends AbstractMojo {
     }
 
     private String getVersion() {
-        return StringUtils.formatVersionNumber(project.getVersion());
+        return project.getVersion();
     }
 
     // TODO: Reuse the velocity in the tools 
