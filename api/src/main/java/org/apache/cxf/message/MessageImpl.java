@@ -153,7 +153,11 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
     
     public static void copyContent(Message m1, Message m2) {
         for (Class<?> c : m1.getContentFormats()) {
-            m2.setContent(c, m1.getContent(c));
+            if (c == Exception.class) {
+                m2.setContent(c, m1.getContent(c));
+            } else if (c ==  javax.xml.stream.XMLStreamReader.class) {
+                m2.setContent(c, m1.getContent(c));
+            }
         }
     }
 }

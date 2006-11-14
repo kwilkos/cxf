@@ -114,8 +114,10 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
     }
     
     private Exception getException(Exchange exchange) {
-        if (exchange.getFaultMessage() != null) {
-            return exchange.getFaultMessage().getContent(Exception.class);
+        if (exchange.getOutFaultMessage() != null) {
+            return exchange.getOutFaultMessage().getContent(Exception.class);
+        } else if (exchange.getInFaultMessage() != null) {
+            return exchange.getInFaultMessage().getContent(Exception.class);
         }
         return null;
     }

@@ -37,7 +37,8 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     }
     
     boolean isOutbound(T message) {
-        return message == message.getExchange().getOutMessage();
+        return message == message.getExchange().getOutMessage()
+               || message == message.getExchange().getOutFaultMessage();
     }
     
     boolean isRequestor(T message) {

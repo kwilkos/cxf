@@ -185,7 +185,7 @@ public class RMManagerTest extends TestCase {
         EasyMock.expect(message.getExchange()).andReturn(exchange).anyTimes();
         EasyMock.expect(exchange.getOutMessage()).andReturn(message).anyTimes();
         EasyMock.expect(exchange.getInMessage()).andReturn(null).anyTimes();
-        EasyMock.expect(exchange.getFaultMessage()).andReturn(null).anyTimes();
+        EasyMock.expect(exchange.getOutFaultMessage()).andReturn(null).anyTimes();
         Conduit conduit = control.createMock(Conduit.class);
         EasyMock.expect(exchange.getConduit()).andReturn(conduit).anyTimes();
         EasyMock.expect(conduit.getBackChannel()).andReturn(null).anyTimes();

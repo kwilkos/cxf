@@ -82,7 +82,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundUsingAddressingMAPsInContext() 
         throws Exception {
         Message message = setUpMessage(true, true, false, true, true);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -90,7 +90,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundUsingAddressingMAPsInContextZeroLengthAction() 
         throws Exception {
         Message message = setUpMessage(true, true, false, true, true, true);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -98,7 +98,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundUsingAddressingMAPsInContextFault() 
         throws Exception {
         Message message = setUpMessage(true, true, false, true, true);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -106,7 +106,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundUsingAddressingNoMAPsInContext() 
         throws Exception {
         Message message = setUpMessage(true, true, false, true, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -114,14 +114,14 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundUsingAddressingNoMAPsInContextFault() 
         throws Exception {
         Message message = setUpMessage(true, true, false, true, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, true, true);
     }
 
     public void testRequestorOutboundNotUsingAddressing() throws Exception {
         Message message = setUpMessage(true, true, false, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, false);
     }
@@ -129,7 +129,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundNotUsingAddressingFault() 
         throws Exception {
         Message message = setUpMessage(true, true, false, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, true, false);
     }
@@ -137,7 +137,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundOnewayUsingAddressingMAPsInContext() 
         throws Exception {
         Message message = setUpMessage(true, true, true, true, true);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -145,7 +145,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundOnewayUsingAddressingMAPsInContextFault() 
         throws Exception {
         Message message = setUpMessage(true, true, true, true, true);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -153,7 +153,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundOnewayUsingAddressingNoMAPsInContext() 
         throws Exception {
         Message message = setUpMessage(true, true, true, true, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, true);
     }
@@ -161,14 +161,14 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundOnewayUsingAddressingNoMAPsInContextFault() 
         throws Exception {
         Message message = setUpMessage(true, true, true, true, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, true, true);
     }
 
     public void testRequestorOutboundOnewayNotUsingAddressing() throws Exception {
         Message message = setUpMessage(true, true, true, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, true, false);
     }
@@ -177,14 +177,14 @@ public class MAPAggregatorTest extends TestCase {
     public void testRequestorOutboundOnewayNotUsingAddressingFault() 
         throws Exception {
         Message message = setUpMessage(true, true, true, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, true, false);
     }
 
     public void testResponderInboundValidMAPs() throws Exception {
         Message message = setUpMessage(false, false, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, false);
     }
@@ -192,7 +192,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderInboundDecoupled() throws Exception {
         Message message = 
             setUpMessage(false, false, false, true, false, true);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, true);
     }
@@ -200,14 +200,14 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderInboundOneway() throws Exception {
         Message message = 
             setUpMessage(false, false, true, true, false, true);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, true);
     }
 
     public void testResponderInboundValidMAPsFault() throws Exception {
         Message message = setUpMessage(false, false, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, false, false, true);
     }
@@ -215,7 +215,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderInboundInvalidMAPs() throws Exception {
         aggregator.messageIDs.put("urn:uuid:12345", "urn:uuid:12345");
         Message message = setUpMessage(false, false, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, false, false /*check*/);
     }
@@ -223,14 +223,14 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderInboundInvalidMAPsFault() throws Exception {
         aggregator.messageIDs.put("urn:uuid:12345", "urn:uuid:12345");
         Message message = setUpMessage(false, false, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, false, false, false /*check*/);
     }
 
     public void testResponderOutbound() throws Exception {
         Message message = setUpMessage(false, true, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, true, true);
     }
@@ -238,7 +238,7 @@ public class MAPAggregatorTest extends TestCase {
     public void testResponderOutboundZeroLengthAction() throws Exception {
         Message message = 
             setUpMessage(false, true, false, false, false, false, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, false, true, true);
     }
@@ -252,21 +252,21 @@ public class MAPAggregatorTest extends TestCase {
                                                       true,
                                                       false,
                                                       true});
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, false, true, true);
     }
 
     public void testRequestorInbound() throws Exception {
         Message message = setUpMessage(true, false, false);
-        aggregator.handleMessage(message);
+        aggregator.mediate(message, false);
         control.verify();
         verifyMessage(message, true, false, false /*check*/);
     }
 
     public void testRequestorInboundFault() throws Exception {
         Message message = setUpMessage(true, false, false);
-        aggregator.handleFault(message);
+        aggregator.mediate(message, true);
         control.verify();
         verifyMessage(message, true, false, false /*check*/);
     }

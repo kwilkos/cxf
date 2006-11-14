@@ -32,8 +32,11 @@ public interface Exchange extends Map<String, Object> {
     Message getOutMessage();
     void setOutMessage(Message m);
     
-    Message getFaultMessage();
-    void setFaultMessage(Message m);
+    Message getInFaultMessage();
+    void setInFaultMessage(Message m);
+
+    Message getOutFaultMessage();
+    void setOutFaultMessage(Message m);
     
     Session getSession();
     

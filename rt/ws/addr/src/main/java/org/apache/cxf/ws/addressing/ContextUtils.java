@@ -106,16 +106,24 @@ public final class ContextUtils {
     * @return true iff the message direction is outbound
     */
     public static boolean isOutbound(Message message) {
-        if (message == null) {
-            return false;
-        }
-        
         Exchange exchange = message.getExchange();
-        
         return message != null
                && exchange != null
-               && message == exchange.getOutMessage();
-        
+               && (message == exchange.getOutMessage()
+                   || message == exchange.getOutFaultMessage());
+    }
+
+   /**
+    * Determine if message is fault.
+    *
+    * @param message the current Message
+    * @return true iff the message is a fault
+    */
+    public static boolean isFault(Message message) {
+        return message != null
+               && message.getExchange() != null
+               && (message == message.getExchange().getInFaultMessage()
+                   || message == message.getExchange().getOutFaultMessage());
     }
 
    /**
@@ -309,6 +317,7 @@ public final class ContextUtils {
                                       Message inMessage) {
         String namespaceURI = inMAPs.getNamespaceURI();
         if (!retrievePartialResponseSent(inMessage)) {
+            storePartialResponseSent(inMessage);
             Exchange exchange = inMessage.getExchange();
             Message fullResponse = exchange.getOutMessage();
             Endpoint endpoint = exchange.get(Endpoint.class);
@@ -319,7 +328,7 @@ public final class ContextUtils {
             // and partial response messages (used to determine relatesTo etc.)
             propogateReceivedMAPs(inMAPs, partialResponse);
             propogateReceivedMAPs(inMAPs, fullResponse);
-            propogateReceivedMAPs(inMAPs, exchange.getFaultMessage());
+            propogateReceivedMAPs(inMAPs, exchange.getOutFaultMessage());
             
             try {
                 Destination target = inMessage.getDestination();

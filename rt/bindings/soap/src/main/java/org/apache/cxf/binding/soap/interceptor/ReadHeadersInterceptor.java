@@ -99,9 +99,13 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 
                 if (message.getVersion().getFault().equals(xmlReader.getName())) {
                     Endpoint ep = message.getExchange().get(Endpoint.class);
-                    message.getInterceptorChain().abort();
-                    if (ep.getInFaultObserver() != null) {
-                        ep.getInFaultObserver().onMessage(message);
+                    if (ep != null) {
+                        message.getInterceptorChain().abort();
+                        if (ep.getInFaultObserver() != null) {
+                            ep.getInFaultObserver().onMessage(message);
+                        }
+                    } else {
+                        message.getExchange().put("deferred.fault.observer.notification", Boolean.TRUE);
                     }
                 }
             }

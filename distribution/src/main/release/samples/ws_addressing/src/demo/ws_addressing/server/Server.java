@@ -17,34 +17,27 @@
  * under the License.
  */
 
-package org.apache.cxf.interceptor;
+package demo.ws_addressing.server;
 
-import java.util.List;
+import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.Phase;
-import org.apache.cxf.phase.PhaseManager;
+public class Server {
 
-public class ClientOutFaultObserver extends AbstractFaultChainIntiatorObserver {
+    protected Server() throws Exception {
+        System.out.println("Starting Server");
 
-    
-    public ClientOutFaultObserver(Bus bus) {
-        super(bus);
+
+        Object implementor = new GreeterImpl();
+        String address = "http://localhost:9000/SoapContext/SoapPort";
+        Endpoint.publish(address, implementor);
     }
     
-    @Override
-    protected List<Phase> getPhases() {
-        return getBus().getExtension(PhaseManager.class).getOutPhases();
-    }
-    /**
-     * override the super class method
-     */
-    public void onMessage(Message m) {
-        // do nothing for exception occured during client sending out request
-    }
-
-    protected boolean isOutboundObserver() {
-        return true;
+    public static void main(String args[]) throws Exception {
+        new Server();
+        System.out.println("Server ready..."); 
+        
+        Thread.sleep(5 * 60 * 1000); 
+        System.out.println("Server exiting");
+        System.exit(0);
     }
 }

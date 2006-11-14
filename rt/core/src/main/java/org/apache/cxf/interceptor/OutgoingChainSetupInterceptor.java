@@ -62,10 +62,10 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
         }
         setUpContentType(outMessage);
 
-        Message faultMessage = message.getExchange().getFaultMessage();
+        Message faultMessage = message.getExchange().getOutFaultMessage();
         if (faultMessage == null) {
             faultMessage = ep.getBinding().createMessage();            
-            ex.setFaultMessage(faultMessage);
+            ex.setOutFaultMessage(faultMessage);
         }
 
         setUpContentType(faultMessage);

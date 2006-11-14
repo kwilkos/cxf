@@ -77,7 +77,7 @@ public final class RMContextUtils {
             return message.getExchange().getInMessage() != null;
         } else {
             return message.getExchange().getOutMessage() == null 
-                && message.getExchange().getFaultMessage() == null;
+                && message.getExchange().getOutFaultMessage() == null;
         }
     }
     

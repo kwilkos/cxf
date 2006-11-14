@@ -46,4 +46,7 @@ public class OutFaultChainInitiatorObserver extends AbstractFaultChainIntiatorOb
         return getBus().getExtension(PhaseManager.class).getOutPhases();
     }
 
+    protected boolean isOutboundObserver() {
+        return true;
+    }
 }

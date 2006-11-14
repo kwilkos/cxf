@@ -170,9 +170,11 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     private Exception getException(Exchange exchange) {
-        if (exchange.getFaultMessage() != null) {
-            return exchange.getFaultMessage().getContent(Exception.class);
-        }
+        if (exchange.getInFaultMessage() != null) {
+            return exchange.getInFaultMessage().getContent(Exception.class);
+        } else if (exchange.getOutFaultMessage() != null) {
+            return exchange.getOutFaultMessage().getContent(Exception.class);
+        } 
         return null;
     }
 
@@ -335,6 +337,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
     private boolean isPartialResponse(Message in) {
         return in.getContent(List.class) == null
-            && getException(in.getExchange()) == null;
+               && getException(in.getExchange()) == null;
     }
 }

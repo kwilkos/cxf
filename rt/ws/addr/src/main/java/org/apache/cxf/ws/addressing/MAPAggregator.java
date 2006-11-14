@@ -86,16 +86,15 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @param message the current message
      */
     public void handleMessage(Message message) {
-        mediate(message, false);
+        mediate(message, ContextUtils.isFault(message));
     }
 
     /**
-     * Invoked for fault processing.
+     * Invoked when unwinding normal interceptor chain when a fault occurred.
      *
      * @param message the current message
      */
     public void  handleFault(Message message) {
-        mediate(message, true);
     }
 
     /**
@@ -165,7 +164,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @param isFault true if a fault is being mediated
      * @return true if processing should continue on dispatch path 
      */
-    private boolean mediate(Message message, boolean isFault) {    
+    protected boolean mediate(Message message, boolean isFault) {    
         boolean continueProcessing = true;
         if (ContextUtils.isOutbound(message)) {
             if (usingAddressing(message)) {

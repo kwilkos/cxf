@@ -114,13 +114,6 @@ public class MAPCodecTest extends TestCase {
         control.verify();
         verifyMessage(message, true, true, true);
     }
-
-    public void testRequestorOutboundFault() throws Exception {
-        SoapMessage message = setUpMessage(true, true);
-        codec.handleFault(message);
-        control.verify();
-        verifyMessage(message, true, true, true);
-    }
     
     public void testRequestorOutboundPreExistingSOAPAction() throws Exception {
         SoapMessage message = setUpMessage(true, true, false, true);
@@ -142,13 +135,6 @@ public class MAPCodecTest extends TestCase {
     public void testResponderInbound() throws Exception {
         SoapMessage message = setUpMessage(false, false);
         codec.handleMessage(message);
-        control.verify();
-        verifyMessage(message, false, false, true);
-    }
-
-    public void testResponderInboundFault() throws Exception {
-        SoapMessage message = setUpMessage(false, false);
-        codec.handleFault(message);
         control.verify();
         verifyMessage(message, false, false, true);
     }
@@ -182,27 +168,6 @@ public class MAPCodecTest extends TestCase {
         control.verify();
         verifyMessage(message, false, true, true);
     }
-
-    public void testResponderOutboundFault() throws Exception {
-        SoapMessage message = setUpMessage(false, true);
-        codec.handleFault(message);
-        control.verify();
-        verifyMessage(message, false, true, true);
-    }
-
-    public void testResponderOutboundFaultInvalidMAP() throws Exception {
-        SoapMessage message = setUpMessage(false, true, true);
-        try {
-            codec.handleFault(message);
-            fail("expected SOAPFaultException on invalid MAP");
-        } catch (SOAPFaultException sfe) {
-            assertEquals("unexpected fault string",
-                         "Duplicate Message ID urn:uuid:12345",
-                         sfe.getFault().getFaultString());
-        }
-        control.verify();
-        verifyMessage(message, false, true, true);
-    }
     
     public void testResponderOutboundPreExistingSOAPAction() throws Exception {
         SoapMessage message = setUpMessage(false, true, false, true);
@@ -224,13 +189,6 @@ public class MAPCodecTest extends TestCase {
     public void testRequestorInbound() throws Exception {
         SoapMessage message = setUpMessage(true, false);
         codec.handleMessage(message);
-        control.verify();
-        verifyMessage(message, true, false, true);
-    }
-
-    public void testRequestorInboundFault() throws Exception {
-        SoapMessage message = setUpMessage(true, false);
-        codec.handleFault(message);
         control.verify();
         verifyMessage(message, true, false, true);
     }

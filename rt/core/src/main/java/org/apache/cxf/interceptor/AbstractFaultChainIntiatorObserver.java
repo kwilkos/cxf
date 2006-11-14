@@ -45,13 +45,13 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
 
     @SuppressWarnings("unchecked")
     public void onMessage(Message m) {
-        Message faultMessage = m.getExchange().getFaultMessage();
+        Message faultMessage = getFaultMessage(m);
         if (faultMessage == null) {
             faultMessage = new MessageImpl();
         }
         
         faultMessage = m.getExchange().get(Binding.class).createMessage(faultMessage);
-        m.getExchange().setFaultMessage(faultMessage);
+        setFaultMessage(m, faultMessage);
         m.putAll(faultMessage);
         faultMessage.putAll(m);
 
@@ -78,6 +78,8 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         }
     }
 
+    protected abstract boolean isOutboundObserver();
+
     protected abstract List<Phase> getPhases();
 
     protected void initializeInterceptors(Exchange ex, PhaseInterceptorChain chain) {
@@ -86,5 +88,19 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
 
     public Bus getBus() {
         return bus;
+    }
+
+    private Message getFaultMessage(Message original) {
+        return isOutboundObserver()
+               ? original.getExchange().getOutFaultMessage()
+               : original.getExchange().getInFaultMessage();
+    }
+
+    private void setFaultMessage(Message original, Message fault) {
+        if (isOutboundObserver()) {
+            original.getExchange().setOutFaultMessage(fault);
+        } else {
+            original.getExchange().setInFaultMessage(fault);
+        }
     }
 }

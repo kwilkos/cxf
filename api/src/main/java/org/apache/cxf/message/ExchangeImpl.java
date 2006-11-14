@@ -33,7 +33,8 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
     
     private Message inMessage;
     private Message outMessage;
-    private Message faultMessage;
+    private Message inFaultMessage;
+    private Message outFaultMessage;
     
     private Session session;
     
@@ -53,12 +54,21 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
         return outMessage;
     }
 
-    public Message getFaultMessage() {
-        return faultMessage;
+    public Message getInFaultMessage() {
+        return inFaultMessage;
     }
 
-    public void setFaultMessage(Message m) {
-        this.faultMessage = m;
+    public void setInFaultMessage(Message m) {
+        inFaultMessage = m;
+        m.setExchange(this);
+    }
+
+    public Message getOutFaultMessage() {
+        return outFaultMessage;
+    }
+
+    public void setOutFaultMessage(Message m) {
+        outFaultMessage = m;
         m.setExchange(this);
     }
 

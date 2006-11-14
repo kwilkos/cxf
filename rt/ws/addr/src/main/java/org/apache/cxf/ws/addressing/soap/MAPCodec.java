@@ -47,6 +47,7 @@ import org.w3c.dom.NodeList;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.phase.Phase;
@@ -85,6 +86,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
     public MAPCodec() {
         super();
         setPhase(Phase.PRE_PROTOCOL);
+        addBefore("org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor");
         transformer = new VersionTransformer(this);
     } 
 
@@ -105,12 +107,11 @@ public class MAPCodec extends AbstractSoapInterceptor {
     }
 
     /**
-     * Invoked for fault processing.
+     * Invoked when unwinding normal interceptor chain when a fault occurred.
      *
      * @param message the messsage message
      */
     public void handleFault(SoapMessage message) {
-        mediate(message);
     }
 
     /**
@@ -454,7 +455,16 @@ public class MAPCodec extends AbstractSoapInterceptor {
                 uncorrelatedExchanges.get(maps.getRelatesTo().getValue());
             if (correlatedExchange != null) {
                 synchronized (correlatedExchange) {
+                    Exchange tmpExchange = message.getExchange();
                     message.setExchange(correlatedExchange);
+                    Endpoint endpoint = correlatedExchange.get(Endpoint.class);
+                    if (Boolean.TRUE.equals(tmpExchange.get("deferred.fault.observer.notification"))
+                        && endpoint != null) {
+                        message.getInterceptorChain().abort();
+                        if (endpoint.getInFaultObserver() != null) {
+                            endpoint.getInFaultObserver().onMessage(message);
+                        }
+                    }
                 }
             }
         }
