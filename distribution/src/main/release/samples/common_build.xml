@@ -29,10 +29,11 @@
     <property name="war.dir" location="${build.dir}/war"/>
 
 
-    <!-- Setup for building in a source build -->
+    <!-- Setup for building in a source build-->
+    <!-- NOTE if the distribution plase less the 3 level relates to root directory ant will be failed, now just comment out it>
     <property name="srcbuild_paths.file" value="../../../../target/srcbuild_paths.xml"/>
 
-    <import file="${srcbuild_paths.file}" optional="true"/>
+    <import file="${srcbuild_paths.file}" optional="true"/-->
     <property name="srcbuild.classpath" value=""/>
 
     <uptodate property="codegen.notrequired" value="true">
