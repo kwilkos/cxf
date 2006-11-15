@@ -43,6 +43,7 @@ public class SourceSequenceTest extends TestCase {
     private RMManager manager;
     private SourcePolicyType sp;
     private SequenceTerminationPolicyType stp;
+    private RetransmissionQueue rq;
   
     public void setUp() {        
         factory = new ObjectFactory();
@@ -57,13 +58,16 @@ public class SourceSequenceTest extends TestCase {
         manager = null;
         sp = null;
         stp = null;
+        rq = null;
     }
     
     void setUpSource() {
         source = control.createMock(Source.class); 
         manager = control.createMock(RMManager.class);
         EasyMock.expect(source.getManager()).andReturn(manager).anyTimes();
-
+        rq = control.createMock(RetransmissionQueue.class);
+        EasyMock.expect(manager.getRetransmissionQueue()).andReturn(rq).anyTimes();
+        
         // default termination policy
         
         org.apache.cxf.ws.rm.manager.ObjectFactory cfgFactory = 
@@ -156,6 +160,9 @@ public class SourceSequenceTest extends TestCase {
 
     public void testSetAcknowledged() {
         SourceSequence seq = new SourceSequence(id);
+        setUpSource();
+        seq.setSource(source);
+        
         SequenceAcknowledgement ack = seq.getAcknowledgement();
         ack = factory.createSequenceAcknowledgement();
         SequenceAcknowledgement.AcknowledgementRange r = 
@@ -171,16 +178,23 @@ public class SourceSequenceTest extends TestCase {
         r.setLower(new BigInteger("8"));
         r.setUpper(new BigInteger("10"));
         ack.getAcknowledgementRange().add(r);
+        rq.purgeAcknowledged(seq);
+        EasyMock.expectLastCall();
+        
+        control.replay();
         seq.setAcknowledged(ack);
         assertSame(ack, seq.getAcknowledgement());
         assertEquals(3, ack.getAcknowledgementRange().size());
         assertTrue(!seq.isAcknowledged(new BigInteger("3")));  
         assertTrue(seq.isAcknowledged(new BigInteger("5")));
+        control.verify();
     } 
 
     public void testAllAcknowledged() throws SequenceFault {
         
         SourceSequence seq = new SourceSequence(id, null, null, new BigInteger("4"), false);        
+        setUpSource();
+        seq.setSource(source);
         
         assertTrue(!seq.allAcknowledged());
         seq.setLastMessage(true);
@@ -191,15 +205,22 @@ public class SourceSequenceTest extends TestCase {
         r.setLower(BigInteger.ONE);
         r.setUpper(new BigInteger("2"));
         ack.getAcknowledgementRange().add(r);
+        rq.purgeAcknowledged(seq);
+        EasyMock.expectLastCall();
+        
+        control.replay();
         seq.setAcknowledged(ack);
         assertTrue(!seq.allAcknowledged());
         r.setUpper(new BigInteger("4"));
         assertTrue(seq.allAcknowledged());
+        control.verify();
     }
     
     public void testNextMessageNumber() {     
         SourceSequence seq = null;        
         setUpSource();
+        rq.purgeAcknowledged(EasyMock.isA(SourceSequence.class));
+        EasyMock.expectLastCall().anyTimes();
         control.replay();
         
         // default termination policy

@@ -27,8 +27,8 @@ import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.factory.ServiceConstructionException;
@@ -215,7 +215,16 @@ public class RMEndpoint {
         si.addEndpoint(ei);
     
         try {
-            endpoint = new EndpointImpl(manager.getBus(), service, ei);
+            // REVISIT: asmyth
+            // Using a JAX-WS endpoint here because the presence of the JAX-WS interceptors
+            // on the outbound chain of the partial response to a oneway RM protocol message
+            // seems to requires this (in their absence the output stream is flushed twice, 
+            // with predictably devastating effect).
+            // What we really should do here is on use the same interceptors on the outbound
+            // path that would be used by the application endpoint without presuming any knowledge
+            // of the applications endpoint's frontend.
+            // endpoint = new EndpointImpl(manager.getBus(), service, ei);
+            endpoint = new JaxWsEndpointImpl(manager.getBus(), service, ei);
         } catch (EndpointException ex) {
             ex.printStackTrace();
         }

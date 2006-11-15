@@ -383,26 +383,6 @@ public class MessageFlow extends Assert {
         }
     }
     
-    public void verifyMessages(int nExpected, boolean outbound, int interval, int attempts) {
-        verifyMessages(nExpected, outbound, interval, attempts, false);
-    }
-    
-    public void verifyMessages(int nExpected, boolean outbound, int interval, int attempts, boolean exact) {
-        for (int i = 0; i < attempts; i++) {
-            if ((outbound && outboundMessages.size() < nExpected)
-                || (!outbound && inboundMessages.size() < nExpected)) {
-                try {
-                    Thread.sleep(interval);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            } else {
-                break;
-            }
-        }
-        verifyMessages(nExpected, outbound, exact);
-    }
-    
     public void purgePartialResponses() throws Exception {
         for (int i = inboundMessages.size() - 1; i >= 0; i--) {
             if (isPartialResponse(inboundMessages.get(i))) {

@@ -27,23 +27,13 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <import resource="rminterceptors.xml"/>
     
     <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
-        <property name="bus" ref="cxf"/>  
-        <property name="destinationPolicy">
+        <property name="bus" ref="cxf"/>          
+        <property name="sourcePolicy">
             <value>
-                <wsrm-mgmt:destinationPolicy>
-                    <wsrm-mgmt:acksPolicy intraMessageThreshold="0"/>                    
-                </wsrm-mgmt:destinationPolicy>
+                <wsrm-mgmt:sourcePolicy>
+                    <wsrm-mgmt:sequenceTerminationPolicy maxLength="1"/>                    
+                </wsrm-mgmt:sourcePolicy>
             </value>
-        </property>
-        
-        <property name="RMAssertion">
-            <value>
-                <wsrm-policy:RMAssertion>         
-                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="10000"/>           
-                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>                                                        
-                </wsrm-policy:RMAssertion>
-            </value>
-        </property>   
+        </property>  
     </bean>   
-    
 </beans>

@@ -47,9 +47,7 @@ public class Source extends AbstractEndpoint {
              
         sequenceCreationLock = new ReentrantLock();
         sequenceCreationCondition = sequenceCreationLock.newCondition();
-    }
-    
-    
+    }  
     
     public SourceSequence getSequence(Identifier id) {        
         return map.get(id.getValue());
@@ -79,35 +77,6 @@ public class Source extends AbstractEndpoint {
         RMStore store = getReliableEndpoint().getManager().getStore();
         if (null != store) {
             store.removeSourceSequence(seq.getIdentifier());
-        }
-    }
-    
-    /**
-     * Stores the received acknowledgment in the Sequence object identified in
-     * the <code>SequenceAcknowldgement</code> parameter. Then purges any
-     * acknowledged messages from the retransmission queue and requests sequence
-     * termination if necessary.
-     * 
-     * @param acknowledgment
-     */
-    public void setAcknowledged(SequenceAcknowledgement acknowledgment) {
-        Identifier sid = acknowledgment.getIdentifier();
-        SourceSequence seq = getSequence(sid);        
-        if (null != seq) {
-            seq.setAcknowledged(acknowledgment);
-            getManager().getRetransmissionQueue().purgeAcknowledged(seq);
-            if (seq.allAcknowledged()) {
-                // TODO
-                /*
-                try {
-                    // 
-                    getHandler().getProxy().terminateSequence(seq); 
-                } catch (IOException ex) {
-                    Message msg = new Message("SEQ_TERMINATION_FAILURE", LOG, seq.getIdentifier());
-                    LOG.log(Level.SEVERE, msg.toString(), ex);
-                }
-                */
-            }
         }
     }
     

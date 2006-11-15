@@ -132,7 +132,8 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             addAcknowledgements(destination, rmpsOut, inSeqId, to);
         } 
         
-        if (RMConstants.getSequenceAckAction().equals(action)) {
+        if (RMConstants.getSequenceAckAction().equals(action)
+            || RMConstants.getTerminateSequenceAction().equals(action)) {
             maps.setReplyTo(RMUtils.createNoneReference());
         }
     }

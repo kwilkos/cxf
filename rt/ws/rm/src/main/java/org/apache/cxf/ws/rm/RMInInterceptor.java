@@ -19,6 +19,7 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.ListIterator;
 import java.util.Set;
@@ -91,24 +92,11 @@ public class RMInInterceptor extends AbstractRMInterceptor {
                     break;
                 }
             }
-            // servant.createSequence(message);
-            /*
-            Runnable response = new Runnable() {
-                public void run() {
-                    try {
-                        getProxy().createSequenceResponse(maps, csr);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    } catch (SequenceFault sf) {
-                        sf.printStackTrace();
-                    }
-                }
-            };
-            getBinding().getBus().getWorkQueueManager().getAutomaticWorkQueue().execute(response);
-            */    
+            
             return;
         } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
             // servant.terminateSequence(message);
+            return;
         } else if (RMConstants.getSequenceAckAction().equals(action)) {
             processAcknowledgments(rmps);
             return;
@@ -117,7 +105,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         // for application AND out of band messages
         
         Destination destination = getManager().getDestination(message);
-        
+
         if (null != rmps) {            
 
             processAcknowledgments(rmps);
@@ -130,8 +118,20 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         }
     }
     
-    void processAcknowledgments(RMProperties rmps) {
+    void processAcknowledgments(RMProperties rmps) throws SequenceFault {
         
+        Collection<SequenceAcknowledgement> acks = rmps.getAcks();
+        if (null != acks) {
+            for (SequenceAcknowledgement ack : acks) {
+                Identifier id = ack.getIdentifier();
+                SourceSequence ss = getManager().getSourceSequence(id);                
+                if (null != ss) {
+                    ss.setAcknowledged(ack);
+                } else {
+                    throw (new SequenceFaultFactory()).createUnknownSequenceFault(id);
+                }
+            }
+        }
     }
 
     void processAcknowledgmentRequests(RMProperties rmps) {

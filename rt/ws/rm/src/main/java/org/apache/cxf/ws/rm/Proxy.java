@@ -67,6 +67,12 @@ public class Proxy {
     }
 
     void acknowledge(DestinationSequence ds) throws IOException {
+        
+        if (RMConstants.getAnonymousAddress().equals(ds.getAcksTo().getAddress().getValue())) {
+            LOG.log(Level.WARNING, "STANDALONE_ANON_ACKS_NOT_SUPPORTED");
+            return;
+        }
+        
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getSequenceAckOperationName());
         Map<String, Object> requestContext = new HashMap<String, Object>();
@@ -79,13 +85,34 @@ public class Proxy {
             String.class,  Object.class);
         invoke(oi, new Object[] {}, context);
     }
+    
+    void terminate(SourceSequence ss) throws IOException {
+        OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
+            .getOperation(RMConstants.getTerminateSequenceOperationName());
+        Map<String, Object> requestContext = new HashMap<String, Object>();
+        AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
+        maps.setTo(ss.getTarget().getAddress());
+        if (null != reliableEndpoint.getTransportDestination()) {
+            maps.setReplyTo(reliableEndpoint.getTransportDestination().getAddress());
+        } else {
+            maps.setReplyTo(RMUtils.createNoneReference());
+        }
+        LOG.fine("Using explicit maps: " + maps.toString());
+        requestContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, maps);
+        Map<String, Object> context = CastUtils.cast(
+            Collections.singletonMap(Client.REQUEST_CONTEXT, requestContext),
+            String.class,  Object.class);
+        TerminateSequenceType ts = RMUtils.getWSRMFactory().createTerminateSequenceType();
+        ts.setIdentifier(ss.getIdentifier());
+        invoke(oi, new Object[] {ts}, context);
+    }
 
     public CreateSequenceResponseType createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, 
                         EndpointReferenceType defaultAcksTo,
                         RelatesToType relatesTo) throws IOException {
         
         SourcePolicyType sp = reliableEndpoint.getManager().getSourcePolicy();
-        CreateSequenceType create = RMUtils.getWSRMFactory().createCreateSequenceType();
+        CreateSequenceType create = RMUtils.getWSRMFactory().createCreateSequenceType();        
 
         String address = sp.getAcksTo();
         EndpointReferenceType acksTo = null;

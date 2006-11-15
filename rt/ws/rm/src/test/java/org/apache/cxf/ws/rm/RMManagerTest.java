@@ -32,6 +32,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.AddressingProperties;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.rm.manager.SequenceTerminationPolicyType;
@@ -189,11 +190,14 @@ public class RMManagerTest extends TestCase {
         Conduit conduit = control.createMock(Conduit.class);
         EasyMock.expect(exchange.getConduit()).andReturn(conduit).anyTimes();
         EasyMock.expect(conduit.getBackChannel()).andReturn(null).anyTimes();
-        Identifier inSid = control.createMock(Identifier.class);
+        Identifier inSid = control.createMock(Identifier.class);        
         AddressingProperties maps = control.createMock(AddressingProperties.class);
         Source source = control.createMock(Source.class);
         EasyMock.expect(manager.getSource(message)).andReturn(source);
         EasyMock.expect(source.getCurrent(inSid)).andReturn(null);
+        AttributedURIType uri = control.createMock(AttributedURIType.class);
+        EasyMock.expect(maps.getTo()).andReturn(uri);
+        EasyMock.expect(uri.getValue()).andReturn("http://localhost:9001/TestPort");
         EndpointReferenceType epr = RMUtils.createNoneReference();
         EasyMock.expect(maps.getReplyTo()).andReturn(epr);
         RMEndpoint rme = control.createMock(RMEndpoint.class);
@@ -201,7 +205,7 @@ public class RMManagerTest extends TestCase {
         Proxy proxy = control.createMock(Proxy.class);
         EasyMock.expect(rme.getProxy()).andReturn(proxy);
         CreateSequenceResponseType createResponse = control.createMock(CreateSequenceResponseType.class);
-        proxy.createSequence((EndpointReferenceType)EasyMock.isNull(),
+        proxy.createSequence(EasyMock.isA(EndpointReferenceType.class),
                              EasyMock.isA(org.apache.cxf.ws.addressing.v200408.EndpointReferenceType.class),
                              (RelatesToType)EasyMock.isNull());
         EasyMock.expectLastCall().andReturn(createResponse);
@@ -211,9 +215,15 @@ public class RMManagerTest extends TestCase {
         EasyMock.expectLastCall();
         SourceSequence sseq = control.createMock(SourceSequence.class);
         EasyMock.expect(source.getCurrent(inSid)).andReturn(sseq);
+        Identifier sid = control.createMock(Identifier.class);
+        EasyMock.expect(sseq.getIdentifier()).andReturn(sid);
+        EasyMock.expect(sid.getValue()).andReturn("S1").times(2);
+        sseq.setTarget(EasyMock.isA(EndpointReferenceType.class));
+        EasyMock.expectLastCall();
         
         control.replay();
         assertSame(sseq, manager.getSequence(inSid, message, maps));
+        assertSame(manager.getSourceSequence(sid), sseq);
         control.verify();
     }
 }

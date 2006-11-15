@@ -44,6 +44,7 @@ import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 import org.apache.cxf.ws.rm.persistence.RMStore;
 import org.apache.cxf.ws.rm.policy.RMAssertion;
 import org.apache.cxf.ws.rm.policy.RMAssertion.BaseRetransmissionInterval;
+import org.apache.cxf.ws.rm.soap.RetransmissionQueueImpl;
 
 /**
  * 
@@ -54,6 +55,7 @@ public class RMManager extends RMManagerConfigBean {
     private RMStore store;
     private RetransmissionQueue retransmissionQueue;
     private Map<Endpoint, RMEndpoint> reliableEndpoints = new HashMap<Endpoint, RMEndpoint>();
+    private Map<String, SourceSequence> sourceSequences;
     private Timer timer = new Timer();
 
     public Bus getBus() {
@@ -69,6 +71,9 @@ public class RMManager extends RMManagerConfigBean {
     public void register() {
         if (null != bus) {
             bus.setExtension(this, RMManager.class);
+        }
+        if (null == retransmissionQueue) {
+            retransmissionQueue = new RetransmissionQueueImpl();
         }
     }
 
@@ -123,6 +128,10 @@ public class RMManager extends RMManagerConfigBean {
         }
         return null;
     }
+    
+    public SourceSequence getSourceSequence(Identifier id) {
+        return sourceSequences.get(id.getValue());
+    }
 
     public Source getSource(Message message) {
         RMEndpoint rme = getReliableEndpoint(message);
@@ -156,6 +165,7 @@ public class RMManager extends RMManagerConfigBean {
                     relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
 
                 } else {
+                    to = RMUtils.createReference(maps.getTo().getValue());
                     acksTo = VersionTransformer.convert(maps.getReplyTo()); 
                     if (!RMContextUtils.isServerSide(message)
                         && RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
@@ -178,6 +188,7 @@ public class RMManager extends RMManagerConfigBean {
             }
 
             seq = source.getCurrent(inSeqId);
+            addSourceSequence(seq);
             seq.setTarget(to);
         }
 
@@ -215,6 +226,19 @@ public class RMManager extends RMManagerConfigBean {
             DestinationPolicyType dp = factory.createDestinationPolicyType();
             dp.setAcksPolicy(factory.createAcksPolicyType());
             setDestinationPolicy(dp);
+        }        
+    }
+    
+    void addSourceSequence(SourceSequence ss) {
+        if (null == sourceSequences) {
+            sourceSequences = new HashMap<String, SourceSequence>();
+        }
+        sourceSequences.put(ss.getIdentifier().getValue(), ss);
+    }
+    
+    void removeSourceSequence(Identifier id) {
+        if (null != sourceSequences) {
+            sourceSequences.remove(id.getValue());
         }
     }
 

@@ -321,9 +321,15 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             if (isOneWay(outMessage)) {
                 response.commit();
             }
+        } else if (null != responseObj) {
+            String m = (new org.apache.cxf.common.i18n.Message("UNEXPECTED_RESPONSE_TYPE_MSG",
+                LOG, responseObj.getClass())).toString();
+            LOG.log(Level.WARNING, m);
+            throw new IOException(m);
         } else {
-            LOG.log(Level.WARNING, "UNEXPECTED_RESPONSE_TYPE_MSG", responseObj.getClass());
-            throw new IOException("UNEXPECTED_RESPONSE_TYPE_MSG" + responseObj.getClass());
+            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
+            LOG.log(Level.WARNING, m);
+            throw new IOException(m);
         }
 
         if (isOneWay(outMessage)) {

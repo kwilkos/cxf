@@ -67,8 +67,7 @@ public class RMProperties {
         }
         SequenceAcknowledgement ack = seq.getAcknowledgment();
         acks.add(ack);
-        // TODO: move to caller
-        // seq.acknowledgmentSent();
+        seq.acknowledgmentSent();
     }
   
 }

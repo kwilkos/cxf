@@ -36,16 +36,20 @@ import org.apache.cxf.ws.rm.RMConstants;
 
 
 /**
- * Tests the addition of WS-RM properties to application messages and the 
+ * Tests the addition of WS-RM properties to application messages and the
  * exchange of WS-RM protocol messages.
  */
 public class SequenceTest extends ClientServerTestBase {
 
     private static final Logger LOG = Logger.getLogger(SequenceTest.class.getName());
-    // private static final String APP_NAMESPACE = "http://celtix.objectweb.org/greeter_control";
-    // private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE + "/types/Greeter/greetMeOneWay";
-    // private static final String GREETME_ACTION = APP_NAMESPACE + "/types/Greeter/greetMe";
-    // private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION + "Response";
+    // private static final String APP_NAMESPACE =
+    // "http://celtix.objectweb.org/greeter_control";
+    // private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE +
+    // "/types/Greeter/greetMeOneWay";
+    // private static final String GREETME_ACTION = APP_NAMESPACE +
+    // "/types/Greeter/greetMe";
+    // private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION +
+    // "Response";
     private static final String GREETMEONEWAY_ACTION = null;
 
     private Bus controlBus;
@@ -58,6 +62,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestOnewayAnonymousAcks = true;
     private boolean doTestOnewayDeferredAnonymousAcks = true;
     private boolean doTestOnewayDeferredNonAnonymousAcks = true;
+    private boolean doTestOnewayAnonymousAcksSequenceLength1 = true;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -72,15 +77,7 @@ public class SequenceTest extends ClientServerTestBase {
             
             public void setUp() throws Exception {
                 startServers();
-                LOG.fine("Started server.");
-
-                /*
-                SpringBusFactory bf = new SpringBusFactory();
-                Bus bus = bf.createBus();
-                bf.setDefaultBus(bus);
-                setBus(bus);
-                LOG.fine("Initialised client bus."); 
-                */               
+                LOG.fine("Started server.");  
             }
         };
     }
@@ -125,6 +122,8 @@ public class SequenceTest extends ClientServerTestBase {
 
         // three application messages plus createSequence
 
+        awaitMessages(4, 4);
+        
         MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
 
         mf.verifyMessages(4, true);
@@ -159,6 +158,7 @@ public class SequenceTest extends ClientServerTestBase {
 
         greeter.greetMeOneWay("thrice");
 
+        awaitMessages(4, 4);
         MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
                 
         // three application messages plus createSequence
@@ -190,6 +190,7 @@ public class SequenceTest extends ClientServerTestBase {
 
         // CreateSequence plus two greetMeOneWay requests
 
+        awaitMessages(3, 4);
         MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
         
         mf.verifyMessages(3, true);
@@ -201,8 +202,6 @@ public class SequenceTest extends ClientServerTestBase {
 
         // CreateSequenceResponse plus two partial responses, no
         // acknowledgments included
-        
-        Thread.sleep(2000);
 
         mf.verifyMessages(4, false);
         expectedActions = new String[] {null, RMConstants.getCreateSequenceResponseAction(), 
@@ -210,8 +209,6 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[4], false);
         mf.verifyAcknowledgements(new boolean[4], false);
-
-        // mf.clear();
 
         try {
             Thread.sleep(3 * 1000);
@@ -222,11 +219,54 @@ public class SequenceTest extends ClientServerTestBase {
         // a standalone acknowledgement should have been sent from the server
         // side by now
         
+        awaitMessages(3, 5);
         mf.reset(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
 
         mf.verifyMessages(0, true);
         mf.verifyMessages(1, false);
 
+    }
+    
+    public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
+        if (!doTestOnewayAnonymousAcksSequenceLength1) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-seqlength1.xml");
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+
+        // two application messages plus two createSequence plus two
+        // terminateSequence
+
+        awaitMessages(6, 6);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        mf.verifyMessages(6, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETMEONEWAY_ACTION,
+                                                 RMConstants.getTerminateSequenceAction(),
+                                                 RMConstants.getCreateSequenceAction(), 
+                                                 GREETMEONEWAY_ACTION,
+                                                 RMConstants.getTerminateSequenceAction()};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", null, null, "1", null}, true);
+        mf.verifyLastMessage(new boolean[] {false, true, false, false, true, false}, true);
+
+        // createSequenceResponse message plus partial responses to
+        // greetMeOneWay and terminateSequence ||: 2
+
+        mf.verifyMessages(6, false);
+
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                        null, null,
+                                        RMConstants.getCreateSequenceResponseAction(), 
+                                        null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
     }
 
 
@@ -250,8 +290,29 @@ public class SequenceTest extends ClientServerTestBase {
         GreeterService service = new GreeterService();
         greeter = service.getGreeterPort();
         LOG.fine("Created greeter client.");
- 
-        
-        
+    }
+    
+    private void awaitMessages(int nExpectedOut, int nExpectedIn) {
+        int i = 0;
+        int nOut = 0;
+        int nIn = 0;
+        while (i < 20) {                
+            synchronized (outRecorder) {
+                nOut = outRecorder.getOutboundMessages().size();
+            }
+            synchronized (inRecorder) {
+                nIn = inRecorder.getInboundMessages().size();
+            }
+            if (nIn >= nExpectedIn && nOut >= nExpectedOut) {
+                return;
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        assertEquals("Did not receive expected number of inbound messages", nExpectedIn, nIn);
+        assertEquals("Did not send expected number of outbound messages", nExpectedOut, nOut);        
     }
 }

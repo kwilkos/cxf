@@ -33,6 +33,9 @@ import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.cxf.common.util.Base64Utility;
 
 public abstract class AbstractCachedOutputStream extends OutputStream {
@@ -49,6 +52,8 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     private File outputDir;
 
+    private List<CachedOutputStreamCallback> callbacks;
+
     public AbstractCachedOutputStream(PipedInputStream stream) throws IOException {
         currentStream = new PipedOutputStream(stream);
         inmem = true;
@@ -59,6 +64,13 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
         inmem = true;
     }
 
+    public void registerCallback(CachedOutputStreamCallback cb) {
+        if (null == callbacks) {
+            callbacks = new ArrayList<CachedOutputStreamCallback>();
+        }
+        callbacks.add(cb);
+    }
+
     /**
      * Perform any actions required on stream flush (freeze headers, reset
      * output stream ... etc.)
@@ -67,6 +79,11 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     public void flush() throws IOException {
         currentStream.flush();
+        if (null != callbacks) {
+            for (CachedOutputStreamCallback cb : callbacks) {
+                cb.onFlush(this);
+            }
+        }
         doFlush();
     }
 
@@ -77,6 +94,11 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
 
     public void close() throws IOException {
         currentStream.close();
+        if (null != callbacks) {
+            for (CachedOutputStreamCallback cb : callbacks) {
+                cb.onClose(this);
+            }
+        }
         doClose();
     }
 
