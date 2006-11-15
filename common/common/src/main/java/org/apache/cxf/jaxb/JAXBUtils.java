@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Holder;
 import javax.xml.ws.Response;
 
 import org.apache.cxf.helpers.JavaUtils;
@@ -430,6 +431,31 @@ public final class JAXBUtils {
             firstWord = false;
         }
         return buf.toString();
+    }
+    
+    public static Class<?> getValidClass(Class<?> cls) {
+        if (cls.isEnum()) {
+            return cls;
+        }
+        if (cls.isArray()) {
+            return cls;
+        }
+
+        if (cls == Object.class || cls == String.class || cls == Holder.class) {
+            cls = null;
+        } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
+            cls = null;
+        }
+        if (cls != null) {
+            try {
+                if (cls.getConstructor(new Class[0]) == null) {
+                    cls = null;
+                }
+            } catch (NoSuchMethodException ex) {
+                cls = null;
+            }
+        }
+        return cls;
     }
 
 }

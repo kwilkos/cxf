@@ -26,8 +26,6 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.xml.ws.Holder;
-
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -93,7 +91,7 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         if (cls.isArray() && cls.getComponentType().isPrimitive()) {
             return;
         }
-        cls = getValidClass(cls);
+        cls = JAXBUtils.getValidClass(cls);
         if (null != cls) {
             if (cls.isEnum()) {
                 // The object factory stuff doesn't work for enums
@@ -112,28 +110,5 @@ class JAXBContextInitializer extends ServiceModelVisitor {
         }
     }
 
-    private static Class<?> getValidClass(Class<?> cls) {
-        if (cls.isEnum()) {
-            return cls;
-        }
-        if (cls.isArray()) {
-            return cls;
-        }
-
-        if (cls == Object.class || cls == String.class || cls == Holder.class) {
-            cls = null;
-        } else if (cls.isPrimitive() || cls.isInterface() || cls.isAnnotation()) {
-            cls = null;
-        }
-        if (cls != null) {
-            try {
-                if (cls.getConstructor(new Class[0]) == null) {
-                    cls = null;
-                }
-            } catch (NoSuchMethodException ex) {
-                cls = null;
-            }
-        }
-        return cls;
-    }
+    
 }
