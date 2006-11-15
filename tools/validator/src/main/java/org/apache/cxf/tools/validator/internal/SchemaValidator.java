@@ -25,8 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.wsdl.WSDLException;
@@ -41,7 +45,6 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
@@ -65,8 +68,9 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.WSDLExtensionRegister;
 
 public class SchemaValidator extends AbstractValidator {
+    
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
-
+    
     protected String[] defaultSchemas;
    
     protected String schemaLocation = "./";
@@ -80,6 +84,7 @@ public class SchemaValidator extends AbstractValidator {
     private DocumentBuilder docBuilder;
 
     private SAXParser saxParser;
+    
 
     public SchemaValidator(String schemaDir) throws ToolException {
         super(schemaDir);
@@ -107,7 +112,6 @@ public class SchemaValidator extends AbstractValidator {
     }
 
     public boolean validate(String wsdlsource, String[] schemas) throws ToolException {
-
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try {
             docFactory.setNamespaceAware(true);
@@ -139,7 +143,8 @@ public class SchemaValidator extends AbstractValidator {
         List<Source> sources = new ArrayList<Source>();
 
         for (InputSource is : xsdsInJar) {
-            StreamSource stream = new StreamSource(is.getByteStream());
+            Document doc = docBuilder.parse(is.getByteStream());
+            DOMSource stream = new DOMSource(doc, is.getSystemId());
             stream.setSystemId(is.getSystemId());
             sources.add(stream);
         }
@@ -173,7 +178,7 @@ public class SchemaValidator extends AbstractValidator {
             Document doc = docBuilder.parse(schemas[i]);
 
             DOMSource stream = new DOMSource(doc, schemas[i]);
-
+            
             sources[i] = stream;
         }
         return sf.newSchema(sources);
@@ -382,36 +387,68 @@ class NewStackTraceErrorHandler implements ErrorHandler {
 }
 
 class SchemaResourceResolver implements LSResourceResolver {
+    private static final Map<String, String> NSFILEMAP = new HashMap<String, String>();   
+    static {
+        NSFILEMAP.put(ToolConstants.XML_NAMESPACE_URI, "xml.xsd");
+        NSFILEMAP.put(ToolConstants.WSDL_NAMESPACE_URI, "wsdl.xsd");
+        NSFILEMAP.put(ToolConstants.SCHEMA_URI, "XMLSchema.xsd");
+    }
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
             String baseURI) {
-        String schemaLocation = null;
-        if (baseURI != null) {
-            schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
-
+        LSInput lsin = null;
+        String resURL = null;
+        String localFile = null;
+        if (systemId != null) {
+            String schemaLocation = "";
+            if (baseURI != null) {
+                schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
+            } 
             if (systemId.indexOf("http://") < 0) {
-                systemId = schemaLocation + systemId;
+                resURL = schemaLocation + systemId;
+            } else {
+                resURL = systemId;
             }
-        } else {
-            // try to get it from jar
-            systemId = ToolConstants.CXF_SCHEMAS_DIR_INJAR + systemId;
+        } else if (namespaceURI != null) {
+            resURL = namespaceURI;
         }
         
-        URIResolver resolver = null;
+        if (resURL != null && resURL.startsWith("http://")) {
+            String filename = NSFILEMAP.get(resURL);
+            if (filename != null) {
+                localFile = ToolConstants.CXF_SCHEMAS_DIR_INJAR + filename;
+            } else {
+                URL url;
+                try {
+                    url = new URL(resURL);
+                    URLConnection urlCon = url.openConnection();
+                    urlCon.setUseCaches(false);
+                    lsin = new LSInputImpl();
+                    lsin.setSystemId(resURL);
+                    lsin.setByteStream(urlCon.getInputStream());
+                } catch (Exception e) {
+                    return null;
+                }
+               
+            }
+        } else if (resURL != null && !resURL.startsWith("http:")) {
+            localFile = resURL;
+        }  else {
+            return null;
+        }
         
-        try {
-            resolver = new URIResolver(systemId);
-        } catch (IOException e1) {
+        
+        URIResolver resolver;
+        try {           
+            resolver = new URIResolver(localFile);
+            if (resolver.isResolved()) {
+                lsin = new LSInputImpl();
+                lsin.setSystemId(localFile);
+                lsin.setByteStream(resolver.getInputStream());
+            }
+        } catch (IOException e) {
             return null;
-        }
-
-        if (resolver.getInputStream() != null) {
-            LSInput lsin = new LSInputImpl();
-            lsin.setSystemId(systemId);
-            lsin.setByteStream(resolver.getInputStream());
-            return lsin;
-        } else {
-            return null;
-        }
+        }       
+        return lsin;
     }
 }
 
