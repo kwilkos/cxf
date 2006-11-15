@@ -1,9 +1,10 @@
-HELLO WORLD (SOAP OVER HTTP) CXF J2EE DEMO
-============================================
-============================================
+INBOUND CONNECTION CXF J2EE DEMO
+==================================
+==================================
 
-This demo will show how to connect with an Apache CXF Web service using a
-Servlet deployed in an application server.
+ 
+This demo will show how to expose an Enterprise Java Bean over
+SOAP/HTTP using CXF. 
 
 
 Running the Demo
@@ -18,9 +19,9 @@ application:
     . Launch the application server
     . Deploy the CXF J2EE Connector 
     . Build the demo
-    . Deploy the web application to the application server
-    . Launch the CXF Server
-    . Accessing the web application 
+    . Deploy the ejb application to the application server
+    . Activate the EJB Web Services facade
+    . Access the EJB using a Web Services client
 
 Update Jboss endorsed jars
 ==========================
@@ -36,6 +37,7 @@ Update Jboss endorsed jars
 	      jsr181-api-2.0-JAXWS-2.0-EA3.jar
               saaj-api-1.3.jar saaj-impl-1.3.jar 
               <jboss-home>\lib\endorsed\
+
 
 Set Jboss environment
 =====================
@@ -58,26 +60,26 @@ Launch the application server
     The demo requires an application server.  Make sure you have a
     running instance of an application server. 
 
-    
-
-Deploy the Apache CXF J2EE Connector
+Deploy the CXF J2EE Connector
 ===============================
 
-    The Apache CXF J2EE Connector must be deployed to the application
+    The CXF J2EE Connector must be deployed to the application
     server before running the demo.  A single resource adapter
     deployment will be shared by all of the demos, so this step need
     only be completed once.  
 
 
-    How to deploy the Apache CXF J2EE Connector is dependent on your 
+    How to deploy the CXF J2EE Connector is dependent on your 
     application server. Please consult your vendor documentation
     on connector deployment. Here are basic instructions to deploy
-    the connector in JBoss application servers.
+    the connector in JBoss, WebLogic and WebSphere application 
+    servers.
+
 
 
 JBoss
 -----
-Copy the connector RAR from its location in the Apache CXF installation to
+Copy the connector RAR from its location in the CXF installation to
 the JBoss deployment directory.
 
   (Unix)    % cd $CXF_HOME/lib/
@@ -95,20 +97,15 @@ Copy the cxf_j2ee_1_5-ds.xml file to the JBoss deployment directory.
   (Windows) > copy .\etc\cxfj2ee_1_5-ds.xml 
                 <jboss-home>\server\default\deploy
 
+
 Building the Demo
 =================
 
 Building the demo requires that there is a JDK available and that the
-Apache CXF environment is correctly set. 
-
-Before building this demo, build common dir first.
-  (Unix)    % cd common
-            % ant
-  (Windows) > cd common
-            > ant
+CXF environment is correctly set. 
 
 The demo may be built from the directory 
-hello_world_soap_http.
+inbound.
 
 Issue the command:
 
@@ -117,63 +114,55 @@ Issue the command:
 
 
 
-Launch the Apache CXF Service
-========================
+Deploying the demo EJB application
+==================================
 
-Run the Apache CXF service provided by the hello_world_soap_http
-demo.
-
-To launch the service:
-
-1.  Move into the sample/hello_world/ directory.
-2.  launch server
-    Issue the command: 
-  (Unix)    % ant server
-  (Windows) > ant server
-
-
-See hello_world/README.txt file for full details.
-
-
-Deploying the demo WAR archive
-==============================
-
-How to deploy a WAR archive is dependent on your 
-application server. Please consult your vendor documentation
-on application deployment. Here are basic instructions to deploy
-the demo application for JBoss, WebLogic and WebSphere application 
-servers.
+How to deploy an EJB application archive is dependent on your
+application server. Please consult your vender documentation on
+application deployment. Here are basic instructions to deploy the
+demo application for JBoss application servers.
 
 JBoss
 -----
-Copy the WAR archive ./build/lib/helloworld.war 
+Copy the EJB archive ./j2ee-archives/greeterejb.jar 
 to the JBoss deployment directory.
   
-  (Unix)    % cp ./build/lib/helloworld.war \ 
+  (Unix)    % cp ./j2ee-archives/greeterejb.jar \ 
               <jboss-home>/server/default/deploy
-  (Windows) > copy .\build\lib\helloworld.war 
+  (Windows) > copy .\j2ee-archives\greeterejb.jar 
               <jboss-home>\server\default\deploy
 
+Activate the EJB Web Services facade
+====================================
+
+Exposing EJBs as Web Services in the CXF J2EE Connector is
+controlled by a properties files called ejb_servants.properties.  The
+file is located in $CXF_HOME/etc, by
+default. The ant build script for this demo will automatically update
+this file, so please ensure that you have write permissions for this
+file:
+
+    ant activate
+
+The location of this file is configurable via the
+EJBServantPropertiesURL property.
+
+Please see the documentation for further information on the contents
+of the properties files and how it is used. 
+
+NOTE: The CXF J2EE Connector will check this file every 30 seconds
+so it will be necessary to wait this length of time before running the
+client. 
 
 
-Accessing the web application 
-=============================
-
-Using a web browser access the URI below corresponding to your
-application server. (These URI assume that the application
-server is running in the same machine as the web browser)
-
-JBoss
------
-http://localhost:8080/helloworld/*.do
+Running the Demo
+================
 
 
-The web application provides a simple Web front-end to the Hello World
-Application. 
+Once the resource adapter and the EJB application have been deployed,
+the client can be run with the ant build script: 
 
-command-line
-------------
-You can also run a client in command-line.
+    ant client 
 
-  (Unix)    % ant client
-  (Windows) > ant client
+This will launch an CXF Java Client which contacts the web service
+enabled EJB. 

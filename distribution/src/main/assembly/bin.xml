@@ -97,6 +97,13 @@
 	        <include>version.properties</include>
             </includes>
 	</fileSet>
+	<fileSet>
+	    <directory>../integration/jca/src/main/rar/META-INF</directory>
+	    <outputDirectory>cxf-${cxf.version}/etc</outputDirectory>
+	    <includes>
+	        <include>ra.xml</include>
+            </includes>
+	</fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>

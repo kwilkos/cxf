@@ -21,32 +21,67 @@
 
 <project name="Inbound Connection Demo" default="build" basedir=".">
 
-    <property name="demos.current.dir" value="."/>
-    <property name="build.classes.dir" value="${basedir}/build"/>
-    <property name="cxf.home" value="../../../.."/>
-    <property name="wsdl.dir" value="${basedir}/wsdl"/>
-    <property name="wsdl.location" value="${basedir}/wsdl/hello_world.wsdl"/>
-    <property name="build.archives" value="${basedir}/j2ee-archives"/> 
-    <property name="ejb.xml" location="./etc/ejb.xml"/>
+  <property environment="env"/>
+  <property name="demos.current.dir" value="."/>
+  <property name="build.classes.dir" value="${basedir}/build"/>
+  <property name="cxf.home" value="../../../.."/>
+  <property name="wsdl.dir" value="${basedir}/wsdl"/>
+  <property name="wsdl.location" value="${basedir}/wsdl/hello_world.wsdl"/>
+  <property name="build.archives" value="${basedir}/j2ee-archives"/> 
+  <property name="ejb.xml" location="./etc/ejb.xml"/>
     
-    <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
-    <property name="servants.props.file" location="${basedir}/../../../../etc/ejb_servants.properties"/>
-    <property file="${servants.props.file}"/>
-    <property name="j2ee.archives" value="j2ee-archives"/>
+  <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
+  <property name="servants.props.file" location="${basedir}/../../../../etc/ejb_servants.properties"/>
+  <property file="${servants.props.file}"/>
+  <property name="j2ee.archives" value="j2ee-archives"/>
+  <property name="jboss.home" value="${env.JBOSS_HOME}"/>
+  <property file="${basedir}/../../../../etc/version.properties"/>
 
  
-    <path id="other.classpath">
-      <pathelement location="${basedir}/../../../../lib/geronimo-j2ee-connector_1.5_spec-1.0.1.jar"/>
-      <pathelement location="${basedir}/../../../../lib/geronimo-ejb_2.1_spec-1.0.1.jar"/>
-      <pathelement location="${repository}/javax/xml/jaxws-api/2.0-JAXWS-2.0-EA3/jaxws-api-2.0-JAXWS-2.0-EA3.jar"/>
-      <pathelement location="${basedir}/../../../../lib/jsr181-api-2.0-JAXWS-2.0-EA3.jar"/>
-    </path>
+  <path id="other.classpath">
+    <pathelement location="${basedir}/../../../../lib/cxf-integration-jca-${cxf.version}.jar"/>
+    <pathelement location="${jboss.home}/client/jbossall-client.jar"/>
+  </path>
+
+  <target name="generate.rar" depends="init">
+    <copy file="${basedir}/../../../../etc/ra.xml" todir="${build.classes.dir}/cxf-rar/META-INF"/>
+    <copy todir="${build.classes.dir}/cxf-rar">
+      <fileset dir="${basedir}/../../../../lib">
+	<include name="activation*.jar"/>
+	<include name="aopalliance*.jar"/>
+	<include name="cxf-api*.jar"/>
+	<include name="commons*.jar"/>
+	<include name="cxf-common*.jar"/>
+	<include name="cxf-integration-jca*.jar"/>
+	<include name="cxf-metacode*.jar"/>
+	<include name="cxf-rt*.jar"/>
+	<include name="cxf-tools-common*.jar"/>
+	<include name="jaxb*.jar"/>
+	<include name="jaxws*.jar"/>
+	<include name="jsr*.jar"/>
+	<include name="mail*.jar"/>
+	<include name="org.mortbay.jetty*.jar"/>
+	<include name="saaj*.jar"/>
+	<include name="servlet*.jar"/>
+	<include name="spring*.jar"/>
+	<include name="stax*.jar"/>
+	<include name="velocity*.jar"/>
+	<include name="wsdl4j*.jar"/>
+	<include name="wstx*.jar"/>
+	<include name="XmlSchema*.jar"/>
+      </fileset>
+    </copy>
+    <jar destfile="${basedir}/../../../../lib/cxf.rar"
+	 basedir="${build.classes.dir}/cxf-rar"/>
+  </target>
     
 
     <target name="build" depends="clean,init,j2ee.compile,build.ejb.jar"/> 
 
     <target name="init"> 
-      <mkdir dir="${build.classes.dir}"/>
+      <!--mkdir dir="${build.classes.dir}"/-->
+      <mkdir dir="${build.classes.dir}/cxf-rar/META-INF"/>
+
       <mkdir dir="${j2ee.archives}"/>
     </target>
     
@@ -66,6 +101,7 @@
 	<fileset dir="./src" includes="**/*.class"/>
 	<fileset dir="." includes="**/*.jar"/>
 	<fileset dir="." includes="**/*.rar"/>
+	<fileset dir="${build.classes.dir}/cxf-rar" includes="**/*"/>
       </delete>
     </target>
     
