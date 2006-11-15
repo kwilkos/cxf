@@ -84,7 +84,7 @@ public final class Client {
         System.out.println("Invoking server through Dispatch interface using DOMSource in MESSAGE Mode");
         DOMSource domRespMessage = dispDOMSrcMessage.invoke(domReqMessage);        
         System.out.println("Response from server: " 
-                           + domRespMessage.getNode().getFirstChild().getTextContent()); 
+                           + domRespMessage.getNode().getLastChild().getTextContent()); 
               
 
         QName serviceName3 = new QName("http://apache.org/hello_world_soap_http", "SOAPService3");
