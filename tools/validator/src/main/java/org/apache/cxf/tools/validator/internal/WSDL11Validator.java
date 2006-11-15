@@ -22,9 +22,7 @@ package org.apache.cxf.tools.validator.internal;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -32,13 +30,12 @@ import javax.wsdl.Definition;
 
 import org.xml.sax.InputSource;
 
+import org.apache.cxf.common.util.ListUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-
-
 
 public class WSDL11Validator extends AbstractValidator {
     
@@ -63,7 +60,6 @@ public class WSDL11Validator extends AbstractValidator {
         //3.If 1 and 2 is null , then load these schema files from jar file
         
         if (!StringUtils.isEmpty(schemaDir)) {
-
             schemaValidator = new SchemaValidator(schemaDir, (String)env.get(ToolConstants.CFG_WSDLURL),
                                                   schemas);
         } else {
@@ -115,7 +111,6 @@ public class WSDL11Validator extends AbstractValidator {
         List<InputSource> xsdList = new ArrayList<InputSource>();
         ClassLoader clzLoader = Thread.currentThread().getContextClassLoader();
         URL url = clzLoader.getResource(ToolConstants.CXF_SCHEMAS_DIR_INJAR);
-                
         JarURLConnection jarConnection = (JarURLConnection)url.openConnection();
         
         JarFile jarFile = jarConnection.getJarFile();
@@ -126,15 +121,27 @@ public class WSDL11Validator extends AbstractValidator {
             JarEntry ele =  (JarEntry)entry.nextElement();
             if (ele.getName().endsWith(".xsd") 
                 && ele.getName().indexOf(ToolConstants.CXF_SCHEMAS_DIR_INJAR) > -1) {
+
                 URIResolver resolver =  new URIResolver(ele.getName()); 
                 if (resolver.isResolved()) {
                     InputSource is = new InputSource(resolver.getInputStream());
                     is.setSystemId(ele.getName());
-                    xsdList.add(new InputSource(resolver.getInputStream()));
+                    xsdList.add(is);
                 }   
             }            
         }
         
-        return xsdList; 
-    }   
+        return sort(xsdList);
+    }
+    
+    private List<InputSource> sort(List<InputSource> list) {
+        return ListUtils.sort(list, new Comparator<InputSource>() {
+            public int compare(InputSource i1, InputSource i2) {
+                if (i1 == null && i2 == null) {
+                    return -1;
+                }
+                return i1.getSystemId().compareTo(i2.getSystemId());
+            }
+        });
+    }
 }
