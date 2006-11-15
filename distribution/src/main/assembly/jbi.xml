@@ -27,12 +27,12 @@ xmlns="http://java.sun.com/xml/ns/jbi"  xsi:schemaLocation="http://java.sun.com/
     </identification> 
     <component-class-name description="description">org.apache.cxf.jbi.se.CXFServiceEngine</component-class-name> 
     <component-class-path> 
-      <path-element>cxf-integration-jbi-2.0-incubator-M1-SNAPSHOT.jar</path-element> 
+      <path-element>cxf-integration-jbi-@CXF_VERSION@.jar</path-element> 
       <path-element>cxf-incubator.jar</path-element>
     </component-class-path> 
     <bootstrap-class-name>org.apache.cxf.jbi.se.CXFBootstrap</bootstrap-class-name> 
     <bootstrap-class-path> 
-      <path-element>cxf-integration-jbi-2.0-incubator-M1-SNAPSHOT.jar</path-element> 
+      <path-element>cxf-integration-jbi-@CXF_VERSION@.jar</path-element> 
       <path-element>cxf-incubator.jar</path-element>
     </bootstrap-class-path> 
   </component> 

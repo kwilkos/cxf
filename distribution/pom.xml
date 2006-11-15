@@ -318,7 +318,33 @@
                                 <property name="output.cp" value="export CXF_CLASSPATH=${cp}" />
                                 <property name="output.ext" value="" />
                                 <echo file="${basedir}/target/srcbuild_env${output.ext}" message="${output.cp}" />
-				 <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}"/>
+       			        <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}"/>
+                                <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/src/main/release/samples/integration/JBI/internal_provider_internal_consumer/service-engine/etc/jbi.xml" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/src/main/release/samples/integration/JBI/internal_provider_external_consumer/service-engine/etc/jbi.xml" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/src/main/release/samples/integration/JBI/external_provider_internal_consumer/service-engine/etc/jbi.xml" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/src/main/release/samples/integration/JBI/external_provider_external_consumer/service-engine/etc/jbi.xml" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/src/main/release/samples/integration/JBI/handlers/service-engine/etc/jbi.xml" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+
                             </tasks>
                         </configuration>
                         <goals>
