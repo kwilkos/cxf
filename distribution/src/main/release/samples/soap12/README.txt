@@ -127,7 +127,7 @@ with Tomcat copy the war file into the directory
 <installationDirectory>/webapps.  The servlet container will
 extract the war and deploy the application.
 
-Make sure already copy all jars (except cxf-integration-* jars)
+Make sure you have already copied all jars (except cxf-integration-* jars)
 from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
 
 Using ant, run the client application with the command:
@@ -142,12 +142,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client http://localhost:#/helloworld/services/hello_world
+         demo.hw.client.Client http://localhost:#/helloworld/services/hello_world?wsdl
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client http://localhost:#/helloworld/services/hello_world
+       demo.hw.client.Client http://localhost:#/helloworld/services/hello_world?wsdl
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
