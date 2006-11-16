@@ -344,6 +344,33 @@
                                                 <filter token="CXF_VERSION" value="${pom.version}" />
                                             </filterset>
                                 </copy>
+                                
+                                <copy file="${basedir}/src/main/assembly/build.properties" tofile="${basedir}/src/main/release/samples/integration/JBI/internal_provider_internal_consumer/build.properties" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/build.properties" tofile="${basedir}/src/main/release/samples/integration/JBI/internal_provider_external_consumer/build.properties" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/build.properties" tofile="${basedir}/src/main/release/samples/integration/JBI/external_provider_internal_consumer/build.properties" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/build.properties" tofile="${basedir}/src/main/release/samples/integration/JBI/external_provider_external_consumer/build.properties" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+                                <copy file="${basedir}/src/main/assembly/build.properties" tofile="${basedir}/src/main/release/samples/integration/JBI/handlers/build.properties" overwrite="yes">
+                                            <filterset>
+                                                <filter token="CXF_VERSION" value="${pom.version}" />
+                                            </filterset>
+                                </copy>
+
 
                             </tasks>
                         </configuration>
