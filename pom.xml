@@ -152,7 +152,8 @@
         <spring.version>2.0</spring.version>
         <wsdl4j.version>1.6.1</wsdl4j.version>
         <derby.version>10.1.1.0</derby.version>
-        <activemq-version>4.0.2</activemq-version>
+        <activemq.version>4.0.2</activemq.version>
+        <geronimo.version>1.0.1</geronimo.version>
 
 
         <eclipse.workspace.dir>${basedir}/${topDirectoryLocation}/../workspace</eclipse.workspace.dir>
@@ -606,7 +607,31 @@
                 <artifactId>jaxme2</artifactId>
                 <version>0.5.1</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency> 
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jms_1.1_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ejb_2.1_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>incubator-activemq</groupId>
+                <artifactId>activemq-core</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
