@@ -59,6 +59,8 @@ public class Source extends AbstractEndpoint {
     
     public void addSequence(SourceSequence seq) { 
         addSequence(seq, true);
+        getReliableEndpoint().getManager().addSourceSequence(seq);
+        
     }
     
     public void addSequence(SourceSequence seq, boolean persist) {

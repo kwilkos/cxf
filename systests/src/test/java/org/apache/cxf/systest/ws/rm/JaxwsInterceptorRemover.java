@@ -50,7 +50,7 @@ public class JaxwsInterceptorRemover extends AbstractPhaseInterceptor {
         while (it.hasNext()) {
             PhaseInterceptor pi = (PhaseInterceptor)it.next();
             if (LogicalHandlerInterceptor.class.getName().equals(pi.getId())) {
-                chain.remove(pi);
+                // chain.remove(pi);
                 break;
             }
         }
@@ -66,7 +66,7 @@ public class JaxwsInterceptorRemover extends AbstractPhaseInterceptor {
         while (it.hasNext()) {
             PhaseInterceptor pi = (PhaseInterceptor)it.next();
             if (StreamHandlerInterceptor.class.getName().equals(pi.getId())) {
-                chain.remove(pi);
+                //chain.remove(pi);
                 break;
             }
         }

@@ -55,7 +55,8 @@ public class Proxy {
     private static final Logger LOG = LogUtils.getL7dLogger(Proxy.class);
 
     private RMEndpoint reliableEndpoint;
-    
+    // REVISIT assumption there is only a single outstanding offer
+    private Identifier offeredIdentifier;
     
 
     public Proxy(RMEndpoint rme) {
@@ -140,6 +141,7 @@ public class Proxy {
             }
             offer.setIdentifier(reliableEndpoint.getSource().generateSequenceIdentifier());
             create.setOffer(offer);
+            setOfferedIdentifier(offer);
         }
         
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
@@ -149,6 +151,16 @@ public class Proxy {
     
     void lastMessage(SourceSequence s) throws IOException {
         // TODO
+    }
+    
+    Identifier getOfferedIdentifier() {
+        return offeredIdentifier;    
+    }
+    
+    void setOfferedIdentifier(OfferType offer) { 
+        if (offer != null) {
+            offeredIdentifier = offer.getIdentifier();
+        }
     }
        
     Object invoke(OperationInfo oi, Object[] params, Map<String, Object> context) {

@@ -42,15 +42,16 @@ import org.apache.cxf.ws.rm.RMConstants;
 public class SequenceTest extends ClientServerTestBase {
 
     private static final Logger LOG = Logger.getLogger(SequenceTest.class.getName());
-    // private static final String APP_NAMESPACE =
-    // "http://celtix.objectweb.org/greeter_control";
+    // private static final String APP_NAMESPACE ="http://celtix.objectweb.org/greeter_control";
     // private static final String GREETMEONEWAY_ACTION = APP_NAMESPACE +
-    // "/types/Greeter/greetMeOneWay";
+    //     "/types/Greeter/greetMeOneWay";
     // private static final String GREETME_ACTION = APP_NAMESPACE +
-    // "/types/Greeter/greetMe";
+    //     "/types/Greeter/greetMe";
     // private static final String GREETME_RESPONSE_ACTION = GREETME_ACTION +
-    // "Response";
+    //     "Response";
     private static final String GREETMEONEWAY_ACTION = null;
+    private static final String GREETME_ACTION = null;
+    private static final String GREETME_RESPONSE_ACTION = null;
 
     private Bus controlBus;
     private Control control;
@@ -63,6 +64,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestOnewayDeferredAnonymousAcks = true;
     private boolean doTestOnewayDeferredNonAnonymousAcks = true;
     private boolean doTestOnewayAnonymousAcksSequenceLength1 = true;
+    private boolean doTestTwowayNonAnonymous = true;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -86,25 +88,20 @@ public class SequenceTest extends ClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         controlBus = bf.createBus();
         bf.setDefaultBus(controlBus);
-        LOG.fine("Initialised control bus.");
         controlBus = new SpringBusFactory().getDefaultBus();
 
         ControlService service = new ControlService();
-        LOG.fine("Created ControlService.");
         control = service.getControlPort();
-        LOG.fine("Created Control.");
     }
     
     public void tearDown() {
         if (null != greeter) {
             assertTrue("Failed to stop greeter.", control.stopGreeter());            
             greeterBus.shutdown(true);
-            LOG.fine("Shutdown greeter bus.");
             greeterBus = null;
         }
         if (null != control) {               
             controlBus.shutdown(true);
-            LOG.fine("Shutdown control bus.");
         }
     }
 
@@ -268,6 +265,48 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
     }
+    
+    public void testTwowayNonAnonymous() throws Exception {
+        if (!doTestTwowayNonAnonymous) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/twoway.xml");
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+        greeter.greetMe("three");
+
+        // CreateSequence and three greetMe messages
+        // TODO there should be partial responses to the decoupled responses!
+
+        // awaitMessages(6, 6);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        
+        mf.verifyMessages(4, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETME_ACTION,
+                                                 GREETME_ACTION, 
+                                                 GREETME_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false}, true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true, true}, true);
+
+        // createSequenceResponse plus 3 greetMeResponse messages plus
+        // one partial response for each of the four messages
+
+        mf.verifyMessages(8, false);
+        expectedActions = new String[] {null, RMConstants.getCreateSequenceResponseAction(), 
+                                        null, GREETME_RESPONSE_ACTION, 
+                                        null, GREETME_RESPONSE_ACTION, 
+                                        null, GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, "1", null, "2", null, "3"}, false);
+        mf.verifyLastMessage(new boolean[8], false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false, true, false, true, false, true}, false);
+    }
 
 
     // --- test utilities ---
@@ -277,7 +316,7 @@ public class SequenceTest extends ClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         greeterBus = bf.createBus(cfgResource);
         bf.setDefaultBus(greeterBus);
-        LOG.fine("Initialised greeter bus.");
+        LOG.fine("Initialised greeter bus with configuration: " + cfgResource);
 
         outRecorder = new OutMessageRecorder();
         greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());

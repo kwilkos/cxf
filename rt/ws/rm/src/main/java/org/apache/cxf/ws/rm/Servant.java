@@ -154,7 +154,7 @@ public class Servant implements Invoker {
         // to the local destination sequence list, otherwise we have to wait for
         // and incoming CreateSequence request
         
-        Identifier offeredId = reliableEndpoint.getOfferedIdentifier();
+        Identifier offeredId = reliableEndpoint.getProxy().getOfferedIdentifier();
         if (null != offeredId) {
             AcceptType accept = createResponse.getAccept();
             assert null != accept;

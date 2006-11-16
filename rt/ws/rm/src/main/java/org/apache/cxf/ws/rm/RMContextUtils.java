@@ -88,7 +88,25 @@ public final class RMContextUtils {
      * @return the RM properties
      */
     public static RMProperties retrieveRMProperties(Message message, boolean outbound) {
-        return (RMProperties)message.get(getRMPropertiesKey(outbound));
+        if (outbound) {
+            return (RMProperties)message.get(getRMPropertiesKey(true));
+        } else {
+            Message m = null;
+            if (isOutbound(message)) {
+                // the in properties are only available on the in message
+                m = message.getExchange().getInMessage();
+                if (null == m) {
+                    m = message.getExchange().getInFaultMessage();
+                }
+            } else {
+                m = message;
+            }
+            if (null != m) {
+                return (RMProperties)m.get(getRMPropertiesKey(false));
+            }
+        }
+        return null;
+        
     }
     
     /**

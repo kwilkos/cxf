@@ -63,8 +63,6 @@ public class RMEndpoint {
     private Destination destination;
     private Service service;
     private Endpoint endpoint;
-    // REVISIT assumption there is only a single outstanding offer
-    private Identifier offeredIdentifier;
     private Proxy proxy;
     private Servant servant;
     
@@ -326,16 +324,6 @@ public class RMEndpoint {
             bi.addOperation(boi);
 
             si.addBinding(bi);
-        }
-    }
-    
-    Identifier getOfferedIdentifier() {
-        return offeredIdentifier;    
-    }
-    
-    void setOfferedIdentifier(OfferType offer) { 
-        if (offer != null) {
-            offeredIdentifier = offer.getIdentifier();
         }
     }
     

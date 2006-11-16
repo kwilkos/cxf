@@ -188,7 +188,6 @@ public class RMManager extends RMManagerConfigBean {
             }
 
             seq = source.getCurrent(inSeqId);
-            addSourceSequence(seq);
             seq.setTarget(to);
         }
 

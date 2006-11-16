@@ -215,15 +215,11 @@ public class RMManagerTest extends TestCase {
         EasyMock.expectLastCall();
         SourceSequence sseq = control.createMock(SourceSequence.class);
         EasyMock.expect(source.getCurrent(inSid)).andReturn(sseq);
-        Identifier sid = control.createMock(Identifier.class);
-        EasyMock.expect(sseq.getIdentifier()).andReturn(sid);
-        EasyMock.expect(sid.getValue()).andReturn("S1").times(2);
         sseq.setTarget(EasyMock.isA(EndpointReferenceType.class));
         EasyMock.expectLastCall();
         
         control.replay();
         assertSame(sseq, manager.getSequence(inSid, message, maps));
-        assertSame(manager.getSourceSequence(sid), sseq);
         control.verify();
     }
 }
