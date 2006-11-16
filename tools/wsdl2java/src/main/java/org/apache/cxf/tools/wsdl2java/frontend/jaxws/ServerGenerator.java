@@ -95,6 +95,12 @@ public class ServerGenerator extends AbstractGenerator {
             clearAttributes();
             setAttributes("serverClassName", serverClassName);
             setAttributes("intf", intf);
+            if (penv.optionSet(ToolConstants.CFG_IMPL_CLASS)) {
+                setAttributes("impl", 
+                              (String)penv.get(ToolConstants.CFG_IMPL_CLASS));
+            } else {
+                setAttributes("impl", intf.getName() + "Impl");
+            }
             setAttributes("address", address);
             setCommonAttributes();
 

@@ -32,7 +32,7 @@ public class ${serverClassName}{
 
     protected ${serverClassName}() throws Exception {
         System.out.println("Starting Server");
-        Object implementor = new ${intf.Name}Impl();
+        Object implementor = new ${impl}();
         String address = "${address}";
         Endpoint.publish(address, implementor);
     }
