@@ -41,7 +41,7 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
                || message == message.getExchange().getOutFaultMessage();
     }
     
-    boolean isRequestor(T message) {
+    protected boolean isRequestor(T message) {
         Boolean b = (Boolean)message.get(Message.REQUESTOR_ROLE);
         return b == null ? true : b.booleanValue();
     }

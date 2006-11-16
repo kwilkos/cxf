@@ -196,7 +196,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(0, p1.faultInvoked);
     }
 
-    public void testWrappedInvokation() throws Exception {
+    public void testWrappedInvocation() throws Exception {
         CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
                 "p1");
         WrapperingPhaseInterceptor p2 = new WrapperingPhaseInterceptor(
@@ -217,7 +217,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(1, p3.invoked);
     }
 
-    public void testSubChainInvokation() throws Exception {
+    public void testSubChainInvocation() throws Exception {
         SubChainPhaseInterceptor p1 = new SubChainPhaseInterceptor("phase1",
                 "p1");
         EndOfSubChainPhaseInterceptor p2 = new EndOfSubChainPhaseInterceptor(
@@ -238,7 +238,7 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(1, p3.invoked);
     }
 
-    public void testSubChainInvokationWithoutEnteringSubChain() throws Exception {
+    public void testSubChainInvocationWithoutEnteringSubChain() throws Exception {
         CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
                 "p1");
         EndOfSubChainPhaseInterceptor p2 = new EndOfSubChainPhaseInterceptor(
@@ -259,6 +259,27 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertEquals(1, p3.invoked);
     }
 
+    public void testChainInvocationStartFromSpecifiedInterceptor() throws Exception {
+        CountingPhaseInterceptor p1 = new CountingPhaseInterceptor("phase1",
+                "p1");
+        EndOfSubChainPhaseInterceptor p2 = new EndOfSubChainPhaseInterceptor(
+                "phase2", "p2");
+        CountingPhaseInterceptor p3 = new CountingPhaseInterceptor("phase3",
+                "p3");
+
+        message.getInterceptorChain();
+        EasyMock.expectLastCall().andReturn(chain).anyTimes();
+
+        control.replay();
+        chain.add(p1);
+        chain.add(p2);
+        chain.add(p3);
+        chain.doIntercept(message, p2.getId());
+        assertEquals(0, p1.invoked);
+        assertEquals(0, p2.invoked);
+        assertEquals(1, p3.invoked);
+    }
+    
     AbstractPhaseInterceptor setUpPhaseInterceptor(String phase, String id) {
         return setUpPhaseInterceptor(phase, id, null);
     }

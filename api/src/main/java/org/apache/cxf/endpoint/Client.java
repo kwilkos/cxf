@@ -23,8 +23,9 @@ import java.util.Map;
 
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.transport.MessageObserver;
 
-public interface Client extends InterceptorProvider {
+public interface Client extends InterceptorProvider, MessageObserver {
     String REQUEST_CONTEXT = "RequestContext";
     String RESPONSE_CONTEXT = "ResponseContext";
     

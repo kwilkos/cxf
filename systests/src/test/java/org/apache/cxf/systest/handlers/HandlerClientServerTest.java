@@ -65,9 +65,8 @@ public class HandlerClientServerTest extends ClientServerTestBase {
 
         int result = port.addNumbers(10, 20);
         assertEquals(200, result);
-        //int result1 = port.addNumbers(5, 6);
-        //TODO: This test can not pass due to jira cxf-195
-        //assertEquals(11, result1);
+        int result1 = port.addNumbers(5, 6);
+        assertEquals(11, result1);
     }
 
 }

@@ -182,6 +182,24 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
     
     /**
+     * Invokes each phase's handler in turn. Start after the Interceptor
+     * specified
+     * 
+     * @param context
+     * @throws Exception
+     */
+    @SuppressWarnings("unchecked")
+    public boolean doIntercept(Message message, String startingAfterInterceptorID) {
+        while (state == State.EXECUTING && iterator.hasNext()) {
+            PhaseInterceptor currentInterceptor = (PhaseInterceptor)iterator.next();
+            if (currentInterceptor.getId().equals(startingAfterInterceptorID)) {
+                break;
+            }
+        }
+        return doIntercept(message);
+    }
+    
+    /**
      * Invokes following inteceptors in a sub chain until the last chain in the
      * sub chain calls finishSubChain, which makes the flow continues in the
      * main chain.

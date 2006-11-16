@@ -245,6 +245,8 @@ public class HandlerChainInvoker {
             // and control all of the processing here.
             changeMessageDirection(ctx); 
             handlerProcessingAborted = true;
+            
+            //TODO: reverse chain, call handlerMessage or close            
         }
         return continueProcessing;        
     }    

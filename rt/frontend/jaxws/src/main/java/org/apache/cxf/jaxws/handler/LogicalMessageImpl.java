@@ -20,7 +20,7 @@
 package org.apache.cxf.jaxws.handler;
 
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -51,7 +51,9 @@ public class LogicalMessageImpl implements LogicalMessage {
 
     public void setPayload(Object arg0, JAXBContext arg1) {
         // TODO - what to do with JAXB context?
-        msgContext.getWrappedMessage().setContent(List.class, Arrays.asList(arg0));
+        List<Object> l = new ArrayList<Object>();
+        l.add(arg0);        
+        msgContext.getWrappedMessage().setContent(List.class, l);
     }
 
    

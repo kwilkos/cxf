@@ -56,10 +56,9 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
+    public static final String FINISHED = "exchange.finished";
     
     private static final Logger LOG = LogUtils.getL7dLogger(ClientImpl.class);
-
-    private static final String FINISHED = "exchange.finished";
     
     private Bus bus;
     private Endpoint endpoint;
@@ -123,6 +122,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         Conduit conduit = getConduit();
         exchange.setConduit(conduit);
         conduit.setMessageObserver(this);
+        
+        //set clientImpl to exchange. used by jax-ws handlers
+        exchange.put(Client.class, this);
         
         // execute chain
         chain.doIntercept(message);
@@ -241,7 +243,13 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         
         // execute chain
         try {
-            chain.doIntercept(message);
+            String startingInterceptorID = (String) message.get(
+                PhaseInterceptorChain.STARTING_AFTER_INTERCEPTOR_ID);
+            if (startingInterceptorID != null) {
+                chain.doIntercept(message, startingInterceptorID);
+            } else {
+                chain.doIntercept(message);
+            }
         } finally {
             synchronized (message.getExchange()) {
                 if (!isPartialResponse(message)) {
