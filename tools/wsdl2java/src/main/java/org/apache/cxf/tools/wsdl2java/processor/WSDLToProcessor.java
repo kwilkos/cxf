@@ -68,7 +68,6 @@ import org.apache.cxf.tools.util.WSDLExtensionRegister;
 import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdl2java.databindings.jaxb.JAXBBindingGenerator;
 
-//import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 import org.apache.cxf.wsdl4jutils.WSDLResolver;
 import org.apache.velocity.app.Velocity;
 
@@ -156,7 +155,6 @@ public class WSDLToProcessor implements Processor {
             InputSource insource = new InputSource(resolver.getInputStream());
             wsdlURL = resolver.getURI().toString();
             wsdlDefinition = wsdlReader.readWSDL(new WSDLResolver(wsdlURL, insource));
-            /*wsdlDefinition = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlURL));*/
             
             parseImports(wsdlDefinition);
             buildImportedMaps();

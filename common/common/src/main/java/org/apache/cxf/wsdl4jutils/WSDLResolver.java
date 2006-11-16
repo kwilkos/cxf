@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.wsdl.xml.WSDLLocator;
 
@@ -58,7 +59,11 @@ public class WSDLResolver implements WSDLLocator {
         try {
             parentUrl = new URL(parent);
             URL importUrl = new URL(parentUrl, importLocation);
-            if (importUrl.toURI() != null) {
+            if (importUrl != null && !importUrl.getProtocol().startsWith("file")) {
+                URLConnection con = importUrl.openConnection();
+                con.setUseCaches(false);
+                inputSource = new InputSource(con.getInputStream());
+            } else {
                 File file = new File(importUrl.toURI());
                 if (file.exists()) {
                     URIResolver resolver = new URIResolver(parent.toString(), importLocation);
@@ -69,20 +74,29 @@ public class WSDLResolver implements WSDLLocator {
                         inputSource = new InputSource(resolver.getInputStream());
                     }
                 }
-                importedUri = importUrl.toURI().toString();
             }
+            importedUri = importUrl.toURI().toString();
+
         } catch (MalformedURLException e) {
-            // TODO
+            //
         } catch (URISyntaxException e) {
-            // TODO
+            //
         } catch (IOException e) {
-            // TODO
+            //
+
         }
         return inputSource;
 
     }
 
     public void close() {
+        if (inputSource.getByteStream() != null) {
+            try {
+                inputSource.getByteStream().close();
+            } catch (IOException e) {
+               //
+            }
+        }
 
     }
 }
