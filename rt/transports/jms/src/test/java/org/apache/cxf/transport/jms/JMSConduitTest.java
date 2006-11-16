@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
@@ -43,6 +44,31 @@ public class JMSConduitTest extends AbstractJMSTester {
     public static Test suite() {
         TestSuite suite = new TestSuite(JMSConduitTest.class);
         return  new JMSBrokerSetup(suite, "tcp://localhost:61500");        
+    }
+    
+    public void testGetConfiguration() throws Exception {
+        // setup the new bus to get the configuration file
+        SpringBusFactory bf = new SpringBusFactory();
+        bf.setDefaultBus(null);
+        bus = bf.createBus("/wsdl/jms_test_config.xml");
+        bf.setDefaultBus(bus);
+        setupServiceInfo("http://cxf.apache.org/jms_conf_test",
+                         "/wsdl/jms_test_no_addr.wsdl",
+                         "HelloWorldQueueBinMsgService",
+                         "HelloWorldQueueBinMsgPort");
+        JMSConduit conduit = setupJMSConduit(false, false);
+        assertNotNull(conduit.jmsConduitConfigBean);
+        assertEquals("Can't get the right ClientReceiveTimeout",
+                     500,
+                     conduit.jmsConduitConfigBean.getClientConfig().getClientReceiveTimeout());
+        assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
+                     10,
+                     conduit.getSessionPoolConfig().getLowWaterMark());
+        assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
+                     "testPassword",
+                     conduit.getAddressPolicy().getConnectionPassword());
+        bf.setDefaultBus(null);
+        
     }
     
     public void testPrepareSend() throws Exception {

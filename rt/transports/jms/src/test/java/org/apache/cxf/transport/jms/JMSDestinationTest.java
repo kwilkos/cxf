@@ -26,6 +26,7 @@ import java.io.InputStream;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
@@ -86,6 +87,32 @@ public class JMSDestinationTest extends AbstractJMSTester {
             jmsDestination.setMessageObserver(observer);
         }
         return jmsDestination;
+    }
+    
+    public void testGetConfiguration() throws Exception {
+        SpringBusFactory bf = new SpringBusFactory();
+        bf.setDefaultBus(null);
+        bus = bf.createBus("/wsdl/jms_test_config.xml");
+        bf.setDefaultBus(bus);
+        setupServiceInfo("http://cxf.apache.org/jms_conf_test",
+                         "/wsdl/jms_test_no_addr.wsdl",
+                         "HelloWorldQueueBinMsgService",
+                         "HelloWorldQueueBinMsgPort");
+        JMSDestination destination = setupJMSDestination(false);
+        assertEquals("Can't get the right ServerConfig's MessageTimeToLive ",
+                     500,
+                     destination.jmsDestinationConfigBean.getServerConfig().getMessageTimeToLive());
+        assertEquals("Can't get the right Server's MessageSelector",
+                     "cxf_message_selector",
+                     destination.jmsDestinationConfigBean.getServer().getMessageSelector());
+        assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
+                     10,
+                     destination.getSessionPoolConfig().getLowWaterMark());
+        assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
+                     "testPassword",
+                     destination.getAddressPolicy().getConnectionPassword());
+        bf.setDefaultBus(null);
+        
     }
     
     public void testOneWayDestination() throws Exception {

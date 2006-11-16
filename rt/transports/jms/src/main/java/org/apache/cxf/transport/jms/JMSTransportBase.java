@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
@@ -53,6 +54,12 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
     public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer) {
         bus = b;
         endpointInfo = endpoint;
+        
+        Configurer configurer = bus.getExtension(Configurer.class);
+        if (null != configurer) {
+            configurer.configureBean(this);
+        }
+        
         if (!isSetSessionPoolConfig()) {
             setSessionPoolConfig(new JMSSessionPoolConfigPolicy());
         }

@@ -45,6 +45,8 @@ import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
 
+import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
@@ -206,8 +208,18 @@ public class WSDLServiceBuilder {
     }
 
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {
-        String ns = ((ExtensibilityElement)port.getExtensibilityElements().get(0)).getElementType()
-            .getNamespaceURI();
+        List elements = port.getExtensibilityElements();
+        String ns = null;
+        if (null != elements && elements.size() > 0) {
+            ns = ((ExtensibilityElement)elements.get(0)).getElementType()
+                        .getNamespaceURI();
+        } else { // get the transport id from bindingInfo            
+            ExtensibilityElement extElem = (ExtensibilityElement)port.getBinding().
+                                            getExtensibilityElements().get(0);
+            if (extElem instanceof SOAPBindingImpl) {
+                ns = (String)((SOAPBindingImpl)extElem).getTransportURI();                  
+            }            
+        }
         EndpointInfo ei = null;
 
         try {

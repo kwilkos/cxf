@@ -65,8 +65,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
 public class JMSDestination extends JMSTransportBase implements Destination {
-    static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);
-    final EndpointInfo endpointInfo;
+    static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);    
     final EndpointReferenceType reference;
     final ConduitInitiator conduitInitiator;
     JMSDestinationConfigBean jmsDestinationConfigBean;
@@ -77,8 +76,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     public JMSDestination(Bus b,
                           ConduitInitiator ci,
                           EndpointInfo info) throws IOException {
-        super(b, info, true);
-        endpointInfo = info;
+        super(b, info, true);        
         initConfig();
         conduitInitiator = ci;
         reference = new EndpointReferenceType();
