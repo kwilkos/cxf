@@ -30,7 +30,6 @@ import javax.wsdl.Definition;
 
 import org.xml.sax.InputSource;
 
-import org.apache.cxf.common.util.ListUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -131,11 +130,12 @@ public class WSDL11Validator extends AbstractValidator {
             }            
         }
         
-        return sort(xsdList);
+        sort(xsdList);
+        return xsdList;
     }
     
-    private List<InputSource> sort(List<InputSource> list) {
-        return ListUtils.sort(list, new Comparator<InputSource>() {
+    private void sort(List<InputSource> list) {
+        Collections.sort(list, new Comparator<InputSource>() {
             public int compare(InputSource i1, InputSource i2) {
                 if (i1 == null && i2 == null) {
                     return -1;
