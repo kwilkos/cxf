@@ -126,10 +126,10 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
             }
             Node next = exDetail.getNextSibling();
             while (!(next instanceof Element)) {
-                next = exDetail.getNextSibling();
                 if (next == null) {
                     break;
                 }
+                next = next.getNextSibling();
             }
             if (next instanceof Element) {
                 exDetail = (Element) next;
