@@ -49,7 +49,7 @@ public final class GreeterClient {
             e.printStackTrace();
         }
         
-        String address = "http://" + hostName + ":9999/Greeter";
+        String address = "http://" + hostName + ":9999/GreeterBean";
 
         ServiceImpl ss = new ServiceImpl(bus, null, serviceQName, null);
         ss.addPort(portQName, bindingId, address);
