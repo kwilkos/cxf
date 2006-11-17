@@ -99,6 +99,25 @@ public class MessageFlow extends Assert {
             }
         }
     }
+
+    public void verifyActionsIgnoringPartialResponses(String[] expectedActions) throws Exception {
+        int j = 0;
+        for (int i = 0; i < inboundMessages.size() && j < expectedActions.length; i++) {
+            String action = getAction(inboundMessages.get(i));
+            if (null == action && emptyBody(inboundMessages.get(i))) {
+                continue;
+            }
+            if (null == expectedActions[j]) {
+                assertNull("Inbound message " + i + " has unexpected action: " + action, action);
+            } else {
+                assertEquals("Inbound message " + i + " has unexpected action: ", expectedActions[j], action);
+            }
+            j++;
+        }
+        if (j < expectedActions.length) {
+            fail("Inbound messages do not contain all expected actions.");
+        }
+    }
     
     public boolean checkActions(String[] expectedActions, boolean outbound) throws Exception {
 
@@ -392,9 +411,21 @@ public class MessageFlow extends Assert {
     }
     
     public void verifyPartialResponses(int nExpected) throws Exception {
+        verifyPartialResponses(nExpected, null);
+    }
+
+    public void verifyPartialResponses(int nExpected, boolean[] piggybackedAcks) throws Exception {
         int npr = 0;
         for (int i =  0; i < inboundMessages.size(); i++) {
             if (isPartialResponse(inboundMessages.get(i))) {
+                if (piggybackedAcks != null) {
+                    Element ack = getAcknowledgment(inboundMessages.get(i));
+                    if (piggybackedAcks[npr]) {
+                        assertNotNull("Partial response " + npr + " does not include acknowledgement.", ack);
+                    } else {
+                        assertNull("Partial response " + npr + " has unexpected acknowledgement.", ack);
+                    }
+                }
                 npr++;   
             }
         }
@@ -403,7 +434,7 @@ public class MessageFlow extends Assert {
     }
     
     public boolean isPartialResponse(Document d) throws Exception {
-        return false;
+        return null == getAction(d) && emptyBody(d);
     }
     
     public boolean emptyBody(Document d) throws Exception {

@@ -203,7 +203,8 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessages(4, false);
         expectedActions = new String[] {null, RMConstants.getCreateSequenceResponseAction(), 
                                         null, null};
-        mf.verifyActions(expectedActions, false);
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
+        mf.verifyActionsIgnoringPartialResponses(expectedActions);
         mf.verifyMessageNumbers(new String[4], false);
         mf.verifyAcknowledgements(new boolean[4], false);
 
@@ -221,6 +222,7 @@ public class SequenceTest extends ClientServerTestBase {
 
         mf.verifyMessages(0, true);
         mf.verifyMessages(1, false);
+        mf.verifyAcknowledgements(new boolean[] {true}, false);
 
     }
     
@@ -296,16 +298,21 @@ public class SequenceTest extends ClientServerTestBase {
 
         // createSequenceResponse plus 3 greetMeResponse messages plus
         // one partial response for each of the four messages
+        // the first partial response should no include an acknowledgement, the other three should
 
         mf.verifyMessages(8, false);
-        expectedActions = new String[] {null, RMConstants.getCreateSequenceResponseAction(), 
-                                        null, GREETME_RESPONSE_ACTION, 
-                                        null, GREETME_RESPONSE_ACTION, 
-                                        null, GREETME_RESPONSE_ACTION};
+        mf.verifyPartialResponses(4, new boolean[4]);
+
+        mf.purgePartialResponses();
+
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION};
         mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, "1", null, "2", null, "3"}, false);
-        mf.verifyLastMessage(new boolean[8], false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, false, true, false, true, false, true}, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);
+        mf.verifyLastMessage(new boolean[4], false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
 
 
