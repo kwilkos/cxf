@@ -38,9 +38,6 @@ Normalized Message Router (NMR) using a customized CXF transport.
 
 The JBI/NMR transport in this demo support InOut and InOnly message exchange pattern.
 
-ServiceMix and OpenESB are two JBI container implementation we are
-using here. Here we can see CXF Service Engine can be deployed into
-different JBI implementation without any change. 
 
 
 Deploy CXF Service Engine into ServiceMix
@@ -85,65 +82,6 @@ Deploy and start the CXF demo service assembly
 
 More lifecycle management task
  > ant -f $SERVICEMIX_HOME/ant/servicemix-ant-task.xml -projecthelp
-
-Deploy CXF Service Engine into OpenESB
-=========================================
-Build Instructions
-------------------
-. Download & Install Glassfish Application Server 
-  https://glassfish.dev.java.net/downloads/04May06.html
-  Note: must install 9.0 (Build 48 04-May-06) since previous version use
-    early JAXB implementation which will conflict with CXF
-
-. export GLASSFISH_HOME for your shell environment
-
-. Download & Install OpenESB JBI Framework (v 1.1)
-
-. export OPEN_ESB_HOME for your shell environment
-
-. export JBI_HOME=$GLASSFISH_HOME/domains/domain1/jbi
-
-. Edit build.properties to sepcify cxf.home and jbi.sdk.jar,
-  jbi.sdk.jar=$OPEN_ESB_HOME/appserver/jbi.jar
-
-. build everything using ant: 'ant build'
-
-
-Installation & Deployment
--------------------------
-
-Ensure that the $GLASSFISH_HOME/bin and $JBI_HOME/bin is on the path.  If you deployed OpenESB
-into the default domain (domain1) on Glassfish, this JBI_HOME can be
-found in $GLASSFISH_HOME/domains/domain1/jbi.
-
-Start OpenESB
-
- > asadmin start-domain domain1
-
-You should see log like
-Starting Domain domain1, please wait.
-Log redirected to /local/glassfish/domains/domain1/logs/server.log
-
-In server.log you can see ServiceEngine install log, Service Assembly deploy log, cxf service
-consumer and provider communication log.
-
-
-Install the CXF Service Engine:
-
- > jbiadmin install-component service-engine/build/lib/cxf-service-engine.jar
- > jbiadmin start-component CXFServiceEngine
-
-Deploy the CXF demo service assembly
-
- > jbiadmin deploy-service-assembly service-assembly/build/lib/cxf-service-assembly.zip
- > jbiadmin start-service-assembly cxf-demo-service-assembly
-
-More lifecycle management task
-
- > jbiadmin help
-
-Stop OpenESB
- > asadmin stop-domain domain1
 
 What happened
 =============
