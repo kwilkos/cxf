@@ -21,15 +21,15 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-buildtools</artifactId>
-    <version>2.0-incubator-M1</version>
+    <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>CXF Buildtools</name>
     <url>http://cwiki.apache.org/confluence/display/CXF</url>
     <packaging>jar</packaging>
 
     <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/2.0-incubator-M1</connection>
-	<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/2.0-incubator-M1</developerConnection>
-	<url>http://svn.apache.org/viewvc/incubator/cxf/tags/2.0-incubator-M1</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk</connection>
+	<developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk</developerConnection>
+	<url>http://svn.apache.org/viewvc/incubator/cxf/trunk/</url>
     </scm>
 
 
