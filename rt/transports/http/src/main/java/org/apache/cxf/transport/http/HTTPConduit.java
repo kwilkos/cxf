@@ -77,7 +77,8 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
     
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     private final Bus bus;
-    private final URLConnectionFactory connectionFactory;
+    private final URLConnectionFactory alternateConnectionFactory;
+    private URLConnectionFactory connectionFactory;
     private URL url;
     private MessageObserver incomingObserver;
     private EndpointReferenceType target;
@@ -136,14 +137,19 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         init();
         bus = b;
         endpointInfo = ei;
-        connectionFactory = factory != null
-                            ? factory
-                            : HTTPTransportFactory.getConnectionFactory(sslClient);
+        alternateConnectionFactory = factory;
+
         decoupledEngine = eng;
         url = t == null
               ? new URL(getAddress())
               : new URL(t.getAddress().getValue());
         target = getTargetReference(t);
+    }
+
+    protected void retrieveConnectionFactory() {
+        connectionFactory = alternateConnectionFactory != null
+                            ? alternateConnectionFactory
+                            : HTTPTransportFactory.getConnectionFactory(sslClient);
     }
     
     @Override

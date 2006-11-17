@@ -110,12 +110,14 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
         HTTPConduit conduit = target == null
             ? new HTTPConduit(bus, endpointInfo) : new HTTPConduit(bus, endpointInfo, target);
         configure(conduit);
+        conduit.retrieveConnectionFactory();
         return conduit;
     }
 
     public Destination getDestination(EndpointInfo endpointInfo) throws IOException {
         JettyHTTPDestination destination = new JettyHTTPDestination(bus, this, endpointInfo);
         configure(destination);
+        destination.retrieveEngine();
         return destination;
     }
 

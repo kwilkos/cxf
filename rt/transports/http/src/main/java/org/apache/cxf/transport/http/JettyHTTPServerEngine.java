@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
@@ -34,7 +35,6 @@ import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.handler.AbstractHttpHandler;
-import org.mortbay.util.InetAddrPort;
 
 
 
@@ -47,10 +47,19 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
     private int servantCount;
     private HttpServer server;
     private SocketListener listener;
+    private final JettyListenerFactory listenerFactory;
     private final int port;
     
     JettyHTTPServerEngine(Bus bus, String protocol, int p) {
+        this(bus, protocol, p, null);
+    }
+
+    JettyHTTPServerEngine(Bus bus, String protocol, int p, SSLServerPolicy sslServerPolicy) {
         port = p;
+        if (sslServerPolicy != null) {
+            sslServer = sslServerPolicy;
+        }
+        listenerFactory = HTTPTransportFactory.getListenerFactory(sslServer);
         init();
     }    
     
@@ -62,9 +71,16 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
 
 
     static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {
+        return getForPort(bus, protocol, p, null);
+    }
+
+    static synchronized JettyHTTPServerEngine getForPort(Bus bus,
+                                                         String protocol,
+                                                         int p,
+                                                         SSLServerPolicy sslServerPolicy) {
         JettyHTTPServerEngine ref = portMap.get(p);
         if (ref == null) {
-            ref = new JettyHTTPServerEngine(bus, protocol, p);
+            ref = new JettyHTTPServerEngine(bus, protocol, p, sslServerPolicy);
             configure(bus, ref);
             portMap.put(p, ref);
         }
@@ -99,8 +115,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         if (server == null) {
             server = new HttpServer();
             
-            // REVISIT create SSL listener if neccessary
-            listener = new SocketListener(new InetAddrPort(port));
+            listener = listenerFactory.createListener(port);
            
             if (getListener().isSetMinThreads()) {
                 listener.setMinThreads(getListener().getMinThreads());

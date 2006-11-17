@@ -263,6 +263,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                                                              conduitInitiator,
                                                              endpointInfo,
                                                              engine);
+        dest.retrieveEngine();
         policy = dest.getServer();
         observer = new MessageObserver() {
             public void onMessage(Message m) {

@@ -61,6 +61,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
 
     protected ServerEngine engine;
+    protected ServerEngine alternateEngine;
     protected MessageObserver incomingObserver;
 
     /**
@@ -88,8 +89,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
         super(b, ci, endpointInfo);
-        engine = eng != null ? eng : JettyHTTPServerEngine
-            .getForPort(bus, nurl.getProtocol(), nurl.getPort());
+        alternateEngine = eng;
+    }
+
+    protected void retrieveEngine() {
+        engine = alternateEngine != null
+                 ? alternateEngine
+                 : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort(), sslServer);
     }
 
     /**
@@ -325,7 +331,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             String m = (new org.apache.cxf.common.i18n.Message("UNEXPECTED_RESPONSE_TYPE_MSG",
                 LOG, responseObj.getClass())).toString();
             LOG.log(Level.WARNING, m);
-            throw new IOException(m);
+            throw new IOException(m);   
         } else {
             String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
             LOG.log(Level.WARNING, m);

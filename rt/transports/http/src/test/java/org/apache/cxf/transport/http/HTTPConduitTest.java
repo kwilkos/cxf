@@ -215,6 +215,7 @@ public class HTTPConduitTest extends TestCase {
                                               null,
                                               connectionFactory,
                                               decoupledEngine);
+        conduit.retrieveConnectionFactory();
 
         if (send) {
             conduit.getClient().setConnectionTimeout(303030);

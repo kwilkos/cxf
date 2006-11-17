@@ -88,10 +88,11 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
     
     @Override
     public String getBeanName() {
+        String beanName = null;
         if (endpointInfo.getName() != null) {
-            return endpointInfo.getName().toString() + ".http-destination";
+            beanName = endpointInfo.getName().toString() + ".http-destination";
         }
-        return null;
+        return beanName;
     }
 
 
