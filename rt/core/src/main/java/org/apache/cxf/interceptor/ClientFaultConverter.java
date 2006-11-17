@@ -20,17 +20,22 @@ package org.apache.cxf.interceptor;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -80,7 +85,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
             if (faultWanted != null) {
                 break;
             }
-        }        
+        }
         if (faultWanted == null) {
             return;
         }
@@ -103,39 +108,26 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
     }
 
     private void setStackTrace(Fault fault, Message msg) {
-        Element exDetail = (Element) DOMUtils.getChild(fault.getDetail(), Node.ELEMENT_NODE);
+        Map<String, String> ns = new HashMap<String, String>();
+        XPathUtils xu = new XPathUtils(ns);
+        String ss = (String) xu.getValue("//" + Fault.STACKTRACE + "/text()", fault.getDetail(),
+                XPathConstants.STRING);
         List<StackTraceElement> stackTraceList = new ArrayList<StackTraceElement>();
-        while (exDetail != null) {
-            if (((Element) exDetail).getLocalName().equals(Fault.STACKTRACE)) {
-                String content = exDetail.getTextContent();
-                if (content != null) {
-                    StringTokenizer st = new StringTokenizer(content, "\n");
-                    while (st.hasMoreTokens()) {
-                        String oneLine = st.nextToken();
-                        StringTokenizer stInner = new StringTokenizer(oneLine, "!");
-                        StackTraceElement ste = new StackTraceElement(stInner.nextToken(), stInner
-                                .nextToken(), stInner.nextToken(), Integer.parseInt(stInner.nextToken()));
-                        stackTraceList.add(ste);
-                    }
-                }
-                if (stackTraceList.size() > 0) {
-                    StackTraceElement[] stackTraceElement = new StackTraceElement[stackTraceList.size()];
-                    Exception e = msg.getContent(Exception.class);
-                    e.setStackTrace(stackTraceList.toArray(stackTraceElement));
-                }
-            }            
-            Node next = exDetail.getNextSibling();
-            while (!(next instanceof Element)) {
-                if (next == null) {
-                    break;
-                }
-                next = next.getNextSibling();
+        if (StringUtils.isEmpty(ss)) {
+            StringTokenizer st = new StringTokenizer(ss, "\n");
+            while (st.hasMoreTokens()) {
+                String oneLine = st.nextToken();
+                StringTokenizer stInner = new StringTokenizer(oneLine, "!");
+                StackTraceElement ste = new StackTraceElement(stInner.nextToken(), stInner.nextToken(),
+                        stInner.nextToken(), Integer.parseInt(stInner.nextToken()));
+                stackTraceList.add(ste);
             }
-            if (next instanceof Element) {
-                exDetail = (Element) next;
-            } else {
-                exDetail = null;
+            if (stackTraceList.size() > 0) {
+                StackTraceElement[] stackTraceElement = new StackTraceElement[stackTraceList.size()];
+                Exception e = msg.getContent(Exception.class);
+                e.setStackTrace(stackTraceList.toArray(stackTraceElement));
             }
         }
+
     }
 }
