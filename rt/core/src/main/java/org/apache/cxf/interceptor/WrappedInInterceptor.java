@@ -86,7 +86,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         MessageInfo msgInfo = setMessage(message, operation, requestor);
         
         // Determine if there is a wrapper class
-        if ((operation.isUnwrapped() || operation.isUnwrappedCapable())
+        if (operation.isUnwrappedCapable()
             && msgInfo.getMessageParts().get(0).getTypeClass() != null) {
             objects = new ArrayList<Object>();
             Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), message);

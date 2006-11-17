@@ -82,9 +82,7 @@ public class SimpleMethodDispatcher implements MethodDispatcher {
     private BindingOperationInfo getRealOperation(OperationInfo o, BindingOperationInfo bop) {
         BindingOperationInfo unwrappedOp = bop.getUnwrappedOperation();
         if (unwrappedOp != null
-            && unwrappedOp.getOperationInfo().equals(o.getUnwrappedOperation())
-            && unwrappedOp.getWrappedOperation().getInput().getMessageInfo()
-                .getMessagePartByIndex(0).getTypeClass() != null) {
+            && unwrappedOp.getOperationInfo().equals(o.getUnwrappedOperation())) {
             bop = unwrappedOp;
         }
         return bop;

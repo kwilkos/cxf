@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -244,6 +245,17 @@ public final class JAXBDataBinding implements DataBinding {
 
 
     public static JAXBContext createJAXBContext(Set<Class<?>> classes) throws JAXBException {
+        Iterator it = classes.iterator();
+        String className = "";
+        Object remoteExceptionObject = null;
+        while (it.hasNext()) {
+            remoteExceptionObject = (Class)it.next();
+            className = remoteExceptionObject.toString();
+            if (!("".equals(className)) && className.contains("RemoteException")) {
+                classes.remove(remoteExceptionObject);
+            }
+        }
+
         try {
             classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.AttributedQNameType"));
             classes.add(Class.forName("org.apache.cxf.ws.addressing.wsdl.ObjectFactory"));

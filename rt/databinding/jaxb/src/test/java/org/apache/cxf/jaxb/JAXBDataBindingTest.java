@@ -20,8 +20,10 @@
 package org.apache.cxf.jaxb;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -112,6 +114,17 @@ public class JAXBDataBindingTest extends TestCase {
         assertNotNull(jmsSchema.getElement());
         assertEquals(wsdlSchema.getNamespaceURI(), "http://schemas.xmlsoap.org/wsdl/");
         assertEquals(jmsSchema.getNamespaceURI(), "http://cxf.apache.org/transports/jms");
+    }
+    
+    public void testCreateJAXBContext() throws Exception {
+        try {
+            Set<Class<?>> classes = new HashSet<Class<?>>();
+            classes.add(Class.forName("java.rmi.RemoteException"));
+            assertNotNull(JAXBDataBinding.createJAXBContext(classes));
+        } catch (Exception e) {
+            assertFalse(true);
+        }
+        
     }
 
 }

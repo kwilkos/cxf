@@ -61,14 +61,7 @@ public class WrappedOutInterceptor extends AbstractOutDatabindingInterceptor {
                 xmlWriter.setDefaultNamespace(name.getNamespaceURI());
                 xmlWriter.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
                 xmlWriter.writeDefaultNamespace(name.getNamespaceURI());
-                if (!message.getInterceptorChain().doIntercept(message) 
-                        && message.getContent(Exception.class) != null) {                    
-                    if (message.getContent(Exception.class) instanceof Fault) {
-                        throw (Fault)message.getContent(Exception.class);
-                    } else {
-                        throw new Fault(message.getContent(Exception.class));
-                    }                    
-                }
+                message.getInterceptorChain().doIntercept(message);
                 xmlWriter.writeEndElement();
             } catch (XMLStreamException e) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_WRITE_EXC", BUNDLE), e);
