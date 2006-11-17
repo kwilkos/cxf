@@ -123,7 +123,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
                     Exception e = msg.getContent(Exception.class);
                     e.setStackTrace(stackTraceList.toArray(stackTraceElement));
                 }
-            }
+            }            
             Node next = exDetail.getNextSibling();
             while (!(next instanceof Element)) {
                 if (next == null) {
