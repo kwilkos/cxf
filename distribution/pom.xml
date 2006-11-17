@@ -22,12 +22,12 @@
     <artifactId>cxf-distribution</artifactId>
     <packaging>jar</packaging>
     <name>CXF Distribution</name>
-    <version>2.0-incubator-M1-SNAPSHOT</version>
+    <version>2.0-incubator-M1</version>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf</artifactId>
-        <version>2.0-incubator-M1-SNAPSHOT</version>
+        <version>2.0-incubator-M1</version>
     </parent>
 
     <properties>
@@ -318,7 +318,7 @@
                                 <property name="output.cp" value="export CXF_CLASSPATH=${cp}" />
                                 <property name="output.ext" value="" />
                                 <echo file="${basedir}/target/srcbuild_env${output.ext}" message="${output.cp}" />
-       			        <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}"/>
+       			        <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}" />
                                 <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/src/main/release/samples/integration/JBI/internal_provider_internal_consumer/service-engine/etc/jbi.xml" overwrite="yes">
                                             <filterset>
                                                 <filter token="CXF_VERSION" value="${pom.version}" />

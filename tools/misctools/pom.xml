@@ -21,14 +21,14 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-tools-misctools</artifactId>
     <packaging>jar</packaging>
-    <version>2.0-incubator-M1-SNAPSHOT</version>
+    <version>2.0-incubator-M1</version>
     <name>CXF Command Line Misctools</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-tools</artifactId>
-        <version>2.0-incubator-M1-SNAPSHOT</version>
+        <version>2.0-incubator-M1</version>
     </parent>
 
     <properties>
