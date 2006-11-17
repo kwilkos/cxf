@@ -82,23 +82,29 @@ public class Soap11FaultOutInterceptor extends AbstractSoapInterceptor {
                 writer.writeCharacters("Fault occurred while processing.");
             }
             writer.writeEndElement();
-            Object config = message.getContextualProperty(
+            String config = (String)message.getContextualProperty(
                     org.apache.cxf.message.Message.FAULT_STACKTRACE_ENABLED);
-            if (config != null && Boolean.TRUE.equals(config) && fault.getCause() != null) {                
+            if (config != null && Boolean.valueOf(config).booleanValue() && fault.getCause() != null) {
                 StringBuffer sb = new StringBuffer();
-                for (StackTraceElement stk : fault.getCause().getStackTrace()) {
-                    sb.append(stk.toString());
+                for (StackTraceElement ste : fault.getCause().getStackTrace()) {                    
+                    sb.append(ste.getClassName() + "!" + ste.getMethodName() + "!" + ste.getFileName()  
+                            + "!" + ste.getLineNumber() + "\n");
                 }
                 try {
-                    if (fault.getDetail() == null) {
+                    Element detail = fault.getDetail(); 
+                    if (detail == null) {
                         Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                                .newDocument();
-                        Element detail = doc.createElementNS(Soap11.SOAP_NAMESPACE, "detail");
-                        Element stackTrace = doc.createElementNS(Soap11.SOAP_NAMESPACE, "stackTrace");
+                            .newDocument();
+                        Element stackTrace = doc.createElementNS(Soap11.SOAP_NAMESPACE, Fault.STACKTRACE);
                         stackTrace.setTextContent(sb.toString());
-                        detail.appendChild(stackTrace);
+                        detail = doc.createElementNS(Soap11.SOAP_NAMESPACE, "detail");
                         fault.setDetail(detail);
-                    }
+                        detail.appendChild(stackTrace);
+                    } else {
+                        Element stackTrace = detail.getOwnerDocument().createElementNS(
+                                Soap11.SOAP_NAMESPACE, Fault.STACKTRACE);
+                        detail.appendChild(stackTrace);
+                    }                    
                 } catch (ParserConfigurationException pe) {
                     // move on...
                 }

@@ -81,7 +81,11 @@ public class ClientServerTest extends ClientServerTestBase {
     public static class Server extends TestServerBase {
         
 
-        protected void run()  {
+        protected void run()  {            
+            URL url = getClass().getResource("fault-stack-trace.xml");
+            if (url != null) {
+                System.setProperty("cxf.config.file.url", url.toString());
+            }
             Object implementor = new GreeterImpl();
             String address = "http://localhost:9000/SoapContext/SoapPort";
             Endpoint.publish(address, implementor);
@@ -107,14 +111,19 @@ public class ClientServerTest extends ClientServerTestBase {
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {
-                public void startServers() throws Exception {
+                public void startServers() throws Exception {                    
                     assertTrue("server did not launch correctly", launchServer(Server.class));
                 }
+                public void setUp() throws Exception {
+                    // set up configuration to enable schema validation
+                    URL url = getClass().getResource("fault-stack-trace.xml");
+                    assertNotNull("cannot find test resource", url);
+                    configFileName = url.toString();
+                    super.setUp();
+                }
             };
-        
-
-         
     }
+
     
     public void testBasicConnection() throws Exception {
 
@@ -476,13 +485,25 @@ public class ClientServerTest extends ClientServerTestBase {
                         
         }
 
+    }
+    public void testFaultStackTrace() throws Exception {
+        System.setProperty("cxf.config.file.url", 
+                getClass().getResource("fault-stack-trace.xml").toString());
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        ExecutorService ex = Executors.newFixedThreadPool(1);
+        service.setExecutor(ex);
+        assertNotNull(service);        
+        Greeter greeter = service.getPort(portName, Greeter.class);
         try {
             // trigger runtime exception throw of implementor method
             greeter.testDocLitFault("");
             fail("Should have thrown Runtime exception");
         } catch (Exception e) {
-            assertEquals("can't get back original message",  "Unknown source", e.getMessage());
-        } 
+            assertEquals("can't get back original message", "Unknown source", e.getMessage());
+            assertTrue(e.getStackTrace().length > 0);            
+        }
     }
     
     public void testGetSayHi() throws Exception {

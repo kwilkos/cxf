@@ -31,6 +31,7 @@ import org.apache.cxf.helpers.DOMUtils;
  */
 public class Fault extends UncheckedException {
 
+    public static final String STACKTRACE = "stackTrace";
     private Element detail;
     private String message;
     

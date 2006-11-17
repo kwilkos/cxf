@@ -47,7 +47,7 @@ public interface Message extends Map<String, Object> {
     String QUERY_STRING = Message.class.getName() + ".QUERY_STRING";
     String MTOM_ENABLED = Message.class.getName() + ".isMtomEnabled";
     String SCHEMA_VALIDATION_ENABLED = Message.class.getCanonicalName() + ".schemaValidationEnabled";
-    String FAULT_STACKTRACE_ENABLED = Message.class.getCanonicalName() + ".faultStackTraceEnabled";
+    String FAULT_STACKTRACE_ENABLED = "faultStackTraceEnabled";
     String CONTENT_TYPE = Message.class.getName() + ".ContentType";
     String BASE_PATH = Message.class.getName() + ".BASE_PATH";
     String ENCODING = Message.class.getName() + ".ENCODING";

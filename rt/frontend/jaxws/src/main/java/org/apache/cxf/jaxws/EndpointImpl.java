@@ -205,6 +205,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         svrFactory.setAddress(address);
         svrFactory.setServiceFactory(serviceFactory);
         svrFactory.setStart(false);
+        configureObject(svrFactory);
         
         // TODO: Replace with discovery mechanism!!
         AbstractBindingInfoFactoryBean bindingFactory = null;

@@ -68,6 +68,10 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
         setServiceFactory(new ReflectionServiceFactoryBean());
     }
     
+    public String getBeanName() {
+        return this.getClass().getName();
+    }
+
     public Server create() {
         try {
             Endpoint ep = createEndpoint();
