@@ -71,6 +71,7 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>jsr250-api</artifactId>
+	    <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.jws</groupId>
@@ -125,5 +126,15 @@
         </dependency>
 
     </dependencies>
+   
+    <!-- will remove this after it is got sync to central repository -->
+    <repositories>
+        <repository>
+	    <id>dev.java.net</id>
+	    <name>jsr181 temp repository</name>
+	    <url>https://maven-repository.dev.java.net/nonav/repository</url>
+	    <layout>legacy</layout>
+	</repository>
+    </repositories>
 
 </project>

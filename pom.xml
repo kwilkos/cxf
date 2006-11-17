@@ -143,7 +143,7 @@
         <surefire.version>2.1.3</surefire.version>
 
         <jsr250.version>2.0-JAXWS-2.0-EA3</jsr250.version>
-        <jsr181.version>2.0-JAXWS-2.0-EA3</jsr181.version>
+        <jsr181.version>1.0-MR1</jsr181.version>
         <jaxb.version>2.0</jaxb.version>
         <jaxb.impl.version>2.0.3</jaxb.impl.version>
         <jaxws.version>2.0</jaxws.version>
@@ -321,6 +321,7 @@
                         <!-- do not exclude **/Abstract*Test.java **/Abstract*TestCase.java -->
                         <excludes>
                             <exclude>**/*$*</exclude>
+			    <exclude>**/systest/**/SequenceTest.java</exclude>
                         </excludes>
                         <reportFormat>${surefire.format}</reportFormat>
                         <useFile>${surefire.usefile}</useFile>
