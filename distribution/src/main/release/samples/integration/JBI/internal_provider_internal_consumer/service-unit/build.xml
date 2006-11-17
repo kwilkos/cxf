@@ -27,7 +27,7 @@
   <property name="wsdl.dir" location="./wsdl"/>
 
   <property file="../build.properties"/>
-  <property file="../../../../../etc/version.properties"/>
+  <property file="${cxf.home}/etc/version.properties"/>
 
   <!-- reuse the macros defined in CXF samples -->
   <import file="${cxf.home}/samples/common_build.xml"/>        
