@@ -32,6 +32,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
 import org.easymock.classextension.EasyMock;
 
 public class JMSDestinationTest extends AbstractJMSTester {
@@ -124,6 +125,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
                          "HWStaticReplyQBinMsgPort");
         JMSConduit conduit = setupJMSConduit(true, false);
         Message outMessage = new MessageImpl();
+        setupMessageHeader(outMessage);
         JMSDestination destination = null;
         try {
             destination = setupJMSDestination(true);        
@@ -137,11 +139,21 @@ public class JMSDestinationTest extends AbstractJMSTester {
         waitForReceiveDestMessage();
         // just verify the Destination inMessage
         assertTrue("The destiantion should have got the message ", destMessage != null);
-        verifyDestinationReceivedMessage(destMessage);
+        verifyReceivedMessage(destMessage);
+        verifyHeaders(destMessage, outMessage);
         destination.shutdown();
     }
     
-    private void verifyDestinationReceivedMessage(Message inMessage) {
+    private void setupMessageHeader(Message outMessage) {
+        JMSMessageHeadersType header = new JMSMessageHeadersType();
+        header.setJMSCorrelationID("Destination test");        
+        header.setJMSDeliveryMode(3);
+        header.setJMSPriority(1);
+        header.setTimeToLive(1000);
+        outMessage.put(JMSConstants.JMS_CLIENT_REQUEST_HEADERS, header);
+    }
+
+    private void verifyReceivedMessage(Message inMessage) {
         ByteArrayInputStream bis = 
             (ByteArrayInputStream) inMessage.getContent(InputStream.class);
         byte bytes[] = new byte[bis.available()];
@@ -153,28 +165,21 @@ public class JMSDestinationTest extends AbstractJMSTester {
         }
         String reponse = new String(bytes);
         assertEquals("The reponse date should be equals", reponse, "HelloWorld");
-        
-        //REVISIT we should check the message header in message context leavel
-        /*  
-         JMSMessageHeadersType outHeader =
+    }
+    
+    private void verifyHeaders(Message inMessage, Message outMessage) {
+        JMSMessageHeadersType outHeader =
             (JMSMessageHeadersType)outMessage.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
         
-         JMSMessageHeadersType inHeader =
+        JMSMessageHeadersType inHeader =
             (JMSMessageHeadersType)inMessage.get(JMSConstants.JMS_SERVER_HEADERS); 
-        
-        System.out.println("outHeader" + outHeader);
-        System.out.println("inHeader" + inHeader);
-        
+               
         assertEquals("The inMessage and outMessage JMS Header's CorrelationID should be equals", 
                      outHeader.getJMSCorrelationID(), inHeader.getJMSCorrelationID());
-        assertEquals("The inMessage and outMessage JMS Header's JMSExpiration should be equals", 
-                     outHeader.getJMSExpiration(), inHeader.getJMSExpiration());
-        assertEquals("The inMessage and outMessage JMS Header's JMSMessageID should be equals", 
-                     outHeader.getJMSMessageID(), inHeader.getJMSMessageID());
-        assertEquals("The inMessage and outMessage JMS Header's JMSTimeStamp should be equals", 
-                     outHeader.getJMSTimeStamp(), inHeader.getJMSTimeStamp());
+        assertEquals("The inMessage and outMessage JMS Header's JMSPriority should be equals", 
+                     outHeader.getJMSPriority(), inHeader.getJMSPriority());
         assertEquals("The inMessage and outMessage JMS Header's JMSType should be equals", 
-                     outHeader.getJMSType(), inHeader.getJMSType());*/
+                     outHeader.getJMSType(), inHeader.getJMSType());
         
     }
     
@@ -187,14 +192,15 @@ public class JMSDestinationTest extends AbstractJMSTester {
                          "HelloWorldPort");
         //set up the conduit send to be true 
         JMSConduit conduit = setupJMSConduit(true, false);
-        Message outMessage = new MessageImpl();
-        
+        final Message outMessage = new MessageImpl();
+        setupMessageHeader(outMessage);
         final JMSDestination destination = setupJMSDestination(true);
         
         //set up MessageObserver for handlering the conduit message
         MessageObserver observer = new MessageObserver() {
             public void onMessage(Message m) {                    
-                verifyDestinationReceivedMessage(m);
+                verifyReceivedMessage(m);
+                verifyHeaders(m, outMessage);
                 //setup the message for 
                 Conduit backConduit;
                 try {
@@ -215,7 +221,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         // create the thread to handler the Destination incomming message
                
         waitForReceiveInMessage();
-        verifyDestinationReceivedMessage(inMessage);
+        verifyReceivedMessage(inMessage);
         // wait for a while for the jms session recycling
         Thread.sleep(1000);
         destination.shutdown();
