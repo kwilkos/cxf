@@ -219,6 +219,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         PhaseManager pm = bus.getExtension(PhaseManager.class);
         PhaseInterceptorChain chain = new PhaseInterceptorChain(pm.getInPhases());
         message.setInterceptorChain(chain);
+        message.getExchange().put(Endpoint.class, endpoint);
         
         List<Interceptor> il = bus.getInInterceptors();
         if (LOG.isLoggable(Level.FINE)) {
@@ -261,7 +262,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
     }
 
-    private Conduit getConduit() {        
+    protected Conduit getConduit() {        
         if (null == initedConduit) {
             EndpointInfo ei = endpoint.getEndpointInfo();
             String transportID = ei.getTransportId();

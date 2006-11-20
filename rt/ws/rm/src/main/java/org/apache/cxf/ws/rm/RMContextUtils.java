@@ -167,12 +167,8 @@ public final class RMContextUtils {
      * @param message the current Message
      * @return the endpoint
      */
-    public static Endpoint getEndpoint(Message message) {
-        if (isRequestor(message)) {
-            return message.getExchange().get(Endpoint.class);
-        } else {
-            return message.getExchange().get(Endpoint.class);
-        }
+    public static Endpoint getEndpoint(Message message) {        
+        return message.getExchange().get(Endpoint.class);
     }
     
     private static String getRMPropertiesKey(boolean outbound) {

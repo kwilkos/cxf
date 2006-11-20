@@ -54,7 +54,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         .getBundle(AbstractInDatabindingInterceptor.class);
 
     protected boolean isRequestor(Message message) {
-        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
+        return Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE));
     }
 
     protected DataReader getDataReader(Message message, Class<?> input) {

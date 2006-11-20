@@ -128,7 +128,7 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     class RecorderCallback implements CachedOutputStreamCallback {
 
         public void onFlush(AbstractCachedOutputStream cos) {  
-            LOG.fine("flushing wrapped output stream: " + cos.getOut().getClass().getName());
+            // LOG.fine("flushing wrapped output stream: " + cos.getOut().getClass().getName());
             OutputStream os = cos.getOut();
             if (os instanceof ByteArrayOutputStream) {
                 ByteArrayOutputStream bos = (ByteArrayOutputStream)os;

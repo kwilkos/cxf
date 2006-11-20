@@ -19,9 +19,8 @@
 
 package org.apache.cxf.ws.rm;
 
+
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,16 +32,13 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
-import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.RelatesToType;
-import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
 import org.apache.cxf.ws.rm.manager.SourcePolicyType;
 
@@ -67,8 +63,7 @@ public class Proxy {
         return reliableEndpoint;
     }
 
-    void acknowledge(DestinationSequence ds) throws IOException {
-        
+    void acknowledge(DestinationSequence ds) throws IOException {        
         if (RMConstants.getAnonymousAddress().equals(ds.getAcksTo().getAddress().getValue())) {
             LOG.log(Level.WARNING, "STANDALONE_ANON_ACKS_NOT_SUPPORTED");
             return;
@@ -76,20 +71,29 @@ public class Proxy {
         
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getSequenceAckOperationName());
+
+        /*
         Map<String, Object> requestContext = new HashMap<String, Object>();
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
-        maps.setTo(VersionTransformer.convert(ds.getAcksTo()).getAddress());        
-        maps.setReplyTo(reliableEndpoint.getTransportDestination().getAddress());
+        maps.setTo(VersionTransformer.convert(ds.getAcksTo()).getAddress()); 
+        
+        if (null != reliableEndpoint.getTransportDestination()) {
+            maps.setReplyTo(reliableEndpoint.getTransportDestination().getAddress());
+        } else {
+            maps.setReplyTo(RMUtils.createNoneReference());
+        }
         requestContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, maps);
         Map<String, Object> context = CastUtils.cast(
             Collections.singletonMap(Client.REQUEST_CONTEXT, requestContext),
             String.class,  Object.class);
-        invoke(oi, new Object[] {}, context);
+        */
+        invoke(oi, new Object[] {}, null);
     }
     
     void terminate(SourceSequence ss) throws IOException {
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getTerminateSequenceOperationName());
+        /*
         Map<String, Object> requestContext = new HashMap<String, Object>();
         AddressingPropertiesImpl maps = new AddressingPropertiesImpl();
         maps.setTo(ss.getTarget().getAddress());
@@ -98,17 +102,18 @@ public class Proxy {
         } else {
             maps.setReplyTo(RMUtils.createNoneReference());
         }
-        LOG.fine("Using explicit maps: " + maps.toString());
         requestContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, maps);
         Map<String, Object> context = CastUtils.cast(
             Collections.singletonMap(Client.REQUEST_CONTEXT, requestContext),
             String.class,  Object.class);
+        */
         TerminateSequenceType ts = RMUtils.getWSRMFactory().createTerminateSequenceType();
         ts.setIdentifier(ss.getIdentifier());
-        invoke(oi, new Object[] {ts}, context);
+        invoke(oi, new Object[] {ts}, null);
     }
 
-    public CreateSequenceResponseType createSequence(org.apache.cxf.ws.addressing.EndpointReferenceType to, 
+    public CreateSequenceResponseType createSequence(
+                        org.apache.cxf.ws.addressing.EndpointReferenceType to, 
                         EndpointReferenceType defaultAcksTo,
                         RelatesToType relatesTo) throws IOException {
         
@@ -146,6 +151,7 @@ public class Proxy {
         
         OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
             .getOperation(RMConstants.getCreateSequenceOperationName());
+        
         return (CreateSequenceResponseType)invoke(oi, new Object[] {create}, null);
     }
     
@@ -174,12 +180,8 @@ public class Proxy {
         Endpoint endpoint = reliableEndpoint.getEndpoint();
         BindingInfo bi = reliableEndpoint.getBindingInfo();
         
-        if (null == reliableEndpoint.getConduit()) {
-            LOG.severe("No conduit to available.");
-            return null;
-        }
-        Client client = new RMClient(bus, endpoint, reliableEndpoint.getConduit());
-       
+        Client client = new RMClient(bus, endpoint);
+        
         BindingOperationInfo boi = bi.getOperation(oi);
         try {
             Object[] result = client.invoke(boi, params, context);
@@ -194,10 +196,11 @@ public class Proxy {
     }
     
     class RMClient extends ClientImpl {
-        RMClient(Bus bus, Endpoint endpoint, Conduit conduit) {
-            super(bus, endpoint, conduit);
+        
+        RMClient(Bus bus, Endpoint endpoint) {
+            super(bus, endpoint);    
         }
-
+        
         @Override
         protected PhaseInterceptorChain setupInterceptorChain() {
             Endpoint originalEndpoint = getEndpoint();
@@ -207,7 +210,31 @@ public class Proxy {
             return chain;
         }
         
-        
+        @Override
+        protected synchronized Conduit getConduit() {
+            Conduit c = null;
+            
+            if (null != Proxy.this.reliableEndpoint.getApplicationReplyTo()) {
+                String address = Proxy.this.reliableEndpoint.getApplicationReplyTo()
+                    .getAddress().getValue();
+                getEndpoint().getEndpointInfo().setAddress(address);
+                c = super.getConduit();
+            } else {
+                Endpoint oe = getEndpoint();
+                setEndpoint(Proxy.this.reliableEndpoint.getApplicationEndpoint());
+                c = super.getConduit();
+                setEndpoint(oe);
+            }
+           
+            return c;
+        }
+
+        @Override
+        public void onMessage(Message m) {
+            // TODO Auto-generated method stub
+            m.getExchange().put(Endpoint.class, Proxy.this.reliableEndpoint.getApplicationEndpoint());
+            super.onMessage(m);
+        }
         
         
     }

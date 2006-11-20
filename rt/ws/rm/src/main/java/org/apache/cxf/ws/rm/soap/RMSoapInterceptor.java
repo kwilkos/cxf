@@ -51,8 +51,11 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.soap.MAPCodec;
@@ -62,6 +65,7 @@ import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMContextUtils;
 import org.apache.cxf.ws.rm.RMEndpoint;
 import org.apache.cxf.ws.rm.RMManager;
+import org.apache.cxf.ws.rm.RMMessageConstants;
 import org.apache.cxf.ws.rm.RMProperties;
 import org.apache.cxf.ws.rm.SequenceAcknowledgement;
 import org.apache.cxf.ws.rm.SequenceType;
@@ -261,7 +265,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                     String headerURI = headerElement.getNamespaceURI();
                     String localName = headerElement.getLocalName();
                     if (RMConstants.getNamespace().equals(headerURI)) {
-                        LOG.log(Level.INFO, "decoding RM header {0}", localName);
+                        LOG.log(Level.FINE, "decoding RM header {0}", localName);
                         if (RMConstants.getSequenceName().equals(localName)) {
                             SequenceType s = decodeProperty(SequenceType.class,
                                                             headerElement,
@@ -321,7 +325,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                                            Marshaller marshaller)
         throws JAXBException {
         if (value != null) {
-            LOG.log(Level.INFO, "encoding " + value + " into RM header {0}", qname);
+            LOG.log(Level.FINE, "encoding " + value + " into RM header {0}", qname);
             marshaller.marshal(new JAXBElement<T>(qname, clz, value), header);
         }
     }
@@ -395,11 +399,12 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         AttributedURIType actionURI = null == maps ? null : maps.getAction();
         String action = null == actionURI ? null : actionURI.getValue();
         
-        LOG.info("action: " + action);
-        
+        LOG.fine("action: " + action);
+   
         if (!(RMConstants.getCreateSequenceAction().equals(action)
             || RMConstants.getCreateSequenceResponseAction().equals(action)
             || RMConstants.getTerminateSequenceAction().equals(action)
+            || RMConstants.getSequenceAckAction().equals(action)
             || RMConstants.getLastMessageAction().equals(action))) {
             return;
         }
@@ -407,12 +412,54 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         LOG.info("Updating service model info in exchange");
         
         RMManager manager = getManager(message);
-        RMEndpoint rme = manager.getReliableEndpoint(message);
+        assert manager != null;
         
+        RMEndpoint rme = manager.getReliableEndpoint(message);
+  
         Exchange exchange = message.getExchange();
+        
         exchange.put(Endpoint.class, rme.getEndpoint());
         exchange.put(Service.class, rme.getService());
         exchange.put(Binding.class, rme.getEndpoint().getBinding());
+        
+        // Also set BindingOperationInfo as some operations (SequenceAcknowledgment) have
+        // neither in nor out messages, and thus the WrappedInInterceptor cannot
+        // determine the operation name.
+        
+        BindingInfo bi = rme.getEndpoint().getEndpointInfo().getBinding();
+        BindingOperationInfo boi = null;
+        if (RMConstants.getCreateSequenceAction().equals(action)
+            || RMConstants.getCreateSequenceResponseAction().equals(action)) {
+            boi = bi.getOperation(RMConstants.getCreateSequenceOperationName());
+        } else if (RMConstants.getSequenceAckAction().equals(action)) {
+            boi = bi.getOperation(RMConstants.getSequenceAckOperationName()); 
+        } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
+            boi = bi.getOperation(RMConstants.getTerminateSequenceOperationName()); 
+        }
+        assert boi != null;
+        exchange.put(BindingOperationInfo.class, boi);
+        
+        // Fix requestor role (as the client side message observer always sets it to TRUE) 
+        // to allow unmarshalling the body of a server originated TerminateSequence request.
+        // In the logical RM interceptor set it back to what it was so that the logical
+        // addressing interceptor does not try to send a partial response to 
+        // server originated oneway RM protocol messages.        
+        // 
+        
+        if (!RMConstants.getCreateSequenceResponseAction().equals(action)) {
+            LOG.fine("Changing requestor role from " + message.get(Message.REQUESTOR_ROLE)
+                     + " to false");
+            Object originalRequestorRole = message.get(Message.REQUESTOR_ROLE);
+            if (null != originalRequestorRole) {
+                message.put(RMMessageConstants.ORIGINAL_REQUESTOR_ROLE, originalRequestorRole);
+            }
+            message.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
+        }
+        
+        if (RMConstants.getSequenceAckAction().equals(action)) {
+            exchange.setOneWay(true);
+        }
+        
     }
 
     private RMManager getManager(SoapMessage message) {

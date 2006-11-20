@@ -55,6 +55,10 @@ public class Servant implements Invoker {
     public Object invoke(Exchange exchange, Object o) {
         LOG.fine("Invoking on RM Endpoint");
         OperationInfo oi = exchange.get(OperationInfo.class);
+        if (null == oi) {
+            LOG.fine("No operation info."); 
+            return null;
+        }
         if (RMConstants.getCreateSequenceOperationName().equals(oi.getName())) {
             try {
                 return Collections.singletonList(createSequence(exchange.getInMessage()));

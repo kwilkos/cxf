@@ -31,7 +31,6 @@ import javax.annotation.Resource;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.RelatesToType;
@@ -96,26 +95,25 @@ public class RMManager extends RMManagerConfigBean {
     public Timer getTimer() {
         return timer;
     }
+    
+    public synchronized RMEndpoint getReliableEndpoint(Endpoint e) {
+        return reliableEndpoints.get(e);
+    }
 
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
         Endpoint endpoint = RMContextUtils.getEndpoint(message);
         RMEndpoint rme = reliableEndpoints.get(endpoint);
         if (null == rme) {
             rme = new RMEndpoint(this, endpoint);
-            Conduit conduit = null;
-            org.apache.cxf.transport.Destination destination = null;
-            if (RMContextUtils.isServerSide(message)) {
+            org.apache.cxf.transport.Destination destination = message.getExchange().getDestination();
+            org.apache.cxf.ws.addressing.EndpointReferenceType replyTo = null;
+            if (null != destination) {
                 AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
-                destination = message.getExchange().getDestination();
-                try {
-                    conduit = destination.getBackChannel(message, null, maps.getReplyTo());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                conduit = message.getExchange().getConduit();
+                replyTo = maps.getReplyTo();
             }
-            rme.initialise(conduit, destination);
+            
+            rme.initialise(replyTo);
+            
             reliableEndpoints.put(endpoint, rme);
         }
         return rme;
@@ -180,7 +178,8 @@ public class RMManager extends RMManagerConfigBean {
                 }
 
                 Proxy proxy = source.getReliableEndpoint().getProxy();
-                CreateSequenceResponseType createResponse = proxy.createSequence(to, acksTo, relatesTo);
+                CreateSequenceResponseType createResponse = 
+                    proxy.createSequence(to, acksTo, relatesTo);
                 Servant servant = source.getReliableEndpoint().getServant();
                 servant.createSequenceResponse(createResponse);
             } catch (IOException ex) {

@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.InterceptorChain;
-// import org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -73,17 +72,22 @@ public class RMInInterceptor extends AbstractRMInterceptor {
             LOG.fine("Action: " + action);
         }
         
+        Object originalRequestor = message.get(RMMessageConstants.ORIGINAL_REQUESTOR_ROLE);
+        if (null != originalRequestor) {
+            LOG.fine("Restoring original requestor role to: " + originalRequestor);
+            message.put(Message.REQUESTOR_ROLE, originalRequestor);
+        }
+        
         // Destination destination = getManager().getDestination(message);
         // RMEndpoint rme = getManager().getReliableEndpoint(message);
         // Servant servant = new Servant(rme);
-        
 
         if (RMConstants.getCreateSequenceAction().equals(action)
             || RMConstants.getCreateSequenceResponseAction().equals(action)
             || RMConstants.getTerminateSequenceAction().equals(action)) {
+
             InterceptorChain chain = message.getInterceptorChain();
-            ListIterator it = chain.getIterator();
-            LOG.fine("Trying to remove WrapperClassInInterceptor");
+            ListIterator it = chain.getIterator();            
             while (it.hasNext()) {
                 PhaseInterceptor pi = (PhaseInterceptor)it.next();
                 if ("org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor".equals(pi.getId())) {
@@ -92,10 +96,7 @@ public class RMInInterceptor extends AbstractRMInterceptor {
                     break;
                 }
             }
-            
-            return;
-        } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
-            // servant.terminateSequence(message);
+
             return;
         } else if (RMConstants.getSequenceAckAction().equals(action)) {
             processAcknowledgments(rmps);

@@ -153,6 +153,14 @@ public class SourceSequence extends AbstractSequence {
             }
         }
     }
+    
+    /** 
+     * Returns the source associated with this source sequence.
+     * @return the source.
+     */
+    public Source getSource() {
+        return source;
+    }
 
     void setSource(Source s) {
         source = s;

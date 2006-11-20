@@ -41,7 +41,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.wsdl.UsingAddressing;
 
 public class RMEndpoint {
@@ -57,8 +56,7 @@ public class RMEndpoint {
         
     private final RMManager manager;
     private final Endpoint applicationEndpoint;
-    private Conduit conduit;
-    private org.apache.cxf.transport.Destination transportDestination;
+    private org.apache.cxf.ws.addressing.EndpointReferenceType applicationReplyTo;
     private Source source;
     private Destination destination;
     private Service service;
@@ -157,26 +155,23 @@ public class RMEndpoint {
         this.source = source;
     } 
     
-    /** 
-     * @return Returns the conduit.
+    /**
+     * Returns the adress to which to send CreateSequenceResponse, TerminateSequence
+     * and LastMessage requests (i.e. the replyTo address for twaoway application
+     * messages).
+     * 
+     * @return the replyToAddress
      */
-    public Conduit getConduit() {
-        return conduit;
+    org.apache.cxf.ws.addressing.EndpointReferenceType getApplicationReplyTo() {
+        return applicationReplyTo;
     }
-    
-    /** 
-     * @return Returns the conduit.
-     */
-    public org.apache.cxf.transport.Destination getTransportDestination() {
-        return transportDestination;
-    }
-    
-    void initialise(Conduit c, org.apache.cxf.transport.Destination d) {
-        conduit = c;
-        transportDestination = d;
+  
+    void initialise(org.apache.cxf.ws.addressing.EndpointReferenceType replyTo) {  
+        applicationReplyTo = replyTo;
         createService();
         createEndpoint();
     }
+    
     
     void createService() {
         ServiceInfo si = new ServiceInfo();
@@ -274,7 +269,7 @@ public class RMEndpoint {
         operationInfo = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
-        partInfo = messageInfo.addMessagePart("createResponse");
+        partInfo = messageInfo.addMessagePart("terminate");
         partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(TerminateSequenceType.class);
@@ -282,6 +277,10 @@ public class RMEndpoint {
         unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
         operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
         unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        partInfo = unwrappedMessageInfo.addMessagePart("terminate");
+        partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(TerminateSequenceType.class);
         
         operationInfo = ii.addOperation(RMConstants.getSequenceAckOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName());

@@ -36,6 +36,9 @@ public final class RMMessageConstants {
     public static final String RM_PROPERTIES_INBOUND = 
         "org.apache.cxf.ws.rm.inbound";
     
+    public static final String ORIGINAL_REQUESTOR_ROLE =
+        "org.apache.cxf.client.original";
+    
     /**
      * Prevents instantiation. 
      */
