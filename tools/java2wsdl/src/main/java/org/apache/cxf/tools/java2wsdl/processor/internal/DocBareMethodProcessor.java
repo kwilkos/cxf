@@ -61,6 +61,9 @@ public class DocBareMethodProcessor {
     }
 
     public void processDocBare(JavaMethod javaMethod, Method method) {
+        if (model.getStyle() != SOAPBinding.Style.DOCUMENT) {
+            model.setStyle(SOAPBinding.Style.DOCUMENT);
+        }
         boolean isHolder = false;
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
         javaMethod.setWrapperStyle(false);

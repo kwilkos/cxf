@@ -26,6 +26,8 @@ import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.soap.SOAPAddress;
+import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.xml.namespace.QName;
@@ -172,6 +174,30 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         assertTrue(schemaFile.exists());
         File schemaFile2 = new File(output, "schema2.xsd");
         assertTrue(schemaFile2.exists());
+
+        Binding binding = def.getBinding(new QName(def.getTargetNamespace(), "GreeterRPCLitBinding"));
+        assertNotNull(binding);
+        Iterator it = binding.getExtensibilityElements().iterator();
+
+        while (it.hasNext()) {
+            Object obj = it.next();
+            assertTrue(SOAPBindingUtil.isSOAPBinding(obj));
+            assertTrue(obj instanceof SOAPBinding);
+            SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
+            assertNotNull(soapBinding);
+            assertTrue("rpc".equalsIgnoreCase(soapBinding.getStyle()));
+            assertTrue(WSDLConstants.SOAP_HTTP_TRANSPORT.equalsIgnoreCase(soapBinding.getTransportURI()));
+        }
+        Port port = wsdlService.getPort("GreeterRPCLitPort");
+        assertNotNull(port);
+
+        it = port.getExtensibilityElements().iterator();
+        while (it.hasNext()) {
+            Object obj = it.next();
+            assertTrue(SOAPBindingUtil.isSOAPAddress(obj));
+            assertTrue(obj instanceof SOAPAddress);
+            assertEquals("http://localhost:9000/cxfService", ((SOAPAddress)obj).getLocationURI());
+        }
     }
 
     public void testSOAP12() throws Exception {
@@ -221,6 +247,37 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
             Object obj = it.next();
             assertTrue(SOAPBindingUtil.isSOAPAddress(obj));
             assertTrue(obj instanceof SOAP12Address);
+            assertEquals("http://localhost:9000/cxfService", ((SOAP12Address)obj).getLocationURI());
+        }
+    }
+    
+    public void testRPCWithoutParentBindingAnnotation() throws Exception {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc_lit_service_no_anno.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.rpc.Hello");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+
+        j2wProcessor.setEnvironment(env);
+        j2wProcessor.process();
+        File wsdlFile = new File(output, "rpc_lit_service_no_anno.wsdl");
+        assertTrue(wsdlFile.exists());
+        assertTrue("WSDL file: " + wsdlFile.toString() + " is empty", wsdlFile.length() > 0);
+
+        Definition def = wsdlHelper.getDefinition(wsdlFile);
+        Service wsdlService = def.getService(new QName(def.getTargetNamespace(), serviceName));
+        assertNotNull("Generate WSDL Service Error", wsdlService);
+        Binding binding = def.getBinding(new QName(def.getTargetNamespace(), "HelloBinding"));
+        assertNotNull(binding);
+
+        Iterator it = binding.getExtensibilityElements().iterator();
+
+        while (it.hasNext()) {
+            Object obj = it.next();
+            assertTrue(SOAPBindingUtil.isSOAPBinding(obj));
+            assertTrue(obj instanceof SOAPBinding);
+            SoapBinding soapBinding = SOAPBindingUtil.getSoapBinding(obj);
+            assertNotNull(soapBinding);
+            assertTrue("rpc".equalsIgnoreCase(soapBinding.getStyle()));
+            assertTrue(WSDLConstants.SOAP_HTTP_TRANSPORT.equalsIgnoreCase(soapBinding.getTransportURI()));
         }
     }
 

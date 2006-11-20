@@ -56,6 +56,9 @@ public class RPCMethodProcessor {
     }
 
     public void process(JavaMethod javaMethod, Method method) {
+        if (model.getStyle() != SOAPBinding.Style.RPC) {
+            model.setStyle(SOAPBinding.Style.RPC);
+        }
         javaMethod.setSoapStyle(SOAPBinding.Style.RPC);
         javaMethod.setWrapperStyle(true);
         setMethodUse(javaMethod, method);

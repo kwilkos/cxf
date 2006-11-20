@@ -27,14 +27,14 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.common.model.WSDLModel;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 
-public class ServiceGenerator {
-    private static final String ADDRESS_URI = "http://localhost/changme";
+public class ServiceGenerator {    
     private WSDLModel wmodel;
     private Definition definition;
     private ExtensionRegistry extensionRegistry;
@@ -50,6 +50,14 @@ public class ServiceGenerator {
         generate(false);
     }
     
+    private String getAddressName() {
+        String contextName = wmodel.getServiceName();
+        if (StringUtils.isEmpty(contextName)) {
+            contextName = "changeme";
+        }
+        return "http://localhost:9000/" + contextName;
+    }
+    
     public void generate(boolean isSOAP12) {
         Service service = definition.createService();
         service.setQName(new QName(WSDLConstants.WSDL_PREFIX, wmodel.getServiceName()));
@@ -62,7 +70,7 @@ public class ServiceGenerator {
         SoapAddress soapAddress = null;
         try {
             soapAddress = SOAPBindingUtil.createSoapAddress(extensionRegistry, isSOAP12);
-            soapAddress.setLocationURI(ADDRESS_URI);
+            soapAddress.setLocationURI(getAddressName());
         } catch (WSDLException e) {
             throw new ToolException(e.getMessage(), e);
         }

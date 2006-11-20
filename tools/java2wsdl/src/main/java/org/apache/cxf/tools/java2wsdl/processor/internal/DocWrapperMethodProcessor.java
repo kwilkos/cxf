@@ -65,6 +65,9 @@ public class DocWrapperMethodProcessor {
     }
 
     public void process(JavaMethod javaMethod, Method method) {
+        if (model.getStyle() != SOAPBinding.Style.DOCUMENT) {
+            model.setStyle(SOAPBinding.Style.DOCUMENT);
+        }        
         javaMethod.setSoapStyle(SOAPBinding.Style.DOCUMENT);
         javaMethod.setWrapperStyle(true);
         setMethodUse(javaMethod, method);
