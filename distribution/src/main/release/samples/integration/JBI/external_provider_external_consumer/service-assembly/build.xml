@@ -24,7 +24,6 @@
   <property name="build.lib.dir" location="${build.dir}/lib"/>
   <property name="src.dir" location="./src"/>
 
-  <property file="../build.properties"/>
   
   <target name="build" depends="build-service-assembly"/>
 

@@ -24,16 +24,15 @@
   <property name="build.lib.dir" location="${build.dir}/lib"/>
   <property name="src.dir" location="./src"/>
   <property name="wsdl.dir" location="./wsdl"/>
-
-  <property file="../build.properties"/>
-  <property file="${cxf.home}/etc/version.properties"/>
+  <property environment="env"/>
+  <property file="${env.CXF_HOME}/etc/version.properties"/>
   <!-- reuse the macros defined in cxf samples -->
-  <import file="${cxf.home}/samples/common_build.xml"/>        
+  <import file="${env.CXF_HOME}/samples/common_build.xml"/>        
 
   <path id="build.classpath">
     <pathelement location="${build.classes.dir}"/>
-    <pathelement location="${jbi.sdk.jar}"/>
-    <fileset dir="${cxf.home}/lib">
+    <pathelement location="${env.SERVICEMIX_HOME}/lib/servicemix-jbi-3.0-incubating.jar"/>
+    <fileset dir="${env.CXF_HOME}/lib">
       <include name="cxf-incubator.jar"/>
       <include name="cxf-integration-jbi-${cxf.version}.jar"/>    
     </fileset>

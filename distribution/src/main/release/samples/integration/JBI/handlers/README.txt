@@ -46,8 +46,6 @@ Build Instructions
   Note: Must isntall the  ServiceMix 3.0 Release.
 . export SERVICEMIX_HOME for your shell envirnoment
 
-. Edit build.properties to sepcify cxf.home and jbi.sdk.jar,
-  jbi.sdk.jar=$SERVICEMIX_HOME/lib/servicemix-jbi-3.0-SNAPSHOT.jar
 
 
 . build everything using ant: 'ant build'

@@ -26,13 +26,11 @@
   <property name="build.lib.dir" location="${build.dir}/lib"/>
   <property name="src.dir" location="./src"/>
 
-  <property file="../build.properties"/>
-  
+  <property environment="env"/>  
   <path id="build.classpath">
-    <fileset dir="${cxf.home}/lib">
+    <fileset dir="${env.CXF_HOME}/lib">
       <include name="cxf-incubator.jar"/>
     </fileset>
-    <pathelement location="${jbi.sdk.dir}/jbi.jar"/>
     <pathelement location="./build/classes"/>
   </path>
   
@@ -42,7 +40,7 @@
     <mkdir dir="${build.lib.dir}"/>
 
     <jar destfile="${build.lib.dir}/cxf-service-engine.jar">
-      <fileset dir="${cxf.home}/lib">
+      <fileset dir="${env.CXF_HOME}/lib">
 	<include name="*.jar"/>
       </fileset>
       <metainf dir="./etc">
