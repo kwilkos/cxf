@@ -143,12 +143,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/services/hello_world_rpclit?wsdl
+         demo.hwRPCLit.client.Client http://localhost:#/helloworld/services/hello_world_rpclit?wsdl
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hwRPCLit.client.Client http://localhost:#/helloworldrpclit/services/hello_world_rpclit?wsdl
+       demo.hwRPCLit.client.Client http://localhost:#/helloworld/services/hello_world_rpclit?wsdl
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
