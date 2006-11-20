@@ -22,7 +22,7 @@ environment.
 
 This demo requires ActiveMQ 4.0.X. Before you run this
 demo, please make sure you had installed the ActiveMQ 4.0.X and
-set ACTIVE_HOME and ACTIVE_VERSION environment variables.
+set ACTIVEMQ_HOME and ACTIVEMQ_VERSION environment variables.
 
 Befor you run this demo, start up the JMS message broker.
 
@@ -86,12 +86,14 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes:
+$ACTIVEMQ_HOME/incubator-activemq-$ACTIVEMQ_VERSION.jar
   javac -d build/classes src/demo/jms_greeter/client/*.java
   javac -d build/classes src/demo/jms_greeter/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes; 
+%ACTIVEMQ_HOME%\incubator-activemq-%ACTIVEMQ_VERSION%.jar
   javac -d build\classes src\demo\jms_greeter\client\*.java
   javac -d build\classes src\demo\jms_greeter\server\*.java
 
@@ -106,10 +108,10 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hwJMS.server.Server &
+         demo.jms_greeter.server.Server &
 
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hwJMS.client.Client ./wsdl/jms_greeter.wsdl
+         demo.jms_greeter.client.Client ./wsdl/jms_greeter.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -117,10 +119,10 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-         demo.hwJMS.server.Server
+       demo.jms_greeter.server.Server   
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hwJMS.client.Client .\wsdl\jms_greeter.wsdl
+       demo.jms_greeter.client.Client .\wsdl\jms_greeter.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.
