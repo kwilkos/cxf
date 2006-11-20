@@ -67,6 +67,9 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
 
         try {
+            while (xmlReader.isWhiteSpace()) { 
+                xmlReader.next(); 
+            } 
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
@@ -88,15 +91,13 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
 
                     Element element = (Element)doc.getChildNodes().item(0);
                     message.setHeaders(Element.class, element);
-                    message.put(Element.class, element);                
+                    message.put(Element.class, element);                    
                 }
                 // advance just past body.
-                xmlReader.next();
-
-                while (xmlReader.isWhiteSpace()) {
-                    xmlReader.next();
-                }
-                
+                xmlReader.nextTag();
+                if (xmlReader.getName().equals(message.getVersion().getBody())) {
+                    xmlReader.nextTag();
+                }                    
                 if (message.getVersion().getFault().equals(xmlReader.getName())) {
                     Endpoint ep = message.getExchange().get(Endpoint.class);
                     if (ep != null) {

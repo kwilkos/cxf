@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
+import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Element;
 
@@ -57,6 +58,10 @@ public class ReadHeaderInterceptorTest extends TestBase {
 
         staxIntc.handleMessage(soapMessage);
         soapMessage.getInterceptorChain().doIntercept(soapMessage);
+        // check the xmlReader should be placed on the first entry of the body element
+        XMLStreamReader xmlReader = soapMessage.getContent(XMLStreamReader.class);
+        assertEquals("check the first entry of body", "itinerary", xmlReader.getLocalName());
+        
         Element eleHeaders = soapMessage.getHeaders(Element.class);
         List<Element> headerChilds = new ArrayList<Element>();
         for (int i = 0; i < eleHeaders.getChildNodes().getLength(); i++) {
