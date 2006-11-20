@@ -25,7 +25,7 @@ rem  invoke the CXF wsdl2soap tool
 rem 
 @setlocal
 
-f not defined CXF_HOME goto set_cxf_home
+if not defined CXF_HOME goto set_cxf_home
                                                                                                                                                              
 :cont
 if not defined JAVA_HOME goto no_java_home
