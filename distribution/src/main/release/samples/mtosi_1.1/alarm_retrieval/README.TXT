@@ -1,10 +1,9 @@
-MTOSI FAULT DEMO (SOAP OVER HTTP)
-=================================
-=================================
+MTOSI alarm_retrieval Demo (SOAP OVER HTTP)
+===========================================
+===========================================
 
-This code example demonstrates a simple cxf
-based client/server Web service implementing
-the MTOSI alarm retrieval service.
+This code example demonstrates a simple cxf based client/server
+Web service implementing the MTOSI alarm retrieval service.
 
 
 Prerequisite
@@ -41,24 +40,25 @@ files, run:
 What Happens When the Demo Runs
 ===============================
 
-When the server process starts, it opens an 
-HTTP connection on the TCP/IP port specified 
-by the location attribute within the port 
-specification.
+The server publishes it's endpoint which opens an HTTP connection on the
+TCP/IP port specified in the FaultServiceSOAP_HTTP.wsdl.
 
-The client application has access to the 
-same WSDL file, from which it obtains the 
-connection information.  The client makes 
-asynchronous SOAP over HTTP requests against
-the Web service hosted by this server process.
+The client application accesses this WSDL file, from which it obtains
+connection information.  Using this information, the client makes 
+asynchronous SOAP over HTTP requests against the Web service hosted by
+the server process.
 
-In the "fault" demo, the client invokes the
-getActiveAlarmsCount and the getActiveAlarms
-operations on the AlarmRetrieval interface.
+In the "alarm_retrieval" demo, the client invokes the getActiveAlarmsCount
+and the getActiveAlarms operations of the AlarmRetrieval interface.
 
-The client extracts data from the Alarm information
-resulting from the call to getActiveAlarms, and
-displays it in a formatted way:
+For the getActiveAlarms operation, the HeaderT part which is sent in the
+soap message header is used to communicate such things as the number of
+alarm responses expected/desired.  So, by setting the RequestedBatchSize
+in the HeaderT part, the client can indicate that it wishes the server to
+limit the number of alarm responses sent in the response.
+
+The client extracts data from the Alarm information resulting from the call
+to getActiveAlarms, and displays it in a formatted way:
 
   Alarm #0:
   - Notification ID: 0001239
@@ -72,11 +72,10 @@ displays it in a formatted way:
   - Root Cause Alarm Indication: NO
   (...)
 
-See the following source for details on
-how the types conveyed by the messages
-are created and populated:
+See the following source for further details on the creation and population
+of the types conveyed by the messages:
 
-   - src/demo/fault/client/Client.java (client side)
-   - src/demo/fault/server/AlarmRetrievalImpl.java (server side)
+   - src/demo/client/Client.java (client side)
+   - src/demo/server/AlarmRetrievalImpl.java (server side)
 
 
