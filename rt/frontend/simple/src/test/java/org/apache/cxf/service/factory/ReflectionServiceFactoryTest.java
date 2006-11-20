@@ -65,7 +65,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         assertEquals("sayHelloResponse", sayHelloOp.getOutput().getName().getLocalPart());
         
         MessagePartInfo mpi = messageParts.get(0);
-        assertEquals("out", mpi.getName().getLocalPart());
+        assertEquals("return", mpi.getName().getLocalPart());
         assertEquals(String.class, mpi.getTypeClass());
 
         
@@ -109,7 +109,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         assertEquals("sayHelloResponse", unwrappedOp.getOutput().getName().getLocalPart());
         assertEquals(1, messageParts.size());
         MessagePartInfo mpi = messageParts.get(0);
-        assertEquals("out", mpi.getName().getLocalPart());
+        assertEquals("return", mpi.getName().getLocalPart());
         assertEquals(String.class, mpi.getTypeClass());
     }
 

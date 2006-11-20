@@ -56,7 +56,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public QName getInParameterName(OperationInfo op, Method method, int paramNumber) {
         return new QName(op.getName().getNamespaceURI(), 
-                         getDefaultLocalName(op, method, paramNumber, "in"));
+                         getDefaultLocalName(op, method, paramNumber, "arg" + paramNumber));
     }
 
     @Override
@@ -67,7 +67,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     @Override
     public QName getOutParameterName(OperationInfo op, Method method, int paramNumber) {
         return new QName(op.getName().getNamespaceURI(), 
-                         getDefaultLocalName(op, method, paramNumber, "out"));
+                         getDefaultLocalName(op, method, paramNumber, "return"));
     }
 
     private String getDefaultLocalName(OperationInfo op, Method method, int paramNumber, String prefix) {
