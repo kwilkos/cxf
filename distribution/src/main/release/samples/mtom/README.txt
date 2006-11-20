@@ -67,12 +67,20 @@ For UNIX:
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
   javac -d build/classes src/demo/mtom/client/*.java
   javac -d build/classes src/demo/mtom/server/*.java
-  cp src/demo/mtom/client/me.bmp build/classes/demo/mtom/client/me.bmp
 
 For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
   javac -d build\classes src\demo\mtom\client\*.java
   javac -d build\classes src\demo\mtom\server\*.java
+
+
+Finally, copy the me.bmp file from the src/demo/mtom/client directory
+into the build/classes/demo/mtom/client directory.
+
+For UNIX:
+  cp ./src/demo/mtom/client/me.bmp ./build/classes/demo/mtom/client/me.bmp
+
+For Windows:
   copy src\demo\mtom\client\me.bmp build\classes\demo\mtom\client\me.bmp
 
 

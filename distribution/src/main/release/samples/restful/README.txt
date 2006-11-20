@@ -116,12 +116,12 @@ For Windows:
   javac -d build\classes src\demo\restful\server\*.java
 
 
-Next copy resource files to build/classes directory with the commands:
+Finally, copy resource files into the build/classes directory with the commands:
 
 For UNIX:  
   
-  cp src/demo/restful/client/*.xml build/classes/demo/restful/client
-  cp src/demo/restful/server/*.xml build/classes/demo/restful/server
+  cp ./src/demo/restful/client/*.xml ./build/classes/demo/restful/client
+  cp ./src/demo/restful/server/*.xml ./build/classes/demo/restful/server
 
 For Windows:
   copy src\demo\restful\client\*.xml build\classes\demo\restful\client

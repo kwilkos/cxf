@@ -40,7 +40,7 @@ Using either UNIX or Windows:
   ant client
 
 When using these ant targets, the server process uses the LoggingHandler
-and the client process uses the SmallNumberHandler. Notice that the both
+and the client process uses the SmallNumberHandler. Notice that both
 the client and server consoles display short informative messages. The 
 client handler examines the operation parameters and, based on the 
 parameter values, may decide not to forward the request to the server. The server 
@@ -51,14 +51,13 @@ handler class.
 
   @HandlerChain(file = "../common/demo_handlers.xml", name = "DemoHandlerChain")
 
-Look in the build.xml file to see how an argument to the java executable specifies
-use of the configuration file.  For example:
+The client side SmallNumberHandler is specified programatically:
 
-  <target name="client" description="run demo client" depends="build">
-    <cxfrun classname="demo.handlers.client.Client"
-               param1="${basedir}/wsdl/addNumbers.wsdl"
-               jvmarg1="-Dcxf.config.file=file:///${basedir}/cxf-client.xml"/>
-  </target>
+    SmallNumberHandler sh = new SmallNumberHandler();
+    List<Handler> newHandlerChain = new ArrayList<Handler>();
+    newHandlerChain.add(sh);
+    ((BindingProvider)port).getBinding().setHandlerChain(newHandlerChain);
+
 
 After running the client, terminate the server process.
 
