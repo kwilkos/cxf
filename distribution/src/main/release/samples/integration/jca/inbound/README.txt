@@ -15,6 +15,7 @@ application:
 
     . Update jboss endorsed jars
     . Set Jboss environment
+    . Set CXF environment
     . Build CXF J2EE Connector rar file
     . Launch the application server
     . Deploy the CXF J2EE Connector 
@@ -27,14 +28,14 @@ Update Jboss endorsed jars
 ==========================
  (Unix)  % cd $CXF_HOME/lib/
          % cp activation-1.1.jar jaxb-api-2.0.jar jaxb-impl-2.0.3.jar
-              jaxb-xjc-2.0.3.jar jsr173_api-1.0.jar
-	      jsr181-api-2.0-JAXWS-2.0-EA3.jar
+              jaxb-xjc-2.0.3.jar stax-api-1.0.1.jar
+	      jsr181-api-1.0-MR1.jar
               saaj-api-1.3.jar saaj-impl-1.3.jar 
               <jboss-home>/lib/endorsed\
  (Windows) > cd %CXF_HOME%\lib\
            > copy activation-1.1.jar jaxb-api-2.0.jar jaxb-impl-2.0.3.jar
-              jaxb-xjc-2.0.3.jar jsr173_api-1.0.jar
-	      jsr181-api-2.0-JAXWS-2.0-EA3.jar
+              jaxb-xjc-2.0.3.jar stax-api-1.0.1.jar
+	      jsr181-api-1.0-MR1.jar
               saaj-api-1.3.jar saaj-impl-1.3.jar 
               <jboss-home>\lib\endorsed\
 
@@ -43,6 +44,11 @@ Set Jboss environment
 =====================
  (Unix) % export JBOSS_HOME=<jboss-home>
  (Windows) > set JBOSS_HOME=<jboss-home>
+
+Set CXF environment
+=====================
+ (Unix) % export CXF_HOME=<cxf-home>
+ (Windows) > set CXF_HOME=<cxf-home>
 
 Build CXF J2EE Connector rar file
 =================================
@@ -72,7 +78,7 @@ Deploy the CXF J2EE Connector
     How to deploy the CXF J2EE Connector is dependent on your 
     application server. Please consult your vendor documentation
     on connector deployment. Here are basic instructions to deploy
-    the connector in JBoss, WebLogic and WebSphere application 
+    the connector in JBoss application 
     servers.
 
 

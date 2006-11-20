@@ -24,29 +24,30 @@
   <property environment="env"/>
   <property name="demos.current.dir" value="."/>
   <property name="build.classes.dir" value="${basedir}/build"/>
-  <property name="cxf.home" value="../../../.."/>
+  <property name="cxf.home" value="${env.CXF_HOME}"/>
   <property name="wsdl.dir" value="${basedir}/wsdl"/>
   <property name="wsdl.location" value="${basedir}/wsdl/hello_world.wsdl"/>
   <property name="build.archives" value="${basedir}/j2ee-archives"/> 
   <property name="ejb.xml" location="./etc/ejb.xml"/>
     
   <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
-  <property name="servants.props.file" location="${basedir}/../../../../etc/ejb_servants.properties"/>
+  <property name="servants.props.file" location="${cxf.home}/etc/ejb_servants.properties"/>
   <property file="${servants.props.file}"/>
   <property name="j2ee.archives" value="j2ee-archives"/>
+
   <property name="jboss.home" value="${env.JBOSS_HOME}"/>
-  <property file="${basedir}/../../../../etc/version.properties"/>
+  <property file="${cxf.home}/etc/version.properties"/>
 
  
   <path id="other.classpath">
-    <pathelement location="${basedir}/../../../../lib/cxf-integration-jca-${cxf.version}.jar"/>
+    <pathelement location="${cxf.home}/lib/cxf-integration-jca-${cxf.version}.jar"/>
     <pathelement location="${jboss.home}/client/jbossall-client.jar"/>
   </path>
 
   <target name="generate.rar" depends="init">
-    <copy file="${basedir}/../../../../etc/ra.xml" todir="${build.classes.dir}/cxf-rar/META-INF"/>
+    <copy file="${cxf.home}/etc/ra.xml" todir="${build.classes.dir}/cxf-rar/META-INF"/>
     <copy todir="${build.classes.dir}/cxf-rar">
-      <fileset dir="${basedir}/../../../../lib">
+      <fileset dir="${cxf.home}/lib">
 	<include name="activation*.jar"/>
 	<include name="aopalliance*.jar"/>
 	<include name="cxf-api*.jar"/>
@@ -71,7 +72,7 @@
 	<include name="XmlSchema*.jar"/>
       </fileset>
     </copy>
-    <jar destfile="${basedir}/../../../../lib/cxf.rar"
+    <jar destfile="${cxf.home}/lib/cxf.rar"
 	 basedir="${build.classes.dir}/cxf-rar"/>
   </target>
     
@@ -138,7 +139,7 @@
 	<arg value="${wsdl.location}"/> 
 	<classpath> 
 	  <pathelement location="${build.classes.dir}"/>
-	  <pathelement path="../../../../lib/cxf-incubator.jar"/>
+	  <pathelement path="${cxf.home}/lib/cxf-incubator.jar"/>
 	</classpath>
       </java> 
     </target> 

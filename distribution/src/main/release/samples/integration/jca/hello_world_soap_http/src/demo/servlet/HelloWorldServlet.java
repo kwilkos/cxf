@@ -56,6 +56,9 @@ public class HelloWorldServlet extends DemoServletBase {
     }
 
 
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        doGet(req, resp);
+    }
 
     /** 
      * get a connection to the SOAP service
