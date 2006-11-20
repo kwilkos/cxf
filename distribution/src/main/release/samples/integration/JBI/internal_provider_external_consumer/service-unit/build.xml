@@ -26,9 +26,9 @@
   <property name="build.lib.dir" location="${build.dir}/lib"/>
   <property name="src.dir" location="./src"/>
   <property name="wsdl.dir" location="./wsdl"/>
+  <property environment="env"/>
 
   <property file="${env.CXF_HOME}/etc/version.properties"/>
-  <property environment="env"/>
   <!-- reuse the macros defined in CXF samples -->
   <import file="${env.CXF_HOME}/samples/common_build.xml"/>        
 
