@@ -4,10 +4,10 @@ RESTful Hello World Demo
 The demo shows REST based Web services using the XML binding and 
 JAX-WS Provider/Dispatch. The REST server provides the following services: 
 
-A RESTful customer service is provided on URL http://localhost:9000/customerservice/customers. 
+A RESTful customer service is provided on URL http://localhost:9000/customerservice/customer. 
 Users access this URI to query or update customer info.
 
-A HTTP GET request to URL http://localhost:9000/customerservice/customers returns 
+A HTTP GET request to URL http://localhost:9000/customerservice/customer returns 
 a list of customer hyperlinks. This allows client navigates through the 
 application states. The returned XML document:
 
@@ -23,8 +23,8 @@ application states. The returned XML document:
   </Customer>
 </Customers>
 
-A HTTP GET request to URL http://localhost:9000/customerservice/customers?id=1234 
-returns a customer instance whose id is 1234. The returned XML document returned:
+A HTTP GET request to URL http://localhost:9000/customerservice/customer?id=1234 
+returns a customer instance whose id is 1234. The returned XML document:
 
 <Customer>
   <id>1234</id>
@@ -32,7 +32,7 @@ returns a customer instance whose id is 1234. The returned XML document returned
   <phoneNumber>123456</phoneNumber>
 </Customer>
 
-A HTTP POST request to URL http://localhost:9000/customerservice/customers 
+A HTTP POST request to URL http://localhost:9000/customerservice/customer 
 with the data:
 
 <Customer>
@@ -93,13 +93,13 @@ directory build/classes and then generate code from the WSDL file.
 For UNIX:
   mkdir -p build/classes
 
-  wsdl2java -d build/classes -compile ./wsdl/hello_world.wsdl
+  wsdl2java -d build/classes -compile ./wsdl/hello_world_xml_wrapped.wsdl
 
 For Windows:
   mkdir build\classes
     Must use back slashes.
 
-  wsdl2java -d build\classes -compile .\wsdl\hello_world.wsdl
+  wsdl2java -d build\classes -compile .\wsdl\hello_world_xml_wrapped.wsdl
     May use either forward or back slashes.
 
 Now compile the provided client and server applications with the commands:
@@ -107,28 +107,39 @@ Now compile the provided client and server applications with the commands:
 For UNIX:  
   
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
-  javac -d build/classes src/demo/hw/client/*.java
-  javac -d build/classes src/demo/hw/server/*.java
+  javac -d build/classes src/demo/restful/client/*.java
+  javac -d build/classes src/demo/restful/server/*.java
 
 For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
-  javac -d build\classes src\demo\hw\client\*.java
-  javac -d build\classes src\demo\hw\server\*.java
+  javac -d build\classes src\demo\restful\client\*.java
+  javac -d build\classes src\demo\restful\server\*.java
 
+
+Next copy resource files to build/classes directory with the commands:
+
+For UNIX:  
+  
+  cp src/demo/restful/client/*.xml build/classes/demo/restful/client
+  cp src/demo/restful/server/*.xml build/classes/demo/restful/server
+
+For Windows:
+  copy src\demo\restful\client\*.xml build\classes\demo\restful\client
+  copy src\demo\restful\server\*.xml build\classes\demo\restful\server
 
 
 Running the demo using java
 ---------------------------
 
-From the samples/hello_world directory run the following commands. They 
+From the samples/restful directory run the following commands. They 
 are entered on a single command line.
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.server.Server &
+         demo.restful.server.Server &
 
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client ./wsdl/hello_world.wsdl
+         demo.restful.client.Client ./wsdl/hello_world_xml_wrapped.wsdl
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -136,10 +147,10 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-         demo.hw.server.Server
+         demo.restful.server.Server
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client .\wsdl\hello_world.wsdl
+       demo.restful.client.Client .\wsdl\hello_world_xml_wrapped.wsdl
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.

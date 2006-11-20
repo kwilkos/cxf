@@ -22,16 +22,12 @@
     <import file="../common_build.xml"/>        
         
     <target name="client" description="run demo client" depends="build">
-        <property name="param" value=""/>
         <cxfrun classname="demo.restful.client.Client"
-            param1="${basedir}/wsdl/hello_world_xml_wrapped.wsdl" 
-            param2="${op}" 
-            param3="${param}"/>
+            param1="${basedir}/wsdl/hello_world_xml_wrapped.wsdl"/>
     </target> 
         
     <target name="server" description="run demo server" depends="build">
-        <cxfrun classname="demo.restful.server.Server" 
-            param1="${basedir}/wsdl/hello_world_xml_wrapped.wsdl"/>
+        <cxfrun classname="demo.restful.server.Server"/>
     </target>
         
     <target name="generate.code">

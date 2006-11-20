@@ -81,7 +81,7 @@ public final class Client {
         DOMSource reqMsg = new DOMSource(doc);
 
         // Sent HTTP POST request to update customer info
-        Dispatch<DOMSource> disp = cutomerservice.createDispatch(portName, DOMSource.class, 
+        Dispatch<DOMSource> disp = cutomerservice.createDispatch(portName, DOMSource.class,
                                    Service.Mode.PAYLOAD);
         System.out.println("Invoking server through HTTP POST to update customer info");
         DOMSource result = disp.invoke(reqMsg);
@@ -105,18 +105,18 @@ public final class Client {
 
         // Use Dispatch to send GET request to query customer info
         endpointAddress =
-            "http://localhost:9000/customerservice/customer"; 
-        Service service = Service.create(serviceName); 
+            "http://localhost:9000/customerservice/customer";
+        Service service = Service.create(serviceName);
         URI endpointURI = new URI(endpointAddress.toString());
-        String path = null; 
-        if (endpointURI != null) { 
-            path = endpointURI.getPath(); 
-        } 
+        String path = null;
+        if (endpointURI != null) {
+            path = endpointURI.getPath();
+        }
         service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress.toString());
         Dispatch<Source> dispatch = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
         Map<String, Object> requestContext = dispatch.getRequestContext();
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
-        requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
+        requestContext.put(MessageContext.QUERY_STRING, "id=1234");
         requestContext.put(MessageContext.PATH_INFO, path);
         System.out.println("Invoking Restful GET Request with query string ");
         Source returnSource = dispatch.invoke(null);
