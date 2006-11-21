@@ -33,6 +33,8 @@ import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.types.StartGreeterResponse;
 import org.apache.cxf.greeter_control.types.StopGreeterResponse;
+import org.apache.cxf.ws.rm.RMManager;
+import org.apache.cxf.ws.rm.RetransmissionQueue;
 
 
 @WebService(serviceName = "ControlService", 
@@ -73,6 +75,11 @@ public class ControlImpl implements Control {
         }
         endpoint = null;
         if (null != greeterBus) {
+            RMManager manager = greeterBus.getExtension(RMManager.class);
+            RetransmissionQueue queue = manager.getRetransmissionQueue();
+            if (null != queue) {
+                queue.stop();
+            }
             greeterBus.shutdown(true);
         }
         return true;

@@ -50,7 +50,6 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     public OutMessageRecorder() {
         outbound = new ArrayList<byte[]>();
         setPhase(Phase.PRE_PROTOCOL);
-        // setPhase(Phase.POST_STREAM);
     }
     
     public void handleMessage(Message message) throws Fault {

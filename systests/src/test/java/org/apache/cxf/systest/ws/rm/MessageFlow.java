@@ -410,6 +410,13 @@ public class MessageFlow extends Assert {
         }
     }
     
+    public void purge() {
+        inboundMessages.clear();
+        outboundMessages.clear();
+        inStreams.clear();
+        outStreams.clear();
+    }
+    
     public void verifyPartialResponses(int nExpected) throws Exception {
         verifyPartialResponses(nExpected, null);
     }

@@ -73,7 +73,24 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             LOG.fine("Action: " + action);
         }
 
-        boolean isApplicationMessage = isAplicationMessage(action);
+        boolean isApplicationMessage = RMContextUtils.isAplicationMessage(action);
+        boolean isPartialResponse = RMContextUtils.isPartialResponse(message);
+        LOG.fine("isApplicationMessage: " + isApplicationMessage);
+        LOG.fine("isPartialResponse: " + isPartialResponse);
+        
+        if (isApplicationMessage && !isPartialResponse) {
+            RetransmissionInterceptor ri = new RetransmissionInterceptor();
+            ri.setManager(getManager());
+            // TODO:
+            // On the server side: If a fault occurs after this interceptor we will switch 
+            // interceptor chains (if this is not already a fault message) and therefore need to 
+            // make sure the retransmission interceptor is added to the fault chain
+            // 
+            message.getInterceptorChain().add(ri);
+            LOG.fine("Added RetransmissionInterceptor to chain.");
+            
+            getManager().getRetransmissionQueue().start();
+        }
         
         RMProperties rmpsOut = (RMProperties)RMContextUtils.retrieveRMProperties(message, true);
         if (null == rmpsOut) {
@@ -85,7 +102,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
         Identifier inSeqId = null;
         BigInteger inMessageNumber = null;
         
-        if (isApplicationMessage && !isPartialResponse(message)) {
+        if (isApplicationMessage && !isPartialResponse) {
                         
             rmpsIn = (RMProperties)RMContextUtils.retrieveRMProperties(message, false);
             

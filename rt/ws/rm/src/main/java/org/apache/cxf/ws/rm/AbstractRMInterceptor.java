@@ -19,14 +19,12 @@
 
 package org.apache.cxf.ws.rm;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
@@ -94,31 +92,5 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
     // rm logic
     
     abstract void handleMessage(Message msg, boolean isFault) throws SequenceFault;
-    
-    protected boolean isAplicationMessage(String action) {
-        if (RMConstants.getCreateSequenceAction().equals(action)
-            || RMConstants.getCreateSequenceResponseAction().equals(action)
-            || RMConstants.getTerminateSequenceAction().equals(action)
-            || RMConstants.getLastMessageAction().equals(action)
-            || RMConstants.getSequenceAcknowledgmentAction().equals(action)
-            || RMConstants.getSequenceInfoAction().equals(action)) {
-            return false;
-        }
-        return true;
-    }
-    
-    protected boolean isPartialResponse(Message msg) {
-        return RMContextUtils.isOutbound(msg) 
-            && msg.getContent(List.class) == null
-            && getException(msg.getExchange()) == null;   
-    }
-    
-    private Exception getException(Exchange exchange) {
-        if (exchange.getOutFaultMessage() != null) {
-            return exchange.getOutFaultMessage().getContent(Exception.class);
-        } else if (exchange.getInFaultMessage() != null) {
-            return exchange.getInFaultMessage().getContent(Exception.class);
-        }
-        return null;
-    }
+   
 }

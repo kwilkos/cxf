@@ -72,7 +72,7 @@ public class RMManager extends RMManagerConfigBean {
             bus.setExtension(this, RMManager.class);
         }
         if (null == retransmissionQueue) {
-            retransmissionQueue = new RetransmissionQueueImpl();
+            retransmissionQueue = new RetransmissionQueueImpl(this);
         }
     }
 

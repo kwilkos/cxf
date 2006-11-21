@@ -35,6 +35,7 @@ import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMManager;
+import org.apache.cxf.ws.rm.RetransmissionQueue;
 
 
 /**
@@ -67,6 +68,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestOnewayDeferredAnonymousAcks = testAll;
     private boolean doTestOnewayDeferredNonAnonymousAcks = testAll;
     private boolean doTestOnewayAnonymousAcksSequenceLength1 = testAll;
+    private boolean doTestOnewayAnonymousAcksSupressed = testAll;
     private boolean doTestTwowayNonAnonymous = testAll;
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
@@ -101,11 +103,17 @@ public class SequenceTest extends ClientServerTestBase {
     
     public void tearDown() {
         if (null != greeter) {
-            assertTrue("Failed to stop greeter.", control.stopGreeter());            
+            assertTrue("Failed to stop greeter.", control.stopGreeter());                        
+            RMManager manager = greeterBus.getExtension(RMManager.class);
+            RetransmissionQueue queue = manager.getRetransmissionQueue();
+            if (null != queue) {
+                queue.stop();
+            }
             greeterBus.shutdown(true);
             greeterBus = null;
         }
-        if (null != control) {               
+        if (null != control) {  
+            assertTrue("Failed to stop greeter", control.stopGreeter());
             controlBus.shutdown(true);
         }
     }
@@ -271,6 +279,53 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, null, null, null, null, null}, false);
         mf.verifyLastMessage(new boolean[] {false, false, false, false, false, false}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
+    }
+    
+    public void testOnewayAnonymousAcksSupressed() throws Exception {
+
+        if (!doTestOnewayAnonymousAcksSupressed) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-suppressed.xml");
+
+        greeter.greetMeOneWay("once");
+        greeter.greetMeOneWay("twice");
+        greeter.greetMeOneWay("thrice");
+
+        // three application messages plus createSequence
+        
+        awaitMessages(4, 4, 2000);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        mf.verifyMessages(4, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETMEONEWAY_ACTION,
+                                                 GREETMEONEWAY_ACTION, 
+                                                 GREETMEONEWAY_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+
+        // createSequenceResponse plus 3 partial responses, none of which
+        // contain an acknowledgment
+
+        mf.verifyMessages(4, false);
+        mf.verifyPartialResponses(3, new boolean[3]);
+        mf.purgePartialResponses();
+        
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
+        mf.verifyActions(expectedActions, false);
+        
+        mf.purge();
+        assertEquals(0, outRecorder.getOutboundMessages().size());
+        assertEquals(0, inRecorder.getInboundMessages().size());
+
+        // allow resends to kick in
+        // await multiple of 3 resends to avoid shutting down server
+        // in the course of retransmission - this is harmless but pollutes test output
+        
+        awaitMessages(3, 0, 5000);
+        
     }
     
     public void testTwowayNonAnonymous() throws Exception {

@@ -34,6 +34,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.cxf.common.util.Base64Utility;
@@ -69,6 +70,16 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
             callbacks = new ArrayList<CachedOutputStreamCallback>();
         }
         callbacks.add(cb);
+    }
+    
+    public void deregisterCallback(CachedOutputStreamCallback cb) {
+        if (null != callbacks) {
+            callbacks.remove(cb);
+        }
+    }
+
+    public List<CachedOutputStreamCallback> getCallbacks() {
+        return callbacks == null ? null : Collections.unmodifiableList(callbacks);
     }
 
     /**

@@ -19,7 +19,10 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.List;
+
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
@@ -31,12 +34,12 @@ import org.apache.cxf.ws.addressing.VersionTransformer;
 
 public final class RMContextUtils {
 
-    /** 
+    /**
      * Prevents instantiation.
      */
     protected RMContextUtils() {
     }
-    
+
     /**
      * @return a generated UUID
      */
@@ -44,7 +47,6 @@ public final class RMContextUtils {
         return org.apache.cxf.ws.addressing.ContextUtils.generateUUID();
     }
 
-    
     /**
      * Determine if message is outbound.
      * 
@@ -54,7 +56,6 @@ public final class RMContextUtils {
     public static boolean isOutbound(Message message) {
         return org.apache.cxf.ws.addressing.ContextUtils.isOutbound(message);
     }
-    
 
     /**
      * Determine if current messaging role is that of requestor.
@@ -65,7 +66,7 @@ public final class RMContextUtils {
     public static boolean isRequestor(Message message) {
         return org.apache.cxf.ws.addressing.ContextUtils.isRequestor(message);
     }
-    
+
     /**
      * Determine if message is currently being processed on server side.
      * 
@@ -76,13 +77,44 @@ public final class RMContextUtils {
         if (isOutbound(message)) {
             return message.getExchange().getInMessage() != null;
         } else {
-            return message.getExchange().getOutMessage() == null 
-                && message.getExchange().getOutFaultMessage() == null;
+            return message.getExchange().getOutMessage() == null
+                   && message.getExchange().getOutFaultMessage() == null;
         }
     }
-    
+
+    /**
+     * Checks if the message is a partial response to a oneway request.
+     * 
+     * @param message the message
+     * @return true iff the message is a partial response to a oneway request
+     */
+    public static boolean isPartialResponse(Message message) {
+        return RMContextUtils.isOutbound(message) 
+            && message.getContent(List.class) == null
+            && getException(message.getExchange()) == null; 
+    }
+
+    /**
+     * Checks if the action String belongs to an application message.
+     * 
+     * @param action the action
+     * @return true iff the action is not one of the RM protocol actions.
+     */
+    public static boolean isAplicationMessage(String action) {
+        if (RMConstants.getCreateSequenceAction().equals(action)
+            || RMConstants.getCreateSequenceResponseAction().equals(action)
+            || RMConstants.getTerminateSequenceAction().equals(action)
+            || RMConstants.getLastMessageAction().equals(action)
+            || RMConstants.getSequenceAcknowledgmentAction().equals(action)
+            || RMConstants.getSequenceInfoAction().equals(action)) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Retrieve the RM properties from the current message.
+     * 
      * @param message the current message
      * @param outbound true iff the message direction is outbound
      * @return the RM properties
@@ -106,11 +138,12 @@ public final class RMContextUtils {
             }
         }
         return null;
-        
+
     }
-    
+
     /**
      * Store the RM properties in the current message.
+     * 
      * @param message the current message
      * @param rmps the RM properties
      * @param outbound iff the message direction is outbound
@@ -119,7 +152,7 @@ public final class RMContextUtils {
         String key = getRMPropertiesKey(outbound);
         message.put(key, rmps);
     }
-    
+
     /**
      * Retrieves the addressing properties from the current message.
      * 
@@ -131,22 +164,22 @@ public final class RMContextUtils {
      * @return the current addressing properties
      */
     public static AddressingPropertiesImpl retrieveMAPs(Message message, boolean isProviderContext,
-                                                    boolean isOutbound) {
+                                                        boolean isOutbound) {
         return org.apache.cxf.ws.addressing.ContextUtils.retrieveMAPs(message, isProviderContext, isOutbound);
     }
-    
+
     /**
      * Store MAPs in the message.
-     *
+     * 
      * @param maps the MAPs to store
      * @param message the current message
      * @param isOutbound true iff the message is outbound
      * @param isRequestor true iff the current messaging role is that of
-     * requestor
+     *            requestor
      * @param handler true if HANDLER scope, APPLICATION scope otherwise
      */
     public static void storeMAPs(AddressingProperties maps, Message message, boolean isProviderContext,
-                                                        boolean isOutbound) {
+                                 boolean isOutbound) {
         org.apache.cxf.ws.addressing.ContextUtils.storeMAPs(maps, message, isProviderContext, isOutbound);
     }
 
@@ -167,12 +200,21 @@ public final class RMContextUtils {
      * @param message the current Message
      * @return the endpoint
      */
-    public static Endpoint getEndpoint(Message message) {        
+    public static Endpoint getEndpoint(Message message) {
         return message.getExchange().get(Endpoint.class);
     }
-    
+
     private static String getRMPropertiesKey(boolean outbound) {
-        return outbound ? RMMessageConstants.RM_PROPERTIES_OUTBOUND 
-            : RMMessageConstants.RM_PROPERTIES_INBOUND;
+        return outbound
+            ? RMMessageConstants.RM_PROPERTIES_OUTBOUND : RMMessageConstants.RM_PROPERTIES_INBOUND;
+    }
+    
+    private static Exception getException(Exchange exchange) {
+        if (exchange.getOutFaultMessage() != null) {
+            return exchange.getOutFaultMessage().getContent(Exception.class);
+        } else if (exchange.getInFaultMessage() != null) {
+            return exchange.getInFaultMessage().getContent(Exception.class);
+        }
+        return null;
     }
 }
