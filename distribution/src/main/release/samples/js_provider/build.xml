@@ -18,6 +18,7 @@
   under the License.
 -->
 <project name="hello world javascript demo" default="build" basedir=".">
+    <property environment="env"/>
     <condition property="cxf.home" value="${env.CXF_HOME}">
         <isset property="env.CXF_HOME"/>
     </condition>
