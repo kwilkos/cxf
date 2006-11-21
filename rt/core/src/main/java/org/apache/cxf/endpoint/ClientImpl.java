@@ -60,11 +60,11 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     
     private static final Logger LOG = LogUtils.getL7dLogger(ClientImpl.class);
     
-    private Bus bus;
-    private Endpoint endpoint;
-    private Conduit initedConduit;
-    private ClientOutFaultObserver outFaultObserver; 
-    private int synchronousTimeout = 10000; // default 10 second timeout
+    protected Bus bus;
+    protected Endpoint endpoint;
+    protected Conduit initedConduit;
+    protected ClientOutFaultObserver outFaultObserver; 
+    protected int synchronousTimeout = 10000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
         this(b, e, null);
@@ -171,7 +171,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return null;
     }
 
-    private Exception getException(Exchange exchange) {
+    protected Exception getException(Exchange exchange) {
         if (exchange.getInFaultMessage() != null) {
             return exchange.getInFaultMessage().getContent(Exception.class);
         } else if (exchange.getOutFaultMessage() != null) {

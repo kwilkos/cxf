@@ -48,6 +48,10 @@ public interface Endpoint extends Map<String, Object>, InterceptorProvider {
     
     MessageObserver getOutFaultObserver();
     
+    void setInFaultObserver(MessageObserver observer);
+    
+    void setOutFaultObserver(MessageObserver observer);
+    
     boolean getEnableSchemaValidation();
     
     void setEnableSchemaValidation(boolean value);

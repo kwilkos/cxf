@@ -30,8 +30,8 @@ import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.service.Service;
 
 public class ChainInitiationObserver implements MessageObserver {
-    Endpoint endpoint;
-    Bus bus;
+    protected Endpoint endpoint;
+    protected Bus bus;
 
     public ChainInitiationObserver(Endpoint endpoint, Bus bus) {
         super();

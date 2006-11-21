@@ -34,7 +34,6 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
-import org.apache.cxf.interceptor.AbstractFaultChainIntiatorObserver;
 import org.apache.cxf.interceptor.InFaultChainInitiatorObserver;
 import org.apache.cxf.interceptor.MessageSenderInterceptor;
 import org.apache.cxf.interceptor.OutFaultChainInitiatorObserver;
@@ -53,8 +52,8 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     private EndpointInfo endpointInfo;
     private Executor executor;
     private Bus bus;
-    private AbstractFaultChainIntiatorObserver inFaultObserver;
-    private AbstractFaultChainIntiatorObserver outFaultObserver;
+    private MessageObserver inFaultObserver;
+    private MessageObserver outFaultObserver;
     private boolean schemaValidation;
    
    
@@ -145,5 +144,16 @@ public class EndpointImpl extends AbstractAttributedInterceptorProvider implemen
     public boolean getEnableSchemaValidation() {
         return schemaValidation;
     }
+
+    public void setInFaultObserver(MessageObserver observer) {
+        inFaultObserver = observer;        
+    }
+
+    public void setOutFaultObserver(MessageObserver observer) {
+        outFaultObserver = observer;
+        
+    }
+
+   
     
 }
