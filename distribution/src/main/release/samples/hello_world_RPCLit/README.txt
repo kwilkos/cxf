@@ -65,13 +65,13 @@ Now compile the provided client and server applications with the commands:
 For UNIX:  
   
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
-  javac -d build/classes src/demo/hw/client/*.java
-  javac -d build/classes src/demo/hw/server/*.java
+  javac -d build/classes src/demo/hwRPCLit/client/*.java
+  javac -d build/classes src/demo/hwRPCLit/server/*.java
 
 For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
-  javac -d build\classes src\demo\hw\client\*.java
-  javac -d build\classes src\demo\hw\server\*.java
+  javac -d build\classes src\demo\hwRPCLit\client\*.java
+  javac -d build\classes src\demo\hwRPCLit\server\*.java
 
 
 
