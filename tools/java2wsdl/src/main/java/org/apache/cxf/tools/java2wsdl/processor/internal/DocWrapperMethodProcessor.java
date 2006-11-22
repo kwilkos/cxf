@@ -43,6 +43,7 @@ import com.sun.xml.bind.api.TypeReference;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
@@ -77,7 +78,7 @@ public class DocWrapperMethodProcessor {
         String reqClassName = "";
         String reqName = method.getName();
         String reqNS = model.getTargetNameSpace();
-        if (!reqWrapper.className().equals("")) {
+        if (reqWrapper != null && !StringUtils.isEmpty(reqWrapper.className())) {
             reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
             reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
             reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
@@ -89,7 +90,7 @@ public class DocWrapperMethodProcessor {
         try {
             reqClass = AnnotationUtil.loadClass(reqClassName, this.getClass().getClassLoader());
         } catch (Exception e) {
-            Message msg = new Message("LOAD_CLASS_ERROR", LOG, reqClassName);
+            Message msg = new Message("LOAD_REQUEST_WRAPPER_CLASS_ERROR", LOG, reqClassName);
             throw new ToolException(msg, e);
         }
         QName reqQN = new QName(reqNS, reqName);
@@ -106,7 +107,7 @@ public class DocWrapperMethodProcessor {
             // rule 3.5 suffix -"Response"
             String resName = method.getName() + "Response";
             String resNS = model.getTargetNameSpace();
-            if (!resWrapper.className().equals("")) {
+            if (resWrapper != null && !StringUtils.isEmpty(resWrapper.className())) {
                 resClassName = resWrapper.className();
                 resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
                 resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
@@ -121,7 +122,7 @@ public class DocWrapperMethodProcessor {
                 resClass = AnnotationUtil
                     .loadClass(resClassName, method.getDeclaringClass().getClassLoader());
             } catch (Exception e) {
-                Message msg = new Message("LOAD_CLASS_ERROR", LOG, resClassName);
+                Message msg = new Message("LOAD_RESPONSE_WRAPPER_CLASS_ERROR", LOG, resClassName);
                 throw new ToolException(msg, e);
             }
             typeRef = new TypeReference(resQN, resClass, new Annotation[0]);

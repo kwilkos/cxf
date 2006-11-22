@@ -34,6 +34,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -278,6 +279,22 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
             assertNotNull(soapBinding);
             assertTrue("rpc".equalsIgnoreCase(soapBinding.getStyle()));
             assertTrue(WSDLConstants.SOAP_HTTP_TRANSPORT.equalsIgnoreCase(soapBinding.getTransportURI()));
+        }
+    }
+    
+    public void testDocWrappedWithoutWrapperClass() {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_no_anno.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        j2wProcessor.setEnvironment(env);
+        String expected = "Can not load the request wrapper class " 
+            + "org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHi";
+        try {        
+            j2wProcessor.process();
+        } catch (ToolException e) {           
+            assertTrue(e.getMessage().contains(expected));
+        } catch (Exception e) {
+            fail("Should not happen other exception " + e.getMessage());
         }
     }
 
