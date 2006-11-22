@@ -74,7 +74,19 @@ For Windows:
 Now compile both the generated code and the provided client
 application with the commands:
 
+For UNIX:
+  cp src/demo/hwDispatch/client/*.xml build/classes/demo/hwDispatch/client/
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:
+	$CXF_HOME/lib/js-1.6R2.jar:$CXF_HOME/lib/xbean-2.1.0.jar:
+	build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
+
+For Windows:
+  copy src\demo\hwDispatch\client\*.xml build\classes\demo\hwDispatch\client\
+  set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-incubator.jar;
+	%CXF_HOME%\lib\js-1.6R2.jar;%CXF_HOME%\lib\xbean-2.1.0.jar;
+	build\classes
+  javac -d build\classes src\demo\hwDispatch\client\*.java
 
 Windows may use either forward or back slashes.
 
