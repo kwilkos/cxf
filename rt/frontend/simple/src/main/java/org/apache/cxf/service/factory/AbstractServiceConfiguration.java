@@ -54,6 +54,10 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
+    public Boolean isWrapped() {
+        return null;
+    }
+    
     public Boolean isWrapped(Method m) { 
         return null;
     }

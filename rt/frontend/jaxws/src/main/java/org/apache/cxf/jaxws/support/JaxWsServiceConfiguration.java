@@ -407,12 +407,15 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
             return !(ann.parameterStyle().equals(ParameterStyle.BARE) || ann.style().equals(Style.RPC));
         }
 
-        ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
+        return isWrapped();
+    }
+    
+    @Override
+    public Boolean isWrapped() {
+        SOAPBinding ann = implInfo.getEndpointClass().getAnnotation(SOAPBinding.class);
         if (ann != null) {
             return !(ann.parameterStyle().equals(ParameterStyle.BARE) || ann.style().equals(Style.RPC));
         }
-
         return null;
     }
-
 }

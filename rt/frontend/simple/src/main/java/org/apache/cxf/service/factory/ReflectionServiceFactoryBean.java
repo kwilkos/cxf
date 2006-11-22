@@ -94,7 +94,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     private Executor executor;
     private List<String> ignoredClasses = new ArrayList<String>();
     private SimpleMethodDispatcher methodDispatcher = new SimpleMethodDispatcher();
-    private boolean wrappedStyle = true;
+    private Boolean wrappedStyle;
     private Map<String, Object> properties;
     
     public ReflectionServiceFactoryBean() {
@@ -191,7 +191,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             
             createInterface(serviceInfo);
 
-            if (wrappedStyle) {
+            if (isWrapped()) {
                 initializeWrappedElementNames(serviceInfo);
             }
             
@@ -199,7 +199,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 getDataBinding().initialize(serviceInfo);
             }
             
-            if (wrappedStyle) {
+            if (isWrapped()) {
                 initializeWrappedSchema(serviceInfo);
             }
             
@@ -839,7 +839,16 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     public boolean isWrapped() {
-        return wrappedStyle;
+        if (this.wrappedStyle != null) {
+            return this.wrappedStyle;
+        }
+        for (AbstractServiceConfiguration c : serviceConfigurations) {
+            Boolean b = c.isWrapped();
+            if (b != null) {
+                return b.booleanValue();
+            }
+        }
+        return true;
     }
 
     public void setWrapped(boolean style) {

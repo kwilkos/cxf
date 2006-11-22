@@ -34,6 +34,7 @@ import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.apache.hello_world_soap_http.HelloImpl;
 
 public class EndpointImplTest extends AbstractJaxWsTest {
 
@@ -54,8 +55,8 @@ public class EndpointImplTest extends AbstractJaxWsTest {
             String address = "http://localhost:8080/test";
             endpoint.publish(address);
         } catch (IllegalArgumentException ex) {
-            //assertTrue(ex.getCause() instanceof BusException);
-            //assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
         }
         ctx = greeter.getContext();
         
@@ -79,12 +80,30 @@ public class EndpointImplTest extends AbstractJaxWsTest {
             String address = "http://localhost:8080/test";
             endpoint.publish(address);
         } catch (IllegalArgumentException ex) {
-            //assertTrue(ex.getCause() instanceof BusException);
-            //assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
         }
         ctx = greeter.getContext();
         
         assertNotNull(ctx);
+    }
+    
+    public void testWSAnnoWithoutWSDLLocationInSEI() throws Exception {
+        HelloImpl hello = new HelloImpl();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(hello));
+        serviceFactory.setServiceClass(HelloImpl.class);
+        
+        EndpointImpl endpoint = new EndpointImpl(getBus(), hello, serviceFactory);
+
+        try {
+            String address = "http://localhost:8080/test";
+            endpoint.publish(address);
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getCause() instanceof BusException);
+            assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
     }
 
     static class EchoObserver implements MessageObserver {
