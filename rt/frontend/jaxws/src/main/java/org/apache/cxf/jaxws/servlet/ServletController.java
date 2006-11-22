@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,6 +35,11 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -51,17 +57,25 @@ public class ServletController {
     private static final Logger LOG = Logger.getLogger(ServletController.class.getName());
 
     private ServletTransportFactory transport;
+    private ServletContext servletContext;
 
-    public ServletController(ServletTransportFactory df) {
+    public ServletController(ServletTransportFactory df, ServletContext servCont) {
         this.transport = df;
+        this.servletContext = servCont;   
     }
 
     public void invoke(HttpServletRequest request, HttpServletResponse res) throws ServletException {
         boolean wsdl = false;
+        boolean xsd = false;
         if (request.getQueryString() != null && request.getQueryString().trim().equalsIgnoreCase("wsdl")) {
             wsdl = true;
         }
-
+        String xsdName = request.getRequestURI().substring(
+            request.getRequestURI().lastIndexOf("/") + 1); 
+        if (xsdName != null 
+                && xsdName.substring(xsdName.lastIndexOf(".") + 1).equalsIgnoreCase("xsd")) {
+            xsd = true;
+        }
         try {
             EndpointInfo ei = new EndpointInfo();
             ei.setAddress("http://localhost" + request.getServletPath() + request.getPathInfo());
@@ -69,16 +83,35 @@ public class ServletController {
             ServletDestination d = (ServletDestination)transport.getDestination(ei);
 
             if (d.getMessageObserver() == null) {
-                LOG.warning("Can't find the the request for" 
+                if (xsd) {
+                    generateXSD(request, res, xsdName);
+                } else { 
+                    LOG.warning("Can't find the the request for" 
                          + "http://localhost" + request.getServletPath() 
                          + request.getPathInfo() + " 's Observer ");
-                generateNotFound(request, res);
+                    generateNotFound(request, res);
+                }
             } else if (wsdl) {
                 generateWSDL(request, res, d);
             } else {
                 invokeDestination(request, res, d);
             }
         } catch (IOException e) {
+            throw new ServletException(e);
+        }
+    }
+
+    private void generateXSD(HttpServletRequest request, HttpServletResponse response, String xsdName) 
+        throws ServletException {
+        response.setHeader("Content-Type", "text/xml");
+        try {
+            OutputStream os = response.getOutputStream();
+                 
+            Source source = new StreamSource(servletContext.getResourceAsStream("/WEB-INF/wsdl/" + xsdName));
+            Result result = new StreamResult(os);
+            TransformerFactory.newInstance().newTransformer().transform(source, result);
+            response.getOutputStream().flush();
+        } catch (Exception e) {
             throw new ServletException(e);
         }
     }

@@ -68,7 +68,7 @@ public class CXFServlet extends HttpServlet {
     private ServletController controller;
 
     public ServletController createServletController() {
-        return new ServletController(servletTransportFactory);
+        return new ServletController(servletTransportFactory, this.getServletContext());
     }
 
     public ServletController getController() {
