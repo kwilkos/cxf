@@ -94,6 +94,14 @@ Since JavaScript and E4X are interpreted at runtime and do not require
 compilation, there is no server-side java code requiring compilation.
 
 
+Finally, copy resource files into the build/classes directory with the commands:
+
+For UNIX:    
+  cp ./src/demo/hwDispatch/client/*.xml ./build/classes/demo/hwDispatch/client
+
+For Windows:
+  copy src\demo\hwDispatch\client\*.xml build\classes\demo\hwDispatch\client
+
 
 Running the demo using java
 ---------------------------

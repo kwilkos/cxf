@@ -118,8 +118,7 @@ For Windows:
 
 Finally, copy resource files into the build/classes directory with the commands:
 
-For UNIX:  
-  
+For UNIX:    
   cp ./src/demo/restful/client/*.xml ./build/classes/demo/restful/client
   cp ./src/demo/restful/server/*.xml ./build/classes/demo/restful/server
 
