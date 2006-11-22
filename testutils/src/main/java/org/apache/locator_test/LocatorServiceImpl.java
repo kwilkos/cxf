@@ -36,7 +36,7 @@ import org.apache.cxf.testutils.locator.LocatorService;
 @javax.jws.WebService(name = "LocatorService",  
                       serviceName = "LocatorService", 
                       portName = "LocatorServicePort", 
-                      targetNamespace = "http://ws.iona.com/2005/11/locator", 
+                      targetNamespace = "http://apache.org/locator", 
                       endpointInterface = "org.apache.cxf.testutils.locator.LocatorService")
 public class LocatorServiceImpl implements LocatorService {
 

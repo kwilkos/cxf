@@ -45,7 +45,7 @@ import org.apache.locator_test.LocatorServiceImpl;
 public class LocatorClientServerTest extends ClientServerTestBase {
 
     static final Logger LOG = Logger.getLogger(LocatorClientServerTest.class.getName());
-    private final QName serviceName = new QName("http://ws.iona.com/2005/11/locator", "LocatorService");
+    private final QName serviceName = new QName("http://apache.org/locator", "LocatorService");
 
     public static class MyServer extends TestServerBase {
 
