@@ -64,4 +64,14 @@ public class StringUtilsTest extends TestCase {
         assertEquals("2.0", StringUtils.formatVersionNumber("2.0-incubator-M1-SNAPSHOT"));
         assertEquals("2.0.12", StringUtils.formatVersionNumber("2.0.12-incubator-M1-SNAPSHOT"));
     }
+    
+    public void testAddPortIfMissing() throws Exception {
+        assertEquals("http://localhost:80", StringUtils.addDefaultPortIfMissing("http://localhost"));
+        assertEquals("http://localhost:80/", StringUtils.addDefaultPortIfMissing("http://localhost/"));
+        assertEquals("http://localhost:80/abc", StringUtils.addDefaultPortIfMissing("http://localhost/abc"));
+        assertEquals("http://localhost:80", StringUtils.addDefaultPortIfMissing("http://localhost:80"));
+        
+        assertEquals("http://localhost:9090", 
+                     StringUtils.addDefaultPortIfMissing("http://localhost", "9090"));
+    }
 }

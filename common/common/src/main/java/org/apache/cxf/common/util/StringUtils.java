@@ -169,11 +169,43 @@ public final class StringUtils {
         return results;
     } 
     
+    public static String getFirstFound(String contents, String regex) {
+        List<String> founds = getFound(contents, regex);
+        if (isEmpty(founds)) {
+            return null;
+        }
+        return founds.get(0);
+    }
+    
     public static String formatVersionNumber(String target) {
         List<String> found = StringUtils.getFound(target, "\\d+\\.\\d+\\.?\\d*");
         if (isEmpty(found)) {
             return target;
         }
         return getFirstNotEmpty(found);
+    }
+    
+    public static String addDefaultPortIfMissing(String urlString) {
+        return addDefaultPortIfMissing(urlString, "80");
+    }
+    
+    public static String addDefaultPortIfMissing(String urlString, String defaultPort) {
+        URL url = null;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            return urlString;
+        }
+        if (url.getPort() != -1) {
+            return urlString;
+        }
+        String regex = "http://([^/]+)";        
+        String found = StringUtils.getFirstFound(urlString, regex);
+        String replacer = "http://" + found + ":" + defaultPort;
+        
+        if (!StringUtils.isEmpty(found)) {
+            urlString = urlString.replaceFirst(regex, replacer);
+        }                
+        return urlString;
     }
 }

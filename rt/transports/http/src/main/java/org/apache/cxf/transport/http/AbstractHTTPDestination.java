@@ -32,6 +32,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.message.Message;
@@ -167,9 +168,9 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
     protected abstract void copyRequestHeaders(Message message,
                                                Map<String, List<String>> headers);
 
-    protected final String getAddressValue() {
-        return endpointInfo.getAddress();
-    }
+    protected final String getAddressValue() {       
+        return StringUtils.addDefaultPortIfMissing(endpointInfo.getAddress());
+    }        
 
     private void init() {
         if (!isSetServer()) {

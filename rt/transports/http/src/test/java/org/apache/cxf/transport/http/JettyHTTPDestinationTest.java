@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
@@ -110,7 +111,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertNotNull("unexpected null address", ref);
         assertEquals("unexpected address",
                      EndpointReferenceUtils.getAddress(ref),
-                     EndpointReferenceUtils.getAddress(address));
+                     StringUtils.addDefaultPortIfMissing(EndpointReferenceUtils.getAddress(address)));
     }
     public void testRemoveServant() throws Exception {
         destination = setUpDestination();
