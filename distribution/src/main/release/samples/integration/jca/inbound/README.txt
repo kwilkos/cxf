@@ -13,7 +13,6 @@ Running the Demo
 There are a number of steps required to successfully run this demo
 application:
 
-    . Update jboss endorsed jars
     . Set Jboss environment
     . Set CXF environment
     . Build CXF J2EE Connector rar file
@@ -24,41 +23,30 @@ application:
     . Activate the EJB Web Services facade
     . Access the EJB using a Web Services client
 
-Update Jboss endorsed jars
-==========================
- (Unix)  % cd $CXF_HOME/lib/
-         % cp activation-1.1.jar jaxb-api-2.0.jar jaxb-impl-2.0.3.jar
-              jaxb-xjc-2.0.3.jar stax-api-1.0.1.jar
-	      jsr181-api-1.0-MR1.jar
-              saaj-api-1.3.jar saaj-impl-1.3.jar 
-              <jboss-home>/lib/endorsed\
- (Windows) > cd %CXF_HOME%\lib\
-           > copy activation-1.1.jar jaxb-api-2.0.jar jaxb-impl-2.0.3.jar
-              jaxb-xjc-2.0.3.jar stax-api-1.0.1.jar
-	      jsr181-api-1.0-MR1.jar
-              saaj-api-1.3.jar saaj-impl-1.3.jar 
-              <jboss-home>\lib\endorsed\
-
 
 Set Jboss environment
 =====================
  (Unix) % export JBOSS_HOME=<jboss-home>
  (Windows) > set JBOSS_HOME=<jboss-home>
 
+
 Set CXF environment
 =====================
  (Unix) % export CXF_HOME=<cxf-home>
  (Windows) > set CXF_HOME=<cxf-home>
 
+
 Build CXF J2EE Connector rar file
 =================================
-    Before build CXF J2EE Connector, must update value of 
-    <EJBServicePropertiesURL> with abstract path of $CXF_HOME in 
-    <CXF_HOME>/etc/ra.xml file
-
-    Build CXF J2EE Connector file:
   (Unix)    % ant generate.rar
   (Windows) > ant generate.rar
+
+This target will update jboss endorsed directory first,
+it will copy activation-1.1.jar,jaxb-api-2.0.jar,
+jaxb-impl-2.0.3.jar,jaxb-xjc-2.0.3.jar,stax-api-1.0.1.jar,
+jsr181-api-1.0-MR1.jar,saaj-api-1.3.jar saaj-impl-1.3.jar
+ files to $JBOSS_HOME/lib/endorsed directory.
+
 
 Launch the application server
 =============================
@@ -81,27 +69,26 @@ Deploy the CXF J2EE Connector
     the connector in JBoss application 
     servers.
 
+  (Unix)    % ant deploy.cxf.rar
+  (Windows) > ant deploy.cxf.rar
 
-
-JBoss
------
-Copy the connector RAR from its location in the CXF installation to
+Or copy the connector RAR from its location in the CXF installation to
 the JBoss deployment directory.
 
   (Unix)    % cd $CXF_HOME/lib/
             % cp cxf.rar \ 
-              <jboss-home>/server/default/deploy
+              $JBOSS_HOME/server/default/deploy
 
   (Windows) > cd %CXF_HOME%\lib\
             > copy cxf.rar 
-              <jboss-home>\server\default\deploy
+              %JBOSS_HOME%\server\default\deploy
 
 Copy the cxf_j2ee_1_5-ds.xml file to the JBoss deployment directory.
 
-  (Unix)    % cp ./etc/cxfj2ee_1_5-ds.xml <jboss-home>/server/default/deploy
+  (Unix)    % cp ./etc/cxfj2ee_1_5-ds.xml $JBOSS_HOME/server/default/deploy
 
   (Windows) > copy .\etc\cxfj2ee_1_5-ds.xml 
-                <jboss-home>\server\default\deploy
+                %JBOSS_HOME%\server\default\deploy
 
 
 Building the Demo
@@ -128,15 +115,16 @@ application server. Please consult your vender documentation on
 application deployment. Here are basic instructions to deploy the
 demo application for JBoss application servers.
 
-JBoss
------
-Copy the EJB archive ./j2ee-archives/greeterejb.jar 
+  (Unix)    % ant deploy.ejb.jar
+  (Windows) > ant deploy.ejb.jar
+
+Or copy the EJB archive ./j2ee-archives/greeterejb.jar 
 to the JBoss deployment directory.
   
   (Unix)    % cp ./j2ee-archives/greeterejb.jar \ 
-              <jboss-home>/server/default/deploy
+              $JBOSS_HOME/server/default/deploy
   (Windows) > copy .\j2ee-archives\greeterejb.jar 
-              <jboss-home>\server\default\deploy
+              %JBOSS_HOME%\server\default\deploy
 
 Activate the EJB Web Services facade
 ====================================

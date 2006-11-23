@@ -44,7 +44,37 @@
     <pathelement location="${jboss.home}/client/jbossall-client.jar"/>
   </path>
 
-  <target name="generate.rar" depends="init">
+  <target name="prepare">
+    <replace file="${cxf.home}/etc/ra.xml" token="CXF_HOME" value="${cxf.home}"/>
+  </target>
+
+  <target name="init"> 
+    <!--mkdir dir="${build.classes.dir}"/-->
+    <mkdir dir="${build.classes.dir}/cxf-rar/META-INF"/>
+    
+    <mkdir dir="${j2ee.archives}"/>
+  </target>
+  
+  <target name="update.jboss.endorsed">
+    <copy todir="${jboss.home}/lib/endorsed">
+      <fileset dir="${cxf.home}/lib">
+	<include name="activation*" />            
+	<include name="jaxb*" />
+	<include name="stax*" />
+	<include name="jsr181*" />
+	<include name="saaj*" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="deploy.cxf.rar" depends="generate.rar">
+    <copy todir="${jboss.home}/server/default/deploy">
+      <fileset dir="${cxf.home}/lib" includes="cxf.rar"/>
+      <fileset dir="${basedir}/etc" includes="cxfj2ee_1_5-ds.xml"/>
+    </copy>
+  </target>
+
+  <target name="generate.rar" depends="prepare,update.jboss.endorsed,init">
     <copy file="${cxf.home}/etc/ra.xml" todir="${build.classes.dir}/cxf-rar/META-INF"/>
     <copy todir="${build.classes.dir}/cxf-rar">
       <fileset dir="${cxf.home}/lib">
@@ -77,46 +107,47 @@
   </target>
     
 
-    <target name="build" depends="clean,init,j2ee.compile,build.ejb.jar"/> 
+  <target name="build" depends="clean,init,j2ee.compile,build.ejb.jar"/> 
 
-    <target name="init"> 
-      <!--mkdir dir="${build.classes.dir}"/-->
-      <mkdir dir="${build.classes.dir}/cxf-rar/META-INF"/>
+    
+  <target name="j2ee.compile">
+    <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true" fork="yes">
+      <include name="**/*.java"/>
+      <classpath>
+	<pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
+	<pathelement location="${build.classes.dir}"/>
+	<!--path refid="cxf.classpath"/-->
+	<path refid="other.classpath"/>
+      </classpath>
+    </javac>
+  </target>
 
-      <mkdir dir="${j2ee.archives}"/>
-    </target>
+  <target name="clean">
+    <delete failonerror="no">
+      <fileset dir="./src" includes="**/*.class"/>
+      <fileset dir="." includes="**/*.jar"/>
+      <fileset dir="." includes="**/*.rar"/>
+      <fileset dir="${build.classes.dir}/cxf-rar" includes="**/*"/>
+    </delete>
+  </target>
     
-    <target name="j2ee.compile">
-      <javac srcdir="${basedir}/src" destdir="${build.classes.dir}" debug="true" fork="yes">
-	<include name="**/*.java"/>
-	<classpath>
-	  <pathelement location="${cxf.home}/lib/cxf-incubator.jar"/>
-	  <pathelement location="${build.classes.dir}"/>
-	  <!--path refid="cxf.classpath"/-->
-	  <path refid="other.classpath"/>
-	</classpath>
-      </javac>
-    </target>
-    <target name="clean">
-      <delete failonerror="no">
-	<fileset dir="./src" includes="**/*.class"/>
-	<fileset dir="." includes="**/*.jar"/>
-	<fileset dir="." includes="**/*.rar"/>
-	<fileset dir="${build.classes.dir}/cxf-rar" includes="**/*"/>
-      </delete>
-    </target>
-    
-    <target name="build.ejb.jar"> 
-      <jar destfile="${j2ee.archives}/greeterejb.jar"> 
-	<metainf dir="./etc"> 
-	    <include name="*ejb*.xml"/>
-	</metainf>
-	<fileset dir="${build.classes.dir}/" includes="org/**/*.class"/>
-	<fileset dir="${build.classes.dir}">
-	  <include name="**/ejb/*.class"/>
-	</fileset>
-      </jar>
-    </target> 
+  <target name="build.ejb.jar"> 
+    <jar destfile="${j2ee.archives}/greeterejb.jar"> 
+      <metainf dir="./etc"> 
+	<include name="*ejb*.xml"/>
+      </metainf>
+      <fileset dir="${build.classes.dir}/" includes="org/**/*.class"/>
+      <fileset dir="${build.classes.dir}">
+	<include name="**/ejb/*.class"/>
+      </fileset>
+    </jar>
+  </target> 
+
+  <target name="deploy.ejb.jar" depends="build.ejb.jar">
+    <copy todir="${jboss.home}/server/default/deploy">
+      <fileset dir="${j2ee.archives}" includes="greeterejb.jar"/>
+    </copy>
+  </target>
 
     <!-- 
 	 this target appends the necessary entry to ejb_servants.properties 
@@ -133,6 +164,7 @@
       </echo>
       <replace file="${servants.props.file}" token="\" value="/"/> 
     </target>
+
 
     <target name="client"> 
       <java classname="demo.client.GreeterClient" fork="true"> 

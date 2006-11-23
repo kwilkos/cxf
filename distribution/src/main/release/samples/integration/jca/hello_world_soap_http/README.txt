@@ -12,7 +12,6 @@ Running the Demo
 There are a number of steps required to successfully run this demo
 application:
 
-    . Update jboss endorsed jars
     . Set Jboss environment
     . Set CXF environment
     . Build CXF J2EE Connector rar file
@@ -23,25 +22,12 @@ application:
     . Launch the CXF Server
     . Accessing the web application 
 
-Update Jboss endorsed jars
-==========================
- (Unix)  % cd $CXF_HOME/lib/
-         % cp activation-1.1.jar jaxb-api-2.0.jar jaxb-impl-2.0.3.jar
-              jaxb-xjc-2.0.3.jar stax-api-1.0.1.jar
-	      jsr181-api-1.0-MR1.jar
-              saaj-api-1.3.jar saaj-impl-1.3.jar 
-              <jboss-home>/lib/endorsed\
- (Windows) > cd %CXF_HOME%\lib\
-           > copy activation-1.1.jar jaxb-api-2.0.jar jaxb-impl-2.0.3.jar
-              jaxb-xjc-2.0.3.jar stax-api-1.0.1.jar
-	      jsr181-api-1.0-MR1.jar
-              saaj-api-1.3.jar saaj-impl-1.3.jar 
-              <jboss-home>\lib\endorsed\
 
 Set Jboss environment
 =====================
  (Unix) % export JBOSS_HOME=<jboss-home>
  (Windows) > set JBOSS_HOME=<jboss-home>
+
 
 Set CXF environment
 =====================
@@ -51,21 +37,22 @@ Set CXF environment
 
 Build CXF J2EE Connector rar file
 =================================
-    Before build CXF J2EE Connector, must update value of 
-    <EJBServicePropertiesURL> with abstract path of $CXF_HOME in 
-    <CXF_HOME>/etc/ra.xml file
-
-    Build CXF J2EE Connector file:
   (Unix)    % ant generate.rar
   (Windows) > ant generate.rar
+
+This target will update jboss endorsed directory first,
+it will copy activation-1.1.jar,jaxb-api-2.0.jar,
+jaxb-impl-2.0.3.jar,jaxb-xjc-2.0.3.jar,stax-api-1.0.1.jar,
+jsr181-api-1.0-MR1.jar,saaj-api-1.3.jar saaj-impl-1.3.jar
+ files to $JBOSS_HOME/lib/endorsed directory.
+
 
 Launch the application server
 =============================
 
     The demo requires an application server.  Make sure you have a
     running instance of an application server. 
-
-    
+   
 
 Deploy the Apache CXF J2EE Connector
 ===============================
@@ -81,26 +68,27 @@ Deploy the Apache CXF J2EE Connector
     on connector deployment. Here are basic instructions to deploy
     the connector in JBoss application servers.
 
+  (Unix)    % ant deploy.cxf.rar
+  (Windows) > ant deploy.cxf.rar
 
-JBoss
------
-Copy the connector RAR from its location in the Apache CXF installation to
+Or copy the connector RAR from its location in the Apache CXF installation to
 the JBoss deployment directory.
 
-  (Unix)    % cd $CXF_HOME/lib/
-            % cp cxf.rar \ 
-              <jboss-home>/server/default/deploy
+  Copy connector file to deployment directory.
+    (Unix)    % cd $CXF_HOME/lib/
+              % cp cxf.rar \ 
+                 $JBOSS_HOME/server/default/deploy
 
-  (Windows) > cd %CXF_HOME%\lib\
-            > copy cxf.rar 
-              <jboss-home>\server\default\deploy
+    (Windows) > cd %CXF_HOME%\lib\
+              > copy cxf.rar 
+                 %JBOSS_HOME%\server\default\deploy
 
-Copy the cxf_j2ee_1_5-ds.xml file to the JBoss deployment directory.
+  Copy the cxf_j2ee_1_5-ds.xml file to the JBoss deployment directory.
+    (Unix)    % cp ./etc/cxfj2ee_1_5-ds.xml $JBOSS_HOME/server/default/deploy
 
-  (Unix)    % cp ./etc/cxfj2ee_1_5-ds.xml <jboss-home>/server/default/deploy
+    (Windows) > copy .\etc\cxfj2ee_1_5-ds.xml 
+                   %JBOSS_HOME%\server\default\deploy
 
-  (Windows) > copy .\etc\cxfj2ee_1_5-ds.xml 
-                <jboss-home>\server\default\deploy
 
 Building the Demo
 =================
@@ -121,7 +109,6 @@ Issue the command:
 
   (Unix)    % ant
   (Windows) > ant
-
 
 
 Launch the Apache CXF Service
@@ -148,19 +135,18 @@ Deploying the demo WAR archive
 How to deploy a WAR archive is dependent on your 
 application server. Please consult your vendor documentation
 on application deployment. Here are basic instructions to deploy
-the demo application for JBoss, WebLogic and WebSphere application 
-servers.
+the demo application for JBoss application servers.
 
-JBoss
------
-Copy the WAR archive ./build/lib/helloworld.war 
+  (Unix)    % ant deploy.war
+  (Windows) > ant deploy.war
+
+Or copy the WAR archive ./build/lib/helloworld.war 
 to the JBoss deployment directory.
   
   (Unix)    % cp ./build/lib/helloworld.war \ 
-              <jboss-home>/server/default/deploy
+              $JBOSS_HOME/server/default/deploy
   (Windows) > copy .\build\lib\helloworld.war 
-              <jboss-home>\server\default\deploy
-
+              %JBOSS_HOME%\server\default\deploy
 
 
 Accessing the web application 
