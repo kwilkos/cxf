@@ -42,6 +42,7 @@ import javax.xml.ws.WebServiceException;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.DefaultServiceConfiguration;
@@ -150,10 +151,14 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
                     return Boolean.TRUE;
                 }
             } else {
-                return method.getDeclaringClass().isInterface();
+                return hasWebServiceAnnotation(method);              
             }
         }
         return Boolean.FALSE;
+    }
+    
+    private boolean hasWebServiceAnnotation(Method method) {
+        return method.getDeclaringClass().getAnnotation(WebService.class) != null; 
     }
 
     Method getDeclaredMethod(Method method) {
@@ -404,7 +409,13 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
         SOAPBinding ann = m.getAnnotation(SOAPBinding.class);
         if (ann != null) {
-            return !(ann.parameterStyle().equals(ParameterStyle.BARE) || ann.style().equals(Style.RPC));
+            if (ann.style().equals(Style.RPC)) {        
+                throw new Fault(new RuntimeException("Method [" 
+                                                     + m.getName() 
+                                                     + "] processing error: " 
+                                                     + "SOAPBinding can not on method with RPC style"));
+            }
+            return !(ann.parameterStyle().equals(ParameterStyle.BARE));
         }
 
         return isWrapped();

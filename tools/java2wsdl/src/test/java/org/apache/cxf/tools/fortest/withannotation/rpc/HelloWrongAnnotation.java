@@ -18,17 +18,17 @@
  */
 
 package org.apache.cxf.tools.fortest.withannotation.rpc;
- 
+
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 
-@WebService(name = "Hello", targetNamespace = "http://cxf.com/")
-@SOAPBinding(style = Style.RPC, use = Use.LITERAL)
-public interface Hello {
-      
+@WebService(name = "HelloWrongAnnotation", targetNamespace = "http://cxf.com/")
+public interface HelloWrongAnnotation {
+
+    @SOAPBinding(style = Style.RPC, use = Use.LITERAL)
     @WebMethod(operationName = "sayHi", exclude = false)
     String sayHi();
 }

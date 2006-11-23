@@ -141,7 +141,8 @@ public class ClassProcessor {
         int result = WSDLConstants.ERORR_STYLE_USE;
         if (binding != null) {
             if (binding.style() == SOAPBinding.Style.RPC) {
-                result = WSDLConstants.RPC_WRAPPED;
+                Message message = new Message("SOAPBinding_RPC_ON_METHOD", LOG, method.getName());
+                throw new ToolException(message);                
             }
             if (binding.style() == SOAPBinding.Style.DOCUMENT
                 && binding.parameterStyle() == SOAPBinding.ParameterStyle.WRAPPED) {

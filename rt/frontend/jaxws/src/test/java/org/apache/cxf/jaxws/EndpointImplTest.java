@@ -35,6 +35,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.HelloImpl;
+import org.apache.hello_world_soap_http.HelloWrongAnnotation;
 
 public class EndpointImplTest extends AbstractJaxWsTest {
 
@@ -103,6 +104,21 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         } catch (IllegalArgumentException ex) {
             assertTrue(ex.getCause() instanceof BusException);
             assertEquals("BINDING_INCOMPATIBLE_ADDRESS_EXC", ((BusException)ex.getCause()).getCode());
+        }
+    }
+    
+    public void testSOAPBindingOnMethodWithRPC() {
+        HelloWrongAnnotation hello = new HelloWrongAnnotation();
+        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        serviceFactory.setBus(getBus());
+        serviceFactory.setInvoker(new BeanInvoker(hello));
+        serviceFactory.setServiceClass(HelloWrongAnnotation.class);
+        
+        try {
+            new EndpointImpl(getBus(), hello, serviceFactory);
+        } catch (Exception e) {
+            String expeced = "Method [sayHi] processing error: SOAPBinding can not on method with RPC style";
+            assertEquals(expeced, e.getMessage());
         }
     }
 

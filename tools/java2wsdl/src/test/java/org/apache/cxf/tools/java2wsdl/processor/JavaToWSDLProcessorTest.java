@@ -287,11 +287,28 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.HelloWrapped");
         env.put(ToolConstants.CFG_SERVICENAME, serviceName);
         j2wProcessor.setEnvironment(env);
-        String expected = "Can not load the request wrapper class " 
-            + "org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHi";
         try {        
             j2wProcessor.process();
-        } catch (ToolException e) {           
+        } catch (ToolException e) {
+            String expected = "Can not load the request wrapper class " 
+                + "org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHi";            
+            assertTrue(e.getMessage().contains(expected));
+        } catch (Exception e) {
+            fail("Should not happen other exception " + e.getMessage());
+        }
+    }
+    
+    public void testSOAPBindingRPCOnMethod() {
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/rpc_on_method.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, 
+                "org.apache.cxf.tools.fortest.withannotation.rpc.HelloWrongAnnotation");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        j2wProcessor.setEnvironment(env);
+        try {        
+            j2wProcessor.process();
+        } catch (ToolException e) {
+            String expected = "Method [sayHi] processing error : SOAPBinding annotation " 
+                + "can not be placed on method with RPC style";
             assertTrue(e.getMessage().contains(expected));
         } catch (Exception e) {
             fail("Should not happen other exception " + e.getMessage());
