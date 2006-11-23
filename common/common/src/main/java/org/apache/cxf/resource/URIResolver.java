@@ -120,11 +120,16 @@ public class URIResolver {
                 
                 base = base.resolve(relative);
                 if (base.isAbsolute()) {
-                    baseFile = new File(base);
-                    if (baseFile.exists()) {
-                        is = base.toURL().openStream();
-                        uri = base;
-                    } else {
+                    try {
+                        baseFile = new File(base);
+                        if (baseFile.exists()) {
+                            is = base.toURL().openStream();
+                            uri = base;
+                        } else {
+                            tryClasspath(base.toString().startsWith("file:") 
+                                         ? base.toString().substring(5) : base.toString());
+                        }
+                    } catch (Throwable th) {
                         tryClasspath(base.toString().startsWith("file:") 
                                      ? base.toString().substring(5) : base.toString());
                     }

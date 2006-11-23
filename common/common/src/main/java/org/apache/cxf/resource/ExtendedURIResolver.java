@@ -51,10 +51,9 @@ public class ExtendedURIResolver {
                 InputStream in = currentResolver.getInputStream();
                 resourceOpened.addElement(in);
                 InputSource source = new InputSource(in);               
-                source.setSystemId(curUri);
+                source.setSystemId(curUri);                
                 return source;
             }
-
         } catch (IOException e) {
             // move on...
         }
