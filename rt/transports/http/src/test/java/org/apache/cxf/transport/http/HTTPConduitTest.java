@@ -320,9 +320,8 @@ public class HTTPConduitTest extends TestCase {
         wrappedOS.close();
         
         assertNotNull("expected in message", inMessage);
-        assertSame("unexpected response headers",
-                   inMessage.get(Message.PROTOCOL_HEADERS), 
-                   Collections.EMPTY_MAP);
+        Map<?, ?> headerMap = (Map<?, ?>) inMessage.get(Message.PROTOCOL_HEADERS);
+        assertEquals("unexpected response headers", headerMap.size(), 0);
         Integer expectedResponseCode = decoupled 
                                        ? HttpURLConnection.HTTP_ACCEPTED
                                        : HttpURLConnection.HTTP_OK;

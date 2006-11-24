@@ -21,8 +21,9 @@ package org.apache.cxf.jaxws;
 import junit.framework.TestCase;
 
 import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.message.Exchange;
-import org.apache.cxf.mime.Hello;
+
 import org.apache.cxf.service.invoker.ScopePolicy;
 import org.easymock.classextension.EasyMock;
 

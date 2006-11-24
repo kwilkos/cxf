@@ -19,7 +19,6 @@
 
 package org.apache.cxf.binding.soap.attachments;
 
-import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -55,11 +54,13 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.TestBase;
 import org.apache.cxf.binding.soap.TestUtil;
 import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
-import org.apache.cxf.bindings.soap.attachments.types.DetailType;
+
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
 import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.mime.types.XopType;
 
 public class AttachmentTest extends TestBase {
 
@@ -79,7 +80,7 @@ public class AttachmentTest extends TestBase {
             fail(ioe.getStackTrace().toString());
         }
         InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
-                        .getInputStream();
+                .getInputStream();
         testHandleMessage(soapMessage, is, true);
     }
 
@@ -90,7 +91,7 @@ public class AttachmentTest extends TestBase {
             fail(ioe.getStackTrace().toString());
         }
         InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
-                        .getInputStream();
+                .getInputStream();
         testHandleMessage(soapMessage, is, true);
     }
 
@@ -99,10 +100,10 @@ public class AttachmentTest extends TestBase {
         try {
             soapMessage = TestUtil.createSoapMessage(Soap12.getInstance(), chain, this.getClass());
             InputStream is = soapMessage.getContent(Attachment.class).getDataHandler().getDataSource()
-                            .getInputStream();
+                    .getInputStream();
             testHandleMessage(soapMessage, is, false);
 
-            JAXBContext context = JAXBContext.newInstance("org.apache.cxf.bindings.soap.attachments.types");
+            JAXBContext context = JAXBContext.newInstance("org.apache.cxf.mime.types");
             Unmarshaller u = context.createUnmarshaller();
 
             JAXBAttachmentUnmarshaller jau = new JAXBAttachmentUnmarshaller(soapMessage);
@@ -111,12 +112,11 @@ public class AttachmentTest extends TestBase {
             XMLStreamReader r = (XMLStreamReader) soapMessage.getContent(XMLStreamReader.class);
             while (r.hasNext()) {
                 r.nextTag();
-                if (r.getLocalName().equals("Body")) {
-                    r.nextTag();
+                if (r.getLocalName().equals("testXop")) {                    
                     break;
                 }
             }
-            obj = u.unmarshal(r, DetailType.class);
+            obj = u.unmarshal(r);
 
         } catch (UnmarshalException ue) {
             // It's helpful to include the cause in the case of
@@ -136,38 +136,36 @@ public class AttachmentTest extends TestBase {
         }
 
         assertTrue(obj != null);
-        assertTrue(obj instanceof DetailType);
-        DetailType detailType = (DetailType) obj;
-        assertTrue(detailType.getSName().equals("hello world"));
-        //needs futhur investigation
-        assertTrue(detailType.getPhoto() instanceof Image);
-        assertTrue(detailType.getSound().length > 0);
+        assertTrue(obj instanceof XopType);
+        XopType xopType = (XopType) obj;
+        assertTrue(xopType.getName().equals("hello world"));
+        // needs futhur investigation       
+        assertTrue(xopType.getAttachinfo().length > 0);
     }
 
     public void testDoMarshallXopEnabled() throws Exception {
         // mashalling data object
-        QName elName = new QName("http://cxf.apache.org/bindings/soap/attachments/types", "Detail");
+        QName elName = new QName("http://cxf.apache.org/mime", "testXop");
         soapMessage = TestUtil.createEmptySoapMessage(Soap12.getInstance(), chain);
         try {
-            DetailType detailObj = TestUtil.createDetailObject(this.getClass());
-            Class<?> cls = DetailType.class;
-            JAXBContext context = JAXBContext.newInstance("org.apache.cxf.bindings.soap.attachments.types");
+            XopType xopObj = TestUtil.createXopObject(this.getClass());
+            Class<?> cls = XopType.class;
+            JAXBContext context = JAXBContext.newInstance("org.apache.cxf.mime.types");
             Marshaller m = context.createMarshaller();
 
             JAXBAttachmentMarshaller jam = new JAXBAttachmentMarshaller(soapMessage);
             jam.setXOPPackage(true);
             m.setAttachmentMarshaller(jam);
 
-            Object mObj = detailObj;
+            Object mObj = xopObj;
 
             CachedOutputStream cosXml = new CachedOutputStream();
             XMLOutputFactory output = XMLOutputFactory.newInstance();
             XMLStreamWriter writer = output.createXMLStreamWriter(cosXml);
 
             if (null != cls && !cls.isAnnotationPresent(XmlRootElement.class)) {
-                mObj = JAXBElement.class.getConstructor(
-                                new Class[] {QName.class, Class.class, Object.class}).newInstance(elName,
-                                cls, mObj);
+                mObj = JAXBElement.class.getConstructor(new Class[]{QName.class, Class.class, Object.class})
+                        .newInstance(elName, cls, mObj);
             }
             // No envelop & body generated!
             m.marshal(mObj, writer);
@@ -204,19 +202,20 @@ public class AttachmentTest extends TestBase {
             Map<String, List<String>> mimeHttpHeaders = new HashMap<String, List<String>>();
             soapMessage.put(Message.PROTOCOL_HEADERS, mimeHttpHeaders);
             StringTokenizer stk = new StringTokenizer(contentType, ";");
-            List<String> headers = new ArrayList<String>(); 
+            List<String> headers = new ArrayList<String>();
             while (stk.hasMoreTokens()) {
                 headers.add(stk.nextToken().trim());
             }
-            mimeHttpHeaders.put("Content-Type", headers);
+            mimeHttpHeaders.put(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE), headers);
             mimeHttpHeaders.put("Content-Description", Arrays.asList("XML document Multi-Media attachment"));
 
             soapMessage.getInterceptorChain().doIntercept(soapMessage);
 
             Attachment primarySoapPart = (Attachment) soapMessage.getContent(Attachment.class);
-            String ct = primarySoapPart.getHeader("Content-Type");
+            String ct = primarySoapPart.getHeader(HttpHeaderHelper
+                    .getHeaderKey(HttpHeaderHelper.CONTENT_TYPE));
             assertTrue("type header determined by Soap Version", ct.indexOf(soapMessage.getVersion()
-                            .getSoapMimeType()) >= 0);
+                    .getSoapMimeType()) >= 0);
             assertTrue(primarySoapPart.getDataHandler() != null);
 
             XMLStreamReader xsr = (XMLStreamReader) soapMessage.getContent(XMLStreamReader.class);
@@ -234,7 +233,7 @@ public class AttachmentTest extends TestBase {
                 while (xsr.hasNext()) {
                     xsr.nextTag();
                     // System.out.println(xsr.getName());
-                    if (xsr.getName().getLocalPart().equals("Detail")) {
+                    if (xsr.getName().getLocalPart().equals("testXop")) {
                         found = true;
                         break;
                     }
@@ -244,15 +243,11 @@ public class AttachmentTest extends TestBase {
             AttachmentDeserializer ad = soapMessage.get(AttachmentDeserializer.class);
             ad.processAttachments();
             Collection<Attachment> attachments = soapMessage.getAttachments();
-            assertTrue(attachments.size() == 2);
+            assertTrue(attachments.size() == 1);
             Iterator<Attachment> it = attachments.iterator();
             Attachment att1 = it.next();
             assertTrue(att1.getId() != null);
             assertTrue(att1.getDataHandler() != null);
-
-            Attachment att2 = it.next();
-            assertTrue(att2.getId() != null);
-            assertTrue(att2.getDataHandler() != null);
 
         } catch (XMLStreamException xse) {
             fail(xse.getStackTrace().toString());

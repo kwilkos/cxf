@@ -37,6 +37,7 @@ import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -205,7 +206,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 values = headers.get(fname);
             } else {
                 values = new ArrayList<String>();
-                headers.put(fname, values);
+                headers.put(HttpHeaderHelper.getHeaderKey(fname), values);
             }
             for (Enumeration e2 = req.getFieldValues(fname); e2.hasMoreElements();) {
                 String val = (String)e2.nextElement();
@@ -244,7 +245,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
             try {
 
-                resp.addField("Content-Type", "text/xml");
+                resp.addField(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
 
                 OutputStream os = resp.getOutputStream();
 

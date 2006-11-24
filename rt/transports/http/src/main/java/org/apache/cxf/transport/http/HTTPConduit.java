@@ -43,6 +43,7 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -184,9 +185,10 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         connection.setUseCaches(false);
         
         if (null != message.get(Message.CONTENT_TYPE)) {
-            connection.setRequestProperty("Content-Type", (String)message.get(Message.CONTENT_TYPE));
+            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, 
+                    (String)message.get(Message.CONTENT_TYPE));
         } else {
-            connection.setRequestProperty("Content-Type", "text/xml");
+            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
         }
         
         if (connection instanceof HttpURLConnection) {
@@ -320,7 +322,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      */
     private Map<String, List<String>> setHeaders(Message message) {
         Map<String, List<String>> headers =
-            CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
+            CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));        
         if (null == headers) {
             headers = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, headers);
@@ -467,7 +469,11 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             Message inMessage = new MessageImpl();
             inMessage.setExchange(exchange);
             InputStream in = null;
-            inMessage.put(Message.PROTOCOL_HEADERS, connection.getHeaderFields());
+            Map<String, List<String>> headers = new HashMap<String, List<String>>();
+            for (String key : connection.getHeaderFields().keySet()) {
+                headers.put(HttpHeaderHelper.getHeaderKey(key), connection.getHeaderFields().get(key));
+            }
+            inMessage.put(Message.PROTOCOL_HEADERS, headers);
             inMessage.put(Message.RESPONSE_CODE, responseCode);
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)connection;
@@ -703,7 +709,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                         Arrays.asList(new String[] {policy.getAcceptLanguage()}));
         }
         if (policy.isSetContentType()) {
-            headers.put("Content-Type",
+            headers.put(HttpHeaderHelper.CONTENT_TYPE,
                         Arrays.asList(new String[] {policy.getContentType()}));
         }
         if (policy.isSetCookie()) {

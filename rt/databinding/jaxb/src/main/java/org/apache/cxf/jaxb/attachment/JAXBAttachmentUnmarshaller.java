@@ -31,6 +31,7 @@ import javax.xml.bind.attachment.AttachmentUnmarshaller;
 
 import org.apache.cxf.binding.attachment.AttachmentDeserializer;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
@@ -83,15 +84,16 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     @Override
     public boolean isXOPPackage() {
-        String contentTypeOfSoapBodyPart;        
+        String contentTypeOfSoapBodyPart;
         Attachment primaryMimePart = message.getContent(Attachment.class);
         if (primaryMimePart == null) {
             return false;
         } else {
-            contentTypeOfSoapBodyPart = primaryMimePart.getHeader("Content-Type");
+            contentTypeOfSoapBodyPart = primaryMimePart.getHeader(HttpHeaderHelper
+                    .getHeaderKey(HttpHeaderHelper.CONTENT_TYPE));
         }
         if (contentTypeOfSoapBodyPart != null
-                        && contentTypeOfSoapBodyPart.indexOf("application/xop+xml") >= 0) {
+                && contentTypeOfSoapBodyPart.indexOf("application/xop+xml") >= 0) {
 
             if (contentTypeOfSoapBodyPart.indexOf("application/soap+xml") >= 0) {
                 return true;
@@ -109,10 +111,10 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
             att = ad.getAttachment(contentId);
         } catch (MessagingException me) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT", LOG,
-                            contentId), me);
+                    contentId), me);
         } catch (IOException ioe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("FAILED_GETTING_ATTACHMENT", LOG,
-                            contentId), ioe);
+                    contentId), ioe);
         }
         if (att == null) {
             throw new IllegalArgumentException("Attachment " + contentId + " was not found.");

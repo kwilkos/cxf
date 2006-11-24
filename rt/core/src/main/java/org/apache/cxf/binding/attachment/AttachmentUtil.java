@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 
@@ -65,7 +66,7 @@ public final class AttachmentUtil {
         StringBuffer s = new StringBuffer();
         // Unique string is ----=_Part_<part>_<hashcode>.<currentTime>
         s.append("----=_Part_").append(part++).append("_").append(s.hashCode()).append('.').append(
-                        System.currentTimeMillis());
+                System.currentTimeMillis());
         return s.toString();
     }
 
@@ -74,14 +75,15 @@ public final class AttachmentUtil {
         if (System.getProperty("file.separator").equals("/")) {
             buffer.append("\n");
         }
-        buffer.append("Content-Type: application/xop+xml; charset=utf-8; ");
+        buffer.append(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE)
+                + ": application/xop+xml; charset=utf-8; ");
         buffer.append("type=\"" + message.getAttachmentMimeType());
         if (action != null) {
             buffer.append("; action=" + action + "\"\n");
         } else {
             buffer.append("\"\n");
         }
-        buffer.append("Content-Transfer-Encoding: binary\n");        
+        buffer.append("Content-Transfer-Encoding: binary\n");
         buffer.append("Content-ID: <" + soapPartId + ">\n");
         return buffer.toString();
     }
@@ -91,7 +93,8 @@ public final class AttachmentUtil {
         if (System.getProperty("file.separator").equals("/")) {
             buffer.append("\n");
         }
-        buffer.append("Content-Type: " + att.getDataHandler().getContentType() + ";\n");
+        buffer.append(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE) + ": "
+                + att.getDataHandler().getContentType() + ";\n");
         if (att.isXOP()) {
             buffer.append("Content-Transfer-Encoding: binary\n");
         }
@@ -100,13 +103,13 @@ public final class AttachmentUtil {
     }
 
     public static void setMimeRequestHeader(Map<String, List<String>> reqHeaders, Message message,
-                    String soapPartId, String contentDesc, String boundary) {
+            String soapPartId, String contentDesc, String boundary) {
         List<String> header1 = new ArrayList<String>();
         header1.add("1.0");
         reqHeaders.put("MIME-Version", header1);
         List<String> header2 = new ArrayList<String>();
         header2.add("Multipart/" + getMimeSubType(message, soapPartId, boundary));
-        reqHeaders.put("Content-Type", header2);
+        reqHeaders.put(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE), header2);
         List<String> header3 = new ArrayList<String>();
         header3.add(contentDesc);
         reqHeaders.put("Content-Description", header3);

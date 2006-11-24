@@ -21,7 +21,7 @@ package org.apache.cxf.jaxws;
 import org.w3c.dom.Node;
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.mtom_xop.HelloImpl;
+import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServerFactoryBean;
 import org.apache.cxf.transport.local.LocalTransportFactory;
@@ -34,10 +34,10 @@ public class HolderTest extends AbstractJaxWsTest {
 
         Bus bus = getBus();
         bean.setBus(bus);
-        bean.setServiceClass(HelloImpl.class);
+        bean.setServiceClass(TestMtomImpl.class);
         
         Service service = bean.create();
-        service.setInvoker(new JAXWSMethodInvoker(new HelloImpl()));
+        service.setInvoker(new JAXWSMethodInvoker(new TestMtomImpl()));
         
         ServerFactoryBean svr = new ServerFactoryBean();
         svr.setBus(bus);
@@ -47,9 +47,9 @@ public class HolderTest extends AbstractJaxWsTest {
         Node response = invoke("http://localhost:9036/mime-test",
                                LocalTransportFactory.TRANSPORT_ID, 
                                "echoData.xml");
-        addNamespace("h", "http://cxf.apache.org/mime");        
+        addNamespace("h", "http://cxf.apache.org/mime/types");        
         
-        assertValid("//h:data", response);        
+        assertValid("//h:name", response);        
         assertValid("/s:Envelope/s:Body", response); 
         assertNotNull(response);
         assertNoFault(response);

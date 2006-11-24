@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -88,7 +89,7 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
         LOG.info("OutgoingChainSetupInterceptor set the content-type to: " 
                  + message.get(Message.CONTENT_TYPE));
 
-        headers.put("Content-Type",  
+        headers.put(HttpHeaderHelper.CONTENT_TYPE,  
                     Arrays.asList(new String[] {(String)message.get(Message.CONTENT_TYPE)}));
     }
     

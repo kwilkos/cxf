@@ -61,7 +61,7 @@ public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
         String contentType = (String)message.get(Message.CONTENT_TYPE);
 
         LOG.info("URIParameterInterceptor handle message on path [" + path 
-                 + "] with Content-Type ["  + contentType + "]");
+                 + "] with content-type ["  + contentType + "]");
         
         BindingOperationInfo op = message.getExchange().get(BindingOperationInfo.class);
 

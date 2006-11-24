@@ -19,18 +19,18 @@
 
 package org.apache.cxf.systest.mtom;
 
-import java.io.FileOutputStream;
+// import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
+// import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.util.ByteArrayDataSource;
+// import javax.activation.DataHandler;
+// import javax.activation.DataSource;
+// import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -51,8 +51,8 @@ import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.mime.Hello;
-import org.apache.cxf.mtom_xop.HelloImpl;
+import org.apache.cxf.mime.TestMtom;
+import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -63,12 +63,11 @@ import org.apache.cxf.transport.MessageObserver;
 
 public class ServerMtomXopTest extends ClientServerTestBase {
 
-    public static final QName HELLO_PORT = new QName("http://cxf.apache.org/mime", "HelloPort");
-
-    public static final QName HELLO_SERVICE = new QName("http://cxf.apache.org/mime", "HelloService");
+    public static final QName MTOM_PORT = new QName("http://cxf.apache.org/mime", "TestMtomPort");
+    public static final QName MTOM_SERVICE = new QName("http://cxf.apache.org/mime", "TestMtomService");
 
     public void testServer() throws Exception {
-        Object implementor = new HelloImpl();
+        Object implementor = new TestMtomImpl();
         String address = "http://localhost:9036/mime-test";
 
         Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
@@ -95,15 +94,15 @@ public class ServerMtomXopTest extends ClientServerTestBase {
 
         public void run() {
             try {
-                swaTest();
+                // swaTest();
                 xopTest();
             } catch (Exception e) {
                 Thread.currentThread().interrupt();
             }
         }
-
+        /*
         private void swaTest() throws Exception {
-            Hello hello = createPort(HELLO_SERVICE, HELLO_PORT, Hello.class);
+            TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class);
             try {
                 InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
                 OutputStream outPre = new FileOutputStream("c:/tmp/swa_pre.wsdl");
@@ -118,7 +117,7 @@ public class ServerMtomXopTest extends ClientServerTestBase {
                 ByteArrayDataSource bads = new ByteArrayDataSource(this.getClass().getResourceAsStream(
                         "/wsdl/mtom_xop.wsdl"), "application/octet-stream");
                 DataHandler dh = new DataHandler(bads);
-                DataHandler dhResp = hello.claimForm(dh);
+                DataHandler dhResp = mtomPort.testSWA(dh);
                 DataSource ds = dhResp.getDataSource();
                 InputStream in = ds.getInputStream();
 
@@ -134,9 +133,10 @@ public class ServerMtomXopTest extends ClientServerTestBase {
                 throw (Exception) ex.getCause();
             }
         }
-
+        */
+        
         private void xopTest() throws Exception {
-            Hello hello = createPort(HELLO_SERVICE, HELLO_PORT, Hello.class);
+            TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class);
             try {
                 InputStream pre = this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl");
                 long fileSize = 0;
@@ -148,7 +148,7 @@ public class ServerMtomXopTest extends ClientServerTestBase {
                 this.getClass().getResourceAsStream("/wsdl/mtom_xop.wsdl").read(param.value);
                 String target = new String(param.value);
                 Holder<String> name = new Holder<String>("call detail");
-                hello.detail(name, param);
+                mtomPort.testXop(name, param);
                 assertEquals("name unchanged", "return detail + call detail", name.value);
                 assertEquals("attachinfo changed", target, new String(param.value));
             } catch (UndeclaredThrowableException ex) {

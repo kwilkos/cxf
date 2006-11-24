@@ -27,7 +27,8 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
-import org.apache.cxf.mtom_xop.HelloImpl;
+import org.apache.cxf.mime.types.XopType;
+import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.FaultInfo;
@@ -87,22 +88,24 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
 
         Bus bus = getBus();
         bean.setBus(bus);
-        bean.setServiceClass(HelloImpl.class);
+        bean.setServiceClass(TestMtomImpl.class);
 
         Service service = bean.create();
         InterfaceInfo intf = service.getServiceInfo().getInterface();
         
         OperationInfo op = intf.getOperation(
-            new QName("http://cxf.apache.org/mime", "echoData"));
+            new QName("http://cxf.apache.org/mime", "testXop"));
         assertNotNull(op);
         
         // test setup of input parts
         Iterator<MessagePartInfo> itr = op.getInput().getMessageParts().iterator();
         assertTrue(itr.hasNext());
         MessagePartInfo part = itr.next();
-        assertEquals("body", part.getName().getLocalPart());
-        assertEquals(String.class, part.getTypeClass());
-        
+        assertEquals("data", part.getName().getLocalPart());
+        assertEquals(XopType.class, part.getTypeClass());
+
+        /*
+         * revisit, try to use other wsdl operation rewrite test in future 
         assertTrue(itr.hasNext());
         part = itr.next();
         assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
@@ -116,7 +119,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertTrue(itr.hasNext());
         part = itr.next();
         assertEquals(Boolean.TRUE, part.getProperty(JaxWsServiceFactoryBean.MODE_INOUT));
-        
+        */
         assertFalse(itr.hasNext());
     }
 }

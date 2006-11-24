@@ -17,39 +17,25 @@
  * under the License.
  */
 
-package org.apache.cxf.mtom_xop;
+package demo.mtom.server;
 
-import javax.activation.DataHandler;
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
-import org.apache.cxf.mime.Hello;
+import org.apache.cxf.mime.TestMtom;
 
-@WebService(serviceName = "HelloService",
-                portName = "HelloPort",
-                endpointInterface = "org.apache.cxf.mime.Hello",
+@WebService(serviceName = "TestMtomService",
+                portName = "TestMtomPort",
+                endpointInterface = "org.apache.cxf.mime.TestMtom",
                 targetNamespace = "http://cxf.apache.org/mime")
 
-public class HelloImpl implements Hello {
+public class TestMtomImpl implements TestMtom {
 
-    public DataHandler claimForm(DataHandler data) {
-        return data;
-    }
 
-    public void detail(Holder<String> name, Holder<byte[]> attachinfo) {
+    public void testXop(Holder<String> name, Holder<byte[]> attachinfo) {
+        System.out.println("Received image holder data from client");
+        System.out.println("The image holder data length is " + attachinfo.value.length);        
         name.value = "return detail + " + name.value;        
-    }
-
-    public void echoData(String body, Holder<byte[]> data) {        
-        String echo = new String("echo!");
-        byte[] returnData = new byte[data.value.length + 10];
-        System.arraycopy(data.value, 0, returnData, 0, data.value.length);
-        System.arraycopy(echo.getBytes(), 0, returnData, data.value.length, echo.getBytes().length);
-        data.value = returnData;        
-    }
-
-    public void echoDataWithEnableMIMEContent(String body, Holder<byte[]> data) {
-        System.out.println(body);
     }
 
 }

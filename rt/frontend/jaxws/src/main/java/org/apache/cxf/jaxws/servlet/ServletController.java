@@ -41,6 +41,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -93,7 +94,7 @@ public class ServletController {
                 }
             } else if (wsdl) {
                 generateWSDL(request, res, d);
-            } else {
+            } else {                
                 invokeDestination(request, res, d);
             }
         } catch (IOException e) {
@@ -103,7 +104,7 @@ public class ServletController {
 
     private void generateXSD(HttpServletRequest request, HttpServletResponse response, String xsdName) 
         throws ServletException {
-        response.setHeader("Content-Type", "text/xml");
+        response.setHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
         try {
             OutputStream os = response.getOutputStream();
                  
@@ -138,7 +139,7 @@ public class ServletController {
             inMessage.put(Message.QUERY_STRING, request.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, request.getContentType());
             inMessage.put(Message.ENCODING, request.getCharacterEncoding());
-
+            
             d.doMessage(inMessage);
         } catch (IOException e) {
             throw new ServletException(e);
@@ -150,7 +151,7 @@ public class ServletController {
                                 HttpServletResponse response, 
                                 ServletDestination d)
         throws ServletException {
-        response.setHeader("Content-Type", "text/xml");
+        response.setHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
 
         try {
             OutputStream os = response.getOutputStream();

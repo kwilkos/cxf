@@ -19,7 +19,6 @@
 
 package org.apache.cxf.binding.soap;
 
-import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,40 +26,36 @@ import java.net.URL;
 import java.util.Collection;
 
 import javax.activation.DataHandler;
-import javax.imageio.ImageIO;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.cxf.binding.attachment.AttachmentImpl;
 import org.apache.cxf.binding.attachment.AttachmentUtil;
-import org.apache.cxf.bindings.soap.attachments.types.DetailType;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.mime.types.XopType;
 
 public final class TestUtil {
 
     private TestUtil() {
     }
 
-    public static DetailType createDetailObject(Class<?> clazz)
+    public static XopType createXopObject(Class<?> clazz)
         throws IOException {
         
-        DetailType detailObj = new DetailType();
-        detailObj.setSName("hello world");        
+        XopType xopObj = new XopType();
+        xopObj.setName("hello world");        
                 
         URL url1 = clazz.getResource("my.wav");
-        URL url2 = clazz.getResource("me.bmp");
-        Image image = ImageIO.read(new File(url2.getFile()));
-        detailObj.setPhoto(image);
         File file = new File(url1.getFile());
         FileInputStream fi = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         fi.read(buffer);
-        detailObj.setSound(buffer);
+        xopObj.setAttachinfo(buffer);
         
-        return detailObj;        
+        return xopObj;        
     }
     
     public static SoapMessage createSoapMessage(SoapVersion soapVersion,
@@ -76,11 +71,11 @@ public final class TestUtil {
 
         // setup the message attachments
         Collection<Attachment> attachments = soapMessage.getAttachments();
-        String cidAtt1 = "cid:http://cxf.apache.org/me.bmp";
-        bads = new ByteArrayDataSource(clazz.getResourceAsStream("me.bmp"), "image/bmp");
-        AttachmentImpl att1 = new AttachmentImpl(cidAtt1, new DataHandler(bads));
-        att1.setXOP(true);
-        attachments.add(att1);
+//        String cidAtt1 = "cid:http://cxf.apache.org/me.bmp";
+//        bads = new ByteArrayDataSource(clazz.getResourceAsStream("me.bmp"), "image/bmp");
+//        AttachmentImpl att1 = new AttachmentImpl(cidAtt1, new DataHandler(bads));
+//        att1.setXOP(true);
+//        attachments.add(att1);
         String cidAtt2 = "cid:http://cxf.apache.org/my.wav";
         bads = new ByteArrayDataSource(clazz.getResourceAsStream("my.wav"),
                                        "Application/octet-stream");

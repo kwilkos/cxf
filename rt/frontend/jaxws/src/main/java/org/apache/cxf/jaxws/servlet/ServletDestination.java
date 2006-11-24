@@ -24,18 +24,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -213,11 +217,24 @@ public class ServletDestination implements Destination {
      * @param message the current message
      * @param headers the current set of headers
      */
-    protected void copyRequestHeaders(Message message,
-                                      Map<String, List<String>> headers) {
-        
-    }
-    
+    protected void copyRequestHeaders(Message message, Map<String, List<String>> headers) {
+        HttpServletRequest req = (HttpServletRequest)message.get(HTTP_REQUEST);
+        for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
+            String fname = (String)e.nextElement();
+            
+            List<String> values;
+            if (headers.containsKey(fname)) {
+                values = headers.get(fname);
+            } else {
+                values = new ArrayList<String>();
+                headers.put(HttpHeaderHelper.getHeaderKey(fname), values);
+            }
+            for (Enumeration e2 = req.getHeaders(fname); e2.hasMoreElements();) {
+                String val = (String)e2.nextElement();
+                values.add(val);
+            }
+        }
+    }    
     /**
      * Copy the response headers into the response.
      * 

@@ -52,8 +52,8 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         
         faultMessage = m.getExchange().get(Binding.class).createMessage(faultMessage);
         setFaultMessage(m, faultMessage);
-        m.putAll(faultMessage);
-        faultMessage.putAll(m);
+        //m.putAll(faultMessage);
+        //faultMessage.putAll(m);
 
         MessageImpl.copyContent(m, faultMessage);
         

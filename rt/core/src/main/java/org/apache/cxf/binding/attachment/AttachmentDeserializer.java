@@ -25,18 +25,23 @@ import java.io.PushbackInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
+
 
 public class AttachmentDeserializer {
 
@@ -60,16 +65,17 @@ public class AttachmentDeserializer {
         message = messageParam;
     }
 
+    
     public boolean preprocessMessage() {
         InputStream input;
-        Map httpHeaders;
+        Map<String, List<String>> httpHeaders;
         // processing message if its multi-part/form-related
         try {
-            httpHeaders = (Map) message.get(Message.PROTOCOL_HEADERS);
+            httpHeaders = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
             if (httpHeaders == null) {
                 return false;
             } else {
-                List ctList = (List) httpHeaders.get("Content-Type");
+                List ctList = (List) HttpHeaderHelper.getHeader(httpHeaders, HttpHeaderHelper.CONTENT_TYPE);
                 if (ctList != null) {
                     for (int x = 0; x < ctList.size(); x++) {
                         if (x == 0) {
@@ -222,33 +228,50 @@ public class AttachmentDeserializer {
             return null;
         }
         stream.unread(v);
-        InternetHeaders headers;
-        headers = new InternetHeaders(stream);
+        InternetHeaders iheaders = new InternetHeaders(stream);
+        Map<String, List<String>> internalHeaders = new HashMap<String, List<String>>(); 
+        for (Enumeration e = iheaders.getAllHeaders(); e.hasMoreElements();) {
+            Header header = (Header)e.nextElement();            
+            List<String> values = new ArrayList<String>();
+            String headerName = HttpHeaderHelper.getHeaderKey(header.getName());
+            internalHeaders.put(headerName, values);
+            values.add(header.getValue());
+        }
         MimeBodyPartInputStream partStream = new MimeBodyPartInputStream(stream, boundary.getBytes());
         final CachedOutputStream cos = new CachedOutputStream();
         cos.setThreshold(THRESHHOLD);
         AbstractCachedOutputStream.copyStream(partStream, cos, THRESHHOLD);
-        cos.close();
-        final String ct = headers.getHeader("Content-Type", null);
+        cos.close();        
+        final String ct = constructHeaderValue(HttpHeaderHelper.getHeader(internalHeaders, 
+                HttpHeaderHelper.CONTENT_TYPE));
         cache.add(cos);
         DataSource source = new AttachmentDataSource(ct, cos);
         DataHandler dh = new DataHandler(source);
-        String id = headers.getHeader("Content-ID", null);
+        String id = internalHeaders.get(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_ID)).get(0);
         if (id != null && id.startsWith("<")) {
             id = id.substring(1, id.length() - 1);
         }
         AttachmentImpl att = new AttachmentImpl(id, dh);
-        for (Enumeration<?> e = headers.getAllHeaders(); e.hasMoreElements();) {
-            Header header = (Header) e.nextElement();
-            if (header.getName().equalsIgnoreCase("Content-Transfer-Encoding")
-                            && header.getValue().equalsIgnoreCase("binary")) {
+        for (Iterator<String> it = internalHeaders.keySet().iterator(); it.hasNext();) {
+            String headerName = it.next();
+            List values = internalHeaders.get(headerName);
+            if (headerName.equalsIgnoreCase("Content-Transfer-Encoding")
+                            && values.size() == 1 && values.get(0).equals("binary")) {
                 att.setXOP(true);
             }
-            att.setHeader(header.getName(), header.getValue());
+            att.setHeader(headerName, constructHeaderValue(values));
         }
         return att;
     }
 
+    private static String constructHeaderValue(List values) {
+        StringBuffer sb = new StringBuffer(200);
+        for (int i = 0; i < values.size(); i++) {
+            sb.append(values.get(i));
+        }
+        return sb.toString();
+    }
+    
     private class MimeBodyPartInputStream extends InputStream {
 
         PushbackInputStream inStream;

@@ -35,6 +35,7 @@ import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.ConfigurationProvider;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -200,7 +201,7 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
                         Arrays.asList(new String[] {policy.getContentEncoding()}));
         }
         if (policy.isSetContentType()) {
-            headers.put("Content-Type",
+            headers.put(HttpHeaderHelper.CONTENT_TYPE,
                         Arrays.asList(new String[] {policy.getContentType()}));
         }
         if (policy.isSetServerType()) {

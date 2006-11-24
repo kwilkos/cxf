@@ -28,10 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
+
 
 public class AttachmentSerializer {
 
@@ -110,7 +112,8 @@ public class AttachmentSerializer {
             out.write(LINE_SEP.getBytes());
             out.flush();            
             // build contentType string for return
-            List<String> contentType = (List<String>) headers.get("Content-Type");
+            List<String> contentType = (List<String>) headers.get(HttpHeaderHelper.getHeaderKey(
+                    HttpHeaderHelper.CONTENT_TYPE));
             StringBuffer sb = new StringBuffer(120);
             for (String s : contentType) {
                 sb.append(s);
