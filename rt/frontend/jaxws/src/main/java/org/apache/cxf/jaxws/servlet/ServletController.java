@@ -118,8 +118,8 @@ public class ServletController {
                     int bi = address.indexOf(CXFServlet.ADDRESS_PERFIX);                            
                     address = request.getRequestURL() 
                         + address.substring(bi + CXFServlet.ADDRESS_PERFIX.length());
-                    response.getWriter().write("<a href=\"" + address + "\">");
-                    response.getWriter().write(sd.getEndpointInfo().getName() + "</a>");
+                    response.getWriter().write("<p> <a href=\"" + address + "?wsdl\">");
+                    response.getWriter().write(sd.getEndpointInfo().getName() + "</a> </p>");
                 }    
             }
         } else {
