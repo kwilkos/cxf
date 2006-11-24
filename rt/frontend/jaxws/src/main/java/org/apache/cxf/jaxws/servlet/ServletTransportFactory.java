@@ -21,8 +21,10 @@
 package org.apache.cxf.jaxws.servlet;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
@@ -36,7 +38,8 @@ public class ServletTransportFactory extends AbstractTransportFactory
     implements DestinationFactory {
 
     private Bus bus;    
-    private Map<String, ServletDestination> destinations = new HashMap<String, ServletDestination>();
+    private Map<String, ServletDestination> destinations = 
+        new ConcurrentHashMap<String, ServletDestination>();
     
     public ServletTransportFactory(Bus b) {
         bus = b;
@@ -54,7 +57,7 @@ public class ServletTransportFactory extends AbstractTransportFactory
         this.bus = bus;
     }
 
-    public synchronized Destination getDestination(EndpointInfo endpointInfo)
+    public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
         ServletDestination d = destinations.get(endpointInfo.getAddress());
         if (d == null) { 
@@ -62,5 +65,13 @@ public class ServletTransportFactory extends AbstractTransportFactory
             destinations.put(endpointInfo.getAddress(), d);
         }
         return d;
+    }
+    
+    public List<ServletDestination> getDestinations() {
+        List<ServletDestination> result = new ArrayList<ServletDestination>();
+        for (ServletDestination sd : destinations.values()) {
+            result.add(sd);
+        }
+        return result;        
     }
 }

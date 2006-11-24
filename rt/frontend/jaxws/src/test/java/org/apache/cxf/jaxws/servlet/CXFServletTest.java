@@ -24,6 +24,7 @@ import org.w3c.dom.Document;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.PostMethodWebRequest;
+import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.servletunit.ServletUnitClient;
@@ -72,6 +73,32 @@ public class CXFServletTest extends AbstractServletTest {
 
         assertValid("/s:Envelope/s:Body", doc);
         assertValid("//h:sayHiResponse", doc);
+    }
+    
+    public void testGetServiceList() throws Exception {
+        ServletUnitClient client = newClient();
+        
+        JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
+        URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(resource);
+        svr.getServiceFactory().setWsdlURL(resource);
+        svr.setBus(getBus());
+        svr.setServiceClass(GreeterImpl.class);
+        svr.setAddress("http://localhost/services/Greeter");
+
+        GreeterImpl greeter = new GreeterImpl();
+        BeanInvoker invoker = new BeanInvoker(greeter);
+        svr.getServiceFactory().setInvoker(invoker);
+
+        svr.create();
+        
+        client.setExceptionsThrownOnErrorStatus(false);
+
+        WebResponse res = client.getResponse("http://localhost/services");       
+        WebLink[] links = res.getLinks();
+        assertEquals("There should get one link for service", links.length, 1);
+        assertEquals(links[0].getURLString(), "http://localhost/services/Greeter");       
+        assertEquals("text/html", res.getContentType());
     }
 
     public void testInvalidServiceUrl() throws Exception {

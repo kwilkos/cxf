@@ -70,7 +70,7 @@ public class ServletController {
         boolean xsd = false;
         if (request.getQueryString() != null && request.getQueryString().trim().equalsIgnoreCase("wsdl")) {
             wsdl = true;
-        }
+        }       
         String xsdName = request.getRequestURI().substring(
             request.getRequestURI().lastIndexOf("/") + 1); 
         if (xsdName != null 
@@ -86,11 +86,15 @@ public class ServletController {
             if (d.getMessageObserver() == null) {
                 if (xsd) {
                     generateXSD(request, res, xsdName);
-                } else { 
-                    LOG.warning("Can't find the the request for" 
-                         + "http://localhost" + request.getServletPath() 
-                         + request.getPathInfo() + " 's Observer ");
-                    generateNotFound(request, res);
+                } else {
+                    if (request.getRequestURI().endsWith("services")) {
+                        generateServiceList(request, res);
+                    } else {
+                        LOG.warning("Can't find the the request for" 
+                                    + "http://localhost" + request.getServletPath() 
+                                    + request.getPathInfo() + " 's Observer ");
+                        generateNotFound(request, res);
+                    }    
                 }
             } else if (wsdl) {
                 generateWSDL(request, res, d);
@@ -100,6 +104,28 @@ public class ServletController {
         } catch (IOException e) {
             throw new ServletException(e);
         }
+    }
+    
+    private void generateServiceList(HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+        List<ServletDestination> destinations = transport.getDestinations();
+        response.setContentType("text/html");        
+        response.getWriter().write("<html><body>");
+        if (destinations.size() > 0) {  
+            for (ServletDestination sd : destinations) {
+                if (null != sd.getEndpointInfo().getName()) {
+                    String address = sd.getAddress().getAddress().getValue();
+                    int bi = address.indexOf(CXFServlet.ADDRESS_PERFIX);                            
+                    address = request.getRequestURL() 
+                        + address.substring(bi + CXFServlet.ADDRESS_PERFIX.length());
+                    response.getWriter().write("<a href=\"" + address + "\">");
+                    response.getWriter().write(sd.getEndpointInfo().getName() + "</a>");
+                }    
+            }
+        } else {
+            response.getWriter().write("No service was found.");
+        }
+        response.getWriter().write("</body></html>");
     }
 
     private void generateXSD(HttpServletRequest request, HttpServletResponse response, String xsdName) 

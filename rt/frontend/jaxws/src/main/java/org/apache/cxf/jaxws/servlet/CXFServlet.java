@@ -59,7 +59,7 @@ import org.springframework.context.ApplicationContext;
  *
  */
 public class CXFServlet extends HttpServlet {
-
+    static final String ADDRESS_PERFIX = "http://localhost/services";
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
     static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
     protected Bus bus;
@@ -189,28 +189,7 @@ public class CXFServlet extends HttpServlet {
                               String urlPat) throws ServletException {
 
         try {
-
-            // TODO: This wasn't doing anything before. We need to pass this to
-            // the
-            // EndpointImpl so the service factory can use it...
-            // URL url = null;
-            // if (wsdlName != null && wsdlName.length() > 0) {
-            // try {
-            // url =
-            // getServletConfig().getServletContext().getResource(wsdlName);
-            // } catch (MalformedURLException ex) {
-            // try {
-            // url = new URL(wsdlName);
-            // } catch (MalformedURLException ex2) {
-            // try {
-            // url = getServletConfig().getServletContext().getResource("/" +
-            // wsdlName);
-            // } catch (MalformedURLException ex3) {
-            // url = null;
-            // }
-            // }
-            // }
-            // }
+                    
             Class cls = ClassLoaderUtils.loadClass(implName, getClass());
             Object impl = cls.newInstance();
 
@@ -218,7 +197,7 @@ public class CXFServlet extends HttpServlet {
             LOG.info("publish the servcie to {context}/ " + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
             
             // TODO we may need to get the url-pattern from servlet context
-            ep.publish("http://localhost/services" + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
+            ep.publish(ADDRESS_PERFIX + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
             
         } catch (ClassNotFoundException ex) {
             throw new ServletException(ex);

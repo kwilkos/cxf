@@ -155,7 +155,7 @@ public class ServletDestination implements Destination {
      * @param observer the observer to notify on receipt of incoming
      */
     public synchronized void setMessageObserver(MessageObserver observer) {
-        LOG.info("!!! set the observer for address " + getAddress().getAddress().getValue());
+        LOG.info("set the observer for address " + getAddress().getAddress().getValue());
         incomingObserver = observer;
     }
     
@@ -262,8 +262,7 @@ public class ServletDestination implements Destination {
             
             setHeaders(inMessage);
             
-            inMessage.setDestination(this);            
-            
+            inMessage.setDestination(this);
             
             incomingObserver.onMessage(inMessage);
             
