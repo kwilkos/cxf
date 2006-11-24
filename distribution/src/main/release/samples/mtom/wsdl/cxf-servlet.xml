@@ -21,11 +21,11 @@
 
     <endpoint
         name="mtom"
-        interface="org.apache.cxf.mime.Hello"
-        implementation="demo.mtom.server.HelloImpl"
+        interface="org.apache.cxf.mime.TestMtom"
+        implementation="demo.mtom.server.TestMtomImpl"
         wsdl="WEB-INF/wsdl/mtom_xop.wsdl"
-        service="{http://cxf.apache.org/mime}HelloService"
-        port="{http://cxf.apache.org/mime}HelloPort"
+        service="{http://cxf.apache.org/mime}TestMtomService"
+        port="{http://cxf.apache.org/mime}TestMtomPort"
         url-pattern="/mtom" />
 
 </endpoints>
