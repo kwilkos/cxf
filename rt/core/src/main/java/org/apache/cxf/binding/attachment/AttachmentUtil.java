@@ -72,33 +72,27 @@ public final class AttachmentUtil {
 
     public static String getSoapPartHeader(Message message, String soapPartId, String action) {
         StringBuffer buffer = new StringBuffer(200);
-        if (System.getProperty("file.separator").equals("/")) {
-            buffer.append("\n");
-        }
         buffer.append(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE)
                 + ": application/xop+xml; charset=utf-8; ");
         buffer.append("type=\"" + message.getAttachmentMimeType());
         if (action != null) {
-            buffer.append("; action=" + action + "\"\n");
+            buffer.append("; action=" + action + "\"\r\n");
         } else {
-            buffer.append("\"\n");
+            buffer.append("\"\r\n");
         }
-        buffer.append("Content-Transfer-Encoding: binary\n");
-        buffer.append("Content-ID: <" + soapPartId + ">\n");
+        buffer.append("Content-Transfer-Encoding: binary\r\n");
+        buffer.append("Content-ID: <" + soapPartId + ">\r\n\r\n");
         return buffer.toString();
     }
 
     public static String getAttchmentPartHeader(Attachment att) {
         StringBuffer buffer = new StringBuffer(200);
-        if (System.getProperty("file.separator").equals("/")) {
-            buffer.append("\n");
-        }
         buffer.append(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE) + ": "
-                + att.getDataHandler().getContentType() + ";\n");
+                + att.getDataHandler().getContentType() + ";\r\n");
         if (att.isXOP()) {
-            buffer.append("Content-Transfer-Encoding: binary\n");
+            buffer.append("Content-Transfer-Encoding: binary\r\n");
         }
-        buffer.append("Content-ID: <" + att.getId() + ">\n");
+        buffer.append("Content-ID: <" + att.getId() + ">\r\n\r\n");
         return buffer.toString();
     }
 
@@ -118,10 +112,10 @@ public final class AttachmentUtil {
 
     public static String getMimeSubType(Message message, String soapPartId, String boundary) {
         StringBuffer ct = new StringBuffer();
-        ct.append("related; boundary=" + boundary + "; ");
+        ct.append("related; boundary=\"" + boundary + "\"; ");
         ct.append("type=\"application/xop+xml\"; ");
         ct.append("start=\"<" + soapPartId + ">\"; ");
-        ct.append("start-info=\"" + message.getAttachmentMimeType() + "\"");
+        ct.append("start-info=" + message.getAttachmentMimeType());
         return ct.toString();
     }
 }

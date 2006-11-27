@@ -37,8 +37,6 @@ import org.apache.cxf.message.Message;
 
 public class AttachmentSerializer {
 
-    private static final String LINE_SEP = System.getProperty("line.separator");
-    
     private Message message;
 
     private InputStream in;
@@ -84,18 +82,13 @@ public class AttachmentSerializer {
             out.flush();
             
             String soapHeader = AttachmentUtil.getSoapPartHeader(message, soapPartId, "");
-            out.write(("--" + boundary + LINE_SEP).getBytes());
-            out.write(soapHeader.getBytes());            
-            out.write(LINE_SEP.getBytes());            
+            out.write(("--" + boundary + "\r\n").getBytes());
+            out.write(soapHeader.getBytes());                                   
             AbstractCachedOutputStream.copyStream(in, out, 64 * 1024);
-            if (!System.getProperty("file.separator").equals("/")) {
-                out.write(LINE_SEP.getBytes());
-            }            
             for (Attachment att : message.getAttachments()) {
                 soapHeader = AttachmentUtil.getAttchmentPartHeader(att);
-                out.write(("--" + boundary + LINE_SEP).getBytes());
+                out.write(("--" + boundary + "\r\n").getBytes());
                 out.write(soapHeader.getBytes());                
-                out.write(LINE_SEP.getBytes());                
                 Object content = att.getDataHandler().getContent();
                 if (content instanceof InputStream) {
                     InputStream insAtt = (InputStream) content;
@@ -104,12 +97,9 @@ public class AttachmentSerializer {
                     ObjectOutputStream oos = new ObjectOutputStream(out);
                     oos.writeObject(content);
                 }
-                if (!System.getProperty("file.separator").equals("/")) {
-                    out.write(LINE_SEP.getBytes());
-                }
+                out.write("\r\n".getBytes());
             }
-            out.write(("--" + boundary + "--").getBytes());
-            out.write(LINE_SEP.getBytes());
+            out.write(("--" + boundary + "--\r\n").getBytes());
             out.flush();            
             // build contentType string for return
             List<String> contentType = (List<String>) headers.get(HttpHeaderHelper.getHeaderKey(

@@ -62,7 +62,7 @@ public final class Soap11 implements SoapVersion {
     }
 
     public String getSoapMimeType() {
-        return "text/xml; charset=utf-8";
+        return "\"text/xml\"; charset=utf-8";
     }
 
     public double getVersion() {
