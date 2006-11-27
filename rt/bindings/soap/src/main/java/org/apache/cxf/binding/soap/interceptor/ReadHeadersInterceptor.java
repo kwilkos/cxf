@@ -100,7 +100,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 }                    
                 if (message.getVersion().getFault().equals(xmlReader.getName())) {
                     Endpoint ep = message.getExchange().get(Endpoint.class);
-                    if (ep != null) {
+                    if (!isDecoupled(message)) {
                         message.getInterceptorChain().abort();
                         if (ep.getInFaultObserver() != null) {
                             ep.getInFaultObserver().onMessage(message);
@@ -116,4 +116,8 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
     }
 
+    private boolean isDecoupled(SoapMessage message) {
+        Boolean decoupled = (Boolean)message.get("decoupled.channel.message");
+        return decoupled != null && decoupled.booleanValue(); 
+    }
 }

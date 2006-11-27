@@ -580,6 +580,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             Message inMessage = new MessageImpl();
             // disposable exchange, swapped with real Exchange on correlation
             inMessage.setExchange(new ExchangeImpl());
+            inMessage.put("decoupled.channel.message", Boolean.TRUE);
             // REVISIT: how to get response headers?
             //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
             setHeaders(inMessage);

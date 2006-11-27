@@ -44,12 +44,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                 <ref bean="mapCodec"/>
             </list>
         </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-            </list>
-        </property>
         <property name="outInterceptors">
             <list>
                 <ref bean="mapAggregator"/>
@@ -82,12 +76,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                 <ref bean="serviceInvoker"/>
                 <ref bean="outgoingChainSetup"/>
                 <ref bean="outgoingChain"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
             </list>
         </property>
         <property name="outInterceptors">
@@ -124,12 +112,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                 <ref bean="mapAggregator"/>
                 <ref bean="mapCodec"/>
                 <ref bean="wrapperClassIn"/>
-            </list>
-        </property>
-        <property name="inFaultInterceptors">
-            <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
             </list>
         </property>
         <property name="outInterceptors">
