@@ -43,10 +43,26 @@ import org.apache.cxf.greeter_control.types.SayHiResponse;
 public class GreeterImpl implements Greeter {
 
     private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
-    
+    private long delay;
+     
+    public long getDelay() {
+        return delay;
+    }
+
+    public void setDelay(long d) {
+        delay = d;
+    }
+
     public String greetMe(String arg0) {
         LOG.fine("Executing operation greetMe with parameter: " + arg0);
         String result = arg0.toUpperCase();
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
         LOG.fine("returning: " + result);
         return result;
     }

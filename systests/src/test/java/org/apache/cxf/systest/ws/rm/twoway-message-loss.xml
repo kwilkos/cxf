@@ -25,7 +25,6 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <!--
     <bean name="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit" abstract="true">
         <property name="client">
             <value>
@@ -33,7 +32,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </value>
         </property>
     </bean>
-    -->
     
     <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
         <property name="bus" ref="cxf"/>

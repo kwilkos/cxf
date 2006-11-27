@@ -63,7 +63,7 @@ public class SequenceTest extends ClientServerTestBase {
     private OutMessageRecorder outRecorder;
     private InMessageRecorder inRecorder;
 
-    private boolean testAll;
+    private boolean testAll = true;
     private boolean doTestOnewayAnonymousAcks = testAll;
     private boolean doTestOnewayDeferredAnonymousAcks = testAll;
     private boolean doTestOnewayDeferredNonAnonymousAcks = testAll;
@@ -72,7 +72,8 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymous = testAll;
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
-    private boolean doTestOnewayMessageLoss = true;
+    private boolean doTestOnewayMessageLoss = testAll;
+    private boolean doTestTwowayMessageLoss = testAll;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -524,7 +525,7 @@ public class SequenceTest extends ClientServerTestBase {
         // Expected outbound:
         // CreateSequence 
         // + 4 greetMe messages
-        // + at least 2 resends (message maye be resend multiple times depending
+        // + at least 2 resends (message may be resent multiple times depending
         // on the timing of the ACKs)
        
         String[] expectedActions = new String[7];
@@ -547,6 +548,62 @@ public class SequenceTest extends ClientServerTestBase {
                                         null, null, null, null};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true, true, true}, false);
+  
+    }
+    
+    public void testTwowayMessageLoss() throws Exception {
+        if (!doTestTwowayMessageLoss) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-message-loss.xml");
+        
+        greeterBus.getOutInterceptors().add(new MessageLossSimulator());
+        RMManager manager = greeterBus.getExtension(RMManager.class);
+        manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
+
+        greeter.greetMeAsync("one");
+        greeter.greetMeAsync("two");
+        greeter.greetMeAsync("three");
+        greeter.greetMeAsync("four");
+        
+        awaitMessages(7, 10, 10000);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+
+        // Expected outbound:
+        // CreateSequence 
+        // + 4 greetMe messages
+        // + 2 resends
+       
+        String[] expectedActions = new String[7];
+        expectedActions[0] = RMConstants.getCreateSequenceAction();        
+        for (int i = 1; i < expectedActions.length; i++) {
+            expectedActions[i] = GREETME_ACTION;
+        }
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "2", "3", "4", "4"}, true);
+        mf.verifyLastMessage(new boolean[7], true);
+        boolean[] expectedAcks = new boolean[7];
+        for (int i = 2; i < expectedAcks.length; i++) {
+            expectedAcks[i] = true;
+        }
+        mf.verifyAcknowledgements(expectedAcks , true);
+ 
+        // Expected inbound:
+        // createSequenceResponse 
+        // + 4 greetMeResponse actions (to original or resent) 
+        // + 5 partial responses (to CSR & each of the initial greetMe messages)
+        // + at least 2 further partial response (for each of the resends)
+        
+        mf.verifyPartialResponses(5);
+        mf.purgePartialResponses();
+        
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        GREETME_RESPONSE_ACTION, GREETME_RESPONSE_ACTION,
+                                        GREETME_RESPONSE_ACTION, GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true, true}, false);
   
     }
