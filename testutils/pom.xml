@@ -283,11 +283,6 @@
                                         </dependency>
                                     </dependencies>
                                 </wsdlOption>
-
-                                <wsdlOption>
-                                    <wsdl>${basedir}/src/main/resources/wsdl/attachment_types.wsdl</wsdl>
-                                </wsdlOption>
-
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/addNumbers.wsdl</wsdl>
                                 </wsdlOption>
