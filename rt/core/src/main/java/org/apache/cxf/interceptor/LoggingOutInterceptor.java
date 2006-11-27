@@ -20,13 +20,15 @@
 package org.apache.cxf.interceptor;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.io.AbstractCachedOutputStream;
+import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -48,9 +50,9 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         if (os == null) {
             return;
         }
-
-        ForkOutputStream fos = new ForkOutputStream(os);
-        message.setContent(OutputStream.class, fos);
+        if (os instanceof AbstractCachedOutputStream) {
+            ((AbstractCachedOutputStream)os).registerCallback(new LoggingCallback());
+        }
     }
 
     @Override
@@ -58,50 +60,27 @@ public class LoggingOutInterceptor extends AbstractPhaseInterceptor {
         return before;
     }
 
-    /**
-      * Output stream that multicasts its data to several underlying output streams.
-     */
-    public class ForkOutputStream extends OutputStream {
+    class LoggingCallback implements CachedOutputStreamCallback {
 
-        final OutputStream original;
-        final ByteArrayOutputStream bos;
-    
-        public ForkOutputStream(OutputStream o) {
-            original = o;
-            bos = new ByteArrayOutputStream();
-        }
-    
-        @Override
-        public void close() throws IOException {
-            bos.close();
-            LOG.info("Message: " + bos.toString());
-            original.close();
-        }
+        private boolean flushed;
 
-        @Override
-        public void flush() throws IOException {
-            bos.flush();
-            original.flush();
+        public void onFlush(AbstractCachedOutputStream cos) {  
+            if (!flushed) {
+                OutputStream os = cos.getOut();
+                if (os instanceof ByteArrayOutputStream) {
+                    ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
+                    if (LOG.isLoggable(Level.INFO)) {
+                        LOG.info("Outbound message: " + bos.toString());
+                    }
+                }
+                flushed = true;
+                // any further changes will not be logged
+            }
         }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            bos.write(b, off, len);
-            original.write(b, off, len);
+        
+        public void onClose(AbstractCachedOutputStream cos) {
         }
-    
-        @Override
-        public void write(byte[] b) throws IOException {
-            bos.write(b);
-            original.write(b);
-        }
-    
-        @Override
-        public void write(int b) throws IOException {
-            bos.write(b);
-            original.write(b);
-        }
-    }
-    
+        
+    } 
     
 }

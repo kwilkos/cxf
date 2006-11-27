@@ -58,7 +58,7 @@ public class LoggingInInterceptor extends AbstractPhaseInterceptor<Message> {
             is.close();
             bos.close();
 
-            LOG.info("Message: " + bos.toString());
+            LOG.info("Inbound message: " + bos.toString());
 
             message.setContent(InputStream.class, new ByteArrayInputStream(bos.toByteArray()));
 
