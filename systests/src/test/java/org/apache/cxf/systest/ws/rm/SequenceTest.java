@@ -63,7 +63,7 @@ public class SequenceTest extends ClientServerTestBase {
     private OutMessageRecorder outRecorder;
     private InMessageRecorder inRecorder;
 
-    private boolean testAll = true;
+    private boolean testAll;
     private boolean doTestOnewayAnonymousAcks = testAll;
     private boolean doTestOnewayDeferredAnonymousAcks = testAll;
     private boolean doTestOnewayDeferredNonAnonymousAcks = testAll;
@@ -72,6 +72,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymous = testAll;
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
+    private boolean doTestOnewayMessageLoss = true;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -499,6 +500,55 @@ public class SequenceTest extends ClientServerTestBase {
         expected[1] = true;
         expected[5] = true;
         mf.verifyAcknowledgements(expected, false);
+    }
+    
+    public void testOnewayMessageLoss() throws Exception {
+        if (!doTestOnewayMessageLoss) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/oneway-message-loss.xml");
+        
+        greeterBus.getOutInterceptors().add(new MessageLossSimulator());
+        RMManager manager = greeterBus.getExtension(RMManager.class);
+        manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
+
+        greeter.greetMeOneWay("one");
+        greeter.greetMeOneWay("two");
+        greeter.greetMeOneWay("three");
+        greeter.greetMeOneWay("four");
+        
+        awaitMessages(7, 5, 10000);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+
+        // Expected outbound:
+        // CreateSequence 
+        // + 4 greetMe messages
+        // + at least 2 resends (message maye be resend multiple times depending
+        // on the timing of the ACKs)
+       
+        String[] expectedActions = new String[7];
+        expectedActions[0] = RMConstants.getCreateSequenceAction();        
+        for (int i = 1; i < expectedActions.length; i++) {
+            expectedActions[i] = GREETMEONEWAY_ACTION;
+        }
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4", "2", "4"}, true, false);
+        mf.verifyLastMessage(new boolean[7], true);
+        mf.verifyAcknowledgements(new boolean[7], true);
+ 
+        // Expected inbound:
+        // createSequenceResponse
+        // + 2 partial responses to successfully transmitted messages
+        // + 2 partial responses to resent messages
+        
+        mf.verifyMessages(5, false);
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        null, null, null, null};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, null, null, null}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true, true, true}, false);
+  
     }
 
     // --- test utilities ---

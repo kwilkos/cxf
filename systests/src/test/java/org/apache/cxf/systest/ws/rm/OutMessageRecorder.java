@@ -20,7 +20,6 @@
 package org.apache.cxf.systest.ws.rm;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,10 +59,6 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
         if (os instanceof AbstractCachedOutputStream) {
             ((AbstractCachedOutputStream)os).registerCallback(new RecorderCallback());
         }
-        /*
-        ForkOutputStream fos = new ForkOutputStream(os);
-        message.setContent(OutputStream.class, fos);
-        */
     }
    
     @Override
@@ -75,59 +70,12 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
     protected List<byte[]> getOutboundMessages() {
         return outbound;
     } 
-
-    /**
-      * Output stream that multicasts its data to several underlying output streams.
-     */
-    class ForkOutputStream extends OutputStream {
-
-        final OutputStream original;
-        ByteArrayOutputStream bos;
-    
-        public ForkOutputStream(OutputStream o) {
-            original = o;
-            bos = new ByteArrayOutputStream();
-        }
-    
-        @Override
-        public void close() throws IOException {            
-            original.close();
-            bos.close();
-            outbound.add(bos.toByteArray());
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("outbound: " + bos.toString());
-            }
-        }
-
-        @Override
-        public void flush() throws IOException {            
-            original.flush();
-            bos.flush();
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {            
-            original.write(b, off, len);
-            bos.write(b, off, len);
-        }
-    
-        @Override
-        public void write(byte[] b) throws IOException {            
-            original.write(b);
-            bos.write(b);
-        }
-    
-        @Override
-        public void write(int b) throws IOException {
-            original.write(b);
-            bos.write(b);
-        }    
-    }
     
     class RecorderCallback implements CachedOutputStreamCallback {
 
         public void onFlush(AbstractCachedOutputStream cos) {  
             // LOG.fine("flushing wrapped output stream: " + cos.getOut().getClass().getName());
+            
             OutputStream os = cos.getOut();
             if (os instanceof ByteArrayOutputStream) {
                 ByteArrayOutputStream bos = (ByteArrayOutputStream)os;
@@ -136,7 +84,6 @@ public class OutMessageRecorder extends AbstractPhaseInterceptor {
                     LOG.fine("outbound: " + bos.toString());
                 }
             }
-            
         }
         
         public void onClose(AbstractCachedOutputStream cos) {

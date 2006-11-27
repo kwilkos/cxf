@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -126,6 +127,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     public void purgeAcknowledged(SourceSequence seq) {
         Collection<BigInteger> purged = new ArrayList<BigInteger>();
         synchronized (this) {
+            LOG.fine("Start purging resend candidates.");
             List<ResendCandidate> sequenceCandidates = getSequenceCandidates(seq);
             if (null != sequenceCandidates) {
                 for (int i = sequenceCandidates.size() - 1; i >= 0; i--) {
@@ -141,6 +143,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
                     }
                 }
             }
+            LOG.fine("Completed purging resend candidates.");
         }
         if (purged.size() > 0) {
             RMStore store = manager.getStore();
@@ -312,23 +315,33 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
      * resend attempt.
      */
     protected class ResendInitiator implements Runnable {
-        public void run() {
+        public void run() {            
             // iterate over resend candidates, resending any that are due
             synchronized (RetransmissionQueueImpl.this) {
+                LOG.fine("Starting ResendInitiator on thread " + Thread.currentThread());
                 Iterator<Map.Entry<String, List<ResendCandidate>>> sequences = candidates.entrySet()
                     .iterator();
                 while (sequences.hasNext()) {
                     Iterator<ResendCandidate> sequenceCandidates = sequences.next().getValue().iterator();
                     boolean requestAck = true;
-                    while (sequenceCandidates.hasNext()) {
-                        ResendCandidate candidate = sequenceCandidates.next();
-                        if (candidate.isDue()) {
-                            candidate.initiate(requestAck);
-                            requestAck = false;
+                    try {
+                        while (sequenceCandidates.hasNext()) {
+                            ResendCandidate candidate = sequenceCandidates.next();
+                            if (candidate.isDue()) {
+                                candidate.initiate(requestAck);
+                                requestAck = false;
+                            }
                         }
+                    } catch (ConcurrentModificationException ex) {
+                        // TODO: 
+                        // can happen if resend occurs on same thread as resend initiation
+                        // i.e. when endpoint's executor executes on current thread
+                        LOG.log(Level.WARNING, "RESEND_CANDIDATES_CONCURRENT_MODIFICATION_MSG");
                     }
                 }
+                LOG.fine("Completed ResendInitiator");
             }
+            
         }
     }
     
