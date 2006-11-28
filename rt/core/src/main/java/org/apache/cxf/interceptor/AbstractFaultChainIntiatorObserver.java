@@ -52,20 +52,9 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         
         faultMessage = m.getExchange().get(Binding.class).createMessage(faultMessage);
         setFaultMessage(m, faultMessage);
-        //m.putAll(faultMessage);
-        //faultMessage.putAll(m);
 
         MessageImpl.copyContent(m, faultMessage);
-        
-//        Exception e = m.getContent(Exception.class);
-//        Fault f;
-//        if (e instanceof Fault) {
-//            f = (Fault) e;
-//        } else {
-//            f = new Fault(e);
-//        }
-//        faultMessage.setContent(Exception.class, f);
-        
+               
         // setup chain
         PhaseInterceptorChain chain = new PhaseInterceptorChain(getPhases());
         initializeInterceptors(faultMessage.getExchange(), chain);

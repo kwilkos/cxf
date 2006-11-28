@@ -24,7 +24,7 @@ under the License.
 
     <bean id="{http://apache.org/schema_validation}SchemaValidationService" abstract="true">
 	<property name="enableSchemaValidationForAllPort">
-	    <value>true</value>
+	    <value>false</value>
 	</property>
     </bean>
 

@@ -121,7 +121,7 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             }
             chain.add(il);
         }
-        
+        chain.setFaultObserver(ep.getOutFaultObserver());
         return chain;
     }
 }

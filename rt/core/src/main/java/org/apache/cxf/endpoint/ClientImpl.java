@@ -241,6 +241,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             LOG.fine("Interceptors contributed by binding: " + il);
         }
         chain.add(il);
+        chain.setFaultObserver(outFaultObserver);
         
         // execute chain
         try {

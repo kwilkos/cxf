@@ -111,7 +111,7 @@ public class ValidationClientServerTest extends ClientServerTestBase {
             // exception while unmarshalling the invalid response.
             /*complexStruct =*/
             validation.getComplexStruct("Hello");
-            //fail("Get ComplexStruct should have thrown ProtocolException");
+            fail("Get ComplexStruct should have thrown ProtocolException");
         } catch (Exception e) {
             assertTrue(e instanceof Fault);
             String expected = "'{\"http://apache.org/schema_validation/types\":elem2}' is expected.";
@@ -124,10 +124,10 @@ public class ValidationClientServerTest extends ClientServerTestBase {
             // exception while unmarshalling the invalid response.
             /*occuringStruct =*/
             validation.getOccuringStruct("World");
-            //fail("Get OccuringStruct should have thrown ProtocolException");
+            fail("Get OccuringStruct should have thrown ProtocolException");
         } catch (Exception e) {
             assertTrue(e instanceof Fault);
-            String expected = "'{\"http://apache.org/schema_validation/types\":elem2}' is expected.";
+            String expected = "'{\"http://apache.org/schema_validation/types\":varFloat}' is expected.";
             assertTrue(e.getMessage().indexOf(expected) != -1);
         }
     }

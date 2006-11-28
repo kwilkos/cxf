@@ -101,7 +101,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         configureObject(service);
         
         service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
-        
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
         } else {
