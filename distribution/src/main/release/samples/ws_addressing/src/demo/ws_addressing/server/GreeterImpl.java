@@ -21,7 +21,6 @@ package demo.ws_addressing.server;
 
 import java.util.logging.Logger;
 
-import javax.jws.HandlerChain;
 import javax.jws.WebService;
 
 import org.apache.hello_world_soap_http.Greeter;
@@ -32,7 +31,6 @@ import org.apache.hello_world_soap_http.types.FaultDetail;
             serviceName = "SOAPService", 
             targetNamespace = "http://apache.org/hello_world_soap_http", 
             wsdlLocation = "file:./wsdl/hello_world_addr.wsdl")
-@HandlerChain(file = "../common/handler_chain.xml", name = "HandlerChain")
                   
 public class GreeterImpl implements Greeter {
 

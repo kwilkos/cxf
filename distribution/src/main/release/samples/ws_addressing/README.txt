@@ -9,8 +9,8 @@ responsible for aggregating the WS-A MessageAddressingProperties for
 the current message, and a protocol interceptor (MAPCodec) responsible for
 encoding/decoding these properties as SOAP Headers. 
 
-An additional demo-specific protocol handler (HeaderSnooper) is used to
-snoop the SOAP Headers and display these to the console.
+A demo-specific logging.properties file is used to snoop the log messages
+relating to WS-A Headers and display these to the console in concise form.
 
 Normally the WS-Addressing MessageAddressProperties are generated and
 propagated implicitly, without any intravention from the
@@ -106,11 +106,11 @@ Running the demo using java
 From the samples/ws_addressing directory run the commands (entered on a single command line):
 
 For UNIX (must use forward slashes):
-    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=./logging.properties
          -Dcxf.config.file=file:///$CXF_HOME/samples/ws_addressing/server.xml
          demo.ws_addressing.server.Server &
 
-    java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
+    java -Djava.util.logging.config.file=./logging.properties
          -Dcxf.config.file=file:///$CXF_HOME/samples/ws_addressing/client.xml
          demo.ws_addressing.client.Client ./wsdl/hello_world_addr.wsdl
 
@@ -118,11 +118,11 @@ The server process starts in the background.
 
 For Windows (may use either forward or back slashes):
   start 
-    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=.\logging.properties
          -Dcxf.config.file=file:///%CXF_HOME%\samples\ws_addressing\client.xml
          demo.ws_addressing.server.Server
 
-    java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
+    java -Djava.util.logging.config.file=.\logging.properties
          -Dcxf.config.file=file:///%CXF_HOME%\samples\ws_addressing\client.xml
          demo.ws_addressing.client.Client .\wsdl\hello_world_addr.wsdl
 

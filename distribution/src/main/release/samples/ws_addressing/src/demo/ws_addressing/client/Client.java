@@ -21,14 +21,9 @@ package demo.ws_addressing.client;
 
 import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.handler.Handler;
-
-import demo.ws_addressing.common.HeaderSnooper;
 
 import org.apache.cxf.ws.addressing.AddressingBuilder;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -64,10 +59,6 @@ public final class Client {
             File wsdl = new File(args[0]);
             SOAPService service = new SOAPService(wsdl.toURL(), SERVICE_NAME);
             Greeter port = service.getSoapPort();
-
-            List<Handler> handlerChain = new ArrayList<Handler>();
-            handlerChain.add(new HeaderSnooper());
-            ((BindingProvider)port).getBinding().setHandlerChain(handlerChain);
 
             implicitPropagation(port);
 
@@ -129,7 +120,7 @@ public final class Client {
         // set MessageID property
         AttributedURIType messageID = 
             WSA_OBJECT_FACTORY.createAttributedURIType();
-        messageID.setValue("urn:uuid:12345");
+        messageID.setValue("urn:uuid:" + System.currentTimeMillis());
         maps.setMessageID(messageID);
 
         // associate MAPs with request context

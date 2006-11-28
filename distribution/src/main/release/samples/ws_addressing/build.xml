@@ -24,13 +24,15 @@
     <target name="client" description="run demo client" depends="build">
         <cxfrun classname="demo.ws_addressing.client.Client"
                 param1="${basedir}/wsdl/hello_world_addr.wsdl"
-                jvmarg1="-Dcxf.config.file=client.xml"/>
+                jvmarg1="-Dcxf.config.file=client.xml"
+                logging-properties-file="./logging.properties"/>
     </target>
 
     <target name="server" description="run demo server" depends="build">
         <cxfrun classname="demo.ws_addressing.server.Server"
                 param1="${basedir}/wsdl/hello_world_addr.wsdl"
-                jvmarg1="-Dcxf.config.file=server.xml"/>
+                jvmarg1="-Dcxf.config.file=server.xml"
+                logging-properties-file="./logging.properties"/>
     </target>
 
     <target name="generate.code">
