@@ -57,6 +57,12 @@ public class GreeterImpl implements Greeter {
     }
 
     public String greetMe(String me) {
+        try {
+            // to prove async invocation works
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         LOG.info("Invoking greetMe " + me);
         invocationCount++;
         return "Hello " + me;

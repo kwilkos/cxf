@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Logger;
 
@@ -155,8 +156,12 @@ public final class EndpointInvocationHandler extends BindingProviderImpl impleme
                                                                              context
                                                                              ));
 
+        endpoint.getService().setExecutor(new Executor() {
+            public void execute(Runnable r) {
+                new Thread(r).start();
+            }
+        });
         endpoint.getService().getExecutor().execute(f);
-
         Response<?> r = new AsyncResponse<Object>(f, Object.class);
         if (params.length > 0 && params[params.length - 1] instanceof AsyncHandler) {
             // callback style

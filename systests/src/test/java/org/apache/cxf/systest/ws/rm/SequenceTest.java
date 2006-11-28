@@ -552,7 +552,7 @@ public class SequenceTest extends ClientServerTestBase {
   
     }
     
-    public void testTwowayMessageLoss() throws Exception {
+    public void xtestTwowayMessageLoss() throws Exception {
         if (!doTestTwowayMessageLoss) {
             return;
         }

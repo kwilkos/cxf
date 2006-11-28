@@ -62,6 +62,7 @@ import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
+import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 
 public class ClientServerTest extends ClientServerTestBase {
@@ -597,4 +598,47 @@ public class ClientServerTest extends ClientServerTestBase {
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);
     }
+    
+    public void testAsync() {
+        URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPService service = new SOAPService(wsdl, serviceName);
+        
+        assertNotNull(service);
+        
+        Greeter greeter = service.getPort(portName, Greeter.class);
+        
+        assertNotNull(service);
+        
+        long before = System.currentTimeMillis();
+
+        Response<GreetMeResponse> r1 = greeter.greetMeAsync("one");
+        Response<GreetMeResponse> r2 = greeter.greetMeAsync("two");
+
+        long after = System.currentTimeMillis();
+
+        assertTrue("Duration of calls exceeded 6000 ms", after - before < 6000);
+
+        // first time round, responses should not be available yet
+        assertFalse("Response already available.", r1.isDone());
+        assertFalse("Response already available.", r2.isDone());
+
+        // after three seconds responses should be available
+        long waited = 0;
+        while (waited < 5000) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+               // ignore
+            }
+            if (r1.isDone() && r2.isDone()) {
+                break;
+            }
+            waited += 500;
+        }
+        assertTrue("Response is  not available.", r1.isDone());
+        assertTrue("Response is  not available.", r2.isDone());
+        
+    } 
 }
