@@ -552,7 +552,7 @@ public class SequenceTest extends ClientServerTestBase {
   
     }
     
-    public void xtestTwowayMessageLoss() throws Exception {
+    public void testTwowayMessageLoss() throws Exception {
         if (!doTestTwowayMessageLoss) {
             return;
         }
@@ -562,10 +562,10 @@ public class SequenceTest extends ClientServerTestBase {
         RMManager manager = greeterBus.getExtension(RMManager.class);
         manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
 
-        greeter.greetMeAsync("one");
-        greeter.greetMeAsync("two");
-        greeter.greetMeAsync("three");
-        greeter.greetMeAsync("four");
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+        greeter.greetMe("three");
+        greeter.greetMe("four");
         
         awaitMessages(7, 10, 10000);
         

@@ -77,6 +77,7 @@ public class RetransmissionQueueImplTest extends TestCase {
     
     public void tearDown() {
         control.verify();
+        queue.stop();
         messages.clear();
         properties.clear();
         sequences.clear();
