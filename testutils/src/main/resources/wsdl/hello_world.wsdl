@@ -50,6 +50,20 @@
                     </sequence>
                 </complexType>
             </element>
+            <element name="greetMeLater">
+                <complexType>
+                    <sequence>
+                        <element name="requestType" type="long"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="greetMeLaterResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
             <element name="greetMeSometime">
                 <complexType>
                     <sequence>
@@ -145,6 +159,12 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part name="out" element="x1:greetMeResponse"/>
     </wsdl:message>
+    <wsdl:message name="greetMeLaterRequest">
+        <wsdl:part name="in" element="x1:greetMeLater"/>
+    </wsdl:message>
+    <wsdl:message name="greetMeLaterResponse">
+        <wsdl:part name="out" element="x1:greetMeLaterResponse"/>
+    </wsdl:message>
     <wsdl:message name="greetMeSometimeRequest">
         <wsdl:part name="in" element="x1:greetMeSometime"/>
     </wsdl:message>
@@ -181,6 +201,10 @@
             <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
             <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="greetMeLater">
+            <wsdl:input name="greetMeLaterRequest" message="tns:greetMeLaterRequest"/>
+            <wsdl:output name="greetMeLaterResponse" message="tns:greetMeLaterResponse"/>
+        </wsdl:operation>
        <wsdl:operation name="greetMeSometime">
             <wsdl:input name="greetMeSometimeRequest" message="tns:greetMeSometimeRequest"/>
             <wsdl:output name="greetMeSometimeResponse" message="tns:greetMeSometimeResponse"/>
@@ -215,6 +239,15 @@
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="greetMeLater">
             <soap:operation style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>

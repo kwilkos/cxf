@@ -33,6 +33,7 @@ import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.ErrorCode;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
@@ -60,6 +61,19 @@ public class GreeterImpl implements Greeter {
         System.out.println("\n\n*** GreetMe called with: " + me + "***\n\n");
         verifyMAPs();
         return "Hello " + me;
+    }
+
+    public String greetMeLater(long delay) {
+        System.out.println("\n\n*** GreetMeLater called with: " + delay + "***\n\n");
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        verifyMAPs();
+        return "Hello, finally";
     }
 
     public void greetMeOneWay(String requestType) {   
@@ -144,6 +158,16 @@ public class GreeterImpl implements Greeter {
     }
     
     public Response<GreetMeResponse> greetMeAsync(String requestType) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Future<?> greetMeLaterAsync(long requestType, AsyncHandler<GreetMeLaterResponse> asyncHandler) { 
+        return null; 
+        /*not called */
+    }
+    
+    public Response<GreetMeLaterResponse> greetMeLaterAsync(long requestType) { 
         return null; 
         /*not called */
     }

@@ -29,6 +29,7 @@ import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
@@ -45,6 +46,7 @@ public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface {
     public AnotherDerivedGreeterImpl() {
         invocationCount.put("sayHi", 0);
         invocationCount.put("greetMe", 0);
+        invocationCount.put("greetMeLater", 0);
         invocationCount.put("greetMeOneWay", 0);
         invocationCount.put("overloadedSayHi", 0);
     }
@@ -96,6 +98,18 @@ public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface {
         return "Bonjour " + me + "!";
     }
 
+    public String greetMeLater(long delay) {
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                /// ignore
+            }
+        }
+        incrementInvocationCount("greetMeLater");
+        return "Hello, finally!";
+    }
+
     public String greetMeSometime(String me) {
         incrementInvocationCount("greetMeSometime");
         return "Hello there " + me + "!";
@@ -118,6 +132,16 @@ public class AnotherDerivedGreeterImpl implements GreeterEndpointInterface {
     }
 
     public Response<GreetMeResponse> greetMeAsync(String requestType) {
+        return null;
+        /*not called */
+    }
+
+    public Future<?> greetMeLaterAsync(long requestType, AsyncHandler<GreetMeLaterResponse> asyncHandler) {
+        return null;
+        /*not called */
+    }
+
+    public Response<GreetMeLaterResponse> greetMeLaterAsync(long requestType) {
         return null;
         /*not called */
     }

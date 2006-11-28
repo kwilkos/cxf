@@ -62,7 +62,7 @@ import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
-import org.apache.hello_world_soap_http.types.GreetMeResponse;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 
 public class ClientServerTest extends ClientServerTestBase {
@@ -613,12 +613,13 @@ public class ClientServerTest extends ClientServerTestBase {
         
         long before = System.currentTimeMillis();
 
-        Response<GreetMeResponse> r1 = greeter.greetMeAsync("one");
-        Response<GreetMeResponse> r2 = greeter.greetMeAsync("two");
+        long delay = 3000;
+        Response<GreetMeLaterResponse> r1 = greeter.greetMeLaterAsync(delay);
+        Response<GreetMeLaterResponse> r2 = greeter.greetMeLaterAsync(delay);
 
         long after = System.currentTimeMillis();
 
-        assertTrue("Duration of calls exceeded 6000 ms", after - before < 6000);
+        assertTrue("Duration of calls exceeded " + (2 * delay) + " ms", after - before < (2 * delay));
 
         // first time round, responses should not be available yet
         assertFalse("Response already available.", r1.isDone());
@@ -626,7 +627,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
         // after three seconds responses should be available
         long waited = 0;
-        while (waited < 5000) {
+        while (waited < (delay + 1000)) {
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ex) {

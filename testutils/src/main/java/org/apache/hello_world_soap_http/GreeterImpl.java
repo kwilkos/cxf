@@ -33,6 +33,7 @@ import javax.xml.ws.WebServiceContext;
 
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.ErrorCode;
+import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
 import org.apache.hello_world_soap_http.types.GreetMeResponse;
 import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
@@ -57,15 +58,21 @@ public class GreeterImpl implements Greeter {
     }
 
     public String greetMe(String me) {
-        try {
-            // to prove async invocation works
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         LOG.info("Invoking greetMe " + me);
         invocationCount++;
         return "Hello " + me;
+    }
+
+    public String greetMeLater(long delay) {
+        LOG.info("Invoking greetMeLater " + delay);
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                /// ignore
+            }
+        }
+        return "Hello, finally!";
     }
 
     public String sayHi() {
@@ -159,6 +166,16 @@ public class GreeterImpl implements Greeter {
 
     public Response<GreetMeResponse> greetMeAsync(String requestType) {
         invocationCount++;
+        return null;
+        /*not called */
+    }
+
+    public Future<?> greetMeLaterAsync(long requestType, AsyncHandler<GreetMeLaterResponse> asyncHandler) {
+        return null;
+        /*not called */
+    }
+
+    public Response<GreetMeLaterResponse> greetMeLaterAsync(long requestType) {
         return null;
         /*not called */
     }
