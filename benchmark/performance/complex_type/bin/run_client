@@ -1,0 +1,46 @@
+#!/bin/bash
+
+OPERARTION=sendReceiveData
+BASEDON=Time
+AMOUNT=30
+PACKETSIZE=1
+THREADS=1
+PIPE=
+
+for i in $@
+do 
+  if [ "$i" = "-Operartion" ]
+  then
+	OPERARTION=$2
+  fi
+
+  if [ "$i" = "-BasedOn" ]
+  then
+	BASEDON=$2
+  fi
+
+  if [ "$i" = "-Amount" ]
+  then
+	AMOUNT=$2
+  fi
+
+  if [ "$i" = "-PacketSize" ]
+  then
+        PACKETSIZE=$2
+  fi
+
+  if [ "$i" = "-Threads" ]
+  then
+	THREADS=$2
+  fi
+
+  if [ "$i" = "-Pipe" ]
+  then
+	PIPE=-Dpipe=-Pipe
+  fi
+
+  shift
+done
+
+cd .. 
+ant client -Dcxf.running.time=$AMOUNT -Dcxf.operation=$OPERARTION -Dcxf.basedon=$BASEDON -Dcxf.packet.size=$PACKETSIZE -Dcxf.threads=$THREADS $PIPE

@@ -1,9 +1,0 @@
-<bindings 
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"  
-    xmlns="http://java.sun.com/xml/ns/jaxws"
-    wsdlLocation="binary_attachment.wsdl">
-    <bindings node="wsdl:definitions">
-		<enableMIMEContent>true</enableMIMEContent>
-    </bindings>
-</bindings>
