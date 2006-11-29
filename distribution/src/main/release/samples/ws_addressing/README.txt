@@ -119,7 +119,7 @@ The server process starts in the background.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=.\logging.properties
-         -Dcxf.config.file=client.xml
+         -Dcxf.config.file=server.xml
          demo.ws_addressing.server.Server
 
     java -Djava.util.logging.config.file=.\logging.properties
