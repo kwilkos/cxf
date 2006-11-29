@@ -130,7 +130,7 @@
     <!-- will remove this after it is got sync to central repository -->
     <repositories>
         <repository>
-	    <id>dev.java.net</id>
+	    <id>java.net</id>
 	    <name>jsr181 temp repository</name>
 	    <url>https://maven-repository.dev.java.net/nonav/repository</url>
 	    <layout>legacy</layout>

@@ -140,16 +140,9 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
             return ann.file();
         }
 
-        public String getChainName() {
-            return ann.name();
-        }
-
         public void validate() {
             if (null == ann.file() || "".equals(ann.file())) {
                 throw new WebServiceException(BUNDLE.getString("ANNOTATION_WITHOUT_URL_EXC"));
-            }
-            if (null == ann.name() || "".equals(ann.name())) {
-                LOG.fine("no handler name specified, defaulting to first declared");
             }
         }
 

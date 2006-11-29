@@ -37,6 +37,7 @@ import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetHeaders;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Attachment;
@@ -71,7 +72,7 @@ public class AttachmentDeserializer {
         Map<String, List<String>> httpHeaders;
         // processing message if its multi-part/form-related
         try {
-            httpHeaders = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
+            httpHeaders = CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
             if (httpHeaders == null) {
                 return false;
             } else {
