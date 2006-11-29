@@ -76,7 +76,7 @@ For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
   javac -d build\classes src\demo\hwDispatch\client\*.java
   javac -d build\classes src\demo\hwDispatch\server\*.java
-
+  
 
 
 Running the demo using java
@@ -87,7 +87,7 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hwDispatch.server.Server &
+         demo.hwDispatch.server.Server ./wsdl/hello_world.wsdl &
 
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hwDispatch.client.Client ./wsdl/hello_world.wsdl
@@ -98,7 +98,7 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-         demo.hwDispatch.server.Server
+         demo.hwDispatch.server.Server .\wsdl\hello_world.wsdl
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
        demo.hwDispatch.client.Client .\wsdl\hello_world.wsdl

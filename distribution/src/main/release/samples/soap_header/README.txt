@@ -151,12 +151,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hw.client.Client http://localhost:#/soapheader/services/soap_header?wsdl
+         demo.soap_header.client.Client http://localhost:#/soapheader/services/soap_header?wsdl
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.hw.client.Client http://localhost:#/soapheader/services/soap_header?wsdl
+       demo.soap_header.client.Client http://localhost:#/soapheader/services/soap_header?wsdl
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.

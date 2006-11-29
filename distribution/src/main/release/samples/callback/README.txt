@@ -71,7 +71,7 @@ For UNIX:
   javac -d build/classes src/demo/callback/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar:.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
   javac -d build\classes src\demo\callback\client\*.java
   javac -d build\classes src\demo\callback\server\*.java
 

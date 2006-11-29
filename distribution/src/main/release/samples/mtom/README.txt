@@ -144,12 +144,12 @@ Using java, run the client application with the command:
   For UNIX:
     
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.mtom.client.Client http://localhost:#/mtom
+         demo.mtom.client.Client http://localhost:#/mtom/services/mtom?wsdl
 
   For Windows:
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.mtom.client.Client http://localhost:#/mtom
+       demo.mtom.client.Client http://localhost:#/mtom/services/mtom?wsdl
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.

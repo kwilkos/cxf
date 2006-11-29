@@ -91,7 +91,7 @@ $ACTIVEMQ_HOME/incubator-activemq-$ACTIVEMQ_VERSION.jar
   javac -d build/classes src/demo/jms_greeter/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes;
 %ACTIVEMQ_HOME%\incubator-activemq-%ACTIVEMQ_VERSION%.jar
   javac -d build\classes src\demo\jms_greeter\client\*.java
   javac -d build\classes src\demo\jms_greeter\server\*.java
