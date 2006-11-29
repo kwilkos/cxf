@@ -458,10 +458,9 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         private void handleResponse() throws IOException {
             Exchange exchange = outMessage.getExchange();
             int responseCode = getResponseCode(connection);
-            if (exchange != null
-                && exchange.isOneWay()
-                && responseCode != HttpURLConnection.HTTP_ACCEPTED) {
-                //oneway operation
+            if (isOneway(exchange)
+                && !isPartialResponse(connection, responseCode)) {
+                // oneway operation without partial response
                 connection.getInputStream().close();
                 return;
             }
@@ -489,6 +488,25 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             
             incomingObserver.onMessage(inMessage);
         }
+    }
+    
+    /**
+     * @param exchange the exchange in question
+     * @return true iff the exchange indicates a oneway MEP
+     */
+    private boolean isOneway(Exchange exchange) {
+        return exchange != null && exchange.isOneWay();
+    }
+    
+    /**
+     * @param connection the connection in question
+     * @param responseCode the response code
+     * @return true if a partial response is pending on the connection 
+     */
+    private boolean isPartialResponse(URLConnection connection,
+                                      int responseCode) {
+        return responseCode == HttpURLConnection.HTTP_ACCEPTED
+               && connection.getContentLength() != 0;
     }
 
     /**
