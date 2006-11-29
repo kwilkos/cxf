@@ -105,6 +105,7 @@ public class DestinationSequence extends AbstractSequence {
     }
     
     public void acknowledge(BigInteger messageNumber) throws SequenceFault {
+        LOG.fine("Acknowledging message: " + messageNumber);
         if (null != lastMessageNumber && messageNumber.compareTo(lastMessageNumber) > 0) {
             SequenceFaultType sf = RMUtils.getWSRMFactory().createSequenceFaultType();
             sf.setFaultCode(RMConstants.getLastMessageNumberExceededFaultCode());
@@ -265,8 +266,10 @@ public class DestinationSequence extends AbstractSequence {
         AcksPolicyType ap = destination.getManager().getDestinationPolicy().getAcksPolicy();
  
         if (delay > 0 && getMonitor().getMPM() >= ap.getIntraMessageThreshold()) {
+            LOG.fine("Schedule deferred acknowledgment");
             scheduleDeferredAcknowledgement(delay);
         } else {
+            LOG.fine("Schedule immediate acknowledgment");
             scheduleImmediateAcknowledgement();
         }
     }
@@ -307,6 +310,11 @@ public class DestinationSequence extends AbstractSequence {
             } catch (IOException ex) {
                 Message msg = new Message("SEQ_ACK_SEND_EXC", LOG, DestinationSequence.this);
                 LOG.log(Level.SEVERE, msg.toString(), ex);
+            } finally {
+                synchronized (DestinationSequence.this) {
+                    DestinationSequence.this.deferredAcknowledgments.remove(this);
+                }
+               
             }
 
         }
