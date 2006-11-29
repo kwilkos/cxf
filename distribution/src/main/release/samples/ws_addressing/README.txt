@@ -89,13 +89,13 @@ Now compile the provided client and server applications with the commands:
 
 For UNIX:  
   
-  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
+  export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes:.
   javac -d build/classes src/demo/ws_addressing/common/*.java
   javac -d build/classes src/demo/ws_addressing/client/*.java
   javac -d build/classes src/demo/ws_addressing/server/*.java
 
 For Windows:
-  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
+  set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes;.
   javac -d build\classes src\demo\ws_addressing\common\*.java
   javac -d build\classes src\demo\ws_addressing\client\*.java
   javac -d build\classes src\demo\ws_addressing\server\*.java
@@ -107,11 +107,11 @@ From the samples/ws_addressing directory run the commands (entered on a single c
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=./logging.properties
-         -Dcxf.config.file=file:///$CXF_HOME/samples/ws_addressing/server.xml
+         -Dcxf.config.file=server.xml
          demo.ws_addressing.server.Server &
 
     java -Djava.util.logging.config.file=./logging.properties
-         -Dcxf.config.file=file:///$CXF_HOME/samples/ws_addressing/client.xml
+         -Dcxf.config.file=client.xml
          demo.ws_addressing.client.Client ./wsdl/hello_world_addr.wsdl
 
 The server process starts in the background.
@@ -119,11 +119,11 @@ The server process starts in the background.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=.\logging.properties
-         -Dcxf.config.file=file:///%CXF_HOME%\samples\ws_addressing\client.xml
+         -Dcxf.config.file=client.xml
          demo.ws_addressing.server.Server
 
     java -Djava.util.logging.config.file=.\logging.properties
-         -Dcxf.config.file=file:///%CXF_HOME%\samples\ws_addressing\client.xml
+         -Dcxf.config.file=client.xml
          demo.ws_addressing.client.Client .\wsdl\hello_world_addr.wsdl
 
 The server process starts in a new command window.
