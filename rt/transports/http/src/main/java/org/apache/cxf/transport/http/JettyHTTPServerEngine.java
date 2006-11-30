@@ -47,21 +47,12 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
     private int servantCount;
     private HttpServer server;
     private SocketListener listener;
-    private final JettyListenerFactory listenerFactory;
+    private JettyListenerFactory listenerFactory;
     private final int port;
     
     JettyHTTPServerEngine(Bus bus, String protocol, int p) {
-        this(bus, protocol, p, null);
-    }
-
-    JettyHTTPServerEngine(Bus bus, String protocol, int p, SSLServerPolicy sslServerPolicy) {
         port = p;
-        if (sslServerPolicy != null) {
-            sslServer = sslServerPolicy;
-        }
-        listenerFactory = HTTPTransportFactory.getListenerFactory(sslServer);
-        init();
-    }    
+    }
     
     @Override
     public String getBeanName() {
@@ -80,8 +71,10 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
                                                          SSLServerPolicy sslServerPolicy) {
         JettyHTTPServerEngine ref = portMap.get(p);
         if (ref == null) {
-            ref = new JettyHTTPServerEngine(bus, protocol, p, sslServerPolicy);
+            ref = new JettyHTTPServerEngine(bus, protocol, p);
             configure(bus, ref);
+            ref.init(sslServerPolicy);
+            ref.retrieveListenerFactory();
             portMap.put(p, ref);
         }
         return ref;
@@ -260,7 +253,14 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         }
     }
 
-    private void init() {
+    private void retrieveListenerFactory() {
+        listenerFactory = HTTPTransportFactory.getListenerFactory(getSslServer());
+    }
+    
+    private void init(SSLServerPolicy sslServerPolicy) {
+        if (!isSetSslServer()) {
+            setSslServer(sslServerPolicy);
+        }
         if (!isSetListener()) {
             setListener(new HTTPListenerPolicy());
         }
