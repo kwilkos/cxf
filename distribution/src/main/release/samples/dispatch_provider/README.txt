@@ -77,6 +77,16 @@ For Windows:
   javac -d build\classes src\demo\hwDispatch\client\*.java
   javac -d build\classes src\demo\hwDispatch\server\*.java
   
+Finally, copy resource files into the build/classes directory with the commands:
+
+For UNIX:    
+  cp ./src/demo/hwDispatch/client/*.xml ./build/classes/demo/hwDispatch/client
+  cp ./src/demo/hwDispatch/server/*.xml ./build/classes/demo/hwDispatch/server
+
+For Windows:
+  copy src\demo\hwDispatch\client\*.xml build\classes\demo\hwDispatch\client
+  copy src\demo\hwDispatch\server\*.xml build\classes\demo\hwDispatch\server
+
 
 
 Running the demo using java
@@ -87,7 +97,7 @@ single command line:
 
 For UNIX (must use forward slashes):
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.hwDispatch.server.Server ./wsdl/hello_world.wsdl &
+         demo.hwDispatch.server.Server &
 
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
          demo.hwDispatch.client.Client ./wsdl/hello_world.wsdl
@@ -98,7 +108,7 @@ use the kill command to terminate the server process.
 For Windows (may use either forward or back slashes):
   start 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-         demo.hwDispatch.server.Server .\wsdl\hello_world.wsdl
+         demo.hwDispatch.server.Server
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
        demo.hwDispatch.client.Client .\wsdl\hello_world.wsdl
