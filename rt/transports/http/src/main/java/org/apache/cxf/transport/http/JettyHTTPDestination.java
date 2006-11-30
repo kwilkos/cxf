@@ -222,6 +222,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param headers the current set of headers
      */
     protected void copyResponseHeaders(Message message, HttpResponse response) {
+        response.setContentType((String) message.get(Message.CONTENT_TYPE));
+
         Map<?, ?> headers = (Map<?, ?>)message.get(Message.PROTOCOL_HEADERS);
         if (null != headers) {
             for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {

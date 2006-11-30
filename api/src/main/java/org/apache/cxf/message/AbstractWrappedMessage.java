@@ -68,10 +68,18 @@ public abstract class AbstractWrappedMessage implements Message {
         return message.getAttachments();
     }
 
-    public String getAttachmentMimeType() {
-        return message.getAttachmentMimeType();
+    public void setAttachments(Collection<Attachment> attachments) {
+        message.setAttachments(attachments);
     }
-    
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+    }
+
     public Conduit getConduit() {
         return message.getConduit();
     }

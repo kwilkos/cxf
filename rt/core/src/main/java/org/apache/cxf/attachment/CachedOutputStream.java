@@ -17,44 +17,32 @@
  * under the License.
  */
 
-package org.apache.cxf.binding.attachment;
+package org.apache.cxf.attachment;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.PipedInputStream;
 
-import javax.activation.DataSource;
+import org.apache.cxf.io.AbstractCachedOutputStream;
 
-public class AttachmentDataSource implements DataSource {
 
-    private final String ct;
-    private final InputStream in;
 
-    public AttachmentDataSource(String ctParam, CachedOutputStream cosParam) throws IOException {
-        this.ct = ctParam;
-        this.in = cosParam.getInputStream();
+public class CachedOutputStream extends AbstractCachedOutputStream {
+
+    public CachedOutputStream() throws IOException {
+        super();
     }
 
-    public AttachmentDataSource(String ctParam, InputStream inParam) {
-        this.ct = ctParam;
-        this.in = inParam;
+    public CachedOutputStream(PipedInputStream stream) throws IOException {
+        super(stream);
     }
 
-    public String getContentType() {
-        return ct;
+    public void onWrite() throws IOException {
     }
 
-    public InputStream getInputStream() {
-        return in;
+    public void doClose() {
     }
 
-    public String getName() {
-        return null;
+    public void doFlush() {
     }
-
-    public OutputStream getOutputStream() throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
 
 }

@@ -41,6 +41,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -105,8 +106,11 @@ public class AbstractCXFTest extends TestCase {
             throw new RuntimeException("Could not find resource " + message);
         }
         
-        copy(is, os);
+        IOUtils.copy(is, os);
 
+        is.close();
+        os.close();
+        
         byte[] bs = obs.getResponseStream().toByteArray();
         
         return bs;
@@ -125,24 +129,7 @@ public class AbstractCXFTest extends TestCase {
                                             + new String(bs));
         }
     }
-   
-    protected void copy(final InputStream input, final OutputStream output)
-        throws IOException {
-        int bufferSize = 1024;
-        try {
-            final byte[] buffer = new byte[bufferSize];
 
-            int n = input.read(buffer);
-            while (-1 != n) {
-                output.write(buffer, 0, n);
-                n = input.read(buffer);
-            }
-        } finally {
-            input.close();
-            output.close();
-        }
-    }
-    
     /**
      * Assert that the following XPath query selects one or more nodes.
      * 
@@ -214,9 +201,10 @@ public class AbstractCXFTest extends TestCase {
         return basedirPath;
     }
     
-    class TestMessageObserver implements MessageObserver {
+    public static class TestMessageObserver implements MessageObserver {
         ByteArrayOutputStream response = new ByteArrayOutputStream();
         boolean written;
+        String contentType;
         
         public ByteArrayOutputStream getResponseStream() throws Exception {
             synchronized (this) {
@@ -227,10 +215,18 @@ public class AbstractCXFTest extends TestCase {
             return response;
         }
         
+        public String getResponseContentType() {
+            return contentType;
+        }
 
         public void onMessage(Message message) {
             try {
-                copy(message.getContent(InputStream.class), response);
+                contentType = (String) message.get(Message.CONTENT_TYPE);
+                InputStream is = message.getContent(InputStream.class);
+                IOUtils.copy(is, response);
+                
+                is.close();
+                response.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 fail();

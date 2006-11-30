@@ -41,6 +41,9 @@ import javax.xml.transform.Result;
 import javax.xml.transform.dom.DOMResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.xml.sax.SAXException;
 
@@ -205,6 +208,17 @@ public final class JAXBDataBinding implements DataBinding {
                     ns = "";
                 }
 
+                NodeList nodes = d.getDocumentElement().getChildNodes();
+                for (int i = 0; i < nodes.getLength(); i++) {
+                    Node n = nodes.item(i);
+                    if (n instanceof Element) {
+                        Element e = (Element) n;
+                        if (e.getLocalName().equals("import")) {
+                            d.getDocumentElement().removeChild(e);
+                        }
+                    }
+                }
+                
                 // Don't include WS-Addressing bits
                 if ("http://www.w3.org/2005/08/addressing/wsdl".equals(ns)) {
                     continue;

@@ -30,8 +30,8 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Element;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Attachment;

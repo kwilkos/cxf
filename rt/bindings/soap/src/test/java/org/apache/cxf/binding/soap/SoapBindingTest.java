@@ -38,6 +38,8 @@ public class SoapBindingTest extends TestCase {
 
         assertEquals("text/xml", soapMessage.get(Message.CONTENT_TYPE));
         
+        soapMessage.remove(Message.CONTENT_TYPE);
+        
         sb.setSoapVersion(Soap12.getInstance());
         soapMessage = (SoapMessage) sb.createMessage(soapMessage);
         assertEquals(Soap12.getInstance(), soapMessage.getVersion());     

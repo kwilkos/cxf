@@ -72,9 +72,4 @@ public class SoapMessage extends AbstractWrappedMessage {
     public <T> void setHeaders(Class<T> format, T content) {
         headers.put(format, content);
     }
-    
-    public String getAttachmentMimeType() {
-        return version.getSoapMimeType();
-    }
-    
 }

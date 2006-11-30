@@ -36,6 +36,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.test.AbstractCXFTest;
 
 public abstract class AbstractRestTest extends AbstractCXFTest {
@@ -91,8 +92,10 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
         InputStream msgIs = getResourceAsStream(message);
         assertNotNull(msgIs);
 
-        copy(msgIs, out);
-
+        IOUtils.copy(msgIs, out);
+        out.close();
+        msgIs.close();
+        
         InputStream is = c.getInputStream();
         Document res = DOMUtils.readXml(is);
         

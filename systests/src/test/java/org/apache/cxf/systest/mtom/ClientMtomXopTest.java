@@ -22,11 +22,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.List;
 
-// import javax.activation.DataHandler;
-// import javax.activation.DataSource;
-// import javax.mail.util.ByteArrayDataSource;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
@@ -37,12 +33,9 @@ import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
-import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
-import org.apache.cxf.binding.soap.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.EndpointInvocationHandler;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
@@ -83,8 +76,10 @@ public class ClientMtomXopTest extends ClientServerTestBase {
                 org.apache.cxf.endpoint.EndpointImpl endpoint = new JaxWsEndpointImpl(bus, service, ei);
                 SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding()); 
                 jaxWsSoapBinding.setMTOMEnabled(true);
-                modifyBindingInterceptors(endpoint.getBinding().getInInterceptors(), endpoint.getBinding()
-                        .getOutInterceptors());
+
+                endpoint.getInInterceptors().add(new TestMultipartMessageInterceptor());
+                endpoint.getOutInterceptors().add(new TestAttachmentOutInterceptor());
+                
                 endpoint.getEndpointInfo().setAddress(address);
                 MessageObserver observer = new ChainInitiationObserver(endpoint, bus);
                 ServerImpl server = new ServerImpl(bus, endpoint, observer);
@@ -177,40 +172,14 @@ public class ClientMtomXopTest extends ClientServerTestBase {
         JaxWsEndpointImpl jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
         SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding());
         jaxWsSoapBinding.setMTOMEnabled(true);
-        modifyBindingInterceptors(jaxwsEndpoint.getBinding().getInInterceptors(), jaxwsEndpoint.getBinding()
-                .getOutInterceptors());
+        
+        jaxwsEndpoint.getBinding().getInInterceptors().add(new TestMultipartMessageInterceptor());
+        jaxwsEndpoint.getBinding().getOutInterceptors().add(new TestAttachmentOutInterceptor());
+        
         Client client = new ClientImpl(bus, jaxwsEndpoint);
         InvocationHandler ih = new EndpointInvocationHandler(client, jaxwsEndpoint.getJaxwsBinding());
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(), new Class[] {
             serviceEndpointInterface, BindingProvider.class }, ih);
         return serviceEndpointInterface.cast(obj);
     }
-
-    private static void modifyBindingInterceptors(List<Interceptor> in, List<Interceptor> out) {
-        Interceptor inRemoved = null;
-        Interceptor outRemoved = null;
-        for (Interceptor i : in) {
-            if (i instanceof MultipartMessageInterceptor) {
-                inRemoved = i;
-            }
-        }
-        if (inRemoved != null) {
-            in.add(new TestMultipartMessageInterceptor());
-            in.remove(inRemoved);
-        } else {
-            fail("hasn't found MultipartMessageInterceptor in soap binding");
-        }
-        for (Interceptor o : out) {
-            if (o instanceof AttachmentOutInterceptor) {
-                outRemoved = o;
-            }
-        }
-        if (outRemoved != null) {
-            out.add(new TestAttachmentOutInterceptor());
-            out.remove(outRemoved);
-        } else {
-            fail("hasn't found AttachmentOutInterceptor in soap binding");
-        }
-    }
-
 }

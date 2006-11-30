@@ -17,24 +17,42 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.mtom;
+package org.apache.cxf.interceptor;
 
-import junit.framework.TestCase;
+import java.io.IOException;
+import java.util.ResourceBundle;
 
-import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.attachment.AttachmentSerializer;
+import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
-public class TestMultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
+public class AttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public TestMultipartMessageInterceptor() {
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AttachmentOutInterceptor.class);
+
+    public AttachmentOutInterceptor() {
         super();
-        setPhase(Phase.INVOKE);
+        setPhase(Phase.PRE_STREAM);
     }
 
     public void handleMessage(Message message) throws Fault {
-        TestCase.assertNotNull(message.getAttachments());
-        TestCase.assertEquals(1, message.getAttachments().size());
+        if (!Boolean.TRUE.equals(message.getContextualProperty(
+                org.apache.cxf.message.Message.MTOM_ENABLED))) {
+            return;
+        }
+
+        AttachmentSerializer serializer = new AttachmentSerializer(message);
+        try {
+            serializer.writeProlog();
+            
+            message.getInterceptorChain().doIntercept(message);
+            
+            serializer.writeAttachments();
+        } catch (IOException e) {
+            throw new Fault(new org.apache.cxf.common.i18n.Message("WRITE_ATTACHMENTS", BUNDLE), e);
+        }
     }
+
 }

@@ -20,15 +20,16 @@
 package org.apache.cxf.jaxb.attachment;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
 import javax.activation.DataHandler;
 import javax.xml.bind.attachment.AttachmentMarshaller;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
-import org.apache.cxf.binding.attachment.ByteDataSource;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
+import org.apache.cxf.attachment.ByteDataSource;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
@@ -43,6 +44,9 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
     public JAXBAttachmentMarshaller(Message messageParam) {
         super();
         this.message = messageParam;
+        if (message.getAttachments() == null) {
+            message.setAttachments(new ArrayList<Attachment>());
+        }
         atts = message.getAttachments();
     }
 

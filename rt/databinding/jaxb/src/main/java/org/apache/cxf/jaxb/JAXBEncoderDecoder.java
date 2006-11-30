@@ -24,9 +24,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -51,19 +49,10 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.service.model.MessagePartInfo;
 
 /**
- * JAXBEncoderDecoder
- * 
- * @author apaibir
+ * Utility functions for JAXB.
  */
 public final class JAXBEncoderDecoder {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBEncoderDecoder.class);
-
-    private static Set<String> filter = new HashSet<String>();
-    
-    static {
-        filter.add("void");
-        filter.add("javax.activation.DataHandler");
-    }
     
     private JAXBEncoderDecoder() {
     }
@@ -194,10 +183,6 @@ public final class JAXBEncoderDecoder {
                                     Class<?> clazz,
                                     AttachmentUnmarshaller au) {
         Object obj = null;
-        
-        if (clazz != null && filter.contains(clazz.getName())) {
-            clazz = null;
-        }
         
         try {
             Unmarshaller u = createUnmarshaller(context, clazz);

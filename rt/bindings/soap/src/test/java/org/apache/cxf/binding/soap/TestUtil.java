@@ -23,13 +23,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
@@ -70,7 +71,8 @@ public final class TestUtil {
         soapMessage.setContent(Attachment.class, new AttachmentImpl(cid, new DataHandler(bads)));
 
         // setup the message attachments
-        Collection<Attachment> attachments = soapMessage.getAttachments();
+        Collection<Attachment> attachments = new ArrayList<Attachment>();
+        soapMessage.setAttachments(attachments);
 //        String cidAtt1 = "cid:http://cxf.apache.org/me.bmp";
 //        bads = new ByteArrayDataSource(clazz.getResourceAsStream("me.bmp"), "image/bmp");
 //        AttachmentImpl att1 = new AttachmentImpl(cidAtt1, new DataHandler(bads));

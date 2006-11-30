@@ -155,7 +155,10 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
     
     @Override
     public String getBeanName() {
-        return endpointInfo.getName().toString() + ".http-conduit";
+        if (endpointInfo.getName() != null) {
+            return endpointInfo.getName().toString() + ".http-conduit";
+        }
+        return null;
     }
     
     /**
@@ -183,13 +186,6 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
         connection.setConnectTimeout((int)getClient().getConnectionTimeout());
         connection.setReadTimeout((int)getClient().getReceiveTimeout());
         connection.setUseCaches(false);
-        
-        if (null != message.get(Message.CONTENT_TYPE)) {
-            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, 
-                    (String)message.get(Message.CONTENT_TYPE));
-        } else {
-            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
-        }
         
         if (connection instanceof HttpURLConnection) {
             String httpRequestMethod = (String)message.get(Message.HTTP_REQUEST_METHOD);
@@ -337,9 +333,16 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      * @throws IOException
      */
     protected void flushHeaders(Message message) throws IOException {
+        URLConnection connection = (URLConnection)message.get(HTTP_CONNECTION);
+        String ct = (String) message.get(Message.CONTENT_TYPE);
+        if (null != ct) {
+            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, ct);
+        } else {
+            connection.setRequestProperty(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
+        }
+        
         Map<String, List<String>> headers = 
             CastUtils.cast((Map<?, ?>)message.get(Message.PROTOCOL_HEADERS));
-        URLConnection connection = (URLConnection)message.get(HTTP_CONNECTION);
         if (null != headers) {
             for (String header : headers.keySet()) {
                 List<String> headerList = headers.get(header);
@@ -474,6 +477,8 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             }
             inMessage.put(Message.PROTOCOL_HEADERS, headers);
             inMessage.put(Message.RESPONSE_CODE, responseCode);
+            inMessage.put(Message.CONTENT_TYPE, connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
+
             if (connection instanceof HttpURLConnection) {
                 HttpURLConnection hc = (HttpURLConnection)connection;
                 in = hc.getErrorStream();
@@ -602,6 +607,8 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             // REVISIT: how to get response headers?
             //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
             setHeaders(inMessage);
+            inMessage.put(Message.ENCODING, resp.getCharacterEncoding());
+            inMessage.put(Message.CONTENT_TYPE, resp.getContentType());
             inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
             InputStream is = new WrapperInputStream(responseStream, req, resp);
             inMessage.setContent(InputStream.class, is);

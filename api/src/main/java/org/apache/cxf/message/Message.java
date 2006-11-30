@@ -45,10 +45,10 @@ public interface Message extends Map<String, Object> {
     String HTTP_REQUEST_METHOD = Message.class.getName() + ".HTTP_REQUEST_METHOD";
     String PATH_INFO = Message.class.getName() + ".PATH_INFO";
     String QUERY_STRING = Message.class.getName() + ".QUERY_STRING";
-    String MTOM_ENABLED = Message.class.getName() + ".isMtomEnabled";
+    String MTOM_ENABLED = "mtom-enabled";
     String SCHEMA_VALIDATION_ENABLED = Message.class.getCanonicalName() + ".schemaValidationEnabled";
     String FAULT_STACKTRACE_ENABLED = "faultStackTraceEnabled";
-    String CONTENT_TYPE = Message.class.getName() + ".ContentType";
+    String CONTENT_TYPE = "Content-Type";
     String BASE_PATH = Message.class.getName() + ".BASE_PATH";
     String ENCODING = Message.class.getName() + ".ENCODING";
     String FIXED_PARAMETER_ORDER = Message.class.getName() + "FIXED_PARAMETER_ORDER";
@@ -75,11 +75,8 @@ public interface Message extends Map<String, Object> {
     
     Collection<Attachment> getAttachments();
 
-    /**
-     * @return the mime type string  
-     */
-    String getAttachmentMimeType();
-
+    void setAttachments(Collection<Attachment> attachments);
+    
     /**
      * Retrieve the encapsulated content as a particular type (a result type
      * if message is outbound, a source type if message is inbound)

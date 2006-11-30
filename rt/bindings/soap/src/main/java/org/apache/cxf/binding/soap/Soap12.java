@@ -42,7 +42,6 @@ public final class Soap12 implements SoapVersion {
     private final String ultimateReceiverRole = namespace + "/role/ultimateReceiver";
 
     private final String nextRole = namespace + "/role/next";
-    
 
     private final String soapEncodingStyle = "http://www.w3.org/2003/05/soap-encoding";
 
@@ -62,10 +61,6 @@ public final class Soap12 implements SoapVersion {
         return instance;
     }
 
-    public String getSoapMimeType() {
-        return "\"application/soap+xml\"; charset=utf-8";
-    }
-    
     public double getVersion() {
         return version;
     }

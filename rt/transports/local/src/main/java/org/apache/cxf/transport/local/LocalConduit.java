@@ -24,7 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 
-import org.apache.cxf.binding.attachment.CachedOutputStream;
+import org.apache.cxf.attachment.CachedOutputStream;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.binding.attachment;
+package org.apache.cxf.attachment;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,14 +29,18 @@ import org.apache.cxf.message.Attachment;
 
 public class AttachmentImpl implements Attachment {
 
-    private DataHandler handler;
+    private DataHandler dataHandler;
     private String id;
     private Map<String, String> headers = new HashMap<String, String>();
     private boolean xop;
 
+    public AttachmentImpl(String idParam) {
+        this.id = idParam;
+    }
+    
     public AttachmentImpl(String idParam, DataHandler handlerParam) {
         this.id = idParam;
-        this.handler = handlerParam;
+        this.dataHandler = handlerParam;
     }
 
     public String getId() {
@@ -44,7 +48,11 @@ public class AttachmentImpl implements Attachment {
     }
 
     public DataHandler getDataHandler() {
-        return handler;
+        return dataHandler;
+    }
+
+    public void setDataHandler(DataHandler dataHandler) {
+        this.dataHandler = dataHandler;
     }
 
     public void setHeader(String name, String value) {

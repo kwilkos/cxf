@@ -17,11 +17,12 @@
  * under the License.
  */
 
-package org.apache.cxf.binding.soap.interceptor;
+package org.apache.cxf.interceptor;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.apache.cxf.binding.attachment.AttachmentDeserializer;
+import org.apache.cxf.attachment.AttachmentDeserializer;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -49,9 +50,17 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
             LOG.info("MultipartMessageInterceptor skipped in HTTP GET method");
             return;
         }
+        
+        if (!Boolean.TRUE.equals(
+            message.getContextualProperty(org.apache.cxf.message.Message.MTOM_ENABLED))) {
+            return;
+        }
+
         AttachmentDeserializer ad = new AttachmentDeserializer(message);
-        if (ad.preprocessMessage()) {
-            message.put(AttachmentDeserializer.class, ad);
+        try {
+            ad.initializeAttachments();
+        } catch (IOException e) {
+            throw new Fault(e);
         }
     }
 

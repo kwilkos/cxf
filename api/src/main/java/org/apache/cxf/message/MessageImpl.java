@@ -19,10 +19,8 @@
 
 package org.apache.cxf.message;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,7 +32,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
 public class MessageImpl extends HashMap<String, Object> implements Message {
-    private List<Attachment> attachments = new ArrayList<Attachment>();
+    private Collection<Attachment> attachments;
     private Conduit conduit;
     private Destination destination;
     private Exchange exchange;
@@ -44,6 +42,10 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
     
     public Collection<Attachment> getAttachments() {
         return attachments;
+    }
+
+    public void setAttachments(Collection<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public String getAttachmentMimeType() {

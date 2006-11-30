@@ -29,8 +29,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.binding.attachment.AttachmentImpl;
-import org.apache.cxf.binding.attachment.AttachmentUtil;
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.ReadHeadersInterceptor;

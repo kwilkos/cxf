@@ -16,33 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.systest.mtom;
 
-package org.apache.cxf.binding.attachment;
+import javax.jws.WebService;
 
-import java.io.IOException;
-import java.io.PipedInputStream;
-
-import org.apache.cxf.io.AbstractCachedOutputStream;
-
-
-
-public class CachedOutputStream extends AbstractCachedOutputStream {
-
-    public CachedOutputStream() throws IOException {
-        super();
+@WebService
+public class EchoService {
+    public Data echo(Data input) {
+        return input;
     }
-
-    public CachedOutputStream(PipedInputStream stream) throws IOException {
-        super(stream);
-    }
-
-    public void onWrite() throws IOException {
-    }
-
-    public void doClose() {
-    }
-
-    public void doFlush() {
-    }
-
 }

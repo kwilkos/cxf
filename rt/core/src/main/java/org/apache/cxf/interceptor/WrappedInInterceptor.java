@@ -113,7 +113,6 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
                 MessagePartInfo part = itr.next();
                 objects.add(dr.read(part, message));
             }
-
         }
 
         message.setContent(List.class, objects);

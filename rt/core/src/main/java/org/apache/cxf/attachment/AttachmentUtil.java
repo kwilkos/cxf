@@ -17,21 +17,17 @@
  * under the License.
  */
 
-package org.apache.cxf.binding.attachment;
+package org.apache.cxf.attachment;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Attachment;
-import org.apache.cxf.message.Message;
 
 public final class AttachmentUtil {
 
@@ -70,21 +66,6 @@ public final class AttachmentUtil {
         return s.toString();
     }
 
-    public static String getSoapPartHeader(Message message, String soapPartId, String action) {
-        StringBuffer buffer = new StringBuffer(200);
-        buffer.append(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE)
-                + ": application/xop+xml; charset=utf-8; ");
-        buffer.append("type=\"" + message.getAttachmentMimeType());
-        if (action != null) {
-            buffer.append("; action=" + action + "\"\r\n");
-        } else {
-            buffer.append("\"\r\n");
-        }
-        buffer.append("Content-Transfer-Encoding: binary\r\n");
-        buffer.append("Content-ID: <" + soapPartId + ">\r\n\r\n");
-        return buffer.toString();
-    }
-
     public static String getAttchmentPartHeader(Attachment att) {
         StringBuffer buffer = new StringBuffer(200);
         buffer.append(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE) + ": "
@@ -96,26 +77,4 @@ public final class AttachmentUtil {
         return buffer.toString();
     }
 
-    public static void setMimeRequestHeader(Map<String, List<String>> reqHeaders, Message message,
-            String soapPartId, String contentDesc, String boundary) {
-        List<String> header1 = new ArrayList<String>();
-        header1.add("1.0");
-        reqHeaders.put("MIME-Version", header1);
-        List<String> header2 = new ArrayList<String>();
-        header2.add("Multipart/" + getMimeSubType(message, soapPartId, boundary));
-        reqHeaders.put(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE), header2);
-        List<String> header3 = new ArrayList<String>();
-        header3.add(contentDesc);
-        reqHeaders.put("Content-Description", header3);
-
-    }
-
-    public static String getMimeSubType(Message message, String soapPartId, String boundary) {
-        StringBuffer ct = new StringBuffer();
-        ct.append("related; boundary=\"" + boundary + "\"; ");
-        ct.append("type=\"application/xop+xml\"; ");
-        ct.append("start=\"<" + soapPartId + ">\"; ");
-        ct.append("start-info=" + message.getAttachmentMimeType());
-        return ct.toString();
-    }
 }

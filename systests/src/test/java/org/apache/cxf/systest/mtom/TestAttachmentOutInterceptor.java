@@ -21,15 +21,21 @@ package org.apache.cxf.systest.mtom;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.binding.soap.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
 
-public class TestAttachmentOutInterceptor extends AttachmentOutInterceptor {
+public class TestAttachmentOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public void handleMessage(SoapMessage message) throws Fault {
-        super.handleMessage(message);
+    
+    public TestAttachmentOutInterceptor() {
+        super();
+        setPhase(Phase.SEND);
+    }
+
+    public void handleMessage(Message message) throws Fault {
         TestCase.assertEquals("check attachment count", message.getAttachments().size(), 1);
         Attachment att = message.getAttachments().iterator().next();
         TestCase.assertNotNull("Attachment is null", att);
