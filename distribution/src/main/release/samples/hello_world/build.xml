@@ -38,10 +38,11 @@
         <echo level="info" message="Generating code using wsdl2java..."/>
         <wsdl2java file="hello_world.wsdl"/>
     </target>
-    
+
+    <property name="cxf.war.file.name" value="helloworld"/>
     <target name="war" depends="build">
-        <cxfwar wsdl="hello_world.wsdl" filename="helloworld.war"/>
-	</target>
+	<cxfwar wsdl="hello_world.wsdl" filename="${cxf.war.file.name}.war"/>
+    </target>
 
     <target name="client-servlet" description="run demo client hitting servlet" depends="build">
         <property name="param" value=""/>

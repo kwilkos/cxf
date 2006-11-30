@@ -223,4 +223,36 @@
         </sequential>
     </macrodef>
 
+    <target name="deploy" depends="deploy-tomcat"/>
+    <target name="undeploy" depends="undeploy-tomcat"/>
+    
+    <target name="deploy-tomcat" if="tomcat">
+	<antcall target="validate-tomcat"/>
+	<copy file="${war.dir}/${cxf.war.file.name}.war"
+	      todir="${env.CATALINA_HOME}/webapps"/>
+    </target>
+
+    <target name="undeploy-tomcat" if="tomcat">
+	<antcall target="validate-tomcat"/>
+	<delete file="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}.war"/>
+	<delete dir="${env.CATALINA_HOME}/webapps/${cxf.war.file.name}"/>
+    </target>
+
+    <target name="validate-tomcat">
+	<fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
+	
+	<available property="cxf.jars.present.in.tomcat" file="${env.CATALINA_HOME}/shared/lib/cxf-incubator.jar" type="file"/>
+	<fail unless="cxf.jars.present.in.tomcat" message="In order to run CXF service under TOMCAT, 
+							   you MUST copy jars under ${cxf.home}/lib/ into ${env.CATALINA_HOME}/shared/lib/ first"/>
+	
+	<available property="cxf.jbi.present" classname="org.apache.cxf.jbi.transport.JBIConduit">
+	    <classpath>
+		<fileset dir="${env.CATALINA_HOME}/shared/lib">
+		    <include name="*.jar"/>
+		</fileset>
+	    </classpath>
+	</available>
+	<fail if="cxf.jbi.present" message="JBI API is not shipped with CXF, so you should remove all jars start with the cxf-integration-jbi from ${env.CATALINA_HOME}/shared/lib"/>
+    </target>
+
 </project>

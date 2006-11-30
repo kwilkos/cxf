@@ -120,16 +120,18 @@ Build the war file with the command:
 
   ant war
     
+Preparing deploy to APACHE TOMCAT
 
-The war file will be included in the directory
-samples/hello_world_xml_wrapped/build/war.  Simply copy the war file into
-the servlet container's deployment directory.  For example,
-with Tomcat copy the war file into the directory
-<installationDirectory>/webapps.  The servlet container will
-extract the war and deploy the application.
+* set CATALINA_HOME environment to your TOMCAT home directory
+* Copied all jars (EXCEPT cxf-integration-jbi* jars)  from 
+  CXF_HOME/lib to <CATALINA_HOME>/shared/lib
+    
+Deploy the application into APACHE TOMCAT with the commond:
+  
+  ant deploy -Dtomcat=true
 
-Make sure you have already copied all jars (except cxf-integration-* jars)
-from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
+The servlet container will extract the war and deploy the application.
+
 
 Using ant, run the client application with the command:
 
@@ -152,3 +154,7 @@ Using java, run the client application with the command:
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
+
+Undeploy the application from the APACHE TOMCAT with the command:
+
+   ant undeploy -Dtomcat=true

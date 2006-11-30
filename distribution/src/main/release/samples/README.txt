@@ -63,5 +63,16 @@ Be certain to start the servlet container under an environment in which
 the JAVA_HOME environment variable points to the JDK/JRE 5.0 installation
 and the JAVA_HOME bin directory is included in the system PATH.
 
-Make sure you have copied all jars (except cxf-integration-* jars) from 
-CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib.
+Preparing deploy to APACHE TOMCAT
+
+* set CATALINA_HOME environment to your TOMCAT home directory
+* Copied all jars (EXCEPT cxf-integration-jbi* jars)  from 
+  CXF_HOME/lib to <CATALINA_HOME>/shared/lib
+    
+Deploy the application into APACHE TOMCAT with the commond:
+  
+  ant deploy -Dtomcat=true
+
+Undeploy the application from the APACHE TOMCAT with the command:
+
+   ant undeploy -Dtomcat=true

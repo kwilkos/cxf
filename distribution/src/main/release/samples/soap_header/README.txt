@@ -126,17 +126,18 @@ servlet container.
 Build the war file with the command:
 
   ant war
+
+Preparing deploy to APACHE TOMCAT
+
+* set CATALINA_HOME environment to your TOMCAT home directory
+* Copied all jars (EXCEPT cxf-integration-jbi* jars)  from 
+  CXF_HOME/lib to <CATALINA_HOME>/shared/lib
     
+Deploy the war file into APACHE TOMCAT with the commond:
+  
+  ant deploy -Dtomcat=true
 
-The war file will be included in the directory
-samples/soap_header/build/war.  Simply copy the war file into
-the servlet container's deployment directory.  For example,
-with Tomcat copy the war file into the directory
-<installationDirectory>/webapps.  The servlet container will
-extract the war and deploy the application.
-
-Make sure you have already copied all jars (except cxf-integration-* jars)
-from CXF_HOME/lib to <TomcatInstallationDirectory>/shared/lib
+The servlet container will extract the war and deploy the application.
 
 
 Using ant, run the client application with the command:
@@ -160,3 +161,7 @@ Using java, run the client application with the command:
 
 Where # is the TCP/IP port used by the servlet container,
 e.g., 8080.
+
+Undeploy the application from the APACHE TOMCAT with the command:
+
+   ant undeploy -Dtomcat=true
