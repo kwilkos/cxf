@@ -54,7 +54,7 @@ public class MtomServerTest extends AbstractCXFTest {
         sf.create();
 
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/wsdl/http");
-        ei.setAddress("http://localhost:9036/EchoService");
+        ei.setAddress(address);
 
         ConduitInitiatorManager conduitMgr = getBus().getExtension(ConduitInitiatorManager.class);
         ConduitInitiator conduitInit = conduitMgr.getConduitInitiator("http://schemas.xmlsoap.org/soap/http");
@@ -85,7 +85,6 @@ public class MtomServerTest extends AbstractCXFTest {
         os.close();
 
         byte[] res = obs.getResponseStream().toByteArray();
-
         MessageImpl resMsg = new MessageImpl();
         resMsg.setContent(InputStream.class, new ByteArrayInputStream(res));
         resMsg.put(Message.CONTENT_TYPE, obs.getResponseContentType());

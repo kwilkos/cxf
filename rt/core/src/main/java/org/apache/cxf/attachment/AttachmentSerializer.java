@@ -49,18 +49,25 @@ public class AttachmentSerializer {
         bodyBoundary = AttachmentUtil.getUniqueBoundaryValue(0);
         
         String bodyCt = (String) message.get(Message.CONTENT_TYPE);
+        String enc = (String) message.get(Message.ENCODING);
+        if (enc == null) {
+            enc = "UTF-8";
+        }
         
         // Set transport mime type
         StringBuilder ct = new StringBuilder();
-        ct.append("multipart/related; boundary=\"")
+        ct.append("multipart/related; ")
+            .append("type=\"application/xop+xml\"; ")
+            .append("boundary=\"")
             .append(bodyBoundary)
             .append("\"; ")
-            .append("type=\"application/xop+xml\"; ")
             .append("start=\"<")
             .append(BODY_ATTACHMENT_ID)
             .append(">\"; ")
             .append("start-info=\"")
             .append(bodyCt)
+            .append("; charset=")
+            .append(enc)
             .append("\"");
         
         message.put(Message.CONTENT_TYPE, ct.toString());
@@ -72,23 +79,33 @@ public class AttachmentSerializer {
             encoding = "UTF-8";
         }
         writer = new OutputStreamWriter(out, encoding);
+        writer.write("\r\n");
         writer.write("--");
         writer.write(bodyBoundary);
         
-        writeHeaders(bodyCt, BODY_ATTACHMENT_ID);
+        StringBuilder mimeBodyCt = new StringBuilder();
+        mimeBodyCt.append("application/xop+xml; charset=")
+            .append(enc)
+            .append("; type=\"")
+            .append(bodyCt)
+            .append("; charset=")
+            .append(enc)
+            .append("\"");
+        
+        writeHeaders(mimeBodyCt.toString(), BODY_ATTACHMENT_ID);
     }
 
     private void writeHeaders(String contentType, String attachmentId) throws IOException {
-        writer.write("\n");
+        writer.write("\r\n");
         writer.write("Content-Type: ");
         writer.write(contentType);
-        writer.write("\n");
+        writer.write("\r\n");
 
-        writer.write("Content-Transfer-Encoding: binary\n");
+        writer.write("Content-Transfer-Encoding: binary\r\n");
 
         writer.write("Content-ID: <");
         writer.write(attachmentId);
-        writer.write(">\n\n");
+        writer.write(">\r\n\r\n");
         writer.flush();
     }
 
@@ -97,19 +114,21 @@ public class AttachmentSerializer {
      * @throws IOException
      */
     public void writeAttachments() throws IOException {
-        writer.write('\n');
-        writer.write("--");
-        writer.write(bodyBoundary);
-     
         for (Attachment a : message.getAttachments()) {
+            
+            writer.write("\r\n");
+            writer.write("--");
+            writer.write(bodyBoundary);
+
             writeHeaders(a.getDataHandler().getContentType(), a.getId());
             
             IOUtils.copy(a.getDataHandler().getInputStream(), out);
-            
-            writer.write("--");
-            writer.write(bodyBoundary);
-            writer.write('\n');
         }
+        
+        writer.write("\r\n");
+        writer.write("--");
+        writer.write(bodyBoundary);
+        writer.write("--");
         
         writer.flush();
     }

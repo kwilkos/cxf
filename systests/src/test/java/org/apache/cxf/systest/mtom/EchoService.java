@@ -23,6 +23,20 @@ import javax.jws.WebService;
 @WebService
 public class EchoService {
     public Data echo(Data input) {
+//        ByteArrayOutputStream out = new ByteArrayOutputStream();
+//        try {
+//            IOUtils.copy(input.getSomeData().getInputStream(), out);
+//            out.close();
+//            System.out.println("RECEIVED " + out.size());
+//        
+//            ByteArrayDataSource source = new ByteArrayDataSource(out.toByteArray(), 
+//                                 "application/octet-stream");
+//            input.setSomeData(new DataHandler(source));
+//        } catch (IOException e) {
+//            // do nothing
+//        }
+//        
+        
         return input;
     }
 }

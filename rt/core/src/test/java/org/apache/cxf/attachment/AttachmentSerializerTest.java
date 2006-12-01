@@ -24,12 +24,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 
 import javax.activation.DataHandler;
+import javax.mail.Session;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -58,11 +64,11 @@ public class AttachmentSerializerTest extends TestCase {
         AttachmentSerializer serializer = new AttachmentSerializer(msg);
         
         serializer.writeProlog();
-        
+
         String ct = (String) msg.get(Message.CONTENT_TYPE);
-        assertTrue(ct.indexOf("multipart/related; boundary=") == 0);
+        assertTrue(ct.indexOf("multipart/related;") == 0);
         assertTrue(ct.indexOf("start=\"<root.message@cxf.apache.org>\"") > -1);
-        assertTrue(ct.indexOf("start-info=\"application/soap+xml\"") > -1);
+        assertTrue(ct.indexOf("start-info=\"application/soap+xml; charset=UTF-8\"") > -1);
         
         out.write("<soap:Body/>".getBytes());
         
@@ -70,18 +76,30 @@ public class AttachmentSerializerTest extends TestCase {
         
         out.flush();
         
-        MessageImpl in = new MessageImpl();
-        in.put(Message.CONTENT_TYPE, ct);
-        in.setContent(InputStream.class, new ByteArrayInputStream(out.toByteArray()));
+        Session session = Session.getDefaultInstance(new Properties());
+        MimeMessage inMsg = new MimeMessage(session, new ByteArrayInputStream(out.toByteArray()));
+        inMsg.addHeaderLine("Content-Type: " + ct);
         
-        AttachmentDeserializer deserializer = new AttachmentDeserializer(in);
-        deserializer.initializeAttachments();
+        MimeMultipart multipart = (MimeMultipart) inMsg.getContent();
         
-        Collection<Attachment> inAtts = in.getAttachments();
-        assertNotNull(inAtts);
-        assertEquals(1, inAtts.size());
+        MimeBodyPart part = (MimeBodyPart) multipart.getBodyPart(0);
+        assertEquals("application/xop+xml; charset=UTF-8; type=\"application/soap+xml; charset=UTF-8\"", 
+                     part.getHeader("Content-Type")[0]);
+        assertEquals("binary", part.getHeader("Content-Transfer-Encoding")[0]);
+        assertEquals("<root.message@cxf.apache.org>", part.getHeader("Content-ID")[0]);
         
-        Attachment inAtt = inAtts.iterator().next();
-        assertEquals("test.xml", inAtt.getId());
+        InputStream in = part.getDataHandler().getInputStream();
+        ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
+        IOUtils.copy(in, bodyOut);
+        out.close();
+        in.close();
+        
+        assertEquals("<soap:Body/>", bodyOut.toString());
+        
+        MimeBodyPart part2 = (MimeBodyPart) multipart.getBodyPart(1);
+        assertEquals("application/octet-stream", part2.getHeader("Content-Type")[0]);
+        assertEquals("binary", part2.getHeader("Content-Transfer-Encoding")[0]);
+        assertEquals("<test.xml>", part2.getHeader("Content-ID")[0]);
+        
     }
 }

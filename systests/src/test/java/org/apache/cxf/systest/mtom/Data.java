@@ -23,9 +23,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "Data", namespace = "http://mtom.systest.cxf.apache.org")
+@XmlType(name = "Data", namespace = "http://mtom.systest.cxf.apache.org")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Data {
 
