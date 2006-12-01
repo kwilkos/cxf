@@ -36,6 +36,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.rm.RMContextUtils;
+import org.apache.cxf.ws.rm.RMProperties;
 
 /**
  * 
@@ -103,9 +104,11 @@ public class MessageLossSimulator extends AbstractPhaseInterceptor<Message> {
             boolean af = alreadyFlushed();
             if (!af) {
                 if (LOG.isLoggable(Level.INFO)) {
-                    BigInteger nr = RMContextUtils.retrieveRMProperties(outMessage, true)
-                        .getSequence().getMessageNumber();
-                    LOG.info("Losing message " + nr);
+                    RMProperties props = RMContextUtils.retrieveRMProperties(outMessage, true);
+                    if (props != null && props.getSequence() != null) {
+                        BigInteger nr = props.getSequence().getMessageNumber();
+                        LOG.info("Losing message " + nr);
+                    }
                 }
                 resetOut(new DummyOutputStream(), true);
             }

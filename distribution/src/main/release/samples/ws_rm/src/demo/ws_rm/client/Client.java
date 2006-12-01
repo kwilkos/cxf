@@ -21,6 +21,8 @@ package demo.ws_rm.client;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
+import demo.ws_rm.common.MessageLossSimulator;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.hello_world_soap_http.Greeter;
@@ -40,6 +42,8 @@ public final class Client {
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("ws_rm.xml");
             bf.setDefaultBus(bus);
+
+            bus.getOutInterceptors().add(new MessageLossSimulator());
  
             GreeterService service = new GreeterService();
             Greeter port = service.getGreeterPort();

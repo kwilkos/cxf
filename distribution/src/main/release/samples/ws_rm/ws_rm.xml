@@ -36,7 +36,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean id="rmCodec" class="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
     <bean id="logInbound" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
     <bean id="logOutbound" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
-    <bean id="messageLoss" class="demo.ws_rm.common.MessageLossSimulator"/>
 
     <!-- We are adding the interceptors to the bus as we will have only one endpoint/service/bus. -->
 
@@ -66,7 +65,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                 <ref bean="rmLogicalOut"/>
                 <ref bean="rmCodec"/>
                 <ref bean="logOutbound"/>
-                <ref bean="messageLoss"/>
             </list>
         </property>
         <property name="outFaultInterceptors">
