@@ -66,46 +66,46 @@
             <artifactId>XmlSchema</artifactId>
         </dependency>
 
-       <dependency>
-           <groupId>com.sun.xml.bind</groupId>
-           <artifactId>jaxb-xjc</artifactId>
-           <scope>test</scope>
-       </dependency>
-       <dependency>
-           <groupId>com.sun.xml.bind</groupId>
-           <artifactId>jaxb-impl</artifactId>
-           <scope>test</scope>
-       </dependency>
-       <dependency>
-           <groupId>javax.annotation</groupId>
-	   <artifactId>jsr250-api</artifactId>
-       </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-	    <plugin>
-	        <groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-javadoc-plugin</artifactId>
-		<version>${javadoc.version}</version>
-		<executions>
-		    <execution>
-		        <id>package</id>
-			<phase>package</phase>
-			<goals>
-			    <goal>jar</goal>
-			</goals>
-	            </execution>
-		</executions>
-		<configuration>
-		    <attach>true</attach>
-		    <quiet>true</quiet>
-		    <bottom>-</bottom>
-		    <header>CXF API</header>
-		    <footer>CXF API</footer>
-		    <sourcepath>${basedir}/src/main/java${path.separator}${basedir}/target/generated/src/main/java</sourcepath>
-		    <subpackages>org.apache.cxf</subpackages>
-		</configuration>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${javadoc.version}</version>
+                <executions>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <attach>true</attach>
+                    <quiet>true</quiet>
+                    <bottom>Apache CXF is an effort undergoing incubation at the Apache Software Foundation(ASF) and sponsored by the Apache Incubator PMC.</bottom>
+                    <header>Apache CXF API</header>
+                    <footer>Apache CXF API</footer>
+                    <sourcepath>${basedir}/src/main/java${path.separator}${basedir}/target/generated/src/main/java</sourcepath>
+                    <subpackages>org.apache.cxf</subpackages>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
