@@ -28,7 +28,15 @@
             param2="${op}" 
             param3="${param}"/>
     </target> 
-        
+
+    <target name="client.get" description="run demo client through HTTP GET" depends="build">
+        <property name="param" value=""/>
+        <cxfrun classname="demo.hw.client.Get"
+            param1="${basedir}/wsdl/hello_world.wsdl" 
+            param2="${op}" 
+            param3="${param}"/>
+    </target>
+	
     <target name="server" description="run demo server" depends="build">
         <cxfrun classname="demo.hw.server.Server" 
             param1="${basedir}/wsdl/hello_world.wsdl"/>

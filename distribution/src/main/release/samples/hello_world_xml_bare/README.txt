@@ -158,3 +158,17 @@ e.g., 8080.
 Undeploy the application from the APACHE TOMCAT with the command:
 
    ant undeploy -Dtomcat=true
+
+
+Running demo with HTTP GET
+----------------------------------------------------
+APACHE CXF support HTTP GET to invoke the service, instead of running 
+
+   ant client
+
+you can use 
+
+   ant client.get 
+
+to invoke the service with simple HttpURLConnection, or you can even
+use your favoriate browser to get the results back.
