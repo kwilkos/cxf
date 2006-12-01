@@ -1,10 +1,12 @@
-Apache CXF 2.0 M1 Release Notes
+Apache CXF 2.0 M1 (incubating) Release Notes
 
 1. Overview
-Apache CXF 2.0 M1 delivers the merge of the Celtix project 
-(http://celtix.objectweb.org) and the Xfire project (http://xfire.codehaus.org). 
-This release includes all major features of both the Celtix project and the 
-Xfire project:
+
+Apache CXF 2.0 M1, under incubation,  delivers the merge of the Celtix
+project (http://celtix.objectweb.org) and the Xfire project
+(http://xfire.codehaus.org).  This release includes all major features
+of both the Celtix project and the Xfire project:
+
     * JAX-WS 2.0 implementation
     * Transports: HTTP 1.1, HTTPS, and JMS
     * Full SOAP 1.1 and SOAP 1.2 implementation, with MTOM/XOP support
@@ -25,7 +27,7 @@ Xfire project:
 
 2. Installation Prerequisites 
 
-Before installing Apache CXF, make sure the following products,
+Before installing Apache CXF (incubating), make sure the following products,
 with the specified versions, are installed on your system:
 
     * Java 5 Development Kit
@@ -33,7 +35,8 @@ with the specified versions, are installed on your system:
 
 2.1 Java 5 Development Kit
 
-You must install the J2SE Development Kit (JDK) 5.0, which can be downloaded from:
+You must install the J2SE Development Kit (JDK) 5.0, which can be downloaded
+from:
 
     http://java.sun.com/j2se/1.5.0/download.jsp
 
@@ -48,15 +51,15 @@ After installing the JDK, set or modify the following environment variables:
 
 2.2 Apache Ant 1.6.5
 
-To run samples included in the binary distribution of Apache CXF, you must
-install the Apache Ant 1.6.5 build utility, which can be downloaded from:
+To run samples included in the binary distribution of Apache CXF (incubating),
+you must install the Apache Ant 1.6.5 build utility, which can be downloaded
+from:
 
     http://ant.apache.org/bindownload.cgi
 
 After installing Apache Ant, add the <AntInstallDir>/bin directory to your PATH.
 
-For more details, see the Apache CXF Installation Guide.
-
+For more details, see the Installation Guide.
 
 3. Building the Samples
 
@@ -67,10 +70,11 @@ included with each sample.
 4. Known Problems
 
 4.1 HTTP
-There is an issue with Jetty HTTP that prevents Apache CXF from being able to 
-shut down the actual port listener.  If you programmatically remove the last endpoint
-published on a port, the listener remains running on the port, but only 404
-(page not found) errors are served to subsequent client connections.
+There is an issue with Jetty HTTP that prevents Apache CXF (incubating) from
+being able to shut down the actual port listener.  If you programmatically
+remove the last endpoint published on a port, the listener remains running
+on the port, but only 404 (page not found) errors are served to subsequent
+client connections.
 
 4.2 Schema Definitions
 There is no support for nillable elements in XML Schema and xsi:nil attributes
@@ -87,12 +91,12 @@ in a way which is incorrect with regard to namespaces.'
 5. Reporting Problems
 
 If you have any problems or want to send feedback of any kind, please e-mail the
-cxf dev list, cxf-dev@incupator.apache.org. 
+cxf dev list, cxf-dev@incubator.apache.org. 
 
 6. Specific issues, features, and improvements fixed in the 
-CXF 2.0 M1 release:
+Apache CXF 2.0 M1 (incubating) release:
 
-Release Notes - CXF - Version 2.0-M1
+Release Notes - Apache CXF - Version 2.0-M1 (incubating)
 
 6.1 Bugs
     * [CXF-6] - jaxws-api, jsr181-api should be optional in cxf-common pom
@@ -126,7 +130,7 @@ Release Notes - CXF - Version 2.0-M1
     * [CXF-178] - Schema parser cannot resolve relative import locations (case of multiple imports).
 
 6.2 Improvements
-    * [CXF-98] - get schema validation working for jaxb mashall and unmashall
+    * [CXF-98] - get schema validation working for jaxb marshall and unmarshall
     * [CXF-109] - Remove isInSoapHeader() from service model
     * [CXF-115] - org.apache.cxf.jaxws.EndpointImpl needs additional constructors
     * [CXF-116] - Remove references to HTTPAddress/SOAPAddress/etc in EndpointInfo
