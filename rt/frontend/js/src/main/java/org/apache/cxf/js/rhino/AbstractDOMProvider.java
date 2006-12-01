@@ -32,6 +32,7 @@ import javax.xml.ws.Endpoint;
 
 import org.w3c.dom.Node;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
 import org.mozilla.javascript.Context;
@@ -160,7 +161,16 @@ public abstract class AbstractDOMProvider {
             Object inDoc = null;
             if (isE4X) {
                 try {
-                    Object xo = XmlObject.Factory.parse(node);
+                    XmlObject xo = XmlObject.Factory.parse(node);
+                    XmlCursor cursor = xo.newCursor();
+                    // strip comments out, as xmlbeans doesn't
+                    // seem to like them
+                    do {
+                        if (cursor.isComment()) {
+                            cursor.removeXml();
+                        }
+                    } while (cursor.toNextToken() != XmlCursor.TokenType.NONE);
+                    cursor.dispose();           
                     inDoc = Context.toObject(xo, scope);
                     Object[] args = {inDoc};
                     inDoc = cx.newObject(scriptScope, "XML", args);

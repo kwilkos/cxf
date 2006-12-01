@@ -154,6 +154,8 @@
         <derby.version>10.1.1.0</derby.version>
         <activemq.version>4.0.2</activemq.version>
         <geronimo.version>1.0.1</geronimo.version>
+        <rhino.version>1.6R5</rhino.version>
+        <xmlbeans.version>2.2.0</xmlbeans.version>
 
 
         <eclipse.workspace.dir>${basedir}/${topDirectoryLocation}/../workspace</eclipse.workspace.dir>
@@ -632,6 +634,16 @@
                 <artifactId>activemq-core</artifactId>
                 <version>${activemq.version}</version>
             </dependency>
+	    <dependency>
+		<groupId>rhino</groupId>
+		<artifactId>js</artifactId>
+		<version>${rhino.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>xmlbeans</groupId>
+		<artifactId>xbean</artifactId>
+		<version>${xmlbeans.version}</version>
+	    </dependency>
         </dependencies>
     </dependencyManagement>
 

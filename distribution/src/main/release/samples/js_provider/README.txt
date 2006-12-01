@@ -27,9 +27,9 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-You also need to download js-1.6R2.jar from
-(http://repo1.maven.org/maven2/rhino/js/1.6R2/) and xbean-2.1.0.jar 
-from (http://repo1.maven.org/maven2/xmlbeans/xbean/2.1.0/) and place
+You also need to download js-1.6R5.jar from
+(http://repo1.maven.org/maven2/rhino/js/1.6R5/) and xbean-2.2.0.jar 
+from (http://repo1.maven.org/maven2/xmlbeans/xbean/2.2.0/) and place
 these two jars under CXF_HOME/lib directory. 
 
 
@@ -76,13 +76,13 @@ application with the commands:
 
 For UNIX:
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:
-	$CXF_HOME/lib/js-1.6R2.jar:$CXF_HOME/lib/xbean-2.1.0.jar:
+	$CXF_HOME/lib/js-1.6R5.jar:$CXF_HOME/lib/xbean-2.2.0.jar:
 	build/classes
   javac -d build/classes src/demo/hwDispatch/client/*.java
 
 For Windows:
   set CLASSPATH=%CLASSPATH%;%CXF_HOME%\lib\cxf-incubator.jar;
-	%CXF_HOME%\lib\js-1.6R2.jar;%CXF_HOME%\lib\xbean-2.1.0.jar;
+	%CXF_HOME%\lib\js-1.6R5.jar;%CXF_HOME%\lib\xbean-2.2.0.jar;
 	build\classes
   javac -d build\classes src\demo\hwDispatch\client\*.java
 
