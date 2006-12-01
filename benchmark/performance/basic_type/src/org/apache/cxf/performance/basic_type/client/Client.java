@@ -18,8 +18,8 @@
  */
 package org.apache.cxf.performance.basic_type.client;
 
-import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -121,9 +121,9 @@ public final class Client extends TestCaseBase {
                 ex.printStackTrace();
             }
         }
-        File wsdl = new File(wsdlPath);
         try {
-            ss = new BasicService(wsdl.toURL(), SERVICE_NAME);
+            URL wsdl = new URL(wsdlPath);
+            ss = new BasicService(wsdl, SERVICE_NAME);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

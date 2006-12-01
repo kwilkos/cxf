@@ -18,10 +18,10 @@
  */
 package org.apache.cxf.performance.complex_type.client;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -135,9 +135,9 @@ public final class Client extends TestCaseBase {
         } else {
             System.out.println("not using pipe");
         }
-        File wsdl = new File(wsdlPath);
-        try {
-            cs = new ComplexService(wsdl.toURL(), SERVICE_NAME);
+        try{ 
+            URL wsdl = new URL(wsdlPath);
+            cs = new ComplexService(wsdl, SERVICE_NAME);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

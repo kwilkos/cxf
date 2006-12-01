@@ -27,4 +27,16 @@
         <wsdl2java file="complex_type.wsdl"/>
    </target>
 
+   <property name="cxf.war.file.name" value="complex_type"/>
+    <target name="war" depends="build">
+        <cxfwar wsdl="complex_type.wsdl" filename="${cxf.war.file.name}.war"/>
+    </target>
+
+    <target name="client-servlet" description="run demo client hitting servlet" depends="build">
+        <property name="param" value=""/>         
+        <cxf.client.run classname="org.apache.cxf.performance.complex_type.client.Client" argline=
+            "-WSDL ${base.url}/complex_type/services/complex_type?wsdl " />
+    </target>
+
+
 </project>
