@@ -142,7 +142,7 @@
         <surefire-report.version>2.0</surefire-report.version>
         <surefire.version>2.1.3</surefire.version>
 
-        <jsr250.version>2.0-JAXWS-2.0-EA3</jsr250.version>
+        <jsr250.version>1.0</jsr250.version>
         <jsr181.version>1.0-MR1</jsr181.version>
         <jaxb.version>2.0</jaxb.version>
         <jaxb.impl.version>2.0.3</jaxb.impl.version>
@@ -691,14 +691,6 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <repositories>
-        <repository>
-            <id>private-repo</id>
-            <name>private repo</name>
-            <url>file:${basedir}/${topDirectoryLocation}/maven_repo</url>
-        </repository>
-    </repositories>
 
     <profiles>
         <profile>
