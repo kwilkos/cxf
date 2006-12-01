@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Timer;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
@@ -191,6 +192,27 @@ public class RMManager extends RMManagerConfigBean {
         }
 
         return seq;
+    }
+    
+    @PreDestroy
+    public void shutdown() {
+        // shutdown retransmission queue
+        if (null != retransmissionQueue) {
+            retransmissionQueue.stop();
+        }
+        
+        // cancel outstanding timer tasks (deferred acknowledgements) for all destination sequences
+        for (RMEndpoint rme : reliableEndpoints.values()) {
+            for (DestinationSequence ds : rme.getDestination().getAllSequences()) {
+                ds.cancelDeferredAcknowledgments();
+            }
+        }
+        
+        // TODO: cancel outstanding timer tasks (acknowledgment requests) for all source sequences
+        
+        // remove references to timer tasks cancelled above to make them eligible for garbage collection
+        timer.purge();
+        
     }
 
     @PostConstruct

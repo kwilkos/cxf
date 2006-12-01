@@ -35,7 +35,6 @@ import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMManager;
-import org.apache.cxf.ws.rm.RetransmissionQueue;
 
 
 /**
@@ -92,25 +91,12 @@ public class SequenceTest extends ClientServerTestBase {
             }
         };
     }
-
-    public void setUp() throws Exception {
-        SpringBusFactory bf = new SpringBusFactory();
-        controlBus = bf.createBus();
-        bf.setDefaultBus(controlBus);
-        controlBus = new SpringBusFactory().getDefaultBus();
-
-        ControlService service = new ControlService();
-        control = service.getControlPort();
-    }
     
     public void tearDown() {
         if (null != greeter) {
             assertTrue("Failed to stop greeter.", control.stopGreeter());                        
             RMManager manager = greeterBus.getExtension(RMManager.class);
-            RetransmissionQueue queue = manager.getRetransmissionQueue();
-            if (null != queue) {
-                queue.stop();
-            }
+            manager.shutdown();
             greeterBus.shutdown(true);
             greeterBus = null;
         }
@@ -212,17 +198,20 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, true);
         mf.verifyMessageNumbers(new String[] {null, "1", "2"}, true);
 
-        // CreateSequenceResponse plus two partial responses, no
+        // CreateSequenceResponse plus three partial responses, no
         // acknowledgments included
 
         mf.verifyMessages(4, false);
-        expectedActions = new String[] {null, RMConstants.getCreateSequenceResponseAction(), 
-                                        null, null};
-        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
-        mf.verifyActionsIgnoringPartialResponses(expectedActions);
         mf.verifyMessageNumbers(new String[4], false);
         mf.verifyAcknowledgements(new boolean[4], false);
-
+        
+        mf.verifyPartialResponses(3);        
+        mf.purgePartialResponses();
+  
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction()};
+        mf.verifyActionsIgnoringPartialResponses(expectedActions);
+        mf.purge();
+        
         try {
             Thread.sleep(3 * 1000);
         } catch (InterruptedException ex) {
@@ -232,7 +221,7 @@ public class SequenceTest extends ClientServerTestBase {
         // a standalone acknowledgement should have been sent from the server
         // side by now
         
-        awaitMessages(3, 5);
+        awaitMessages(0, 1);
         mf.reset(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
 
         mf.verifyMessages(0, true);
@@ -402,30 +391,28 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[3], true);
 
         // CreateSequenceResponse plus 2 greetMeResponse messages plus
-        // one partial response for each of the four messages no acknowledgments
+        // one partial response for each of the three messages no acknowledgments
         // included
 
         mf.verifyMessages(6, false);
-        expectedActions = new String[] {null, 
-                                        RMConstants.getCreateSequenceResponseAction(), 
-                                        null,
-                                        GREETME_RESPONSE_ACTION,
-                                        null, 
-                                        GREETME_RESPONSE_ACTION};
-        mf.verifyActions(expectedActions, false);
-        mf.verifyMessageNumbers(new String[] {null, null, null, "1", null, "2"}, false);
         mf.verifyLastMessage(new boolean[6], false);
         mf.verifyAcknowledgements(new boolean[6], false);
+        
+        mf.verifyPartialResponses(3);
+        mf.purgePartialResponses();
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2"}, false);
+        mf.purge();
+        
 
         // one standalone acknowledgement should have been sent from the client and one
         // should have been received from the server
    
-        awaitMessages(4, 7, 3000);
+        awaitMessages(1, 0);
         mf.reset(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
-        
-        mf.verifyMessageNumbers(new String[1], true);
-        mf.verifyLastMessage(new boolean[1], true);
-        mf.verifyAcknowledgements(new boolean[] {true}, true);
         
         mf.verifyMessageNumbers(new String[1], true);
         mf.verifyLastMessage(new boolean[1], true);
@@ -613,6 +600,14 @@ public class SequenceTest extends ClientServerTestBase {
     private void setupGreeter(String cfgResource) {
         
         SpringBusFactory bf = new SpringBusFactory();
+        
+        controlBus = bf.createBus();
+        bf.setDefaultBus(controlBus);
+        controlBus = new SpringBusFactory().getDefaultBus();
+
+        ControlService cs = new ControlService();
+        control = cs.getControlPort();
+        
         greeterBus = bf.createBus(cfgResource);
         bf.setDefaultBus(greeterBus);
         LOG.fine("Initialised greeter bus with configuration: " + cfgResource);
@@ -625,8 +620,8 @@ public class SequenceTest extends ClientServerTestBase {
 
         assertTrue("Failed to start greeter", control.startGreeter(cfgResource));
         
-        GreeterService service = new GreeterService();
-        greeter = service.getGreeterPort();
+        GreeterService gs = new GreeterService();
+        greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
     }
     

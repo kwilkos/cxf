@@ -296,6 +296,16 @@ public class DestinationSequence extends AbstractSequence {
         destination.getManager().getTimer().schedule(da, delay);
         LOG.fine("Scheduled acknowledgment to be sent in " + delay + " ms");
     }
+    
+    synchronized void cancelDeferredAcknowledgments() {
+        if (null == deferredAcknowledgments) {
+            return;
+        }
+        for (int i = deferredAcknowledgments.size() - 1; i >= 0; i--) {
+            DeferredAcknowledgment da = deferredAcknowledgments.get(i);
+            da.cancel();
+        }
+    }
 
     final class DeferredAcknowledgment extends TimerTask {
 
