@@ -19,9 +19,14 @@
 package org.apache.cxf.binding.http;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.apache.cxf.binding.http.strategy.ConventionStrategy;
+import org.apache.cxf.binding.http.strategy.JRAStrategy;
+import org.apache.cxf.binding.http.strategy.ResourceStrategy;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.MethodDispatcher;
@@ -29,18 +34,21 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.codehaus.jra.Delete;
-import org.codehaus.jra.Get;
-import org.codehaus.jra.HttpResource;
-import org.codehaus.jra.Post;
-import org.codehaus.jra.Put;
 
 public class HttpBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
-
-    private URIMapper mapper = new URIMapper();
+    private List<ResourceStrategy> strategies = new ArrayList<ResourceStrategy>();
     
+    public HttpBindingInfoFactoryBean() {
+        super();
+        
+        strategies.add(new JRAStrategy());
+        strategies.add(new ConventionStrategy());
+    }
+
     @Override
     public BindingInfo create() {
+        URIMapper mapper = new URIMapper();
+        
         BindingInfo info = new BindingInfo(getServiceInfo(), 
                                            HttpBindingFactory.HTTP_BINDING_ID);
         info.setName(new QName(getServiceInfo().getName().getNamespaceURI(), 
@@ -57,29 +65,26 @@ public class HttpBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
             
             Method m = md.getMethod(bop);
             
-            HttpResource r = m.getAnnotation(HttpResource.class);
-            if (r == null) {
-                continue;
+            // attempt to map the method to a resource using different strategies
+            for (ResourceStrategy s : strategies) {
+                // Try different ones until we find one that succeeds
+                if (s.map(bop, m, mapper)) {
+                    break;
+                }
             }
-            
-            String verb;
-            if (m.isAnnotationPresent(Get.class)) {
-                verb = "GET";
-            } else if (m.isAnnotationPresent(Post.class)) {
-                verb = "POST";
-            } else if (m.isAnnotationPresent(Put.class)) {
-                verb = "PUT";
-            } else if (m.isAnnotationPresent(Delete.class)) {
-                verb = "DELETE";
-            } else {
-                // todo: use the method name to determine the verb
-                verb = "GET";
-            }
-            
-            mapper.bind(bop, r.location(), verb);
         }
         
         service.put(URIMapper.class.getName(), mapper);
         return info;
     }
+
+    public List<ResourceStrategy> getStrategies() {
+        return strategies;
+    }
+
+    public void setStrategies(List<ResourceStrategy> strategies) {
+        this.strategies = strategies;
+    }
+
+    
 }

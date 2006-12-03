@@ -16,13 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http;
+package org.apache.cxf.binding.http.strategy;
 
-public class HttpConstants {
+import java.lang.reflect.Method;
 
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String POST = "POST";
-    public static final String PUT = "PUT";
-    public static final String DELETE = "DELETE";
-    public static final String GET = "GET";
+import org.apache.cxf.binding.http.URIMapper;
+import org.apache.cxf.service.model.BindingOperationInfo;
+
+/**
+ * A ResourceStrategy represents a method of mapping an Operation to a
+ * URI/Verb combination. 
+ */
+public interface ResourceStrategy {
+
+    boolean map(BindingOperationInfo bop, Method m, URIMapper mapper);
+
 }

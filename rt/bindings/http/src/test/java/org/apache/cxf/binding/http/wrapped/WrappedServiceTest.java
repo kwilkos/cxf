@@ -28,12 +28,26 @@ import org.apache.cxf.binding.http.AbstractRestTest;
 import org.apache.cxf.binding.http.HttpBindingFactory;
 import org.apache.cxf.binding.http.HttpBindingInfoFactoryBean;
 import org.apache.cxf.binding.http.URIMapper;
+import org.apache.cxf.binding.http.strategy.ConventionStrategy;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 public class WrappedServiceTest extends AbstractRestTest {
-    public void testCreation() throws Exception {
+    
+    public void testConvention() throws Exception {
+        HttpBindingInfoFactoryBean hbif = new HttpBindingInfoFactoryBean();
+        hbif.getStrategies().clear();
+        hbif.getStrategies().add(new ConventionStrategy());
+        
+        testService(hbif);
+    }
+    
+    public void testJRA() throws Exception {
+        testService(new HttpBindingInfoFactoryBean());
+    }
+
+    public void testService(HttpBindingInfoFactoryBean httpFactory) throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
         
@@ -41,7 +55,7 @@ public class WrappedServiceTest extends AbstractRestTest {
         sf.setBus(getBus());
         sf.setServiceClass(CustomerService.class);
         sf.getServiceFactory().setWrapped(true);
-        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
+        sf.setBindingFactory(httpFactory);
         sf.setAddress("http://localhost:9001/");
 
         Map<String, Object> props = new HashMap<String, Object>();

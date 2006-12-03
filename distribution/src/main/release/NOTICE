@@ -48,7 +48,7 @@
    This product also includes software developed by Mort Bay Consulting
    Pty (http://jetty.mortbay.org)
 
-   This product also includes software developed by Codehause
+   This product also includes software developed by Codehaus
    (http://woodstox.codehaus.org/)
 
    This product also includes MTOSI wsdl and schemas developed to TeleManagement
@@ -70,6 +70,9 @@
    Java classes (source and binary) under org.apache.cxf.jaxws.javaee
    are generated from schema available here:
    (http://java.sun.com/xml/ns/javaee/javaee_5.xsd)
+
+   This Product also includes software developed by David Heinemeier Hansson.
+   (http://dev.rubyonrails.org/browser/trunk/activesupport/lib/active_support/inflections.rb)
 
    Additional copyright notices and license terms applicable are
    present in the licenses directory of this distribution.
