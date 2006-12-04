@@ -1,15 +1,33 @@
 <?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
 <xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
     xmlns:xalan="http://xml.apache.org/xslt"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-    xmlns:x1="http://objectweb.org/type_test/types1"
-    xmlns:x2="http://objectweb.org/type_test/types2"
-    xmlns:x3="http://objectweb.org/type_test/types3"
+    xmlns:x1="http://apache.org/type_test/types1"
+    xmlns:x2="http://apache.org/type_test/types2"
+    xmlns:x3="http://apache.org/type_test/types3"
     xmlns:itst="http://tests.iona.com/ittests"
-    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration">
 
   <xsl:output method="xml" indent="yes" xalan:indent-amount="4"/>
   <xsl:strip-space elements="*"/>
@@ -33,8 +51,8 @@
     <xsl:if test="$use_style='document'">
       <wsdl:definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
-          xmlns:tns="http://objectweb.org/type_test/doc"
-          targetNamespace="http://objectweb.org/type_test/doc"
+          xmlns:tns="http://apache.org/type_test/doc"
+          targetNamespace="http://apache.org/type_test/doc"
           name="type_test_soap">
         <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="test_binding"/>
@@ -43,8 +61,8 @@
     <xsl:if test="$use_style='rpc'">
       <wsdl:definitions
           xmlns="http://schemas.xmlsoap.org/wsdl/"
-          xmlns:tns="http://objectweb.org/type_test/rpc"
-          targetNamespace="http://objectweb.org/type_test/rpc"
+          xmlns:tns="http://apache.org/type_test/rpc"
+          targetNamespace="http://apache.org/type_test/rpc"
           name="type_test_soap">
         <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
         <xsl:apply-templates select="." mode="test_binding"/>
@@ -57,11 +75,11 @@
         xmlns="http://schemas.xmlsoap.org/wsdl/">
     <!-- doc literal style -->
     <xsl:if test="$use_style='document'">
-      <wsdl:import namespace="http://objectweb.org/type_test/doc" location="type_test_doclit.wsdl"/>
+      <wsdl:import namespace="http://apache.org/type_test/doc" location="type_test_doclit.wsdl"/>
     </xsl:if>
     <!-- rpc literal style -->
     <xsl:if test="$use_style='rpc'">
-      <wsdl:import namespace="http://objectweb.org/type_test/rpc" location="type_test_rpclit.wsdl"/>
+      <wsdl:import namespace="http://apache.org/type_test/rpc" location="type_test_rpclit.wsdl"/>
     </xsl:if>
     <wsdl:binding type="tns:TypeTestPortType" name="TypeTestSOAP">
       <soap:binding transport="http://schemas.xmlsoap.org/soap/http">
@@ -104,7 +122,7 @@
         <soap:body use="literal">
           <xsl:if test="$use_style='rpc'">
             <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
+              <xsl:value-of select="'http://apache.org/type_test/rpc'"/>
             </xsl:attribute>
           </xsl:if>
         </soap:body>
@@ -125,7 +143,7 @@
         <soap:body use="literal">
           <xsl:if test="$use_style='rpc'">
             <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
+              <xsl:value-of select="'http://apache.org/type_test/rpc'"/>
             </xsl:attribute>
           </xsl:if>
         </soap:body>
@@ -181,7 +199,7 @@
         <soap:body use="literal">
           <xsl:if test="$use_style='rpc'">
             <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
+              <xsl:value-of select="'http://apache.org/type_test/rpc'"/>
             </xsl:attribute>
           </xsl:if>
         </soap:body>
@@ -195,7 +213,7 @@
         <soap:body use="literal">
           <xsl:if test="$use_style='rpc'">
             <xsl:attribute name="namespace">
-              <xsl:value-of select="'http://objectweb.org/type_test/rpc'"/>
+              <xsl:value-of select="'http://apache.org/type_test/rpc'"/>
             </xsl:attribute>
           </xsl:if>
         </soap:body>

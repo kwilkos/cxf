@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<project name="HelloWorldSOAPHttpDemo" default="build" basedir=".">
+
+ <!-- overload some properties to customize this build -->
+  <property environment="env"/>
+  <property name="wsdl.dir" value="${basedir}/etc/wsdl"/>
+  <property name="wsdl.location" value="${wsdl.dir}/hello_world.wsdl"/>
+  <property name="war.name" value="helloworld.war"/>
+  <property name="j2ee.resources.dir" location="${basedir}/../common/resources"/>
+  <property name="cxf.home" value="${env.CXF_HOME}"/>
+  <property name="jboss.home" value="${env.JBOSS_HOME}"/>
+  <property file="${cxf.home}/etc/version.properties"/>
+
+  
+  <path id="thirdParth.classpath">
+    <pathelement location="${basedir}/../common/common.jar"/>
+  </path>
+
+  <path id="other.classpath">
+    <pathelement location="${cxf.home}/lib/servlet-api-2.4.jar"/>
+    <pathelement location="${basedir}/../common/common.jar"/>
+    <pathelement location="${cxf.home}/lib/cxf-integration-jca-${cxf.version}.jar"/>
+    <pathelement location="${jboss.home}/client/jboss-j2ee.jar"/>
+  </path>
+
+  <import file="${cxf.home}/samples/common_build.xml"/>
+
+
+  <target name="prepare">
+    <replace file="${cxf.home}/etc/ra.xml" token="CXF_HOME" value="${cxf.home}"/>
+  </target>
+
+  <target name="init">
+   <mkdir dir="${build.classes.dir}"/>
+  </target>
+
+  <target name="update.jboss.endorsed">
+    <copy todir="${jboss.home}/lib/endorsed">
+      <fileset dir="${cxf.home}/lib">
+	<include name="activation*" />            
+	<include name="jaxb*" />
+	<include name="stax*" />
+	<include name="jsr181*" />
+	<include name="saaj*" />
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="deploy.cxf.rar" depends="generate.rar">
+    <copy todir="${jboss.home}/server/default/deploy">
+      <fileset dir="${cxf.home}/lib" includes="cxf.rar"/>
+      <fileset dir="${basedir}/etc" includes="cxfj2ee_1_5-ds.xml"/>
+    </copy>
+  </target>
+
+
+  <target name="generate.rar" depends="prepare,update.jboss.endorsed,init">
+    <copy file="${cxf.home}/etc/ra.xml" todir="${build.classes.dir}/cxf-rar/META-INF"/>
+    <copy todir="${build.classes.dir}/cxf-rar">
+      <fileset dir="${cxf.home}/lib">
+	<include name="activation*.jar"/>
+	<include name="aopalliance*.jar"/>
+	<include name="cxf-api*.jar"/>
+	<include name="commons*.jar"/>
+	<include name="cxf-common*.jar"/>
+	<include name="cxf-integration-jca*.jar"/>
+	<include name="cxf-metacode*.jar"/>
+	<include name="cxf-rt*.jar"/>
+	<include name="cxf-tools-common*.jar"/>
+	<include name="jaxb*.jar"/>
+	<include name="jaxws*.jar"/>
+	<include name="jsr*.jar"/>
+	<include name="mail*.jar"/>
+	<include name="org.mortbay.jetty*.jar"/>
+	<include name="saaj*.jar"/>
+	<include name="servlet*.jar"/>
+	<include name="spring*.jar"/>
+	<include name="stax*.jar"/>
+	<include name="velocity*.jar"/>
+	<include name="wsdl4j*.jar"/>
+	<include name="wstx*.jar"/>
+	<include name="XmlSchema*.jar"/>
+      </fileset>
+    </copy>
+    <jar destfile="${cxf.home}/lib/cxf.rar"
+	 basedir="${build.classes.dir}/cxf-rar"/>
+  </target>
+
+
+
+  <target name="compile-j2ee" depends="maybe.generate.code">
+  <!--target name="compile-j2ee"-->
+    <javac destdir="${build.classes.dir}" debug="true">
+      <src path="${build.src.dir}"/>
+      <src path="${basedir}/src"/>
+      <classpath>
+	<path refid="cxf.classpath"/>
+	<path refid="other.classpath"/>
+      </classpath>
+    </javac>
+
+    <copy todir="${build.classes.dir}">
+      <fileset dir="${basedir}/src" includes="**/*.xml" />            
+      <fileset dir="${build.src.dir}" includes="**/*.xml" />
+      <fileset dir="${build.src.dir}" includes="**/*.wsdl" />
+    </copy>
+  </target>
+ 
+  <target name="build" depends="compile-j2ee,build-war"/>
+
+  <target name="generate.code">
+    <echo level="info" message="Generating code using wsdl2java..."/>
+    <wsdl2java file="hello_world.wsdl"/>
+  </target>
+
+  <!--target name="server" description="run demo server" depends="build">
+    <property name="param" value=""/>
+    <cxfrun classname="demo.hw.server.Server"
+               param1="${wsdl.dir}/hello_world.wsdl"/>
+  </target-->
+
+  <target name="build-war">
+    <copy file="${wsdl.location}" todir="${basedir}/src" />
+     
+    <mkdir dir="./build/lib"/>
+    <mkdir dir="./build/classes/wsdl"/>
+    <copy file="${wsdl.location}" todir="${basedir}/build/classes/wsdl"/>
+    <war destfile="build/lib/${war.name}" webxml="${basedir}/etc/web.xml">
+      <webinf dir="etc">
+	<include name="jboss-web.xml"/>
+	<include name="weblogic.xml"/>
+      </webinf>
+
+      <lib dir="../common/">
+	<include name="common.jar"/>
+      </lib>
+
+      <classes dir="${build.classes.dir}">
+	<include name="**/*.class"/>
+	<include name="**/*.wsdl"/>
+      </classes>
+
+      <zipfileset dir="${j2ee.resources.dir}/images" prefix="images">
+	<include name="*.gif" />
+      </zipfileset>
+      
+      <zipfileset dir="${j2ee.resources.dir}">
+	<include name="*.css" />
+      </zipfileset>
+
+    </war>
+  </target>
+
+  <target name="deploy.war" depends="build-war">
+    <copy todir="${jboss.home}/server/default/deploy">
+      <fileset dir="${basedir}/build/lib" includes="helloworld.war"/>
+    </copy>
+  </target>
+
+  <target name="client" description="run demo client" depends="build">
+    <property name="param" value=""/>
+    <cxfrun classname="demo.client.Client" param1="${op}"/>
+  </target>
+  
+  <target name="clean">
+    <delete failonerror="no">
+      <fileset dir="./src" includes="**/*.class"/>
+      <fileset dir="." includes="**/*.war"/>
+    </delete>
+  </target>
+  
+</project>

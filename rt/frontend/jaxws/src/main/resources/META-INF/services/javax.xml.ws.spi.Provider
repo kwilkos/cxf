@@ -1,1 +1,1 @@
-org.objectweb.celtix.bus.jaxws.spi.ProviderImpl
+org.apache.cxf.jaxws.spi.ProviderImpl

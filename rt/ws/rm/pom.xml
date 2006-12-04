@@ -1,15 +1,32 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-ws-rm</artifactId>
     <packaging>jar</packaging>
-    <name>CeltiXfire Runtime WS RM</name>
-    <url>http://celtix.objectweb.org/</url>
+    <name>Apache CXF Runtime WS Reliable Messaging</name>
+    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
-        <groupId>org.objectweb.celtixfire</groupId>
-        <artifactId>cxf-rt-ws</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt</artifactId>
+        <version>2.0-incubator-M1</version>
     </parent>
 
     <properties>
@@ -18,92 +35,136 @@
 
     <dependencies>
         <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+        </dependency> 
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-policy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-ws-addr</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-simple</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
-            <version>2.2</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt-bindings-soap</artifactId>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt-core</artifactId>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
-
-
         <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
-            <artifactId>cxf-rt-ws-addr</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.objectweb.celtixfire</groupId>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-testutils</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        -->
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>${derby.version}</version>
-            <scope>test</scope>
-        </dependency>
+
 
     </dependencies>
 
-
-
     <build>
         <plugins>
-            <!--
             <plugin>
-                <groupId>org.objectweb.celtixfire</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-common-xsd</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
-                        <id>generate-test-sources</id>
-                        <phase>generate-test-sources</phase>
-                        <configuration>
-                            <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
-                            <beanfiles>
-                                <beanfile>${basedir}/src/test/java/org/objectweb/celtix/bus/configuration/resources/top.xml</beanfile>
-                                <beanfile>${basedir}/src/test/java/org/objectweb/celtix/bus/configuration/resources/leaf.xml</beanfile>
-                            </beanfiles>
+                    <id>generate-sources</id>
+                    <phase>generate-sources</phase>
+                    <configuration>
+                        <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                        <xsdOptions>
+                            <xsdOption>
+                                <xsd>${basedir}/src/main/resources/schemas/wsdl/wsrm.xsd</xsd>
+                                <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
+                                <catalog>${basedir}/src/main/resources/schemas/wsdl/catalog.cat</catalog>
+                                <deleteDirs>
+                                    <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/ws/addressing</deleteDir>
+                                </deleteDirs>
+                            </xsdOption>
+                            <xsdOption>
+                                <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-manager.xsd</xsd>
+                                <bindingFile>${basedir}/src/main/resources/schemas/configuration/wsrm-policy.xjb</bindingFile>
+                                <extension>true</extension>
+                                <extensionArgs>
+                                    <extensionArg>-Xdv</extensionArg>
+                                    <extensionArg>-Xcfg</extensionArg>
+                                </extensionArgs>`
+                                </xsdOption>
+                            </xsdOptions>
                         </configuration>
                         <goals>
-                            <goal>beangen</goal>
+                            <goal>xsdtojava</goal>
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-cfg</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-tools-xjc-dv</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-common-utilities</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
-            -->
         </plugins>
     </build>
-
 </project>

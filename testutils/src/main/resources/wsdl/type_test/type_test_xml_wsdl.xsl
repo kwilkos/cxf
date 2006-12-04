@@ -1,16 +1,34 @@
 <?xml version="1.0"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
 <xsl:stylesheet
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
     xmlns:xalan="http://xml.apache.org/xslt"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-    xmlns:xformat="http://celtix.objectweb.org/bindings/xmlformat"
+    xmlns:xformat="http://cxf.apache.org/bindings/xformat"
     xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
-    xmlns:x1="http://objectweb.org/type_test/types1"
-    xmlns:x2="http://objectweb.org/type_test/types2"
-    xmlns:x3="http://objectweb.org/type_test/types3"
+    xmlns:x1="http://apache.org/type_test/types1"
+    xmlns:x2="http://apache.org/type_test/types2"
+    xmlns:x3="http://apache.org/type_test/types3"
     xmlns:itst="http://tests.iona.com/ittests"
-    xmlns:http-conf="http://celtix.objectweb.org/transports/http/configuration">
+    xmlns:http-conf="http://cxf.apache.org/transports/http/configuration">
 
     <xsl:output method="xml" indent="yes" xalan:indent-amount="4"/>
     <xsl:strip-space elements="*"/>
@@ -32,8 +50,8 @@
     <xsl:template match="/xsd:schema">
 	<wsdl:definitions
 	    xmlns="http://schemas.xmlsoap.org/wsdl/"
-	    xmlns:tns="http://objectweb.org/type_test/doc"
-	    targetNamespace="http://objectweb.org/type_test/doc"
+	    xmlns:tns="http://apache.org/type_test/xml"
+	    targetNamespace="http://apache.org/type_test/xml"
 	    name="type_test_xml">
 	    <xsl:apply-templates select="@*[name(.)!='elementFormDefault']" mode="attribute_copy"/>
 	    <xsl:apply-templates select="." mode="test_binding"/>
@@ -43,7 +61,7 @@
     <!-- 1 - test binding and service -->
     <xsl:template match="/xsd:schema" mode="test_binding"
 		  xmlns="http://schemas.xmlsoap.org/wsdl/">
-	<wsdl:import namespace="http://objectweb.org/type_test/doc" location="type_test_doclit.wsdl"/>
+	<wsdl:import namespace="http://apache.org/type_test/xml" location="./type_test_xml_inc.wsdl"/>
 
 	<wsdl:binding type="tns:TypeTestPortType" name="TypeTestXML">
 	    <xformat:binding/>
@@ -51,7 +69,7 @@
 	    <xsl:apply-templates select="itst:it_test_group" mode="test_operations_group"/>
 	</wsdl:binding>
 	<wsdl:service name="XMLService">
-	    <wsdl:port name="XMLPPort">
+	    <wsdl:port name="XMLPort">
 		<xsl:attribute name="binding" xmlns="http://schemas.xmlsoap.org/">
 		    <xsl:value-of select="'tns:TypeTestXML'"/>
 		</xsl:attribute>
@@ -83,8 +101,10 @@
             mode="test_operation"/>
         <xsl:apply-templates select="xsd:complexType[not(@itst:it_no_test='true')]"
             mode="test_operation"/>
+            <!--
         <xsl:apply-templates select="xsd:element[not(@itst:it_no_test='true')]"
             mode="test_operation"/>
+            -->
         <xsl:apply-templates select="itst:builtIn[not(@itst:it_no_test='true')]"
             mode="test_operation"/>
     </xsl:template>

@@ -1,0 +1,188 @@
+Apache CXF 2.0 M1 (incubating) Release Notes
+
+1. Overview
+
+Apache CXF 2.0 M1, under incubation,  delivers the merge of the Celtix
+project (http://celtix.objectweb.org) and the Xfire project
+(http://xfire.codehaus.org).  This release includes all major features
+of both the Celtix project and the Xfire project:
+
+    * JAX-WS 2.0 implementation
+    * Transports: HTTP 1.1, HTTPS, and JMS
+    * Full SOAP 1.1 and SOAP 1.2 implementation, with MTOM/XOP support
+    * JAXB 2.0 databinding support
+    * StAX-based XML streaming
+    * WS-Addressing support
+    * WS-Reliable Messaging support
+    * JCA 1.0 Support
+    * Spring support, including spring-based configuration and spring-based
+      lightweight container
+    * Servlet container support
+    * Complete tooling support, including wsdl2java and java2wsdl, plus a
+      bunch of other convenient tools
+    * RESTful web service support
+    * JBI container support, Apace CXF services can be deployed into any JBI
+      compliant container (ServiceMix or OpenESB)
+    * JCA 1.0 support, J2EE application can integrate with legacy application
+      through JCA 1.0 support in Apache CXF
+
+2. Installation Prerequisites 
+
+Before installing Apache CXF (incubating), make sure the following products,
+with the specified versions, are installed on your system:
+
+    * Java 5 Development Kit
+    * Apache ant 1.6
+
+2.1 Java 5 Development Kit
+
+You must install the J2SE Development Kit (JDK) 5.0, which can be downloaded
+from:
+
+    http://java.sun.com/j2se/1.5.0/download.jsp
+
+After installing the JDK, set or modify the following environment variables:
+
+    * JAVA_HOME -- set this environment variable
+      to point at the root directory of the JDK 5.0 installation.
+
+    * PATH -- make sure that your PATH includes: 
+      %JAVA_HOME%\bin  (Windows) 
+      $JAVA_HOME/bin   (UNIX)
+
+2.2 Apache Ant 1.6.5
+
+To run samples included in the binary distribution of Apache CXF (incubating),
+you must install the Apache Ant 1.6.5 build utility, which can be downloaded
+from:
+
+    http://ant.apache.org/bindownload.cgi
+
+After installing Apache Ant, add the <AntInstallDir>/bin directory to your PATH.
+
+For more details, see the Installation Guide.
+
+3. Building the Samples
+
+Building the samples included in the binary distribution is easy. Change to
+the samples directory and follow the build instructions in the README.txt file 
+included with each sample.
+
+4. Known Problems
+
+4.1 HTTP
+There is an issue with Jetty HTTP that prevents Apache CXF (incubating) from
+being able to shut down the actual port listener.  If you programmatically
+remove the last endpoint published on a port, the listener remains running
+on the port, but only 404 (page not found) errors are served to subsequent
+client connections.
+
+4.2 Schema Definitions
+There is no support for nillable elements in XML Schema and xsi:nil attributes
+in XML documents.
+
+4.3 Overwriting Namespace Declarations
+Due to bug 6467808 in the Java 5 JDK, you must ensure that no namespace 
+declarations are overwritten in your SOAP messages. If a namespace declaration 
+is overwritten in a SOAP message your process will fail with the following 
+error message:
+ERROR:  'NAMESPACE_ERR: An attempt is made to create or change an object 
+in a way which is incorrect with regard to namespaces.'
+
+5. Reporting Problems
+
+If you have any problems or want to send feedback of any kind, please e-mail the
+cxf dev list, cxf-dev@incubator.apache.org. 
+
+6. Specific issues, features, and improvements fixed in the 
+Apache CXF 2.0 M1 (incubating) release:
+
+Release Notes - Apache CXF - Version 2.0-M1 (incubating)
+
+6.1 Bugs
+    * [CXF-6] - jaxws-api, jsr181-api should be optional in cxf-common pom
+    * [CXF-18] - addPort not implemented
+    * [CXF-53] - Remove JAX-WS dependency of HTTP transport
+    * [CXF-54] - Remove JAX-WS dependency of JMS transport
+    * [CXF-55] - JAXB databinding has dependency on JAX-WS
+    * [CXF-62] - 2 small checkstyle problems...
+    * [CXF-89] - Fixed invalid wsdl files generated in testutil
+    * [CXF-90] - The wrapping info should be moved to the binding
+    * [CXF-99] - CXF performance test send data more than 8K will broken
+    * [CXF-110] - AttachmentSerializer/Attachmentdesierlizer should be part of core, not JAXB
+    * [CXF-117] - Validator tool schema validation doesn't work when wsdl imports schema.
+    * [CXF-118] - ClassCastException in WSDLServiceBuilder if a wsdl is not wrapped doc style.
+    * [CXF-119] - Empty request elements causes NPE
+    * [CXF-126] - Property Not found error in the CXF Core
+    * [CXF-128] - ReflectionServiceFactoryBean.isValidMethod() rejecting all the valid methods
+    * [CXF-136] - Marshall&unmarshal does not work with int type and more than two parameters.
+    * [CXF-141] - Fix configurable bean code generators to distiguish default value from injected value
+    * [CXF-142] - JCA tests fail on OS X
+    * [CXF-143] - Content-Type not being set
+    * [CXF-145] - Remove dependency of Soap Binding from the ReflectionServiceFactory creation
+    * [CXF-151] - Element ref not supported in message types definitions
+    * [CXF-152] - When we stop server in an application, all resouces have not been cleaned up.
+    * [CXF-157] - Runtime error processing anonymous ref in WSDL during Service.create()
+    * [CXF-158] - ClassCastException in JaxWsServiceFactoryBean.initalizeClassInfo
+    * [CXF-161] - wsdl2java doesn't map parameter order correctly
+    * [CXF-163] - WSDL2Java fails to include endpointInterface WebService attribute for server Impl
+    * [CXF-172] - Genarated client main cannot pass in jaxws Holder where Holder is needed
+    * [CXF-174] - Allow overriding the default stax parser/writer
+    * [CXF-178] - Schema parser cannot resolve relative import locations (case of multiple imports).
+
+6.2 Improvements
+    * [CXF-98] - get schema validation working for jaxb marshall and unmarshall
+    * [CXF-109] - Remove isInSoapHeader() from service model
+    * [CXF-115] - org.apache.cxf.jaxws.EndpointImpl needs additional constructors
+    * [CXF-116] - Remove references to HTTPAddress/SOAPAddress/etc in EndpointInfo
+    * [CXF-187] - Provide Eclipse plugin from CXF to faciliate STP Integration
+
+6.3 New Features
+    * [CXF-2] - Complete JAX-WS frontend
+    * [CXF-15] - JCA supportting
+    * [CXF-83] - Support the injection of WebServiceContext
+    * [CXF-104] - Map JAX-WS properties to CXF Message properties
+    * [CXF-105] - The HandlerChain annotation processing in the JAX-WS frontend.
+    * [CXF-130] - Add Handler demo
+    * [CXF-144] - Conduits/DestinationFactorys should be able to provide interceptors
+
+6.4 Tasks
+    * [CXF-1] - set up distribution build, meet incubator requirements etc...
+    * [CXF-7] - Dispatch
+    * [CXF-13] - CXF JMS Transport support
+    * [CXF-14] - REST
+    * [CXF-16] - Start publishing SNAPSHOTS to the Apache snapshot maven repository
+    * [CXF-20] - Usability Improvements for DI based Configuration Mechanism
+    * [CXF-30] - Implement a Bus based on Spring
+    * [CXF-33] - Soap 1.2 Support
+    * [CXF-35] - Support multiple services/bindings on the same endpoint
+    * [CXF-36] - Fault Handling
+    * [CXF-37] - Port XFire Invoker library
+    * [CXF-47] - WS-Addressing
+    * [CXF-59] - Port js frontend from celtix repository to cxf
+    * [CXF-64] - Move component specific resources  from api to component modules
+    * [CXF-77] - the endpoint need to be shut down when bus shut down
+    * [CXF-95] - Port Celtix performance test to CXF
+    * [CXF-101] - Decoupled response correlation
+    * [CXF-102] - Partial response to requests with decoupled response endpoint
+    * [CXF-103] - HTTPS supprt
+    * [CXF-106] - Support Code first JAX-WS Providers
+    * [CXF-107] - Support code first JAX-WS services
+    * [CXF-108] - making JAX-WS context implementations simply wrappers around the Message
+    * [CXF-114] - Tooling support for SOAP 1.2, including MTOM/swa case
+    * [CXF-131] - Enable unmarshaling  schema validation
+    * [CXF-148] - Licenses for copied resources
+    * [CXF-165] - addd dotnet integration demos
+    * [CXF-167] - Upgrade CXF jms transport to use ActiveMQ 4.0.x 
+
+6.5 Tests
+    * [CXF-66] - Port Celtix type tests to CeltiXfire
+    * [CXF-111] - MTOM Interop testing (MicroSoft, Axis, and JAX-WS RI etc)
+    * [CXF-112] - CXF performance testing and tuning
+    * [CXF-127] - Mtom/Xop interop test with Axis & .Net
+    * [CXF-150] - Interop testing with .Net, Axis
+    * [CXF-176] - add test for anonymous ref in wsdl schema defination
+    * [CXF-182] - Port remaining system tests from Celtix
+
+6.6 Wishes
+    * [CXF-146] - Add Bus factory method that takes a URL

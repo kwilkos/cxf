@@ -1,24 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+ 
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.objectweb.celtixfire</groupId>
-    <artifactId>celtixfire</artifactId>
-    <version>1.1-SNAPSHOT</version>
-    <name>CeltiXfire</name>
-    <url>http://celtix.objectweb.org/</url>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf</artifactId>
+    <version>2.0-incubator-M1</version>
+    <name>Apache CXF</name>
+    <url>http://cwiki.apache.org/confluence/display/CXF</url>
 
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:svn://svn.forge.objectweb.org/svnroot/celtix/trunk</connection>
-        <developerConnection>scm:svn:svn+ssh://svn.forge.objectweb.org/svnroot/celtix/trunk</developerConnection>
-        <url>http://svn.forge.objectweb.org/cgi-bin/viewcvs.cgi/celtix/trunk</url>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/tags/2.0-incubator-M1-v2</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/tags/2.0-incubator-M1-v2</developerConnection>
+        <url>http://svn.apache.org/viewvc/incubator/cxf/tags/2.0-incubator-M1-v2</url>
     </scm>
     <issueManagement>
-        <url>http://forge.objectweb.org/tracker/?group_id=192</url>
+        <system>jira</system>
+        <url>https://issues.apache.org/jira/browse/CXF</url>
     </issueManagement>
 
     <prerequisites>
@@ -26,59 +42,54 @@
     </prerequisites>
 
     <distributionManagement>
-        <!-- After deploy, you need to go to http://forge.objectweb.org/projects/maven/ and hit the Push button -->
-        <!--
-        <repository>
-            <id>objectweb</id>
-            <name>ObjectWeb Maven Repository</name>
-            <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2</url>
-        </repository>
         <snapshotRepository>
-            <id>objectweb-snapshot</id>
-            <name>ObjectWeb Maven Snapshot Repository</name>
-            <url>scp://jupiter.objectweb.org/var/lib/gforge/chroot/home/groups/maven/htdocs/maven2-snapshot</url>
+            <id>apache.snapshots</id>
+            <name>Apache SNAPSHOT Repository</name>
+            <url>scp://people.apache.org/www/people.apache.org/repo/m2-snapshot-repository</url>
         </snapshotRepository>
-        <site>
-            <id>celtix.website</id>
-            <url>file:/tmp/site</url>
-        </site>
-        -->
         <repository>
-            <id>iona</id>
-            <name>IONA Maven Repository</name>
-            <url>scp://maven-repo.boston.amer.iona.com/x1/iona-repository/release</url>
+            <id>apache.incubating</id>
+            <name>Apache Incubating Repository</name>
+            <url>scp://people.apache.org/www/people.apache.org/repo/m2-incubating-repository</url>
         </repository>
-        <snapshotRepository>
-            <id>iona-snapshot</id>
-            <name>IONA Maven Snapshot Repository</name>
-            <url>scp://maven-repo.boston.amer.iona.com/x1/iona-repository/snapshot</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-
     </distributionManagement>
 
-    <inceptionYear>2005</inceptionYear>
+    <inceptionYear>2006</inceptionYear>
     <mailingLists>
         <mailingList>
-            <name>CeltiXfire Open Source Java ESB Mailing List</name>
-            <subscribe>celtix-subscribe@objectweb.org</subscribe>
-            <unsubscribe>celtix-unsubscribe@objectweb.org</unsubscribe>
-            <post>celtix@objectweb.org</post>
-            <archive>http://mail-archive.objectweb.org/celtix/index.html</archive>
+            <name>Apache CXF User List</name>
+            <subscribe>cxf-user-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-user-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-user@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-user</archive>
         </mailingList>
         <mailingList>
-            <name>Mailing List for Celtix Developers</name>
-            <subscribe>celtix-dev-subscribe@objectweb.org</subscribe>
-            <unsubscribe>celtix-dev-unsubscribe@objectweb.org</unsubscribe>
-            <post>celtix-dev@objectweb.org</post>
-            <archive>http://mail-archive.objectweb.org/celtix-dev/index.html</archive>
+            <name>Apache CXF Developer List</name>
+            <subscribe>cxf-dev-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-dev-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-dev@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-dev</archive>
         </mailingList>
         <mailingList>
-            <name>Mailing list to relay Build related information</name>
-            <subscribe>celtix-build-subscribe@objectweb.org</subscribe>
-            <unsubscribe>celtix-build-unsubscribe@objectweb.org</unsubscribe>
-            <post>celtix-build@objectweb.org</post>
-            <archive>http://mail-archive.objectweb.org/celtix-build/index.html</archive>
+            <name>Apache CXF Commits List</name>
+            <subscribe>cxf-commits-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-commits-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-commits@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-commits</archive>
+        </mailingList>
+        <mailingList>
+            <name>Apache CXF Issues List</name>
+            <subscribe>cxf-issues-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-issues-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-issues@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-issues</archive>
+        </mailingList>
+        <mailingList>
+            <name>Apache CXF Build Notifications List</name>
+            <subscribe>cxf-notifications-subscribe@incubator.apache.org</subscribe>
+            <unsubscribe>cxf-notifications-unsubscribe@incubator.apache.org</unsubscribe>
+            <post>cxf-notifications@incubator.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-notifications</archive>
         </mailingList>
     </mailingLists>
     <ciManagement>
@@ -88,26 +99,24 @@
             <notifier>
                 <type>mail</type>
                 <configuration>
-                    <address>celtix-build@objectweb.org</address>
+                    <address>cxf-notifications@incubator.apache.org</address>
                 </configuration>
             </notifier>
         </notifiers>
     </ciManagement>
     <licenses>
         <license>
-            <name>GNU LESSER GENERAL PUBLIC LICENSE Version 2.1</name>
-            <url>http://www.gnu.org/copyleft/lesser.html</url>
-        </license>
-        <license>
-            <name>Eclipse Public License - v 1.0</name>
-            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+    </organization>
     <properties>
         <topDirectoryLocation>.</topDirectoryLocation>
-
-        <checkstyle.excludes>**/build/**/*.java</checkstyle.excludes>
-        <pmd.excludes>**/build/**/*.java</pmd.excludes>
 
         <surefire.fork.mode>once</surefire.fork.mode>
         <surefire.format>brief</surefire.format>
@@ -124,7 +133,7 @@
         <compiler.version>2.0.1</compiler.version>
         <dependency.plugin.version>1.0</dependency.plugin.version>
         <eclipse.plugin.version>2.2</eclipse.plugin.version>
-        <jar.version>2.0</jar.version>
+        <jar.version>2.1</jar.version>
         <javadoc.version>2.0</javadoc.version>
         <jxr.version>2.0</jxr.version>
         <mprojectinfo.version>2.0</mprojectinfo.version>
@@ -133,38 +142,37 @@
         <surefire-report.version>2.0</surefire-report.version>
         <surefire.version>2.1.3</surefire.version>
 
-
-
-
-        <jsr250.version>2.0-JAXWS-2.0-EA3</jsr250.version>
-        <jsr181.version>2.0-JAXWS-2.0-EA3</jsr181.version>
+        <jsr250.version>1.0</jsr250.version>
+        <jsr181.version>1.0-MR1</jsr181.version>
         <jaxb.version>2.0</jaxb.version>
+        <jaxb.impl.version>2.0.3</jaxb.impl.version>
         <jaxws.version>2.0</jaxws.version>
-        <jetty.version>5.1.9</jetty.version>
+        <jetty.version>5.1.11</jetty.version>
         <saaj.version>1.3</saaj.version>
-        <spring.version>1.2.5</spring.version>
-        <wsdl4j.version>1.5.2</wsdl4j.version>
+        <spring.version>2.0</spring.version>
+        <wsdl4j.version>1.6.1</wsdl4j.version>
         <derby.version>10.1.1.0</derby.version>
+        <activemq.version>4.0.2</activemq.version>
+        <geronimo.version>1.0.1</geronimo.version>
+        <rhino.version>1.6R5</rhino.version>
+        <xmlbeans.version>2.2.0</xmlbeans.version>
 
 
         <eclipse.workspace.dir>${basedir}/${topDirectoryLocation}/../workspace</eclipse.workspace.dir>
+        <downloadSources>true</downloadSources>
     </properties>
 
     <modules>
+        <module>buildtools</module>
         <module>common</module>
         <module>tools</module>
+        <module>metacode</module>
         <module>codegen-plugin</module>
-        <module>testutils</module>
-        <module>api2</module>
         <module>api</module>
+        <module>testutils</module>
         <module>rt</module>
-        <module>rt2</module>
-        <module>jbi</module>
-        <module>geronimo</module>
-        <module>router</module>
-        <module>jca</module>
+        <module>integration</module>
         <module>systests</module>
-        <!--<module>axisinterop</module>-->
     </modules>
 
     <build>
@@ -178,7 +186,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>**</include>
+                    <include>**/*</include>
                 </includes>
             </resource>
             <resource>
@@ -215,6 +223,12 @@
                 </includes>
                 <filtering>true</filtering>
             </testResource>
+            <testResource>
+                <directory>target/generated/src/test/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+            </testResource>
         </testResources>
         <pluginManagement>
             <plugins>
@@ -231,17 +245,27 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.cxf</groupId>
+                            <artifactId>cxf-buildtools</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                     <executions>
                         <execution>
                             <id>process-sources</id>
                             <phase>process-sources</phase>
                             <configuration>
-                                <configLocation>${basedir}/${topDirectoryLocation}/checkstyle.xml</configLocation>
+                                <configLocation>cxf-checkstyle.xml</configLocation>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
-                                <excludes>${checkstyle.excludes}</excludes>
+                                <suppressionsLocation>cxf-checkstyle-suppressions.xml</suppressionsLocation>
                                 <sourceDirectory>${basedir}/src</sourceDirectory>
+                                <propertyExpansion>
+                                    apache.header.file=${basedir}/${topDirectoryLocation}/etc/apache-header.txt
+                                </propertyExpansion>
                             </configuration>
                             <goals>
                                 <goal>checkstyle</goal>
@@ -252,14 +276,19 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.cxf</groupId>
+                            <artifactId>cxf-buildtools</artifactId>
+                            <version>${project.version}</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <rulesets>
-                            <ruleset>${basedir}/.ruleset</ruleset>
+                            <ruleset>cxf-pmd-ruleset.xml</ruleset>
                         </rulesets>
+                        <targetJdk>${java.source.version}</targetJdk>
                         <linkXRef>false</linkXRef>
-                        <excludes>
-                            <exclude>${pmd.excludes}</exclude>
-                        </excludes>
                     </configuration>
                     <executions>
                         <execution>
@@ -306,10 +335,6 @@
                                 <value>${basedir}/target/test-classes/logging.properties</value>
                             </property>
                             <property>
-                                <name>javax.xml.ws.spi.Provider</name>
-                                <value>org.objectweb.celtix.bus.jaxws.spi.ProviderImpl</value>
-                            </property>
-                            <property>
                                 <name>activemq.store.dir</name>
                                 <value>${basedir}/target/ActiveMQ</value>
                             </property>
@@ -330,7 +355,6 @@
                     <artifactId>maven-eclipse-plugin</artifactId>
                     <version>${eclipse.plugin.version}</version>
                     <configuration>
-                        <!--downloadSources>true</downloadSources-->
                         <buildcommands>
                             <java.lang.String>org.eclipse.jdt.core.javabuilder</java.lang.String>
                             <java.lang.String>com.atlassw.tools.eclipse.checkstyle.CheckstyleBuilder</java.lang.String>
@@ -347,6 +371,281 @@
         </pluginManagement>
         <defaultGoal>install</defaultGoal>
     </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.1</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>2.0.1</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+    
+
+
+
+
+
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-project</artifactId>
+                <version>2.0.1</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.6.5</version>
+            </dependency>
+            <dependency>
+                <groupId>ant</groupId>
+                <artifactId>ant-nodeps</artifactId>
+                <version>1.6.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>stax</groupId>
+                <artifactId>stax-api</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>woodstox</groupId>
+                <artifactId>wstx-asl</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>jetty</groupId>
+                <artifactId>org.mortbay.jetty</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.ws.commons</groupId>
+                <artifactId>XmlSchema</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.soap</groupId>
+                <artifactId>saaj-api</artifactId>
+                <version>${saaj.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.messaging.saaj</groupId>
+                <artifactId>saaj-impl</artifactId>
+                <version>${saaj.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb.impl.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>logkit</groupId>
+                        <artifactId>logkit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>avalon-framework</groupId>
+                        <artifactId>avalon-framework</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>jsr250-api</artifactId>
+                <version>${jsr250.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.jws</groupId>
+                <artifactId>jsr181-api</artifactId>
+                <version>${jsr181.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.ws</groupId>
+                <artifactId>jaxws-api</artifactId>
+                <version>${jaxws.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymockclassextension</artifactId>
+                <version>2.2</version>
+            </dependency>
+            <dependency>
+                <groupId>asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>1.5.3</version>
+            </dependency>
+            <dependency>
+                <groupId>velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>velocity</groupId>
+                <artifactId>velocity-dep</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>wsdl4j</groupId>
+                <artifactId>wsdl4j</artifactId>
+                <version>${wsdl4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-xjc</artifactId>
+                <version>${jaxb.impl.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>jaxme</groupId>
+                <artifactId>jaxme2</artifactId>
+                <version>0.5.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency> 
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-jms_1.1_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ejb_2.1_spec</artifactId>
+                <version>${geronimo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>incubator-activemq</groupId>
+                <artifactId>activemq-core</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+	    <dependency>
+		<groupId>rhino</groupId>
+		<artifactId>js</artifactId>
+		<version>${rhino.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>xmlbeans</groupId>
+		<artifactId>xbean</artifactId>
+		<version>${xmlbeans.version}</version>
+	    </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <reporting>
         <plugins>
@@ -385,57 +684,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <configLocation>${basedir}/${topDirectoryLocation}/checkstyle.xml</configLocation>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <configuration>
-                    <targetJdk>${java.source.version}</targetJdk>
-                    <rulesets>
-                        <ruleset>${basedir}/.ruleset</ruleset>
-                    </rulesets>
-                </configuration>
             </plugin>
         </plugins>
     </reporting>
-
-    <repositories>
-        <repository>
-            <id>private-repo</id>
-            <name>private repo</name>
-            <url>file:${basedir}/${topDirectoryLocation}/maven_repo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>java.net</id>
-            <name>java.net Maven Repository</name>
-            <url>https://maven-repository.dev.java.net/nonav/repository/</url>
-            <layout>legacy</layout>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>snapshots_internal</id>
-            <name>Internal Repository</name>
-            <url>file:${basedir}/${topDirectoryLocation}/maven_repo</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 
     <profiles>
         <profile>
@@ -467,6 +722,38 @@
                             <source>1.5</source>
                             <target>1.5</target>
                             <showDeprecation>true</showDeprecation>
+                            <showWarnings>true</showWarnings>
+                            <compilerArgument>${compile.flags}</compilerArgument>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- default profile enables checkstyle and Xlint stuff -->
+            <id>everything</id>
+            <modules>
+                <module>distribution</module>
+                <module>tools/eclipse-plugin</module>
+            </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>1.5</source>
+                            <target>1.5</target>
+                            <showDeprecation>true</showDeprecation>
+                            <showWarnings>true</showWarnings>
                             <compilerArgument>${compile.flags}</compilerArgument>
                         </configuration>
                     </plugin>
@@ -511,79 +798,88 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>${antrun.version}</version>
-                                 <dependencies>
-                                    <dependency>
-                                        <groupId>ant</groupId>
-                                        <artifactId>ant-nodeps</artifactId>
-                                        <version>1.6.5</version>
-                                    </dependency>
-                                    <dependency>
-                                        <groupId>ant</groupId>
-                                        <artifactId>ant-trax</artifactId>
-                                        <version>1.6.5</version>
-                                    </dependency>
-                                </dependencies>
+                        <dependencies>
+                            <dependency>
+                                <groupId>ant</groupId>
+                                <artifactId>ant-nodeps</artifactId>
+                                <version>1.6.5</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>ant</groupId>
+                                <artifactId>ant-trax</artifactId>
+                                <version>1.6.5</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.apache.cxf</groupId>
+                                <artifactId>cxf-buildtools</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                        </dependencies>
                         <executions>
                             <execution>
                                 <id>setup.workspace</id>
                                 <phase>validate</phase>
                                 <configuration>
                                     <tasks>
-                                        <path id="ecp.ws.path" location="${eclipse.workspace.dir}"/>
-                                        <property name="full.eclipse.workspace" refid="ecp.ws.path"/>
-        
-                                        <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings"/>
-                                        <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle"/>
-                                        <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/net.sourceforge.pmd.eclipse"/>
-        
-                                        <copy file="${basedir}/${topDirectoryLocation}/checkstyle.xml" tofile="${full.eclipse.workspace}/celtix-checkstyle.xml"/>
+                                        <path id="ecp.ws.path" location="${eclipse.workspace.dir}" />
+                                        <property name="full.eclipse.workspace" refid="ecp.ws.path" />
+
+                                        <whichresource resource="/cxf-eclipse-pmd" property="pmd.url" />
+                                        <whichresource resource="/cxf-pmd-ruleset.xml" property="pmdruleset.url" />
+                                        <whichresource resource="/cxf-eclipse-checkstyle" property="eclipse.checkstyle.url" />
+                                        <whichresource resource="/cxf-checkstyle.xml" property="checkstyle.url" />
+
+
+                                        <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings" />
+                                        <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle" />
+                                        <mkdir dir="${full.eclipse.workspace}/.metadata/.plugins/net.sourceforge.pmd.eclipse" />
+
+                                        <get src="${pmdruleset.url}" dest=".ruleset" />
+                                        <get src="${pmd.url}" dest=".pmd" />
+                                        <get src="${eclipse.checkstyle.url}" dest=".checkstyle" />
+                                        <get src="${checkstyle.url}" dest="${full.eclipse.workspace}/cxf-checkstyle.xml" />
+
+                                        <copy file="${basedir}/${topDirectoryLocation}/etc/apache-header.txt" tofile="${full.eclipse.workspace}/apache-header.txt" />
         
                                         <!-- Add checkstyle config -->
-                                        <copy file="${basedir}/${topDirectoryLocation}/etc/eclipse/template.checkstyle-config.xml"
-                                            tofile="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
-                                            overwrite="no">
+                                        <copy file="${basedir}/${topDirectoryLocation}/etc/eclipse/template.checkstyle-config.xml" tofile="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml" overwrite="no">
                                             <filterset>
-                                                <filter token="CHECKSTYLE_CONFIG_FILE" value="${full.eclipse.workspace}/celtix-checkstyle.xml"/>
+                                                <filter token="CHECKSTYLE_CONFIG_FILE" value="${full.eclipse.workspace}/cxf-checkstyle.xml" />
+                                                <filter token="APACHE_HEADER_FILE" value="${full.eclipse.workspace}/apache-header.txt" />
                                             </filterset>
                                         </copy>
-        
-                                        <xslt style="${basedir}/${topDirectoryLocation}/etc/eclipse/addcheckstyle.xsl"
-                                              in="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
-                                              out="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml.new">
-                                            <param name="checkstyleconfig" expression="${full.eclipse.workspace}/celtix-checkstyle.xml"/>
+
+                                        <xslt style="${basedir}/${topDirectoryLocation}/etc/eclipse/addcheckstyle.xsl" in="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml" out="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml.new">
+                                            <param name="checkstyleconfig" expression="${full.eclipse.workspace}/cxf-checkstyle.xml" />
                                         </xslt>
-                                        <copy 
-                                            file="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml.new"
-                                            tofile="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml"
-                                            overwrite="yes"/>
+                                        <copy file="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml.new" tofile="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml" overwrite="yes" />
         
         
                                         <!-- Add warning flags that we want -->
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs">
-                                            <entry key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore"/>
-                                            <entry key="org.eclipse.jdt.core.compiler.problem.unusedImport" value="ignore"/>
-                                            <entry key="org.eclipse.jdt.core.compiler.problem.annotationSuperInterface" value="ignore"/>
+                                            <entry key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore" />
+                                            <entry key="org.eclipse.jdt.core.compiler.problem.unusedImport" value="ignore" />
+                                            <entry key="org.eclipse.jdt.core.compiler.problem.annotationSuperInterface" value="ignore" />
                                         </propertyfile>
         
         
                                         <!-- Add code format rules -->
-                                        <concat destfile="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs"
-                                            append="true" fixlastline="true">
-                                            <filelist dir="${basedir}/${topDirectoryLocation}/etc/eclipse" files="org.eclipse.jdt.core.prefs"/>
+                                        <concat destfile="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs" append="true" fixlastline="true">
+                                            <filelist dir="${basedir}/${topDirectoryLocation}/etc/eclipse" files="org.eclipse.jdt.core.prefs" />
                                         </concat>
-                                        <loadfile property="eclipse.code.format" srcFile="${basedir}/${topDirectoryLocation}/etc/eclipse/CeltixCodeFormatter.xml"/>
-                                        <loadfile property="eclipse.code.templates" srcFile="${basedir}/${topDirectoryLocation}/etc/eclipse/codetemplates.xml"/>
+                                        <loadfile property="eclipse.code.format" srcFile="${basedir}/${topDirectoryLocation}/etc/eclipse/CXFCodeFormatter.xml" />
+                                        <loadfile property="eclipse.code.templates" srcFile="${basedir}/${topDirectoryLocation}/etc/eclipse/codetemplates.xml" />
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.ui.prefs">
-                                            <entry key="formatter_profile" value="Celtix Java Conventions"/>
-                                            <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}"/>
-                                            <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}"/>
+                                            <entry key="formatter_profile" value="_CXF Java Conventions" />
+                                            <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}" />
+                                            <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}" />
         
                                             <!-- Add import order -->
-                                            <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;junit;com;org;"/>
+                                            <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;junit;com;org;" />
                                             <!-- Sort order -->
-                                            <entry key="org.eclipse.jdt.ui.visibility.order" value="B,R,D,V,"/>
-                                            <entry key="outlinesortoption" value="T,SF,F,SI,I,C,SM,M,"/>
-                                            <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true"/>
+                                            <entry key="org.eclipse.jdt.ui.visibility.order" value="B,R,D,V," />
+                                            <entry key="outlinesortoption" value="T,SF,F,SI,I,C,SM,M," />
+                                            <entry key="org.eclipse.jdt.ui.enable.visibility.order" value="true" />
                                         </propertyfile>
                                     </tasks>
                                 </configuration>
@@ -596,7 +892,5 @@
                 </plugins>
             </build>
         </profile>
-
-
     </profiles>
 </project>
