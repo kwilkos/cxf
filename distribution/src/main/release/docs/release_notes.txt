@@ -13,6 +13,7 @@ of both the Celtix project and the Xfire project:
     * JAXB 2.0 databinding support
     * StAX-based XML streaming
     * WS-Addressing support
+    * WS-Reliable Messaging support
     * JCA 1.0 Support
     * Spring support, including spring-based configuration and spring-based
       lightweight container
@@ -20,10 +21,10 @@ of both the Celtix project and the Xfire project:
     * Complete tooling support, including wsdl2java and java2wsdl, plus a
       bunch of other convenient tools
     * RESTful web service support
-    * JBI container support, CXF services can be deployed into any JBI
+    * JBI container support, Apace CXF services can be deployed into any JBI
       compliant container (ServiceMix or OpenESB)
     * JCA 1.0 support, J2EE application can integrate with legacy application
-      through JCA 1.0 support in CXF
+      through JCA 1.0 support in Apache CXF
 
 2. Installation Prerequisites 
 
