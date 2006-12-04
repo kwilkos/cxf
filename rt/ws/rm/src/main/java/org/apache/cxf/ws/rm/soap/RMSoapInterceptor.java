@@ -391,7 +391,6 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
      * 
      * @param message the message
      */
-
     private void updateServiceModelInfo(SoapMessage message) {
         
         assert !RMContextUtils.isOutbound(message);
@@ -428,9 +427,21 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         
         BindingInfo bi = rme.getEndpoint().getEndpointInfo().getBinding();
         BindingOperationInfo boi = null;
-        if (RMConstants.getCreateSequenceAction().equals(action)
-            || RMConstants.getCreateSequenceResponseAction().equals(action)) {
-            boi = bi.getOperation(RMConstants.getCreateSequenceOperationName());
+        boolean isOneway = true;
+        if (RMConstants.getCreateSequenceAction().equals(action)) {
+            if (RMContextUtils.isServerSide(message)) {
+                boi = bi.getOperation(RMConstants.getCreateSequenceOperationName());
+                isOneway = false;
+            } else {
+                boi = bi.getOperation(RMConstants.getCreateSequenceOnewayOperationName());
+            }
+        } else if (RMConstants.getCreateSequenceResponseAction().equals(action)) {
+            if (RMContextUtils.isServerSide(message)) {
+                boi = bi.getOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
+                isOneway = false;
+            } else {
+                boi = bi.getOperation(RMConstants.getCreateSequenceOperationName());
+            }
         } else if (RMConstants.getSequenceAckAction().equals(action)) {
             boi = bi.getOperation(RMConstants.getSequenceAckOperationName()); 
         } else if (RMConstants.getTerminateSequenceAction().equals(action)) {
@@ -438,6 +449,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         }
         assert boi != null;
         exchange.put(BindingOperationInfo.class, boi);
+        exchange.setOneWay(isOneway); 
         
         // Fix requestor role (as the client side message observer always sets it to TRUE) 
         // to allow unmarshalling the body of a server originated TerminateSequence request.
@@ -454,12 +466,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                 message.put(RMMessageConstants.ORIGINAL_REQUESTOR_ROLE, originalRequestorRole);
             }
             message.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
-        }
-        
-        if (RMConstants.getSequenceAckAction().equals(action)) {
-            exchange.setOneWay(true);
-        }
-        
+        }          
     }
 
     private RMManager getManager(SoapMessage message) {

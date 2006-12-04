@@ -59,12 +59,21 @@ public class Servant implements Invoker {
             LOG.fine("No operation info."); 
             return null;
         }
-        if (RMConstants.getCreateSequenceOperationName().equals(oi.getName())) {
+        if (RMConstants.getCreateSequenceOperationName().equals(oi.getName())
+            || RMConstants.getCreateSequenceOnewayOperationName().equals(oi.getName())) {
             try {
                 return Collections.singletonList(createSequence(exchange.getInMessage()));
             } catch (SequenceFault ex) {
                 ex.printStackTrace();
             } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        } else if (RMConstants.getCreateSequenceResponseOnewayOperationName().equals(oi.getName())) {
+            CreateSequenceResponseType createResponse = 
+                (CreateSequenceResponseType)getParameter(exchange.getInMessage());
+            try {
+                createSequenceResponse(createResponse);
+            } catch (SequenceFault ex) {
                 ex.printStackTrace();
             }
         }
@@ -76,9 +85,11 @@ public class Servant implements Invoker {
     CreateSequenceResponseType createSequence(Message message) throws SequenceFault {
         LOG.fine("Creating sequence");
         
-        AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
-        Message outMessage = message.getExchange().getOutMessage();        
-        RMContextUtils.storeMAPs(maps, outMessage, false, false);
+        AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);        
+        Message outMessage = message.getExchange().getOutMessage();  
+        if (null != outMessage) {
+            RMContextUtils.storeMAPs(maps, outMessage, false, false);
+        }
         
         CreateSequenceType create = (CreateSequenceType)getParameter(message);
         Destination destination = reliableEndpoint.getDestination();
@@ -137,7 +148,7 @@ public class Servant implements Invoker {
                                                           create.getAcksTo(), destination);
         seq.setCorrelationID(maps.getMessageID().getValue());
         destination.addSequence(seq);
-        
+        LOG.fine("returning " + createResponse);
         return createResponse;
     }
 
@@ -215,7 +226,7 @@ public class Servant implements Invoker {
 
     Object getParameter(Message message) {
         List resList = null;
-        assert message == message.getExchange().getInMessage();
+        // assert message == message.getExchange().getInMessage();
         
         if (message != null) {
             resList = message.getContent(List.class);

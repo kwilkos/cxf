@@ -36,6 +36,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.RelatesToType;
@@ -111,14 +112,34 @@ public class Proxy {
         ts.setIdentifier(ss.getIdentifier());
         invoke(oi, new Object[] {ts}, null);
     }
+    
+    void createSequenceResponse(final CreateSequenceResponseType createResponse) {
+        LOG.fine("sending CreateSequenceResponse from client side");
+        final OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
+            .getOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
+        
+        // TODO: need to set relatesTo
+        
+        Runnable r = new Runnable() {
+            public void run() {
+                Proxy.this.invoke(oi, new Object[] {createResponse}, null);
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+        
+        // invoke(oi, new Object[] {createResponse}, null);
+       
+    }
 
     public CreateSequenceResponseType createSequence(
                         org.apache.cxf.ws.addressing.EndpointReferenceType to, 
                         EndpointReferenceType defaultAcksTo,
-                        RelatesToType relatesTo) throws IOException {
+                        RelatesToType relatesTo,
+                        boolean isServer) throws IOException {
         
         SourcePolicyType sp = reliableEndpoint.getManager().getSourcePolicy();
-        CreateSequenceType create = RMUtils.getWSRMFactory().createCreateSequenceType();        
+        final CreateSequenceType create = RMUtils.getWSRMFactory().createCreateSequenceType();        
 
         String address = sp.getAcksTo();
         EndpointReferenceType acksTo = null;
@@ -149,8 +170,26 @@ public class Proxy {
             setOfferedIdentifier(offer);
         }
         
-        OperationInfo oi = reliableEndpoint.getService().getServiceInfo().getInterface()
-            .getOperation(RMConstants.getCreateSequenceOperationName());
+        InterfaceInfo ii = reliableEndpoint.getService().getServiceInfo().getInterface();
+        
+        final OperationInfo oi = isServer 
+            ? ii.getOperation(RMConstants.getCreateSequenceOnewayOperationName())
+            : ii.getOperation(RMConstants.getCreateSequenceOperationName());
+        
+        // tried using separate thread - did not help either
+        
+        if (isServer) {
+            Runnable r = new Runnable() {
+                public void run() {
+                    invoke(oi, new Object[] {create}, null);
+                }
+            };
+            // reliableEndpoint.getApplicationEndpoint().getService().getExecutor().execute(r);
+            Thread t = new Thread(r);
+            t.start();
+            return null;
+        }
+        
         
         return (CreateSequenceResponseType)invoke(oi, new Object[] {create}, null);
     }
@@ -170,7 +209,8 @@ public class Proxy {
     }
        
     Object invoke(OperationInfo oi, Object[] params, Map<String, Object> context) {
-        LOG.log(Level.INFO, "Invoking out-of-band RM protocol message {0}.", 
+        LOG.log(Level.INFO, "Invoking out-of-band RM protocol message {0} on thread "
+                + Thread.currentThread(), 
                 oi == null ? null : oi.getName());
         
         // assuming we are on the client side
@@ -184,7 +224,9 @@ public class Proxy {
         
         BindingOperationInfo boi = bi.getOperation(oi);
         try {
+            LOG.fine("invoking on client");
             Object[] result = client.invoke(boi, params, context);
+            LOG.fine("Returned from client invocation");
             if (result != null && result.length > 0) {
                 return result[0];
             }

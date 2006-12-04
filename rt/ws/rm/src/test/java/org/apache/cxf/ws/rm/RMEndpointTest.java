@@ -40,17 +40,28 @@ public class RMEndpointTest extends TestCase {
 
         InterfaceInfo intf = si.getInterface();
         
-        assertEquals(3, intf.getOperations().size());
+        assertEquals(5, intf.getOperations().size());
         
         String ns = si.getName().getNamespaceURI();
         OperationInfo oi = intf.getOperation(new QName(ns, "CreateSequence"));
         assertNotNull("No operation info.", oi);
+        assertTrue("Operation is oneway.", !oi.isOneWay());
         
         oi = intf.getOperation(new QName(ns, "TerminateSequence"));
         assertNotNull("No operation info.", oi);
+        assertTrue("Operation is toway.", oi.isOneWay());
         
         oi = intf.getOperation(new QName(ns, "SequenceAcknowledgement"));
         assertNotNull("No operation info.", oi);
+        assertTrue("Operation is toway.", oi.isOneWay());
+        
+        oi = intf.getOperation(new QName(ns, "CreateSequenceOneway"));
+        assertNotNull("No operation info.", oi);
+        assertTrue("Operation is toway.", oi.isOneWay());
+        
+        oi = intf.getOperation(new QName(ns, "CreateSequenceResponseOneway"));
+        assertNotNull("No operation info.", oi);
+        assertTrue("Operation is toway.", oi.isOneWay());
         
     }
     

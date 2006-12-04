@@ -74,12 +74,7 @@ public final class RMContextUtils {
      * @return true iff message is currently being processed on server side
      */
     public static boolean isServerSide(Message message) {
-        if (isOutbound(message)) {
-            return message.getExchange().getInMessage() != null;
-        } else {
-            return message.getExchange().getOutMessage() == null
-                   && message.getExchange().getOutFaultMessage() == null;
-        }
+        return message.getExchange().getDestination() != null;
     }
 
     /**

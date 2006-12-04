@@ -81,6 +81,12 @@ public final class RMConstants {
     private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_QNAME =
         new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponse");
     
+    private static final QName WSRM_CREATE_SEQUENCE_ONEWAY_QNAME =
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceOneway");
+    
+    private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_ONEWAY_QNAME =
+        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponseOneway");
+    
     private static final QName WSRM_TERMINATE_SEQUENCE_QNAME =
         new QName(WSRM_NAMESPACE_NAME, "TerminateSequence");
 
@@ -196,6 +202,14 @@ public final class RMConstants {
     
     public static QName getCreateSequenceResponseOperationName() {
         return WSRM_CREATE_SEQUENCE_RESPONSE_QNAME;
+    }
+    
+    public static QName getCreateSequenceOnewayOperationName() {
+        return WSRM_CREATE_SEQUENCE_ONEWAY_QNAME;
+    }
+    
+    public static QName getCreateSequenceResponseOnewayOperationName() {
+        return WSRM_CREATE_SEQUENCE_RESPONSE_ONEWAY_QNAME;
     }
     
     public static QName getTerminateSequenceOperationName() {

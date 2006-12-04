@@ -19,6 +19,9 @@
 
 package org.apache.cxf.ws.rm;
 
+import java.util.List;
+
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
@@ -41,7 +44,7 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
-import org.apache.cxf.ws.addressing.wsdl.UsingAddressing;
+import org.apache.cxf.ws.addressing.Names;
 
 public class RMEndpoint {
     
@@ -201,10 +204,14 @@ public class RMEndpoint {
         ei.setAddress(applicationEndpoint.getEndpointInfo().getAddress());
         ei.setName(PORT_NAME);
         ei.setBinding(si.getBinding(BINDING_NAME));
-        org.apache.cxf.ws.addressing.wsdl.ObjectFactory aof = 
-            new org.apache.cxf.ws.addressing.wsdl.ObjectFactory();
-        UsingAddressing ua = aof.createUsingAddressing();
-        ei.addExtensor(ua);
+
+        // get the addressing extensor from the application endpoint (must exist)
+        
+        Object ua = getUsingAddressing(applicationEndpoint.getEndpointInfo());
+        if (null != ua) {
+            ei.addExtensor(ua);
+        } 
+        
         si.addEndpoint(ei);
     
         try {
@@ -230,6 +237,12 @@ public class RMEndpoint {
     }
 
     void buildOperationInfo(InterfaceInfo ii) {
+        buildCreateSequenceOperationInfo(ii);
+        buildTerminateSequenceOperationInfo(ii);
+        buildSequenceAckOperationInfo(ii);
+    }
+
+    void buildCreateSequenceOperationInfo(InterfaceInfo ii) {
         
         OperationInfo operationInfo = null;
         MessagePartInfo partInfo = null;
@@ -266,6 +279,47 @@ public class RMEndpoint {
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceResponseType.class);
         
+        operationInfo = ii.addOperation(RMConstants.getCreateSequenceOnewayOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
+        partInfo = messageInfo.addMessagePart("create");
+        partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceType.class);
+        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        partInfo = unwrappedMessageInfo.addMessagePart("create");
+        partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceType.class);
+        
+        operationInfo = ii.addOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
+        messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName());
+        operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
+        partInfo = messageInfo.addMessagePart("createResponse");
+        partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceResponseType.class);
+        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        partInfo = unwrappedMessageInfo.addMessagePart("createResponse");
+        partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
+        partInfo.setElement(true);
+        partInfo.setTypeClass(CreateSequenceResponseType.class);
+    }
+    
+    void buildTerminateSequenceOperationInfo(InterfaceInfo ii) {
+        
+        OperationInfo operationInfo = null;
+        MessagePartInfo partInfo = null;
+        UnwrappedOperationInfo unwrappedOperationInfo = null;
+        MessageInfo messageInfo = null;
+        MessageInfo unwrappedMessageInfo = null;
+        
         operationInfo = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
@@ -281,7 +335,15 @@ public class RMEndpoint {
         partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(TerminateSequenceType.class);
-        
+    }
+
+    void buildSequenceAckOperationInfo(InterfaceInfo ii) {
+
+        OperationInfo operationInfo = null;
+        UnwrappedOperationInfo unwrappedOperationInfo = null;
+        MessageInfo messageInfo = null;
+        MessageInfo unwrappedMessageInfo = null;
+
         operationInfo = ii.addOperation(RMConstants.getSequenceAckOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
@@ -321,9 +383,60 @@ public class RMEndpoint {
             soi.setAction(RMConstants.getSequenceAckAction());
             boi.addExtensor(soi);
             bi.addOperation(boi);
+            
+            boi = bi.buildOperation(RMConstants.getCreateSequenceOnewayOperationName(), 
+                RMConstants.getCreateSequenceOperationName().getLocalPart(), null);
+            soi = new SoapOperationInfo();
+            soi.setAction(RMConstants.getCreateSequenceAction());
+            boi.addExtensor(soi);
+            bi.addOperation(boi);
+
+            boi = bi.buildOperation(RMConstants.getCreateSequenceResponseOnewayOperationName(), 
+                RMConstants.getCreateSequenceResponseOperationName().getLocalPart(), null);
+            soi = new SoapOperationInfo();
+            soi.setAction(RMConstants.getCreateSequenceResponseAction());
+            boi.addExtensor(soi);
+            bi.addOperation(boi);
 
             si.addBinding(bi);
         }
+    }
+    
+    Object getUsingAddressing(EndpointInfo endpointInfo) {
+        if (null == endpointInfo) {
+            return null;
+        }
+        Object ua = null;
+        List<ExtensibilityElement> exts = endpointInfo.getExtensors(ExtensibilityElement.class);
+        ua = getUsingAddressing(exts);
+        if (null != ua) {
+            return ua;
+        }
+        exts = endpointInfo.getBinding() != null
+            ? endpointInfo.getBinding().getExtensors(ExtensibilityElement.class) : null;
+        ua = getUsingAddressing(exts);
+        if (null != ua) {
+            return ua;
+        }
+        exts = endpointInfo.getService() != null
+            ? endpointInfo.getService().getExtensors(ExtensibilityElement.class) : null;
+        ua = getUsingAddressing(exts);
+        if (null != ua) {
+            return ua;
+        }
+        return ua;        
+    }
+    
+    Object getUsingAddressing(List<ExtensibilityElement> exts) {
+        Object ua = null;
+        if (exts != null) {
+            for (ExtensibilityElement ext : exts) {
+                if (Names.WSAW_USING_ADDRESSING_QNAME.equals(ext.getElementType())) {
+                    ua = ext;
+                }
+            }
+        }
+        return ua;
     }
     
 }

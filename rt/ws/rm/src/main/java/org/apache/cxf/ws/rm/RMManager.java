@@ -31,9 +31,14 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
+import org.apache.cxf.ws.addressing.ContextUtils;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
@@ -71,9 +76,6 @@ public class RMManager extends RMManagerConfigBean {
     public void register() {
         if (null != bus) {
             bus.setExtension(this, RMManager.class);
-        }
-        if (null == retransmissionQueue) {
-            retransmissionQueue = new RetransmissionQueueImpl(this);
         }
     }
 
@@ -148,26 +150,26 @@ public class RMManager extends RMManagerConfigBean {
         if (null == seq) {
             // TODO: better error handling
             org.apache.cxf.ws.addressing.EndpointReferenceType to = null;
+            boolean isServer = RMContextUtils.isServerSide(message);
             try {
                 EndpointReferenceType acksTo = null;
                 RelatesToType relatesTo = null;
-                if (RMContextUtils.isServerSide(message)) {
+                if (isServer) {
 
                     AddressingPropertiesImpl inMaps = RMContextUtils.retrieveMAPs(message, false, false);
                     inMaps.exposeAs(VersionTransformer.Names200408.WSA_NAMESPACE_NAME);
                     acksTo = RMUtils.createReference2004(inMaps.getTo().getValue());
                     to = inMaps.getReplyTo();
-                    // getServant().setUnattachedIdentifier(inSeqId);
+                    source.getReliableEndpoint().getServant().setUnattachedIdentifier(inSeqId);
                     relatesTo = (new org.apache.cxf.ws.addressing.ObjectFactory()).createRelatesToType();
                     Destination destination = getDestination(message);
-                    DestinationSequence inSeq = destination.getSequence(inSeqId);
+                    DestinationSequence inSeq = inSeqId == null ? null : destination.getSequence(inSeqId);
                     relatesTo.setValue(inSeq != null ? inSeq.getCorrelationID() : null);
 
                 } else {
                     to = RMUtils.createReference(maps.getTo().getValue());
                     acksTo = VersionTransformer.convert(maps.getReplyTo()); 
-                    if (!RMContextUtils.isServerSide(message)
-                        && RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
+                    if (RMConstants.getNoneAddress().equals(acksTo.getAddress().getValue())) {
                         org.apache.cxf.transport.Destination dest = message.getExchange()
                             .getConduit().getBackChannel();
                         if (null == dest) {
@@ -180,14 +182,16 @@ public class RMManager extends RMManagerConfigBean {
 
                 Proxy proxy = source.getReliableEndpoint().getProxy();
                 CreateSequenceResponseType createResponse = 
-                    proxy.createSequence(to, acksTo, relatesTo);
-                Servant servant = source.getReliableEndpoint().getServant();
-                servant.createSequenceResponse(createResponse);
+                    proxy.createSequence(to, acksTo, relatesTo, isServer);
+                if (!isServer) {
+                    Servant servant = source.getReliableEndpoint().getServant();
+                    servant.createSequenceResponse(createResponse);
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
-            seq = source.getCurrent(inSeqId);
+            seq = source.awaitCurrent(inSeqId);
             seq.setTarget(to);
         }
 
@@ -222,7 +226,7 @@ public class RMManager extends RMManagerConfigBean {
                 new org.apache.cxf.ws.rm.policy.ObjectFactory();
             RMAssertion rma = factory.createRMAssertion();
             BaseRetransmissionInterval bri = factory.createRMAssertionBaseRetransmissionInterval();
-            bri.setMilliseconds(new BigInteger("3000"));
+            bri.setMilliseconds(new BigInteger(RetransmissionQueue.DEFAULT_BASE_RETRANSMISSION_INTERVAL));
             rma.setBaseRetransmissionInterval(bri);
             rma.setExponentialBackoff(factory.createRMAssertionExponentialBackoff());
             setRMAssertion(rma);
@@ -246,7 +250,10 @@ public class RMManager extends RMManagerConfigBean {
             DestinationPolicyType dp = factory.createDestinationPolicyType();
             dp.setAcksPolicy(factory.createAcksPolicyType());
             setDestinationPolicy(dp);
-        }        
+        }    
+        if (null == retransmissionQueue) {
+            retransmissionQueue = new RetransmissionQueueImpl(this);
+        }
     }
     
     void addSourceSequence(SourceSequence ss) {
@@ -260,6 +267,44 @@ public class RMManager extends RMManagerConfigBean {
         if (null != sourceSequences) {
             sourceSequences.remove(id.getValue());
         }
+    }
+    
+    public void testServerSideSequenceCreation(final ServerImpl server, final String address) {
+
+        Runnable r = new Runnable() {
+
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+
+                Endpoint ep = server.getEndpoint();
+                org.apache.cxf.transport.Destination dest = server.getDestination();
+                Message message = new MessageImpl();
+                Exchange exchange = new ExchangeImpl();
+                exchange.setInMessage(message);
+                message.setExchange(exchange);
+                exchange.put(Endpoint.class, ep);
+                exchange.setDestination(dest);
+                AddressingProperties maps = new AddressingPropertiesImpl();
+                maps.setReplyTo(RMUtils.createReference(address));
+                maps.setTo(dest.getAddress().getAddress());
+                ContextUtils.storeMAPs(maps, message, false);
+                
+
+                try {
+                    RMManager.this.getSequence(null, message, null);
+                } catch (SequenceFault ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+
+        };
+        Thread t = new Thread(r);
+        t.start();
     }
 
 }

@@ -54,6 +54,7 @@ import org.apache.cxf.ws.rm.RetransmissionQueue;
 import org.apache.cxf.ws.rm.SequenceType;
 import org.apache.cxf.ws.rm.SourceSequence;
 import org.apache.cxf.ws.rm.persistence.RMStore;
+import org.apache.cxf.ws.rm.policy.RMAssertion;
 
 /**
  * 
@@ -62,8 +63,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
 
     private static final Logger LOG = LogUtils.getL7dLogger(RetransmissionQueueImpl.class);
     
-    private long baseRetransmissionInterval = 3000L;
-    private int exponentialBackoff = 2;
     private Map<String, List<ResendCandidate>> candidates = new HashMap<String, List<ResendCandidate>>();
     private Resender resender;
     private Runnable resendInitiator;
@@ -83,15 +82,12 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
     }
 
     public long getBaseRetransmissionInterval() {
-        return baseRetransmissionInterval;
-    }
-
-    public void setBaseRetransmissionInterval(long baseRetransmissionInterval) {
-        this.baseRetransmissionInterval = baseRetransmissionInterval;
-    }
-
-    public void setExponentialBackoff(int exponentialBackoff) {
-        this.exponentialBackoff = exponentialBackoff;
+        RMAssertion rma = null == manager ? null : manager.getRMAssertion();
+        if (null != rma && null != rma.getBaseRetransmissionInterval()
+            && null != rma.getBaseRetransmissionInterval().getMilliseconds()) {
+            return rma.getBaseRetransmissionInterval().getMilliseconds().longValue();
+        }
+        return new BigInteger(DEFAULT_BASE_RETRANSMISSION_INTERVAL).longValue();
     }
 
     public void addUnacknowledged(Message message) {
@@ -163,7 +159,6 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
             return;
         }
         LOG.fine("Starting retransmission queue");
-        
         // setup resender
         if (null == resender) {
             resender = getDefaultResender();
@@ -197,7 +192,7 @@ public class RetransmissionQueueImpl implements RetransmissionQueue {
      * @return the exponential backoff
      */
     protected int getExponentialBackoff() {
-        return exponentialBackoff;
+        return DEFAULT_EXPONENTIAL_BACKOFF;
     }
     
     /**

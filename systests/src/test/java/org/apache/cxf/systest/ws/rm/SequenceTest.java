@@ -73,6 +73,8 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
     private boolean doTestOnewayMessageLoss = testAll;
     private boolean doTestTwowayMessageLoss = testAll;
+    private boolean doTestServerSideSequenceCreation = testAll;
+    private boolean doTestTwowayNonAnonymousNoOffer;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -499,7 +501,7 @@ public class SequenceTest extends ClientServerTestBase {
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
         manager.getRMAssertion().getBaseRetransmissionInterval().setMilliseconds(new BigInteger("2000"));
-
+        
         greeter.greetMeOneWay("one");
         greeter.greetMeOneWay("two");
         greeter.greetMeOneWay("three");
@@ -593,6 +595,53 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyMessageNumbers(new String[] {null, "1", "2", "3", "4"}, false);
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true, true}, false);
   
+    }
+    
+    public void testServerSideSequenceCreation() throws Exception {
+        if (!doTestServerSideSequenceCreation) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-no-offer-test.xml");
+
+        greeter.greetMeOneWay("one");
+        
+        awaitMessages(3, 4, 10000);          
+    }
+
+    
+    public void testTwowayNonAnonymousNoOffer() throws Exception {
+        if (!doTestTwowayNonAnonymousNoOffer) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-no-offer.xml");        
+        
+        greeter.greetMe("one");
+        // greeter.greetMe("two");
+
+        // Outbound expected:
+        // CreateSequence + greetMe + CreateSequenceResponse = 3 messages
+  
+        awaitMessages(3, 6);
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        mf.verifyMessages(3, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETME_ACTION,
+                                                 RMConstants.getCreateSequenceResponseAction()};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", null}, true);
+        mf.verifyLastMessage(new boolean[] {false, false, false}, true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false}, true);
+
+        mf.verifyPartialResponses(3, new boolean[3]);
+        mf.purgePartialResponses();
+
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(),
+                                        RMConstants.getCreateSequenceAction(), 
+                                        GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, null, "1"}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true}, false);
     }
 
     // --- test utilities ---

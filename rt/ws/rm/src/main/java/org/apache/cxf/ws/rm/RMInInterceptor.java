@@ -81,6 +81,20 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         // Destination destination = getManager().getDestination(message);
         // RMEndpoint rme = getManager().getReliableEndpoint(message);
         // Servant servant = new Servant(rme);
+        
+        boolean isServer = RMContextUtils.isServerSide(message);
+        LOG.fine("isServerSide: " + isServer);
+        
+        if (RMConstants.getCreateSequenceAction().equals(action) && !isServer) {
+            LOG.fine("Processing inbound CreateSequence on client side.");
+            RMEndpoint rme = getManager().getReliableEndpoint(message);
+            Servant servant = rme.getServant();
+            CreateSequenceResponseType csr = servant.createSequence(message);
+            Proxy proxy = rme.getProxy();
+            proxy.createSequenceResponse(csr);
+            return;
+        }
+
 
         if (RMConstants.getCreateSequenceAction().equals(action)
             || RMConstants.getCreateSequenceResponseAction().equals(action)

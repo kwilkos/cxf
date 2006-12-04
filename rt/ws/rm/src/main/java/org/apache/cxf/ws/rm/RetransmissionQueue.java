@@ -27,7 +27,7 @@ public interface RetransmissionQueue {
     
     
     String DEFAULT_BASE_RETRANSMISSION_INTERVAL = "3000";
-    String DEFAULT_EXPONENTIAL_BACKOFF = "2";
+    int DEFAULT_EXPONENTIAL_BACKOFF = 2;
     
     /**
      * @param seq the sequence under consideration
