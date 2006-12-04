@@ -22,7 +22,7 @@
     <artifactId>cxf-common-utilities</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Common Utilities</name>
+    <name>Apache CXF Common Utilities</name>
     <url>http://cxf.apache.org/</url>
 
     <parent>

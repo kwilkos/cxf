@@ -22,7 +22,7 @@
     <artifactId>cxf-integration</artifactId>
     <packaging>pom</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Integration</name>
+    <name>Apache CXF Integration</name>
     <url>http://cxf.apache.org/</url>
 
     <parent>

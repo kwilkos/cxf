@@ -21,7 +21,7 @@ rem
 rem
 
 rem 
-rem  invoke the CXF xsd2wsdl tool
+rem  invoke the Apache CXF xsd2wsdl tool
 rem 
 @setlocal
 

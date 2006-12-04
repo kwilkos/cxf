@@ -22,7 +22,7 @@
     <artifactId>cxf-tools-xjc-cfg-test</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF XJC Configurable Beans Plugin Tests</name>
+    <name>Apache CXF XJC Configurable Beans Plugin Tests</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

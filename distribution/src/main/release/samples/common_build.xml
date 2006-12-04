@@ -242,7 +242,7 @@
 	<fail unless="env.CATALINA_HOME" message="You should set the CATALINA_HOME, if you want to deploy into tomcat"/>
 	
 	<available property="cxf.jars.present.in.tomcat" file="${env.CATALINA_HOME}/shared/lib/cxf-incubator.jar" type="file"/>
-	<fail unless="cxf.jars.present.in.tomcat" message="In order to run CXF service under TOMCAT, 
+	<fail unless="cxf.jars.present.in.tomcat" message="In order to run Apache CXF service under TOMCAT, 
 							   you MUST copy jars under ${cxf.home}/lib/ into ${env.CATALINA_HOME}/shared/lib/ first"/>
 	
 	<available property="cxf.jbi.present" classname="org.apache.cxf.jbi.transport.JBIConduit">
@@ -252,7 +252,7 @@
 		</fileset>
 	    </classpath>
 	</available>
-	<fail if="cxf.jbi.present" message="JBI API is not shipped with CXF, so you should remove all jars start with the cxf-integration-jbi from ${env.CATALINA_HOME}/shared/lib"/>
+	<fail if="cxf.jbi.present" message="JBI API is not shipped with Apache CXF, so you should remove all jars start with the cxf-integration-jbi from ${env.CATALINA_HOME}/shared/lib"/>
     </target>
 
 </project>

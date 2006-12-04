@@ -1,7 +1,7 @@
 WS-Addressing Demo
 ==================
 
-This demo shows how WS-Addressing support in CXF may be enabled.  
+This demo shows how WS-Addressing support in Apache CXF may be enabled.  
 
 The client and server both use interceptor configuration to install the
 WS-Addressing interceptor, comprising a logical interceptor (MAPAggregator)

@@ -21,7 +21,7 @@ rem
 rem
 
 rem 
-rem  invoke the CXF wsdl2soap tool
+rem  invoke the Apache CXF wsdl2soap tool
 rem 
 @setlocal
 

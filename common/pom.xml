@@ -22,7 +22,7 @@
     <artifactId>cxf-common</artifactId>
     <packaging>pom</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Common</name>
+    <name>Apache CXF Common</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

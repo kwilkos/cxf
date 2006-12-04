@@ -22,7 +22,7 @@
     <artifactId>cxf-rt-transports-jms</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Runtime JMS Transport</name>
+    <name>Apache CXF Runtime JMS Transport</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

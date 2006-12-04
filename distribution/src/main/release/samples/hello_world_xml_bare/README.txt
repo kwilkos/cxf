@@ -1,7 +1,7 @@
 Hello World Demo using BARE Style in XML Binding
 =============================================
 
-This demo illustrates the use of CXF's xml binding. This 
+This demo illustrates the use of Apache CXF's xml binding. This 
 specific demo shows you how xml binding works with the 
 doc-lit bare style
 

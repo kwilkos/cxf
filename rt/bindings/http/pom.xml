@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-bindings-http</artifactId>
     <packaging>jar</packaging>
-    <name>CXF Runtime HTTP Binding</name>
+    <name>Apache CXF Runtime HTTP Binding</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

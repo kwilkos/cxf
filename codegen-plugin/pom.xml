@@ -22,7 +22,7 @@
     <artifactId>cxf-codegen-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Code Generation Maven 2 Plugins</name>
+    <name>Apache CXF Code Generation Maven 2 Plugins</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
 

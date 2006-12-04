@@ -18,7 +18,7 @@
 #    under the License.
 #
 #!/bin/sh
-# run the CXF wsdl2xml tool 
+# run the Apache CXF wsdl2xml tool 
 #
 
 me=`basename $0`

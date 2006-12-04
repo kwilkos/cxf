@@ -22,7 +22,7 @@
     <artifactId>cxf-testutils</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Test Utilities</name>
+    <name>Apache CXF Test Utilities</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

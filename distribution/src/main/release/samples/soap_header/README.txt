@@ -1,10 +1,10 @@
 SOAP Headers
 ============
 
-This demo illustrates Apache CxF's support for SOAP headers.  In the
+This demo illustrates Apache CXF's support for SOAP headers.  In the
 WSDL file, the SOAP header is included as an additional part within
 the message and binding definitions.  Using this approach to defining a
-SOAP header, CXF treats the header content as another parameter
+SOAP header, Apache CXF treats the header content as another parameter
 to the operation.  Consequently, the header content is simply
 manipulated within the method body.
 

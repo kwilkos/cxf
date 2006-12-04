@@ -22,7 +22,7 @@
     <artifactId>cxf-tools-misctools</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Command Line Misctools</name>
+    <name>Apache CXF Command Line Misctools</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

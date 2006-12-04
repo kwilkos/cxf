@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cxf-rt-ws-rm</artifactId>
     <packaging>jar</packaging>
-    <name>CXF Runtime WS Reliable Messaging</name>
+    <name>Apache CXF Runtime WS Reliable Messaging</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

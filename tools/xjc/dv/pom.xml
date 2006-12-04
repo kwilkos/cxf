@@ -22,7 +22,7 @@
     <artifactId>cxf-tools-xjc-dv</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF XJC Default Value Plugin</name>
+    <name>Apache CXF XJC Default Value Plugin</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

@@ -22,7 +22,7 @@
     <artifactId>cxf-rt-transports-http</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Runtime HTTP transport</name>
+    <name>Apache CXF Runtime HTTP transport</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

@@ -22,7 +22,7 @@
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf</artifactId>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF</name>
+    <name>Apache CXF</name>
     <url>http://cwiki.apache.org/confluence/display/CXF</url>
 
     <packaging>pom</packaging>
@@ -57,35 +57,35 @@
     <inceptionYear>2006</inceptionYear>
     <mailingLists>
         <mailingList>
-            <name>CXF User List</name>
+            <name>Apache CXF User List</name>
             <subscribe>cxf-user-subscribe@incubator.apache.org</subscribe>
             <unsubscribe>cxf-user-unsubscribe@incubator.apache.org</unsubscribe>
             <post>cxf-user@incubator.apache.org</post>
             <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-user</archive>
         </mailingList>
         <mailingList>
-            <name>CXF Developer List</name>
+            <name>Apache CXF Developer List</name>
             <subscribe>cxf-dev-subscribe@incubator.apache.org</subscribe>
             <unsubscribe>cxf-dev-unsubscribe@incubator.apache.org</unsubscribe>
             <post>cxf-dev@incubator.apache.org</post>
             <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-dev</archive>
         </mailingList>
         <mailingList>
-            <name>CXF Commits List</name>
+            <name>Apache CXF Commits List</name>
             <subscribe>cxf-commits-subscribe@incubator.apache.org</subscribe>
             <unsubscribe>cxf-commits-unsubscribe@incubator.apache.org</unsubscribe>
             <post>cxf-commits@incubator.apache.org</post>
             <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-commits</archive>
         </mailingList>
         <mailingList>
-            <name>CXF Issues List</name>
+            <name>Apache CXF Issues List</name>
             <subscribe>cxf-issues-subscribe@incubator.apache.org</subscribe>
             <unsubscribe>cxf-issues-unsubscribe@incubator.apache.org</unsubscribe>
             <post>cxf-issues@incubator.apache.org</post>
             <archive>http://mail-archives.apache.org/mod_mbox/incubator-cxf-issues</archive>
         </mailingList>
         <mailingList>
-            <name>CXF Build Notifications List</name>
+            <name>Apache CXF Build Notifications List</name>
             <subscribe>cxf-notifications-subscribe@incubator.apache.org</subscribe>
             <unsubscribe>cxf-notifications-unsubscribe@incubator.apache.org</unsubscribe>
             <post>cxf-notifications@incubator.apache.org</post>

@@ -22,7 +22,7 @@
     <artifactId>cxf-tools-wsdl2java</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>CXF Command Line Tools Wsdl2java</name>
+    <name>Apache CXF Command Line Tools Wsdl2java</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>

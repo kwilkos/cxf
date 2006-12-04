@@ -1,7 +1,7 @@
 WS-RM Demo
 ==========
 
-This demo shows how WS-ReliableMessaging support in CXF may be enabled.  
+This demo shows how WS-ReliableMessaging support in Apache CXF may be enabled.  
 
 The client and server both use interceptor configuration to install the
 WS-RM interceptors, comprising logical interceptors (RMInInterceptor/RMOutInterceptor)

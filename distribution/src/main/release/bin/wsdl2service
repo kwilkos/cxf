@@ -19,7 +19,7 @@
 #
 #
 #!/bin/sh
-# run the CXF wsdl2service tool 
+# run the Apache CXF wsdl2service tool 
 #
 
 me=`basename $0`

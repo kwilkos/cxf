@@ -20,7 +20,7 @@ rem    under the License.
 rem
 rem
 
-rem  invoke the CXF wsdlvalidator tool
+rem  invoke the Apache CXF wsdlvalidator tool
 rem 
 @setlocal
 
