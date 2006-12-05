@@ -1,7 +1,7 @@
 RESTful Hello World Demo 
 ========================
 
-The demo shows REST based Web services using the XML binding and 
+The demo shows REST based Web Services using the XML binding and 
 JAX-WS Provider/Dispatch. The REST server provides the following services: 
 
 A RESTful customer service is provided on URL http://localhost:9000/customerservice/customer. 
@@ -9,7 +9,7 @@ Users access this URI to query or update customer info.
 
 A HTTP GET request to URL http://localhost:9000/customerservice/customer returns 
 a list of customer hyperlinks. This allows client navigates through the 
-application states. The returned XML document:
+application states. The XML document returned:
 
 <Customers>
   <Customer href="http://localhost/customerservice/customer?id=1234">
@@ -24,7 +24,7 @@ application states. The returned XML document:
 </Customers>
 
 A HTTP GET request to URL http://localhost:9000/customerservice/customer?id=1234 
-returns a customer instance whose id is 1234. The returned XML document:
+returns a customer instance whose id is 1234. The XML document returned:
 
 <Customer>
   <id>1234</id>
@@ -43,8 +43,10 @@ with the data:
 
 updates customer 1234 with the data provided. 
 
-The client code demonstrate how to send HTTP POST with XML data using 
-JAX-WS Dispatch and how to send HTTP GET using URL.openStream().
+The client code demonstrates how to send HTTP POST with XML data using 
+JAX-WS Dispatch and how to send HTTP GET using URL.openStream(). The 
+server code demonstrates how to build a RESTful endpoints through 
+JAX-WS Provider interface.
 
 
 Please review the README in the samples directory before
