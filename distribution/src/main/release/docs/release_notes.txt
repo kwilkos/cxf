@@ -21,7 +21,7 @@ of both the Celtix project and the Xfire project:
     * Complete tooling support, including wsdl2java and java2wsdl, plus a
       bunch of other convenient tools
     * RESTful web service support
-    * JBI container support, Apace CXF services can be deployed into any JBI
+    * JBI container support, Apache CXF services can be deployed into any JBI
       compliant container (ServiceMix or OpenESB)
     * JCA 1.0 support, J2EE application can integrate with legacy application
       through JCA 1.0 support in Apache CXF

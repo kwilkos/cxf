@@ -71,6 +71,11 @@ public final class ValidatorUtil {
         if (document == null) {
             return schemaList;
         }
+        //
+        // If we are on windows we may have spaces in the uri
+        // which need to be escaped.
+        //
+        baseURI = baseURI.replaceAll(" ", "%20");
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         NodeList nodes = document.getElementsByTagNameNS(
             WSDLConstants.NS_XMLNS, "schema");
@@ -130,12 +135,15 @@ public final class ValidatorUtil {
         }
         
         NodeList nodes = document.getElementsByTagNameNS(WSDLConstants.NS_WSDL, "import");
-        // Remove the scheme part of a URI.
+        //
+        // Remove the scheme part of a URI - need to escape spaces in
+        // case we are on Windows and have spaces in directory names.
+        //
         String myBasePath = basePath;
         try {
-            myBasePath = new URI(basePath).getPath();
+            myBasePath = new URI(basePath.replaceAll(" ", "%20")).getPath();
         } catch (java.net.URISyntaxException e1) {
-            // Is this ok?
+            // This will be problematic...
         }
         for (int x = 0; x < nodes.getLength(); x++) {
             NamedNodeMap attributes = nodes.item(x).getAttributes();

@@ -1,5 +1,5 @@
 Hello World SOAP12 Demo using Document/Literal Style
-=============================================
+====================================================
 
 This demo shows the use of Apache CXF's SOAP 1.2 capabilities.
 
@@ -170,4 +170,4 @@ you can use
    ant client.get 
 
 to invoke the service with simple HttpURLConnection, or you can even
-use your favoriate browser to get the results back.
+use your favorite browser to get the results back.

@@ -96,7 +96,12 @@ public class WSDLElementReferenceValidator {
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
             factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
-            File file = new File(new URI(wsdlId));
+
+            //
+            // If the wsdl is in a directory with spaces (Windows), we need
+            // to escape those characters to avoid a URISyntaxException.
+            //
+            File file = new File(new URI(wsdlId.replaceAll(" ", "%20")));
             reader = factory.createXMLEventReader(new FileReader(file));
         } catch (XMLStreamException streamEx) {
             throw new ToolException(streamEx);
