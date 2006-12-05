@@ -41,7 +41,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor {
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageOutInterceptor.class);
-    
+
     public XMLMessageOutInterceptor() {
         super();
         setPhase(Phase.MARSHAL);
@@ -91,7 +91,10 @@ public class XMLMessageOutInterceptor extends AbstractOutDatabindingInterceptor 
     private void writeMessage(Message message, QName name, boolean executeBare) {
         XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
         try {
-            StaxUtils.writeStartElement(xmlWriter, "", name.getLocalPart(), name.getNamespaceURI());
+            StaxUtils.writeStartElement(xmlWriter,
+                                        name.getPrefix(),
+                                        name.getLocalPart(),
+                                        name.getNamespaceURI());
             if (executeBare) {
                 new BareOutInterceptor().handleMessage(message);
             }
