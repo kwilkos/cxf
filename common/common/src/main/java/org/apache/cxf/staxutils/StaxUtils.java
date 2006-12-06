@@ -224,10 +224,12 @@ public final class StaxUtils {
             prefix = "";
         }
 
-        String boundPrefix = writer.getPrefix(uri);
         boolean writeElementNS = false;
-        if (boundPrefix == null || !prefix.equals(boundPrefix)) {
-            writeElementNS = true;
+        if (uri != null) {
+            String boundPrefix = writer.getPrefix(uri);
+            if (boundPrefix == null || !prefix.equals(boundPrefix)) {
+                writeElementNS = true;
+            }
         }
 
         // Write out the element name
