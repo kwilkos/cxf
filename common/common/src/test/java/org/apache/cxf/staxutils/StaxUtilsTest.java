@@ -62,17 +62,22 @@ public class StaxUtilsTest extends TestCase {
         baos.flush();
            
         // write output to a string
-        String output = baos.toString();
+        String output = baos.toString();       
         
         // re-read the input xml doc to a string
         InputStreamReader inputStreamReader = new InputStreamReader(getTestStream(soapMessage));
         StringWriter stringWriter = new StringWriter();
         char[] buffer = new char[4096];
         int n = 0;
-        while (-1 != (n = inputStreamReader.read(buffer))) {
+        n = inputStreamReader.read(buffer);
+        while (n > 0) {
             stringWriter.write(buffer, 0 , n);
+            n = inputStreamReader.read(buffer);
         }
         String input = stringWriter.toString();
+        // seach for the first begin of "<soap:Envelope" to escape the apache licenses header
+        int beginIndex = input.indexOf("<soap:Envelope");
+        input = input.substring(beginIndex);       
         
         // compare the input and output string
         assertEquals(input, output);
