@@ -44,6 +44,7 @@ public class GreeterImpl implements Greeter {
 
     private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
     private long delay;
+    private String lastOnewayArg;
      
     public long getDelay() {
         return delay;
@@ -54,14 +55,17 @@ public class GreeterImpl implements Greeter {
     }
 
     public String greetMe(String arg0) {
-        LOG.fine("Executing operation greetMe with parameter: " + arg0);
-        String result = arg0.toUpperCase();
+        LOG.fine("Executing operation greetMe with parameter: " + arg0);        
         if (delay > 0) {
             try {
                 Thread.sleep(delay);
             } catch (InterruptedException ex) {
                 // ignore
             }
+        }
+        String result = null;
+        synchronized (this) {
+            result = null == lastOnewayArg ? arg0.toUpperCase() : lastOnewayArg;
         }
         LOG.fine("returning: " + result);
         return result;
@@ -78,6 +82,9 @@ public class GreeterImpl implements Greeter {
     }
 
     public void greetMeOneWay(String arg0) {
+        synchronized (this) {
+            lastOnewayArg = arg0;
+        }
         LOG.fine("Executing operation greetMeOneWay with parameter: " + arg0);
     }
 

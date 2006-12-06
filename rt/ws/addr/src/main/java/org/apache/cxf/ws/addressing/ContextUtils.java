@@ -360,6 +360,28 @@ public final class ContextUtils {
                     if (fullResponse != null) {
                         exchange.setOutMessage(fullResponse);
                     }
+
+                    Object obj = inMessage.get("org.apache.cxf.async.oneway.dispatch");
+                    if (obj != null && Boolean.TRUE.equals(obj)) {
+                        
+                        // pause and resume execution of chain on separate thread
+                        inMessage.getInterceptorChain().pause();
+
+                        LOG.info("Resuming execution of interceptor chain on separate thread");
+                        
+                        final class FullResponseThread extends Thread {
+                            Message msg;
+                            FullResponseThread(Message m) {
+                                msg = m;
+                            }
+                            public void run() {
+                                msg.getInterceptorChain().resume();
+                            }
+                        }
+    
+                        Thread t = new FullResponseThread(inMessage);
+                        t.start();
+                    }
                 }
             } catch (Exception e) {
                 LOG.log(Level.WARNING, "SERVER_TRANSPORT_REBASE_FAILURE_MSG", e);
