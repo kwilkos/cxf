@@ -77,8 +77,9 @@ public class StaxUtilsTest extends TestCase {
         String input = stringWriter.toString();
         // seach for the first begin of "<soap:Envelope" to escape the apache licenses header
         int beginIndex = input.indexOf("<soap:Envelope");
-        input = input.substring(beginIndex);       
-        
+        input = input.substring(beginIndex);
+        output = output.replaceAll("\r\n", "\n");
+        input = input.replaceAll("\r\n", "\n");
         // compare the input and output string
         assertEquals(input, output);
     }
