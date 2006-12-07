@@ -35,72 +35,21 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
-import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.EndpointInvocationHandler;
-import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
-import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.mime.TestMtom;
-import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
-import org.apache.cxf.transport.ChainInitiationObserver;
-import org.apache.cxf.transport.MessageObserver;
 
 public class ClientMtomXopTest extends ClientServerTestBase {
 
     public static final QName MTOM_PORT = new QName("http://cxf.apache.org/mime", "TestMtomPort");
     public static final QName MTOM_SERVICE = new QName("http://cxf.apache.org/mime", "TestMtomService");
-
-    public static class Server extends TestServerBase {
-
-        protected void run() {
-            Object implementor = new TestMtomImpl();
-            String address = "http://localhost:9036/mime-test";
-            try {
-                Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
-                JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(implementor.getClass());
-                AbstractServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-                serviceFactory.setBus(bus);
-                Service service = serviceFactory.create();
-                QName endpointName = implInfo.getEndpointName();
-                EndpointInfo ei = service.getServiceInfo().getEndpoint(endpointName);
-                service.setInvoker(new JAXWSMethodInvoker(implementor));
-                org.apache.cxf.endpoint.EndpointImpl endpoint = new JaxWsEndpointImpl(bus, service, ei);
-                SOAPBinding jaxWsSoapBinding = new SOAPBindingImpl(ei.getBinding()); 
-                jaxWsSoapBinding.setMTOMEnabled(true);
-
-                endpoint.getInInterceptors().add(new TestMultipartMessageInterceptor());
-                endpoint.getOutInterceptors().add(new TestAttachmentOutInterceptor());
-                
-                endpoint.getEndpointInfo().setAddress(address);
-                MessageObserver observer = new ChainInitiationObserver(endpoint, bus);
-                ServerImpl server = new ServerImpl(bus, endpoint, observer);
-                server.start();
-            } catch (Exception e) {
-                Thread.currentThread().interrupt();
-            }            
-        }
-
-        public static void main(String args[]) {
-            try {
-                Server s = new Server();
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally {
-                System.out.println("done!");
-            }
-        }
-    }
 
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(ClientMtomXopTest.class);

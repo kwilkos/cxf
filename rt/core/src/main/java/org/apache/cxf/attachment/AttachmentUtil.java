@@ -41,7 +41,7 @@ public final class AttachmentUtil {
      */
     public static String createContentID(String ns) throws UnsupportedEncodingException {
         // tend to change
-        String cid = "cxf.apache.org";
+        String cid = "http://cxf.apache.org/";
         String name = UUID.randomUUID() + "@";
         if (ns != null && (ns.length() > 0)) {
             try {
@@ -55,7 +55,7 @@ public final class AttachmentUtil {
                 cid = URLEncoder.encode(ns, "UTF-8");
             }
         }
-        return name + cid;
+        return URLEncoder.encode(name + cid, "UTF-8");
     }
 
     public static String getUniqueBoundaryValue(int part) {

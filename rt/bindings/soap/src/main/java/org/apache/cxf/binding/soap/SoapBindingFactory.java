@@ -34,8 +34,8 @@ import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
 import javax.xml.namespace.QName;
 
-
 import org.apache.cxf.Bus;
+
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -47,6 +47,7 @@ import org.apache.cxf.binding.soap.interceptor.Soap11FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapInPostInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
@@ -149,6 +150,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());        
         
+        sb.getOutInterceptors().add(new SoapActionInterceptor());
         sb.getOutInterceptors().add(new AttachmentOutInterceptor());
         
         sb.getOutInterceptors().add(new StaxOutInterceptor());
@@ -184,11 +186,8 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         return sb;
     }
 
-    public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding) {
-        String ns = ((ExtensibilityElement) binding.getExtensibilityElements().get(0)).getElementType()
-                        .getNamespaceURI();
+    public BindingInfo createBindingInfo(ServiceInfo service, javax.wsdl.Binding binding, String ns) {
         SoapBindingInfo bi = new SoapBindingInfo(service, ns);
-
         // Copy all the extensors
         initializeBindingInfo(service, binding, bi);
 

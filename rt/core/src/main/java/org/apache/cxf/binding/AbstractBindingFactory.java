@@ -74,11 +74,9 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
      * @param binding
      * @return
      */
-    public BindingInfo createBindingInfo(ServiceInfo service, Binding binding) {
+    public BindingInfo createBindingInfo(ServiceInfo service, Binding binding, String ns) {
 
-        String namespace = ((ExtensibilityElement)binding.getExtensibilityElements().get(0))
-            .getElementType().getNamespaceURI();
-        BindingInfo bi = createBindingInfo(service, namespace);
+        BindingInfo bi = createBindingInfo(service, ns);
         
         return initializeBindingInfo(service, binding, bi);
     }
@@ -96,7 +94,8 @@ public abstract class AbstractBindingFactory implements BindingFactory, WSDLBind
             if (bop.getBindingOutput() != null) {
                 outName = bop.getBindingOutput().getName();
             }
-            BindingOperationInfo bop2 = bi.buildOperation(new QName(service.getName().getNamespaceURI(),
+            String portTypeNs = binding.getPortType().getQName().getNamespaceURI();
+            BindingOperationInfo bop2 = bi.buildOperation(new QName(portTypeNs,
                                                                     bop.getName()), inName, outName);
             if (bop2 != null) {
 

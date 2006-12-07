@@ -34,7 +34,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
@@ -95,24 +94,16 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
     protected String addOperationNode(NSStack nsStack, Message message, XMLStreamWriter xmlWriter) 
         throws XMLStreamException {
         String responseSuffix = !isRequestor(message) ? "Response" : "";
-        String namespaceURI = ServiceModelUtil.getTargetNamespace(message.getExchange());
-        nsStack.add(namespaceURI);
-        String prefix = nsStack.getPrefix(namespaceURI);
-
-        String operationName = getOperationName(message) + responseSuffix;
-
-        StaxUtils.writeStartElement(xmlWriter, prefix, operationName, namespaceURI);
-        return namespaceURI;
+        BindingOperationInfo boi = message.getExchange().get(BindingOperationInfo.class);
+        String ns = boi.getName().getNamespaceURI();
+        nsStack.add(ns);
+        String prefix = nsStack.getPrefix(ns);
+        StaxUtils.writeStartElement(xmlWriter, prefix, boi.getName().getLocalPart() + responseSuffix, ns);
+        return ns;
     }
 
     protected XMLStreamWriter getXMLStreamWriter(Message message) {
         return message.getContent(XMLStreamWriter.class);
-    }
-
-    private String getOperationName(Message message) {
-        BindingOperationInfo boi = (BindingOperationInfo) message.getExchange().get(
-                        BindingOperationInfo.class);       
-        return boi.getOperationInfo().getName().getLocalPart();
     }
 
 }

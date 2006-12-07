@@ -231,7 +231,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         }
         boolean isIn = isInParam(method, i);
         boolean isOut = isOutParam(method, i);
-        
+
         if (isIn && !isOut) {
             QName name = getInPartName(o, method, i);
             MessagePartInfo part = o.getInput().getMessagePart(name);

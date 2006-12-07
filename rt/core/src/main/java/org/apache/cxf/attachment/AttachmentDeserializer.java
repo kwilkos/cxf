@@ -22,6 +22,7 @@ package org.apache.cxf.attachment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 
 import javax.activation.DataHandler;
@@ -138,7 +139,7 @@ public class AttachmentDeserializer {
         if (id != null && id.startsWith("<")) {
             id = id.substring(1, id.length() - 1);
         }
-        id = id.startsWith("cid:") ? id.substring(4) : id;
+        id = URLDecoder.decode(id.startsWith("cid:") ? id.substring(4) : id, "UTF-8");
         
         AttachmentImpl att = new AttachmentImpl(id);
         setupAttachment(att, headers);

@@ -87,12 +87,12 @@ public class WSDLServiceBuilderTest extends TestCase {
     private DestinationFactoryManager destinationFactoryManager;
 
     public void setUp() throws Exception {
-        setUpWSDL(WSDL_PATH);
+        setUpWSDL(WSDL_PATH, 0);
     }
 
 
     
-    private void setUpWSDL(String wsdl) throws Exception {
+    private void setUpWSDL(String wsdl, int serviceSeq) throws Exception {
         String wsdlUrl = getClass().getResource(wsdl).toString();
         LOG.info("the path of wsdl file is " + wsdlUrl);
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
@@ -102,10 +102,15 @@ public class WSDLServiceBuilderTest extends TestCase {
         def = wsdlReader.readWSDL(new WSDLLocatorImpl(wsdlUrl));
 
         WSDLServiceBuilder wsdlServiceBuilder = new WSDLServiceBuilder(bus);
+        int seq = 0;
         for (Service serv : CastUtils.cast(def.getServices().values(), Service.class)) {
             if (serv != null) {
                 service = serv;
-                break;
+                if (seq == serviceSeq) {
+                    break;
+                } else {
+                    seq++;
+                }
             }
         }
 
@@ -334,7 +339,7 @@ public class WSDLServiceBuilderTest extends TestCase {
     }
 
     public void testBare() throws Exception {
-        setUpWSDL(BARE_WSDL_PATH);
+        setUpWSDL(BARE_WSDL_PATH, 0);
         BindingInfo bindingInfo = null;
         bindingInfo = serviceInfo.getBindings().iterator().next();
         Collection<BindingOperationInfo> bindingOperationInfos = bindingInfo.getOperations();
@@ -382,7 +387,7 @@ public class WSDLServiceBuilderTest extends TestCase {
             fout.flush();
             fout.close();
         }
-        setUpWSDL(IMPORT_WSDL_PATH);
+        setUpWSDL(IMPORT_WSDL_PATH, 0);
         TypeInfo types = serviceInfo.getTypeInfo();
         assertNotNull(types);
         assertNotNull(types.getSchemas());
@@ -392,4 +397,29 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(schema);        
     }
 
+    
+    public void testDiffPortTypeNsImport() throws Exception {
+        setUpWSDL("/DiffPortTypeNs.wsdl", 0);        
+        doDiffPortTypeNsImport();
+        setUpWSDL("/DiffPortTypeNs.wsdl", 1);
+        doDiffPortTypeNsImport();
+    }
+    
+    private void doDiffPortTypeNsImport() {
+        if (serviceInfo.getName().getLocalPart().endsWith("Rpc")) {
+            String ns = serviceInfo.getInterface().getName().getNamespaceURI();
+            OperationInfo oi = serviceInfo.getInterface().getOperation(new QName(ns, "NewOperationRpc"));
+            assertNotNull(oi);
+            ns = oi.getInput().getName().getNamespaceURI();
+            MessagePartInfo mpi = oi.getInput().getMessagePart(new QName(ns, "NewOperationRequestRpc"));
+            assertNotNull(mpi);                    
+        } else {
+            String ns = serviceInfo.getInterface().getName().getNamespaceURI();
+            OperationInfo oi = serviceInfo.getInterface().getOperation(new QName(ns, "NewOperation"));
+            assertNotNull(oi);
+            ns = oi.getInput().getName().getNamespaceURI();
+            MessagePartInfo mpi = oi.getInput().getMessagePart(new QName(ns, "NewOperationRequest"));
+            assertNotNull(mpi);                    
+        }
+    }
 }

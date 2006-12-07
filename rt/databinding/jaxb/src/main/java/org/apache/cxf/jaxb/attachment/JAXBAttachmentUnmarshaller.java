@@ -22,6 +22,8 @@ package org.apache.cxf.jaxb.attachment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
@@ -65,13 +67,20 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     @Override
     public boolean isXOPPackage() {
-        return Boolean.TRUE.equals(message.getContextualProperty(
-            org.apache.cxf.message.Message.MTOM_ENABLED));
+        String contentType = (String) message.getContextualProperty(Message.CONTENT_TYPE);
+        if (contentType != null && contentType.contains("application/xop+xml")) {
+            return true;
+        }
+        return false;
     }
 
     private DataSource getAttachmentDataSource(String contentId) {
         if (contentId.startsWith("cid:")) {
-            contentId = contentId.substring(4);
+            try {
+                contentId = URLDecoder.decode(contentId.substring(4), "UTF-8");
+            } catch (UnsupportedEncodingException ue) {
+                contentId = contentId.substring(4);
+            }
         }
         return new LazyDataSource(contentId, message.getAttachments());
     }

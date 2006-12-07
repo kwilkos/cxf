@@ -26,5 +26,5 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public interface WSDLBindingFactory extends BindingFactory {
-    BindingInfo createBindingInfo(ServiceInfo serviceInfo, Binding binding);
+    BindingInfo createBindingInfo(ServiceInfo serviceInfo, Binding binding, String ns);
 }

@@ -50,7 +50,7 @@ import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
-import org.apache.cxf.binding.BindingFactoryManager;
+
 import org.apache.cxf.resource.XmlSchemaURIResolver;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -69,6 +69,7 @@ import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -247,20 +248,14 @@ public class WSDLServiceBuilder {
 
     public BindingInfo buildBinding(ServiceInfo service, Binding binding) {
         BindingInfo bi = null;
-        String ns = ((ExtensibilityElement)binding.getExtensibilityElements().get(0)).getElementType()
-            .getNamespaceURI();
-        try {
-            BindingFactory factory = bus.getExtension(BindingFactoryManager.class).getBindingFactory(ns);
-            if (factory instanceof WSDLBindingFactory) {
-                WSDLBindingFactory wFactory = (WSDLBindingFactory)factory;
-                bi = wFactory.createBindingInfo(service, binding);
-            }
-        } catch (BusException e) {
-            // ignore, we'll use a generic BindingInfo
+        StringBuffer ns = new StringBuffer(100);
+        BindingFactory factory = WSDLServiceUtils.getBindingFactory(binding, bus, ns);
+        if (factory instanceof WSDLBindingFactory) {
+            WSDLBindingFactory wFactory = (WSDLBindingFactory)factory;
+            bi = wFactory.createBindingInfo(service, binding, ns.toString());
         }
-
         if (bi == null) {
-            bi = new BindingInfo(service, ns);
+            bi = new BindingInfo(service, ns.toString());
             bi.setName(binding.getQName());
             copyExtensors(bi, binding.getExtensibilityElements());
 
@@ -522,7 +517,8 @@ public class WSDLServiceBuilder {
         
         List orderedParam = msg.getOrderedParts(paramOrder);
         for (Part part : cast(orderedParam, Part.class)) {
-            MessagePartInfo pi = minfo.addMessagePart(part.getName());
+            MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), 
+                    part.getName()));
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
                 pi.setElement(false);

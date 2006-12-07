@@ -50,6 +50,7 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.easymock.IMocksControl;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
 public class SoapBindingFactoryTest extends TestCase {
@@ -63,8 +64,9 @@ public class SoapBindingFactoryTest extends TestCase {
         return control.createMock(Bus.class);        
     }
     
-    private BindingFactoryManager getBindingFactoryManager(String ns) throws BusException {
+    private BindingFactoryManager getBindingFactoryManager(String ns, Bus bus) throws BusException {
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
+        bindingFactory.setBus(bus);
         BindingFactoryManager bfm = new BindingFactoryManagerImpl();
         bfm.registerBindingFactory(ns, bindingFactory);
         return bfm;
@@ -75,9 +77,10 @@ public class SoapBindingFactoryTest extends TestCase {
 
         Bus bus = getMockBus();
 
-        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP11_NAMESPACE);
+        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP11_NAMESPACE, bus);
 
-        expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
+        bus.getExtension(BindingFactoryManager.class);
+        expectLastCall().andReturn(bfm).anyTimes();
         
         DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
         expect(bus.getExtension(DestinationFactoryManager.class)).andStubReturn(dfm);
@@ -119,7 +122,7 @@ public class SoapBindingFactoryTest extends TestCase {
 
         Bus bus = getMockBus();
 
-        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP12_NAMESPACE);
+        BindingFactoryManager bfm = getBindingFactoryManager(WSDLConstants.SOAP12_NAMESPACE, bus);
 
         expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm);
         

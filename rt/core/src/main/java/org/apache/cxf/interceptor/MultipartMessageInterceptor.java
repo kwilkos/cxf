@@ -51,16 +51,19 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
             return;
         }
         
-        if (!Boolean.TRUE.equals(
-            message.getContextualProperty(org.apache.cxf.message.Message.MTOM_ENABLED))) {
-            return;
-        }
-
-        AttachmentDeserializer ad = new AttachmentDeserializer(message);
-        try {
-            ad.initializeAttachments();
-        } catch (IOException e) {
-            throw new Fault(e);
+//        if (!Boolean.TRUE.equals(
+//            message.getContextualProperty(org.apache.cxf.message.Message.MTOM_ENABLED))) {
+//            return;
+//        }
+        
+        String contentType = (String) message.get(Message.CONTENT_TYPE);
+        if (contentType != null && contentType.toLowerCase().indexOf("multipart/related") != -1) {
+            AttachmentDeserializer ad = new AttachmentDeserializer(message);
+            try {
+                ad.initializeAttachments();
+            } catch (IOException e) {
+                throw new Fault(e);
+            }
         }
     }
 
