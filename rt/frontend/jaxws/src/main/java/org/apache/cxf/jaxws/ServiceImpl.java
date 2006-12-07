@@ -40,6 +40,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.HandlerResolver;
+import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.spi.ServiceDelegate;
 
 import org.apache.cxf.Bus;
@@ -309,17 +310,16 @@ public class ServiceImpl extends ServiceDelegate {
         String transportId = df.getTransportIds().get(0);
         String bindingUri = portInfo.getBindingUri();
 
-        // TODO: Replace with discovery mechanism!!
+        // TODO: Replace with discovery mechanism, now it just the hardcode        
         AbstractBindingInfoFactoryBean bindingFactory = null;
-        if (bindingUri.equals(XMLConstants.NS_XML_FORMAT)) {
+        if (bindingUri.equals(XMLConstants.NS_XML_FORMAT) 
+            || bindingUri.equals(HTTPBinding.HTTP_BINDING)) {
             bindingFactory = new XMLBindingInfoFactoryBean();
-        } else if ("http://schemas.xmlsoap.org/soap/".equals(bindingUri)) {
+        } else { // we set the default binding to be soap binding
             JaxWsSoapBindingInfoFactoryBean soapBindingFactory = new JaxWsSoapBindingInfoFactoryBean();
             soapBindingFactory.setTransportURI(transportId);
             bindingFactory = soapBindingFactory;
-        } else {
-            bindingFactory = new XMLBindingInfoFactoryBean();
-        }
+        } 
 
         bindingFactory.setServiceFactory(serviceFactory);
 

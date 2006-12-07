@@ -55,11 +55,13 @@ public abstract class AbstractJaxWsTest extends AbstractCXFTest {
         soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
+        dfm.registerDestinationFactory("http://cxf.apache.org/transports/local", soapDF);
         
         localTransport = new LocalTransportFactory();
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/http", localTransport);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
         dfm.registerDestinationFactory("http://cxf.apache.org/bindings/xformat", localTransport);
+        dfm.registerDestinationFactory("http://cxf.apache.org/transports/local", localTransport);
 
         ConduitInitiatorManager extension = bus.getExtension(ConduitInitiatorManager.class);
         extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);

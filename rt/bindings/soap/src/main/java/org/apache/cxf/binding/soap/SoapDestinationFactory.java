@@ -62,8 +62,8 @@ public class SoapDestinationFactory extends AbstractTransportFactory implements 
         SoapBindingInfo binding = (SoapBindingInfo)ei.getBinding();
         DestinationFactory destinationFactory;
         try {
-            destinationFactory = bus.getExtension(DestinationFactoryManager.class)
-                .getDestinationFactory(binding.getTransportURI());
+            DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+            destinationFactory = dfm.getDestinationFactory(binding.getTransportURI());
 
             return destinationFactory.getDestination(ei);
         } catch (BusException e) {
