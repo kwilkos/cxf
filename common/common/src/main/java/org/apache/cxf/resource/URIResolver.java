@@ -61,7 +61,6 @@ public class URIResolver {
     public URIResolver(String baseUriStr, String uriStr, Class calling) throws IOException {
         this.calling = (calling != null) ? calling : getClass();
 
-        uriStr = uriStr.replaceAll(" ", "%20");
         if (uriStr.startsWith("classpath:")) {
             tryClasspath(uriStr);
         } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
@@ -77,7 +76,6 @@ public class URIResolver {
     public void resolve(String baseUriStr, String uriStr, Class callingCls) throws IOException {
         this.calling = (callingCls != null) ? callingCls : getClass();
 
-        uriStr = uriStr.replaceAll(" ", "%20");
         if (uriStr.startsWith("classpath:")) {
             tryClasspath(uriStr);
         } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
@@ -100,7 +98,7 @@ public class URIResolver {
             if (uriFile.exists()) {
                 relative = uriFile.toURI();
             } else {
-                relative = new URI(uriStr);
+                relative = new URI(uriStr.replaceAll(" ", "%20"));
             }
             
             if (relative.isAbsolute()) {

@@ -320,7 +320,7 @@ public final class ProcessorUtil {
         // so that we can map system IDs to DOM trees.
         try {
             URL baseURL = new File(".").getCanonicalFile().toURL();
-            return new URL(baseURL, name).toExternalForm();
+            return new URL(baseURL, name.replaceAll(" ", "%20")).toExternalForm();
         } catch (IOException e) {
             // ignore
         }

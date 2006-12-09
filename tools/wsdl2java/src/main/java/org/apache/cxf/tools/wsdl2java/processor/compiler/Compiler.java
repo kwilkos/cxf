@@ -38,7 +38,17 @@ public class Compiler {
                 for (int i = sourceFileIndex; i < args.length; i++) {
                     if (args[i].indexOf(" ") > -1) {
                         args[i] = args[i].replace(File.separatorChar, '/');
-                        out.println("\"" + args[i] + "\"");
+                        //
+                        // javac gives an error if you use forward slashes
+                        // with package-info.java.  Refer to:
+                        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6198196
+                        //
+                        if (args[i].indexOf("package-info.java") > -1
+                            && System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
+                            out.println("\"" + args[i].replaceAll("/", "\\\\\\\\") + "\"");
+                        } else {
+                            out.println("\"" + args[i] + "\"");
+                        }
                     } else {
                         out.println(args[i]);
                     }

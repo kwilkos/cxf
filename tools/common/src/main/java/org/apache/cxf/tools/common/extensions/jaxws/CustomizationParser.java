@@ -193,7 +193,7 @@ public final class CustomizationParser {
             try {
                 evaluateBindingsNode(bindings, expression);
             } catch (WSDLException we) {
-                Message msg = new Message("PARSE_BININDINGFILE_EXCEPTION", LOG);
+                Message msg = new Message("PARSE_BINDINGFILE_EXCEPTION", LOG);
                 throw new ToolException(msg, we);
             }
         }
@@ -238,7 +238,7 @@ public final class CustomizationParser {
         } else if (isValidJaxbBindingFile(reader)) {
             env.addJaxbBindingFile(bindingFile, is);
         } else {
-            Message msg = new Message("UNKONW_BINDING_FILE", LOG, bindingFile);
+            Message msg = new Message("UNKNOWN_BINDING_FILE", LOG, bindingFile);
             throw new ToolException(msg);
         }
     }

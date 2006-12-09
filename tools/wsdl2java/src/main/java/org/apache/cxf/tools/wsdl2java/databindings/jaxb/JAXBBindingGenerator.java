@@ -165,9 +165,9 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
     }
   
     
-    //Jaxb's bug . Jaxb ClassNameCollecotr may not be invoked when generated class is an enum.
-    //So we need use this method to add the missed file to classCollector
-    
+    // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
+    // class is an enum.  We need to use this method to add the missed file
+    // to classCollector.
     private void addedEnumClassToCollector(List<Schema> schemaList, ClassNameAllocatorImpl allocator) {
         for (Schema schema : schemaList) {
             Element schemaElement = schema.getElement();
