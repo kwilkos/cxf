@@ -22,8 +22,7 @@
     <import file="../common_build.xml"/>        
         
     <target name="client" description="run demo client" depends="build">
-        <cxfrun classname="demo.restful.client.Client"
-            param1="${basedir}/wsdl/hello_world_xml_wrapped.wsdl"/>
+        <cxfrun classname="demo.restful.client.Client"/>
     </target> 
         
     <target name="server" description="run demo server" depends="build">

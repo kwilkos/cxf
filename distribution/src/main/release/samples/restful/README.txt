@@ -38,7 +38,7 @@ with the data:
 <Customer>
   <id>1234</id>
   <name>John</name>
-  <phoneNumber>234567</phoneNumber>
+  <phoneNumber>123456</phoneNumber>
 </Customer>
 
 updates customer 1234 with the data provided. 
@@ -140,7 +140,7 @@ For UNIX (must use forward slashes):
          demo.restful.server.Server &
 
     java -Djava.util.logging.config.file=$CXF_HOME/etc/logging.properties
-         demo.restful.client.Client ./wsdl/hello_world_xml_wrapped.wsdl
+         demo.restful.client.Client
 
 The server process starts in the background.  After running the client,
 use the kill command to terminate the server process.
@@ -151,7 +151,7 @@ For Windows (may use either forward or back slashes):
          demo.restful.server.Server
 
     java -Djava.util.logging.config.file=%CXF_HOME%\etc\logging.properties
-       demo.restful.client.Client .\wsdl\hello_world_xml_wrapped.wsdl
+       demo.restful.client.Client
 
 A new command windows opens for the server process.  After running the
 client, terminate the server process by issuing Ctrl-C in its command window.

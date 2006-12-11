@@ -53,42 +53,13 @@ public final class Client {
     }
 
     public static void main(String args[]) throws Exception {
-        if (args.length == 0) {
-            System.out.println("please specify wsdl");
-            System.exit(1);
-        }
-
-        URL wsdlURL;
-        File wsdlFile = new File(args[0]);
-        if (wsdlFile.exists()) {
-            wsdlURL = wsdlFile.toURL();
-        } else {
-            wsdlURL = new URL(args[0]);
-        }
-
-        System.out.println(wsdlURL + "\n\n");
-
         QName serviceName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                                 "cutomerservice");
         QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                              "RestProviderPort");
-
-        Cutomerservice cutomerservice = new Cutomerservice(wsdlURL, serviceName);
-
-        Client client = new Client();
-        InputStream is = client.getClass().getResourceAsStream("CustomerJohnReq.xml");
-        Document doc = XMLUtils.parse(is);
-        DOMSource reqMsg = new DOMSource(doc);
-
-        // Sent HTTP POST request to update customer info
-        Dispatch<DOMSource> disp = cutomerservice.createDispatch(portName, DOMSource.class,
-                                   Service.Mode.PAYLOAD);
-        System.out.println("Invoking server through HTTP POST to update customer info");
-        DOMSource result = disp.invoke(reqMsg);
-        printSource(result);
+        String endpointAddress = "http://localhost:9000/customerservice/customer";
 
         // Sent HTTP GET request to query all customer info
-        String endpointAddress = "http://localhost:9000/customerservice/customer";
         URL url = new URL(endpointAddress);
         System.out.println("Invoking server through HTTP GET to query all customer info");
         InputStream in = url.openStream();
@@ -96,31 +67,42 @@ public final class Client {
         printSource(source);
 
         // Sent HTTP GET request to query customer info
-        endpointAddress = "http://localhost:9000/customerservice/customer";
         url = new URL(endpointAddress + "?id=1234");
         System.out.println("Invoking server through HTTP GET to query customer info");
         in = url.openStream();
         source = new StreamSource(in);
         printSource(source);
 
-        // Use Dispatch to send GET request to query customer info
-        endpointAddress =
-            "http://localhost:9000/customerservice/customer";
-        Service service = Service.create(serviceName);
+        // Sent HTTP GET request to query customer info using JAX-WS Dispatch
         URI endpointURI = new URI(endpointAddress.toString());
         String path = null;
         if (endpointURI != null) {
             path = endpointURI.getPath();
         }
-        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress.toString());
-        Dispatch<Source> dispatch = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
-        Map<String, Object> requestContext = dispatch.getRequestContext();
+
+        Service service = Service.create(serviceName);
+        service.addPort(portName, HTTPBinding.HTTP_BINDING,  endpointAddress);
+        Dispatch<DOMSource> dispatcher = service.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
+        Map<String, Object> requestContext = dispatcher.getRequestContext();
+
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
         requestContext.put(MessageContext.QUERY_STRING, "id=1234");
         requestContext.put(MessageContext.PATH_INFO, path);
-        System.out.println("Invoking Restful GET Request with query string ");
-        Source returnSource = dispatch.invoke(null);
+        System.out.println("Invoking server through HTTP GET to query customer info using JAX-WS Dispatch");
+        DOMSource returnSource = dispatcher.invoke(null);
         printSource(returnSource);
+
+        // Sent HTTP POST request to update customer info using JAX-WS Dispatch
+        Client client = new Client();
+        InputStream is = client.getClass().getResourceAsStream("CustomerJohnReq.xml");
+        Document doc = XMLUtils.parse(is);
+        DOMSource reqMsg = new DOMSource(doc);
+
+        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "POST");
+        System.out.println("Invoking server through HTTP POST to update customer info using JAX-WS Dispatch");
+        DOMSource result = dispatcher.invoke(reqMsg);
+        printSource(result);
+
         System.out.println("Client Invoking is succeeded!");
         System.exit(0);
     }

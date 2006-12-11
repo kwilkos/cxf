@@ -35,6 +35,7 @@ import javax.xml.transform.TransformerFactory;
 
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.Dispatch;
 
 import javax.xml.ws.Service;
@@ -67,9 +68,9 @@ public class RestClientServerTest extends ClientServerTestBase {
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
         };
-    }
-
-    public void testHttpPOSTDispatch() throws Exception {
+    }    
+   
+    public void testHttpPOSTDispatchWithWSDL() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
         assertNotNull(wsdl);
 
@@ -97,7 +98,20 @@ public class RestClientServerTest extends ClientServerTestBase {
        
     }
 
-   
+    public void testHttpPOSTDispatch() throws Exception {
+        Service service = Service.create(serviceName);
+        service.addPort(portName, HTTPBinding.HTTP_BINDING,
+                        "http://localhost:9023/XMLService/RestProviderPort/Customer");
+        Dispatch<Source> dispatcher = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
+        Map<String, Object> requestContext = dispatcher.getRequestContext();
+        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "POST");
+        InputStream is = getClass().getResourceAsStream("resources/CustomerJohnReq.xml");
+        Source result = dispatcher.invoke(new StreamSource(is));
+        String tempstring = source2String(result);
+        assertTrue("Result should start with Customer", tempstring.startsWith("<ns4:Customer"));
+        assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
+    }
+    
     @SuppressWarnings("unchecked")
     public void testHttpGETDispatcher() throws Exception { 
         String endpointAddress =
