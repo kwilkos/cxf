@@ -14,7 +14,6 @@ of both the Celtix project and the Xfire project:
     * StAX-based XML streaming
     * WS-Addressing support
     * WS-Reliable Messaging support
-    * JCA 1.0 Support
     * Spring support, including spring-based configuration and spring-based
       lightweight container
     * Servlet container support
