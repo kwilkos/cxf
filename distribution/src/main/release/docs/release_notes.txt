@@ -7,7 +7,8 @@ project (http://celtix.objectweb.org) and the Xfire project
 (http://xfire.codehaus.org).  This release includes all major features
 of both the Celtix project and the Xfire project:
 
-    * JAX-WS 2.0 implementation
+    * JAX-WS 2.0 API's - Apache CXF uses/implements the JAX-WS API's but makes no 
+      representation that this release is JAX-WS compliant.
     * Transports: HTTP 1.1, HTTPS, and JMS
     * Full SOAP 1.1 and SOAP 1.2 implementation, with MTOM/XOP support
     * JAXB 2.0 databinding support
@@ -137,7 +138,8 @@ Release Notes - Apache CXF - Version 2.0-M1 (incubating)
     * [CXF-187] - Provide Eclipse plugin from CXF to faciliate STP Integration
 
 6.3 New Features
-    * [CXF-2] - Complete JAX-WS frontend
+    * [CXF-2] - Complete JAX-WS frontend - Apache CXF uses/implements the JAX-WS API's but makes no 
+                representation that this release is JAX-WS compliant.
     * [CXF-15] - JCA supportting
     * [CXF-83] - Support the injection of WebServiceContext
     * [CXF-104] - Map JAX-WS properties to CXF Message properties
