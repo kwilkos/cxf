@@ -21,6 +21,7 @@ package org.apache.cxf.bus.spring;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,14 +48,25 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     
     private boolean includeDefaults;
     private String cfgFile;
+    private URL cfgFileURL;
     
     BusApplicationContext(String cf, boolean include) {
         this(cf, include, null);
+    }
+    
+    BusApplicationContext(URL url, boolean include) {
+        this(url, include, null);
     }
 
     BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
         super((String[])null, parent);
         cfgFile = cf;
+        includeDefaults = include;
+    }
+    
+    BusApplicationContext(URL url, boolean include, ApplicationContext parent) {
+        super((String[])null, parent);
+        cfgFileURL = url;
         includeDefaults = include;
     }
     
@@ -89,19 +101,29 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
             LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
         }
         
-        String cfgFileUrl = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
-        if (null != cfgFileUrl) {
+        if (null != cfgFileURL) {
+            UrlResource ur = new UrlResource(cfgFileURL);
+            if (ur.exists()) {
+                resources.add(ur);
+            } else {
+                LOG.log(Level.INFO, 
+                        new Message("USER_CFG_FILE_URL_NOT_FOUND_MSG", LOG, cfgFileURL).toString());
+            }    
+        } 
+        
+        String sysCfgFileUrl = System.getProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
+        if (null != sysCfgFileUrl) {
             try {
-                UrlResource ur = new UrlResource(cfgFileUrl);
+                UrlResource ur = new UrlResource(sysCfgFileUrl);
                 if (ur.exists()) {
                     resources.add(ur);
                 } else {
                     LOG.log(Level.INFO, 
-                            new Message("USER_CFG_FILE_URL_NOT_FOUND_MSG", LOG, cfgFileUrl).toString());
+                            new Message("USER_CFG_FILE_URL_NOT_FOUND_MSG", LOG, sysCfgFileUrl).toString());
                 }            
             } catch (MalformedURLException e) {            
                 LOG.log(Level.WARNING, 
-                        new Message("USER_CFG_FILE_URL_ERROR_MSG", LOG, cfgFileUrl).toString());
+                        new Message("USER_CFG_FILE_URL_ERROR_MSG", LOG, sysCfgFileUrl).toString());
             }
         }
         

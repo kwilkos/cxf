@@ -19,6 +19,7 @@
 
 package org.apache.cxf.bus.spring;
 
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,7 +62,7 @@ public class SpringBusFactory implements BusFactory {
     }
     
     public Bus createBus() {
-        return createBus(null);
+        return createBus((String)null);
     }
     
     public Bus createBus(String cfgFile) {
@@ -77,6 +78,31 @@ public class SpringBusFactory implements BusFactory {
         BusApplicationContext bac = null;
         try {      
             bac = new BusApplicationContext(cfgFile, includeDefaults, context);           
+        } catch (BeansException ex) {
+            LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
+        }
+        
+        bac.refresh();
+        Bus bus = (Bus)bac.getBean(DEFAULT_BUS_ID);
+       
+        Configurer configurer = new ConfigurerImpl(bac);
+        bus.setExtension(configurer, Configurer.class);
+
+        return bus;
+    }
+    
+    public Bus createBus(URL url) {
+        boolean includeDefaults = true;
+        if (context != null) {
+            includeDefaults = !context.containsBean("cxf");
+        }
+        return createBus(url, includeDefaults);
+    }
+    
+    public Bus createBus(URL url, boolean includeDefaults) {
+        BusApplicationContext bac = null;
+        try {      
+            bac = new BusApplicationContext(url, includeDefaults, context);           
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
         }

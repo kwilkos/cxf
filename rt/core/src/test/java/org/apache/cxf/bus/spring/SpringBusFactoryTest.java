@@ -79,12 +79,18 @@ public class SpringBusFactoryTest extends TestCase {
         checkCustomerConfiguration(bus);
     }
     
-    public void testCustomFileURL() {
+    public void testCustomFileURLFromSystemProperty() {
         URL cfgFileURL = this.getClass().getResource("resources/bus-overwrite.xml");        
         System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_URL, cfgFileURL.toString());
-        Bus bus = new SpringBusFactory().createBus(null, true);
+        Bus bus = new SpringBusFactory().createBus((String)null, true);
         checkCustomerConfiguration(bus);
         System.clearProperty(Configurer.USER_CFG_FILE_PROPERTY_URL);
+    }
+    
+    public void testCustomFileURL() {
+        URL cfgFileURL = this.getClass().getResource("resources/bus-overwrite.xml");
+        Bus bus = new SpringBusFactory().createBus(cfgFileURL, true);
+        checkCustomerConfiguration(bus);
     }
     
     private void checkCustomerConfiguration(Bus bus) {
