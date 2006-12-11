@@ -20,7 +20,6 @@
 package demo.restful.client;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -43,9 +42,6 @@ import javax.xml.ws.http.HTTPBinding;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.helpers.XMLUtils;
-
-import org.apache.hello_world_xml_http.wrapped.Cutomerservice;
-
 
 public final class Client {
 
@@ -82,13 +78,14 @@ public final class Client {
 
         Service service = Service.create(serviceName);
         service.addPort(portName, HTTPBinding.HTTP_BINDING,  endpointAddress);
-        Dispatch<DOMSource> dispatcher = service.createDispatch(portName, DOMSource.class, Service.Mode.PAYLOAD);
+        Dispatch<DOMSource> dispatcher = service.createDispatch(portName, 
+                                                                DOMSource.class, Service.Mode.PAYLOAD);
         Map<String, Object> requestContext = dispatcher.getRequestContext();
 
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
         requestContext.put(MessageContext.QUERY_STRING, "id=1234");
         requestContext.put(MessageContext.PATH_INFO, path);
-        System.out.println("Invoking server through HTTP GET to query customer info using JAX-WS Dispatch");
+        System.out.println("Invoking through HTTP GET to query customer using JAX-WS Dispatch");
         DOMSource returnSource = dispatcher.invoke(null);
         printSource(returnSource);
 
@@ -99,7 +96,7 @@ public final class Client {
         DOMSource reqMsg = new DOMSource(doc);
 
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "POST");
-        System.out.println("Invoking server through HTTP POST to update customer info using JAX-WS Dispatch");
+        System.out.println("Invoking through HTTP POST to update customer using JAX-WS Dispatch");
         DOMSource result = dispatcher.invoke(reqMsg);
         printSource(result);
 
