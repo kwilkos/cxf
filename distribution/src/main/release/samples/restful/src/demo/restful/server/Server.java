@@ -20,14 +20,15 @@
 package demo.restful.server;
 
 import javax.xml.ws.Endpoint;
+import javax.xml.ws.http.HTTPBinding;
 
 public class Server {
 
     protected Server() throws Exception {
         System.out.println("Starting Server");
-        Object implementor = new RestSourcePayloadProvider();
+        Endpoint e = Endpoint.create(HTTPBinding.HTTP_BINDING, new RestSourcePayloadProvider());
         String address = "http://localhost:9000/customerservice/customer";
-        Endpoint.publish(address, implementor);
+        e.publish(address);
     }
 
     public static void main(String args[]) throws Exception {

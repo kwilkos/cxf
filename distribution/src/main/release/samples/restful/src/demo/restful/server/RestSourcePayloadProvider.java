@@ -38,7 +38,6 @@ import org.apache.cxf.message.Message;
 
 @WebServiceProvider()
 @ServiceMode(value = Service.Mode.PAYLOAD)
-@javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
 public class RestSourcePayloadProvider implements Provider<DOMSource> {
 
     @Resource

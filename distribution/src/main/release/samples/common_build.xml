@@ -37,8 +37,8 @@
     <property name="srcbuild.classpath" value=""/>
 
     <uptodate property="codegen.notrequired" value="true">
-        <srcfiles dir="${wsdl.dir}" includes="**/*.wsdl"/>
-        <srcfiles dir="${wsdl.dir}" includes="**/*.xsd"/>
+        <srcfiles dir="${basedir}" includes="wsdl/**/*.wsdl"/>
+        <srcfiles dir="${basedir}" includes="wsdl/**/*.xsd"/>
         <mapper type="merge" to="${codegen.timestamp.file}"/>
     </uptodate>
 
@@ -89,6 +89,9 @@
     </target>
 
     <target name="compile" depends="maybe.generate.code">
+            <mkdir dir="${build.classes.dir}"/>
+            <mkdir dir="${build.src.dir}"/>
+
         <javac destdir="${build.classes.dir}" debug="true">
             <src path="${build.src.dir}"/>
             <src path="${basedir}/src"/>

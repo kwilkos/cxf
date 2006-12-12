@@ -18,6 +18,7 @@
   under the License.
 -->
 <project name="RESTful demo" default="build" basedir=".">
+    <property name="codegen.notrequired" value="true"/>
 
     <import file="../common_build.xml"/>        
         
@@ -27,11 +28,6 @@
         
     <target name="server" description="run demo server" depends="build">
         <cxfrun classname="demo.restful.server.Server"/>
-    </target>
-        
-    <target name="generate.code">
-        <echo level="info" message="Generating code using wsdl2java..."/>
-        <wsdl2java file="hello_world_xml_wrapped.wsdl"/>
     </target>
 
 </project>

@@ -1,7 +1,7 @@
 RESTful Hello World Demo 
 ========================
 
-The demo shows REST based Web Services using the XML binding and 
+The demo shows REST based Web Services using the HTTP binding and 
 JAX-WS Provider/Dispatch. The REST server provides the following services: 
 
 A RESTful customer service is provided on URL http://localhost:9000/customerservice/customer. 
@@ -90,29 +90,20 @@ Building the demo using wsdl2java and javac
 -------------------------------------------
 
 From the samples/restful directory, first create the target
-directory build/classes and then generate code from the WSDL file.
-
-For UNIX:
-  mkdir -p build/classes
-
-  wsdl2java -d build/classes -compile ./wsdl/hello_world_xml_wrapped.wsdl
-
-For Windows:
-  mkdir build\classes
-    Must use back slashes.
-
-  wsdl2java -d build\classes -compile .\wsdl\hello_world_xml_wrapped.wsdl
-    May use either forward or back slashes.
-
-Now compile the provided client and server applications with the commands:
+directory build/classes and then compile the provided client 
+and server applications with the commands:
 
 For UNIX:  
+  mkdir -p build/classes
   
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes
   javac -d build/classes src/demo/restful/client/*.java
   javac -d build/classes src/demo/restful/server/*.java
 
 For Windows:
+  mkdir build\classes
+    Must use back slashes.
+
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes
   javac -d build\classes src\demo\restful\client\*.java
   javac -d build\classes src\demo\restful\server\*.java
