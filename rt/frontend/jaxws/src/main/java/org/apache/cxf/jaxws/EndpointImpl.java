@@ -29,6 +29,7 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
@@ -208,7 +209,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         
         // TODO: Replace with discovery mechanism!!
         AbstractBindingInfoFactoryBean bindingFactory = null;
-        if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)) {
+        if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)
+            || HTTPBinding.HTTP_BINDING.equals(bindingURI)) {
             bindingFactory = new XMLBindingInfoFactoryBean();
         } else {
             // Just assume soap otherwise...

@@ -60,7 +60,9 @@ public class RestClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                              "RestProviderPort");
 
-    
+    private final String endpointAddress =
+        "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
+   
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(RestClientServerTest.class);
         return new ClientServerSetupBase(suite) {
@@ -70,7 +72,7 @@ public class RestClientServerTest extends ClientServerTestBase {
         };
     }    
    
-    public void testHttpPOSTDispatchWithWSDL() throws Exception {
+    public void testHttpPOSTDispatchXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
         assertNotNull(wsdl);
 
@@ -91,17 +93,14 @@ public class RestClientServerTest extends ClientServerTestBase {
     }
 
     public void testHttpGET() throws Exception {
-        String endpointAddress = "http://localhost:9023/XMLService/RestProviderPort/Customer";
         URL url = new URL(endpointAddress + "?name=john&address=20");
         InputStream in = url.openStream();
-        assertNotNull(in);
-       
+        assertNotNull(in);       
     }
 
-    public void testHttpPOSTDispatch() throws Exception {
+    public void testHttpPOSTDispatchHTTPBinding() throws Exception {
         Service service = Service.create(serviceName);
-        service.addPort(portName, HTTPBinding.HTTP_BINDING,
-                        "http://localhost:9023/XMLService/RestProviderPort/Customer");
+        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress);
         Dispatch<Source> dispatcher = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
         Map<String, Object> requestContext = dispatcher.getRequestContext();
         requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "POST");
@@ -113,23 +112,19 @@ public class RestClientServerTest extends ClientServerTestBase {
     }
     
     @SuppressWarnings("unchecked")
-    public void testHttpGETDispatcher() throws Exception { 
-        String endpointAddress =
-            "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
+    public void testHttpGETDispatchHTTPBinding() throws Exception { 
         Service service = Service.create(serviceName); 
-        URI endpointURI = new URI(endpointAddress.toString());
+        URI endpointURI = new URI(endpointAddress);
         String path = null; 
-        //String query = null;
         if (endpointURI != null) { 
             path = endpointURI.getPath(); 
-            //query = endpointURI.getQuery();
         } 
-        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress.toString());
+        service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress);
         Dispatch<Source> d = service.createDispatch(portName, Source.class, Service.Mode.PAYLOAD);
         Map<String, Object> requestContext = d.getRequestContext();
         Map<String, Object> responseContext = d.getResponseContext();
         
-        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, new String("GET"));
+        requestContext.put(MessageContext.HTTP_REQUEST_METHOD, "GET");
         requestContext.put(MessageContext.QUERY_STRING, "id=1"); 
         //this is the original path part of uri 
         requestContext.put(MessageContext.PATH_INFO, path);        
