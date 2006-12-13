@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.InterceptorChain;
@@ -59,6 +60,8 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         LOG.entering(getClass().getName(), "handleMessage");
         
         RMProperties rmps = RMContextUtils.retrieveRMProperties(message, false);
+        
+        message.getExchange().put(Bus.class, getBus());
         
         final AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
         assert null != maps;

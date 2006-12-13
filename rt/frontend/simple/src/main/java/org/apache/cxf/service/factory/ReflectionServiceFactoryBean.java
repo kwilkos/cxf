@@ -60,6 +60,7 @@ import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.cxf.workqueue.SynchronousExecutor;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -128,11 +129,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         if (getExecutor() != null) {
             getService().setExecutor(getExecutor());
         } else {
-            getService().setExecutor(new Executor() {
-                public void execute(Runnable r) {
-                    r.run();
-                }
-            });
+            getService().setExecutor(SynchronousExecutor.getInstance());
         }
 
         getService().put(MethodDispatcher.class.getName(), getMethodDispatcher());

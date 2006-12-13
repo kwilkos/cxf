@@ -31,14 +31,9 @@ import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.message.Exchange;
-import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
-import org.apache.cxf.ws.addressing.ContextUtils;
 import org.apache.cxf.ws.addressing.RelatesToType;
 import org.apache.cxf.ws.addressing.VersionTransformer;
 import org.apache.cxf.ws.addressing.v200408.EndpointReferenceType;
@@ -267,44 +262,5 @@ public class RMManager extends RMManagerConfigBean {
         if (null != sourceSequences) {
             sourceSequences.remove(id.getValue());
         }
-    }
-    
-    public void testServerSideSequenceCreation(final ServerImpl server, final String address) {
-
-        Runnable r = new Runnable() {
-
-            public void run() {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-
-                Endpoint ep = server.getEndpoint();
-                org.apache.cxf.transport.Destination dest = server.getDestination();
-                Message message = new MessageImpl();
-                Exchange exchange = new ExchangeImpl();
-                exchange.setInMessage(message);
-                message.setExchange(exchange);
-                exchange.put(Endpoint.class, ep);
-                exchange.setDestination(dest);
-                AddressingProperties maps = new AddressingPropertiesImpl();
-                maps.setReplyTo(RMUtils.createReference(address));
-                maps.setTo(dest.getAddress().getAddress());
-                ContextUtils.storeMAPs(maps, message, false);
-                
-
-                try {
-                    RMManager.this.getSequence(null, message, null);
-                } catch (SequenceFault ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-
-        };
-        Thread t = new Thread(r);
-        t.start();
-    }
-
+    }  
 }

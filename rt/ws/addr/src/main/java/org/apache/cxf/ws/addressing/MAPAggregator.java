@@ -183,7 +183,7 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                     ContextUtils.rebaseResponse(maps.getReplyTo(),
                                                 maps,
                                                 message);
-                }          
+                } 
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated

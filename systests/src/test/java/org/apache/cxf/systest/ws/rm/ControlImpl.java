@@ -30,11 +30,9 @@ import javax.xml.ws.Response;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.types.StartGreeterResponse;
 import org.apache.cxf.greeter_control.types.StopGreeterResponse;
-import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.ws.rm.RMManager;
 
 
@@ -62,14 +60,6 @@ public class ControlImpl implements Control {
         String address = "http://localhost:9020/SoapContext/GreeterPort";
         endpoint = Endpoint.publish(address, implementor);
         LOG.info("Published greeter endpoint.");
-        
-        if (cfgResource.endsWith("twoway-no-offer-test.xml")) {
-            
-            final ServerImpl server = ((EndpointImpl)endpoint).getServer();
-            RMManager mgr = greeterBus.getExtension(RMManager.class);
-            mgr.testServerSideSequenceCreation(server, "http://localhost:9994/decoupled_endpoint");
-        }
-        
         return true;        
     }
 

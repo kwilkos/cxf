@@ -62,6 +62,8 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 
+import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
+
 /**
  * HTTP Conduit implementation.
  */
@@ -603,7 +605,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
             Message inMessage = new MessageImpl();
             // disposable exchange, swapped with real Exchange on correlation
             inMessage.setExchange(new ExchangeImpl());
-            inMessage.put("decoupled.channel.message", Boolean.TRUE);
+            inMessage.put(DECOUPLED_CHANNEL_MESSAGE, Boolean.TRUE);
             // REVISIT: how to get response headers?
             //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
             setHeaders(inMessage);

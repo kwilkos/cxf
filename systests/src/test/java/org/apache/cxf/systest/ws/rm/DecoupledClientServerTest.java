@@ -30,16 +30,11 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
-import org.apache.cxf.ws.addressing.MAPAggregator;
 
 
 /**
@@ -63,20 +58,6 @@ public class DecoupledClientServerTest extends ClientServerTestBase {
             LoggingOutInterceptor out = new LoggingOutInterceptor();
             bus.getOutInterceptors().add(out);
             bus.getOutFaultInterceptors().add(out);
-            
-            class RebasedResponseThreadInterceptor extends AbstractPhaseInterceptor<Message> {
-                RebasedResponseThreadInterceptor() {
-                    addBefore(MAPAggregator.class.getName());
-                    setPhase(Phase.PRE_LOGICAL);
-                }
-
-                public void handleMessage(Message message) throws Fault {
-                    message.put("org.apache.cxf.async.oneway.dispatch", Boolean.TRUE);
-                }
-                
-            }
-            
-            bus.getInInterceptors().add(new RebasedResponseThreadInterceptor());
             
             GreeterImpl implementor = new GreeterImpl();
             implementor.setDelay(8000);
@@ -115,7 +96,6 @@ public class DecoupledClientServerTest extends ClientServerTestBase {
     
     public void tearDown() {
         bus.shutdown(true);
-        System.getProperties().remove("jetty.workaround");
     }
     
     public void testDecoupled() throws Exception {
@@ -128,19 +108,6 @@ public class DecoupledClientServerTest extends ClientServerTestBase {
         LoggingOutInterceptor out = new LoggingOutInterceptor();
         bus.getOutInterceptors().add(out);
         bus.getOutFaultInterceptors().add(out);
-        
-        class RebasedResponseThreadInterceptor extends AbstractPhaseInterceptor<Message> {
-            RebasedResponseThreadInterceptor() {
-                super.addAfter(MAPAggregator.class.getName());
-            }
-
-            public void handleMessage(Message message) throws Fault {
-                message.put("org.apache.cxf.async.oneway.dispatch", Boolean.TRUE);
-            }
-            
-        }
-   
-        System.setProperty("jetty.workaround", "true");
         
         GreeterService gs = new GreeterService();
         final Greeter greeter = gs.getGreeterPort();

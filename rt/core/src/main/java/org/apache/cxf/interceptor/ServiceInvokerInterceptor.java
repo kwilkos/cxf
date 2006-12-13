@@ -50,7 +50,7 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
         final Service service = endpoint.getService();
         final Invoker invoker = service.getInvoker();        
 
-        getExecutor(endpoint).execute(new Runnable() {
+        Runnable invocation = new Runnable() {
 
             public void run() {
 
@@ -68,7 +68,16 @@ public class ServiceInvokerInterceptor extends AbstractPhaseInterceptor<Message>
                 }
             }
 
-        });
+        };
+        
+        Executor executor = getExecutor(endpoint);
+        if (exchange.get(Executor.class) == executor) {
+            // already executing on the appropriate executor
+            invocation.run();
+        } else {
+            exchange.put(Executor.class, executor);
+            executor.execute(invocation);
+        }
     }
     
     private Object getInvokee(Message message) {

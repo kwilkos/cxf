@@ -22,6 +22,7 @@ package org.apache.cxf.ws.addressing;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +34,7 @@ import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
@@ -46,7 +48,11 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.workqueue.OneShotAsyncExecutor;
+import org.apache.cxf.workqueue.SynchronousExecutor;
+import org.apache.cxf.workqueue.WorkQueueManager;
 
+import static org.apache.cxf.message.Message.ASYNC_POST_RESPONSE_DISPATCH;
 import static org.apache.cxf.message.Message.REQUESTOR_ROLE;
 
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
@@ -309,12 +315,12 @@ public final class ContextUtils {
      * Rebase response on replyTo
      * 
      * @param reference the replyTo reference
-     * @param namespaceURI determines the WS-A version
+     * @param inMAPs the inbound MAPs
      * @param inMessage the current message
      */
     public static void rebaseResponse(EndpointReferenceType reference,
                                       AddressingProperties inMAPs,
-                                      Message inMessage) {
+                                      final Message inMessage) {
         String namespaceURI = inMAPs.getNamespaceURI();
         if (!retrievePartialResponseSent(inMessage)) {
             storePartialResponseSent(inMessage);
@@ -360,27 +366,21 @@ public final class ContextUtils {
                     if (fullResponse != null) {
                         exchange.setOutMessage(fullResponse);
                     }
-
-                    Object obj = inMessage.get("org.apache.cxf.async.oneway.dispatch");
-                    if (obj != null && Boolean.TRUE.equals(obj)) {
+                    
+                    if (retrieveAsyncPostResponseDispatch(inMessage)) {
+                        // async service invocation required *after* a response
+                        // has been sent (i.e. to a oneway, or a partial response
+                        // to a decoupled twoway)
                         
-                        // pause and resume execution of chain on separate thread
+                        // pause dispatch on current thread ...
                         inMessage.getInterceptorChain().pause();
 
-                        LOG.info("Resuming execution of interceptor chain on separate thread");
-                        
-                        final class FullResponseThread extends Thread {
-                            Message msg;
-                            FullResponseThread(Message m) {
-                                msg = m;
-                            }
+                        // ... and resume on executor thread
+                        getExecutor(inMessage).execute(new Runnable() {
                             public void run() {
-                                msg.getInterceptorChain().resume();
+                                inMessage.getInterceptorChain().resume();
                             }
-                        }
-    
-                        Thread t = new FullResponseThread(inMessage);
-                        t.start();
+                        });
                     }
                 }
             } catch (Exception e) {
@@ -423,6 +423,34 @@ public final class ContextUtils {
         storeMAPs(maps, partialResponse, true, true, false);
     }
 
+    /**
+     * Get the Executor for this invocation.
+     * @param endpoint
+     * @return
+     */
+    private static Executor getExecutor(final Message message) {
+        Endpoint endpoint = message.getExchange().get(Endpoint.class);
+        Executor executor = endpoint.getService().getExecutor();
+        
+        if (executor == null || SynchronousExecutor.isA(executor)) {
+            // need true asynchrony
+            Bus bus = message.getExchange().get(Bus.class);
+            if (bus != null) {
+                WorkQueueManager workQueueManager =
+                    bus.getExtension(WorkQueueManager.class);
+                Executor autoWorkQueue =
+                    workQueueManager.getAutomaticWorkQueue();
+                executor = autoWorkQueue != null
+                           ? autoWorkQueue
+                           : OneShotAsyncExecutor.getInstance();
+            } else {
+                executor = OneShotAsyncExecutor.getInstance();
+            }
+        }
+        message.getExchange().put(Executor.class, executor);
+        return executor;
+    }
+    
     /**
      * Store bad MAP fault name in the message.
      *
@@ -490,6 +518,18 @@ public final class ContextUtils {
         return ret != null && ret.booleanValue();
     }
 
+    /**
+     * Retrieve indication that an async post-response service invocation
+     * is required.
+     * 
+     * @param message the current message
+     * @returned the retrieved indication that an async post-response service
+     * invocation is required.
+     */
+    public static boolean retrieveAsyncPostResponseDispatch(Message message) {
+        Boolean ret = (Boolean)message.get(ASYNC_POST_RESPONSE_DISPATCH);
+        return ret != null && ret.booleanValue();
+    }
     
     /**
      * Retrieve a JAXBContext for marshalling and unmarshalling JAXB generated

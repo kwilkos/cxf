@@ -287,6 +287,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 inMessage.put(Message.BASE_PATH, new URL(getAddressValue()).getPath());
             }
             inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
+            inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
             
             setHeaders(inMessage);
 

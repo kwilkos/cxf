@@ -73,8 +73,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
     private boolean doTestOnewayMessageLoss = testAll;
     private boolean doTestTwowayMessageLoss = testAll;
-    private boolean doTestServerSideSequenceCreation = testAll;
-    private boolean doTestTwowayNonAnonymousNoOffer;
+    private boolean doTestTwowayNonAnonymousNoOffer = testAll;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -597,18 +596,6 @@ public class SequenceTest extends ClientServerTestBase {
   
     }
     
-    public void testServerSideSequenceCreation() throws Exception {
-        if (!doTestServerSideSequenceCreation) {
-            return;
-        }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-no-offer-test.xml");
-
-        greeter.greetMeOneWay("one");
-        
-        awaitMessages(3, 4, 10000);          
-    }
-
-    
     public void testTwowayNonAnonymousNoOffer() throws Exception {
         if (!doTestTwowayNonAnonymousNoOffer) {
             return;
@@ -641,7 +628,7 @@ public class SequenceTest extends ClientServerTestBase {
                                         GREETME_RESPONSE_ACTION};
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, "1"}, false);
-        mf.verifyAcknowledgements(new boolean[] {false, false, true}, false);
+        mf.verifyAcknowledgements(new boolean[] {false, false, false}, false);
     }
 
     // --- test utilities ---

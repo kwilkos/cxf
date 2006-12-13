@@ -42,6 +42,8 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.staxutils.PartialXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
+import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
+
 public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = Logger.getLogger(ReadHeadersInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReadHeadersInterceptor.class);
@@ -117,7 +119,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
     }
 
     private boolean isDecoupled(SoapMessage message) {
-        Boolean decoupled = (Boolean)message.get("decoupled.channel.message");
+        Boolean decoupled = (Boolean)message.get(DECOUPLED_CHANNEL_MESSAGE);
         return decoupled != null && decoupled.booleanValue(); 
     }
 }
