@@ -37,7 +37,8 @@ public class AbstractToolContainerTest extends TestCase {
     public void testQuietMode() {
         // catch all exception in here.
         try {
-            dummyTool.setCommandLine(new String[] {"-q"});
+            dummyTool.setArguments(new String[] {"-q"});
+            dummyTool.parseCommandLine();
         } catch (Exception e) {
             // caught expected exception
         }

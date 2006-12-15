@@ -180,4 +180,15 @@ public final class ToolConstants {
     public static final String IMPORTED_SERVICE = "importedService";
     public static final String BINDING_GENERATOR = "BindingGenerator";
 
+    // Tools framework
+    public static final String FRONTEND_PLUGIN = "frontend";
+    public static final String DATABINDING_PLUGIN = "databinding";
+    
+    public static final String CFG_WSDL_VERSION = "wsdlversion";
+    
+    public enum WSDLVersion {
+        WSDL11,
+        WSDL20,
+        UNKNOWN
+    };
 }

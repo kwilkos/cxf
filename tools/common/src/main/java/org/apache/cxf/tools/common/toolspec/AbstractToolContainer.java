@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
@@ -37,12 +38,15 @@ public abstract class AbstractToolContainer implements ToolContainer {
     private static String arguments[];
 
     protected ToolSpec toolspec;
-
+    protected ToolContext context;
+    
     private boolean isQuiet;
     private CommandDocument commandDoc;
     private CommandLineParser parser;
     private OutputStream outOutputStream;
     private OutputStream errOutputStream;
+    
+    
 
     public class GenericOutputStream extends OutputStream {
         public void write(int b) throws IOException {
@@ -54,17 +58,19 @@ public abstract class AbstractToolContainer implements ToolContainer {
         toolspec = ts;
     }
 
-    public void setCommandLine(String[] args) throws BadUsageException {
+    public void setArguments(String[] args) {
         arguments = new String[args.length];
         System.arraycopy(args, 0, arguments, 0, args.length);
         setMode(args);
         if (isQuietMode()) {
             redirectOutput();
-        }
+        }        
+    }
+    
+    public void parseCommandLine() throws BadUsageException {
         if (toolspec != null) {
             parser = new CommandLineParser(toolspec);
-            commandDoc = parser.parseArguments(args);
-           
+            commandDoc = parser.parseArguments(arguments);           
         }
     }
 
@@ -128,7 +134,25 @@ public abstract class AbstractToolContainer implements ToolContainer {
     public OutputStream getErrOutputStream() {
         return errOutputStream;
     }
+    
+    public void setContext(ToolContext c) {
+        context = c;
+    }
+    
+    public ToolContext getContext() {
+        if (context == null) {
+            context = new ToolContext();
+        }
+        return context;
+    }
 
-    public abstract void execute(boolean exitOnFinish) throws ToolException;
+    public void execute(boolean exitOnFinish) throws ToolException {
+        init();
+        try {
+            parseCommandLine();
+        } catch (BadUsageException bue) {
+            throw new ToolException(bue);
+        }        
+    }
 
 }

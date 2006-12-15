@@ -28,7 +28,7 @@ public class DummyToolContainer extends AbstractToolContainer {
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {
-
+        super.execute(exitOnFinish);
     }
 
 }

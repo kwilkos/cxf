@@ -73,6 +73,14 @@ public class ToolContext {
         this.javaModel = jModel;
     }
 
+    public void addParameters(Map<String, Object> map) {
+        for (String key : map.keySet()) {
+            if (!optionSet(key)) {
+                put(key, map.get(key));
+            }
+        }
+    }
+    
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;
     }
@@ -92,6 +100,14 @@ public class ToolContext {
             return get(key);
         }
     }
+
+    public <T> T get(Class<T> key) {
+        return key.cast(get(key.getName()));
+    }
+    
+    public <T> void put(Class<T> key, T value) {
+        put(key.getName(), value);
+    } 
 
     public boolean getBooleanValue(String key, String defaultValue) {
         return Boolean.valueOf((String)get(key, defaultValue)).booleanValue();

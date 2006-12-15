@@ -107,6 +107,16 @@ public class WSDLServiceBuilder {
             }
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    public List<ServiceInfo> buildService(Definition d) {
+        List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
+        for (java.util.Iterator<QName> ite = d.getServices().keySet().iterator(); ite.hasNext();) {
+            QName qn = ite.next();            
+            serviceList.add(buildService(d, qn));
+        }
+        return serviceList;
+    }
 
     public ServiceInfo buildService(Definition d, QName name) {
         Service service = d.getService(name);

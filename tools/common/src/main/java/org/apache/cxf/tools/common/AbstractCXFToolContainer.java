@@ -60,15 +60,15 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
         return instance;
     }
     public boolean hasInfoOption() throws ToolException {
-        boolean result = false;
         commandDocument = getCommandDocument();
         if ((commandDocument.hasParameter("help")) || (commandDocument.hasParameter("version"))) {
-            result = true;
+            return true;
         }
-        return result;
+        return false;
     }
 
     public void execute(boolean exitOnFinish) throws ToolException {
+        super.execute(exitOnFinish);
         if (hasInfoOption()) {
             outputInfo();
         } else {

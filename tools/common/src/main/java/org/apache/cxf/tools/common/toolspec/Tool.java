@@ -25,8 +25,6 @@ public interface Tool {
 
     void init() throws ToolException;
 
-    void setContext(ToolContext ctx);
-
     /**
      * A tool has to be prepared to perform it's duty any number of times.
      */

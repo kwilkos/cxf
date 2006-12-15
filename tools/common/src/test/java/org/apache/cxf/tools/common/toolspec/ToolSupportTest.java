@@ -29,7 +29,6 @@ public class ToolSupportTest extends TestCase {
         
         toolSupport.performFunction();
         toolSupport.destroy();
-        assertTrue(toolSupport.getContext() == null);
     }
 
 }
