@@ -152,7 +152,7 @@
         <spring.version>2.0</spring.version>
         <wsdl4j.version>1.6.1</wsdl4j.version>
         <derby.version>10.1.1.0</derby.version>
-        <activemq.version>4.0.2</activemq.version>
+        <activemq.version>4.1.0-incubator</activemq.version>
         <geronimo.version>1.0.1</geronimo.version>
         <rhino.version>1.6R5</rhino.version>
         <xmlbeans.version>2.2.0</xmlbeans.version>
@@ -630,7 +630,7 @@
                 <version>${geronimo.version}</version>
             </dependency>
             <dependency>
-                <groupId>incubator-activemq</groupId>
+                <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
                 <version>${activemq.version}</version>
             </dependency>

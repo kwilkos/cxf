@@ -99,7 +99,7 @@
             <artifactId>geronimo-jms_1.1_spec</artifactId>
         </dependency>
         <dependency>
-            <groupId>incubator-activemq</groupId>
+            <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-core</artifactId>
             <scope>test</scope>
         </dependency>
@@ -198,8 +198,8 @@
     <repositories>
         <repository>
             <id>ActiveMQ</id>
-            <name>ActiveMQ Maven2 Temp Repository</name>
-            <url>http://people.apache.org/~chirino/incubator-activemq-4.0.2-RC6/maven2</url>
+            <name>ActiveMQ Maven2 Repository</name>
+            <url>http://people.apache.org/repo/m2-incubating-repository</url>
         </repository>
     </repositories>
 </project>
