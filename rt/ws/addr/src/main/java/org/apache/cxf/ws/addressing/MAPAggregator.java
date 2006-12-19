@@ -183,7 +183,13 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                     ContextUtils.rebaseResponse(maps.getReplyTo(),
                                                 maps,
                                                 message);
-                } 
+                }
+                if (!isOneway) {
+                    // ensure the inbound MAPs are available in both the full & fault
+                    // response messages (used to determine relatesTo etc.)
+                    ContextUtils.propogateReceivedMAPs(maps,
+                                                       message.getExchange());
+                }
             } else {
                 // validation failure => dispatch is aborted, response MAPs 
                 // must be aggregated

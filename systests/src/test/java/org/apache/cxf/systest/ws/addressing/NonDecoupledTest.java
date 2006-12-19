@@ -21,20 +21,22 @@ package org.apache.cxf.systest.ws.addressing;
 
 import junit.framework.Test;
 
+
 /**
- * Tests the addition of WS-Addressing Message Addressing Properties.
+ * Tests the addition of WS-Addressing Message Addressing Properties
+ * in the non-decoupled case.
  */
-public class MAPTest extends MAPTestBase {
+public class NonDecoupledTest extends MAPTestBase {
 
     private static final String CONFIG =
-        "org/apache/cxf/systest/ws/addressing/cxf.xml";
+        "org/apache/cxf/systest/ws/addressing/wsa_interceptors.xml";
     
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(MAPTest.class);
+        junit.textui.TestRunner.run(NonDecoupledTest.class);
     }
     
     public static Test suite() throws Exception {
-        return getSuite(MAPTest.class, CONFIG);
+        return getSuite(NonDecoupledTest.class, CONFIG);
     }
 }
 

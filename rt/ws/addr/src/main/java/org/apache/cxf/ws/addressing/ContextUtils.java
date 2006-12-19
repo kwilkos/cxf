@@ -330,11 +330,9 @@ public final class ContextUtils {
             Message partialResponse = endpoint.getBinding().createMessage();
             ensurePartialResponseMAPs(partialResponse, namespaceURI);
             
-            // ensure the inbound MAPs are available in both the full, fault
-            // and partial response messages (used to determine relatesTo etc.)
+            // ensure the inbound MAPs are available in the partial response
+            // message (used to determine relatesTo etc.)
             propogateReceivedMAPs(inMAPs, partialResponse);
-            propogateReceivedMAPs(inMAPs, fullResponse);
-            propogateReceivedMAPs(inMAPs, exchange.getOutFaultMessage());
             
             try {
                 Destination target = inMessage.getDestination();
@@ -388,7 +386,20 @@ public final class ContextUtils {
             }
         } 
     }
+
     
+    /**
+     * Propogate inbound MAPs onto full reponse & fault messages.
+     * 
+     * @param inMAPs the inbound MAPs
+     * @param exchange the current Exchange
+     */
+    public static void propogateReceivedMAPs(AddressingProperties inMAPs,
+                                              Exchange exchange) {
+        propogateReceivedMAPs(inMAPs, exchange.getOutMessage());
+        propogateReceivedMAPs(inMAPs, exchange.getOutFaultMessage());
+    }
+
     /**
      * Propogate inbound MAPs onto reponse message if applicable
      * (not applicable for oneways).
@@ -397,7 +408,7 @@ public final class ContextUtils {
      * @param responseMessage
      */
     private static void propogateReceivedMAPs(AddressingProperties inMAPs,
-                                               Message responseMessage) {
+                                             Message responseMessage) {
         if (responseMessage != null) {
             storeMAPs(inMAPs, responseMessage, false, false, false);
         }
