@@ -18,13 +18,13 @@
  */
 package org.apache.cxf.jaxws.servlet;
 
-import org.w3c.dom.Document;
+/*import org.w3c.dom.Document;
 
 import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
-import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.helpers.DOMUtils;*/
 
 public class SpringServletTest extends AbstractServletTest {
     @Override
