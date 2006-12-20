@@ -195,4 +195,11 @@ public class OperationInfo extends AbstractPropertiesHolder {
         }
         return Collections.unmodifiableCollection(faults.values());
     }
+    
+    @Override
+    public String toString() {
+        return new StringBuilder().append("[OperationInfo: ")
+            .append(opName)
+            .append("]").toString();
+    }
 }

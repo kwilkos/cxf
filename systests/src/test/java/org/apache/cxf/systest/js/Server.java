@@ -20,6 +20,7 @@
 package org.apache.cxf.systest.js;
 
 import java.io.File;
+import java.net.URLDecoder;
 
 import org.apache.cxf.js.rhino.ProviderFactory;
 import org.apache.cxf.systest.common.TestServerBase;
@@ -31,8 +32,10 @@ public class Server extends TestServerBase {
         try {            
             ProviderFactory pf = new ProviderFactory();            
             String f = getClass().getResource("resources/hello_world.js").getFile();
+            f = URLDecoder.decode(f, "UTF-8");
             pf.createAndPublish(new File(f), "http://localhost:9000/SoapContext/SoapPort", false);
             f = getClass().getResource("resources/hello_world.jsx").getFile();
+            f = URLDecoder.decode(f, "UTF-8");
             pf.createAndPublish(new File(f), "http://localhost:9100", false);
         } catch (Exception ex) {
             ex.printStackTrace();

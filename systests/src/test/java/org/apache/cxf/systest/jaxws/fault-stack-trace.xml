@@ -22,7 +22,7 @@
     xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean class="org.apache.cxf.service.factory.ServerFactoryBean" id="org.apache.cxf.service.factory.ServerFactoryBean">
+    <bean class="org.apache.cxf.frontend.ServerFactoryBean" id="org.apache.cxf.service.factory.ServerFactoryBean">
         <property name="properties">
             <map>
                 <entry key="faultStackTraceEnabled" value="true" />

@@ -30,6 +30,8 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -108,9 +110,24 @@ public class RMInInterceptor extends AbstractRMInterceptor {
             while (it.hasNext()) {
                 PhaseInterceptor pi = (PhaseInterceptor)it.next();
                 if ("org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor".equals(pi.getId())) {
-                    chain.remove(pi);
+                    it.remove();
                     LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
-                    break;
+                } else if (HolderInInterceptor.class.getName().equals(pi.getId())) {
+                    it.remove();
+                    LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
+                }
+            }
+            
+            Message m = message.getExchange().getOutMessage();
+            if (m != null) {
+                chain = m.getInterceptorChain(); 
+                it = chain.getIterator();            
+                while (it.hasNext()) {
+                    PhaseInterceptor pi = (PhaseInterceptor)it.next();
+                    if (HolderOutInterceptor.class.getName().equals(pi.getId())) {
+                        it.remove();
+                        LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
+                    }
                 }
             }
 

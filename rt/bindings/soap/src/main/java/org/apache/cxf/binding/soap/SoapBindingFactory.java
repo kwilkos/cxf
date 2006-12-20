@@ -35,7 +35,6 @@ import javax.wsdl.extensions.mime.MIMEPart;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -48,7 +47,7 @@ import org.apache.cxf.binding.soap.interceptor.Soap11FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
-import org.apache.cxf.binding.soap.interceptor.SoapInPostInterceptor;
+import org.apache.cxf.binding.soap.interceptor.SoapHeaderInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapOutInterceptor;
 import org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
@@ -149,6 +148,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new ReadHeadersInterceptor());
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());        
+        sb.getInInterceptors().add(new SoapHeaderInterceptor());
         
         sb.getOutInterceptors().add(new SoapActionInterceptor());
         sb.getOutInterceptors().add(new AttachmentOutInterceptor());
@@ -174,7 +174,6 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
                         && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
             sb.getInInterceptors().add(new BareInInterceptor());
-            sb.getInInterceptors().add(new SoapInPostInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         } else {
             sb.getInInterceptors().add(new WrappedInInterceptor());
@@ -218,7 +217,6 @@ public class SoapBindingFactory extends AbstractBindingFactory {
 
             soi.setAction(action);
             soi.setStyle(soapOp.getStyle());
-
         }
 
         boi.addExtensor(soi);
@@ -247,16 +245,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
                 MessagePartInfo part = msg.getMessagePart(new QName(msg.getName().getNamespaceURI(), header
                                 .getPart()));
                 if (part != null) {
-                    for (int i = 0; i < msg.getMessageParts().size(); i++) {
-                        if (msg.getMessagePartByIndex(i) == part) {
-                            headerInfo.setSequence(i);
-                        }
-                    }
                     headerInfo.setPart(part);
                     messageParts.remove(part);
                     bmsg.addExtensor(headerInfo);
                 }
             }
+            
             // Exclude the header parts from the message part list.
             bmsg.setMessageParts(messageParts);
         }

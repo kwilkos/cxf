@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.frontend;
 
 import java.util.Map;
 
@@ -29,6 +29,8 @@ import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.DestinationFactory;

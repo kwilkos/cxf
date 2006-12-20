@@ -27,6 +27,7 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.frontend.ClientFactoryBean;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;

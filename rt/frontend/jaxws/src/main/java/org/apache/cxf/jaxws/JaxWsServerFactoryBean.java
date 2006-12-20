@@ -18,8 +18,10 @@
  */
 package org.apache.cxf.jaxws;
 
+import org.apache.cxf.frontend.ServerFactoryBean;
+import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.service.invoker.Invoker;
 
 /**
  * Bean to help easily create Server endpoints for JAX-WS.
@@ -27,5 +29,11 @@ import org.apache.cxf.service.factory.ServerFactoryBean;
 public class JaxWsServerFactoryBean extends ServerFactoryBean {
     public JaxWsServerFactoryBean() {
         setServiceFactory(new JaxWsServiceFactoryBean());
+        setBindingFactory(new JaxWsSoapBindingInfoFactoryBean());
+    }
+
+    @Override
+    protected Invoker createInvoker() {
+        return new JAXWSMethodInvoker(getServiceBean());
     }
 }

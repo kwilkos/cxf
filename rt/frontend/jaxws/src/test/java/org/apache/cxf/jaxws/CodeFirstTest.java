@@ -32,11 +32,12 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
 
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.service.HelloInterface;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
@@ -81,7 +82,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
     }
     
     private Definition createService(boolean wrapped) throws Exception {
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         Bus bus = getBus();
         bean.setBus(bus);

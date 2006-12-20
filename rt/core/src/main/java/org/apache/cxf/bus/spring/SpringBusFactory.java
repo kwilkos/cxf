@@ -80,6 +80,7 @@ public class SpringBusFactory implements BusFactory {
             bac = new BusApplicationContext(cfgFile, includeDefaults, context);           
         } catch (BeansException ex) {
             LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
+            throw new RuntimeException(ex);
         }
         
         bac.refresh();

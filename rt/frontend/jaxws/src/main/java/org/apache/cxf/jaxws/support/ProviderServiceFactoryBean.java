@@ -72,7 +72,7 @@ public class ProviderServiceFactoryBean extends AbstractJaxWsServiceFactoryBean 
     }
 
     @Override
-    protected Endpoint createEndpoint(EndpointInfo ei) throws EndpointException  {
+    public Endpoint createEndpoint(EndpointInfo ei) throws EndpointException  {
         return new JaxWsEndpointImpl(getBus(), getService(), ei);
     }
     

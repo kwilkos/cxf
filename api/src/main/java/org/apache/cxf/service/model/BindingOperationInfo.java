@@ -126,4 +126,12 @@ public class BindingOperationInfo extends AbstractPropertiesHolder {
     public BindingOperationInfo getWrappedOperation() {
         return opHolder;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("[BindingOperationInfo: ")
+            .append(getName())
+            .append("]").toString();
+    }
+    
 }

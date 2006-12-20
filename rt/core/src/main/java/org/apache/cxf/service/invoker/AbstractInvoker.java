@@ -25,11 +25,11 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.MethodDispatcher;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 /**

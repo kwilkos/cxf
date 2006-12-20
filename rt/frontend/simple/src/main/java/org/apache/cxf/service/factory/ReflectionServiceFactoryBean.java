@@ -19,7 +19,11 @@
 
 package org.apache.cxf.service.factory;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +35,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.Holder;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,6 +45,8 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.EndpointImpl;
+import org.apache.cxf.frontend.MethodDispatcher;
+import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.MethodComparator;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.JAXBDataBinding;
@@ -81,6 +87,10 @@ import org.apache.ws.commons.schema.utils.NamespaceMap;
 public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
     public static final String GENERIC_TYPE = "generic.type";
+    public static final String MODE_OUT = "messagepart.mode.out";
+    public static final String MODE_INOUT = "messagepart.mode.inout";
+    public static final String HOLDER = "messagepart.isholder";
+    
     private static final Logger LOG = Logger.getLogger(ReflectionServiceFactoryBean.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ReflectionServiceFactoryBean.class);
     
@@ -153,7 +163,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
     }
 
-    protected Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
+    public Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
         return new EndpointImpl(getBus(), getService(), ei);
     }
 
@@ -297,7 +307,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                                        op.getName().getLocalPart() + "Response");
                 MessageInfo msg = new MessageInfo(op, name);
                 op.setOutput(uOp.getOutputName(), msg);
-                msg.addMessagePart(name);
+                MessagePartInfo part = msg.addMessagePart(name);
+                part.setIndex(-1);
             }
         } else {
             createMessageParts(intf, op, m);
@@ -404,11 +415,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
 
         for (int j = 0; j < paramClasses.length; j++) {
-            if (!isHeader(method, j) && isInParam(method, j)) {
+            if (isInParam(method, j)) {
                 final QName q = getInParameterName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q);
-                part.setTypeClass(paramClasses[j]);
-                part.setProperty(GENERIC_TYPE, method.getGenericParameterTypes()[j]);
+                initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
+                part.setIndex(j);
             }
         }
 
@@ -418,20 +429,23 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             op.setOutput(outMsg.getName().getLocalPart(), outMsg);
 
             final Class<?> returnType = method.getReturnType();
-            if (!returnType.isAssignableFrom(void.class) && !isHeader(method, -1)) {
+            if (!returnType.isAssignableFrom(void.class)) {
                 final QName q = getOutParameterName(op, method, -1);
                 MessagePartInfo part = outMsg.addMessagePart(q);
-                part.setTypeClass(method.getReturnType());
-                part.setProperty(GENERIC_TYPE, method.getGenericReturnType());
+                initializeParameter(part, method.getReturnType(), method.getGenericReturnType());
+                part.setIndex(-1);
             }
 
             for (int j = 0; j < paramClasses.length; j++) {
-                if (!paramClasses[j].equals(MessageContext.class) && !isHeader(method, j)
-                    && isOutParam(method, j)) {
+                if (isOutParam(method, j)) {
                     final QName q = getInParameterName(op, method, j);
                     MessagePartInfo part = outMsg.addMessagePart(q);
-                    part.setTypeClass(paramClasses[j]);
-                    part.setProperty(GENERIC_TYPE, method.getGenericParameterTypes()[j]);
+                    initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
+                    part.setIndex(j);
+                    
+                    if (isInParam(method, j)) {
+                        part.setProperty(MODE_INOUT, Boolean.TRUE);
+                    }
                 }
             }
         }
@@ -439,6 +453,34 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         initializeFaults(intf, op, method);
     }
 
+    // TODO: Remove reference to JAX-WS holder if possible
+    // We do need holder support in the simple frontend though as Aegis has its own
+    // holder class. I'll tackle refactoring this into a more generic way of handling
+    // holders in phase 2.
+    protected void initializeParameter(MessagePartInfo part, Class rawClass, Type type) {
+        if (rawClass.equals(Holder.class) && type instanceof ParameterizedType) {
+            ParameterizedType paramType = (ParameterizedType)type;
+            rawClass = getHolderClass(paramType);
+        }
+        part.setProperty(GENERIC_TYPE, type);
+        part.setTypeClass(rawClass);
+    }
+
+    protected Class getHolderClass(ParameterizedType paramType) {
+        Object rawType = paramType.getActualTypeArguments()[0];
+        Class rawClass;
+        if (rawType instanceof GenericArrayType) {
+            rawClass = (Class) ((GenericArrayType) rawType).getGenericComponentType();
+            rawClass = Array.newInstance(rawClass, 0).getClass();
+        } else {
+            if (rawType instanceof ParameterizedType) {
+                rawType = (Class) ((ParameterizedType) rawType).getRawType();
+            }
+            rawClass = (Class) rawType;
+        }
+        return rawClass;
+    }
+    
     protected QName getServiceQName() { 
         if (serviceName == null) {
             serviceName = new QName(getServiceNamespace(), getServiceName());
@@ -447,7 +489,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return serviceName;
     }
     
-    protected QName getEndpointName() {
+    public QName getEndpointName() {
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             QName name = c.getEndpointName();
             if (name != null) {
@@ -634,7 +676,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-    protected boolean isHeader(Method method, int j) {
+    public boolean isHeader(Method method, int j) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
             Boolean b = c.isHeader(method, j);

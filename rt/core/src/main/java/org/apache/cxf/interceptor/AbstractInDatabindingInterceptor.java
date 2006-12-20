@@ -189,6 +189,7 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
             MessagePartInfo p = (MessagePartInfo)msgInfo.getMessageParts().get(index);
             if (name.equals(p.getConcreteName())) {
                 exchange.put(BindingOperationInfo.class, boi);
+                exchange.put(OperationInfo.class, boi.getOperationInfo());
                 exchange.setOneWay(op.isOneWay());
                 return p;
             }

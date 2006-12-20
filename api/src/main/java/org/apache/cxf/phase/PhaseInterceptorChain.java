@@ -64,6 +64,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     private PhaseInterceptorIterator iterator;
     private Message pausedMessage;
     private MessageObserver faultObserver;
+    private Object pauseWaitObject = new Object();
     
     // currently one chain for one request/response, use below as signal to avoid duplicate fault processing
     // on nested calling of doIntercept(), which will throw same fault multi-times
@@ -124,6 +125,17 @@ public class PhaseInterceptorChain implements InterceptorChain {
     public void resume() {
         if (state == State.PAUSED) {
             state = State.EXECUTING;
+            
+            if (pausedMessage == null) {
+                synchronized (pauseWaitObject) {
+                    try {
+                        pauseWaitObject.wait(1000);
+                    } catch (InterruptedException e) {
+                        // do nothing
+                    }
+                }
+            }
+            
             doIntercept(pausedMessage);
         }
     }
@@ -177,6 +189,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
             state = State.COMPLETE;
         } else if (state == State.PAUSED) {
             pausedMessage = message;
+            synchronized (pauseWaitObject) {
+                pauseWaitObject.notifyAll();
+            }
         }
         return state == State.COMPLETE;
     }
@@ -271,7 +286,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
 
         for (int i = 0; i < intercs.size(); i++) {
             PhaseInterceptor cmp = (PhaseInterceptor)intercs.get(i);
-
+            
             if (cmp.getId() == null) {
                 continue;
             }
@@ -300,6 +315,40 @@ public class PhaseInterceptorChain implements InterceptorChain {
         intercs.add(begin + 1, interc);
     }
 
+    void outputChainToLog(boolean modified) {
+        if (LOG.isLoggable(Level.FINE)) {
+            StringBuilder chain = new StringBuilder();
+            
+            if (modified) {
+                chain.append("Chain ")
+                    .append(toString())
+                    .append(" was modified. Current flow:\n");
+            } else {
+                chain.append("Chain ")
+                    .append(toString())
+                    .append(" was created. Current flow:\n");
+            }
+            
+            for (Map.Entry<Phase, List<Interceptor>> entry : interceptors.entrySet()) {
+                chain.append("  ")
+                    .append(entry.getKey().getName())
+                    .append(" [");
+                
+                boolean first = true;
+                for (Interceptor i : entry.getValue()) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        chain.append(", ");
+                    }
+                    chain.append(i.getClass().getSimpleName());
+                }
+                
+                chain.append("]\n");
+            }
+            LOG.fine(chain.toString());
+        }
+    }
     
     class PhaseInterceptorIterator implements ListIterator<Interceptor<? extends Message>> {
         List<Interceptor<? extends Message>> called
@@ -309,6 +358,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         List<Interceptor> currentPhase;
         Iterator<Interceptor> currentPhaseIterator;
         Interceptor<? extends Message> last;
+        boolean first = true;
         
         PhaseInterceptorIterator() {
             phases = interceptors.values().iterator();
@@ -329,7 +379,13 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     refreshIterator();
                 }
                 return hasNext();
+            } 
+            
+            if (first) {
+                outputChainToLog(false);
+                first = false;
             }
+            
             return false;
         }
         private void refreshIterator() {
@@ -401,6 +457,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                 currentPhaseIterator = currentPhase.iterator();
                 last = null;
             }
+            outputChainToLog(true);
         }
     }
 

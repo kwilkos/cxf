@@ -34,6 +34,7 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.ParameterStyle;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.namespace.QName;
+import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
@@ -315,6 +316,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean isInParam(Method method, int j) {
+        method = getDeclaredMethod(method);
         if (j < 0) {
             return Boolean.FALSE;
         }
@@ -330,13 +332,18 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public Boolean isOutParam(Method method, int j) {
+        method = getDeclaredMethod(method);
         if (j == -1) {
             return !method.getReturnType().equals(void.class);
         }
 
         WebParam webParam = getWebParam(method, j);
 
-        return webParam != null && (webParam.mode().equals(Mode.OUT) || webParam.mode().equals(Mode.INOUT));
+        if (webParam != null && (webParam.mode().equals(Mode.OUT) || webParam.mode().equals(Mode.INOUT))) {
+            return Boolean.TRUE;
+        }
+        
+        return method.getParameterTypes()[j] == Holder.class;
     }
 
     @Override
@@ -429,4 +436,17 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         }
         return null;
     }
+
+    @Override
+    public Boolean isHeader(Method method, int j) {
+        method = getDeclaredMethod(method);
+        if (j >= 0) {
+            WebParam webParam = getWebParam(method, j);
+            return webParam != null && webParam.header();
+        } else {
+            WebResult webResult = getWebResult(method);
+            return webResult != null && webResult.header();
+        }
+    }
+    
 }

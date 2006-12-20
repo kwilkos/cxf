@@ -23,37 +23,31 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.service.model.BindingOperationInfo;
 
 public class JAXWSAsyncCallable implements Callable<Object> {
 
-    private EndpointInvocationHandler endPointInvocationHandler;
+    private ClientProxy endPointInvocationHandler;
     private Method method;
     private BindingOperationInfo oi; 
     private Object[] params;
-    private Object[] paramsWithOutHolder; 
     private Map<String, Object> context;
     
-    public JAXWSAsyncCallable(EndpointInvocationHandler endPointInvocationHandler,
+    public JAXWSAsyncCallable(ClientProxy endPointInvocationHandler,
                               Method method,
                               BindingOperationInfo oi,
                               Object[] params,
-                              Object[] paramsWithOutHolder,
                               Map<String, Object> cxt) {
         this.endPointInvocationHandler = endPointInvocationHandler;
         this.method = method;
         this.oi = oi;
         this.params = params;
-        this.paramsWithOutHolder = paramsWithOutHolder;
         this.context = cxt;        
     }
     
     public Object call() throws Exception {
-        return endPointInvocationHandler.invokeSync(method, 
-                                                oi, 
-                                                params, 
-                                                paramsWithOutHolder,
-                                                context);
+        return endPointInvocationHandler.invokeSync(method, oi, params, context);
     }
 
 }

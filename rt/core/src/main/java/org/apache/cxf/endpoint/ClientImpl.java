@@ -20,7 +20,7 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     protected Endpoint endpoint;
     protected Conduit initedConduit;
     protected ClientOutFaultObserver outFaultObserver; 
-    protected int synchronousTimeout = 10000; // default 10 second timeout
+    protected int synchronousTimeout = 1000000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
         this(b, e, null);
@@ -208,7 +208,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (params == null) {
             message.setContent(List.class, Collections.emptyList());
         } else {
-            message.setContent(List.class, Arrays.asList(params));
+            List<Object> paramList = new ArrayList<Object>();
+            Collections.addAll(paramList, params);
+            message.setContent(List.class, paramList);
         }
     }
     

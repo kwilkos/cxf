@@ -34,6 +34,7 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
@@ -44,7 +45,7 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
    
     Message message;
     Exchange exchange;
-    JaxWsServiceFactoryBean bean;
+    ReflectionServiceFactoryBean bean;
     
     public void setUp() throws Exception {
         super.setUp();

@@ -27,6 +27,9 @@ import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
+import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
+import org.apache.cxf.jaxws.interceptors.WrapperClassOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -40,6 +43,8 @@ public class JaxwsInterceptorRemover extends AbstractPhaseInterceptor {
      
     public JaxwsInterceptorRemover() {
         setPhase(Phase.PRE_LOGICAL);
+        addBefore(WrapperClassOutInterceptor.class.getName());
+        addBefore(HolderOutInterceptor.class.getName());
     }
     
     public void handleMessage(Message message) throws Fault {
@@ -58,8 +63,11 @@ public class JaxwsInterceptorRemover extends AbstractPhaseInterceptor {
         while (it.hasNext()) {
             PhaseInterceptor pi = (PhaseInterceptor)it.next();
             if (SOAPHandlerInterceptor.class.getName().equals(pi.getId())) {
-                chain.remove(pi);
-                break;
+                it.remove();
+            } else if (HolderInInterceptor.class.getName().equals(pi.getId())) {
+                it.remove();
+            } else if (HolderOutInterceptor.class.getName().equals(pi.getId())) {
+                it.remove();
             }
         }
         it = chain.getIterator();

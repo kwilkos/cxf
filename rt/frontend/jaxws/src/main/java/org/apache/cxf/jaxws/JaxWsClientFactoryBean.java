@@ -18,8 +18,8 @@
  */
 package org.apache.cxf.jaxws;
 
+import org.apache.cxf.frontend.ClientFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.service.factory.ClientFactoryBean;
 
 /**
  * Bean to help easily create Client endpoints for JAX-WS.

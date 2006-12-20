@@ -17,24 +17,22 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.jaxws;
+package org.apache.cxf.jaxws.header;
 
 
 
 import java.lang.reflect.UndeclaredThrowableException;
-
 import java.net.URL;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxws.AbstractJaxWsTest;
+import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.header_test.SOAPHeaderService;
 import org.apache.header_test.TestHeader;
 import org.apache.header_test.TestHeaderImpl;
@@ -49,7 +47,7 @@ import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
 
 
-public class HeaderClientServerTest extends ClientServerTestBase {
+public class HeaderClientServerTest extends AbstractJaxWsTest {
 
     private final QName serviceName = new QName("http://apache.org/header_test",
                                                 "SOAPHeaderService");    
@@ -58,40 +56,18 @@ public class HeaderClientServerTest extends ClientServerTestBase {
 
     private TestHeader proxy;
     
-    
-    public static class MyServer extends TestServerBase {
+    public void setUp() throws Exception {
+        super.setUp();
+        BusFactoryHelper.newInstance().setDefaultBus(getBus());
         
-        protected void run()  {
-            Object implementor = new TestHeaderImpl();
-            String address = "http://localhost:9104/SoapHeaderContext/SoapHeaderPort";
-            Endpoint.publish(address, implementor);
-            
-        }
+        Object implementor = new TestHeaderImpl();
+        String address = "http://localhost:9104/SoapHeaderContext/SoapHeaderPort";
+        EndpointImpl e = (EndpointImpl) Endpoint.publish(address, implementor);
         
-
-        public static void main(String[] args) {
-            try { 
-                MyServer s = new MyServer(); 
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally { 
-                System.out.println("done!");
-            }
-        }
+        e.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
+        e.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());
     }
     
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(HeaderClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(MyServer.class));
-            }
-        };
-                       
-    }  
-
     public void testInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -203,32 +179,28 @@ public class HeaderClientServerTest extends ClientServerTestBase {
         SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
         assertNotNull(service);
         proxy = service.getPort(portName, TestHeader.class);
-        
-        try {
-            TestHeader6 in = new TestHeader6();
-            String val = new String(TestHeader6.class.getSimpleName());
-            Holder<TestHeader3> inoutHeader = new Holder<TestHeader3>();
-            for (int idx = 0; idx < 2; idx++) {
-                val += idx;                
-                in.setRequestType(val);
-                inoutHeader.value = new TestHeader3();
-                TestHeader6Response returnVal = proxy.testHeaderPartBeforeBodyPart(inoutHeader, in);
-                //inoutHeader copied to return
-                //in copied to inoutHeader
-                assertNotNull(returnVal);
-                assertNull(returnVal.getResponseType());
-                assertEquals(val, inoutHeader.value.getRequestType());
-                
-                in.setRequestType(null);
-                inoutHeader.value.setRequestType(val);
-                returnVal = proxy.testHeaderPartBeforeBodyPart(inoutHeader, in);
-                assertNotNull(returnVal);
-                assertEquals(val, returnVal.getResponseType());
-                assertNull(inoutHeader.value.getRequestType());
-            }
-        } catch (UndeclaredThrowableException ex) {
-            throw (Exception)ex.getCause();
-        } 
+    
+        TestHeader6 in = new TestHeader6();
+        String val = new String(TestHeader6.class.getSimpleName());
+        Holder<TestHeader3> inoutHeader = new Holder<TestHeader3>();
+        for (int idx = 0; idx < 2; idx++) {
+            val += idx;                
+            in.setRequestType(val);
+            inoutHeader.value = new TestHeader3();
+            TestHeader6Response returnVal = proxy.testHeaderPartBeforeBodyPart(inoutHeader, in);
+            //inoutHeader copied to return
+            //in copied to inoutHeader
+            assertNotNull(returnVal);
+            assertNull(returnVal.getResponseType());
+            assertEquals(val, inoutHeader.value.getRequestType());
+            
+            in.setRequestType(null);
+            inoutHeader.value.setRequestType(val);
+            returnVal = proxy.testHeaderPartBeforeBodyPart(inoutHeader, in);
+            assertNotNull(returnVal);
+            assertEquals(val, returnVal.getResponseType());
+            assertNull(inoutHeader.value.getRequestType());
+        }
     }
 
     public static void main(String[] args) {

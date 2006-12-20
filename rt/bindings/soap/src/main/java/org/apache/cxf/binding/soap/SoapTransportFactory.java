@@ -44,17 +44,21 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.transport.AbstractTransportFactory;
+import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 
-public class SoapDestinationFactory extends AbstractTransportFactory implements DestinationFactory,
-    WSDLEndpointFactory {
+public class SoapTransportFactory extends AbstractTransportFactory implements DestinationFactory,
+    WSDLEndpointFactory, ConduitInitiator {
     public static final String TRANSPORT_ID = "http://schemas.xmlsoap.org/soap/";
     private Bus bus;
 
-    public SoapDestinationFactory() {
+    public SoapTransportFactory() {
         super();
     }
 
@@ -62,8 +66,8 @@ public class SoapDestinationFactory extends AbstractTransportFactory implements 
         SoapBindingInfo binding = (SoapBindingInfo)ei.getBinding();
         DestinationFactory destinationFactory;
         try {
-            DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-            destinationFactory = dfm.getDestinationFactory(binding.getTransportURI());
+            destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                .getDestinationFactory(binding.getTransportURI());
 
             return destinationFactory.getDestination(ei);
         } catch (BusException e) {
@@ -129,6 +133,25 @@ public class SoapDestinationFactory extends AbstractTransportFactory implements 
         }
 
         return null;
+    }
+    
+
+    public Conduit getConduit(EndpointInfo ei, EndpointReferenceType target) throws IOException {
+        return getConduit(ei);
+    }
+
+    public Conduit getConduit(EndpointInfo ei) throws IOException {
+        SoapBindingInfo binding = (SoapBindingInfo)ei.getBinding();
+        ConduitInitiator conduitInit;
+        try {
+            conduitInit = bus.getExtension(ConduitInitiatorManager.class)
+                .getConduitInitiator(binding.getTransportURI());
+
+            return conduitInit.getConduit(ei);
+        } catch (BusException e) {
+            throw new RuntimeException("Could not find destination factory for transport "
+                                       + binding.getTransportURI());
+        }
     }
 
     public Bus getBus() {

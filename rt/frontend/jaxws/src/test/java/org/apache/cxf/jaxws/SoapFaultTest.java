@@ -27,11 +27,12 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.GreeterImpl;
@@ -47,7 +48,7 @@ public class SoapFaultTest extends AbstractJaxWsTest {
 
         bus = getBus();
 
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         bean.setWsdlURL(resource);

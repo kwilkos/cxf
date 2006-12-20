@@ -223,10 +223,10 @@ public class RMEndpoint {
             // What we really should do here is on use the same interceptors on the outbound
             // path that would be used by the application endpoint without presuming any knowledge
             // of the applications endpoint's frontend.
-            // endpoint = new EndpointImpl(manager.getBus(), service, ei);
             endpoint = new JaxWsEndpointImpl(manager.getBus(), service, ei);
+            // endpoint = new JaxWsEndpointImpl(manager.getBus(), service, ei);
         } catch (EndpointException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
         service.setExecutor(applicationEndpoint.getService().getExecutor());
     }

@@ -36,6 +36,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -72,11 +73,13 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
         if (message.getExchange().get(BindingOperationInfo.class) == null) {
             operation = getOperation(message, new QName(xmlReader.getNamespaceURI(), opName));
+            message.getExchange().put(BindingOperationInfo.class, operation);
+            message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
+
             if (operation == null) {
                 // it's doc-lit-bare
                 new BareInInterceptor().handleMessage(message);
             }
-            message.getExchange().put(BindingOperationInfo.class, operation);
         } else {
             operation = message.getExchange().get(BindingOperationInfo.class);
         }

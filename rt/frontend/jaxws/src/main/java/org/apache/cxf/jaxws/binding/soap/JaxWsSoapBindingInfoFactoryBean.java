@@ -18,12 +18,17 @@
  */
 package org.apache.cxf.jaxws.binding.soap;
 
+import java.lang.reflect.Method;
+
 import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 
 import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
+import org.apache.cxf.frontend.MethodDispatcher;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 
 /**
  * Introspects the SOAPBinding annotation to provide to construct
@@ -45,8 +50,12 @@ public class JaxWsSoapBindingInfoFactoryBean extends SoapBindingInfoFactoryBean 
     }
 
     Class<?> getServiceClass() {
-        return ((AbstractJaxWsServiceFactoryBean)getServiceFactory()).getJaxWsImplementorInfo()
+        return getJaxWsServiceFactory().getJaxWsImplementorInfo()
             .getEndpointClass();
+    }
+
+    private AbstractJaxWsServiceFactoryBean getJaxWsServiceFactory() {
+        return (AbstractJaxWsServiceFactoryBean)getServiceFactory();
     }
     
     @Override
@@ -61,5 +70,14 @@ public class JaxWsSoapBindingInfoFactoryBean extends SoapBindingInfoFactoryBean 
         }
         return super.getStyle();
     }
+
+    @Override
+    protected boolean isHeader(BindingOperationInfo op, MessagePartInfo part) {
+        MethodDispatcher md = (MethodDispatcher) getService().get(MethodDispatcher.class.getName());
+        Method method = md.getMethod(op);
+        
+        return getJaxWsServiceFactory().isHeader(method, part.getIndex());
+    }
+    
     
 }

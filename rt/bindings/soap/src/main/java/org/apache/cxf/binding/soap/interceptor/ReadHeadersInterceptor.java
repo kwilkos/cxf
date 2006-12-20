@@ -69,9 +69,6 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
         }
 
         try {
-            while (xmlReader.isWhiteSpace()) { 
-                xmlReader.next(); 
-            } 
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
@@ -91,7 +88,7 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
                 
                     Document doc = StaxUtils.read(filteredReader);
 
-                    Element element = (Element)doc.getChildNodes().item(0);
+                    Element element = doc.getDocumentElement();
                     message.setHeaders(Element.class, element);
                     message.put(Element.class, element);                    
                 }

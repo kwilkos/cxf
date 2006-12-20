@@ -19,10 +19,7 @@
 
 package org.apache.cxf.jaxws.support;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,12 +28,12 @@ import java.util.List;
 import javax.wsdl.Operation;
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
-import javax.xml.ws.Holder;
 import javax.xml.ws.Service;
 
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxws.interceptors.WebFaultOutInterceptor;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
@@ -47,12 +44,6 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
-
-    public static final String MODE_OUT = "messagepart.mode.out";
-
-    public static final String MODE_INOUT = "messagepart.mode.inout";
-
-    public static final String HOLDER = "messagepart.isholder";
 
     private JaxWsServiceConfiguration jaxWsConfiguration;
 
@@ -85,7 +76,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
     }
 
     @Override
-    protected Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
+    public Endpoint createEndpoint(EndpointInfo ei) throws EndpointException {
         return new JaxWsEndpointImpl(getBus(), getService(), ei);
     }
 
@@ -193,6 +184,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                 MessageInfo input = o.getOutput();
                 MessagePartInfo part = input.getMessageParts().get(0);
                 part.setTypeClass(getResponseWrapper(method));
+                part.setIndex(-1);
             }
             
             setFaultClassInfo(o, method);
@@ -226,54 +218,32 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
     private void initializeParameter(OperationInfo o, Method method, int i, 
                                      Class paramType, Type genericType) {
-        if (isWrapped(method)) {
-            return;
-        }
         boolean isIn = isInParam(method, i);
         boolean isOut = isOutParam(method, i);
 
+        MessagePartInfo part = null;
         if (isIn && !isOut) {
             QName name = getInPartName(o, method, i);
-            MessagePartInfo part = o.getInput().getMessagePart(name);
+            part = o.getInput().getMessagePart(name);
             initializeParameter(part, paramType, genericType);
+            part.setIndex(i);
         } else if (!isIn && isOut) {
             QName name = getOutPartName(o, method, i);
-            MessagePartInfo part = o.getOutput().getMessagePart(name);
+            part = o.getOutput().getMessagePart(name);
             initializeParameter(part, paramType, genericType);
+            part.setIndex(i);
         } else if (isIn && isOut) {
             QName name = getOutPartName(o, method, i);
-            MessagePartInfo part = o.getInput().getMessagePart(name);
-            part.setProperty(JaxWsServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
+            part = o.getInput().getMessagePart(name);
+            part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
+            part.setIndex(i);
             
             part = o.getOutput().getMessagePart(name);
-            part.setProperty(JaxWsServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
+            part.setProperty(ReflectionServiceFactoryBean.MODE_INOUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
+            part.setIndex(i);
         }
-    }
-
-    private void initializeParameter(MessagePartInfo part, Class rawClass, Type type) {
-        if (rawClass.equals(Holder.class) && type instanceof ParameterizedType) {
-            ParameterizedType paramType = (ParameterizedType)type;
-            rawClass = getHolderClass(paramType);
-        }
-        part.setProperty(GENERIC_TYPE, type);
-        part.setTypeClass(rawClass);
-    }
-
-    private static Class getHolderClass(ParameterizedType paramType) {
-        Object rawType = paramType.getActualTypeArguments()[0];
-        Class rawClass;
-        if (rawType instanceof GenericArrayType) {
-            rawClass = (Class) ((GenericArrayType) rawType).getGenericComponentType();
-            rawClass = Array.newInstance(rawClass, 0).getClass();
-        } else {
-            if (rawType instanceof ParameterizedType) {
-                rawType = (Class) ((ParameterizedType) rawType).getRawType();
-            }
-            rawClass = (Class) rawType;
-        }
-        return rawClass;
     }
 
     public void setJaxWsConfiguration(JaxWsServiceConfiguration jaxWsConfiguration) {

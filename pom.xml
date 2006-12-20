@@ -323,6 +323,7 @@
                         <!-- do not exclude **/Abstract*Test.java **/Abstract*TestCase.java -->
                         <excludes>
                             <exclude>**/*$*</exclude>
+                            <exclude>**/LocatorClientServerTest.java</exclude>
                         </excludes>
                         <reportFormat>${surefire.format}</reportFormat>
                         <useFile>${surefire.usefile}</useFile>

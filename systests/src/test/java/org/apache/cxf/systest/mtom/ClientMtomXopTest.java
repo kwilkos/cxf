@@ -35,12 +35,13 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
-import org.apache.cxf.jaxws.EndpointInvocationHandler;
+import org.apache.cxf.jaxws.JaxWsClientProxy;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.mime.TestMtom;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
@@ -110,7 +111,7 @@ public class ClientMtomXopTest extends ClientServerTestBase {
     private static <T> T createPort(QName serviceName, QName portName, Class<T> serviceEndpointInterface)
         throws Exception {
         Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
-        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
         serviceFactory.setBus(bus);
         serviceFactory.setServiceName(serviceName);
         serviceFactory.setServiceClass(serviceEndpointInterface);
@@ -126,7 +127,7 @@ public class ClientMtomXopTest extends ClientServerTestBase {
         jaxwsEndpoint.getBinding().getOutInterceptors().add(new TestAttachmentOutInterceptor());
         
         Client client = new ClientImpl(bus, jaxwsEndpoint);
-        InvocationHandler ih = new EndpointInvocationHandler(client, jaxwsEndpoint.getJaxwsBinding());
+        InvocationHandler ih = new JaxWsClientProxy(client, jaxwsEndpoint.getJaxwsBinding());
         Object obj = Proxy.newProxyInstance(serviceEndpointInterface.getClassLoader(), new Class[] {
             serviceEndpointInterface, BindingProvider.class }, ih);
         return serviceEndpointInterface.cast(obj);

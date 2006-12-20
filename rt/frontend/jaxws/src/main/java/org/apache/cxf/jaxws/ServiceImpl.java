@@ -63,6 +63,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -146,7 +147,7 @@ public class ServiceImpl extends ServiceDelegate {
             dispatchService.setDataBinding(db);
             serviceFactory = sf;
         } else {
-            JaxWsServiceFactoryBean sf = new JaxWsServiceFactoryBean();
+            ReflectionServiceFactoryBean sf = new JaxWsServiceFactoryBean();
             sf.setBus(bus);
             sf.setServiceName(serviceName);
             // maybe we can find another way to create service which have no SEI
@@ -229,7 +230,7 @@ public class ServiceImpl extends ServiceDelegate {
         LOG.log(Level.FINE, "creating port for portName", portName);
         LOG.log(Level.FINE, "endpoint interface:", serviceEndpointInterface);
 
-        JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
         serviceFactory.setBus(bus);
         serviceFactory.setServiceName(serviceName);
         serviceFactory.setServiceClass(serviceEndpointInterface);
@@ -282,7 +283,7 @@ public class ServiceImpl extends ServiceDelegate {
 
         Client client = new ClientImpl(bus, jaxwsEndpoint);
 
-        InvocationHandler ih = new EndpointInvocationHandler(client, jaxwsEndpoint.getJaxwsBinding());
+        InvocationHandler ih = new JaxWsClientProxy(client, jaxwsEndpoint.getJaxwsBinding());
 
         // configuration stuff
         // createHandlerChainForBinding(serviceEndpointInterface, portName,

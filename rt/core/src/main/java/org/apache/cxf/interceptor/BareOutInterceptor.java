@@ -50,13 +50,13 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
 
         if (!isRequestor(message)) {
             if (operation.getOutput() != null) {
-                parts = operation.getOutput().getMessageInfo().getMessageParts();
+                parts = operation.getOutput().getMessageParts();
             } else {
                 // partial response to oneway
                 return;
             }
         } else {
-            parts = operation.getInput().getMessageInfo().getMessageParts();
+            parts = operation.getInput().getMessageParts();
         }
         countParts = parts.size();
 
@@ -67,12 +67,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                 Object[] els = parts.toArray();
 
                 for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = args[idx];
-                    MessagePartInfo part = (MessagePartInfo)els[idx];
-                    if (part.getProperty(MessagePartInfo.KEY_SKIPPED) == null) {
-                        // not in header, write to soap body
-                        dataWriter.write(arg, part, message);
-                    }
+                    dataWriter.write(args[idx], (MessagePartInfo)els[idx], message);
                 }
             }
         }

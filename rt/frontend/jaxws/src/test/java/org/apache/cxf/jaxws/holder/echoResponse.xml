@@ -18,10 +18,9 @@
 -->
 <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
     <s:Body>
-        <testXop xmlns:ns2="http://www.w3.org/2005/08/addressing/wsdl"
-            xmlns="http://cxf.apache.org/mime/types">
-            <name>call detail</name>
-            <attachinfo>byte data</attachinfo>
-        </testXop>
+        <echoResponse xmlns="http://holder.jaxws.cxf.apache.org">
+            <return>one</return>
+            <outS2>two</outS2>
+        </echoResponse>
     </s:Body>
 </s:Envelope>

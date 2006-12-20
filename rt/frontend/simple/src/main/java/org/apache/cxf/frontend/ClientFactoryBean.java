@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.frontend;
 
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
@@ -24,6 +24,8 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
 
 public class ClientFactoryBean extends AbstractEndpointFactory {
     private Client client;
@@ -54,7 +56,5 @@ public class ClientFactoryBean extends AbstractEndpointFactory {
 
     public void setClient(Client client) {
         this.client = client;
-    }
-    
-    
+    }    
 }

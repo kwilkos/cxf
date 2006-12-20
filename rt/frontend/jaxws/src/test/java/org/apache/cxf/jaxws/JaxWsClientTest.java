@@ -19,9 +19,6 @@
 
 package org.apache.cxf.jaxws;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URL;
@@ -39,25 +36,25 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class JaxWsClientTest extends AbstractJaxWsTest {
 
-    static String responseMessage;
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                     "SOAPService");    
     private final QName portName = new QName("http://apache.org/hello_world_soap_http",
                     "SoapPort");
     private final String address = "http://localhost:9000/SoapContext/SoapPort";
+    private Destination d;
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -65,8 +62,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
         ei.setAddress(address);
 
-        Destination d = localTransport.getDestination(ei);
-        d.setMessageObserver(new EchoObserver());
+        d = localTransport.getDestination(ei);
     }
 
     public void testCreate() throws Exception {
@@ -103,7 +99,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
     }
 
     public void testEndpoint() throws Exception {
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
         bean.setWsdlURL(resource);
@@ -126,7 +122,10 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         bop = bop.getUnwrappedOperation();
         assertNotNull(bop);
 
-        responseMessage = "sayHiResponse.xml";
+        MessagePartInfo part = bop.getOutput().getMessageParts().get(0);
+        assertEquals(-1, part.getIndex());
+        
+        d.setMessageObserver(new MessageReplayObserver("sayHiResponse.xml"));
         Object ret[] = client.invoke(bop, new Object[0], null);
         assertNotNull(ret);
         assertEquals("Wrong number of return objects", 1, ret.length);
@@ -134,7 +133,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         // test fault handling
         bop = ei.getBinding().getOperation(new QName(namespace, "testDocLitFault"));
         bop = bop.getUnwrappedOperation();
-        responseMessage = "testDocLitFault.xml";
+        d.setMessageObserver(new MessageReplayObserver("testDocLitFault.xml"));
         try {
             client.invoke(bop, new Object[] {"BadRecordLitFault"}, null);
             fail("Should have returned a fault!");
@@ -142,7 +141,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
             assertEquals("foo", fault.getFaultInfo().trim());
             assertEquals("Hadrian did it.", fault.getMessage());
         }
-        
+
         try {
             client.getEndpoint().getOutInterceptors().add(new NestedFaultThrower());
             client.getEndpoint().getOutInterceptors().add(new FaultThrower());
@@ -186,46 +185,4 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
 
     }
 
-    static class EchoObserver implements MessageObserver {
-
-        public void onMessage(Message message) {
-            try {
-
-                InputStream in = message.getContent(InputStream.class);
-                while (in.available() > 0) {
-                    in.read();
-                }
-                
-                Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
-
-                backChannel.send(message);
-
-                OutputStream out = message.getContent(OutputStream.class);
-                assertNotNull(out);
-                in = getClass().getResourceAsStream(responseMessage);
-                copy(in, out, 2045);
-
-                out.close();
-                in.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void copy(final InputStream input, final OutputStream output, final int bufferSize)
-        throws IOException {
-        try {
-            final byte[] buffer = new byte[bufferSize];
-
-            int n = input.read(buffer);
-            while (-1 != n) {
-                output.write(buffer, 0, n);
-                n = input.read(buffer);
-            }
-        } finally {
-            input.close();
-            output.close();
-        }
-    }
 }

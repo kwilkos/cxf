@@ -25,7 +25,6 @@ public class SoapHeaderInfo {
     
     private MessagePartInfo part;
     private String use;
-    private int sequence;
 
     public MessagePartInfo getPart() {
         return part;
@@ -41,13 +40,5 @@ public class SoapHeaderInfo {
 
     public void setUse(String use) {
         this.use = use;
-    }
-
-    public int getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
     }
 }

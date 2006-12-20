@@ -21,7 +21,7 @@ package org.apache.cxf.jaxws;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -34,7 +34,7 @@ import org.apache.cxf.wsdl11.WSDLManagerImpl;
  */
 public abstract class AbstractJaxWsTest extends AbstractCXFTest {
 
-    LocalTransportFactory localTransport;
+    protected LocalTransportFactory localTransport;
 
     private Bus bus;
 
@@ -51,7 +51,7 @@ public abstract class AbstractJaxWsTest extends AbstractCXFTest {
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
-        SoapDestinationFactory soapDF = new SoapDestinationFactory();
+        SoapTransportFactory soapDF = new SoapTransportFactory();
         soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);

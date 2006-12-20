@@ -25,8 +25,6 @@ import org.apache.ws.commons.schema.XmlSchemaAnnotated;
 
 public final class MessagePartInfo extends AbstractPropertiesHolder {
     
-    public static final String KEY_SKIPPED = "SKIPPED";
-    
     private QName pname;
     private AbstractMessageContainer mInfo;
     
@@ -35,6 +33,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     private QName elementName;
     private XmlSchemaAnnotated xmlSchema;
     private Class<?> typeClass;
+    private int index;
     
     public MessagePartInfo(QName n, AbstractMessageContainer info) {
         mInfo = info;
@@ -103,4 +102,23 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     public void setTypeClass(Class<?> typeClass) {
         this.typeClass = typeClass;
     }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("[MessagePartInfo name=")
+            .append(getName())
+            .append(", ConcreteName=")
+            .append(getConcreteName()).toString();
+    }
+    
+    
+    
 }

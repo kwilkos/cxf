@@ -22,6 +22,8 @@ package org.apache.cxf.wsdl11;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -375,14 +377,15 @@ public class WSDLServiceBuilderTest extends TestCase {
         }
         String filePath = this.getClass().getResource("./s1/s2/s4/schema4.xsd").getFile();
         String importPath = schemaImport.getAttributeNode("schemaLocation").getValue();
-        if (!new URI(importPath).isAbsolute()) {
+        if (!new URI(URLEncoder.encode(importPath, "utf-8")).isAbsolute()) {
             schemaImport.getAttributeNode("schemaLocation").setNodeValue("file:" + filePath);            
             String fileStr = this.getClass().getResource("./s1/s2/schema2.xsd").getFile();
+            fileStr = URLDecoder.decode(fileStr, "utf-8");
             File file = new File(fileStr);
             if (file.exists()) {
                 file.delete();
             }
-            FileOutputStream fout = new FileOutputStream(fileStr);
+            FileOutputStream fout = new FileOutputStream(file);
             XMLUtils.writeTo(doc, fout);
             fout.flush();
             fout.close();

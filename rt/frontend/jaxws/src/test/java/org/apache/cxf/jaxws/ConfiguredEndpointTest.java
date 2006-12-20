@@ -32,7 +32,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.bus.cxf.CXFBusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.configuration.Configurer;
@@ -86,7 +86,7 @@ public class ConfiguredEndpointTest extends TestCase {
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
         
-        EndpointInvocationHandler eih = (EndpointInvocationHandler)Proxy.getInvocationHandler(greeter);
+        JaxWsClientProxy eih = (JaxWsClientProxy)Proxy.getInvocationHandler(greeter);
         Client client = eih.getClient();
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
@@ -150,7 +150,7 @@ public class ConfiguredEndpointTest extends TestCase {
         javax.xml.ws.Service service = new SOAPService();
         Greeter greeter = service.getPort(PORT_NAME, Greeter.class);
 
-        EndpointInvocationHandler eih = (EndpointInvocationHandler)Proxy.getInvocationHandler(greeter);
+        JaxWsClientProxy eih = (JaxWsClientProxy)Proxy.getInvocationHandler(greeter);
         Client client = eih.getClient();
         JaxWsEndpointImpl endpoint = (JaxWsEndpointImpl)client.getEndpoint();
         assertEquals("Unexpected bean name", PORT_NAME.toString(), endpoint.getBeanName());
@@ -320,7 +320,7 @@ public class ConfiguredEndpointTest extends TestCase {
             .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        SoapDestinationFactory soapDF = new SoapDestinationFactory();
+        SoapTransportFactory soapDF = new SoapTransportFactory();
         soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);

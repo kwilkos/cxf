@@ -18,13 +18,20 @@
  */
 package org.apache.cxf.binding.soap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
+import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
@@ -54,9 +61,59 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
             bop.addExtensor(sop);
             
             info.addOperation(bop);
+            
+            
+            BindingMessageInfo bInput = bop.getInput();
+            if (bInput != null) {
+                MessageInfo input = null;
+                BindingMessageInfo unwrappedMsg = bInput;
+                if (bop.isUnwrappedCapable()) {
+                    input = bop.getOperationInfo().getUnwrappedOperation().getInput();
+                    unwrappedMsg = bop.getUnwrappedOperation().getInput();
+                } else {
+                    input = bop.getOperationInfo().getInput();
+                }
+                setupHeaders(bop, bInput, unwrappedMsg, input);
+            }
+            
+            BindingMessageInfo bOutput = bop.getOutput();
+            if (bOutput != null) {
+                MessageInfo output = null;
+                BindingMessageInfo unwrappedMsg = bOutput;
+                if (bop.isUnwrappedCapable()) {
+                    output = bop.getOperationInfo().getUnwrappedOperation().getOutput();
+                    unwrappedMsg = bop.getUnwrappedOperation().getOutput();
+                } else {
+                    output = bop.getOperationInfo().getOutput();
+                }
+                setupHeaders(bop, bOutput, unwrappedMsg, output);
+            }
         }
         
         return info;
+    }
+
+    private void setupHeaders(BindingOperationInfo op, 
+                              BindingMessageInfo bMsg, 
+                              BindingMessageInfo unwrappedBMsg, 
+                              MessageInfo msg) {
+        List<MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
+        for (MessagePartInfo part : msg.getMessageParts()) {
+            if (isHeader(op, part)) {
+                SoapHeaderInfo headerInfo = new SoapHeaderInfo();
+                headerInfo.setPart(part);
+                headerInfo.setUse(getUse());
+
+                bMsg.addExtensor(headerInfo);
+            } else {
+                parts.add(part);
+            }
+        }
+        unwrappedBMsg.setMessageParts(parts);
+    }
+
+    protected boolean isHeader(BindingOperationInfo op, MessagePartInfo part) {
+        return false;
     }
 
     private String getSoapAction(OperationInfo op) {

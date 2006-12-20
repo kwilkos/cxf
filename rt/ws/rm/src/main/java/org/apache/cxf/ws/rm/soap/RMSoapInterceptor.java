@@ -396,7 +396,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         assert !RMContextUtils.isOutbound(message);
         AddressingProperties maps = RMContextUtils.retrieveMAPs(message, false, false);
         AttributedURIType actionURI = null == maps ? null : maps.getAction();
-        String action = null == actionURI ? null : actionURI.getValue();
+        String action = null == actionURI ? null : actionURI.getValue().trim();
         
         LOG.fine("action: " + action);
    

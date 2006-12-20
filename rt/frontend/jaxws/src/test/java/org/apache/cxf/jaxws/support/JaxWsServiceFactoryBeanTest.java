@@ -30,6 +30,7 @@ import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.mime.types.XopType;
 import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -39,7 +40,7 @@ import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
     public void testEndpoint() throws Exception {
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
@@ -84,7 +85,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
     }
     
     public void testHolder() throws Exception {
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
         Bus bus = getBus();
         bean.setBus(bus);

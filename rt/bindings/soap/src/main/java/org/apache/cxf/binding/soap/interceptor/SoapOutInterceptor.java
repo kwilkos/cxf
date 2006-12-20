@@ -20,7 +20,6 @@
 package org.apache.cxf.binding.soap.interceptor;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -32,7 +31,6 @@ import org.w3c.dom.Element;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
-import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
@@ -110,58 +108,80 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         if (bop == null) {
             return endedHeader;
         }
+        
         XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);        
         boolean startedHeader = false;
-        List<MessagePartInfo> parts = new ArrayList<MessagePartInfo>();
-        BindingMessageInfo bmi = isRequestor(message) ? bop.getInput() : bop.getOutput();
+        BindingOperationInfo unwrappedOp = bop;
+        if (bop.isUnwrapped()) {
+            unwrappedOp = bop.getWrappedOperation();
+        }
+        boolean client = isRequestor(message);
+        BindingMessageInfo bmi = client ? unwrappedOp.getInput() : unwrappedOp.getOutput();
+        BindingMessageInfo wrappedBmi = client ? bop.getInput() : bop.getOutput();
+        
         if (bmi == null) {
             return endedHeader;
-        } else {
-            parts = bmi.getMessageInfo().getMessageParts();
-        } 
+        }
+        
+        List<MessagePartInfo> parts = wrappedBmi.getMessageInfo().getMessageParts();
         if (parts.size() > 0) {
             List<?> objs = message.getContent(List.class);
             if (objs == null) {
                 return endedHeader;
-            }            
-            Object[] args = objs.toArray();
+            }
             SoapVersion soapVersion = message.getVersion();
             List<SoapHeaderInfo> headers = bmi.getExtensors(SoapHeaderInfo.class);
             if (headers == null) {
                 return endedHeader;
             }
+            
+            // This code is really ugly right now. Need to refactor...
+            int offset = 0;
+            int returnIdx = 0;
+            if (!client) {
+                for (int i = 0; i < parts.size(); i++) {
+                    MessagePartInfo part = parts.get(i);
+                    if (part.getIndex() == -1) {
+                        offset++;
+                        returnIdx = i;
+                        break;
+                    }
+                }
+            }
+            
             for (SoapHeaderInfo header : headers) {
-                Object arg = args[header.getSequence()];
+                MessagePartInfo part = header.getPart();
+
+                int idx = parts.indexOf(part);
+                if (!client && idx < returnIdx) {
+                    idx += offset;
+                }
+                
+                Object arg = objs.get(idx);
                 if (!(startedHeader || preexistingHeaders)) {
                     try {
                         xtw.writeStartElement(soapVersion.getPrefix(), 
                                               soapVersion.getHeader().getLocalPart(),
                                               soapVersion.getNamespace());
                     } catch (XMLStreamException e) {
-                        throw new SoapFault(
-                            new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
+                        throw new SoapFault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
                             e, soapVersion.getSender());
                     }
                     startedHeader = true;
                 }
                 DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message);
                 dataWriter.write(arg, header.getPart(), xtw);
+                
+                objs.remove(arg);
             }
-
-            for (MessagePartInfo part : parts) {
-                if (bmi.getExtensor(SoapBodyInfo.class) != null 
-                        && !bmi.getExtensor(SoapBodyInfo.class).getParts().contains(part)) {
-                    part.setProperty(MessagePartInfo.KEY_SKIPPED, Boolean.TRUE);
-                }
-            }
+            
             
             if (startedHeader || preexistingHeaders) {
                 try {
                     xtw.writeEndElement();
                     endedHeader = true;
                 } catch (XMLStreamException e) {
-                    throw new SoapFault(
-                        new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
+                    throw new SoapFault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), 
                         e, soapVersion.getSender());
                 }
             }

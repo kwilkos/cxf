@@ -32,7 +32,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -104,6 +103,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     protected abstract void doClose() throws IOException;
 
     public void close() throws IOException {
+        currentStream.flush();
         currentStream.close();
         if (null != callbacks) {
             for (CachedOutputStreamCallback cb : callbacks) {
@@ -197,7 +197,11 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     }
 
     public String toString() {
-        return currentStream.toString();
+        return new StringBuilder().append("[")
+            .append(super.toString())
+            .append(" Content: ")
+            .append(currentStream.toString())
+            .append("]").toString();
     }
 
     protected abstract void onWrite() throws IOException;

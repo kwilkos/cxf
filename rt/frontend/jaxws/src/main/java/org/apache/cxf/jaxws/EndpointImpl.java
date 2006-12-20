@@ -42,6 +42,7 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
+import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -52,8 +53,6 @@ import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
-import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.service.factory.ServerFactoryBean;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
     private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
@@ -65,7 +64,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Server server;
     private Service service;
     private JaxWsImplementorInfo implInfo;
-    private ReflectionServiceFactoryBean serviceFactory;
+    private AbstractJaxWsServiceFactoryBean serviceFactory;
 
     private String bindingURI;
     
@@ -102,6 +101,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         configureObject(service);
         
         service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
+        
         if (implInfo.isWebServiceProvider()) {
             service.setInvoker(new ProviderInvoker((Provider<?>)i));
         } else {
@@ -200,11 +200,12 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     protected void doPublish(String address) {
 
-        ServerFactoryBean svrFactory = new ServerFactoryBean();
+        JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
         svrFactory.setBus(bus);
         svrFactory.setAddress(address);
         svrFactory.setServiceFactory(serviceFactory);
         svrFactory.setStart(false);
+        svrFactory.setServiceBean(implementor);
         configureObject(svrFactory);
         
         // TODO: Replace with discovery mechanism!!

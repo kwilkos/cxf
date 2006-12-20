@@ -63,9 +63,9 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             List<MessagePartInfo> parts = null;
 
             if (!isRequestor(message)) {
-                parts = operation.getOutput().getMessageInfo().getMessageParts();
+                parts = operation.getOutput().getMessageParts();
             } else {
-                parts = operation.getInput().getMessageInfo().getMessageParts();
+                parts = operation.getInput().getMessageParts();
             }
             countParts = parts.size();
 

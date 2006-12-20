@@ -51,9 +51,10 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -61,7 +62,6 @@ import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.jca.core.resourceadapter.UriHandlerInit;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
-import org.apache.cxf.service.factory.ServerFactoryBean;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.HTTPTransportFactory;
@@ -118,7 +118,7 @@ public class JCABusFactory {
 
             DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
-            SoapDestinationFactory soapDF = new SoapDestinationFactory();
+            SoapTransportFactory soapDF = new SoapTransportFactory();
             soapDF.setBus(bus);
             dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
             dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
@@ -296,7 +296,7 @@ public class JCABusFactory {
         }
         String address = "http://" + hostName + ":9999/" + jndiName;
 
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         Service service = createService(interfaceClass, bean);
         
         // REVISIT this is easy to be replace by EJBMethodInvoker

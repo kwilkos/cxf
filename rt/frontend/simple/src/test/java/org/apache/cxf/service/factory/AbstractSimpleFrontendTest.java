@@ -21,7 +21,7 @@ package org.apache.cxf.service.factory;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -40,10 +40,10 @@ public abstract class AbstractSimpleFrontendTest extends AbstractCXFTest {
             .registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", bindingFactory);
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
-        SoapDestinationFactory soapDF = new SoapDestinationFactory();
-        soapDF.setBus(bus);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
-        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
+        SoapTransportFactory soapTF = new SoapTransportFactory();
+        soapTF.setBus(bus);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapTF);
+        dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapTF);
 
         LocalTransportFactory localTransport = new LocalTransportFactory();
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
@@ -53,6 +53,8 @@ public abstract class AbstractSimpleFrontendTest extends AbstractCXFTest {
         extension.registerConduitInitiator(LocalTransportFactory.TRANSPORT_ID, localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/http", localTransport);
         extension.registerConduitInitiator("http://schemas.xmlsoap.org/soap/http", localTransport);
+        
+        extension.registerConduitInitiator("http://schemas.xmlsoap.org/wsdl/soap/", soapTF);
     }
     
 }

@@ -41,14 +41,15 @@ import org.apache.cxf.Bus;
 // import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
-import org.apache.cxf.binding.soap.SoapDestinationFactory;
+import org.apache.cxf.binding.soap.SoapTransportFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.jca.core.resourceadapter.ResourceAdapterInternalException;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.ServerFactoryBean;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -330,7 +331,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         jcaBusFactory.setBus(springBus);
         jcaBusFactory.initBus();
         
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         Service service = jcaBusFactory.createService(HelloInterface.class, bean);
         assertEquals("test", service.get("test"));
     }
@@ -345,7 +346,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
 
         DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
 
-        SoapDestinationFactory soapDF = new SoapDestinationFactory();
+        SoapTransportFactory soapDF = new SoapTransportFactory();
         soapDF.setBus(bus);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/wsdl/soap/", soapDF);
         dfm.registerDestinationFactory("http://schemas.xmlsoap.org/soap/", soapDF);
@@ -368,7 +369,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         jcaBusFactory.setBus(bus);
         jcaBusFactory.initBus();
         
-        JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
+        ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         Service service = jcaBusFactory.createService(HelloInterface.class, bean);
         assertEquals("test", service.get("test"));
         

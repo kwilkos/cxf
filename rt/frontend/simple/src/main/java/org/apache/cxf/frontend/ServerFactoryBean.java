@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.service.factory;
+package org.apache.cxf.frontend;
 
 import java.io.IOException;
 
@@ -26,6 +26,10 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
+import org.apache.cxf.service.factory.ServiceConstructionException;
+import org.apache.cxf.service.invoker.BeanInvoker;
+import org.apache.cxf.service.invoker.Invoker;
 import org.apache.cxf.transport.ChainInitiationObserver;
 
 /**
@@ -61,6 +65,7 @@ import org.apache.cxf.transport.ChainInitiationObserver;
 public class ServerFactoryBean extends AbstractEndpointFactory {
     private Server server;
     private boolean start = true;
+    private Object serviceBean;
     
     public ServerFactoryBean() {
         super();
@@ -74,8 +79,16 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
 
     public Server create() {
         try {
+            if (serviceBean != null && getServiceClass() == null) {
+                setServiceClass(serviceBean.getClass());
+            }
+            
             Endpoint ep = createEndpoint();
             server = new ServerImpl(getBus(), ep, new ChainInitiationObserver(ep, getBus()));
+            
+            if (serviceBean != null && ep.getService().getInvoker() == null) {
+                ep.getService().setInvoker(createInvoker());
+            }
             
             if (start) {
                 server.start();
@@ -91,6 +104,10 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
         return server;
     }
 
+    protected Invoker createInvoker() {
+        return new BeanInvoker(serviceBean);
+    }
+
     public Server getServer() {
         return server;
     }
@@ -99,11 +116,30 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
         this.server = server;
     }
 
+    /**
+     * Whether or not the Server should be started upon creation.
+     * @return
+     */
     public boolean isStart() {
         return start;
     }
 
     public void setStart(boolean start) {
         this.start = start;
-    }    
+    }
+
+    public Object getServiceBean() {
+        return serviceBean;
+    }
+
+    /**
+     * Set the backing service bean. If this is set a BeanInvoker is created for
+     * the provide bean.
+     * 
+     * @return
+     */
+    public void setServiceBean(Object serviceBean) {
+        this.serviceBean = serviceBean;
+    }
+    
 }

@@ -650,6 +650,7 @@ public class SequenceTest extends ClientServerTestBase {
 
         outRecorder = new OutMessageRecorder();
         greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
+        greeterBus.getInInterceptors().add(new JaxwsInterceptorRemover());
         greeterBus.getOutInterceptors().add(outRecorder);
         inRecorder = new InMessageRecorder();
         greeterBus.getInInterceptors().add(inRecorder);
