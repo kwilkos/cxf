@@ -26,9 +26,11 @@ import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.binding.xml.XMLFault;
+import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
@@ -39,6 +41,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -90,10 +93,12 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
         BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
         MessagePartInfo part = null;
         if (bop == null) {
-            List<OperationInfo> operations = new ArrayList<OperationInfo>();
-            operations.addAll(service.getInterface().getOperations());
-            
-            part = findMessagePart(ex, operations, startQName, false , 0);
+            part = getPartByRootNode(message, startQName, service, xsr);
+            if (part == null) {
+                List<OperationInfo> operations = new ArrayList<OperationInfo>();
+                operations.addAll(service.getInterface().getOperations());            
+                part = findMessagePart(ex, operations, startQName, false , 0);
+            }
         } else {
             MessageInfo msgInfo = getMessageInfo(message, bop, ex);
             if (msgInfo.getMessageParts().size() > 0) {
@@ -101,7 +106,7 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
             }
         }
 
-        if (part != null && part.getMessageInfo().getMessageParts().size() == 1) {
+        if (part != null) {
             OperationInfo o = part.getMessageInfo().getOperation();
             // TODO: We already know the op, so we can optimize BareInInterceptor a bit yet
             if (!o.isUnwrappedCapable()) {
@@ -134,4 +139,34 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
         throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", BUNDLE, startQName));
     }
 
+    private MessagePartInfo getPartByRootNode(Message message, QName startQName, 
+            BindingInfo bi, XMLStreamReader xsr) {        
+        for (BindingOperationInfo boi : bi.getOperations()) {
+            MessageInfo mi;
+            BindingMessageInfo bmi;
+            if (!isRequestor(message)) {
+                mi = boi.getOperationInfo().getInput();
+                bmi = boi.getInput();
+            } else {
+                mi = boi.getOperationInfo().getOutput();
+                bmi = boi.getOutput();
+            }
+            XMLBindingMessageFormat xmf = bmi.getExtensor(XMLBindingMessageFormat.class);
+            if (xmf != null) {
+                if (xmf.getRootNode().getLocalPart().equals(startQName.getLocalPart())) {
+                    message.getExchange().put(BindingOperationInfo.class, boi);
+                    try {
+                        xsr.nextTag();
+                    } catch (XMLStreamException xse) {
+                        throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                    }
+                    if (mi.getMessageParts().size() > 0) {
+                        return mi.getMessageParts().get(0);
+                    }
+                    break;
+                }
+            }
+        }
+        return null;
+    }
 }
