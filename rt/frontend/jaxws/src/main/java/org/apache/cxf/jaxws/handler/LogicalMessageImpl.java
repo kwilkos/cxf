@@ -27,6 +27,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.transform.Source;
 import javax.xml.ws.LogicalMessage;
 
+import org.apache.cxf.message.Message;
+
 
 public class LogicalMessageImpl implements LogicalMessage {
 
@@ -46,7 +48,13 @@ public class LogicalMessageImpl implements LogicalMessage {
 
     public Object getPayload(JAXBContext arg0) {
         // TODO - what to do with JAXB context?
-        return msgContext.getWrappedMessage().getContent(List.class).get(0);
+        Message msg = msgContext.getWrappedMessage();
+        if (msg.getContent(List.class) != null) {
+            return msg.getContent(List.class).get(0);
+        } else if (msg.getContent(Object.class) != null) {
+            return msg.getContent(Object.class);
+        }
+        return null;
     }
 
     public void setPayload(Object arg0, JAXBContext arg1) {

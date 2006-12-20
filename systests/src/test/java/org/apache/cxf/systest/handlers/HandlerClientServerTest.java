@@ -23,9 +23,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 
 import junit.framework.Test;
@@ -35,6 +39,9 @@ import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.handlers.AddNumbers;
 import org.apache.handlers.AddNumbersService;
+import org.apache.handlers.types.AddNumbersResponse;
+import org.apache.handlers.types.ObjectFactory;
+
 
 public class HandlerClientServerTest extends ClientServerTestBase {
 
@@ -67,6 +74,34 @@ public class HandlerClientServerTest extends ClientServerTestBase {
         assertEquals(200, result);
         int result1 = port.addNumbers(5, 6);
         assertEquals(11, result1);
+    }
+    
+    public void testInvokeFromDispatchWithJAXBPayload() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
+        assertNotNull(wsdl);
+
+        AddNumbersService service = new AddNumbersService(wsdl, serviceName);
+        assertNotNull(service);
+
+        JAXBContext jc = JAXBContext.newInstance("org.apache.handlers.types");
+        Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
+ 
+        //Add client side handlers programmatically
+        SmallNumberHandler sh = new SmallNumberHandler();
+        List<Handler> newHandlerChain = new ArrayList<Handler>();
+        newHandlerChain.add(sh);
+        ((BindingProvider)disp).getBinding().setHandlerChain(newHandlerChain);
+        
+        org.apache.handlers.types.AddNumbers req = new org.apache.handlers.types.AddNumbers();        
+        req.setArg0(10);
+        req.setArg1(20);        
+        ObjectFactory factory = new ObjectFactory();        
+        JAXBElement e = factory.createAddNumbers(req);        
+
+        JAXBElement response = (JAXBElement)disp.invoke(e);
+        assertNotNull(response);
+        AddNumbersResponse value = (AddNumbersResponse)response.getValue();
+        assertEquals(200, value.getReturn());
     }
 
 }

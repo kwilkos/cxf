@@ -45,6 +45,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
+import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -68,7 +69,8 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
 
     private Endpoint endpoint;
 
-    DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {        
+    DispatchImpl(Bus b, Service.Mode m, Class<T> clazz, Executor e, Endpoint ep) {
+        super(((JaxWsEndpointImpl)ep).getJaxwsBinding());
         bus = b;
         cl = clazz;
         executor = e;
@@ -78,6 +80,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
     }
 
     DispatchImpl(Bus b, Service.Mode m, JAXBContext ctx, Class<T> clazz, Executor e, Endpoint ep) {
+        super(((JaxWsEndpointImpl)ep).getJaxwsBinding());
         bus = b;
         executor = e;
         context = ctx;
