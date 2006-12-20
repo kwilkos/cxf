@@ -154,10 +154,12 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
             XMLBindingMessageFormat xmf = bmi.getExtensor(XMLBindingMessageFormat.class);
             if (xmf != null && xmf.getRootNode().getLocalPart().equals(startQName.getLocalPart())) {
                 message.getExchange().put(BindingOperationInfo.class, boi);
-                try {
-                    xsr.nextTag();
-                } catch (XMLStreamException xse) {
-                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                if (!boi.isUnwrappedCapable()) {
+                    try {
+                        xsr.nextTag();
+                    } catch (XMLStreamException xse) {
+                        throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                    }
                 }
                 if (mi.getMessageParts().size() > 0) {
                     return mi.getMessageParts().get(0);
