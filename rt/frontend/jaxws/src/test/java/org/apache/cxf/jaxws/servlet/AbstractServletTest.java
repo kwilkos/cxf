@@ -30,9 +30,12 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.servletunit.ServletRunner;
 import com.meterware.servletunit.ServletUnitClient;
 
+//import org.apache.cxf.Bus;
+//import org.apache.cxf.BusException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.test.AbstractCXFTest;
+//import org.apache.cxf.transport.DestinationFactoryManager;
 
 public abstract class AbstractServletTest extends AbstractCXFTest {
 
@@ -47,20 +50,25 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
             // ignore, we just want to boot up the servlet
         }        
         super.setUp();
-
+        
         HttpUnitOptions.setExceptionsThrownOnErrorStatus(true);        
-    }
+    } 
     
     public void tearDown() {
-        // clean up the BusFactory defualt bus
-        BusFactoryHelper.newInstance().setDefaultBus(null);
+        bus.shutdown(false);
+        BusFactoryHelper.newInstance().setDefaultBus(null);                
     }
-
+       
+    //CXFservlet has create the bus, so we need to use this bus for service init 
     @Override
     public Bus getBus() {
         return BusFactoryHelper.newInstance().getDefaultBus();
     }
-
+    
+    @Override
+    public Bus createBus() {
+        return BusFactoryHelper.newInstance().getDefaultBus();
+    }
     /**
      * @return The web.xml to use for testing.
      */

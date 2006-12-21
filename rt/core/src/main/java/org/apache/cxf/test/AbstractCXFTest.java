@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.bus.cxf.CXFBusFactory;
+import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Message;
@@ -57,12 +57,13 @@ public class AbstractCXFTest extends TestCase {
     
     private static String basedirPath;
     
+    protected Bus bus;
     /**
      * Namespaces for the XPath expressions.
      */
     private Map<String, String> namespaces = new HashMap<String, String>();
 
-    private Bus bus;
+    
     
     public void setUp() throws Exception {
         bus = createBus();
@@ -79,9 +80,17 @@ public class AbstractCXFTest extends TestCase {
     public Bus getBus() {
         return bus;
     }
+    
+    public void tearDown() {       
+        if (bus != null) {
+            bus.shutdown(false);
+        } 
+        BusFactoryHelper.newInstance().setDefaultBus(null);
+    }
+
 
     protected Bus createBus() throws BusException {
-        return new CXFBusFactory().createBus();
+        return BusFactoryHelper.newInstance().createBus();
     }
 
     protected byte[] invokeBytes(String address, 

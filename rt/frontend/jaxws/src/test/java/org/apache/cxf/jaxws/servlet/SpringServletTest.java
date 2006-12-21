@@ -18,13 +18,13 @@
  */
 package org.apache.cxf.jaxws.servlet;
 
-/*import org.w3c.dom.Document;
+import org.w3c.dom.Document;
 
 import com.meterware.httpunit.PostMethodWebRequest;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
-import org.apache.cxf.helpers.DOMUtils;*/
+import org.apache.cxf.helpers.DOMUtils;
 
 public class SpringServletTest extends AbstractServletTest {
     @Override
@@ -33,7 +33,7 @@ public class SpringServletTest extends AbstractServletTest {
     }
 
     public void testInvokingSpringBeans() throws Exception {
-/*
+
         WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter",
             getClass().getResourceAsStream("/org/apache/cxf/jaxws/GreeterMessage.xml"),
             "text/xml; charset=utf-8");
@@ -49,6 +49,6 @@ public class SpringServletTest extends AbstractServletTest {
         addNamespace("h", "http://apache.org/hello_world_soap_http/types");
 
         assertValid("/s:Envelope/s:Body", doc);
-        assertValid("//h:sayHiResponse", doc);*/
+        assertValid("//h:sayHiResponse", doc);
     }
 }
