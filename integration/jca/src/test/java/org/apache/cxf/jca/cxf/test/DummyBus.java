@@ -19,27 +19,12 @@
 package org.apache.cxf.jca.cxf.test;
 
 
-//import java.util.Map;
+
 import java.util.ResourceBundle;
 import org.apache.cxf.Bus;
-// import org.apache.cxf.BusEvent;
-// import org.apache.cxf.BusEventCache;
-// import org.apache.cxf.BusEventFilter;
-// import org.apache.cxf.BusEventListener;
 import org.apache.cxf.BusException;
-//import org.apache.cxf.bindings.BindingManager;
-//import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-//import org.apache.cxf.jaxws.EndpointRegistry;
-//import org.apache.cxf.management.InstrumentationManager;
-//import org.apache.cxf.plugins.PluginManager;
-//import org.apache.cxf.resource.ResourceManager;
-//import org.apache.cxf.transports.TransportFactoryManager;
-//import org.apache.cxf.workqueue.WorkQueueManager;
-//import org.apache.cxf.wsdl.WSDLManager;
-
-
 
 public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {    
     // for initialise behaviours
@@ -83,90 +68,8 @@ public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {
     }
 
 
-//     @Override
-//     public void sendEvent(BusEvent event) {
-//         // TODO Auto-generated method stub
-        
-//     }
 
-
-//     @Override
-//     public void addListener(BusEventListener l, BusEventFilter filter) throws BusException {
-//         // TODO Auto-generated method stub
-        
-//     }
-
-
-//     @Override
-//     public void removeListener(BusEventListener l) throws BusException {
-//         // TODO Auto-generated method stub
-        
-//     }
-
-
-//     @Override
-//     public BusEventCache getEventCache() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public TransportFactoryManager getTransportFactoryManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public BindingManager getBindingManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public WSDLManager getWSDLManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public PluginManager getPluginManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public BusLifeCycleManager getLifeCycleManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public WorkQueueManager getWorkQueueManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public ResourceManager getResourceManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public InstrumentationManager getInstrumentationManager() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-//    @Override
+    //    @Override
     public <T> T getExtension(Class<T> extensionType) {
         return null;
     }
@@ -189,31 +92,6 @@ public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {
         
     }
 
-
-//     @Override
-//     public EndpointRegistry getEndpointRegistry() {
-//         // TODO Auto-generated method stub
-//         return null;
-//     }
-
-
-//     @Override
-//     public void initialize(String[] args, Map<String, Object> properties) throws BusException {
-//         // TODO Auto-generated method stub
-        
-//     }
-
-
-//     public static String getCXFHome() {
-//         return cxfHome;
-//     }
-
-
-//     public static void setCXFHome(String home) {
-//         DummyBus.cxfHome = home;
-//     }
-
-
     public static boolean isCorrectThreadContextClassLoader() {
         return correctThreadContextClassLoader;
     }
@@ -232,30 +110,5 @@ public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {
     public static void setInitializeCount(int count) {
         DummyBus.initializeCount = count;
     }
-
-
-//     public static String[] getInvokeArgs() {
-//         return invokeArgs;
-//     }
-
-
-//     public static void setInvokeArgs(String[] args) {
-//         DummyBus.invokeArgs = args;
-//     }
-
-
-//     public static int getShutdownCount() {
-//         return shutdownCount;
-//     }
-
-
-//     public static void setShutdownCount(int count) {
-//         DummyBus.shutdownCount = count;
-//     }
-
-
-//     public static void setThrowException(boolean fthrow) {
-//         DummyBus.throwException = fthrow;
-//     } 
 
 }

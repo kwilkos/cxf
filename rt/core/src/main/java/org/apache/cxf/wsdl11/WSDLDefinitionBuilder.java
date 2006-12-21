@@ -19,31 +19,51 @@
 
 package org.apache.cxf.wsdl11;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Import;
+import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.bind.JAXBException;
 
-import org.xml.sax.InputSource;
-
+import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.common.util.PropertiesLoaderUtils;
+import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLBuilder;
-import org.apache.cxf.wsdl4jutils.WSDLResolver;
+import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 
-public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
+public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {    
+    
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLDefinitionBuilder.class);
-    protected WSDLFactory wsdlFactory;
+    private static final String EXTENSIONS_RESOURCE = "META-INF/extensions.xml";
+    
     protected WSDLReader wsdlReader;
     protected Definition wsdlDefinition;
+    final WSDLFactory wsdlFactory;
+    final ExtensionRegistry registry;    
     private List<Definition> importedDefinitions = new ArrayList<Definition>();
+    
+    public WSDLDefinitionBuilder() {    
+        try {
+            wsdlFactory = WSDLFactory.newInstance();
+            registry = wsdlFactory.newPopulatedExtensionRegistry();
+            registerInitialExtensions();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     public Definition build(String wsdlURL) {
         parseWSDL(wsdlURL);
@@ -51,18 +71,21 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
     }
 
     protected void parseWSDL(String wsdlURL) {
-        try {
-            wsdlFactory = WSDLFactory.newInstance();
+        try {            
             wsdlReader = wsdlFactory.newWSDLReader();
+            // TODO enable the verbose if in verbose mode.
             wsdlReader.setFeature("javax.wsdl.verbose", false);
-            // REVISIT: JAXWS/JMS/XML extensions, should be provided by the WSDLServiceBuilder
-            //          Do we need to expose the wsdlReader and wsdlFactory? 
-            //            WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, wsdlReader);
-            //            register.registerExtensions();
-            URIResolver resolver = new URIResolver(wsdlURL);
-            InputSource insource = new InputSource(resolver.getInputStream());
-            wsdlURL = resolver.getURI().toString();
-            wsdlDefinition = wsdlReader.readWSDL(new WSDLResolver(wsdlURL, insource));
+            
+            // REVIST: URIResolve is to solve the wsdl import and schema import, 
+            //         but seems it works fine now without URIResolver
+            //         URIResolve has a bug, it can not resolve the wsdl in testutils
+            
+            //URIResolver resolver = new URIResolver(wsdlURL);
+            //InputSource insource = new InputSource(resolver.getInputStream());
+            //wsdlURL = resolver.getURI().toString();
+            //wsdlDefinition = wsdlReader.readWSDL(new WSDLResolver(wsdlURL, insource));
+            WSDLLocatorImpl wsdlLocator = new WSDLLocatorImpl(wsdlURL);
+            wsdlDefinition = wsdlReader.readWSDL(wsdlLocator);
 
             parseImports(wsdlDefinition);
         } catch (Exception we) {
@@ -89,5 +112,42 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
     
     public List<Definition> getImportedDefinitions() {
         return importedDefinitions;
+    }
+
+    private void registerInitialExtensions() throws BusException {
+        Properties initialExtensions = null;
+        try {
+            initialExtensions = PropertiesLoaderUtils.loadAllProperties(EXTENSIONS_RESOURCE, Thread
+                            .currentThread().getContextClassLoader());
+        } catch (IOException ex) {
+            throw new BusException(ex);
+        }
+
+        for (Iterator it = initialExtensions.keySet().iterator(); it.hasNext();) {
+            StringTokenizer st = new StringTokenizer(initialExtensions.getProperty((String) it.next()), "=");
+            String parentType = st.nextToken();
+            String elementType = st.nextToken();
+            try {
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("Registering extension: " + elementType + " for parent: " + parentType);
+                }
+                System.err.println("parent type: " + parentType);
+                System.err.println("elementType : " + elementType);
+                JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
+                                .getClassLoader());
+            } catch (ClassNotFoundException ex) {
+                LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
+            } catch (JAXBException ex) {
+                LOG.log(Level.WARNING, "EXTENSION_ADD_FAILED_MSG", ex);
+            }
+        }
+    }
+    
+    public ExtensionRegistry getExtenstionRegistry() {
+        return registry;
+    }
+
+    public WSDLFactory getWSDLFactory() {
+        return wsdlFactory;
     }
 }

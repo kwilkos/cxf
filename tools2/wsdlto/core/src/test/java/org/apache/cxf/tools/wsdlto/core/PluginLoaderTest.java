@@ -73,7 +73,6 @@ public class PluginLoaderTest extends TestCase {
             loader.getFrontEndProfile("jaxws");
             fail("JaxWs frontend not loaded yet");
         } catch (ToolException e) {
-            System.err.println(e.getMessage());
             assertEquals(getLogMessage("FRONTEND_PROFILE_LOAD_FAIL", frontend.getPackage()
                                        + "."
                                        + frontend.getProfile()),

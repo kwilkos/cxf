@@ -19,15 +19,27 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+import javax.wsdl.Binding;
+import javax.wsdl.BindingInput;
+import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
+import javax.wsdl.Port;
+import javax.wsdl.Service;
+import javax.wsdl.extensions.http.HTTPAddress;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.CustomizationParser;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 
 public class JAXWSDefinitionBuilderTest extends TestCase {
     private ToolContext env;
@@ -36,12 +48,76 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         env = new ToolContext();
     }
 
+    public void testBuildDefinitionWithXMLBinding() {
+        String qname = "http://apache.org/hello_world_xml_http/bare";
+        String wsdlUrl = getClass().getResource("/wsdl/hello_world_xml_bare.wsdl").toString();
+
+        JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
+        builder.setContext(env);
+        Definition def = builder.build(wsdlUrl);
+        assertNotNull(def);
+        
+        Map services = def.getServices();
+        assertNotNull(services);
+        assertEquals(1, services.size());
+        Service service = (Service)services.get(new QName(qname, "XMLService"));
+        assertNotNull(service);
+        
+        Map ports = service.getPorts();
+        assertNotNull(ports);
+        assertEquals(1, ports.size());
+        Port port = service.getPort("XMLPort");
+        assertNotNull(port);
+
+        assertEquals(1, port.getExtensibilityElements().size());
+        assertTrue(port.getExtensibilityElements().get(0) instanceof HTTPAddress);
+
+        Binding binding = port.getBinding();
+        assertNotNull(binding);
+        assertEquals(new QName(qname, "Greeter_XMLBinding"), binding.getQName());
+
+        BindingOperation operation = binding.getBindingOperation("sayHi", null, null);
+        assertNotNull(operation);
+
+        BindingInput input = operation.getBindingInput();
+        assertNotNull(input);
+        assertEquals(1, input.getExtensibilityElements().size());
+        assertTrue(input.getExtensibilityElements().get(0) instanceof XMLBindingMessageFormat);
+    }
+
+    public void testBuildDefinitionWithJMSTransport() {
+        String qname = "http://cxf.apache.org/hello_world_jms";
+        String wsdlUrl = getClass().getResource("/wsdl/jms_test.wsdl").toString();
+
+        JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
+        builder.setContext(env);
+        Definition def = builder.build(wsdlUrl);
+        assertNotNull(def);
+        
+        Map services = def.getServices();
+        assertNotNull(services);
+        assertEquals(8, services.size());
+        Service service = (Service)services.get(new QName(qname, "HelloWorldQueueBinMsgService"));
+        assertNotNull(service);
+        
+        Map ports = service.getPorts();
+        assertNotNull(ports);
+        assertEquals(1, ports.size());
+        Port port = service.getPort("HelloWorldQueueBinMsgPort");
+        assertNotNull(port);
+
+        assertEquals(3, port.getExtensibilityElements().size());
+        assertTrue(port.getExtensibilityElements().get(0) instanceof JMSAddressPolicyType);
+    }
+
+
+
     public void testCustomization() {
         env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("./hello_world.wsdl").toString());
         env.put(ToolConstants.CFG_BINDING, getClass().getResource("./binding2.xml").toString());
         JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
         builder.setContext(env);
-        Definition def = builder.build((String)env.get(ToolConstants.CFG_WSDLURL));
+        Definition def = builder.build();
         builder.customize();
 
         CustomizationParser parser = builder.getCustomizationParer();

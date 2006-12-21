@@ -383,35 +383,6 @@ public final class EndpointReferenceUtils {
 
         return null;
     }
-
-    
-   /* private static List<javax.wsdl.extensions.schema.Schema> getSchemas(Definition definition) {
-        Types types = definition.getTypes();
-        List<javax.wsdl.extensions.schema.Schema> schemaList = 
-            new ArrayList<javax.wsdl.extensions.schema.Schema>();
-        if (types != null) {
-            for (Object o : types.getExtensibilityElements()) {
-                if (o instanceof javax.wsdl.extensions.schema.Schema) {
-                    javax.wsdl.extensions.schema.Schema s =
-                        (javax.wsdl.extensions.schema.Schema)o;
-                    schemaList.add(s);
-                }
-            }
-        }
-
-        Map wsdlImports = definition.getImports();
-        for (Object o : wsdlImports.values()) {
-            if (o instanceof List) {
-                for (Object p : (List)o) {
-                    if (p instanceof Import) {
-                        schemaList.addAll(getSchemas(((Import)p).getDefinition()));
-                    }
-                }
-            }
-        }
-        return schemaList;
-    }*/
-    
     
     public static Schema getSchema(ServiceInfo serviceInfo) {
         if (serviceInfo == null) {
@@ -423,36 +394,7 @@ public final class EndpointReferenceUtils {
             }
         }
         Schema schema = schemaMap.get(serviceInfo);
-        /*Object obj = serviceInfo.getProperty("org.apache.cxf.wsdl11.WSDLServiceBuilder.DEFINITION");
-        Definition def = (Definition)obj;*/
-       /* if (schema == null) {
-            List<javax.wsdl.extensions.schema.Schema> schemas = getSchemas(def);
-            SchemaFactory factory = SchemaFactory.newInstance(
-                XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            List<Source> schemaSources = new ArrayList<Source>();
-            for (javax.wsdl.extensions.schema.Schema s : schemas) {
-                Source source = new DOMSource(s.getElement());
-                if (source != null) {
-                    schemaSources.add(source);
-                }
-            }
-            try {
-                schema = factory.newSchema(schemaSources.toArray(
-                    new Source[schemaSources.size()]));
-                if (schema != null) {
-                    synchronized (schemaMap) {
-                        schemaMap.put(serviceInfo, schema);
-                    }
-                    LOG.log(Level.FINE, "Obtained schema from wsdl definition");
-                }
-            } catch (SAXException ex) {
-                // Something not right with the schema from the wsdl.
-               
-            }
-        }
-        return schema;
 
-    }*/
         if (schema == null) {
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);

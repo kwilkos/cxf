@@ -83,7 +83,6 @@ public class JAXWSProfileTest extends TestCase {
 
         Class container = profile.getContainerClass();
         assertEquals(container, JAXWSContainer.class);
-        System.err.println(profile.getToolspec());
         assertEquals("/org/apache/cxf/tools/wsdlto/frontend/jaxws/jaxws-toolspec.xml", profile.getToolspec());
     }
 

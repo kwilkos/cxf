@@ -95,7 +95,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                         builder.customize();
                     }
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-                    //services = 
+                    //services =
                     serviceBuilder.buildService(definition);
                 } else {
                     // TODO: wsdl2.0 support

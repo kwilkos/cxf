@@ -144,6 +144,11 @@
 				<xsdOption>
 				    <xsd>${basedir}/src/main/resources/schemas/plugin.xsd</xsd>
 				</xsdOption>
+
+				<xsdOption>
+				    <xsd>${basedir}/src/main/resources/schemas/wsdl11/xml-binding.xsd</xsd>
+				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl11/xml-binding.xjb</bindingFile>
+				</xsdOption>
 			    </xsdOptions>
 			</configuration>
 			<goals>
