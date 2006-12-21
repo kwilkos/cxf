@@ -16,18 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
 
-package org.apache.cxf.tools.wsdlto.core;
+public class JAXWSParameter {
+    private String name;
+    private String elementName;
 
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.wsdl.WSDLBuilder;
-
-public abstract class AbstractWSDLBuilder<T> implements WSDLBuilder<T> {
-    protected ToolContext context;
-    
-    public void setContext(ToolContext c) {
-        this.context = c;
+    public void setName(String name) {
+        this.name = name;
     }
-    
-    public abstract void customize();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setElementName(String eleName) {
+        this.elementName = eleName;
+    }
+
+    public String getElementName() {
+        return this.elementName;
+    }
+
 }

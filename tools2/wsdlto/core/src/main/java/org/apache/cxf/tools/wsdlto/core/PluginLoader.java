@@ -246,6 +246,7 @@ public final class PluginLoader {
         AbstractWSDLBuilder builder = null;
         try {
             builder = (AbstractWSDLBuilder) Class.forName(fullClzName).newInstance();
+            
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "LOAD_PROCESSOR_FAILED", fullClzName);
             Message msg = new Message("LOAD_PROCESSOR_FAILED", LOG, fullClzName);

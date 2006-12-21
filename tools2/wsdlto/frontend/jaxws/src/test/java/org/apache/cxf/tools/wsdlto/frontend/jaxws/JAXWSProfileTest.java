@@ -19,16 +19,13 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws;
 
-import java.io.*;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-//import org.apache.cxf.tools.wsdlto.core.FrontEndGenerator;
 import junit.framework.TestCase;
 
 import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
-
-
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;

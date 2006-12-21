@@ -19,14 +19,18 @@
 
 package org.apache.cxf.tools.wsdlto;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+
 import javax.wsdl.Definition;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.common.i18n.Message;
-//import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -88,7 +92,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     
                     if (context.optionSet(ToolConstants.CFG_BINDING)) {
                         builder.setContext(context);
-                        builder.customize(definition);
+                        builder.customize();
                     }
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
                     //services = 

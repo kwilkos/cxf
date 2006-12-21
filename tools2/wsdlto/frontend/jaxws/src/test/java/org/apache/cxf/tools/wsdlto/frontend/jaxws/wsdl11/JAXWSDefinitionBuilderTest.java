@@ -19,11 +19,63 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
+import javax.wsdl.Definition;
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
+import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.CustomizationParser;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+
 public class JAXWSDefinitionBuilderTest extends TestCase {
+    private ToolContext env;
+
+    public void setUp() {
+        env = new ToolContext();
+    }
 
     public void testCustomization() {
-        // TODO: to port from tools
-    } 
+        env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("./hello_world.wsdl").toString());
+        env.put(ToolConstants.CFG_BINDING, getClass().getResource("./binding2.xml").toString());
+        JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
+        builder.setContext(env);
+        Definition def = builder.build((String)env.get(ToolConstants.CFG_WSDLURL));
+        builder.customize();
+
+        CustomizationParser parser = builder.getCustomizationParer();
+
+        JAXWSBinding jaxwsBinding = parser.getDefinitionBindingMap().get(def.getTargetNamespace());
+        assertNotNull("JAXWSBinding for definition is null", jaxwsBinding);
+        assertEquals("Package customiztion for definition is not correct", "com.foo", jaxwsBinding
+            .getPackage());
+
+        
+        QName qn = new QName(def.getTargetNamespace(), "Greeter");
+        jaxwsBinding = parser.getPortTypeBindingMap().get(qn);
+        assertNotNull("JAXWSBinding for PortType is null", jaxwsBinding);
+        assertTrue("AsynMapping customiztion for PortType is not true", 
+                   jaxwsBinding.isEnableAsyncMapping());
+
+        qn = new QName(def.getTargetNamespace(), "greetMeOneWay");
+        jaxwsBinding = parser.getOperationBindingMap().get(qn);
+        
+        assertNotNull("JAXWSBinding for Operation is null", jaxwsBinding);
+        assertEquals("Method name customiztion for operation is not correct", 
+                     "echoMeOneWay", jaxwsBinding.getMethodName());
+
+        qn = new QName(def.getTargetNamespace(), "in");
+        jaxwsBinding = parser.getPartBindingMap().get(qn);
+       
+        assertEquals("Parameter name customiztion for part is not correct", 
+                     "num1", jaxwsBinding.getJaxwsPara().getName());
+
+        // System.out.println("----size ---- " +
+        // parser.getDefinitionBindingMap().size());
+
+        // CustomizationParser cusParser = CustomizationParser.getInstance();
+        // cusParser.parse(env);
+
+    }
 }

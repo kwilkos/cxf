@@ -17,17 +17,27 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.core;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
 
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.wsdl.WSDLBuilder;
+import java.io.*;
 
-public abstract class AbstractWSDLBuilder<T> implements WSDLBuilder<T> {
-    protected ToolContext context;
-    
-    public void setContext(ToolContext c) {
-        this.context = c;
+import javax.wsdl.Definition;
+import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.extensions.ExtensionSerializer;
+import javax.xml.namespace.QName;
+
+public class JAXWSBindingSerializer implements ExtensionSerializer, Serializable {
+    public static final long serialVersionUID = 1;
+
+    public void marshall(Class parentType,
+                         QName elementType,
+                         ExtensibilityElement extension,
+                         PrintWriter pw,
+                         Definition def,
+                         ExtensionRegistry extReg)
+        throws WSDLException {
+        // TODO
     }
-    
-    public abstract void customize();
 }
