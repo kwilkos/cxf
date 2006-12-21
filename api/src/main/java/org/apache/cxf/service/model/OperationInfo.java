@@ -69,8 +69,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
      */
     public final void setName(QName name) {
         if (name == null) {
-            throw new NullPointerException(
-                new Message("OPERATION.NAME.NOT.NULL", LOG).toString());
+            throw new NullPointerException("Operation Name cannot be null.");                
         }        
         opName = name;
     }
