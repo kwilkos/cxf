@@ -85,6 +85,41 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertSame("Unexpected interceptor at this position.", p2, it.next());
         assertTrue(!it.hasNext());
     }
+    
+    AbstractPhaseInterceptor setUpPhaseInterceptor(String phase, String id,
+                                                   Set<String> b, boolean be) {
+        AbstractPhaseInterceptor p = control
+            .createMock(AbstractPhaseInterceptor.class);
+        EasyMock.expect(p.getPhase()).andReturn(phase).anyTimes();
+        EasyMock.expect(p.getId()).andReturn(id).anyTimes();
+        Set<String> after = new HashSet<String>();
+        Set<String> before = null == b ? new HashSet<String>() : b;
+        EasyMock.expect(p.getBefore()).andReturn(before).anyTimes();
+        EasyMock.expect(p.getAfter()).andReturn(after).anyTimes();
+
+        return p;
+    }
+    
+    public void testThreeInterceptorSamePhaseWithOrder() {
+        AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
+        Set<String> before = new HashSet<String>();
+        before.add("p1");
+        AbstractPhaseInterceptor p2 = setUpPhaseInterceptor("phase1", "p2", before, true);
+        Set<String> before1 = new HashSet<String>();
+        before1.add("p2");
+        AbstractPhaseInterceptor p3 = setUpPhaseInterceptor("phase1", "p3", before1, true);
+        control.replay();
+        chain.add(p3);
+        chain.add(p1);
+        chain.add(p2);
+        
+        Iterator<Interceptor<? extends Message>> it = chain.iterator();
+
+        assertSame("Unexpected interceptor at this position.", p3, it.next());
+        assertSame("Unexpected interceptor at this position.", p2, it.next());
+        assertSame("Unexpected interceptor at this position.", p1, it.next());
+        assertTrue(!it.hasNext());
+    }
 
     public void testSingleInterceptorPass() {
         AbstractPhaseInterceptor p = setUpPhaseInterceptor("phase1", "p1");
@@ -298,7 +333,7 @@ public class PhaseInterceptorChainTest extends TestCase {
 
         return p;
     }
-
+    
     @SuppressWarnings("unchecked")
     void setUpPhaseInterceptorInvocations(AbstractPhaseInterceptor p,
             boolean fail, boolean expectFault) {

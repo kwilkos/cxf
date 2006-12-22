@@ -270,9 +270,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
     public ListIterator<Interceptor<? extends Message>> getIterator() {
         return new PhaseInterceptorIterator();
     }
-    
 
     protected void insertInterceptor(List<Interceptor> intercs, PhaseInterceptor interc) {
+
         if (intercs.size() == 0) {
             intercs.add(interc);
             return;
@@ -294,9 +294,15 @@ public class PhaseInterceptorChain implements InterceptorChain {
             if (before.contains(cmp.getId()) && i < end) {
                 end = i;
             }
-
             if (cmp.getBefore().contains(interc.getId()) && i > begin) {
                 begin = i;
+                if (end < begin) {
+                    intercs.remove(cmp);
+                    intercs.add(end, cmp);
+                    i = end;
+                    begin = end;
+                    end = begin + 1;
+                }
             }
 
             if (after.contains(cmp.getId()) && i > begin) {
@@ -313,6 +319,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
 
         intercs.add(begin + 1, interc);
+        
     }
 
     void outputChainToLog(boolean modified) {
