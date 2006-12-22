@@ -30,12 +30,9 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.servletunit.ServletRunner;
 import com.meterware.servletunit.ServletUnitClient;
 
-//import org.apache.cxf.Bus;
-//import org.apache.cxf.BusException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.test.AbstractCXFTest;
-//import org.apache.cxf.transport.DestinationFactoryManager;
 
 public abstract class AbstractServletTest extends AbstractCXFTest {
 
