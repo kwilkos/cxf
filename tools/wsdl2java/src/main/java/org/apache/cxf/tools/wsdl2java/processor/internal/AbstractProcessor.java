@@ -37,7 +37,7 @@ public abstract class AbstractProcessor {
     
     public AbstractProcessor(ToolContext penv) {
         this.env = penv;
-        this.collector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
+        this.collector = env.get(ClassCollector.class);
         dataBinder = (DataBindingGenerator)env.get(ToolConstants.BINDING_GENERATOR);
         
     }

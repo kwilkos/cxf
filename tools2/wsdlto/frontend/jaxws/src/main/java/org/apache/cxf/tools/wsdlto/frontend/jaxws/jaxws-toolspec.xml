@@ -78,6 +78,18 @@ wsdl2java -client HelloWorld.wsdl
 		</associatedArgument>
 	    </option>
 
+	    <option id="servicename">
+		<annotation>
+		    The wsdl service name name to use for the generated code.
+		    Also, optionally specify the wsdl namespace.
+		</annotation>
+		<switch>sn</switch>
+		<associatedArgument placement="afterSpace">
+		    <valuetype>NamingSpacePackageString</valuetype>
+		<annotation>[wsdl namespace =]Package Name</annotation>
+		</associatedArgument>
+	    </option>
+
 	    <option id="binding" maxOccurs="unbounded">
 		<annotation>
 		            Specify external jaxws or jaxb binding files, (Each 

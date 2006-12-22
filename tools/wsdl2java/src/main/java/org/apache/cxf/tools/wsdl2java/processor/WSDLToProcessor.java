@@ -362,8 +362,7 @@ public class WSDLToProcessor implements Processor {
         validateWSDL(getWSDLDefinition());
         parseCustomization(getWSDLDefinition());
         initVelocity();
-        classColletor = new ClassCollector();
-        env.put(ToolConstants.GENERATED_CLASS_COLLECTOR, classColletor);
+        env.put(ClassCollector.class, new ClassCollector());
         initDataModel();
 
     }

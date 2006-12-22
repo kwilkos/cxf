@@ -38,6 +38,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.tools.validator.internal.WSDL11Validator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.CustomizationParser;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
@@ -135,5 +136,13 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     
     public CustomizationParser getCustomizationParer() {
         return cusParser;
+    }
+
+    public boolean validate(Definition def) throws ToolException {
+        if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+            WSDL11Validator validator = new WSDL11Validator(def, context);
+            validator.isValid();
+        }
+        return true;
     }
 }

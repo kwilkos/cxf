@@ -77,8 +77,8 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
     public void initialize(ToolContext penv) throws ToolException {
         env = penv;
 
-        SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-        ClassCollector classCollector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
+        SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();        
+        ClassCollector classCollector = env.get(ClassCollector.class);
 
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
 
@@ -183,7 +183,7 @@ public class JAXBBindingGenerator implements DataBindingGenerator {
     }
     
     private boolean addedToClassCollector(String packageName) {
-        ClassCollector classCollector = (ClassCollector)env.get(ToolConstants.GENERATED_CLASS_COLLECTOR);
+        ClassCollector classCollector = env.get(ClassCollector.class);
         List<String> files = (List<String>)classCollector.getGeneratedFileInfo();
         for (String file : files) {
             int dotIndex = file.lastIndexOf(".");

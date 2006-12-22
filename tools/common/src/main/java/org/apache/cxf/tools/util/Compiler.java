@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdl2java.processor.compiler;
+package org.apache.cxf.tools.util;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -242,10 +242,10 @@ public final class PluginLoader {
         return "/" + getContainerPackage(frontend).replace(".", "/") + "/" + toolspec;
     }
 
-    private AbstractWSDLBuilder loadBuilder(String fullClzName) {
-        AbstractWSDLBuilder builder = null;
+    private AbstractWSDLBuilder<? extends Object> loadBuilder(String fullClzName) {
+        AbstractWSDLBuilder<? extends Object> builder = null;
         try {
-            builder = (AbstractWSDLBuilder) Class.forName(fullClzName).newInstance();
+            builder = (AbstractWSDLBuilder<? extends Object>) Class.forName(fullClzName).newInstance();
             
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "LOAD_PROCESSOR_FAILED", fullClzName);

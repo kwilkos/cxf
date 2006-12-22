@@ -125,7 +125,6 @@ public final class ToolConstants {
     public static final String SERVICE_GENERATOR = "service.generator";
     public static final String ANT_GENERATOR = "ant.generator";
     public static final String HANDLER_GENERATOR = "handler.generator";
-    public static final String GENERATED_CLASS_COLLECTOR = "generatedClassCollector";
 
     // Binding namespace
     public static final String NS_JAXWS_BINDINGS = "http://java.sun.com/xml/ns/jaxws";

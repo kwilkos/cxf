@@ -23,6 +23,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.wsdl.extensions.schema.Schema;
+import javax.xml.namespace.QName;
 
 import org.xml.sax.InputSource;
 
@@ -40,10 +41,9 @@ public class ToolContext {
     private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
     private List<String> excludePkgList = new java.util.ArrayList<String>();
     private List<String> excludeFileList = new java.util.ArrayList<String>();
-   
+
     public ToolContext() {
     }
-
 
     public void loadDefaultNS2Pck(InputStream ins) {
         try {
@@ -80,7 +80,7 @@ public class ToolContext {
             }
         }
     }
-    
+
     public void setParameters(Map<String, Object> map) {
         this.paramMap = map;
     }
@@ -104,10 +104,10 @@ public class ToolContext {
     public <T> T get(Class<T> key) {
         return key.cast(get(key.getName()));
     }
-    
+
     public <T> void put(Class<T> key, T value) {
         put(key.getName(), value);
-    } 
+    }
 
     public boolean getBooleanValue(String key, String defaultValue) {
         return Boolean.valueOf((String)get(key, defaultValue)).booleanValue();
@@ -139,6 +139,7 @@ public class ToolContext {
         }
     }
 
+    // REVIST: Prefer using optionSet, to keep the context clean
     public boolean validateWSDL() {
         return get(ToolConstants.CFG_VALIDATE_WSDL) != null;
 
@@ -199,20 +200,37 @@ public class ToolContext {
     public boolean isExcludeNamespaceEnabled() {
         return excludeNamespacePackageMap.size() > 0;
     }
-    
+
     @SuppressWarnings("unchecked")
     public List<Schema> getSchemaList() {
         return (List<Schema>)this.get(ToolConstants.SCHEMA_LIST);
     }
-    
+
     public List<String> getExcludePkgList() {
         return this.excludePkgList;
     }
-    
+
     public List<String> getExcludeFileList() {
         return this.excludeFileList;
     }
     
-    
-    
+    public QName getQName(String key) {
+        return getQName(key, null);
+    }
+
+    public QName getQName(String key, String defaultNamespace) {
+        if (optionSet(key)) {
+            String pns = (String)get(key);
+            int pos = pns.indexOf("=");
+            String localname = pns;
+            if (pos != -1) {
+                String ns = pns.substring(0, pos);
+                localname = pns.substring(pos + 1);
+                return new QName(ns, localname);
+            } else {
+                return new QName(defaultNamespace, localname);
+            }
+        }
+        return null;
+    }
 }

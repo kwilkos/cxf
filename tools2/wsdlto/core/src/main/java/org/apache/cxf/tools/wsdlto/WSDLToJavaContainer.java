@@ -20,18 +20,24 @@
 package org.apache.cxf.tools.wsdlto;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.wsdl.Definition;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
+import org.apache.cxf.tools.common.ClassUtils;
+import org.apache.cxf.tools.common.FrontEndGenerator;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -41,6 +47,7 @@ import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
@@ -80,31 +87,51 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 FrontEndProfile frontend = context.get(FrontEndProfile.class);
                 
                 Processor processor = frontend.getProcessor();
-
-                AbstractWSDLBuilder builder = frontend.getWSDLBuilder();
                 
                 ToolConstants.WSDLVersion version = getWSDLVersion();
 
-                //List<ServiceInfo> services;
+                ServiceInfo service = null;
                 String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
+                
+                // Build the ServiceModel from the WSDLModel
                 if (version == ToolConstants.WSDLVersion.WSDL11) {
-                    Definition definition = (Definition) builder.build(wsdlURL);
+                    AbstractWSDLBuilder<Definition> builder =
+                        (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
+                    Definition definition = builder.build(wsdlURL);
+                    builder.validate(definition);
                     
                     if (context.optionSet(ToolConstants.CFG_BINDING)) {
                         builder.setContext(context);
                         builder.customize();
                     }
+
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-                    //services =
-                    serviceBuilder.buildService(definition);
+                    service = serviceBuilder.buildService(definition, getServiceQName(definition));
                 } else {
                     // TODO: wsdl2.0 support
                 }
-                
+
+                // Generate types
+                generateTypes();                
+
+                // Build the JavaModel from the ServiceModel
+                context.put(ServiceInfo.class, service);
                 processor.setEnvironment(context);
-                // TODO: replace the wsdl4j with service model
-                //processor.setServiceModel(services);
                 processor.process();
+
+                // Generate artifacts
+                for (FrontEndGenerator generator : frontend.getGenerators()) {
+                    generator.generate(context);
+                }
+
+                // Build projects: compile classes and copy resources etc.
+                if (context.optionSet(ToolConstants.CFG_COMPILE)) {
+                    new ClassUtils().compile(context);
+                }
+
+                if (context.isExcludeNamespaceEnabled()) {
+                    removeExcludeFiles();
+                }
             }
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
@@ -122,7 +149,25 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             }
         }
     }
-    
+
+    @SuppressWarnings("unchecked")    
+    private QName getServiceQName(Definition definition) {
+        QName qname = context.getQName(ToolConstants.CFG_SERVICENAME);
+        if (qname == null) {
+            qname = (QName) definition.getServices().keySet().iterator().next();
+        }
+        if (StringUtils.isEmpty(qname.getNamespaceURI())) {
+            for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
+                QName qn = ite.next();
+                if (qn.getLocalPart().equals(qname.getLocalPart())) {
+                    return qn;
+                }
+            }
+            qname = new QName(definition.getTargetNamespace(), qname.getLocalPart());
+        }
+        return qname;
+    }
+
     private void loadDefaultNSPackageMapping(ToolContext env) {
         if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE) 
             && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
@@ -255,6 +300,63 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             Message msg = new Message("PARAMETER_MISSING", LOG);
             throw new ToolException(msg, new BadUsageException(getUsage(), errors));
         }
-    }    
+    }
+
+    private void removeExcludeFiles() throws IOException {
+        List<String> excludeGenFiles = context.getExcludeFileList();
+        if (excludeGenFiles == null) {
+            return;
+        }
+        String outPutDir = (String)context.get(ToolConstants.CFG_OUTPUTDIR);
+        for (int i = 0; i < excludeGenFiles.size(); i++) {
+            String excludeFile = excludeGenFiles.get(i);
+            File file = new File(outPutDir, excludeFile);
+            file.delete();
+            File tmpFile = file.getParentFile();
+            while (tmpFile != null && !tmpFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
+                if (tmpFile.isDirectory() && tmpFile.list().length == 0) {
+                    tmpFile.delete();
+                }
+                tmpFile = tmpFile.getParentFile();
+            }
+
+            if (context.get(ToolConstants.CFG_COMPILE) != null) {
+                String classDir = context.get(ToolConstants.CFG_CLASSDIR) == null
+                    ? outPutDir : (String)context.get(ToolConstants.CFG_CLASSDIR);
+                File classFile = new File(classDir, excludeFile.substring(0, excludeFile.indexOf(".java"))
+                                                    + ".class");
+                classFile.delete();
+                File tmpClzFile = classFile.getParentFile();
+                while (tmpClzFile != null && !tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
+                    if (tmpClzFile.isDirectory() && tmpClzFile.list().length == 0) {
+                        tmpClzFile.delete();
+                    }
+                    tmpClzFile = tmpClzFile.getParentFile();
+                }
+            }
+        }
+    }
+
+    public boolean passthrough() {
+        if (context.optionSet(ToolConstants.CFG_GEN_TYPES)
+            || context.optionSet(ToolConstants.CFG_ALL)) {
+            return false;
+        }
+        if (context.optionSet(ToolConstants.CFG_GEN_ANT)
+            || context.optionSet(ToolConstants.CFG_GEN_CLIENT)
+            || context.optionSet(ToolConstants.CFG_GEN_IMPL)
+            || context.optionSet(ToolConstants.CFG_GEN_SEI)
+            || context.optionSet(ToolConstants.CFG_GEN_SERVER)
+            || context.optionSet(ToolConstants.CFG_GEN_SERVICE)) {
+            return true;
+        }
+        return false;
+    }
     
+    private void generateTypes() throws ToolException {
+        if (passthrough()) {
+            return;
+        }
+        context.get(DataBindingProfile.class).generate();
+    }
 }

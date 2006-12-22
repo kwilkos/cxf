@@ -75,6 +75,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             wsdlReader = wsdlFactory.newWSDLReader();
             // TODO enable the verbose if in verbose mode.
             wsdlReader.setFeature("javax.wsdl.verbose", false);
+            wsdlReader.setExtensionRegistry(registry);
             
             // REVIST: URIResolve is to solve the wsdl import and schema import, 
             //         but seems it works fine now without URIResolver
@@ -85,7 +86,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             //wsdlURL = resolver.getURI().toString();
             //wsdlDefinition = wsdlReader.readWSDL(new WSDLResolver(wsdlURL, insource));
             WSDLLocatorImpl wsdlLocator = new WSDLLocatorImpl(wsdlURL);
-            wsdlDefinition = wsdlReader.readWSDL(wsdlLocator);
+            wsdlDefinition = wsdlReader.readWSDL(wsdlLocator);            
 
             parseImports(wsdlDefinition);
         } catch (Exception we) {
@@ -131,8 +132,6 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
                 if (LOG.isLoggable(Level.FINE)) {
                     LOG.fine("Registering extension: " + elementType + " for parent: " + parentType);
                 }
-                System.err.println("parent type: " + parentType);
-                System.err.println("elementType : " + elementType);
                 JAXBExtensionHelper.addExtensions(registry, parentType, elementType, getClass()
                                 .getClassLoader());
             } catch (ClassNotFoundException ex) {

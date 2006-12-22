@@ -57,7 +57,7 @@ public class WSDL11Validator extends AbstractValidator {
     }
 
     public boolean isValid() throws ToolException {
-        boolean isValid = true;
+        //boolean isValid = true;
         String schemaDir = getSchemaDir();
         SchemaValidator schemaValidator = null;
         String[] schemas = (String[])env.get(ToolConstants.CFG_SCHEMA_URL);
@@ -79,8 +79,7 @@ public class WSDL11Validator extends AbstractValidator {
 
         }
         if (!schemaValidator.isValid()) {
-            this.addErrorMessage(schemaValidator.getErrorMessage());
-            isValid = false;
+            this.addErrorMessage(schemaValidator.getErrorMessage());            
             throw new ToolException(this.getErrorMessage());
 
         } else {
@@ -94,13 +93,11 @@ public class WSDL11Validator extends AbstractValidator {
 
         for (AbstractValidator validator : validators) {
             if (!validator.isValid()) {
-                addErrorMessage(validator.getErrorMessage());
-                isValid = false;
+                addErrorMessage(validator.getErrorMessage());                
                 throw new ToolException(this.getErrorMessage());
             }
         }
-
-        return isValid;
+        return true;
     }
 
     public String getSchemaDir() {
