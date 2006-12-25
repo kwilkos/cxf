@@ -149,4 +149,9 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
     public WSDLFactory getWSDLFactory() {
         return wsdlFactory;
     }
+    
+    public WSDLReader getWSDLReader() {
+        return wsdlReader;
+    }
+    
 }
