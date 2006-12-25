@@ -167,19 +167,8 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
      * @param url the URL the servant was registered against.
      */
     public synchronized void removeServant(URL url) {
-        String lpath = url.getPath();
+        String contextName = HttpUriMapper.getContextName(url.getPath());
         
-        String contextName = "";
-        String servletMap = lpath;
-        int idx = lpath.lastIndexOf('/');
-        if (idx > 0) {
-            contextName = lpath.substring(0, idx);
-            servletMap = lpath.substring(idx);
-        }
-        if ("".equals(servletMap) && "".equals(contextName)) {
-            servletMap = "/";
-        }
-
         boolean found = false;
         // REVISIT: how come server can be null?
         if (server != null) {            
@@ -221,18 +210,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
      * @return the HttpHandler if registered
      */
     public synchronized Handler getServant(URL url)  {
-        String lpath = url.getPath();
-        
-        String contextName = "";
-        String servletMap = lpath;
-        int idx = lpath.lastIndexOf('/');
-        if (idx > 0) {
-            contextName = lpath.substring(0, idx);
-            servletMap = lpath.substring(idx);
-        }
-        if ("".equals(servletMap) && "".equals(contextName)) {
-            servletMap = "/";
-        }
+        String contextName = HttpUriMapper.getContextName(url.getPath());
         
         Handler ret = null;
         // REVISIT: how come server can be null?

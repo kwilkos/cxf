@@ -182,7 +182,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
      */
     public void send(Message message) throws IOException {
         Map<String, List<String>> headers = setHeaders(message);
-        URL currentURL = setupURL(message);
+        URL currentURL = setupURL(message);        
         URLConnection connection = 
             connectionFactory.createConnection(getProxy(), currentURL);
         connection.setDoOutput(true);        

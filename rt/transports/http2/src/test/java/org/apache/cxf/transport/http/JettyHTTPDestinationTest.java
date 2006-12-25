@@ -148,7 +148,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                      "GET");
         assertEquals("unexpected path",
                      inMessage.get(Message.PATH_INFO),
-                     "bar/foo");
+                     "/bar/foo");
         assertEquals("unexpected query",
                      inMessage.get(Message.QUERY_STRING),
                      "?customerId=abc&cutomerAdd=def");
@@ -340,30 +340,26 @@ public class JettyHTTPDestinationTest extends TestCase {
             EasyMock.expectLastCall();
             request.setHandled(true);
             EasyMock.expectLastCall();
-        } else { // method is POST         
-            request.getMethod();
-            EasyMock.expectLastCall().andReturn(method);
-            request.getInputStream();
-            EasyMock.expectLastCall().andReturn(is);
-            request.getPathInfo();
-            EasyMock.expectLastCall().andReturn("bar/foo");
-            request.getQueryString();
-            EasyMock.expectLastCall().andReturn(query);
-            request.getContentType();
-            EasyMock.expectLastCall().andReturn("text/xml charset=utf8");
+        } else { // method is POST 
+            EasyMock.expect(request.getMethod()).andReturn(method);            
+            EasyMock.expect(request.getInputStream()).andReturn(is);
+            EasyMock.expect(request.getContextPath()).andReturn("/bar");
+            EasyMock.expect(request.getPathInfo()).andReturn("/foo");
+            EasyMock.expect(request.getQueryString()).andReturn(query);            
+            EasyMock.expect(request.getContentType()).andReturn("text/xml charset=utf8");
+            
             HttpFields httpFields = new HttpFields();
             httpFields.add("content-type", "text/xml");
             httpFields.add("content-type", "charset=utf8");
             httpFields.put(JettyHTTPDestinationTest.AUTH_HEADER, JettyHTTPDestinationTest.BASIC_AUTH);
-            request.getHeaderNames();
-            EasyMock.expectLastCall().andReturn(httpFields.getFieldNames());
+            
+            EasyMock.expect(request.getHeaderNames()).andReturn(httpFields.getFieldNames());
             request.getHeaders("content-type");
             EasyMock.expectLastCall().andReturn(httpFields.getValues("content-type"));
             request.getHeaders(JettyHTTPDestinationTest.AUTH_HEADER);
             EasyMock.expectLastCall().andReturn(httpFields.getValues(JettyHTTPDestinationTest.AUTH_HEADER));
-           
-            request.getInputStream();                       
-            EasyMock.expectLastCall().andReturn(is);
+                                              
+            EasyMock.expect(request.getInputStream()).andReturn(is);
             request.setHandled(true);
             EasyMock.expectLastCall();  
             response.flushBuffer();
@@ -437,7 +433,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                      "POST");
         assertEquals("unexpected path",
                      inMessage.get(Message.PATH_INFO),
-                     "bar/foo");
+                     "/bar/foo");
         assertEquals("unexpected query",
                      inMessage.get(Message.QUERY_STRING),
                      "?name");

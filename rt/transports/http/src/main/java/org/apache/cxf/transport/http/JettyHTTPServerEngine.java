@@ -150,13 +150,10 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-
-        if ("".equals(smap) && "".equals(contextName)) {
-            handler.setName("/");
-        } else {
-            handler.setName(smap);
-        }
+        
+        handler.setName(smap);        
         context.addHandler(handler);
+        
         try {
             handler.start();
         } catch (Exception e) {
