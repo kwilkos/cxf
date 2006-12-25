@@ -35,11 +35,14 @@ public final class HttpUriMapper {
     }
     
     public static String getResourceBase(String path) {
-        String servletMap = path;
+        String servletMap = "";
         int idx = path.lastIndexOf('/');
         if (idx > 0) {
             servletMap = path.substring(idx);
         }
+        if ("".equals(servletMap) || "".equals(path)) {
+            servletMap = "/";
+        } 
         return servletMap;
     }
 }
