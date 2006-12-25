@@ -171,26 +171,17 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
      * 
      * @param url the URL the servant was registered against.
      */
-    public synchronized void removeServant(URL url) {
-        String lpath = url.getPath();
+    public synchronized void removeServant(URL url) {        
         
-        String contextName = "";
-        String servletMap = lpath;
-        int idx = lpath.lastIndexOf('/');
-        if (idx > 0) {
-            contextName = lpath.substring(0, idx);
-            servletMap = lpath.substring(idx);
-        }
-        if ("".equals(servletMap) && "".equals(contextName)) {
-            servletMap = "/";
-        }
+        String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
 
         boolean found = false;
         // REVISIT: how come server can be null?
         if (server != null) {
             HttpContext context = server.getContext(contextName);
             for (HttpHandler handler : context.getHandlers()) {
-                if (servletMap.equals(handler.getName())) {
+                if (smap.equals(handler.getName())) {
                     try {
                         handler.stop();
                     } catch (InterruptedException e) {
@@ -222,22 +213,15 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
      * @return the HttpHandler if registered
      */
     public synchronized HttpHandler getServant(URL url)  {
-        String lpath = url.getPath();
-        
-        String contextName = "";
-        String servletMap = lpath;
-        int idx = lpath.lastIndexOf('/');
-        if (idx > 0) {
-            contextName = lpath.substring(0, idx);
-            servletMap = lpath.substring(idx);
-        }
+        String contextName = HttpUriMapper.getContextName(url.getPath());
+        final String smap = HttpUriMapper.getResourceBase(url.getPath());
         
         HttpHandler ret = null;
         // REVISIT: how come server can be null?
         if (server != null) {
             HttpContext context = server.getContext(contextName);
             for (HttpHandler handler : context.getHandlers()) {
-                if (servletMap.equals(handler.getName())) {
+                if (smap.equals(handler.getName())) {
                     ret = handler;
                     break;
                 }

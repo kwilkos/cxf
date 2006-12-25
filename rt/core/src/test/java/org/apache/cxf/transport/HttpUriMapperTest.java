@@ -33,7 +33,12 @@ public class HttpUriMapperTest extends TestCase {
         url = new URL("http://localhost:8080/SoapContext/SoapPort/");
         path = url.getPath();
         assertEquals("/SoapContext/SoapPort", HttpUriMapper.getContextName(path));
+        
+        url = new URL("http://localhost:8080/");
+        path = url.getPath();
+        assertEquals("", HttpUriMapper.getContextName(path));
     }
+    
     
     public void testGetResourceBase() throws Exception {
         URL url = new URL("http://localhost:8080/SoapContext/SoapPort");
