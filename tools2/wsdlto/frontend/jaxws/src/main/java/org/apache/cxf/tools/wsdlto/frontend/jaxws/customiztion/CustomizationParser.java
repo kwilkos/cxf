@@ -35,6 +35,8 @@ import javax.wsdl.Definition;
 import javax.wsdl.Operation;
 import javax.wsdl.PortType;
 import javax.wsdl.WSDLException;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -88,6 +90,8 @@ public final class CustomizationParser {
 
     private Element handlerChains;
     private Element wsdlNode;;
+    
+    private Element customizedWSDLNode;
 
     private CustomizationParser() {
 
@@ -136,7 +140,13 @@ public final class CustomizationParser {
         for (URI wsdlUri : jaxwsBindings.keySet()) {
             Element element = jaxwsBindings.get(wsdlUri);
             definition = getWSDlDefinition(wsdlUri.toString());
-            wsdlNode = getTargetNode(wsdlUri);
+            URI uri = null;
+            try {
+                uri = new URI(definition.getDocumentBaseURI());
+            } catch (URISyntaxException e1) {
+                //ignore
+            }
+            wsdlNode = getTargetNode(uri);
             buildTargetNodeMap(element, "");
         }
 
@@ -144,11 +154,13 @@ public final class CustomizationParser {
     }
 
     public Element getTargetNode(URI wsdlLoc) {
+
         Document doc = null;
         try {
             File file = new File(wsdlLoc);
             java.io.InputStream ins = new java.io.FileInputStream(file);
             doc = DOMUtils.readXml(ins);
+            
         } catch (SAXException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -205,7 +217,7 @@ public final class CustomizationParser {
         if (isJAXWSParameter(bindings) && bindings.getAttribute("part") != null) {
             String partExpression = "//" + bindings.getAttribute("part");
             try {
-                Node node = evaluateBindingsNode(partExpression);
+                Node node = evaluateBindingsNode(wsdlNode, partExpression);
 
                 if ("part".equals(node.getLocalName())) {
                     JAXWSBinding jaxwsBinding = bindingsParser.parse(PortType.class, bindings,
@@ -220,21 +232,62 @@ public final class CustomizationParser {
         }
 
         if (isJAXWSBindings(bindings) && bindings.getAttributeNode("node") != null) {
-
             expression = expression + "/" + bindings.getAttribute("node");
             try {
-                Node node = evaluateBindingsNode(expression);
-
-                if ("portType".equals(node.getLocalName())) {
+                Node node = null;
+                boolean nestedJaxb = nestedJaxbBinding(bindings);               
+                if (nestedJaxb) {
+                    customizedWSDLNode = 
+                        customizedWSDLNode == null ? getNodeInDefinition(definition) : customizedWSDLNode;
+                    node = evaluateBindingsNode(customizedWSDLNode, expression);
+                } else {
+                    node = evaluateBindingsNode(wsdlNode, expression);
+                }
+                if (node != null && "portType".equals(node.getLocalName()) && !nestedJaxb) {
                     JAXWSBinding jaxwsBinding = bindingsParser.parse(PortType.class, bindings,
                                                                      getTargetNamspace(node));
                     addJAXWSBindingMap(portTypeBindingMap, node, jaxwsBinding);
                 }
 
-                if ("operation".equals(node.getLocalName())) {
+                if (node != null && "operation".equals(node.getLocalName()) && !nestedJaxb) {
                     JAXWSBinding jaxwsBinding = bindingsParser.parse(Operation.class, bindings,
                                                                      getTargetNamspace(node));
                     addJAXWSBindingMap(opertaionBindingMap, node, jaxwsBinding);
+                }
+
+                if (node != null && nestedJaxb) {
+                    // append xmlns:jaxb and jaxb:version attribute for schema
+                    Node schemaNode = getSchemaNode(node);
+                    Element schemaElement = (Element)schemaNode;
+                    
+                    String jaxbPrefix = schemaElement.lookupPrefix(ToolConstants.NS_JAXB_BINDINGS);
+                    if (jaxbPrefix == null) {
+                        schemaElement.setAttribute("xmlns:jaxb", ToolConstants.NS_JAXB_BINDINGS);
+                        schemaElement.setAttribute("jaxb:version", "2.0");
+                    }
+
+                    // append jaxb appinfo for value node
+                    Element annoElement = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
+                                                                                  "annotation");
+                    Element appinfoEle = node.getOwnerDocument().createElementNS(ToolConstants.SCHEMA_URI,
+                                                                                 "appinfo");
+
+                    annoElement.appendChild(appinfoEle);
+
+                    NodeList jxbBinds = getJaxbBindingNode((Element)bindings);
+
+                    for (int l = 0; l < jxbBinds.getLength(); l++) {
+                        Node jaxbBindingNode = jxbBinds.item(l);
+                        Node cloneNode = ProcessorUtil.cloneNode(node.getOwnerDocument(), jaxbBindingNode,
+                                                                 true);
+                        appinfoEle.appendChild(cloneNode);
+                    }
+
+                    if (node.getChildNodes().getLength() > 0) {
+                        node.insertBefore(annoElement, node.getChildNodes().item(0));
+                    } else {
+                        node.appendChild(annoElement);
+                    }
                 }
 
             } catch (WSDLException we) {
@@ -247,6 +300,33 @@ public final class CustomizationParser {
         for (int i = 0; i < children.length; i++) {
             buildTargetNodeMap(children[i], expression);
         }
+    }
+    @SuppressWarnings("unchecked")
+    private Element getNodeInDefinition(Definition def) {
+        List<ExtensibilityElement> extList = def.getTypes().getExtensibilityElements();
+        for (ExtensibilityElement ele : extList) {
+            if (ele instanceof Schema) {
+                Schema schema = (Schema)ele;
+                Element element = schema.getElement();
+                Element target = element.getOwnerDocument().getDocumentElement();
+                return target;
+            }
+        }
+        return null;
+    }
+    
+    private Node getSchemaNode(Node node) {
+        if (!"schema".equals(node.getLocalName())) {
+            while (node.getParentNode() != null) {
+                node = node.getParentNode();
+
+                if ("schema".equals(node.getLocalName())) {
+                    return node;
+                }
+            }
+            return null;
+        }
+        return node;
     }
 
     @SuppressWarnings("unchecked")
@@ -409,8 +489,8 @@ public final class CustomizationParser {
         }
     }
 
-    private Node evaluateBindingsNode(String expression) throws WSDLException {
-        Node node = evaluateXPathNode(wsdlNode, expression, new javax.xml.namespace.NamespaceContext() {
+    private Node evaluateBindingsNode(Node targetNode, String expression) throws WSDLException {
+        Node node = evaluateXPathNode(targetNode, expression, new javax.xml.namespace.NamespaceContext() {
             public String getNamespaceURI(String prefix) {
                 return definition.getNamespace(prefix);
             }
@@ -507,6 +587,20 @@ public final class CustomizationParser {
                && "bindings".equals(bindings.getLocalName());
     }
 
+    private boolean nestedJaxbBinding(Element bindings) {
+        NodeList nodeList = bindings.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "bindings");
+        if (nodeList.getLength() == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    private NodeList getJaxbBindingNode(Element bindings) {
+        NodeList nodeList = bindings.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "bindings");
+        return nodeList.item(0).getChildNodes();       
+    }
+
+
     public Map<String, JAXWSBinding> getDefinitionBindingMap() {
         return this.definitionBindingMap;
     }
@@ -522,5 +616,13 @@ public final class CustomizationParser {
     public Map<QName, JAXWSBinding> getPartBindingMap() {
         return this.partBindingMap;
     }
-
+    
+    public Element getCustomizedWSDLElement() {
+        if (this.customizedWSDLNode == null) {
+            customizedWSDLNode = this.wsdlNode;
+        }
+        return customizedWSDLNode;
+        
+    }
+    
 }

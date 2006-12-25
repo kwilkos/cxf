@@ -33,7 +33,9 @@ import javax.wsdl.Operation;
 
 import javax.wsdl.PortType;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.xml.WSDLReader;
 
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
@@ -51,6 +53,8 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     protected static final Logger LOG = LogUtils.getL7dLogger(JAXWSDefinitionBuilder.class);
     protected CustomizationParser cusParser;
     
+    private WSDLReader reader;
+    
     public JAXWSDefinitionBuilder() {
     }
     
@@ -65,6 +69,8 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
         registerJaxwsExtension(registry);
         Definition wsdlDefinition = builder.build(wsdlURL);
+        
+        reader = builder.getWSDLReader();
 
         context.put(ToolConstants.WSDL_DEFINITION, wsdlDefinition);
         context.put(ToolConstants.IMPORTED_DEFINITION, builder.getImportedDefinitions());
@@ -137,6 +143,20 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     public CustomizationParser getCustomizationParer() {
         return cusParser;
     }
+    
+    public Definition getCustomizedDefinition() {
+        try {
+
+            Definition def = reader.readWSDL(cusParser.getCustomizedWSDLElement().getBaseURI(), cusParser
+                .getCustomizedWSDLElement());
+            return def;
+        } catch (Exception we) {
+            Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG, cusParser
+                .getCustomizedWSDLElement().getBaseURI());
+            throw new RuntimeException(msg.toString(), we);
+        }
+    }
+    
 
     public boolean validate(Definition def) throws ToolException {
         if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {

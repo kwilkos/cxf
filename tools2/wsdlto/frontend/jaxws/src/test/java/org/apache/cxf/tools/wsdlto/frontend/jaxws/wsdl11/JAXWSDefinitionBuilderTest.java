@@ -30,7 +30,10 @@ import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
 import javax.wsdl.extensions.http.HTTPAddress;
+import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
 
 import junit.framework.TestCase;
 
@@ -127,31 +130,35 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         assertEquals("Package customiztion for definition is not correct", "com.foo", jaxwsBinding
             .getPackage());
 
-        
         QName qn = new QName(def.getTargetNamespace(), "Greeter");
         jaxwsBinding = parser.getPortTypeBindingMap().get(qn);
         assertNotNull("JAXWSBinding for PortType is null", jaxwsBinding);
-        assertTrue("AsynMapping customiztion for PortType is not true", 
-                   jaxwsBinding.isEnableAsyncMapping());
+        assertTrue("AsynMapping customiztion for PortType is not true", jaxwsBinding.isEnableAsyncMapping());
 
         qn = new QName(def.getTargetNamespace(), "greetMeOneWay");
         jaxwsBinding = parser.getOperationBindingMap().get(qn);
-        
+
         assertNotNull("JAXWSBinding for Operation is null", jaxwsBinding);
-        assertEquals("Method name customiztion for operation is not correct", 
-                     "echoMeOneWay", jaxwsBinding.getMethodName());
+        assertEquals("Method name customiztion for operation is not correct", "echoMeOneWay", jaxwsBinding
+            .getMethodName());
 
         qn = new QName(def.getTargetNamespace(), "in");
         jaxwsBinding = parser.getPartBindingMap().get(qn);
-       
-        assertEquals("Parameter name customiztion for part is not correct", 
-                     "num1", jaxwsBinding.getJaxwsPara().getName());
 
-        // System.out.println("----size ---- " +
-        // parser.getDefinitionBindingMap().size());
+        assertEquals("Parameter name customiztion for part is not correct", "num1", jaxwsBinding
+            .getJaxwsPara().getName());
 
-        // CustomizationParser cusParser = CustomizationParser.getInstance();
-        // cusParser.parse(env);
+        Definition cusDef = builder.getCustomizedDefinition();
+
+        Schema schema = (Schema)cusDef.getTypes().getExtensibilityElements().iterator().next();
+
+        Element appinfoElement = (Element)schema.getElement()
+            .getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "appinfo").item(0);
+
+        assertNotNull("Appinfo element does not  be append to schema element", appinfoElement);
+
+        assertNotNull("typesafeEnum element does not  be append to schema element", appinfoElement
+            .getElementsByTagName("jaxb:typesafeEnumClass").item(0));
 
     }
 }

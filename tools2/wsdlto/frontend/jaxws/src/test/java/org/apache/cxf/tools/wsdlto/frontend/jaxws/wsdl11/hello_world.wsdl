@@ -26,7 +26,7 @@
 	targetNamespace="http://apache.org/hello_world_soap_http"
 	name="HelloWorld">
 	<wsdl:types>
-		<schema elementFormDefault="qualified"
+		<xsd:schema elementFormDefault="qualified"
 			targetNamespace="http://apache.org/hello_world_soap_http/types"
 			xmlns="http://www.w3.org/2001/XMLSchema">
 			<element name="CreateProcess">
@@ -45,7 +45,7 @@
 				</complexType>
 			</element>
 			
-		</schema>
+		</xsd:schema>
 	</wsdl:types>
 
 	<wsdl:message name="greetMeOneWayRequest">
