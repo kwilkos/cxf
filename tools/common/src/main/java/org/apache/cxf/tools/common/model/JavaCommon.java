@@ -17,20 +17,19 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.core;
+package org.apache.cxf.tools.common.model;
 
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import javax.xml.namespace.QName;
+public class JavaCommon {
+    private final Set<String> imports = new TreeSet<String>();
 
-import com.sun.tools.xjc.api.Property;
-import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
+    public void addImport(String i) {
+        imports.add(i);
+    }
 
-public interface DataBindingProfile {
-    void generate(ToolContext context) throws ToolException;
-    String getType(QName qn, boolean fullName);
-    String getJavaType(QName qn, boolean boxify);
-    List<? extends Property> getBlock(MessagePartInfo part);
+    public Set<String> getAllImport() {
+        return imports;
+    }
 }

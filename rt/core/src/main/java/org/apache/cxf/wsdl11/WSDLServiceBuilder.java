@@ -332,10 +332,12 @@ public class WSDLServiceBuilder {
 
     }
 
+    @SuppressWarnings("unchecked")
     private void buildInterfaceOperation(InterfaceInfo inf, Operation op) {
         OperationInfo opInfo = inf.addOperation(new QName(inf.getName().getNamespaceURI(), op.getName()));
         opInfo.setProperty(WSDL_OPERATION, op);
-
+        opInfo.setParameterOrdering(op.getParameterOrdering());
+        
         Input input = op.getInput();
         List paramOrder = op.getParameterOrdering();
         if (input != null) {

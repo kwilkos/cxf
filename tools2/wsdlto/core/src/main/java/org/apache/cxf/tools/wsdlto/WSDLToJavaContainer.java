@@ -77,6 +77,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         return BusFactoryHelper.newInstance().getDefaultBus();
     }
     
+    @SuppressWarnings("unchecked")
     public void execute(boolean exitOnFinish) throws ToolException {
         try {
             super.execute(exitOnFinish);
@@ -85,8 +86,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 validate(context);
                 
                 FrontEndProfile frontend = context.get(FrontEndProfile.class);
-                
-                Processor processor = frontend.getProcessor();
                 
                 ToolConstants.WSDLVersion version = getWSDLVersion();
 
@@ -98,7 +97,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     AbstractWSDLBuilder<Definition> builder =
                         (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
                     Definition definition = builder.build(wsdlURL);
-                    builder.validate(definition);
+
+                    context.put(Definition.class, definition);
+                    if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+                        builder.validate(definition);
+                    }
                     
                     if (context.optionSet(ToolConstants.CFG_BINDING)) {
                         builder.setContext(context);
@@ -116,6 +119,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
                 // Build the JavaModel from the ServiceModel
                 context.put(ServiceInfo.class, service);
+                Processor processor = frontend.getProcessor();
                 processor.setEnvironment(context);
                 processor.process();
 
@@ -357,6 +361,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (passthrough()) {
             return;
         }
-        context.get(DataBindingProfile.class).generate();
+        context.get(DataBindingProfile.class).generate(context);
     }
 }

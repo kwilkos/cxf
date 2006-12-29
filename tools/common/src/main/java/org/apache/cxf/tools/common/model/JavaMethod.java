@@ -46,7 +46,7 @@ public class JavaMethod {
     private WSDLParameter requestParameter;
     private WSDLParameter responseParameter;
     private boolean wrapperStyle;
-    private final JavaInterface javaInterface;
+    private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
@@ -55,7 +55,8 @@ public class JavaMethod {
     private JAXWSBinding bindingExt = new JAXWSBinding();
 
     public JavaMethod() {
-        this.javaInterface = null;
+        this.javaInterface = new JavaInterface();
+        this.javaReturn = new JavaReturn();
     }
 
     public JavaMethod(JavaInterface i) {
@@ -64,7 +65,7 @@ public class JavaMethod {
 
     public void clear() {
         parameters.clear();
-        javaReturn = null;
+        javaReturn = new JavaReturn();
     }
 
     public String getSignature() {
@@ -334,5 +335,9 @@ public class JavaMethod {
 
     public void setBindingExt(JAXWSBinding pBindingExt) {
         this.bindingExt = pBindingExt;
+    }
+    
+    public void setInterface(JavaInterface intf) {
+        this.javaInterface = intf;
     }
 }

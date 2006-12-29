@@ -159,10 +159,6 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     
 
     public boolean validate(Definition def) throws ToolException {
-        if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
-            WSDL11Validator validator = new WSDL11Validator(def, context);
-            validator.isValid();
-        }
-        return true;
+        return new WSDL11Validator(def, context).isValid();
     }
 }

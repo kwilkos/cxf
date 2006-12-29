@@ -33,6 +33,7 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     TypeInfo typeInfo;
     Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
     Map<QName, EndpointInfo> endpoints = new ConcurrentHashMap<QName, EndpointInfo>(2);
+    Map<QName, MessageInfo> messages;
     
     public ServiceInfo() {
     }
@@ -89,5 +90,25 @@ public class ServiceInfo extends AbstractPropertiesHolder {
 
     public void setTypeInfo(TypeInfo typeInfo) {
         this.typeInfo = typeInfo;
+    }
+    
+    public Map<QName, MessageInfo> getMessages() {
+        if (messages != null) {
+            return messages;            
+        }
+        messages = new ConcurrentHashMap<QName, MessageInfo>();
+        for (OperationInfo operation : getInterface().getOperations()) {
+            if (operation.getInput() != null) {
+                messages.put(operation.getInput().getName(), operation.getInput());
+            }
+            if (operation.getOutput() != null) {
+                messages.put(operation.getOutput().getName(), operation.getOutput());
+            }
+        }
+        return messages;
+    }
+    
+    public MessageInfo getMessage(QName qname) {
+        return getMessages().get(qname);
     }
 }

@@ -51,4 +51,14 @@ public class GreeterImpl implements Greeter {
         return "Bonjour";
     }
 
+    public String testTriPart(MyComplexStructType in1, String in3, String in2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public String testTriPartNoOrder(String in3, MyComplexStructType in1, String in2) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

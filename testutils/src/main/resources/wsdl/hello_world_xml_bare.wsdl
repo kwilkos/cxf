@@ -75,7 +75,13 @@ under the License.
     <wsdl:message name="multiParamPartResponse">
 	<wsdl:part element="x1:responseType" name="out1"/>
     </wsdl:message>
-
+    
+    <wsdl:message name="triPartRequest">
+	<wsdl:part element="x1:requestType" name="in3"/>
+	<wsdl:part element="x1:myComplexStruct" name="in1"/>
+	<wsdl:part element="x1:requestType" name="in2"/>
+    </wsdl:message>
+    
     <wsdl:portType name="Greeter">
 	<wsdl:operation name="sayHi">
 	    <wsdl:input message="tns:sayHiRequest" name="sayHiRequest"/>
@@ -91,6 +97,14 @@ under the License.
 	</wsdl:operation>
 	<wsdl:operation name="testMultiParamPart" parameterOrder="in2 in1">
 	    <wsdl:input message="tns:multiParamPartRequest" name="multiParamPartRequest"/>
+	    <wsdl:output message="tns:multiParamPartResponse" name="multiParamPartResponse"/>
+	</wsdl:operation>
+	<wsdl:operation name="testTriPart" parameterOrder="in1 in3 in2">
+	    <wsdl:input message="tns:triPartRequest" name="triPartRequest"/>
+	    <wsdl:output message="tns:multiParamPartResponse" name="multiParamPartResponse"/>
+	</wsdl:operation>
+	<wsdl:operation name="testTriPartNoOrder">
+	    <wsdl:input message="tns:triPartRequest" name="triPartRequest"/>
 	    <wsdl:output message="tns:multiParamPartResponse" name="multiParamPartResponse"/>
 	</wsdl:operation>
     </wsdl:portType>

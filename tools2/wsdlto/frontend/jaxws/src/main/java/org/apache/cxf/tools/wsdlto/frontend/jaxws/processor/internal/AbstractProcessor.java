@@ -17,20 +17,18 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.core;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
-import java.util.List;
+import java.util.logging.Logger;
 
-import javax.xml.namespace.QName;
-
-import com.sun.tools.xjc.api.Property;
-import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
 
-public interface DataBindingProfile {
-    void generate(ToolContext context) throws ToolException;
-    String getType(QName qn, boolean fullName);
-    String getJavaType(QName qn, boolean boxify);
-    List<? extends Property> getBlock(MessagePartInfo part);
+public abstract class AbstractProcessor {
+    protected static final Logger LOG = LogUtils.getL7dLogger(AbstractProcessor.class);
+    protected ToolContext context;
+    
+    public AbstractProcessor(ToolContext c) {
+        this.context = c;
+    }
 }

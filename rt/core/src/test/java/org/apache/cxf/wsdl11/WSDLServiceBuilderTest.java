@@ -65,7 +65,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
 public class WSDLServiceBuilderTest extends TestCase {
-
+    // TODO: reuse the wsdl in testutils and add the parameter order into one of the wsdl
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
 
     private static final String WSDL_PATH = "hello_world.wsdl";
@@ -164,6 +164,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertFalse(sayHi.isOneWay());
         assertTrue(sayHi.hasInput());
         assertTrue(sayHi.hasOutput());
+        
+        assertNull(sayHi.getParameterOrdering());
 
         name = new QName(serviceInfo.getName().getNamespaceURI(), "greetMe");
         OperationInfo greetMe = serviceInfo.getInterface().getOperation(name);
@@ -424,5 +426,56 @@ public class WSDLServiceBuilderTest extends TestCase {
             MessagePartInfo mpi = oi.getInput().getMessagePart(new QName(ns, "NewOperationRequest"));
             assertNotNull(mpi);                    
         }
+    }
+    
+    public void testParameterOrder() throws Exception {
+        String ns = "http://apache.org/hello_world_xml_http/bare";
+        setUpWSDL("/wsdl/hello_world_xml_bare.wsdl", 0);
+        
+        OperationInfo operation = serviceInfo.getInterface().getOperation(new QName(ns, 
+                                                                                    "testTriPart"));
+        assertNotNull(operation);
+        List<MessagePartInfo> parts = operation.getInput().getMessageParts();
+        assertNotNull(parts);
+        assertEquals(3, parts.size());
+        assertEquals("in1", parts.get(0).getName().getLocalPart());
+        assertEquals("in3", parts.get(1).getName().getLocalPart());
+        assertEquals("in2", parts.get(2).getName().getLocalPart());
+        
+        List<String> order = operation.getParameterOrdering();
+        assertNotNull(order);
+        assertEquals(3, order.size());
+        assertEquals("in1", order.get(0));
+        assertEquals("in3", order.get(1));
+        assertEquals("in2", order.get(2));
+        
+        parts = operation.getInput().getOrderedParts(order);
+        assertNotNull(parts);
+        assertEquals(3, parts.size());
+        assertEquals("in1", parts.get(0).getName().getLocalPart());
+        assertEquals("in3", parts.get(1).getName().getLocalPart());
+        assertEquals("in2", parts.get(2).getName().getLocalPart());
+        
+        operation = serviceInfo.getInterface().getOperation(new QName(ns,
+                                                                      "testTriPartNoOrder"));
+        assertNotNull(operation);
+        parts = operation.getInput().getMessageParts();
+        assertNotNull(parts);
+        assertEquals(3, parts.size());
+        assertEquals("in3", parts.get(0).getName().getLocalPart());
+        assertEquals("in1", parts.get(1).getName().getLocalPart());
+        assertEquals("in2", parts.get(2).getName().getLocalPart());        
+    }
+    
+    public void testParameterOrder2() throws Exception {
+        setUpWSDL("/wsdl/bug161/header2.wsdl", 0);
+        String ns = "http://apache.org/header2";
+        OperationInfo operation = serviceInfo.getInterface().getOperation(new QName(ns, "headerMethod"));
+        assertNotNull(operation);
+        List<MessagePartInfo> parts = operation.getInput().getMessageParts();
+        assertNotNull(parts);
+        assertEquals(2, parts.size());
+        assertEquals("header_info", parts.get(0).getName().getLocalPart());
+        assertEquals("the_request", parts.get(1).getName().getLocalPart());
     }
 }

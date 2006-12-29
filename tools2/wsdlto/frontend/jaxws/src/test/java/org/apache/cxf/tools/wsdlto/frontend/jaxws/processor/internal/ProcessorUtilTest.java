@@ -17,32 +17,27 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
-import java.util.List;
+import junit.framework.TestCase;
 
-import javax.xml.namespace.QName;
+public class ProcessorUtilTest extends TestCase {
 
-import com.sun.tools.xjc.api.Property;
-import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
-
-public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBindingProfile {
-
-    public void generate(ToolContext context) throws ToolException {
-    }
-
-    
-    public String getType(QName qn, boolean fullName) {
-        return null;
+    private boolean isWindows() {
+        return System.getProperty("os.name").contains("Windows");
     }
     
-    public String getJavaType(QName qn, boolean boxify) {
-        return null;
-    }
-    
-    public List<? extends Property> getBlock(MessagePartInfo part) {
-        return null;
+    public void testGetAbsolutePath() throws Exception {
+        assertEquals("http://cxf.org",
+                     ProcessorUtil.getAbsolutePath("http://cxf.org"));
+
+        if (isWindows()) {
+            assertEquals("C:/org/cxf",
+                         ProcessorUtil.getAbsolutePath("c:\\org\\cxf"));
+            assertEquals("C:/org/cxf",
+                         ProcessorUtil.getAbsolutePath("c:/org/cxf"));
+            assertEquals("C:/org/cxf",
+                         ProcessorUtil.getAbsolutePath("/org/cxf"));
+        }
     }
 }

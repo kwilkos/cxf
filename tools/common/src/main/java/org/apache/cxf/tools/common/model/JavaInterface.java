@@ -212,5 +212,8 @@ public class JavaInterface {
         this.bindingExt = pBindingExt;
     }
     
+    public void setJavaModel(JavaModel jm) {
+        this.model = jm;
+    }
     
 }

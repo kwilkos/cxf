@@ -202,6 +202,21 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
             assertNull(inoutHeader.value.getRequestType());
         }
     }
+    
+    public void testHeader4() {
+        URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
+        assertNotNull(wsdl);
+        
+        SOAPHeaderService service = new SOAPHeaderService(wsdl, serviceName);
+        assertNotNull(service);
+        proxy = service.getPort(portName, TestHeader.class);
+        try {
+            proxy.testHeader4("cxf");
+        } catch (Exception e) {
+            // REVISIT
+            // fail("No exception should happen in testHeader4");
+        }
+    }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(HeaderClientServerTest.class);

@@ -17,20 +17,21 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.core;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
-import java.util.List;
+import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JavaAnnotation;
+import org.apache.cxf.tools.common.model.JavaInterface;
 
-import javax.xml.namespace.QName;
-
-import com.sun.tools.xjc.api.Property;
-import org.apache.cxf.service.model.MessagePartInfo;
-import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
-
-public interface DataBindingProfile {
-    void generate(ToolContext context) throws ToolException;
-    String getType(QName qn, boolean fullName);
-    String getJavaType(QName qn, boolean boxify);
-    List<? extends Property> getBlock(MessagePartInfo part);
+public final class WebServiceAnnotator implements Annotator {
+    
+    public void annotate(JavaInterface intf) {
+        JavaAnnotation serviceAnnotation = new JavaAnnotation("WebService");
+        serviceAnnotation.addArgument("targetNamespace", intf.getNamespace());
+        serviceAnnotation.addArgument("wsdlLocation", intf.getLocation());
+        serviceAnnotation.addArgument("name", intf.getWebServiceName());
+        
+        intf.addAnnotation(serviceAnnotation.toString());
+    }
 }
+

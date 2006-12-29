@@ -19,15 +19,17 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor;
 
-import javax.wsdl.Definition;
-
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
-import org.apache.cxf.tools.wsdl2java.processor.internal.SEIAnnotationProcessor;
-import org.apache.cxf.tools.wsdl2java.processor.internal.ServiceProcessor;
 import org.apache.cxf.tools.wsdlto.core.WSDLToProcessor;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.PortTypeProcessor;
+//import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.SEIAnnotationProcessor;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ServiceProcessor;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.BindingAnnotator;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebServiceAnnotator;
 
 public class WSDLToJavaProcessor extends WSDLToProcessor {
 
@@ -40,38 +42,32 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
             throw new ToolException(msg);
         }
-
-        context.put(JavaModel.class, jmodel);
     }
 
     private JavaModel wsdlDefinitionToJavaModel(ServiceInfo serviceInfo) throws ToolException {
         JavaModel javaModel = new JavaModel();
-       /* getEnvironment().put(ToolConstants.RAW_JAXB_MODEL, getRawJaxbModel());*/
-
-        // TODO replace the definition with service model
+        context.put(JavaModel.class, javaModel);
 
         //javaModel.setJAXWSBinding(customizing(definition));
 
         // TODO refactroing the internal processors to use the service model
 
-        //Map<QName, PortType> portTypes = getPortTypes(definition);
-        //for (Iterator iter = portTypes.keySet().iterator(); iter.hasNext();) {
-        //PortType portType = (PortType)portTypes.get(iter.next());
-        //PortTypeProcessor portTypeProcessor = new PortTypeProcessor(getEnvironment());
-        //portTypeProcessor.process(javaModel, portType);
-        //}
+        PortTypeProcessor portTypeProcessor = new PortTypeProcessor(context);
+        portTypeProcessor.process(serviceInfo);
 
-        ServiceProcessor serviceProcessor = new ServiceProcessor(context, getWSDLDefinition());
-        serviceProcessor.process(javaModel);
+        ServiceProcessor serviceProcessor = new ServiceProcessor(context);
+        serviceProcessor.process(serviceInfo);
         
-        SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(context);
-        seiAnnotationProcessor.process(javaModel, getWSDLDefinition());
-        return javaModel;
-    }
+        //         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(context);
+        //         seiAnnotationProcessor.process(serviceInfo);
 
-    private Definition getWSDLDefinition() {
-        // TODO remove this method after the refactoring of procesors were done
-        return null;
+        JavaInterface intf = javaModel.getInterfaces().values().iterator().next();
+        new WebServiceAnnotator().annotate(intf);
+        if (serviceInfo.getBindings().size() > 0) {
+            new BindingAnnotator().annotate(intf);
+        }
+
+        return javaModel;
     }
 
     // TODO replace the definition with service model

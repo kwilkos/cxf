@@ -21,6 +21,7 @@ package org.apache.cxf.service.model;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -30,9 +31,6 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-/**
- * 
- */
 public class OperationInfo extends AbstractPropertiesHolder {
     private static final Logger LOG = LogUtils.getL7dLogger(OperationInfo.class);
     InterfaceInfo intf;
@@ -43,6 +41,7 @@ public class OperationInfo extends AbstractPropertiesHolder {
     MessageInfo outputMessage;
     Map<QName, FaultInfo> faults;
     OperationInfo unwrappedOperation;
+    List<String> parameterOrdering;     
 
     public OperationInfo() {
     }
@@ -193,6 +192,14 @@ public class OperationInfo extends AbstractPropertiesHolder {
             return Collections.emptyList();
         }
         return Collections.unmodifiableCollection(faults.values());
+    }
+    
+    public void setParameterOrdering(List<String> o) {
+        this.parameterOrdering = o;
+    }
+    
+    public List<String> getParameterOrdering() {
+        return parameterOrdering;
     }
     
     @Override
