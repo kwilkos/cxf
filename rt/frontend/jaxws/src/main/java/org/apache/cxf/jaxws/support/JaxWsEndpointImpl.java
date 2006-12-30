@@ -33,7 +33,7 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.binding.BindingImpl;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
 import org.apache.cxf.jaxws.handler.LogicalHandlerInterceptor;
-import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
+//import org.apache.cxf.jaxws.handler.StreamHandlerInterceptor;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
 import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
@@ -68,7 +68,7 @@ public class JaxWsEndpointImpl extends EndpointImpl {
         } else {
              // TODO: what for non soap bindings?
         }
-        handlerInterceptors.add(new StreamHandlerInterceptor(binding));
+//        handlerInterceptors.add(new StreamHandlerInterceptor(binding));
         
         List<Interceptor> fault = super.getOutFaultInterceptors();
         fault.addAll(handlerInterceptors);

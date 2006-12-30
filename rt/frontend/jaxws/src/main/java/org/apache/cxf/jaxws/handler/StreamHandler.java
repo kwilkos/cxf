@@ -19,7 +19,7 @@
 
 package org.apache.cxf.jaxws.handler;
 
-import javax.xml.ws.handler.Handler;
+//import javax.xml.ws.handler.Handler;
 
 
 
@@ -29,5 +29,7 @@ import javax.xml.ws.handler.Handler;
  * the underlying transport.  The StreamHandler allows transformations
  * on the marshalled data.
  */
-public interface StreamHandler extends Handler<StreamMessageContext> {
+public interface StreamHandler {
+
+//public interface StreamHandler extends Handler<StreamMessageContext> {
 }

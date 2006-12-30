@@ -18,7 +18,7 @@
  */
 package org.apache.cxf.systest.handlers;
 
-
+/*
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -31,7 +31,12 @@ import javax.xml.ws.handler.MessageContext;
 import org.apache.cxf.jaxws.handler.StreamHandler;
 import org.apache.cxf.jaxws.handler.StreamMessageContext;
 import org.apache.handler_test.PingException;
+*/
+public class TestStreamHandler {
 
+}
+
+/*
 public class  TestStreamHandler extends TestHandlerBase 
     implements StreamHandler {
 
@@ -125,4 +130,4 @@ public class  TestStreamHandler extends TestHandlerBase
             throw new ProtocolException(ex);
         }
     } 
-}
+}*/

@@ -215,9 +215,9 @@ public class HandlerInvocationTest extends ClientServerTestBase {
 
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
-        TestStreamHandler streamHandler = new TestStreamHandler(false);
-        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, streamHandler);
-
+//        TestStreamHandler streamHandler = new TestStreamHandler(false);
+//        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2, streamHandler);
+        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
         try {
             handlerTest.pingWithArgs("servant throw exception");
             fail("did not get expected PingException");
@@ -227,10 +227,10 @@ public class HandlerInvocationTest extends ClientServerTestBase {
 
         assertEquals(1, handler1.getHandleMessageInvoked());
         assertEquals(1, handler2.getHandleMessageInvoked());
-        assertEquals(1, streamHandler.getHandleMessageInvoked());
+        //assertEquals(1, streamHandler.getHandleMessageInvoked());
         assertEquals(1, handler1.getHandleFaultInvoked());
         assertEquals(1, handler2.getHandleFaultInvoked());
-        assertEquals(1, streamHandler.getHandleFaultInvoked());
+        //assertEquals(1, streamHandler.getHandleFaultInvoked());
     }
        
     public void xtestHandlersInvoked() throws Exception {
@@ -238,11 +238,13 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
         TestSOAPHandler soapHandler2 = new TestSOAPHandler(false);
-        TestStreamHandler streamHandler = new TestStreamHandler(false);
+//        TestStreamHandler streamHandler = new TestStreamHandler(false);
 
+//        addHandlersToChain((BindingProvider)handlerTest, handler1, handler2,
+//                           soapHandler1, soapHandler2,
+//                           streamHandler);
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2,
-                           soapHandler1, soapHandler2,
-                           streamHandler);
+                           soapHandler1, soapHandler2);
 
         List<String> resp = handlerTest.ping();
         assertNotNull(resp);
@@ -251,12 +253,12 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         assertEquals("handle message was not invoked", 2, handler2.getHandleMessageInvoked());
         assertEquals("handle message was not invoked", 2, soapHandler1.getHandleMessageInvoked());
         assertEquals("handle message was not invoked", 2, soapHandler2.getHandleMessageInvoked());
-        assertEquals("handle message was not invoked", 2, streamHandler.getHandleMessageInvoked());
+        //assertEquals("handle message was not invoked", 2, streamHandler.getHandleMessageInvoked());
         assertTrue("close must be  called", handler1.isCloseInvoked());
         assertTrue("close must be  called", handler2.isCloseInvoked());
         assertTrue("close must be  called", soapHandler1.isCloseInvoked());
         assertTrue("close must be  called", soapHandler2.isCloseInvoked());
-        assertTrue("close must be  called", streamHandler.isCloseInvoked());
+        //assertTrue("close must be  called", streamHandler.isCloseInvoked());
 
         // the server has encoded into the response the order in
         // which the handlers have been invoked, parse it and make

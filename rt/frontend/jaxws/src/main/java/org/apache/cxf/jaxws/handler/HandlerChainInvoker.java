@@ -109,12 +109,12 @@ public class HandlerChainInvoker {
         return invokeHandlerChain(protocolHandlers, context);
     }    
     
-    public boolean invokeStreamHandlers(StreamMessageContext context) {
+/*    public boolean invokeStreamHandlers(StreamMessageContext context) {
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, this.outbound);
         // return invokeHandlerChain(streamHandlers, new StreamMessageContextImpl(ctx));
         return invokeHandlerChain(streamHandlers, context);
     }
-        
+*/        
     public void closeHandlers() {
         //nothing to do
     }
@@ -169,7 +169,7 @@ public class HandlerChainInvoker {
         }
         invokeClose(protocolHandlers, context);
         invokeClose(logicalHandlers, context);
-        invokeClose(streamHandlers, context);
+        //invokeClose(streamHandlers, context);
     }
 
 
@@ -350,4 +350,5 @@ public class HandlerChainInvoker {
         fault = ex;
     }
 }
+
 
