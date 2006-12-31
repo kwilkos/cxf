@@ -33,7 +33,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.apache.handler_test.PingException;
+//import org.apache.handler_test.PingException;
 
 /**
  * Describe class TestSOAPHandler here.
@@ -77,12 +77,6 @@ public class  TestSOAPHandler<T extends SOAPMessageContext> extends TestHandlerB
             SOAPMessage msg = ctx.getMessage();
 
             if (isServerSideHandler()) {
-                Object wsdlDescription = ctx.get(MessageContext.WSDL_DESCRIPTION);
-                if (wsdlDescription == null 
-                    || (!((wsdlDescription instanceof java.net.URI)
-                        || (wsdlDescription instanceof java.net.URL)))) {
-                    throw new PingException("WSDLDescription not found");
-                }
                 if (outbound) {
                     continueProcessing = true;
                 } else {

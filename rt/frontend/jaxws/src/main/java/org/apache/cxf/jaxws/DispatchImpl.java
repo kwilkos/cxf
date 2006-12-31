@@ -220,8 +220,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
             LOG.fine("Interceptors contributed by bus: " + il);
         }
         chain.add(il);
-        //TODO: support JAX-WS handlers for provider/dispatch
-        endpoint.getInInterceptors().clear();
+
         if (LOG.isLoggable(Level.FINE)) {
             LOG.fine("Interceptors contributed by endpoint: " + il);
         }

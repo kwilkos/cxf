@@ -32,6 +32,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.phase.PhaseManager;
 
+
 /**
  * Sets up the outgoing chain if the operation has an output message.
  * @author Dan Diephouse
@@ -56,6 +57,8 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
             outMessage = ep.getBinding().createMessage();
             ex.setOutMessage(outMessage);
         }
+        
+        copyProperties(message, outMessage);
 
         Message faultMessage = message.getExchange().getOutFaultMessage();
         if (faultMessage == null) {
@@ -95,5 +98,13 @@ public class OutgoingChainSetupInterceptor extends AbstractPhaseInterceptor<Mess
         }
         chain.setFaultObserver(ep.getOutFaultObserver());
         return chain;
+    }
+    
+    private void copyProperties(Message inMsg, Message outMsg) {       
+        outMsg.put(Message.WSDL_OPERATION, inMsg.get(Message.WSDL_OPERATION));
+        outMsg.put(Message.WSDL_SERVICE, inMsg.get(Message.WSDL_SERVICE));
+        outMsg.put(Message.WSDL_INTERFACE, inMsg.get(Message.WSDL_INTERFACE));
+        outMsg.put(Message.WSDL_PORT, inMsg.get(Message.WSDL_PORT));
+        outMsg.put(Message.WSDL_DESCRIPTION, inMsg.get(Message.WSDL_DESCRIPTION));
     }
 }

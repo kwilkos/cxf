@@ -33,6 +33,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
+import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLStreamException;
@@ -51,6 +52,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
@@ -81,39 +83,54 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                     InputStream is = out.getInputStream();
                     message = factory.createMessage(mhs, is);
                 } else {
-                    CachedStream cs = new CachedStream();
-                    XMLStreamWriter writer = StaxUtils.getXMLOutputFactory().createXMLStreamWriter(cs);
-                    XMLStreamReader xmlReader = getWrappedMessage().getContent(XMLStreamReader.class);
-
-                    //Create a mocked inputStream to feed SAAJ, 
-                    //only SOAPBody is from real data                    
-                    //REVISIT: soap version here is not important, we just use soap11.
-                    SoapVersion soapVersion = Soap11.getInstance();
-                    writer.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
-                    writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope()
-                        .getLocalPart(), soapVersion.getNamespace());
-                    writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
                     
-                    //Write headers                    
-                    if (getWrappedSoapMessage().hasHeaders(Element.class)) {
-                        Element headerElements = getWrappedSoapMessage().getHeaders(Element.class);
-                        StaxUtils.writeElement(headerElements, writer, true);
+                    if (getWrappedMessage().getContent(Object.class) != null) {
+                        //The Dispath/Provider case:
+                        Object obj = getWrappedMessage().getContent(Object.class);
+                        if (obj instanceof SOAPMessage) {
+                            message = (SOAPMessage)obj;
+                        } else if (obj instanceof SOAPBody) {
+                            // what to do
+                        } else if (obj instanceof XMLMessage) {
+                            // what to do
+                        }
+
+                    } else {
+                        CachedStream cs = new CachedStream();
+                        XMLStreamWriter writer = StaxUtils.getXMLOutputFactory().createXMLStreamWriter(cs);
+                        XMLStreamReader xmlReader = getWrappedMessage().getContent(XMLStreamReader.class);
+
+                        // Create a mocked inputStream to feed SAAJ,
+                        // only SOAPBody is from real data
+                        // REVISIT: soap version here is not important, we just
+                        // use soap11.
+                        SoapVersion soapVersion = Soap11.getInstance();
+                        writer.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
+                        writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getEnvelope()
+                            .getLocalPart(), soapVersion.getNamespace());
+                        writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
+
+                        // Write headers
+                        if (getWrappedSoapMessage().hasHeaders(Element.class)) {
+                            Element headerElements = getWrappedSoapMessage().getHeaders(Element.class);
+                            StaxUtils.writeElement(headerElements, writer, true);
+                        }
+
+                        writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getBody()
+                            .getLocalPart(), soapVersion.getNamespace());
+
+                        // Write soap body
+                        StaxUtils.copy(xmlReader, writer);
+
+                        xmlReader.close();
+                        writer.close();
+                        cs.doFlush();
+
+                        InputStream newIs = cs.getInputStream();
+                        MessageFactory factory = MessageFactory.newInstance();
+                        MimeHeaders mhs = null;
+                        message = factory.createMessage(mhs, newIs);
                     }
-                    
-                    writer.writeStartElement(soapVersion.getPrefix(), soapVersion.getBody().getLocalPart(),
-                                             soapVersion.getNamespace());
-                    
-                    //Write soap body
-                    StaxUtils.copy(xmlReader, writer);
-
-                    xmlReader.close();
-                    writer.close();
-                    cs.doFlush();
-
-                    InputStream newIs = cs.getInputStream();
-                    MessageFactory factory = MessageFactory.newInstance();
-                    MimeHeaders mhs = null;
-                    message = factory.createMessage(mhs, newIs);
                 }
 
                 

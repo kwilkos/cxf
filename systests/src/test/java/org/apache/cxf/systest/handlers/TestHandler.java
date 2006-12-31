@@ -32,6 +32,8 @@ import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.common.util.PackageUtils;
+import org.apache.handler_test.PingException;
+import org.apache.handler_test.types.Ping;
 import org.apache.handler_test.types.PingResponse;
 import org.apache.handler_test.types.PingWithArgs;
 import org.apache.hello_world_soap_http.types.GreetMe;
@@ -65,7 +67,6 @@ public class TestHandler<T extends LogicalMessageContext>
         methodCalled("handleMessage");
         printHandlerInfo("handleMessage", isOutbound(ctx));
 
-
         boolean outbound = (Boolean)ctx.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         boolean ret = handleMessageRet; 
 
@@ -73,7 +74,13 @@ public class TestHandler<T extends LogicalMessageContext>
             return true;
         }
 
-
+        try {
+            verifyJAXWSProperties(ctx);
+        } catch (PingException e) {
+            e.printStackTrace();
+            throw new ProtocolException(e);
+        }
+        
         QName operationName = (QName)ctx.get(MessageContext.WSDL_OPERATION);
         assert operationName != null : "unable to get operation name from " + ctx;
 
@@ -146,7 +153,7 @@ public class TestHandler<T extends LogicalMessageContext>
             newResp.getHandlersInfo().addAll(origResp.getHandlersInfo());
             newResp.getHandlersInfo().add(getHandlerId());
             msg.setPayload(newResp, jaxbCtx);
-        } else if (!outbound && obj == null) {
+        } else if (obj instanceof Ping) {
             getHandlerInfoList(ctx).add(getHandlerId());
         }
     } 

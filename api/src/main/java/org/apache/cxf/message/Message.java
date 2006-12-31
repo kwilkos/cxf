@@ -58,6 +58,13 @@ public interface Message extends Map<String, Object> {
     String ENCODING = Message.class.getName() + ".ENCODING";
     String FIXED_PARAMETER_ORDER = Message.class.getName() + "FIXED_PARAMETER_ORDER";
 
+    String WSDL_DESCRIPTION = "javax.xml.ws.wsdl.description";
+    String WSDL_SERVICE = "javax.xml.ws.wsdl.service";
+    String WSDL_PORT = "javax.xml.ws.wsdl.port";
+    String WSDL_INTERFACE = "javax.xml.ws.wsdl.interface";
+    String WSDL_OPERATION = "javax.xml.ws.wsdl.operation";
+
+    
     String getId();
     void setId(String id);
     

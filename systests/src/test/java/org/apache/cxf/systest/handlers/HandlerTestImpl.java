@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 //import javax.jws.HandlerChain;
+import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -34,6 +35,7 @@ import org.apache.handler_test.types.PingFaultDetails;
             portName = "SoapPort",
             endpointInterface = "org.apache.handler_test.HandlerTest",
             targetNamespace = "http://apache.org/handler_test")
+@HandlerChain(file = "./handlers_invocation.xml", name = "TestHandlerChain")
 public class HandlerTestImpl implements HandlerTest {
 
     private WebServiceContext context;

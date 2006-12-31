@@ -19,19 +19,25 @@
 
 package org.apache.cxf.interceptor;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -91,6 +97,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             objects = new ArrayList<Object>();
             Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), message);
             objects.add(wrappedObject);
+
         } else {
             // Unwrap each part individually if we don't have a wrapper
             objects = new ArrayList<Object>();
@@ -125,6 +132,29 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         message.getExchange().put(BindingOperationInfo.class, operation);
         message.getExchange().put(OperationInfo.class, operation.getOperationInfo());
         message.getExchange().setOneWay(operation.getOperationInfo().isOneWay());
+
+        //Set standard MessageContext properties required by JAX_WS, but not specific to JAX_WS.
+        message.put(Message.WSDL_OPERATION, operation.getName());
+        
+        Service service = message.getExchange().get(Service.class);
+        QName serviceQName = service.getServiceInfo().getName();
+        message.put(Message.WSDL_SERVICE, serviceQName);
+
+        QName interfaceQName = service.getServiceInfo().getInterface().getName();
+        message.put(Message.WSDL_INTERFACE, interfaceQName);
+
+        EndpointInfo endpointInfo = message.getExchange().get(Endpoint.class).getEndpointInfo();
+        QName portQName = endpointInfo.getName();
+        message.put(Message.WSDL_PORT, portQName);
+
+        String address = endpointInfo.getAddress();
+        URI wsdlDescription = null;
+        try {
+            wsdlDescription = new URI(address + "?wsdl");
+        } catch (URISyntaxException e) {
+            //do nothing
+        }
+        message.put(Message.WSDL_DESCRIPTION, wsdlDescription);
 
         return msgInfo;
     }
