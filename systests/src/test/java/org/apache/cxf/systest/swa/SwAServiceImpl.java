@@ -18,14 +18,10 @@
  */
 package org.apache.cxf.systest.swa;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import javax.activation.DataHandler;
 import javax.jws.WebService;
+import javax.xml.ws.Holder;
 
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.swa.SwAServiceInterface;
 import org.apache.cxf.swa.types.DataStruct;
 
@@ -35,18 +31,7 @@ import org.apache.cxf.swa.types.DataStruct;
             portName = "SwAServiceHttpPort")
 public class SwAServiceImpl implements SwAServiceInterface {
 
-    public void echoData(DataStruct struct, DataHandler data) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            InputStream is = data.getInputStream();
-            IOUtils.copy(is, bos);
-            is.close();
-            bos.close();
-
-            System.out.println("OUTPUT: " + bos.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void echoData(Holder<DataStruct> text, Holder<DataHandler> data) {
 
     }
 
