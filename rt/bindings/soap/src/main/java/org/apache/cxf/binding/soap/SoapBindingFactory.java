@@ -55,10 +55,10 @@ import org.apache.cxf.binding.soap.model.SoapBodyInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
-import org.apache.cxf.interceptor.MultipartMessageInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
@@ -144,7 +144,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             throw new RuntimeException("Can not initialize SoapBinding, BindingInfo is not SoapBindingInfo");
         }
 
-        sb.getInInterceptors().add(new MultipartMessageInterceptor());
+        sb.getInInterceptors().add(new AttachmentInInterceptor());
         sb.getInInterceptors().add(new ReadHeadersInterceptor());
         sb.getInInterceptors().add(new MustUnderstandInterceptor());
         sb.getInInterceptors().add(new StaxInInterceptor());        

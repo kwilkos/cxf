@@ -16,27 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.xml;
+package org.apache.cxf.binding.http.mtom;
 
-import org.apache.cxf.binding.Binding;
-import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.message.XMLMessage;
+import javax.jws.WebService;
 
-public class XMLBinding extends AbstractBasicInterceptorProvider implements Binding {
+import org.apache.cxf.person.People;
+import org.apache.cxf.person.Person;
 
-    public XMLBinding() {
-    }
-    
-    public Message createMessage() {
-        return createMessage(new MessageImpl());
-    }
+@WebService
+public interface PeopleService {
+    People getPeople();
 
-    public Message createMessage(Message m) {
-        if (!m.containsKey(Message.CONTENT_TYPE)) {
-            m.put(Message.CONTENT_TYPE, "text/xml");
-        }
-        return new XMLMessage(m);
-    }
+    void addPerson(Person p);
+
+    Person getPerson(String name);
 }

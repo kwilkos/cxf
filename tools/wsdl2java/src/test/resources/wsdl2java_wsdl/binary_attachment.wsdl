@@ -59,6 +59,9 @@
         <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
         <wsdl:operation name="echoImage">
             <soap:operation soapAction="urn:AttachmentService/echoImage" style="rpc"/>
+            <jaxws:bindings>
+                <enableMIMEContent>false</enableMIMEContent>
+            </jaxws:bindings>
             <wsdl:input name="echoImageRequest">
                 <mime:multipartRelated>
                     <mime:part name="part1">
@@ -86,10 +89,7 @@
         </wsdl:operation>
         <wsdl:operation name="echoMultipleImage">
             <soap:operation soapAction="urn:AttachmentService/echoMultipleImage" style="rpc"/>
-    	    <jaxws:bindings>
-				<enableMIMEContent>true</enableMIMEContent>
-			</jaxws:bindings>
-            <wsdl:input name="echoMultipleImageRequest">
+    	    <wsdl:input name="echoMultipleImageRequest">
                 <mime:multipartRelated>
                     <mime:part name="part1">
                         <soap:body 

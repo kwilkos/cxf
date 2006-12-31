@@ -27,12 +27,12 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
-public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Message> {
+public class AttachmentInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public static final String ATTACHMENT_DIRECTORY = "attachment-directory";
     public static final String ATTACHMENT_MEMORY_THRESHOLD = "attachment-memory-threshold";
     public static final int THRESHHOLD = 1024 * 100;
-    private static final Logger LOG = Logger.getLogger(MultipartMessageInterceptor.class.getName());
+    private static final Logger LOG = Logger.getLogger(AttachmentInInterceptor.class.getName());
 
     /**
      * contruct the soap message with attachments from mime input stream
@@ -40,7 +40,7 @@ public class MultipartMessageInterceptor extends AbstractPhaseInterceptor<Messag
      * @param messageParam
      */
     
-    public MultipartMessageInterceptor() {
+    public AttachmentInInterceptor() {
         super();
         setPhase(Phase.RECEIVE);
     }

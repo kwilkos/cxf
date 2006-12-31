@@ -18,11 +18,13 @@
  */
 package org.apache.cxf.binding.http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,7 +43,7 @@ import org.apache.cxf.test.AbstractCXFTest;
 
 public abstract class AbstractRestTest extends AbstractCXFTest {
     boolean debug;
-    
+
     protected Bus createBus() throws BusException {
         return new SpringBusFactory().createBus();
     }
@@ -50,13 +52,12 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
         ParserConfigurationException {
         return get(urlStr, null);
     }
-    
-    protected Document get(String urlStr, Integer resCode) 
-        throws MalformedURLException, IOException, SAXException,
-        ParserConfigurationException {
+
+    protected Document get(String urlStr, Integer resCode) throws MalformedURLException, IOException,
+        SAXException, ParserConfigurationException {
         URL url = new URL(urlStr);
         HttpURLConnection c = (HttpURLConnection)url.openConnection();
-    
+
         if (resCode != null) {
             assertEquals(resCode.intValue(), c.getResponseCode());
         }
@@ -81,24 +82,15 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
 
     protected Document doMethod(String urlStr, String message, String method) throws MalformedURLException,
         IOException, SAXException, ParserConfigurationException {
+        return doMethod(urlStr, message, method, "application/xml");
+    }
 
-        URL url = new URL(urlStr);
-        HttpURLConnection c = (HttpURLConnection)url.openConnection();
-        c.setRequestMethod(method);
-        c.setDoOutput(true);
-        c.setRequestProperty("Content-Type", "application/xml");
+    protected Document doMethod(String urlStr, String message, String method, String ct)
+        throws MalformedURLException, IOException, SAXException, ParserConfigurationException {
 
-        OutputStream out = c.getOutputStream();
-        InputStream msgIs = getResourceAsStream(message);
-        assertNotNull(msgIs);
-
-        IOUtils.copy(msgIs, out);
-        out.close();
-        msgIs.close();
-        
-        InputStream is = c.getInputStream();
+        InputStream is = invoke(urlStr, message, method, ct);
         Document res = DOMUtils.readXml(is);
-        
+
         if (debug) {
             try {
                 DOMUtils.writeXml(res, System.out);
@@ -107,5 +99,43 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
             }
         }
         return res;
+    }
+
+    protected byte[] doMethodBytes(String urlStr, String message, String method, String ct)
+        throws MalformedURLException, IOException, SAXException, ParserConfigurationException {
+
+        InputStream is = invoke(urlStr, message, method, ct);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOUtils.copy(is, out);
+        out.close();
+        is.close();
+
+        return out.toByteArray();
+    }
+
+    private InputStream invoke(String urlStr, String message, String method, String ct)
+        throws MalformedURLException, IOException, ProtocolException {
+        URL url = new URL(urlStr);
+        HttpURLConnection c = (HttpURLConnection)url.openConnection();
+        c.setRequestMethod(method);
+
+        if (ct != null) {
+            c.setRequestProperty("Content-Type", ct);
+        }
+
+        if (message != null) {
+            c.setDoOutput(true);
+            OutputStream out = c.getOutputStream();
+            InputStream msgIs = getResourceAsStream(message);
+            assertNotNull(msgIs);
+
+            IOUtils.copy(msgIs, out);
+            out.close();
+            msgIs.close();
+        }
+
+        InputStream is = c.getInputStream();
+        return is;
     }
 }

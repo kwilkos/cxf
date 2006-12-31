@@ -349,12 +349,8 @@ public class ServiceProcessor extends AbstractProcessor {
                 }
             }
             if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                // Commented for future use
-                LOG.warning("The MIME content in wsdl file will be ignored, "
-                            + "current version does not support MIME content");
-                // MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
-                // mimeProcessor.process(jm, (MIMEMultipartRelated)obj,
-                // JavaType.Style.IN);
+                MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+                mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.IN);
             }
         }
 
@@ -378,7 +374,7 @@ public class ServiceProcessor extends AbstractProcessor {
                     }
                     if (Boolean.valueOf((String)env.get(ToolConstants.CFG_EXTRA_SOAPHEADER)).booleanValue()
                         && !found) {
-                        // Header can't be found in java method parameters, in
+                        // Header can3t be found in java method parameters, in
                         // different message
                         // other than messages used in porttype operation
                         ParameterProcessor processor = new ParameterProcessor(this.env);
@@ -389,13 +385,8 @@ public class ServiceProcessor extends AbstractProcessor {
                     }
                 }
                 if (obj instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                    // Commented for future use
-                    LOG.warning("The MIME content in wsdl file will be ignored, "
-                                + "current version does not support MIME content");
-                    // MIMEProcessor mimeProcessor = new
-                    // MIMEProcessor(this.env);
-                    // mimeProcessor.process(jm, (MIMEMultipartRelated)obj,
-                    // JavaType.Style.OUT);
+                    MIMEProcessor mimeProcessor = new MIMEProcessor(this.env);
+                    mimeProcessor.process(jm, (MIMEMultipartRelated)obj, JavaType.Style.OUT);
 
                 }
             }
@@ -648,6 +639,8 @@ public class ServiceProcessor extends AbstractProcessor {
         } else {
             // TBD: There is no extensibilityelement in port type
             bindingExt = new JAXWSBinding();
+            bindingExt.setSetMimeEnable(true);
+            bindingExt.setEnableMime(true);
         }
         jm.setBindingExt(bindingExt);
     }

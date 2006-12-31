@@ -53,6 +53,8 @@ public class MIMEProcessor extends AbstractProcessor {
                 } else if ("text/xml".equals(mimeContent.getType())
                            || "application/xml".equals(mimeContent.getType())) {
                     return "javax.xml.transform.Source";
+                }  else {
+                    return "javax.activation.DataHandler";
                 }
             }
         }
@@ -82,29 +84,20 @@ public class MIMEProcessor extends AbstractProcessor {
                             jp.setClassName(mimeJavaType);
                         }
                     } else if (JavaType.Style.OUT.equals(style)) {
-                        if (mimeParts.size() > 2) {
-                            // more than 1 mime:content part (1 root soap body),
-                            // javaReturn will be set to void and
-                            // all output parameter will be treated as the
-                            // holder class
+                        if (jm.getReturn().getClassName().equals("void")) {
+                            // this is actually an in/out param...
                             String paramName = ProcessorUtil.mangleNameToVariableName(mimeContent.getPart());
                             JavaParameter jp = jm.getParameter(paramName);
                             if (jp == null) {
                                 Message message = new Message("MIMEPART_CANNOT_MAP", LOG, mimeContent
                                     .getPart());
                                 throw new ToolException(message);
-                            } else {
-                                if (!jp.getClassName().equals(mimeJavaType)) {
-                                    // jp.setType(mimeJavaType);
-                                    jp.setClassName(mimeJavaType);
-                                    jp.setHolderClass(mimeJavaType);
-                                }
-                            }
-                        } else {
-                            if (!jm.getReturn().getClassName().equals(mimeJavaType)) {
-                                // jm.getReturn().setType(mimeJavaType);
-                                jm.getReturn().setClassName(mimeJavaType);
-                            }
+                            } 
+                            jp.setClassName(mimeJavaType);
+                            jp.setHolderClass(mimeJavaType);
+                        } else if (!jm.getReturn().getClassName().equals(mimeJavaType)) {
+                            // jm.getReturn().setType(mimeJavaType);
+                            jm.getReturn().setClassName(mimeJavaType);
                         }
                     }
                 }

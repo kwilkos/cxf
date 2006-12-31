@@ -32,7 +32,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 
 public class AttachmentDeserializerTest extends TestCase {
-    public void testDeserializer() throws Exception {
+    public void testDeserializerMtom() throws Exception {
         InputStream is = getClass().getResourceAsStream("mimedata");
         String ct = "multipart/related; type=\"application/xop+xml\"; "
                     + "start=\"<soap.xml@xfire.codehaus.org>\"; "
@@ -77,5 +77,51 @@ public class AttachmentDeserializerTest extends TestCase {
 //        assertNull(invalid.getDataHandler().getInputStream());
 //        
 //        assertTrue(attIs instanceof ByteArrayInputStream);
+    }
+    
+    public void testDeserializerSwA() throws Exception {
+        InputStream is = getClass().getResourceAsStream("swadata");
+        String ct = "multipart/related; type=\"text/xml\"; "
+            + "start=\"<86048FF3556694F7DA1918466DDF8143>\";    "
+            + "boundary=\"----=_Part_0_14158819.1167275505862\"";
+        
+        MessageImpl msg = new MessageImpl();
+        msg.put(Message.CONTENT_TYPE, ct);
+        msg.setContent(InputStream.class, is);
+        
+        AttachmentDeserializer deserializer = new AttachmentDeserializer(msg);
+        deserializer.initializeAttachments();
+        
+        InputStream attBody = msg.getContent(InputStream.class);
+        assertTrue(attBody != is);
+        assertTrue(attBody instanceof DelegatingInputStream);
+        
+        Collection<Attachment> atts = msg.getAttachments();
+        assertNotNull(atts);
+        
+        Iterator<Attachment> itr = atts.iterator();
+        assertTrue(itr.hasNext());
+        
+        Attachment a = itr.next();
+        assertNotNull(a);
+        
+        InputStream attIs = a.getDataHandler().getInputStream();
+        
+        assertTrue(((DelegatingInputStream) attIs).getInputStream() instanceof MimeBodyPartInputStream);
+        assertTrue(((DelegatingInputStream) attBody).getInputStream() instanceof ByteArrayInputStream);
+        
+        // check the cached output stream
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOUtils.copy(attBody, out);
+        assertTrue(out.toString().startsWith("<?xml"));
+        
+        // try streaming a character off the wire
+        assertTrue(attIs.read() == 'f');
+        assertTrue(attIs.read() == 'o');
+        assertTrue(attIs.read() == 'o');
+        assertTrue(attIs.read() == 'b');
+        assertTrue(attIs.read() == 'a');
+        assertTrue(attIs.read() == 'r');
+        assertTrue(attIs.read() == -1);
     }
 }

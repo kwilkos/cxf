@@ -114,17 +114,18 @@ public class AttachmentSerializer {
      * @throws IOException
      */
     public void writeAttachments() throws IOException {
-        for (Attachment a : message.getAttachments()) {
-            
-            writer.write("\r\n");
-            writer.write("--");
-            writer.write(bodyBoundary);
-
-            writeHeaders(a.getDataHandler().getContentType(), a.getId());
-            
-            IOUtils.copy(a.getDataHandler().getInputStream(), out);
+        if (message.getAttachments() != null) {
+            for (Attachment a : message.getAttachments()) {
+                
+                writer.write("\r\n");
+                writer.write("--");
+                writer.write(bodyBoundary);
+    
+                writeHeaders(a.getDataHandler().getContentType(), a.getId());
+                
+                IOUtils.copy(a.getDataHandler().getInputStream(), out);
+            }
         }
-        
         writer.write("\r\n");
         writer.write("--");
         writer.write(bodyBoundary);

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:tns="http://cxf.apache.org/person/" 
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:xmime="http://www.w3.org/2005/05/xmlmime" 
+  targetNamespace="http://cxf.apache.org/person/"
+  elementFormDefault="qualified">
+  <element name="Person">
+    <complexType>
+      <sequence>
+        <element name="Name" type="string" />
+        <element name="Photo" type="base64Binary"
+          xmime:expectedContentTypes="application/octet-stream" />
+      </sequence>
+    </complexType>
+  </element>
+  <element name="People">
+    <complexType>
+      <sequence>
+        <element ref="tns:Person" maxOccurs="unbounded" />
+      </sequence>
+    </complexType>
+  </element>
+</schema>
