@@ -64,7 +64,7 @@ public class MtomTest extends AbstractRestTest {
         p.setPhoto(handler);
         impl.addPerson(p);
 
-        byte[] res = doMethodBytes("http://localhost:9002/people", null, "GET", null);
+        byte[] res = doMethodBytes("http://localhost:9001/people", null, "GET", null);
         assertNotNull(res);
 
         // TODO: Test response
@@ -74,7 +74,7 @@ public class MtomTest extends AbstractRestTest {
                     + "start-info=\"text/xml; charset=utf-8\"; "
                     + "boundary=\"----=_Part_4_701508.1145579811786\"";
 
-        res = doMethodBytes("http://localhost:9002/people", "addPerson", "POST", ct);
+        res = doMethodBytes("http://localhost:9001/people", "addPerson", "POST", ct);
         assertNotNull(res);
 
         // TODO: Test response
