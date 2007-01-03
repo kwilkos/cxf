@@ -89,8 +89,8 @@ public class CustomerService {
     @Delete
     @HttpResource(location = "/customers/{id}")
     @WebMethod
-    public void deleteCustomer(String id) {
-        customers.remove(new Long(id));
+    public void deleteCustomer(long id) {
+        customers.remove(id);
     }
 
     final Customer createCustomer() {

@@ -21,6 +21,8 @@ package org.apache.cxf.endpoint;
 
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.transport.MessageObserver;
@@ -28,7 +30,24 @@ import org.apache.cxf.transport.MessageObserver;
 public interface Client extends InterceptorProvider, MessageObserver {
     String REQUEST_CONTEXT = "RequestContext";
     String RESPONSE_CONTEXT = "ResponseContext";
-    
+    /**
+     * Invokes an operation syncronously
+     * @param oi  The name of the operation to be invoked
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(QName operationName,
+                    Object... params) throws Exception;
+
+    /**
+     * Invokes an operation syncronously
+     * @param oi  The operation to be invoked
+     * @param params  The params that matches the parts of the input message of the operation
+     * @return The return values that matche the parts of the output message of the operation
+     */
+    Object[] invoke(BindingOperationInfo oi,
+                    Object... params) throws Exception;
+
     /**
      * Invokes an operation syncronously
      * @param oi  The operation to be invoked

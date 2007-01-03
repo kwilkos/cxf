@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http;
+package org.apache.cxf.binding.http.interceptor;
 
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
+import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;

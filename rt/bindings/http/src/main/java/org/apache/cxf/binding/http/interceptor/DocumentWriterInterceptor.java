@@ -16,41 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http;
+package org.apache.cxf.binding.http.interceptor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.cxf.helpers.HttpHeaderHelper;
+import org.w3c.dom.Document;
+
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.StaxUtils;
 
-public class ContentTypeOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class DocumentWriterInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public ContentTypeOutInterceptor() {
+    public DocumentWriterInterceptor() {
         super();
-        setPhase(Phase.PREPARE_SEND);
+        setPhase(Phase.MARSHAL);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        Map<String, List<String>> headers = (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
-        if (headers == null) {
-            headers = new HashMap<String, List<String>>();
-            message.put(Message.PROTOCOL_HEADERS, headers);
+        Document doc = message.getContent(Document.class);
+        XMLStreamWriter writer = message.getContent(XMLStreamWriter.class);
+        
+        try {
+            StaxUtils.writeDocument(doc, writer, false);
+        } catch (XMLStreamException e) {
+            throw new Fault(e);
         }
-        String ct = (String)message.getContextualProperty(HttpHeaderHelper
-            .getHeaderKey(HttpHeaderHelper.CONTENT_TYPE));
-        if (ct == null) {
-            ct = "text/xml";
-        }
-        List<String> contentType = new ArrayList<String>();
-        contentType.add(ct);
-        headers.put(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE), contentType);
     }
 
 }

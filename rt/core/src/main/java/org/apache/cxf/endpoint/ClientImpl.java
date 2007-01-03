@@ -27,9 +27,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.ClientOutFaultObserver;
@@ -64,7 +67,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     protected Endpoint endpoint;
     protected Conduit initedConduit;
     protected ClientOutFaultObserver outFaultObserver; 
-    protected int synchronousTimeout = 1000000; // default 10 second timeout
+    protected int synchronousTimeout = 10000000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
         this(b, e, null);
@@ -81,6 +84,19 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
 
     public Endpoint getEndpoint() {
         return this.endpoint;
+    }
+
+    public Object[] invoke(BindingOperationInfo oi, Object... params) throws Exception {
+        return invoke(oi, params, null);
+    }
+
+    public Object[] invoke(QName operationName, Object... params) throws Exception {
+        BindingOperationInfo op = endpoint.getEndpointInfo().getBinding().getOperation(operationName);
+        if (op == null) {
+            throw new UncheckedException(
+                new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, operationName));
+        }
+        return invoke(op, params);
     }
 
     @SuppressWarnings("unchecked")

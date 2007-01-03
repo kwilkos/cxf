@@ -46,7 +46,7 @@ public final class IriDecoderHelper {
     private IriDecoderHelper() {
         
     }
-    
+
     public static List<Param> decodeIri(String uri, String loc) {
         List<Param> values = new ArrayList<Param>();
         String path = getUriPath(uri);

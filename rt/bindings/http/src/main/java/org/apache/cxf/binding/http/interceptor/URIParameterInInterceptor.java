@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.binding.http;
+package org.apache.cxf.binding.http.interceptor;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -31,7 +31,9 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.w3c.dom.Document;
 
+import org.apache.cxf.binding.http.IriDecoderHelper;
 import org.apache.cxf.binding.http.IriDecoderHelper.Param;
+import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.interceptor.Fault;
@@ -45,11 +47,11 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.ws.commons.schema.XmlSchemaElement;
 
-public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final Logger LOG = Logger.getLogger(URIParameterInterceptor.class.getName());
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIParameterInterceptor.class);
+public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message> {
+    private static final Logger LOG = Logger.getLogger(URIParameterInInterceptor.class.getName());
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(URIParameterInInterceptor.class);
 
-    public URIParameterInterceptor() {
+    public URIParameterInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
         addBefore(XMLMessageInInterceptor.class.getName());
@@ -117,13 +119,6 @@ public class URIParameterInterceptor extends AbstractPhaseInterceptor<Message> {
         } else {
             doc = IriDecoderHelper.buildDocument((XmlSchemaElement)part.getXmlSchema(), params);
         }
-
-        // try {
-        // DOMUtils.writeXml(doc, System.out);
-        // } catch (TransformerException e1) {
-        // // TODO Auto-generated catch block
-        // e1.printStackTrace();
-        // }
 
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(new DOMSource(doc));
         try {

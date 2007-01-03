@@ -32,7 +32,9 @@ import org.codehaus.jra.ResourceUtil;
 
 public class URIMapper {
     private List<ResourceInfo> resources = new ArrayList<ResourceInfo>();
-    private Map<OperationInfo, String> operations = 
+    private Map<OperationInfo, String> locations = 
+        new HashMap<OperationInfo, String>();
+    private Map<OperationInfo, String> verbs = 
         new HashMap<OperationInfo, String>();
     
     public BindingOperationInfo getOperation(String uri, String verb, Message m) {
@@ -60,12 +62,17 @@ public class URIMapper {
         info.setUri(uri);
         info.setVerb(verb);
         info.setOperation(bop);
-        operations.put(bop.getOperationInfo(), uri);
+        locations.put(bop.getOperationInfo(), uri);
+        verbs.put(bop.getOperationInfo(), verb);
         resources.add(info);
     }
     
     public String getLocation(BindingOperationInfo bop) {
-        return operations.get(bop.getOperationInfo());
+        return locations.get(bop.getOperationInfo());
+    }
+    
+    public String getVerb(BindingOperationInfo bop) {
+        return verbs.get(bop.getOperationInfo());
     }
     
     public static class ResourceInfo {
@@ -94,7 +101,7 @@ public class URIMapper {
     }
 
     public List getParameters(MessageInfo msgInfo, String path) {
-        String resource = operations.get(msgInfo.getOperation());
+        String resource = locations.get(msgInfo.getOperation());
         Map<String, String> paramMap = ResourceUtil.getURIParameters(path, resource);
         
         List<Object> params = new ArrayList<Object>(msgInfo.getMessageParts().size());

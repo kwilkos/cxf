@@ -31,6 +31,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 
 import org.w3c.dom.*;
@@ -69,6 +70,14 @@ public final class StaxUtils {
 
         try {
             return getXMLOutputFactory().createXMLStreamWriter(out, encoding);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Cant' create XMLStreamWriter", e);
+        }
+    }
+    
+    public static XMLStreamWriter createXMLStreamWriter(Result r) {
+        try {
+            return getXMLOutputFactory().createXMLStreamWriter(r);
         } catch (XMLStreamException e) {
             throw new RuntimeException("Cant' create XMLStreamWriter", e);
         }
