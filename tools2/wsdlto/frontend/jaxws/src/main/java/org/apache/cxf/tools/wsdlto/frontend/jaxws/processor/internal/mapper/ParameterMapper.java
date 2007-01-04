@@ -19,9 +19,6 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper;
 
-import com.sun.codemodel.JType;
-import com.sun.tools.xjc.api.Property;
-
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaParameter;
@@ -54,22 +51,5 @@ public final class ParameterMapper {
         return parameter;
     }
 
-    public static JavaParameter map(Property property,
-                                    JavaType.Style style,
-                                    MessagePartInfo part) {
-        JType t = property.type();
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
-        if (targetNamespace == null) {
-            targetNamespace = property.elementName().getNamespaceURI();
-        }
-        JavaParameter parameter = new JavaParameter(property.name(), t.fullName(), targetNamespace);
-        parameter.setStyle(style);
-        parameter.setQName(property.elementName());
-        if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
-            parameter.setHolder(true);
-            parameter.setHolderName(javax.xml.ws.Holder.class.getName());
-            parameter.setHolderClass(t.boxify().fullName());
-        }
-        return parameter;
-    }
+   
 }

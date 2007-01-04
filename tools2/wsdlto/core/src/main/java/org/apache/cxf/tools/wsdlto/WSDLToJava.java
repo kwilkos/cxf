@@ -64,14 +64,17 @@ public class WSDLToJava {
         
         FrontEndProfile frontend = loadFrontEnd(getFrontEndName(args));
         context.put(FrontEndProfile.class, frontend);
-        
+               
         DataBindingProfile databinding = loadDataBinding(getDataBindingName(args));
+        
+      
+        
         context.put(DataBindingProfile.class, databinding);
         
         Class containerClass = frontend.getContainerClass();
 
         InputStream toolspecStream = getResourceAsStream(containerClass, frontend.getToolspec());
-        
+         
         ToolRunner.runTool(containerClass,
                            toolspecStream,
                            false,
@@ -129,7 +132,7 @@ public class WSDLToJava {
     }
 
     public void setArguments(String[] pargs) {
-        this.args = pargs;
+        args = pargs;
     }
 
     public static void main(String[] pargs) {

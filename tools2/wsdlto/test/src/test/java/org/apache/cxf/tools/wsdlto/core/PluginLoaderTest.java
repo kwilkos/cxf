@@ -19,10 +19,10 @@
 
 package org.apache.cxf.tools.wsdlto.core;
 
-import java.io.*;
-import java.util.*;
+import java.util.Map;
 
 import junit.framework.TestCase;
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.plugin.DataBinding;
@@ -36,13 +36,6 @@ public class PluginLoaderTest extends TestCase {
         PluginLoader loader = PluginLoader.getInstance();
         assertEquals(1, loader.getPlugins().size());
         assertEquals("default", getPlugin(loader, 0).getName());
-
-        try {
-            loader.getFrontEndProfile("jaxws");
-            fail("There is no jaxws frontend by defult");
-        } catch (ToolException e) {            
-            assertEquals(getLogMessage("FRONTEND_MISSING", "jaxws"), e.getMessage());
-        }
         
         loader.loadPlugin("/org/apache/cxf/tools/wsdlto/core/plugin.xml");
         assertEquals(2, loader.getPlugins().size());

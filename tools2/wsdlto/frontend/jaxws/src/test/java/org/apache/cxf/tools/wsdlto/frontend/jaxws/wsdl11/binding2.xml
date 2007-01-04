@@ -23,13 +23,14 @@
 	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<jaxws:package name="com.foo" />
+	<jaxws:enableAsyncMapping>true</jaxws:enableAsyncMapping>
 
 	<jaxws:bindings node="wsdl:portType[@name='Greeter']">
-		<jaxws:enableAsyncMapping>true</jaxws:enableAsyncMapping>
-		<jaxws:parameter part="wsdl:message[@name='greetMeOneWayRequest']/wsdl:part[@name='in']" element="tns:number1" name="num1"/>
+		<jaxws:enableAsyncMapping>true</jaxws:enableAsyncMapping>		
 		<jaxws:bindings
 			node="wsdl:operation[@name='greetMeOneWay']">
 			<jaxws:method name="echoMeOneWay" />
+			<jaxws:parameter part="wsdl:message[@name='greetMeOneWayRequest']/wsdl:part[@name='in']" childElementName="tns:number1" name="num1"/>
 		</jaxws:bindings>
 	</jaxws:bindings>
 

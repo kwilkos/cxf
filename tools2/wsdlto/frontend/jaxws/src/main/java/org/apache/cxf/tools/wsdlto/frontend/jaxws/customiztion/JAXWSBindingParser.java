@@ -19,17 +19,29 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
 
+import java.util.Iterator;
+import java.util.logging.Logger;
+
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.ToolException;
 
 public class JAXWSBindingParser {
-
+    private static final Logger LOG = LogUtils.getL7dLogger(CustomizationParser.class);
     private ExtensionRegistry extReg;
 
     public JAXWSBindingParser(ExtensionRegistry ext) {
@@ -60,13 +72,10 @@ public class JAXWSBindingParser {
             if (isPackageElement(element)) {
                 jaxwsBinding.setPackage(getPackageName(element));
             }
-            if (isJAXWSParameterElement(element)) {
-                JAXWSParameter jpara = new JAXWSParameter();
-                jpara.setName(element.getAttribute("name"));
-                jpara.setElementName(element.getAttribute("childElementName"));
-                jaxwsBinding.setJaxwsPara(jpara);
+            
+            if (isWrapperStyle(element)) {
+                jaxwsBinding.setEnableWrapperStyle(getNodeValue(element));
             }
-
         }
 
         if (children != null && children.getLength() > 0) {
@@ -79,6 +88,11 @@ public class JAXWSBindingParser {
                 if (isMIMEElement(child)) {
                     jaxwsBinding.setEnableMime(getNodeValue(child));
                 }
+                
+                if (isWrapperStyle(child)) {
+                    jaxwsBinding.setEnableWrapperStyle(getNodeValue(child));
+                }
+                
                 if (isPackageElement(child)) {
                     jaxwsBinding.setPackage(getPackageName(child));
                 }
@@ -86,7 +100,38 @@ public class JAXWSBindingParser {
                 if (isJAXWSMethodElement(child)) {
                     jaxwsBinding.setMethodName(getMethodName(child));
                 }
+                
+                if (isJAXWSParameterElement(child)) {
+                    Element childElement = (Element)child;
+                    String partPath = "//" +  childElement.getAttribute("part");
+                    Node node = queryXPathNode(element.getOwnerDocument().getDocumentElement(), partPath);
+                    String messageName = "";
+                    if (node != null) {
+                        Node messageNode = node.getParentNode();
+                        if (messageNode != null) {
+                            Element messageEle = (Element)messageNode;
+                            messageName =  messageEle.getAttribute("name");
+                        }
+                    }
+                    
+                    String name = childElement.getAttribute("name");
+                    String elementName = childElement.getAttribute("childElementName");
+                    JAXWSParameter jpara = new JAXWSParameter(messageName, elementName, name);
+                    jaxwsBinding.setJaxwsPara(jpara);
+                }
+                
+                if (isJAXWSClass(child)) {
+                    Element childElement = (Element)child;
+                    String clzName = childElement.getAttribute("name");
+                    String javadoc = "";
+                    Node docChild = DOMUtils.getChild(child, Element.ELEMENT_NODE);
+                    if (this.isJAXWSClassDoc(docChild)) {
+                        javadoc  = DOMUtils.getContent(docChild);
+                    }
 
+                    JAXWSClass jaxwsClass = new JAXWSClass(clzName, javadoc);
+                    jaxwsBinding.setJaxwsClass(jaxwsClass);                    
+                }
             }
         }
 
@@ -116,6 +161,17 @@ public class JAXWSBindingParser {
                && "parameter".equals(node.getLocalName());
 
     }
+    
+    private boolean isJAXWSClass(Node node) {
+        return (ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI()))
+               && "class".equals(node.getLocalName());
+    }
+    
+    private boolean isJAXWSClassDoc(Node node) {
+        return (ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI()))
+               && "javadoc".equals(node.getLocalName());
+    }
+    
 
     private String getPackageName(Node node) {
         Element ele = (Element)node;
@@ -127,6 +183,11 @@ public class JAXWSBindingParser {
                && ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI());
 
     }
+    
+    private Boolean isWrapperStyle(Node node) {
+        return "enableWrapperStyle".equals(node.getLocalName())
+               && ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI());
+    }
 
     private Boolean getNodeValue(Node node) {
         return Boolean.valueOf(node.getTextContent());
@@ -137,4 +198,47 @@ public class JAXWSBindingParser {
                && ToolConstants.NS_JAXWS_BINDINGS.equals(node.getNamespaceURI());
     }
 
+    private Node queryXPathNode(Node target, String expression) {
+        NodeList nlst;
+        try {
+            ContextImpl contextImpl = new ContextImpl(target);
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            xpath.setNamespaceContext(contextImpl);
+            nlst = (NodeList)xpath.evaluate(expression, target, XPathConstants.NODESET);
+        } catch (XPathExpressionException e) {
+            Message msg = new Message("XPATH_ERROR", LOG, new Object[] {expression});
+            throw new ToolException(msg, e);
+        }
+
+        if (nlst.getLength() != 1) {
+            Message msg = new Message("ERROR_TARGETNODE_WITH_XPATH", LOG, new Object[] {expression});
+            throw new ToolException(msg);
+        }
+
+        Node rnode = nlst.item(0);
+        if (!(rnode instanceof Element)) {
+            return null;
+        }
+        return (Element)rnode;
+    }
+
+    class ContextImpl implements NamespaceContext {
+        private Node targetNode;
+
+        public ContextImpl(Node node) {
+            targetNode = node;
+        }
+
+        public String getNamespaceURI(String prefix) {
+            return targetNode.getOwnerDocument().lookupNamespaceURI(prefix);
+        }
+
+        public String getPrefix(String nsURI) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Iterator getPrefixes(String namespaceURI) {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

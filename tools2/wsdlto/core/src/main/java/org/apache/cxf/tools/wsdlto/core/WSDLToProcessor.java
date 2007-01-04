@@ -27,12 +27,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.FileWriterUtil;
 import org.apache.velocity.app.Velocity;
 
@@ -115,8 +113,7 @@ public class WSDLToProcessor implements Processor {
     }
 
     private void init() throws ToolException {
-        initVelocity();
-        context.put(ClassCollector.class, new ClassCollector());
+        initVelocity();    
     }
 
     public void process() throws ToolException {
@@ -131,7 +128,5 @@ public class WSDLToProcessor implements Processor {
         return this.context;
     }
     
-    public ServiceInfo getServiceInfo() {
-        return context.get(ServiceInfo.class);
-    }
+   
 }

@@ -19,10 +19,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-tools2-wsdlto-core</artifactId>
+    <artifactId>cxf-tools2-wsdlto-test</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>Apache CXF Command Line Tools2 WSDLTo Core</name>
+    <name>Apache CXF Command Line Tools2 WSDLTo Test</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
@@ -127,38 +127,31 @@
 	</dependency>
 -->
         
-
-    </dependencies>
-
-    <build>
-	<plugins>
-	    <plugin>
+        <dependency>
 		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-common-xsd</artifactId>
+		<artifactId>cxf-tools2-wsdlto-core</artifactId>
 		<version>${project.version}</version>
-		<executions>
-		    <execution>
-			<id>generate-sources</id>
-			<phase>generate-sources</phase>
-			<configuration>
-			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-			    <xsdOptions>
-				<xsdOption>
-				    <xsd>${basedir}/src/main/resources/schemas/plugin.xsd</xsd>
-				</xsdOption>
-
-				<xsdOption>
-				    <xsd>${basedir}/src/main/resources/schemas/wsdl11/xml-binding.xsd</xsd>
-				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl11/xml-binding.xjb</bindingFile>
-				</xsdOption>
-			    </xsdOptions>
-			</configuration>
-			<goals>
-			    <goal>xsdtojava</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-	</plugins>
-    </build>
+	</dependency>
+	
+	
+	<dependency>
+		    <groupId>org.apache.cxf</groupId>
+		    <artifactId>cxf-tools-wsdl2java</artifactId>
+		    <version>${project.version}</version>
+	</dependency>
+		
+		 
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-tools2-wsdlto-databinding-jaxb</artifactId>
+		<version>${project.version}</version>	 	
+	</dependency>
+	
+	
+	<dependency>
+		<groupId>org.apache.cxf</groupId>
+		<artifactId>cxf-tools2-wsdlto-core</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+    </dependencies>
 </project>

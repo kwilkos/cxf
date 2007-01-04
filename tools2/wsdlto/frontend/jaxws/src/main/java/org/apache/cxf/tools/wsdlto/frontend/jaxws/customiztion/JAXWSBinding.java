@@ -30,22 +30,24 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
 
     private boolean enableAsyncMapping;
 
-    private boolean enableMime;
+    private boolean enableMime = true;
 
     private Element element;
     private boolean required;
     private QName elementType;
 
-    private boolean enableWrapperStyle;
+    private boolean enableWrapperStyle = true;
 
     private String documentBaseURI;
 
     private String packageName;
-    
+
     private String methodName;
 
     private JAXWSParameter jaxwsPara;
     
+    private JAXWSClass jaxwsClass;
+
     public void setDocumentBaseURI(String baseURI) {
         this.documentBaseURI = baseURI;
     }
@@ -111,18 +113,27 @@ public class JAXWSBinding implements ExtensibilityElement, Serializable {
     }
 
     public void setJaxwsPara(JAXWSParameter para) {
-        this.jaxwsPara = para;
+        jaxwsPara = para;
     }
-    
+
     public JAXWSParameter getJaxwsPara() {
-        return this.jaxwsPara;
+        return jaxwsPara;
     }
     
+    public void setJaxwsClass(JAXWSClass clz) {
+        this.jaxwsClass = clz;
+    }
+
+    public JAXWSClass getJaxwsClass() {
+        return this.jaxwsClass;
+    }
+    
+
     public void setMethodName(String name) {
         methodName = name;
     }
+
     public String getMethodName() {
         return this.methodName;
     }
-    
 }

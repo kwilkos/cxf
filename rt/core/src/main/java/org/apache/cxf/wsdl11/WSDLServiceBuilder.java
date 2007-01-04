@@ -325,6 +325,7 @@ public class WSDLServiceBuilder {
 
     public void buildInterface(ServiceInfo si, PortType p) {
         InterfaceInfo inf = si.createInterface(p.getQName());
+        this.copyExtensors(inf, p.getExtensibilityElements());
         inf.setProperty(WSDL_PORTTYPE, p);
         for (Operation op : cast(p.getOperations(), Operation.class)) {
             buildInterfaceOperation(inf, op);
@@ -337,7 +338,7 @@ public class WSDLServiceBuilder {
         OperationInfo opInfo = inf.addOperation(new QName(inf.getName().getNamespaceURI(), op.getName()));
         opInfo.setProperty(WSDL_OPERATION, op);
         opInfo.setParameterOrdering(op.getParameterOrdering());
-        
+        this.copyExtensors(opInfo, op.getExtensibilityElements());
         Input input = op.getInput();
         List paramOrder = op.getParameterOrdering();
         if (input != null) {
@@ -526,7 +527,7 @@ public class WSDLServiceBuilder {
     private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
         XmlSchemaCollection schemas = (XmlSchemaCollection)minfo.getOperation().getInterface().getService()
             .getProperty(WSDL_SCHEMA_LIST);
-        
+               
         List orderedParam = msg.getOrderedParts(paramOrder);
         for (Part part : cast(orderedParam, Part.class)) {
             MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), 

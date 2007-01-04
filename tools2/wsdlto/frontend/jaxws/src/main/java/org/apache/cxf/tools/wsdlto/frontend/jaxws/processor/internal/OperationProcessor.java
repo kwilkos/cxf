@@ -35,6 +35,7 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebMethodAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.MethodMapper;
 
@@ -55,9 +56,9 @@ public class OperationProcessor  extends AbstractProcessor {
         method.setInterface(intf);
         
         // TODO: add customizing
-        // method.setJAXWSBinding(customizing(intf, operation));
+       
         
-        processMethod(method, operation);
+        processMethod(method, operation, null);
         Collection<FaultInfo> faults = operation.getFaults();
 
         FaultProcessor faultProcessor = new FaultProcessor(context);
@@ -67,7 +68,8 @@ public class OperationProcessor  extends AbstractProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    public void processMethod(JavaMethod method, OperationInfo operation) throws ToolException {
+    public void processMethod(JavaMethod method, OperationInfo operation, 
+                              JAXWSBinding globalBinding) throws ToolException {
         MessageInfo inputMessage = operation.getInput();
         MessageInfo outputMessage = operation.getOutput();
 
@@ -95,7 +97,15 @@ public class OperationProcessor  extends AbstractProcessor {
         
         annotator.addWebResultAnnotation(method);
         annotator.addSOAPBindingAnnotation(method);
-        if (!method.isOneWay() && method.getJAXWSBinding().isEnableAsyncMapping()) {
+        
+        JAXWSBinding opBinding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
+        
+        boolean enableAsync = false;
+        if (globalBinding != null && globalBinding.isEnableAsyncMapping() 
+            || opBinding != null && opBinding.isEnableAsyncMapping()) {
+            enableAsync = true;
+        }
+        if (!method.isOneWay() && enableAsync) {
             addAsyncMethod(method);
         }
     }

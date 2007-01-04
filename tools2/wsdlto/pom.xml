@@ -39,5 +39,6 @@
 	<module>core</module>
 	<module>frontend/jaxws</module>
 	<module>databinding/jaxb</module>
+	<module>test</module>
     </modules>
 </project>

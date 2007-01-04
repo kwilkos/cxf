@@ -78,17 +78,5 @@ public class PortTypeProcessor extends AbstractProcessor {
         return false;
     }
 
-    // TODO: add cusomizing
-    //     private JAXWSBinding customizing(JavaModel jmodel, PortType portType) {
-    //         String portTypeName = portType.getQName().getLocalPart();
-    //         JAXWSBinding bindings = CustomizationParser.getInstance().getPortTypeExtension(portTypeName);
-    //         if (bindings != null) {
-    //             return bindings;
-    //         } else if (jmodel.getJAXWSBinding() != null) {
-    //             return jmodel.getJAXWSBinding();
-    //         } else {
-    //             // TBD: There is no extensibilityelement in port type
-    //             return new JAXWSBinding();
-    //         }
-    //     }
+   
 }

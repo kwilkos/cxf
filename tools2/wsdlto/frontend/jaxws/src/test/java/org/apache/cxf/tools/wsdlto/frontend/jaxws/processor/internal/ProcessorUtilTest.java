@@ -32,12 +32,12 @@ public class ProcessorUtilTest extends TestCase {
                      ProcessorUtil.getAbsolutePath("http://cxf.org"));
 
         if (isWindows()) {
-            assertEquals("C:/org/cxf",
+                        
+            assertEquals("c:/org/cxf",
                          ProcessorUtil.getAbsolutePath("c:\\org\\cxf"));
-            assertEquals("C:/org/cxf",
+            
+            assertEquals("c:/org/cxf",
                          ProcessorUtil.getAbsolutePath("c:/org/cxf"));
-            assertEquals("C:/org/cxf",
-                         ProcessorUtil.getAbsolutePath("/org/cxf"));
         }
     }
 }

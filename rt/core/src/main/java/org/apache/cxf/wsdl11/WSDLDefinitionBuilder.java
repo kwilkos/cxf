@@ -60,6 +60,9 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
             wsdlFactory = WSDLFactory.newInstance();
             registry = wsdlFactory.newPopulatedExtensionRegistry();
             registerInitialExtensions();
+            wsdlReader = wsdlFactory.newWSDLReader();
+            // TODO enable the verbose if in verbose mode.
+            wsdlReader.setFeature("javax.wsdl.verbose", false);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -72,9 +75,7 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
 
     protected void parseWSDL(String wsdlURL) {
         try {            
-            wsdlReader = wsdlFactory.newWSDLReader();
-            // TODO enable the verbose if in verbose mode.
-            wsdlReader.setFeature("javax.wsdl.verbose", false);
+
             wsdlReader.setExtensionRegistry(registry);
             
             // REVIST: URIResolve is to solve the wsdl import and schema import, 

@@ -20,23 +20,32 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
-
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
-
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
-
 import javax.wsdl.PortType;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.xml.WSDLReader;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import org.xml.sax.InputSource;
+
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -53,9 +62,19 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     protected static final Logger LOG = LogUtils.getL7dLogger(JAXWSDefinitionBuilder.class);
     protected CustomizationParser cusParser;
     
-    private WSDLReader reader;
+    private WSDLDefinitionBuilder builder;
+    private WSDLReader wsdlReader;
+    private Definition wsdlDefinition;
     
+    private Set<InputSource> jaxbBindings;
+    private Element handlerChain;
+       
     public JAXWSDefinitionBuilder() {
+        builder = new WSDLDefinitionBuilder();
+        ExtensionRegistry registry = builder.getExtenstionRegistry();
+        registerJaxwsExtension(registry);
+        wsdlReader = builder.getWSDLReader();
+        wsdlReader.setExtensionRegistry(registry);
     }
     
     public Definition build() {
@@ -64,19 +83,10 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     }
 
     public Definition build(String wsdlURL) {
-        WSDLDefinitionBuilder builder = new WSDLDefinitionBuilder();
-        ExtensionRegistry registry = builder.getExtenstionRegistry();
-
-        registerJaxwsExtension(registry);
-        Definition wsdlDefinition = builder.build(wsdlURL);
-        
-        reader = builder.getWSDLReader();
-
+        wsdlDefinition = builder.build(wsdlURL);
         context.put(ToolConstants.WSDL_DEFINITION, wsdlDefinition);
         context.put(ToolConstants.IMPORTED_DEFINITION, builder.getImportedDefinitions());
-
-        checkSupported(wsdlDefinition);
-        
+        checkSupported(wsdlDefinition);        
         return wsdlDefinition;
     }
 
@@ -90,7 +100,6 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
 
     private void registerJAXWSBinding(ExtensionRegistry registry, Class clz) {
         registry.registerSerializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingSerializer());
-
         registry.registerDeserializer(clz, ToolConstants.JAXWS_BINDINGS, new JAXWSBindingDeserializer());
         registry.mapExtensionTypes(clz, ToolConstants.JAXWS_BINDINGS, JAXWSBinding.class);
     }
@@ -98,6 +107,8 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     public void customize() {
         cusParser = CustomizationParser.getInstance();
         cusParser.parse(context);
+        jaxbBindings = cusParser.getJaxbBindings();
+        handlerChain = cusParser.getHandlerChains();
     }
 
     private void checkSupported(Definition def) throws ToolException {
@@ -140,15 +151,28 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         return false;
     }
     
-    public CustomizationParser getCustomizationParer() {
+    private CustomizationParser getCustomizationParer() {
         return cusParser;
     }
     
-    public Definition getCustomizedDefinition() {
+    public Definition getDefinition() {
         try {
-
-            Definition def = reader.readWSDL(cusParser.getCustomizedWSDLElement().getBaseURI(), cusParser
-                .getCustomizedWSDLElement());
+            if (this.wsdlDefinition == null) {
+                this.build();                
+            }
+           
+            if (!context.containsKey(ToolConstants.CFG_BINDING)) {
+                return this.wsdlDefinition;
+            }
+                       
+            File file = File.createTempFile("customzied", ".wsdl");
+            OutputStream outs = new FileOutputStream(file);
+            DOMUtils.writeXml(getCustomizationParer().getCustomizedWSDLElement(), outs);
+            InputStream ins = new FileInputStream(new File(file.toURI()));
+            Document wsdlDoc = DOMUtils.readXml(ins);
+            Definition def =  wsdlReader.readWSDL(this.wsdlDefinition.getDocumentBaseURI(), 
+                                                 wsdlDoc);
+            file.delete();
             return def;
         } catch (Exception we) {
             Message msg = new Message("FAIL_TO_CREATE_WSDL_DEFINITION", LOG, cusParser
@@ -156,9 +180,20 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
             throw new RuntimeException(msg.toString(), we);
         }
     }
+    public WSDLReader getWSDLReader() {
+        return wsdlReader;
+    }
     
 
     public boolean validate(Definition def) throws ToolException {
         return new WSDL11Validator(def, context).isValid();
+    }
+    
+    public Set<InputSource> getJaxbBindings() {
+        return this.jaxbBindings;
+    }
+    
+    public Element getHandlerChain() {
+        return this.handlerChain;
     }
 }

@@ -29,12 +29,16 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
 public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBindingProfile {
+    public void initialize(ToolContext context) {
 
-    public void generate(ToolContext context) throws ToolException {
+    }
+    
+    public void generate() throws ToolException {
+     
     }
 
     
-    public String getType(QName qn, boolean fullName) {
+    public String getType(QName qn) {
         return null;
     }
     

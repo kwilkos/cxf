@@ -3,7 +3,7 @@
 <plugin name="test" version="2.0" provider="apache cxf" xmlns="http://cxf.apache.org/tools/plugin">
     <frontend name="jaxws" package="org.apache.cxf.tools.wsdlto.frontend.jaxws" profile="JAXWSProfile">
 	<container name="DummyContainer" toolspec="dummy.toolspec" package="org.apache.cxf.tools.wsdlto.core"/>
-	<generators>
+	<generators package="org.apache.cxf.tools.wsdl2java.frontend.jaxws">
 	    <generator name="AntGenerator"/>
 	    <generator name="ImplGenerator"/>
 	</generators>

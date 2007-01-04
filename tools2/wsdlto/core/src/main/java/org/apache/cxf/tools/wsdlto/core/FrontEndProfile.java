@@ -67,7 +67,7 @@ public class FrontEndProfile {
         this.builder = b;
     }
 
-    public AbstractWSDLBuilder<? extends Object> getWSDLBuilder() {
+    public AbstractWSDLBuilder getWSDLBuilder() {
         return builder;
     }
 

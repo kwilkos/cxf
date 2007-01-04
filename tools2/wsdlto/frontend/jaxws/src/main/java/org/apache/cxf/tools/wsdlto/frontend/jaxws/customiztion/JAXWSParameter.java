@@ -20,7 +20,14 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion;
 
 public class JAXWSParameter {
     private String name;
-    private String elementName;
+    private String eleName;
+    private String messageName;
+    
+    public JAXWSParameter(String msgName , String elementName, String name) {
+        this.messageName = msgName;
+        this.eleName = elementName;
+        this.name = name;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -30,12 +37,22 @@ public class JAXWSParameter {
         return name;
     }
 
-    public void setElementName(String eleName) {
-        this.elementName = eleName;
+    public void setElementName(String elementName) {
+        this.eleName = elementName;
     }
 
     public String getElementName() {
-        return this.elementName;
+        return eleName;
     }
+    
+    public String getMessageName() {
+        return this.messageName;
+    }
+    
+    public void setMessageName(String msgName) {
+        this.messageName = msgName;
+    }
+    
+    
 
 }

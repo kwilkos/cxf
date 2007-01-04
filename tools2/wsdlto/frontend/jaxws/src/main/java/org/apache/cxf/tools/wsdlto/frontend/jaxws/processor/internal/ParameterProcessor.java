@@ -27,10 +27,9 @@ import java.util.Map;
 import javax.wsdl.OperationType;
 import javax.xml.namespace.QName;
 
-import com.sun.codemodel.JType;
-import com.sun.tools.xjc.api.Property;
 
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolContext;
@@ -137,12 +136,12 @@ public class ParameterProcessor extends AbstractProcessor {
         }
         MessagePartInfo part = inputParts.iterator().next();
         
-        List<? extends Property> block = dataBinding.getBlock(part);
-        if (block == null || block.size() == 0) {
+        List<QName> wrappedElements = ProcessorUtil.getWrappedElement(context, part.getElementQName());
+        if (wrappedElements == null || wrappedElements.size() == 0) {
             return;
         }
-        for (Property item : block) {
-            addParameter(method, getParameterFromProperty(item, JavaType.Style.IN, part));
+        for (QName item : wrappedElements) {
+            addParameter(method, getParameterFromQName(item, JavaType.Style.IN, part));
         }
     }
 
@@ -205,28 +204,29 @@ public class ParameterProcessor extends AbstractProcessor {
         MessagePartInfo inputPart = inputParts.size() > 0 ? inputParts.iterator().next() : null;
         MessagePartInfo outputPart = outputParts.size() > 0 ? outputParts.iterator().next() : null;
         
-        List<? extends Property> inputBlock = null;
-        List<? extends Property> outputBlock = null;
+        List<QName> inputWrapElement = null;
+        List<QName> outputWrapElement = null;
         
         if (inputPart != null) {
-            inputBlock = dataBinding.getBlock(inputPart);
+            inputWrapElement = ProcessorUtil.getWrappedElement(context, inputPart.getElementQName()); 
+                //dataBinding.getBlock(inputPart);
         }       
         
         if (outputPart != null) {
-            outputBlock = dataBinding.getBlock(outputPart);
+            outputWrapElement = ProcessorUtil.getWrappedElement(context, outputPart.getElementQName()); 
         }
 
-        if (outputBlock == null || outputBlock.size() == 0) {
+        if (inputWrapElement == null || outputWrapElement.size() == 0) {
             addVoidReturn(method);
             return;
         }
         method.setReturn(null);
-        if (outputBlock.size() == 1 && inputBlock != null) {
-            Property outElement = outputBlock.iterator().next();
+        if (inputWrapElement.size() == 1 && outputWrapElement != null) {
+            QName outElement = outputWrapElement.iterator().next();
             boolean sameWrapperChild = false;
-            for (Property inElement : inputBlock) {
+            for (QName inElement : inputWrapElement) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT,
+                    addParameter(method, getParameterFromQName(outElement, JavaType.Style.INOUT,
                                                                   outputPart));
                     sameWrapperChild = true;
                     if (method.getReturn() == null) {
@@ -236,26 +236,26 @@ public class ParameterProcessor extends AbstractProcessor {
                 }
             }
             if (!sameWrapperChild) {
-                method.setReturn(getReturnFromProperty(outElement, outputPart));
+                method.setReturn(getReturnFromQName(outElement, outputPart));
                 return;
             }
             
         }
-        for (Property outElement : outputBlock) {
-            if ("return".equals(outElement.elementName().getLocalPart())) {
+        for (QName outElement : outputWrapElement) {
+            if ("return".equals(outElement.getLocalPart())) {
                 if (method.getReturn() != null) {
                     org.apache.cxf.common.i18n.Message msg = 
                         new org.apache.cxf.common.i18n.Message("WRAPPER_STYLE_TWO_RETURN_TYPES", LOG);
                     throw new ToolException(msg);
                 }
-                method.setReturn(getReturnFromProperty(outElement, outputPart));
+                method.setReturn(getReturnFromQName(outElement, outputPart));
                 continue;
             }
             boolean sameWrapperChild = false;
-            if (inputBlock != null) {
-                for (Property inElement : inputBlock) {
+            if (inputWrapElement != null) {
+                for (QName inElement : inputWrapElement) {
                     if (isSameWrapperChild(inElement, outElement)) {
-                        addParameter(method, getParameterFromProperty(outElement, JavaType.Style.INOUT,
+                        addParameter(method, getParameterFromQName(outElement, JavaType.Style.INOUT,
                                                                       outputPart));
                         sameWrapperChild = true;
                         break;
@@ -263,7 +263,7 @@ public class ParameterProcessor extends AbstractProcessor {
                 }
             }
             if (!sameWrapperChild) {
-                addParameter(method, getParameterFromProperty(outElement, JavaType.Style.OUT, outputPart));
+                addParameter(method, getParameterFromQName(outElement, JavaType.Style.OUT, outputPart));
             }
         }
         if (method.getReturn() == null) {
@@ -276,33 +276,72 @@ public class ParameterProcessor extends AbstractProcessor {
         method.setReturn(returnType);
     }
 
-    private boolean isSameWrapperChild(Property in, Property out) {
-        if (!in.name().equals(out.name())) {
+    private boolean isSameWrapperChild(QName in, QName out) {
+        if (!in.getLocalPart().equals(out.getLocalPart())) {
             return false;
         }
-        if (!in.type().fullName().equals(out.type().fullName())) {
-            return false;
-        }
-        if (!in.elementName().getNamespaceURI().equals(out.elementName().getNamespaceURI())) {
+        
+        if (!in.getNamespaceURI().equals(out.getNamespaceURI())) {
             return false;
         }
         return true;
     }
 
-    private JavaParameter getParameterFromProperty(Property property,
-                                                   JavaType.Style style,
-                                                   MessagePartInfo part) {
-        return ParameterMapper.map(property, style, part);
-    }
+    private JavaParameter getParameterFromQName(QName element, JavaType.Style style, MessagePartInfo part) {
 
-    private JavaReturn getReturnFromProperty(Property property, MessagePartInfo part) {
-        JType t = property.type();
+        String fullJavaName = "";
+        String simpleJavaName = "";
+              
+        fullJavaName = this.dataBinding.getType(element);
+        simpleJavaName = fullJavaName;
+        
+        int index = fullJavaName.lastIndexOf(".");
+        
+        if (index > -1) {
+            simpleJavaName = fullJavaName.substring(index);    
+        }
+        
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         if (targetNamespace == null) {
-            targetNamespace = property.elementName().getNamespaceURI();
+            targetNamespace = element.getNamespaceURI();
         }
-        JavaReturn returnType = new JavaReturn(property.name(), t.fullName(), targetNamespace);
-        returnType.setQName(property.elementName());
+        JavaParameter parameter = new JavaParameter(simpleJavaName, fullJavaName, targetNamespace);
+        parameter.setStyle(style);
+        parameter.setQName(element);
+        if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
+            parameter.setHolder(true);
+            parameter.setHolderName(javax.xml.ws.Holder.class.getName());
+            String holderClass = fullJavaName;
+            if (JAXBUtils.holderClass(fullJavaName) != null) {
+                holderClass = JAXBUtils.holderClass(fullJavaName).getName();
+            }          
+            parameter.setHolderClass(holderClass);
+        }
+        return parameter;
+
+    }
+
+    private JavaReturn getReturnFromQName(QName element, MessagePartInfo part) {
+        String fullJavaName = "";
+        String simpleJavaName = "";
+        
+       
+        
+        fullJavaName = this.dataBinding.getType(element);
+        simpleJavaName = fullJavaName;
+        
+        int index = fullJavaName.lastIndexOf(".");
+        
+        if (index > -1) {
+            simpleJavaName = fullJavaName.substring(index);    
+        }
+        
+        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
+        if (targetNamespace == null) {
+            targetNamespace = element.getNamespaceURI();
+        }
+        JavaReturn returnType = new JavaReturn(simpleJavaName, fullJavaName , targetNamespace);
+        returnType.setQName(element);
         returnType.setStyle(JavaType.Style.OUT);
         return returnType;
     }

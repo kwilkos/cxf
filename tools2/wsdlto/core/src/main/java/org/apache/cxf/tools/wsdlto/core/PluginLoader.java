@@ -37,7 +37,7 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
-import org.apache.cxf.tools.plugin.Generator;
+//import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;
 
 public final class PluginLoader {
@@ -137,6 +137,7 @@ public final class PluginLoader {
 
     public FrontEnd getFrontEnd(String name) {
         FrontEnd frontend = frontends.get(name);
+        
         if (frontend == null) {
             // TODO: If null, we should search the whole classpath, to load all the plugins,
             //       otherwise throws Exception
@@ -146,7 +147,7 @@ public final class PluginLoader {
         return frontend;
     }
 
-    private String getGeneratorClass(FrontEnd frontend, Generator generator) {
+   /* private String getGeneratorClass(FrontEnd frontend, Generator generator) {
         String fullPackage = generator.getPackage();
         if (StringUtils.isEmpty(fullPackage)) {
             fullPackage = frontend.getGenerators().getPackage();
@@ -155,29 +156,32 @@ public final class PluginLoader {
             fullPackage = frontend.getPackage();
         }
         return fullPackage + "." + generator.getName();
-    }
+    }*/
     
     private List<FrontEndGenerator> getFrontEndGenerators(FrontEnd frontend) {
         List<FrontEndGenerator> generators = new ArrayList<FrontEndGenerator>();
 
-        String fullClzName = null;
-        try {
+        //String fullClzName = null;
+       /* try {
             for (Generator generator : frontend.getGenerators().getGenerator()) {
                 fullClzName = getGeneratorClass(frontend, generator);
-                generators.add((FrontEndGenerator)Class.forName(fullClzName).newInstance());
+                Class clz = this.getClass().getClassLoader().loadClass(fullClzName);
+                generators.add((FrontEndGenerator)clz.newInstance());
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "FRONTEND_PROFILE_LOAD_FAIL", fullClzName);
             Message msg = new Message("FRONTEND_PROFILE_LOAD_FAIL", LOG, fullClzName);
             throw new ToolException(msg, e);
-        }
+        }*/
+        
         return generators;
     }
 
-    private FrontEndProfile loadFrontEndProfile(String fullClzName) {
+    private FrontEndProfile loadFrontEndProfile(String fullClzName) {       
         FrontEndProfile profile = null;
         try {
-            profile = (FrontEndProfile) Class.forName(fullClzName).newInstance();
+            Class clz = getClass().getClassLoader().loadClass(fullClzName);
+            profile = (FrontEndProfile)clz.newInstance();
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "FRONTEND_PROFILE_LOAD_FAIL", fullClzName);
             Message msg = new Message("FRONTEND_PROFILE_LOAD_FAIL", LOG, fullClzName);
@@ -266,7 +270,9 @@ public final class PluginLoader {
     public FrontEndProfile getFrontEndProfile(String name) {
         FrontEndProfile profile = frontendProfiles.get(name);
         if (profile == null) {
+           
             FrontEnd frontend = getFrontEnd(name);
+           
             profile = loadFrontEndProfile(getFrontEndProfileClass(frontend));
 
             for (FrontEndGenerator generator : getFrontEndGenerators(frontend)) {

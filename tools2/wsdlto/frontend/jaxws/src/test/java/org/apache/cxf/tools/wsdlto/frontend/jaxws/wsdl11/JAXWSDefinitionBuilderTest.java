@@ -19,28 +19,27 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
+import javax.wsdl.Operation;
 import javax.wsdl.Port;
+import javax.wsdl.PortType;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPAddress;
-import javax.wsdl.extensions.schema.Schema;
 import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.CustomizationParser;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.transports.jms.JMSAddressPolicyType;
 
@@ -120,45 +119,40 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         env.put(ToolConstants.CFG_BINDING, getClass().getResource("./binding2.xml").toString());
         JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
         builder.setContext(env);
-        Definition def = builder.build();
         builder.customize();
 
-        CustomizationParser parser = builder.getCustomizationParer();
+        Definition customizedDef = builder.getDefinition();
+        List defExtensionList = customizedDef.getExtensibilityElements();
+        Iterator ite = defExtensionList.iterator();
 
-        JAXWSBinding jaxwsBinding = parser.getDefinitionBindingMap().get(def.getTargetNamespace());
-        assertNotNull("JAXWSBinding for definition is null", jaxwsBinding);
-        assertEquals("Package customiztion for definition is not correct", "com.foo", jaxwsBinding
-            .getPackage());
+        while (ite.hasNext()) {
+            ExtensibilityElement extElement = (ExtensibilityElement)ite.next();
+            JAXWSBinding binding = (JAXWSBinding)extElement;
+            assertEquals("Customized package name does not been parsered", "com.foo", binding.getPackage());
+            assertEquals("Customized enableAsync does not parsered", true, binding.isEnableAsyncMapping());
+        }
 
-        QName qn = new QName(def.getTargetNamespace(), "Greeter");
-        jaxwsBinding = parser.getPortTypeBindingMap().get(qn);
-        assertNotNull("JAXWSBinding for PortType is null", jaxwsBinding);
-        assertTrue("AsynMapping customiztion for PortType is not true", jaxwsBinding.isEnableAsyncMapping());
+        PortType portType = customizedDef.getPortType(new QName("http://apache.org/hello_world_soap_http",
+                                                                "Greeter"));
 
-        qn = new QName(def.getTargetNamespace(), "greetMeOneWay");
-        jaxwsBinding = parser.getOperationBindingMap().get(qn);
+        List portTypeList = portType.getExtensibilityElements();
+        JAXWSBinding binding = (JAXWSBinding)portTypeList.get(0);
 
-        assertNotNull("JAXWSBinding for Operation is null", jaxwsBinding);
-        assertEquals("Method name customiztion for operation is not correct", "echoMeOneWay", jaxwsBinding
-            .getMethodName());
+        assertEquals("Customized enable EnableWrapperStyle name does not been parsered", true, binding
+            .isEnableWrapperStyle());
+       
+        List opList = portType.getOperations();
+        Operation operation = (Operation)opList.get(0);
+        List extList = operation.getExtensibilityElements();
+        binding = (JAXWSBinding)extList.get(0);
 
-        qn = new QName(def.getTargetNamespace(), "in");
-        jaxwsBinding = parser.getPartBindingMap().get(qn);
-
-        assertEquals("Parameter name customiztion for part is not correct", "num1", jaxwsBinding
-            .getJaxwsPara().getName());
-
-        Definition cusDef = builder.getCustomizedDefinition();
-
-        Schema schema = (Schema)cusDef.getTypes().getExtensibilityElements().iterator().next();
-
-        Element appinfoElement = (Element)schema.getElement()
-            .getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "appinfo").item(0);
-
-        assertNotNull("Appinfo element does not  be append to schema element", appinfoElement);
-
-        assertNotNull("typesafeEnum element does not  be append to schema element", appinfoElement
-            .getElementsByTagName("jaxb:typesafeEnumClass").item(0));
-
+        assertEquals("Customized method name does not parsered", "echoMeOneWay", binding.getMethodName());
+        
+        
+        assertEquals("Customized parameter element name does not parsered", "tns:number1", binding
+            .getJaxwsPara().getElementName());
+        assertEquals("Customized parameter message name does not parsered", "greetMeOneWayRequest", binding
+            .getJaxwsPara().getMessageName());
+        assertEquals("customized parameter name does not parsered", "num1", binding.getJaxwsPara().getName());
     }
 }

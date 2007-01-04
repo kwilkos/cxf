@@ -23,7 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
+
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.DOMException;
@@ -37,11 +41,16 @@ import com.sun.xml.bind.api.JAXBRIContext;
 import org.apache.cxf.helpers.JavaUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessagePartInfo;
-
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaComplexType;
+import org.apache.ws.commons.schema.XmlSchemaElement;
+import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
+import org.apache.ws.commons.schema.XmlSchemaSequence;
 
 public final class ProcessorUtil {
     private static final String KEYWORDS_PREFIX = "_";
@@ -63,7 +72,7 @@ public final class ProcessorUtil {
     
     public static String getType(MessagePartInfo part, ToolContext context, boolean fullname) {
         DataBindingProfile dataBinding = context.get(DataBindingProfile.class);
-        String type = dataBinding.getType(getElementName(part), fullname);
+        String type = dataBinding.getType(getElementName(part));
         if (type == null) {
             type = resolvePartType(part);
         }
@@ -107,7 +116,7 @@ public final class ProcessorUtil {
                 return resolvePartType(part);
             }
         }
-        String name = dataBinding.getType(getElementName(part), fullName);
+        String name = dataBinding.getType(getElementName(part));
         if (name == null) {
             return resolvePartType(part);
         }
@@ -146,8 +155,9 @@ public final class ProcessorUtil {
         if (location.startsWith("http://")) {
             return location;
         } else {
-            return resolvePath(new File(location).getCanonicalPath());
+            return resolvePath(new File(location).getAbsolutePath());
         }
+         
     }
 
     public static URL getWSDLURL(String location) throws Exception {
@@ -199,7 +209,7 @@ public final class ProcessorUtil {
     //
     // the non-wrapper style will get the type info from the part directly
     //
-    public static String getFullClzName(MessagePartInfo part, ToolContext context, boolean boxify) {
+    public static String getFullClzName(MessagePartInfo part, ToolContext context, boolean primitiveType) {
         DataBindingProfile dataBinding = context.get(DataBindingProfile.class);
         String jtype = null;
         QName xmlTypeName = getElementName(part);
@@ -209,24 +219,19 @@ public final class ProcessorUtil {
         // if not found,  find in the generated class
        
             
-        if (boxify && dataBinding != null) {
-            jtype = dataBinding.getJavaType(xmlTypeName, true);
+        if (!primitiveType && dataBinding != null) {
+            jtype = dataBinding.getType(xmlTypeName);
         } 
         
-        if (boxify && dataBinding == null) {
+        if (!primitiveType && dataBinding == null) {
             Class holderClass = JAXBUtils.holderClass(xmlTypeName.getLocalPart());
             jtype = holderClass == null ? null : holderClass.getName();
             if (jtype == null) {
                 jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());
-            }
-                       
+            }                      
         }
         
-        if (!boxify && dataBinding != null) {
-            jtype = dataBinding.getJavaType(xmlTypeName, false);
-        }
-        
-        if (!boxify && dataBinding == null) {
+        if (primitiveType) {
             jtype = JAXBUtils.builtInTypeToJavaType(xmlTypeName.getLocalPart());
         }
             
@@ -339,5 +344,29 @@ public final class ProcessorUtil {
         }
         return clone;
     }
+    
+    public static List<QName> getWrappedElement(ToolContext context, QName partElement) {
+        List<QName> qnames = new ArrayList<QName>();
+        
+        ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
+        XmlSchemaCollection schema = (XmlSchemaCollection)serviceInfo
+            .getProperty("WSDLServiceBuilder.SCHEMA");
 
+        XmlSchemaElement elementByName = schema.getElementByQName(partElement);
+
+        XmlSchemaComplexType type = (XmlSchemaComplexType)elementByName.getSchemaType();
+
+        XmlSchemaSequence seq = (XmlSchemaSequence)type.getParticle();
+
+        XmlSchemaObjectCollection items = seq.getItems();
+
+        Iterator ite = items.getIterator();
+
+        while (ite.hasNext()) {
+            XmlSchemaElement subElement = (XmlSchemaElement)ite.next();
+            qnames.add(subElement.getQName());
+        }
+        return qnames;
+    }
+ 
 }

@@ -23,8 +23,8 @@ import org.apache.cxf.tools.common.ToolConstants;
 
 public final class WSDLVersion {
 
-    private static final String WSDL11 = "1.1";
-    private static final String WSDL20 = "2.0";
+    public static final String WSDL11 = "1.1";
+    public static final String WSDL20 = "2.0";
 
     private WSDLVersion() {
     }
