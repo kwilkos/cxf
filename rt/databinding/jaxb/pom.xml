@@ -122,7 +122,10 @@
             <scope>test</scope>
         </dependency>
  
-
+        <dependency>
+            <groupId>jaxme</groupId>
+            <artifactId>jaxme2</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>woodstox</groupId>

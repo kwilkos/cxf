@@ -48,6 +48,8 @@ import org.w3c.dom.Node;
 import junit.framework.TestCase;
 
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxb_misc.Base64WithDefaultValueType;
+import org.apache.cxf.jaxb_misc.ObjectFactory;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxStreamFilter;
 import org.apache.cxf.testutil.common.TestUtil;
@@ -367,6 +369,12 @@ public class JAXBEncoderDecoderTest extends TestCase {
             assertTrue(cls.equals(paramTypes[idx]));
             idx++;
         }
+    }
+    
+    public void testDefaultValueConverter() throws Exception {
+        Base64WithDefaultValueType testData = (new ObjectFactory()).createBase64WithDefaultValueType();
+        byte[] checkValue = testData.getAttributeWithDefaultValue();
+        assertNotNull(checkValue);
     }
 }
 
