@@ -55,76 +55,45 @@ class SSLSocketFactoryWrapper extends SSLSocketFactory {
     
     public Socket createSocket(Socket s, String host, int port, boolean autoClose)
         throws IOException, UnknownHostException  {
-        
-        SSLSocket socket = null;
-        socket = (SSLSocket)sslSocketFactory.createSocket(s, host, port, autoClose);
-        if ((socket != null) && (ciphers != null)) {
-            socket.setEnabledCipherSuites(ciphers);
-        }
-
-        return socket; 
+        return enableCipherSuites(sslSocketFactory.createSocket(s, host, port, autoClose),
+                                  new Object[]{host, port});
     }
 
     public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-        SSLSocket socket = null;
-        socket = (SSLSocket)sslSocketFactory.createSocket(host, port);
-        if ((socket != null) && (ciphers != null)) {
-            socket.setEnabledCipherSuites(ciphers);
-        }
-        if (socket == null) {
-            LogUtils.log(LOG, Level.SEVERE, "PROBLEM_CREATING_OUTBOUND_REQUEST_SOCKET", 
-                         new Object[]{host, port});
-        }
-        return socket; 
+        return enableCipherSuites(sslSocketFactory.createSocket(host, port),
+                                  new Object[]{host, port});
     }
-
 
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort) 
         throws IOException, UnknownHostException {
-        SSLSocket socket = null;
-        socket = (SSLSocket)sslSocketFactory.createSocket(host, port, localHost, localPort);
-        if ((socket != null) && (ciphers != null)) {
-            socket.setEnabledCipherSuites(ciphers);
-        }
-
-        if (socket == null) {
-            LogUtils.log(LOG, Level.SEVERE, "PROBLEM_CREATING_OUTBOUND_REQUEST_SOCKET", 
-                         new Object[]{host, port});
-        }
-        return socket;
+        return enableCipherSuites(sslSocketFactory.createSocket(host, port, localHost, localPort),
+                                  new Object[]{host, port});
     }
-
 
     public Socket createSocket(InetAddress host, int port) throws IOException {
-        SSLSocket socket = null;
-        socket = (SSLSocket)sslSocketFactory.createSocket(host, port);
-        if ((socket != null) && (ciphers != null)) {
-            socket.setEnabledCipherSuites(ciphers);
-        }
-
-        if (socket == null) {
-            LogUtils.log(LOG, Level.SEVERE, "PROBLEM_CREATING_OUTBOUND_REQUEST_SOCKET", 
-                         new Object[]{host, port});
-        }
-        return socket;
+        return enableCipherSuites(sslSocketFactory.createSocket(host, port),
+                                  new Object[]{host, port});
     }
-
 
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) 
         throws IOException {
-        SSLSocket socket = null;
-        socket = (SSLSocket)sslSocketFactory.createSocket(address, port, localAddress, localPort);
+        return enableCipherSuites(sslSocketFactory.createSocket(address, port, localAddress, localPort),
+                                  new Object[]{address, port});
+    }
+    
+    private Socket enableCipherSuites(Socket s, Object[] logParams) {
+        SSLSocket socket = (SSLSocket)s;
         if ((socket != null) && (ciphers != null)) {
             socket.setEnabledCipherSuites(ciphers);
         }
 
         if (socket == null) {
-            LogUtils.log(LOG, Level.SEVERE, "PROBLEM_CREATING_OUTBOUND_REQUEST_SOCKET", 
-                         new Object[]{address, port});
+            LogUtils.log(LOG, Level.SEVERE,
+                         "PROBLEM_CREATING_OUTBOUND_REQUEST_SOCKET", 
+                         logParams);
         }
-        return socket;
+        return socket;        
     }
-    
     /*
      * For testing only
      */
