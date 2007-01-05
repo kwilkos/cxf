@@ -36,7 +36,7 @@ public class WSDLManagerImplTest extends TestCase {
 
     public void testBuildSimpleWSDL() throws Exception {
         String qname = "http://apache.org/hello_world_soap_http";
-        String wsdlUrl = getClass().getResource("/wsdl/hello_world.wsdl").toString();
+        String wsdlUrl = getClass().getResource("hello_world.wsdl").toString();
         
         WSDLManagerImpl builder = new WSDLManagerImpl();
         Definition def = builder.getDefinition(wsdlUrl);
@@ -44,19 +44,19 @@ public class WSDLManagerImplTest extends TestCase {
         
         Map services = def.getServices();
         assertNotNull(services);
-        assertEquals(7, services.size());
+        assertEquals(1, services.size());
         Service service = (Service)services.get(new QName(qname, "SOAPService"));
         assertNotNull(service);
         
         Map ports = service.getPorts();
         assertNotNull(ports);
-        assertEquals(2, ports.size());
+        assertEquals(1, ports.size());
         Port port = service.getPort("SoapPort");
         assertNotNull(port);
     }
     
     public void testBuildImportedWSDL() throws Exception {
-        String wsdlUrl = getClass().getResource("/wsdl/hello_world_services.wsdl").toString();
+        String wsdlUrl = getClass().getResource("hello_world_services.wsdl").toString();
         
         WSDLManagerImpl builder = new WSDLManagerImpl();
         Definition def = builder.getDefinition(wsdlUrl);

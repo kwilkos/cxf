@@ -29,14 +29,13 @@ import org.apache.cxf.tools.common.model.JavaParameter;
 
 public class WebParamAnnotatorTest extends TestCase {
 
-    WebParamAnnotator annotator;
     JavaMethod method;
     JavaParameter parameter;
 
     public void setUp() {
-        annotator = new WebParamAnnotator();
         method = new JavaMethod();
         parameter = new JavaParameter();
+        parameter.setMethod(method);
     }
 
     private void init(JavaMethod m, JavaParameter param, SOAPBinding.Style style, boolean wrapper) {
@@ -51,8 +50,7 @@ public class WebParamAnnotatorTest extends TestCase {
     
     public void testAnnotateDOCWrapped() throws Exception {
         init(method, parameter, SOAPBinding.Style.DOCUMENT, true);
-        
-        annotator.annotate(method, parameter);
+        parameter.annotate(new WebParamAnnotator());
 
         JavaAnnotation annotation = parameter.getAnnotation();
         assertEquals(2, annotation.getArguments().size());
@@ -62,8 +60,8 @@ public class WebParamAnnotatorTest extends TestCase {
 
     public void testAnnotateDOCBare() throws Exception {
         init(method, parameter, SOAPBinding.Style.DOCUMENT, false);
-        
-        annotator.annotate(method, parameter);
+
+        parameter.annotate(new WebParamAnnotator());
 
         JavaAnnotation annotation = parameter.getAnnotation();
         assertEquals(3, annotation.getArguments().size());
@@ -73,7 +71,7 @@ public class WebParamAnnotatorTest extends TestCase {
 
     public void testAnnotateRPC() throws Exception {
         init(method, parameter, SOAPBinding.Style.RPC, true);
-        annotator.annotate(method, parameter);
+        parameter.annotate(new WebParamAnnotator());
         JavaAnnotation annotation = parameter.getAnnotation();
         assertEquals(2, annotation.getArguments().size());
         assertEquals("@WebParam(partName = \"y\", name = \"y\")",

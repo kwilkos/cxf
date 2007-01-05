@@ -3,7 +3,7 @@
 <plugin name="tools-jaxws-frontend" version="2.0" provider="apache cxf" xmlns="http://cxf.apache.org/tools/plugin">
     <frontend name="jaxws" package="org.apache.cxf.tools.wsdlto.frontend.jaxws" profile="JAXWSProfile">
 	<container name="JAXWSContainer" toolspec="jaxws-toolspec.xml"/>
-	<processor name="WSDLToJavaProcessor" package="org.apache.cxf.tools.wsdl2java.processor"/>
+	<processor name="WSDLToJavaProcessor" package="org.apache.cxf.tools.wsdlto.frontend.jaxws.processor"/>
 	<builder name="JAXWSDefinitionBuilder" package="org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11"/>
 	<generators package="org.apache.cxf.tools.wsdl2java.frontend.jaxws">
 	    <generator name="AntGenerator"/>

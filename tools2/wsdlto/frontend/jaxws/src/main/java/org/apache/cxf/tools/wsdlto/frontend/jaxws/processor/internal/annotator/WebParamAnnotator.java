@@ -22,14 +22,22 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 import javax.jws.soap.SOAPBinding;
 
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JavaAnnotatable;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaType;
 
-public final class WebParamAnnotator implements Annotator {
-    
-    public void annotate(final JavaMethod method, JavaParameter parameter) {
+public class WebParamAnnotator implements Annotator {
+
+    public void annotate(JavaAnnotatable ja) {
+        JavaParameter parameter = null;
+        if (ja instanceof JavaParameter) {
+            parameter = (JavaParameter) ja;
+        } else {
+            throw new RuntimeException("WebParamAnnotator only annotate the JavaParameter");
+        }
+        JavaMethod method = parameter.getMethod();
         JavaAnnotation webParamAnnotation = new JavaAnnotation("WebParam");
         String name = parameter.getName();
         String targetNamespace = method.getInterface().getNamespace();

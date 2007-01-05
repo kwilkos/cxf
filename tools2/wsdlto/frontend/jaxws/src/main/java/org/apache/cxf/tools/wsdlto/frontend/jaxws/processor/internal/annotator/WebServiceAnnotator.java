@@ -20,12 +20,19 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator;
 
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JavaAnnotatable;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 
 public final class WebServiceAnnotator implements Annotator {
     
-    public void annotate(JavaInterface intf) {
+    public void annotate(JavaAnnotatable  ja) {
+        JavaInterface intf = null;
+        if (ja instanceof JavaInterface) {
+            intf = (JavaInterface) ja;
+        } else {
+            throw new RuntimeException("WebService can only annotate JavaInterface");
+        }
         JavaAnnotation serviceAnnotation = new JavaAnnotation("WebService");
         serviceAnnotation.addArgument("targetNamespace", intf.getNamespace());
         serviceAnnotation.addArgument("wsdlLocation", intf.getLocation());

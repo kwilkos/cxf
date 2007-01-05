@@ -61,9 +61,11 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         //         seiAnnotationProcessor.process(serviceInfo);
 
         JavaInterface intf = javaModel.getInterfaces().values().iterator().next();
-        new WebServiceAnnotator().annotate(intf);
+        intf.annotate(new WebServiceAnnotator());
+        //new WebServiceAnnotator().annotate(intf);
         if (serviceInfo.getBindings().size() > 0) {
-            new BindingAnnotator().annotate(intf);
+            intf.annotate(new BindingAnnotator());
+            //new BindingAnnotator().annotate(intf);
         }
 
 

@@ -21,7 +21,7 @@ package org.apache.cxf.tools.common.model;
 
 import com.sun.xml.bind.api.TypeReference;
 
-public class JavaParameter extends JavaType {
+public class JavaParameter extends JavaType implements JavaAnnotatable {
 
     private boolean holder;
     private String holderName;
@@ -29,6 +29,8 @@ public class JavaParameter extends JavaType {
     private JavaAnnotation annotation;
     private String partName;
 
+    private JavaMethod javaMethod;
+    
     public JavaParameter() {
     }
     public JavaParameter(String pname, TypeReference pref , JavaType.Style pstyle) {
@@ -109,5 +111,17 @@ public class JavaParameter extends JavaType {
             return sb.toString(); 
         }
         return super.getDefaultTypeValue();
+    }
+
+    public void setMethod(JavaMethod jm) {
+        this.javaMethod = jm;
+    }
+
+    public JavaMethod getMethod() {
+        return this.javaMethod;
+    }
+
+    public void annotate(Annotator annotator) {
+        annotator.annotate(this);
     }
 }

@@ -20,5 +20,5 @@
 package org.apache.cxf.tools.common.model;
 
 public interface Annotator {
-    // To indicator it is a annotation processor
+    void annotate(JavaAnnotatable annotatable);
 }

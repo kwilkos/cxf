@@ -36,18 +36,19 @@ import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.SoapBindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebMethodAnnotator;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebResultAnnotator;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WrapperAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.MethodMapper;
 
 public class OperationProcessor  extends AbstractProcessor {
    
     private JavaParameter wrapperRequest;
     private JavaParameter wrapperResponse;
-    private WebMethodAnnotator annotator;
         
     public OperationProcessor(ToolContext c) {
         super(c);
-        annotator = new WebMethodAnnotator();
     }
 
     @SuppressWarnings("unchecked")
@@ -88,15 +89,15 @@ public class OperationProcessor  extends AbstractProcessor {
                                outputMessage,
                                operation.getParameterOrdering());
 
-        annotator.addWebMethodAnnotation(method);
+        method.annotate(new WebMethodAnnotator());
         
-        if (!method.isWrapperStyle()) {
+        if (method.isWrapperStyle()) {
             setWrapper(operation);
-            annotator.addWrapperAnnotation(method, wrapperRequest, wrapperResponse);
+            method.annotate(new WrapperAnnotator(wrapperRequest, wrapperResponse));
         }
-        
-        annotator.addWebResultAnnotation(method);
-        annotator.addSOAPBindingAnnotation(method);
+
+        method.annotate(new WebResultAnnotator());
+        method.annotate(new SoapBindingAnnotator());
         
         JAXWSBinding opBinding = (JAXWSBinding)operation.getExtensor(JAXWSBinding.class);
         
@@ -151,12 +152,14 @@ public class OperationProcessor  extends AbstractProcessor {
         pollingMethod.setStyle(method.getStyle());
         pollingMethod.setWrapperStyle(method.isWrapperStyle());
         pollingMethod.setSoapAction(method.getSoapAction());
+        pollingMethod.setOperationName(method.getOperationName());
 
         JavaReturn future = new JavaReturn();
         future.setClassName("Future<?>");
         pollingMethod.setReturn(future);
 
-        annotator.addWebMethodAnnotation(pollingMethod, method.getOperationName());
+        // REVISIT: test the operation name in the annotation
+        pollingMethod.annotate(new WebMethodAnnotator());
         pollingMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
         pollingMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         pollingMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));
@@ -184,12 +187,14 @@ public class OperationProcessor  extends AbstractProcessor {
         callbackMethod.setStyle(method.getStyle());
         callbackMethod.setWrapperStyle(method.isWrapperStyle());
         callbackMethod.setSoapAction(method.getSoapAction());
-
+        callbackMethod.setOperationName(method.getOperationName());
+        
         JavaReturn response = new JavaReturn();
         response.setClassName(getAsyncClassName(method, "Response"));
         callbackMethod.setReturn(response);
 
-        annotator.addWebMethodAnnotation(callbackMethod, method.getOperationName());
+        // REVISIT: test the operation name in the annotation
+        callbackMethod.annotate(new WebMethodAnnotator());
         callbackMethod.addAnnotation("RequestWrapper", method.getAnnotationMap().get("RequestWrapper"));
         callbackMethod.addAnnotation("ResponseWrapper", method.getAnnotationMap().get("ResponseWrapper"));
         callbackMethod.addAnnotation("SOAPBinding", method.getAnnotationMap().get("SOAPBinding"));

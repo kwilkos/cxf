@@ -28,11 +28,9 @@ import org.apache.cxf.tools.common.model.JavaMethod;
 
 public class WebMethodAnnotatorTest extends TestCase {
 
-    WebMethodAnnotator annotator = new WebMethodAnnotator();
-    
     public void testAddWebMethodAnnotation() throws Exception {
         JavaMethod method = new JavaMethod();
-        annotator.addWebMethodAnnotation(method);
+        method.annotate(new WebMethodAnnotator());
         Map<String, JavaAnnotation> annotations = method.getAnnotationMap();
         assertNotNull(annotations);
         assertEquals(1, annotations.size());
@@ -41,7 +39,7 @@ public class WebMethodAnnotatorTest extends TestCase {
 
     public void testAddWebResultAnnotation() throws Exception {
         JavaMethod method = new JavaMethod();
-        annotator.addWebResultAnnotation(method);
+        method.annotate(new WebResultAnnotator());
         Map<String, JavaAnnotation> annotations = method.getAnnotationMap();
         assertNotNull(annotations);
         assertEquals(1, annotations.size());

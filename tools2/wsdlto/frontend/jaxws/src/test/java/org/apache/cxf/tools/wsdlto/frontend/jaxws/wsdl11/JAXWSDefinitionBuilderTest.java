@@ -52,7 +52,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
 
     public void testBuildDefinitionWithXMLBinding() {
         String qname = "http://apache.org/hello_world_xml_http/bare";
-        String wsdlUrl = getClass().getResource("/wsdl/hello_world_xml_bare.wsdl").toString();
+        String wsdlUrl = getClass().getResource("hello_world_xml_bare.wsdl").toString();
 
         JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
         builder.setContext(env);
@@ -89,7 +89,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
 
     public void testBuildDefinitionWithJMSTransport() {
         String qname = "http://cxf.apache.org/hello_world_jms";
-        String wsdlUrl = getClass().getResource("/wsdl/jms_test.wsdl").toString();
+        String wsdlUrl = getClass().getResource("jms_test.wsdl").toString();
 
         JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
         builder.setContext(env);

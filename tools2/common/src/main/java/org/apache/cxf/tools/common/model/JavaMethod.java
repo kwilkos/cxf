@@ -32,9 +32,8 @@ import javax.wsdl.OperationType;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.extensions.jaxws.JAXWSBinding;
 
-public class JavaMethod {
+public class JavaMethod implements JavaAnnotatable {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaMethod .class);
     private String name;
     private String operationName;
@@ -51,8 +50,6 @@ public class JavaMethod {
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
     private final Map<String, JavaAnnotation> annotations = new HashMap<String, JavaAnnotation>();
     private final List<WSDLException> wsdlExceptions = new ArrayList<WSDLException>();
-    private JAXWSBinding jaxwsBinding = new JAXWSBinding();
-    private JAXWSBinding bindingExt = new JAXWSBinding();
 
     public JavaMethod() {
         this.javaInterface = new JavaInterface();
@@ -301,16 +298,6 @@ public class JavaMethod {
         return list;
     }
 
-    public JAXWSBinding getJAXWSBinding() {
-        return this.jaxwsBinding;
-    }
-
-    public void setJAXWSBinding(JAXWSBinding binding) {
-        if (binding != null) {
-            this.jaxwsBinding = binding;
-        }
-    }
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("\n========================\n");
@@ -329,15 +316,11 @@ public class JavaMethod {
         return sb.toString();
     }
 
-    public JAXWSBinding getBindingExt() {
-        return bindingExt;
-    }
-
-    public void setBindingExt(JAXWSBinding pBindingExt) {
-        this.bindingExt = pBindingExt;
-    }
-    
     public void setInterface(JavaInterface intf) {
         this.javaInterface = intf;
+    }
+
+    public void annotate(Annotator annotator) {
+        annotator.annotate(this);
     }
 }

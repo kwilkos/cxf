@@ -56,7 +56,7 @@ public class WSDLDefinitionBuilderTest extends TestCase {
     }
     
     public void testBuildImportedWSDL() throws Exception {
-        String wsdlUrl = getClass().getResource("/wsdl/hello_world_services.wsdl").toString();
+        String wsdlUrl = getClass().getResource("hello_world_services.wsdl").toString();
         
         WSDLDefinitionBuilder builder = new WSDLDefinitionBuilder();
         Definition def = builder.build(wsdlUrl);

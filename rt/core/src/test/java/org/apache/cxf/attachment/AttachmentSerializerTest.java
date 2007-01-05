@@ -69,7 +69,6 @@ public class AttachmentSerializerTest extends TestCase {
         assertTrue(ct.indexOf("multipart/related;") == 0);
         assertTrue(ct.indexOf("start=\"<root.message@cxf.apache.org>\"") > -1);
         assertTrue(ct.indexOf("start-info=\"application/soap+xml; charset=UTF-8\"") > -1);
-        System.out.println(ct);
         out.write("<soap:Body/>".getBytes());
         
         serializer.writeAttachments();

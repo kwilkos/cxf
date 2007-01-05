@@ -49,7 +49,7 @@
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-tools-validator</artifactId>
+	    <artifactId>cxf-tools2-validator</artifactId>
 	    <version>${project.version}</version>
 	</dependency>
 	<dependency>
@@ -145,11 +145,6 @@
 			    <xsdOptions>
 				<xsdOption>
 				    <xsd>${basedir}/src/main/resources/schemas/plugin.xsd</xsd>
-				</xsdOption>
-
-				<xsdOption>
-				    <xsd>${basedir}/src/main/resources/schemas/wsdl11/xml-binding.xsd</xsd>
-				    <bindingFile>${basedir}/src/main/resources/schemas/wsdl11/xml-binding.xjb</bindingFile>
 				</xsdOption>
 			    </xsdOptions>
 			</configuration>

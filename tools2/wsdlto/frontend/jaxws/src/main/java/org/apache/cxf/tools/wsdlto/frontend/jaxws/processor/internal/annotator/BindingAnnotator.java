@@ -23,6 +23,7 @@ import java.util.*;
 import javax.jws.soap.SOAPBinding;
 
 import org.apache.cxf.tools.common.model.Annotator;
+import org.apache.cxf.tools.common.model.JavaAnnotatable;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -30,7 +31,14 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public final class BindingAnnotator implements Annotator {
     
-    public void annotate(JavaInterface intf) {
+    public void annotate(JavaAnnotatable ja) {
+        JavaInterface intf;
+        if (ja instanceof JavaInterface) {
+            intf = (JavaInterface) ja;
+        } else {
+            throw new RuntimeException("BindingAnnotator can only annotate JavaInterface");
+        }
+        
         if (processBinding(intf)) {
             JavaAnnotation bindingAnnotation = new JavaAnnotation("SOAPBinding");
             String style = SOAPBindingUtil.getBindingAnnotation(intf.getSOAPStyle().toString());

@@ -26,7 +26,6 @@ import java.util.Map;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPBinding;
-import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.service.model.BindingInfo;
@@ -362,14 +361,6 @@ public class ServiceProcessor extends AbstractProcessor {
                     setParameterAsHeader(jp);
                 }
             }
-            if (ext instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                // Commented for future use
-                LOG.warning("The MIME content in wsdl file will be ignored, "
-                            + "current version does not support MIME content");
-                // MIMEProcessor mimeProcessor = new MIMEProcessor(context);
-                // mimeProcessor.process(jm, (MIMEMultipartRelated)obj,
-                // JavaType.Style.IN);
-            }
         }
 
         // process output
@@ -401,16 +392,6 @@ public class ServiceProcessor extends AbstractProcessor {
                         JavaParameter jp = processor.addParameterFromBinding(jm, exPart, JavaType.Style.OUT);
                         setParameterAsHeader(jp);
                     }
-                }
-                if (ext instanceof MIMEMultipartRelated && jm.getBindingExt().isEnableMime()) {
-                    // Commented for future use
-                    LOG.warning("The MIME content in wsdl file will be ignored, "
-                                + "current version does not support MIME content");
-                    // MIMEProcessor mimeProcessor = new
-                    // MIMEProcessor(context);
-                    // mimeProcessor.process(jm, (MIMEMultipartRelated)obj,
-                    // JavaType.Style.OUT);
-
                 }
             }
         }
@@ -547,82 +528,6 @@ public class ServiceProcessor extends AbstractProcessor {
         return null;
     }
     
-    //private void cutomizing(JavaModel jmodel,  ji)
-
-    // TODO: enable customize
- /*    private void doCustomizeBinding(JavaModel jmodel, JavaInterface ji, Binding binding) {
-         JAXWSBinding bindingExt = null;
-         List extElements = binding.getExtensibilityElements();
-         if (extElements.size() > 0) {
-             Iterator iterator = extElements.iterator();
-             while (iterator.hasNext()) {
-                 Object obj = iterator.next();
-                 if (obj instanceof JAXWSBinding) {
-                     bindingExt = (JAXWSBinding)obj;
-                     ji.setBindingExt(bindingExt);
-                     return;
-                 }
-             }
-         }
-         String portTypeName = binding.getPortType().getQName().getLocalPart();
-         bindingExt = CustomizationParser.getInstance().getPortTypeExtension(portTypeName);
-         if (bindingExt != null) {
-             if (!bindingExt.isSetMimeEnable() && jmodel.getJAXWSBinding().isSetMimeEnable()
-                 && jmodel.getJAXWSBinding().isEnableMime()) {
-                 bindingExt.setSetMimeEnable(true);
-                 bindingExt.setEnableMime(true);
-             }
-         } else if (jmodel.getJAXWSBinding() != null) {
-             bindingExt = new JAXWSBinding();
-             if (jmodel.getJAXWSBinding().isSetMimeEnable() && jmodel.getJAXWSBinding().isEnableMime()) {
-                 bindingExt.setSetMimeEnable(true);
-                 bindingExt.setEnableMime(true);
-             }
-         } else {
-             // TBD: There is no extensibilityelement in port type
-             bindingExt = new JAXWSBinding();
-         }
-
-         ji.setBindingExt(bindingExt);
-    }
-
-//     private void doCustomizeOperation(JavaInterface ji, JavaMethod jm, BindingOperation bo) {
-//         JAXWSBinding bindingExt = null;
-//         List extElements = bo.getExtensibilityElements();
-//         if (extElements.size() > 0) {
-//             Iterator iterator = extElements.iterator();
-//             while (iterator.hasNext()) {
-//                 Object obj = iterator.next();
-//                 if (obj instanceof JAXWSBinding) {
-//                     bindingExt = (JAXWSBinding)obj;
-//                     jm.setBindingExt(bindingExt);
-//                     return;
-//                 }
-//             }
-//         }
-//         String portTypeName = ji.getWebServiceName();
-//         String operationName = bo.getName();
-//         bindingExt = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
-//                                                                                      operationName);
-//         if (bindingExt != null) {
-//             if (!bindingExt.isSetMimeEnable() && ji.getBindingExt() != null
-//                 && ji.getBindingExt().isSetMimeEnable() && ji.getBindingExt().isEnableMime()) {
-//                 bindingExt.setSetMimeEnable(true);
-//                 bindingExt.setEnableMime(true);
-//             }
-//         } else if (ji.getBindingExt() != null) {
-//             bindingExt = new JAXWSBinding();
-//             if (ji.getBindingExt().isSetMimeEnable() && ji.getBindingExt().isEnableMime()) {
-//                 bindingExt.setSetMimeEnable(true);
-//                 bindingExt.setEnableMime(true);
-//             }
-//         } else {
-//             // TBD: There is no extensibilityelement in port type
-//             bindingExt = new JAXWSBinding();
-//         }
-//         jm.setBindingExt(bindingExt);
-//     }
-*/
     public enum BindingType {
         HTTPBinding, SOAPBinding, XMLBinding
     }

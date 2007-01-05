@@ -430,7 +430,7 @@ public class WSDLServiceBuilderTest extends TestCase {
     
     public void testParameterOrder() throws Exception {
         String ns = "http://apache.org/hello_world_xml_http/bare";
-        setUpWSDL("/wsdl/hello_world_xml_bare.wsdl", 0);
+        setUpWSDL("hello_world_xml_bare.wsdl", 0);
         
         OperationInfo operation = serviceInfo.getInterface().getOperation(new QName(ns, 
                                                                                     "testTriPart"));
@@ -468,7 +468,7 @@ public class WSDLServiceBuilderTest extends TestCase {
     }
     
     public void testParameterOrder2() throws Exception {
-        setUpWSDL("/wsdl/bug161/header2.wsdl", 0);
+        setUpWSDL("header2.wsdl", 0);
         String ns = "http://apache.org/header2";
         OperationInfo operation = serviceInfo.getInterface().getOperation(new QName(ns, "headerMethod"));
         assertNotNull(operation);

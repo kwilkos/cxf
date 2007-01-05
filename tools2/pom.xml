@@ -36,6 +36,8 @@
     </properties>
     
     <modules>
+	<module>common</module>
+	<module>validator</module>
 	<module>wsdlto</module>
     </modules>
 </project>

@@ -27,10 +27,10 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;
-import org.apache.cxf.tools.wsdl2java.processor.WSDLToJavaProcessor;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.WSDLToJavaProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.wsdl11.JAXWSDefinitionBuilder;
 
 public class JAXWSProfileTest extends TestCase {

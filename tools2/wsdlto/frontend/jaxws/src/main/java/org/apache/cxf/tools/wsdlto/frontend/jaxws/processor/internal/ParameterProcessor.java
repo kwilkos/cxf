@@ -97,7 +97,9 @@ public class ParameterProcessor extends AbstractProcessor {
     }
 
     private JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
-        new WebParamAnnotator().annotate(method, parameter);
+        parameter.setMethod(method);
+        parameter.annotate(new WebParamAnnotator());
+        //new WebParamAnnotator().annotate(method, parameter);
         method.addParameter(parameter);
         return parameter;
     }
