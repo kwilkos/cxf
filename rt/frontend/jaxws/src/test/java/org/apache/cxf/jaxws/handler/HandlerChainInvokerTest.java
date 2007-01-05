@@ -50,7 +50,6 @@ public class HandlerChainInvokerTest extends TestCase {
     
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
-    //TestStreamHandler[] streamHandlers = new TestStreamHandler[HANDLER_COUNT]; 
 
     public void setUp() {
         AbstractHandlerBase.clear(); 
@@ -64,10 +63,7 @@ public class HandlerChainInvokerTest extends TestCase {
             protocolHandlers[i] = new TestProtocolHandler();
             handlers.add(protocolHandlers[i]);
         }
-  /*      for (int i = 0; i < protocolHandlers.length; i++) {
-            streamHandlers[i] = new TestStreamHandler();
-            handlers.add(streamHandlers[i]);
-        }*/
+
         invoker = new HandlerChainInvoker(handlers);
     }
     
@@ -75,10 +71,8 @@ public class HandlerChainInvokerTest extends TestCase {
         invoker = new HandlerChainInvoker(new ArrayList<Handler>());
         assertTrue(invoker.invokeLogicalHandlers(false, lmc));
         assertTrue(doInvokeProtocolHandlers(false));
-        //assertTrue(invoker.invokeStreamHandlers(smc));
     }
 
-    
     public void testHandlerPartitioning() { 
         
         assertEquals(HANDLER_COUNT, invoker.getLogicalHandlers().size());
@@ -86,18 +80,12 @@ public class HandlerChainInvokerTest extends TestCase {
             assertTrue(h instanceof LogicalHandler); 
         }
 
-//        assertEquals(HANDLER_COUNT, invoker.getStreamHandlers().size());
-/*        for (Handler h : invoker.getStreamHandlers()) {
-            assertTrue(h instanceof StreamHandler); 
-        }
-*/
         assertEquals(HANDLER_COUNT, invoker.getProtocolHandlers().size());
         for (Handler h : invoker.getProtocolHandlers()) {
             assertTrue(!(h instanceof LogicalHandler)); 
         }
 
     } 
-
     
     public void testInvokeHandlersOutbound() {
 
@@ -130,8 +118,6 @@ public class HandlerChainInvokerTest extends TestCase {
         checkLogicalHandlersInvoked(false, true); 
         assertEquals(4, invoker.getInvokedHandlers().size());
         assertTrue(invoker.isInbound());
-
-        //checkStreamHandlersInvoked(false, true); 
 
         assertFalse(invoker.isClosed()); 
         assertTrue(logicalHandlers[0].getInvokedOrder() > logicalHandlers[1].getInvokedOrder());
@@ -300,7 +286,6 @@ public class HandlerChainInvokerTest extends TestCase {
 
         invoker.invokeLogicalHandlers(false, lmc); 
         doInvokeProtocolHandlers(false);
-//        invoker.invokeStreamHandlers(smc);
         assertEquals(4, invoker.getInvokedHandlers().size()); 
 
         invoker.mepComplete(message); 
@@ -309,8 +294,6 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue("close not invoked on logicalHandlers", logicalHandlers[1].isCloseInvoked()); 
         assertTrue("close not invoked on protocolHandlers", protocolHandlers[0].isCloseInvoked());
         assertTrue("close not invoked on protocolHandlers", protocolHandlers[1].isCloseInvoked());
-//        assertTrue("close not invoked on streamHandlers", streamHandlers[0].isCloseInvoked());
-//        assertTrue("close not invoked on streamHandlers", streamHandlers[1].isCloseInvoked());
 
         assertTrue("incorrect invocation order of close", protocolHandlers[1].getInvokedOrder() 
                    < protocolHandlers[0].getInvokedOrder());
@@ -383,22 +366,7 @@ public class HandlerChainInvokerTest extends TestCase {
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0])); 
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1])); 
     }
-/*    
-    protected void checkStreamHandlersInvoked(boolean outboundProperty, boolean requestorProperty) { 
-        
-        // InputStreamMessageContext istreamCtx = new TestInputStreamMessageContext(message);    
-        invoker.invokeStreamHandlers(smc);
-                 
-        assertNotNull(message.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
-        assertEquals(outboundProperty, message.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY));
-        // assertNotNull(message.get(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY));
-        // assertEquals(requestorProperty, message.get(ObjectMessageContext.REQUESTOR_ROLE_PROPERTY));
-        assertTrue("handler not invoked", streamHandlers[0].isHandleMessageInvoked());
-        assertTrue("handler not invoked", streamHandlers[1].isHandleMessageInvoked());
-        assertTrue(invoker.getInvokedHandlers().contains(streamHandlers[0])); 
-        assertTrue(invoker.getInvokedHandlers().contains(streamHandlers[1])); 
-    }
-*/    
+  
     private void doHandleFaultExceptionTest(RuntimeException e) { 
 
         // put invoker into fault state
@@ -418,11 +386,6 @@ public class HandlerChainInvokerTest extends TestCase {
         return invoker.invokeProtocolHandlers(requestor, pmc);
     }
     
-  /*  static class TestStreamHandler extends AbstractHandlerBase<StreamMessageContext> 
-        implements StreamHandler {
-
-    }
-*/
     static class TestProtocolHandler extends AbstractHandlerBase<SOAPMessageContext> {
         
     }
@@ -539,28 +502,5 @@ public class HandlerChainInvokerTest extends TestCase {
             sid = 0; 
         } 
     }
-    
-    /*
-    class TestInputStreamMessageContext extends MessageContextWrapper implements InputStreamMessageContext {
 
-        TestInputStreamMessageContext(MessageContext wrapped) {
-            super(wrapped);
-        }
-
-        public InputStream getInputStream() {
-            return null;
-        }
-
-        public boolean isFault() {
-            return false;
-        }
-
-        public void setFault(boolean isFault) {
-        }
-
-        public void setInputStream(InputStream ins) {
-        }
-
-    }
-    */
 }

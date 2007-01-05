@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executor;
@@ -39,6 +40,7 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.http.HTTPBinding;
 import javax.xml.ws.spi.ServiceDelegate;
@@ -56,6 +58,7 @@ import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
+import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.support.DummyImpl;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
@@ -81,7 +84,7 @@ public class ServiceImpl extends ServiceDelegate {
 
     private HandlerResolver handlerResolver;
     private final Collection<QName> ports = new HashSet<QName>();
-    private Map<QName, PortInfo> portInfos = new HashMap<QName, PortInfo>();
+    private Map<QName, PortInfoImpl> portInfos = new HashMap<QName, PortInfoImpl>();
     private Executor executor;
     private QName serviceName;
 //    private Class<?> clazz;
@@ -96,7 +99,8 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public void addPort(QName portName, String bindingId, String address) {
-        PortInfo portInfo = new PortInfo(bindingId, address);
+        PortInfoImpl portInfo = new PortInfoImpl(bindingId, portName, serviceName);
+        portInfo.setAddress(address);
         portInfos.put(portName, portInfo);
     }
 
@@ -107,7 +111,7 @@ public class ServiceImpl extends ServiceDelegate {
         if (portName == null) {
             ei = si.getEndpoints().iterator().next();
         } else {
-            PortInfo portInfo = getPortInfo(portName);
+            PortInfoImpl portInfo = getPortInfo(portName);
             if (null != portInfo) {
                 try {
                     ei = createEndpointInfo(sf, portName, portInfo);
@@ -253,8 +257,8 @@ public class ServiceImpl extends ServiceDelegate {
                 pn = new QName(service.getName().getNamespaceURI(), ei.getName().getLocalPart());
             }
         } else {
-            // first chech the endpointInfo from portInfos
-            PortInfo portInfo = portInfos.get(portName);
+            // first check the endpointInfo from portInfos
+            PortInfoImpl portInfo = portInfos.get(portName);
             if (null != portInfo) {
                 try {
                     ei = createEndpointInfo(serviceFactory, portName, portInfo);
@@ -284,6 +288,9 @@ public class ServiceImpl extends ServiceDelegate {
         Client client = new ClientImpl(bus, jaxwsEndpoint);
 
         InvocationHandler ih = new JaxWsClientProxy(client, jaxwsEndpoint.getJaxwsBinding());
+        
+        List<Handler> hc = ((JaxWsClientProxy)ih).getBinding().getHandlerChain();
+        hc.addAll(handlerResolver.getHandlerChain(portInfos.get(pn)));
 
         // configuration stuff
         // createHandlerChainForBinding(serviceEndpointInterface, portName,
@@ -301,7 +308,7 @@ public class ServiceImpl extends ServiceDelegate {
 
     private EndpointInfo createEndpointInfo(AbstractServiceFactoryBean serviceFactory, 
                                             QName portName,
-                                            PortInfo portInfo) throws BusException {
+                                            PortInfoImpl portInfo) throws BusException {
         EndpointInfo ei = null;
         String address = portInfo.getAddress();
 
@@ -309,12 +316,12 @@ public class ServiceImpl extends ServiceDelegate {
         DestinationFactory df = dfm.getDestinationFactoryForUri(portInfo.getAddress());
 
         String transportId = df.getTransportIds().get(0);
-        String bindingUri = portInfo.getBindingUri();
+        String bindingID = portInfo.getBindingID();
 
         // TODO: Replace with discovery mechanism, now it just the hardcode        
         AbstractBindingInfoFactoryBean bindingFactory = null;
-        if (bindingUri.equals(XMLConstants.NS_XML_FORMAT) 
-            || bindingUri.equals(HTTPBinding.HTTP_BINDING)) {
+        if (bindingID.equals(XMLConstants.NS_XML_FORMAT) 
+            || bindingID.equals(HTTPBinding.HTTP_BINDING)) {
             bindingFactory = new XMLBindingInfoFactoryBean();
         } else { // we set the default binding to be soap binding
             JaxWsSoapBindingInfoFactoryBean soapBindingFactory = new JaxWsSoapBindingInfoFactoryBean();
@@ -345,11 +352,11 @@ public class ServiceImpl extends ServiceDelegate {
         }
     }
 
-    private PortInfo getPortInfo(QName portName) {
+    private PortInfoImpl getPortInfo(QName portName) {
         // TODO if the portName null ?
         return portInfos.get(portName);
     }
-
+/*
     static class PortInfo {
         private String bindingUri;
         private String address;
@@ -375,5 +382,5 @@ public class ServiceImpl extends ServiceDelegate {
             this.bindingUri = bindingUri;
         }
     }
-
+*/
 }

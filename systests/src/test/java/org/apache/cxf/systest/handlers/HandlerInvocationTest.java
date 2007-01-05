@@ -20,6 +20,7 @@ package org.apache.cxf.systest.handlers;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -33,8 +34,10 @@ import javax.xml.ws.LogicalMessage;
 import javax.xml.ws.ProtocolException;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
+import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.PortInfo;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -94,6 +97,22 @@ public class HandlerInvocationTest extends ClientServerTestBase {
         addHandlersToChain((BindingProvider)handlerTest, handler1, handler2);
 
         handlerTest.pingOneWay();
+
+        assertEquals(1, handler1.getHandleMessageInvoked());
+        assertEquals(1, handler2.getHandleMessageInvoked());
+    }
+    
+    public void testAddHandlerThroughHandlerResolverClientSide() {
+        TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
+        TestHandler<LogicalMessageContext> handler2 = new TestHandler<LogicalMessageContext>(false);
+        
+        MyHandlerResolver myHandlerResolver = new MyHandlerResolver(handler1, handler2);
+         
+        service.setHandlerResolver(myHandlerResolver);
+        
+        HandlerTest handlerTestNew = service.getPort(portName, HandlerTest.class);
+
+        handlerTestNew.pingOneWay();
 
         assertEquals(1, handler1.getHandleMessageInvoked());
         assertEquals(1, handler2.getHandleMessageInvoked());
@@ -394,6 +413,20 @@ public class HandlerInvocationTest extends ClientServerTestBase {
             stringList = pr.getHandlersInfo();
         }
         return stringList;
+    }
+    
+    public class MyHandlerResolver implements HandlerResolver {
+        List<Handler> chain = new ArrayList<Handler>();
+        
+        public MyHandlerResolver(Handler...handlers) {
+            for (Handler h : handlers) {
+                chain.add(h);
+            }
+        }
+        public List<Handler> getHandlerChain(PortInfo portInfo) {
+            return chain;
+        }
+            
     }
     
     /*
