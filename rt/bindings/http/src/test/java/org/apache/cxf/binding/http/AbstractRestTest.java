@@ -135,7 +135,6 @@ public abstract class AbstractRestTest extends AbstractCXFTest {
             msgIs.close();
         }
 
-        InputStream is = c.getInputStream();
-        return is;
+        return c.getInputStream();
     }
 }

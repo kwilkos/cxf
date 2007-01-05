@@ -109,7 +109,7 @@
                 <executions>
                     <execution>
                         <id>generate-sources</id>
-                        <phase>process-test-sources</phase>
+                        <phase>generate-test-sources</phase>
                         <configuration>
                             <testSourceRoot>${basedir}/target/generated/src/test/java</testSourceRoot>
                             <xsdOptions>
