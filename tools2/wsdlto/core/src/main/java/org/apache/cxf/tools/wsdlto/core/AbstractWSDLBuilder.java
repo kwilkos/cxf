@@ -33,4 +33,6 @@ public abstract class AbstractWSDLBuilder<T> implements WSDLBuilder<T> {
     public abstract void customize();
 
     public abstract boolean validate(T t) throws ToolException;
+
+    public abstract T getWSDLModel();
 }

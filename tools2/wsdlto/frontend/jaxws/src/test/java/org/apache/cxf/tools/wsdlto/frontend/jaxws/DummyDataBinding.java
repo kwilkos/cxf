@@ -19,34 +19,16 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
-import com.sun.tools.xjc.api.Property;
-import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
 public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBindingProfile {
-    public void initialize(ToolContext context) {
-
+    public void generate(ToolContext context) throws ToolException {
     }
-    
-    public void generate() throws ToolException {
-     
-    }
-
     
     public String getType(QName qn) {
-        return null;
-    }
-    
-    public String getJavaType(QName qn, boolean boxify) {
-        return null;
-    }
-    
-    public List<? extends Property> getBlock(MessagePartInfo part) {
         return null;
     }
 }

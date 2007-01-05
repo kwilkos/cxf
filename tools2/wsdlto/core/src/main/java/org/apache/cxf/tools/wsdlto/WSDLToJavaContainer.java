@@ -22,12 +22,13 @@ package org.apache.cxf.tools.wsdlto;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
@@ -35,7 +36,11 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
+import org.apache.cxf.tools.common.ClassUtils;
+import org.apache.cxf.tools.common.FrontEndGenerator;
+import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
@@ -43,7 +48,10 @@ import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
+import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
@@ -75,7 +83,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     public void execute(boolean exitOnFinish) throws ToolException {
         try {
             super.execute(exitOnFinish);
-            /*if (!hasInfoOption()) {
+            if (!hasInfoOption()) {
                 buildToolContext();
                 validate(context);
                 
@@ -91,18 +99,12 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     AbstractWSDLBuilder<Definition> builder =
                         (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
                     Definition definition = builder.build(wsdlURL);
+                    builder.setContext(context);
+                    builder.customize();
 
-                    context.put(Definition.class, definition);
+                    context.put(Definition.class, builder.getWSDLModel());
                     if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
                         builder.validate(definition);
-                    }
-                    
-                    
-                    //to do .., We need to customized the definition
-                    
-                    if (context.optionSet(ToolConstants.CFG_BINDING)) {
-                        builder.setContext(context);
-                        builder.customize();
                     }
 
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
@@ -135,7 +137,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                     removeExcludeFiles();
                 }
             }
-            */
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
                 getInstance().printUsageException(toolName, (BadUsageException)ex.getCause());
@@ -153,7 +154,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
     }
 
-    @SuppressWarnings("unchecked")    
+    @SuppressWarnings("unchecked")
     public QName getServiceQName(Definition definition) {
         QName qname = context.getQName(ToolConstants.CFG_SERVICENAME);
         if (qname == null) {
@@ -244,6 +245,28 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 }
             }
         }
+
+        String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
+        
+        File wsdlFile = null;
+        try {
+            URI wsdlURI = new URI(wsdl);
+            if (!wsdlURI.isAbsolute()) {
+                File tmpfile = new File("");
+                wsdlURI = tmpfile.toURI().resolve(wsdlURI);
+            }
+            wsdlFile = new File(wsdlURI);
+        } catch (URISyntaxException e) {
+            wsdlFile = new File(wsdl);
+        }
+        if (!wsdlFile.exists()) {
+            Message msg = new Message("FILE_NOT_EXIST", LOG, wsdl);
+            throw new ToolException(msg);
+        } else if (wsdlFile.isDirectory()) {
+            Message msg = new Message("NOT_A_FILE", LOG, wsdl);
+            throw new ToolException(msg);
+        }
+        env.put(ToolConstants.CFG_WSDLURL, wsdlFile.toURI().toString());        
     }
 
     public void setAntProperties(ToolContext env) {
@@ -287,7 +310,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             context.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
         }
 
-        //validate(env);
         setExcludePackageAndNamespaces(context);
         loadDefaultNSPackageMapping(context);
         setPackageAndNamespaces(context);
@@ -331,7 +353,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 String classDir = context.get(ToolConstants.CFG_CLASSDIR) == null
                     ? outPutDir : (String)context.get(ToolConstants.CFG_CLASSDIR);
                 File classFile = new File(classDir, excludeFile.substring(0, excludeFile.indexOf(".java"))
-                                                    + ".class");
+                                          + ".class");
                 classFile.delete();
                 File tmpClzFile = classFile.getParentFile();
                 while (tmpClzFile != null && !tmpClzFile.getCanonicalPath().equalsIgnoreCase(outPutDir)) {
@@ -364,6 +386,6 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (passthrough()) {
             return;
         }
-        context.get(DataBindingProfile.class).generate();
+        context.get(DataBindingProfile.class).generate(context);
     }
 }

@@ -83,7 +83,7 @@ public final class FileUtils {
         delete(d);
     }
 
-    private static void delete(File f) {
+    public static void delete(File f) {
         if (!f.delete()) {
             if (isWindows()) {
                 System.gc();

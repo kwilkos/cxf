@@ -53,15 +53,14 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
     protected S2JJAXBModel rawJaxbModelGenCode;
-    //private Model model;
     private ToolContext env;
     private ServiceInfo serviceInfo;
     private Definition def;
 
     @SuppressWarnings("unchecked")
-    public void initialize(ToolContext penv) throws ToolException {
+    private void initialize(ToolContext penv) throws ToolException {
         env = penv;
-        serviceInfo = (ServiceInfo)env.get(ServiceInfo.class);
+        serviceInfo = env.get(ServiceInfo.class);
         def = (Definition)env.get(Definition.class);
         
         Set<InputSource> jaxbBindings = (Set<InputSource>)env.get(ToolConstants.NS_JAXB_BINDINGS);
@@ -128,7 +127,8 @@ public class JAXBDataBinding implements DataBindingProfile {
 
    
     
-    public void generate() throws ToolException {
+    public void generate(ToolContext context) throws ToolException {
+        initialize(context);
         if (rawJaxbModelGenCode == null) {
             return;
         }

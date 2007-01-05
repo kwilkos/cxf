@@ -20,12 +20,7 @@
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor;
 
 
-import java.util.Collection;
-import javax.xml.transform.TransformerException;
-
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
@@ -41,22 +36,8 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
     public void process() throws ToolException {
         super.process();
-        ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
 
-        Collection<SchemaInfo> schemas = serviceInfo.getTypeInfo().getSchemas();
-        for (SchemaInfo schema : schemas) {
-            try {
-                System.out.println("----Schema -----");
-                DOMUtils.writeXml(schema.getElement(), System.out);
-                System.out.println("---------------");
-            } catch (TransformerException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        //serviceInfo.getTypeInfo().getSchemas().size();
-        JavaModel jmodel = wsdlDefinitionToJavaModel(serviceInfo);
+        JavaModel jmodel = wsdlDefinitionToJavaModel(context.get(ServiceInfo.class));
 
         if (jmodel == null) {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
@@ -68,9 +49,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         JavaModel javaModel = new JavaModel();
         context.put(JavaModel.class, javaModel);
 
-
-        //javaModel.setJAXWSBinding(customizing(definition));
-
         // TODO refactroing the internal processors to use the service model
 
         PortTypeProcessor portTypeProcessor = new PortTypeProcessor(context);
@@ -78,7 +56,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
 
         ServiceProcessor serviceProcessor = new ServiceProcessor(context);
         serviceProcessor.process(serviceInfo);
-
 
         //         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(context);
         //         seiAnnotationProcessor.process(serviceInfo);

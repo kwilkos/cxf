@@ -209,7 +209,6 @@ public class ParameterProcessor extends AbstractProcessor {
         
         if (inputPart != null) {
             inputWrapElement = ProcessorUtil.getWrappedElement(context, inputPart.getElementQName()); 
-                //dataBinding.getBlock(inputPart);
         }       
         
         if (outputPart != null) {

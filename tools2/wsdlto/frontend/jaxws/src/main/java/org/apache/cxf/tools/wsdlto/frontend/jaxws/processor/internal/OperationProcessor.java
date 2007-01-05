@@ -136,36 +136,6 @@ public class OperationProcessor  extends AbstractProcessor {
         }
     }
 
-    // TODO: Add customizing
-//     private JAXWSBinding customizing(JavaInterface intf, Operation operation) {
-//         JAXWSBinding binding = null;
-//         List extElements = operation.getExtensibilityElements();
-//         if (extElements.size() > 0) {
-//             Iterator iterator = extElements.iterator();
-//             while (iterator.hasNext()) {
-//                 Object obj = iterator.next();
-//                 if (obj instanceof JAXWSBinding) {
-//                     binding = (JAXWSBinding)obj;
-//                 }
-//             }
-//         } else {
-//             String portTypeName = intf.getWebServiceName();
-//             String operationName = operation.getName();
-//             binding = CustomizationParser.getInstance().getPortTypeOperationExtension(portTypeName,
-//                                                                                       operationName);
-//         }
-
-//         if (binding == null) {
-//             binding = new JAXWSBinding();
-//         }
-//         if (!binding.isSetAsyncMapping()
-//             && (intf.getJavaModel().getJAXWSBinding().isEnableAsyncMapping() || intf.getJAXWSBinding()
-//                 .isEnableAsyncMapping())) {
-//             binding.setEnableAsyncMapping(true);
-//         }
-//         return binding;
-//     }
-
     private void addAsyncMethod(JavaMethod method) throws ToolException {
         addPollingMethod(method);
         addCallbackMethod(method);

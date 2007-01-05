@@ -119,9 +119,10 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         env.put(ToolConstants.CFG_BINDING, getClass().getResource("./binding2.xml").toString());
         JAXWSDefinitionBuilder builder = new JAXWSDefinitionBuilder();
         builder.setContext(env);
+        builder.build();
         builder.customize();
 
-        Definition customizedDef = builder.getDefinition();
+        Definition customizedDef = builder.getWSDLModel();
         List defExtensionList = customizedDef.getExtensibilityElements();
         Iterator ite = defExtensionList.iterator();
 

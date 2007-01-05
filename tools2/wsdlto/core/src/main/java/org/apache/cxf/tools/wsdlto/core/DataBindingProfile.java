@@ -27,11 +27,6 @@ import org.apache.cxf.tools.common.ToolException;
 
 public interface DataBindingProfile {
     
-    void initialize(ToolContext context);
-      
-    void generate() throws ToolException;
-
+    void generate(ToolContext context) throws ToolException;
     String getType(QName qn);
-    //String getJavaType(QName qn, boolean boxify);
-    //List<? extends Property> getBlock(MessagePartInfo part);
 }
