@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Holder;
 import javax.xml.ws.Service;
 import javax.xml.xpath.XPathConstants;
 
@@ -44,6 +45,10 @@ import org.apache.headers.HeaderTester;
 import org.apache.headers.XMLHeaderService;
 import org.apache.headers.types.InHeader;
 import org.apache.headers.types.InHeaderResponse;
+import org.apache.headers.types.InoutHeader;
+import org.apache.headers.types.InoutHeaderResponse;
+import org.apache.headers.types.OutHeader;
+import org.apache.headers.types.OutHeaderResponse;
 import org.apache.headers.types.SOAPHeaderData;
 import org.apache.hello_world_xml_http.bare.Greeter;
 import org.apache.hello_world_xml_http.bare.XMLService;
@@ -112,7 +117,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
     }
 
     public void testBareGetGreetMe() throws Exception {
-        HttpURLConnection httpConnection = 
+        HttpURLConnection httpConnection =
             getHttpConnection("http://localhost:9031/XMLService/XMLPort/greetMe/requestType/cxf");
         httpConnection.connect();
 
@@ -136,7 +141,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
 
     public void testWrapBasicConnection() throws Exception {
 
-        org.apache.hello_world_xml_http.wrapped.XMLService service = 
+        org.apache.hello_world_xml_http.wrapped.XMLService service =
             new org.apache.hello_world_xml_http.wrapped.XMLService(
                 this.getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl"), wrapServiceName);
         assertNotNull(service);
@@ -199,7 +204,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
     }
 
     public void testXMLFault() throws Exception {
-        org.apache.hello_world_xml_http.wrapped.XMLService service = 
+        org.apache.hello_world_xml_http.wrapped.XMLService service =
             new org.apache.hello_world_xml_http.wrapped.XMLService(
                 this.getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl"), wrapServiceName);
         assertNotNull(service);
@@ -234,18 +239,70 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         XMLHeaderService service = new XMLHeaderService();
         HeaderTester port = service.getXMLPort9000();
         try {
-            InHeader me = new InHeader();
-            me.setRequestType("InHeaderRequest");
-            SOAPHeaderData headerInfo = new SOAPHeaderData();
-            headerInfo.setMessage("message");
-            headerInfo.setOriginator("originator");
-            InHeaderResponse resp = port.inHeader(me, headerInfo);
-            assertNotNull(resp);
-            assertEquals("check returned response type", "requestType=InHeaderRequest" 
-                    + "\nheaderData.message=message" + "\nheaderData.getOriginator=originator", 
-                    resp.getResponseType());
+            verifyInHeader(port);
+            verifyInOutHeader(port);
+            verifyOutHeader(port);
         } catch (UndeclaredThrowableException ex) {
             throw (Exception) ex.getCause();
         }
     }
+
+    public void verifyInHeader(HeaderTester proxy) throws Exception {
+        InHeader me = new InHeader();
+        me.setRequestType("InHeaderRequest");
+        SOAPHeaderData headerInfo = new SOAPHeaderData();
+        headerInfo.setMessage("message");
+        headerInfo.setOriginator("originator");
+        InHeaderResponse resp = proxy.inHeader(me, headerInfo);
+        assertNotNull(resp);
+        assertEquals("check returned response type", "requestType=InHeaderRequest"
+                    + "\nheaderData.message=message" + "\nheaderData.getOriginator=originator",
+                    resp.getResponseType());
+    }
+
+    public void verifyInOutHeader(HeaderTester proxy) throws Exception {
+        InoutHeader me = new InoutHeader();
+        me.setRequestType("InoutHeaderRequest");
+        SOAPHeaderData headerInfo = new SOAPHeaderData();
+        headerInfo.setMessage("inoutMessage");
+        headerInfo.setOriginator("inoutOriginator");
+        Holder<SOAPHeaderData> holder = new Holder<SOAPHeaderData>();
+        holder.value = headerInfo;
+        InoutHeaderResponse resp = proxy.inoutHeader(me, holder);
+        assertNotNull(resp);
+        assertEquals("check return value",
+                     "requestType=InoutHeaderRequest",
+                     resp.getResponseType());
+        
+        assertEquals("check inout value",
+                     "message=inoutMessage",
+                     holder.value.getMessage());
+        assertEquals("check inout value",
+                     "orginator=inoutOriginator",
+                     holder.value.getOriginator());        
+    }
+
+    public void verifyOutHeader(HeaderTester proxy) throws Exception {
+        OutHeader me = new OutHeader();
+        me.setRequestType("OutHeaderRequest");
+        
+        Holder<OutHeaderResponse> outHeaderHolder = new Holder<OutHeaderResponse>();
+        Holder<SOAPHeaderData> soapHeaderHolder = new Holder<SOAPHeaderData>();
+        proxy.outHeader(me, outHeaderHolder, soapHeaderHolder);
+        assertNotNull(outHeaderHolder.value);
+        assertNotNull(soapHeaderHolder.value);
+        assertEquals("check out value",
+                     "requestType=OutHeaderRequest",
+                     outHeaderHolder.value.getResponseType());
+        
+        assertEquals("check out value",
+                     "message=outMessage",
+                     soapHeaderHolder.value.getMessage());
+
+        assertEquals("check out value",
+                     "orginator=outOriginator",
+                     soapHeaderHolder.value.getOriginator());
+        
+    }
+
 }

@@ -19,9 +19,7 @@
 
 package org.apache.cxf.binding.xml.interceptor;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -43,10 +41,8 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
-import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
 
@@ -68,13 +64,10 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
             LOG.info("XMLMessageInInterceptor skipped in HTTP GET method");
             return;
         }
-        XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
-        
-        DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
-        
         Endpoint ep = message.getExchange().get(Endpoint.class);
-        BindingInfo service = ep.getEndpointInfo().getBinding();
         
+        XMLStreamReader xsr = message.getContent(XMLStreamReader.class);        
+        DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);        
         if (!StaxUtils.toNextElement(reader)) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
@@ -84,89 +77,87 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
         // handling xml fault message
         if (startQName.getLocalPart().equals(XMLFault.XML_FAULT_ROOT)) {            
             message.getInterceptorChain().abort();
+            
             if (ep.getInFaultObserver() != null) {
                 ep.getInFaultObserver().onMessage(message);
                 return;
             }
         }
         // handling xml normal inbound message
-        BindingOperationInfo bop = ex.get(BindingOperationInfo.class);
-        MessagePartInfo part = null;
-        if (bop == null) {
-            part = getPartByRootNode(message, startQName, service, xsr);
-            if (part == null) {
-                List<OperationInfo> operations = new ArrayList<OperationInfo>();
-                operations.addAll(service.getInterface().getOperations());            
-                part = findMessagePart(ex, operations, startQName, false , 0);
+        BindingOperationInfo boi = ex.get(BindingOperationInfo.class);
+        boolean isRequestor = isRequestor(message);
+        if (boi == null) {
+            BindingInfo service = ep.getEndpointInfo().getBinding();
+            boi = getBindingOperationInfo(isRequestor, startQName, service, xsr);
+            if (boi != null) {
+                ex.put(BindingOperationInfo.class, boi);
+                ex.put(OperationInfo.class, boi.getOperationInfo());
+                ex.setOneWay(boi.getOperationInfo().isOneWay());
             }
         } else {
-            MessageInfo msgInfo = getMessageInfo(message, bop, ex);
-            if (msgInfo.getMessageParts().size() > 0) {
-                part = msgInfo.getMessageParts().get(0);
+            BindingMessageInfo bmi = isRequestor ? boi.getOutput()
+                                                 : boi.getInput();
+
+            if (hasRootNode(bmi, startQName)) { 
+                try {
+                    xsr.nextTag();
+                } catch (XMLStreamException xse) {
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                }
             }
         }
 
-        if (part != null) {
-            OperationInfo o = part.getMessageInfo().getOperation();
-            // TODO: We already know the op, so we can optimize BareInInterceptor a bit yet
-            if (!o.isUnwrappedCapable()) {
+        if (boi != null) {
+            OperationInfo oi = boi.getOperationInfo();
+            if (!oi.isUnwrappedCapable()) {
                 bareInterceptor.handleMessage(message);
-                return;
             } else {
                 wrappedInterceptor.handleMessage(message);
-                return;
             }
-        } else {
-            QName name = new QName(service.getInterface().getName().getNamespaceURI(), 
-                                   "multiParamRootReq");
-            if (reader.getName().equals(name)) {
-                StaxUtils.nextEvent(reader);
-                StaxUtils.toNextElement(reader);
-                bareInterceptor.handleMessage(message);
-                return;
-            } else {
-                // Do we have a bare request with no parts?
-                bop = ServiceModelUtil.getOperation(ex, reader.getName());
-                if (bop != null) {
-                    ex.put(BindingOperationInfo.class, bop);
-                    getMessageInfo(message, bop, ex);
-                    message.setContent(List.class, Collections.EMPTY_LIST);
-                    return;
-                }
-            }
+        } else { 
+            throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", 
+                                                                   BUNDLE, 
+                                                                   startQName));
         }
-        
-        throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", BUNDLE, startQName));
     }
 
-    private MessagePartInfo getPartByRootNode(Message message, QName startQName, 
-            BindingInfo bi, XMLStreamReader xsr) {        
+    private BindingOperationInfo getBindingOperationInfo(boolean isRequestor, 
+                                                         QName startQName, 
+                                                         BindingInfo bi, 
+                                                         XMLStreamReader xsr) {
+
+        BindingOperationInfo match = null;
         for (BindingOperationInfo boi : bi.getOperations()) {
-            MessageInfo mi;
             BindingMessageInfo bmi;
-            if (!isRequestor(message)) {
-                mi = boi.getOperationInfo().getInput();
+            if (!isRequestor) {
                 bmi = boi.getInput();
             } else {
-                mi = boi.getOperationInfo().getOutput();
                 bmi = boi.getOutput();
             }
-            XMLBindingMessageFormat xmf = bmi.getExtensor(XMLBindingMessageFormat.class);
-            if (xmf != null && xmf.getRootNode().getLocalPart().equals(startQName.getLocalPart())) {
-                message.getExchange().put(BindingOperationInfo.class, boi);
-                if (!boi.isUnwrappedCapable()) {
-                    try {
-                        xsr.nextTag();
-                    } catch (XMLStreamException xse) {
-                        throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+            
+            if (hasRootNode(bmi, startQName)) {
+                match = boi;
+                //Consume The rootNode tag
+                try {
+                    xsr.nextTag();
+                } catch (XMLStreamException xse) {
+                    throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
+                }
+            } else {
+                Collection<MessagePartInfo> bodyParts = bmi.getMessageParts();
+                if (bodyParts.size() == 1) {
+                    MessagePartInfo p = bodyParts.iterator().next();
+                    if (p.getConcreteName().equals(startQName)) {
+                        match = boi;
                     }
                 }
-                if (mi.getMessageParts().size() > 0) {
-                    return mi.getMessageParts().get(0);
-                }
-                break;                
             }
         }
-        return null;
+        return match;
+    }
+
+    private boolean hasRootNode(BindingMessageInfo bmi, QName elName) {
+        XMLBindingMessageFormat xmf = bmi.getExtensor(XMLBindingMessageFormat.class);
+        return xmf != null && xmf.getRootNode().equals(elName);
     }
 }

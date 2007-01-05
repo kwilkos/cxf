@@ -58,13 +58,12 @@ public class HeaderTesterImpl implements HeaderTester {
 
     public void outHeader(OutHeader me, Holder<OutHeaderResponse> theResponse,
             Holder<SOAPHeaderData> headerInfo) {
-        if (theResponse.value != null) {
-            theResponse.value.setResponseType(me.getRequestType());
-        }
-        if (headerInfo.value != null) {
-            headerInfo.value.setMessage("message=" + headerInfo.value.getMessage());
-            headerInfo.value.setOriginator("orginator=" + headerInfo.value.getOriginator());
-        }
+        theResponse.value = new OutHeaderResponse();
+        theResponse.value.setResponseType("requestType=" + me.getRequestType());
+        
+        headerInfo.value = new SOAPHeaderData(); 
+        headerInfo.value.setMessage("message=outMessage");
+        headerInfo.value.setOriginator("orginator=outOriginator");
     }
 
 }
