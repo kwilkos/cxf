@@ -51,7 +51,7 @@ public class DecoupledBareTest extends ClientServerTestBase {
         
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
-            Bus bus = bf.createBus("/org/apache/cxf/systest/ws/addressing/decoupled_bare.xml");
+            Bus bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled_bare.xml");
             bf.setDefaultBus(bus);
             
             Object implementor = new DocLitBareGreeterImpl();
@@ -94,7 +94,7 @@ public class DecoupledBareTest extends ClientServerTestBase {
     
     public void testDecoupled() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
-        bus = bf.createBus("/org/apache/cxf/systest/ws/addressing/decoupled_bare.xml");
+        bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled_bare.xml");
         bf.setDefaultBus(bus);
        
         SOAPServiceAddressingDocLitBare service = new SOAPServiceAddressingDocLitBare();
