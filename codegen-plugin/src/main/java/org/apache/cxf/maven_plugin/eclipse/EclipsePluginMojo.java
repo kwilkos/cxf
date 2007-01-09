@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.cxf.common.util.ReflectionUtil;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.wsdl2java.frontend.jaxws.VelocityWriter;
 import org.apache.maven.artifact.Artifact;
@@ -46,8 +47,6 @@ import org.apache.velocity.app.Velocity;
  */
 public class EclipsePluginMojo extends AbstractMojo {
     private static final String LIB_PATH = "lib";
-    private static final String ECLIPSE_PLUGIN_TEMPLATE = 
-        "/org/apache/cxf/maven_plugin/eclipse/3.0/plugin.xml.vm";
     /**
      * @parameter expression="${project}"
      * @required
@@ -68,7 +67,14 @@ public class EclipsePluginMojo extends AbstractMojo {
      */
     File targetFile;
 
+    /**
+     * @parameter expression="3.0";
+     */
+    String eclipseVersion;
 
+    private String getTemplateFile(String version) {
+        return "/org/apache/cxf/maven_plugin/eclipse/" + version + "/plugin.xml.vm";
+    }
 
     private List listJars() throws Exception {
         List jars = new ArrayList();
@@ -113,27 +119,44 @@ public class EclipsePluginMojo extends AbstractMojo {
 
     }
 
+    private List getExportedPackages(List jars) throws Exception {
+        List packages = new ArrayList();
+        for (Iterator iter = jars.iterator(); iter.hasNext();) {
+            File jarFile = (File) iter.next();
+            packages.addAll(ReflectionUtil.getPackagesFromJar(jarFile));
+        }
+        return packages;
+    }
+
     private void generatePluginXML(List jars) throws Exception {
         initVelocity();
 
         Template tmpl = null;
 
-        tmpl = Velocity.getTemplate(ECLIPSE_PLUGIN_TEMPLATE);
+        String templateFile = getTemplateFile(eclipseVersion);
+        tmpl = Velocity.getTemplate(templateFile);
 
         if (tmpl == null) {
-            throw new RuntimeException("Can not load template file: " + ECLIPSE_PLUGIN_TEMPLATE);
+            throw new RuntimeException("Can not load template file: " + templateFile);
         }
 
+        File outputFile = targetFile;
+        
         VelocityContext ctx = new VelocityContext();
-        ctx.put("ECLIPSE_VERSION", "3.0");
+        ctx.put("ECLIPSE_VERSION", eclipseVersion);
         ctx.put("PLUGIN_VERSION", getVersion());
         ctx.put("GROUP_ID", project.getGroupId());
         ctx.put("libPath", LIB_PATH);
         ctx.put("jars", jars);
+        
+        if ("3.1".equals(eclipseVersion.trim())) {
+            ctx.put("exportedPackages", getExportedPackages(jars));
+            outputFile = new File(targetFile.getParentFile(), "MANIFEST.MF");
+        }
 
         Writer outputs = null;
 
-        outputs = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetFile)), "UTF-8");
+        outputs = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(outputFile)), "UTF-8");
         VelocityWriter writer = new VelocityWriter(outputs);
 
         tmpl.merge(ctx, writer);
