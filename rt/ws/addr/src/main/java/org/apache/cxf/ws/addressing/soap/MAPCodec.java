@@ -50,6 +50,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
@@ -305,6 +306,7 @@ public class MAPCodec extends AbstractSoapInterceptor {
                     }
                 }
                 restoreExchange(message, maps);
+                markPartialResponse(message, maps);
             }
         } catch (JAXBException je) {
             LOG.log(Level.WARNING, "SOAP_HEADER_DECODE_FAILURE_MSG", je); 
@@ -545,6 +547,17 @@ public class MAPCodec extends AbstractSoapInterceptor {
                 }
             }
         }
+    }
+
+    /**
+     * Marks a message as partial response
+     * 
+     * @param message the current message
+     */
+    private void markPartialResponse(SoapMessage message, AddressingProperties maps) {
+        if (ContextUtils.isRequestor(message) && null == maps.getRelatesTo()) {
+            message.put(Message.PARTIAL_RESPONSE_MESSAGE, Boolean.TRUE);
+        } 
     }
 
 }

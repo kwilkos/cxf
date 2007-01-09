@@ -19,6 +19,7 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -56,6 +57,11 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
         Exchange exchange = message.getExchange();
 
         List<Object> parameters = CastUtils.cast(message.getContent(List.class));
+
+        if (null == parameters) {
+            parameters = new ArrayList<Object>();
+        }
+
         BindingOperationInfo bop = exchange.get(BindingOperationInfo.class);
         if (bop.isUnwrapped()) {
             bop = bop.getWrappedOperation();
@@ -98,7 +104,9 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
                 parameters.add(idx, object);
             }
         }
-        message.setContent(List.class, parameters);
+        if (parameters.size() > 0) {
+            message.setContent(List.class, parameters);
+        }
     }
 
     private Element findHeader(Element headerElement, MessagePartInfo mpi) {

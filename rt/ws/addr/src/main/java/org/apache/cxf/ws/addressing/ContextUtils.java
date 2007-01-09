@@ -333,6 +333,7 @@ public final class ContextUtils {
             // ensure the inbound MAPs are available in the partial response
             // message (used to determine relatesTo etc.)
             propogateReceivedMAPs(inMAPs, partialResponse);
+            partialResponse.put(Message.PARTIAL_RESPONSE_MESSAGE, Boolean.TRUE);
             
             try {
                 Destination target = inMessage.getDestination();

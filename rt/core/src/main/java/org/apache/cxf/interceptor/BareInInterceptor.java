@@ -125,6 +125,8 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             }
             paramNum++;
         }
-        message.setContent(List.class, parameters);
+        if (parameters.size() > 0) {
+            message.setContent(List.class, parameters);
+        }
     }
 }

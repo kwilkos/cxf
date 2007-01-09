@@ -67,7 +67,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     protected Endpoint endpoint;
     protected Conduit initedConduit;
     protected ClientOutFaultObserver outFaultObserver; 
-    protected int synchronousTimeout = 10000000; // default 10 second timeout
+    protected int synchronousTimeout = 10000; // default 10 second timeout
 
     public ClientImpl(Bus b, Endpoint e) {
         this(b, e, null);
@@ -364,7 +364,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     }
 
     private boolean isPartialResponse(Message in) {
-        return in.getContent(List.class) == null
-               && getException(in.getExchange()) == null;
+        return Boolean.TRUE.equals(in.get(Message.PARTIAL_RESPONSE_MESSAGE));
     }
 }

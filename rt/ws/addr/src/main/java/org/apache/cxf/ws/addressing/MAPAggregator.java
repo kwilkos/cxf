@@ -307,7 +307,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 maps.setTo(inMAPs.getReplyTo().getAddress());
             }
             // RelatesTo taken from MessageID in incoming MAPs
-            if (inMAPs.getMessageID() != null) {
+            if (inMAPs.getMessageID() != null
+                && !Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE))) {
                 String inMessageID = inMAPs.getMessageID().getValue();
                 maps.setRelatesTo(ContextUtils.getRelatesTo(inMessageID));
             }

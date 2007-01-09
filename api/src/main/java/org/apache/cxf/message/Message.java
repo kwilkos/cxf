@@ -41,6 +41,7 @@ public interface Message extends Map<String, Object> {
         "org.apache.cxf.async.post.response.dispatch";
 
     String DECOUPLED_CHANNEL_MESSAGE = "decoupled.channel.message";
+    String PARTIAL_RESPONSE_MESSAGE = "org.apache.cxf.partial.response";
     
     String USERNAME = Message.class.getName() + ".USERNAME";
     String PASSWORD = Message.class.getName() + ".PASSWORD";
