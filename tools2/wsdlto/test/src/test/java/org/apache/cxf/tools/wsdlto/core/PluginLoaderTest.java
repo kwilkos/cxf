@@ -24,25 +24,21 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
 import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;
 
 public class PluginLoaderTest extends TestCase {
-
+   
+    
     public void testLoadPlugins() throws Exception {
         PluginLoader loader = PluginLoader.getInstance();
         assertEquals(1, loader.getPlugins().size());
         assertEquals("default", getPlugin(loader, 0).getName());
-        
-        loader.loadPlugin("/org/apache/cxf/tools/wsdlto/core/plugin.xml");
-        assertEquals(2, loader.getPlugins().size());
-        Plugin plugin = getPlugin(loader, 1);
-        assertEquals("test", plugin.getName());
-        assertEquals("2.0", plugin.getVersion());
-        assertEquals("apache cxf", plugin.getProvider());
+
+        Plugin plugin = getPlugin(loader, 0);
+        assertEquals("default", plugin.getName());
         
         Map<String, FrontEnd> frontends = loader.getFrontEnds();
         assertNotNull(frontends);
@@ -54,24 +50,14 @@ public class PluginLoaderTest extends TestCase {
         assertEquals("JAXWSProfile", frontend.getProfile());
         assertNotNull(frontend.getGenerators());
         assertNotNull(frontend.getGenerators().getGenerator());
-        assertEquals(2, frontend.getGenerators().getGenerator().size());
-        assertEquals("AntGenerator", getGenerator(frontend, 0).getName());
-        assertEquals("ImplGenerator", getGenerator(frontend, 1).getName());
-
-        assertEquals("org.apache.cxf.tools.wsdlto.core", frontend.getContainer().getPackage());
-        assertEquals("DummyContainer", frontend.getContainer().getName());
-        assertEquals("dummy.toolspec", frontend.getContainer().getToolspec());
-
-        try {
-            loader.getFrontEndProfile("jaxws");
-            fail("JaxWs frontend not loaded yet");
-        } catch (ToolException e) {
-            assertEquals(getLogMessage("FRONTEND_PROFILE_LOAD_FAIL", frontend.getPackage()
-                                       + "."
-                                       + frontend.getProfile()),
-                         e.getMessage());
-        }
         
+        assertEquals("AntGenerator", getGenerator(frontend, 0).getName());
+        
+        assertEquals("JAXWSContainer", frontend.getContainer().getName());
+        assertEquals("jaxws-toolspec.xml", frontend.getContainer().getToolspec());
+        
+        loader.getFrontEndProfile("jaxws");
+                  
         Map<String, DataBinding> databindings = loader.getDataBindings();
         assertNotNull(databindings);
         assertEquals(1, databindings.size());
@@ -79,7 +65,7 @@ public class PluginLoaderTest extends TestCase {
         DataBinding databinding = getDataBinding(databindings, 0);
         assertEquals("jaxb", databinding.getName());
         assertEquals("org.apache.cxf.tools.wsdlto.databinding.jaxb", databinding.getPackage());
-        assertEquals("JAXBBindingGenerator", databinding.getProfile());
+        assertEquals("JAXBDataBinding", databinding.getProfile());
     }
 
     protected String getLogMessage(String key, Object...params) {

@@ -143,7 +143,8 @@ public class ParameterProcessor extends AbstractProcessor {
             return;
         }
         for (QName item : wrappedElements) {
-            addParameter(method, getParameterFromQName(item, JavaType.Style.IN, part));
+            addParameter(method, getParameterFromQName(part.getElementQName(), 
+                                                       item, JavaType.Style.IN, part));
         }
     }
 
@@ -227,8 +228,8 @@ public class ParameterProcessor extends AbstractProcessor {
             boolean sameWrapperChild = false;
             for (QName inElement : inputWrapElement) {
                 if (isSameWrapperChild(inElement, outElement)) {
-                    addParameter(method, getParameterFromQName(outElement, JavaType.Style.INOUT,
-                                                                  outputPart));
+                    addParameter(method, getParameterFromQName(outputPart.getElementQName(), outElement, 
+                                                               JavaType.Style.INOUT, outputPart));
                     sameWrapperChild = true;
                     if (method.getReturn() == null) {
                         addVoidReturn(method);
@@ -256,15 +257,16 @@ public class ParameterProcessor extends AbstractProcessor {
             if (inputWrapElement != null) {
                 for (QName inElement : inputWrapElement) {
                     if (isSameWrapperChild(inElement, outElement)) {
-                        addParameter(method, getParameterFromQName(outElement, JavaType.Style.INOUT,
-                                                                      outputPart));
+                        addParameter(method, getParameterFromQName(outputPart.getElementQName(), outElement, 
+                                                                   JavaType.Style.INOUT, outputPart));
                         sameWrapperChild = true;
                         break;
                     }
                 }
             }
             if (!sameWrapperChild) {
-                addParameter(method, getParameterFromQName(outElement, JavaType.Style.OUT, outputPart));
+                addParameter(method, getParameterFromQName(outputPart.getElementQName(), outElement, 
+                                                           JavaType.Style.OUT, outputPart));
             }
         }
         if (method.getReturn() == null) {
@@ -288,12 +290,13 @@ public class ParameterProcessor extends AbstractProcessor {
         return true;
     }
 
-    private JavaParameter getParameterFromQName(QName element, JavaType.Style style, MessagePartInfo part) {
+    private JavaParameter getParameterFromQName(QName wrapperElement, QName item, JavaType.Style style, 
+                                                MessagePartInfo part) {
 
         String fullJavaName = "";
         String simpleJavaName = "";
               
-        fullJavaName = this.dataBinding.getType(element);
+        fullJavaName = this.dataBinding.getWrappedElementType(wrapperElement, item);
         simpleJavaName = fullJavaName;
         
         int index = fullJavaName.lastIndexOf(".");
@@ -304,11 +307,11 @@ public class ParameterProcessor extends AbstractProcessor {
         
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         if (targetNamespace == null) {
-            targetNamespace = element.getNamespaceURI();
+            targetNamespace = wrapperElement.getNamespaceURI();
         }
         JavaParameter parameter = new JavaParameter(simpleJavaName, fullJavaName, targetNamespace);
         parameter.setStyle(style);
-        parameter.setQName(element);
+        parameter.setQName(item);
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
@@ -325,10 +328,8 @@ public class ParameterProcessor extends AbstractProcessor {
     private JavaReturn getReturnFromQName(QName element, MessagePartInfo part) {
         String fullJavaName = "";
         String simpleJavaName = "";
-        
-       
-        
-        fullJavaName = this.dataBinding.getType(element);
+         
+        fullJavaName = this.dataBinding.getWrappedElementType(part.getElementQName(), element);
         simpleJavaName = fullJavaName;
         
         int index = fullJavaName.lastIndexOf(".");

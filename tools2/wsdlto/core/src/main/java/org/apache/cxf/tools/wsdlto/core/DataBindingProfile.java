@@ -29,4 +29,5 @@ public interface DataBindingProfile {
     
     void generate(ToolContext context) throws ToolException;
     String getType(QName qn);
+    String getWrappedElementType(QName wrapperElement, QName item);
 }

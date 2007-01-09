@@ -48,6 +48,7 @@ import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
+import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
@@ -98,10 +99,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 if (version == ToolConstants.WSDLVersion.WSDL11) {
                     AbstractWSDLBuilder<Definition> builder =
                         (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
-                    Definition definition = builder.build(wsdlURL);
                     builder.setContext(context);
+                    Definition definition = builder.build(wsdlURL);
                     builder.customize();
-
                     context.put(Definition.class, builder.getWSDLModel());
                     if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
                         builder.validate(definition);
@@ -109,6 +109,8 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
                     service = serviceBuilder.buildService(definition, getServiceQName(definition));
+                    context.put(ServiceInfo.class, service);
+                    context.put(ClassCollector.class, new ClassCollector());
                 } else {
                     // TODO: wsdl2.0 support
                 }
@@ -123,7 +125,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 processor.setEnvironment(context);
                 processor.process();
 
-                // Generate artifacts
+                // Generate artifacts                
                 for (FrontEndGenerator generator : frontend.getGenerators()) {
                     generator.generate(context);
                 }

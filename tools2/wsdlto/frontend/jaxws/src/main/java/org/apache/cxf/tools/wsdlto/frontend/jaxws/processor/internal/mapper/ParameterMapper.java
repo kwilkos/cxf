@@ -25,6 +25,7 @@ import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
+
 public final class ParameterMapper {
 
     private ParameterMapper() {

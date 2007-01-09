@@ -19,19 +19,16 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper;
 
-import java.util.logging.Logger;
-
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
-import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
+
+
 public final class InterfaceMapper {
-    private static final Logger LOG = LogUtils.getL7dLogger(InterfaceMapper.class);
+    //private static final Logger LOG = LogUtils.getL7dLogger(InterfaceMapper.class);
     private ToolContext context;
 
     public InterfaceMapper(ToolContext c) {
@@ -43,22 +40,14 @@ public final class InterfaceMapper {
         String namespace = interfaceInfo.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
         
-        String location = (String)context.get(ToolConstants.CFG_WSDLURL);
-        String urlLocation;
-        try {
-            location = ProcessorUtil.getAbsolutePath(location);
-            urlLocation = ProcessorUtil.getWSDLURL(location).toString();
-        } catch (Exception ioe) {
-            Message msg = new Message("CANNOT_FIND_WSDL", LOG, context.get(ToolConstants.CFG_WSDLURL));
-            throw new ToolException(msg, ioe);
-        }
+        String loc = (String)context.get(ToolConstants.CFG_WSDLURL);
         String webServiceName = interfaceInfo.getName().getLocalPart();
 
         intf.setWebServiceName(webServiceName);
         intf.setName(ProcessorUtil.mangleNameToClassName(webServiceName));
         intf.setNamespace(namespace);
         intf.setPackageName(packageName);
-        intf.setLocation(urlLocation);
+        intf.setLocation(loc);
 
         return intf;
     }

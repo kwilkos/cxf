@@ -34,6 +34,7 @@ import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
 
+
 public class FaultProcessor extends AbstractProcessor {
     private ClassCollector  collector;
    

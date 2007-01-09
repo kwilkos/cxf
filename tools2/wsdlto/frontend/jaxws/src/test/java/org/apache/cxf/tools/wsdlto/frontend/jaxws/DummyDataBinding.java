@@ -31,4 +31,8 @@ public class DummyDataBinding implements org.apache.cxf.tools.wsdlto.core.DataBi
     public String getType(QName qn) {
         return null;
     }
+    
+    public String getWrappedElementType(QName parent, QName qn) {
+        return null;
+    }
 }

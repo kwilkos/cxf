@@ -46,6 +46,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
 import org.apache.ws.commons.schema.XmlSchemaElement;
@@ -350,21 +351,24 @@ public final class ProcessorUtil {
         
         ServiceInfo serviceInfo = (ServiceInfo)context.get(ServiceInfo.class);
         XmlSchemaCollection schema = (XmlSchemaCollection)serviceInfo
-            .getProperty("WSDLServiceBuilder.SCHEMA");
-
+            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST);
+        
         XmlSchemaElement elementByName = schema.getElementByQName(partElement);
 
         XmlSchemaComplexType type = (XmlSchemaComplexType)elementByName.getSchemaType();
 
         XmlSchemaSequence seq = (XmlSchemaSequence)type.getParticle();
+       
+        if (seq != null) {
 
-        XmlSchemaObjectCollection items = seq.getItems();
+            XmlSchemaObjectCollection items = seq.getItems();
 
-        Iterator ite = items.getIterator();
+            Iterator ite = items.getIterator();
 
-        while (ite.hasNext()) {
-            XmlSchemaElement subElement = (XmlSchemaElement)ite.next();
-            qnames.add(subElement.getQName());
+            while (ite.hasNext()) {
+                XmlSchemaElement subElement = (XmlSchemaElement)ite.next();
+                qnames.add(subElement.getQName());
+            }
         }
         return qnames;
     }

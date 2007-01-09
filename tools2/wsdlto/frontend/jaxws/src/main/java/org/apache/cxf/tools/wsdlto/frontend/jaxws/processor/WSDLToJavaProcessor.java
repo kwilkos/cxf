@@ -43,13 +43,14 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
             Message msg = new Message("FAIL_TO_CREATE_JAVA_MODEL", LOG);
             throw new ToolException(msg);
         }
+        context.setJavaModel(jmodel);
     }
 
     private JavaModel wsdlDefinitionToJavaModel(ServiceInfo serviceInfo) throws ToolException {
         JavaModel javaModel = new JavaModel();
         context.put(JavaModel.class, javaModel);
 
-        // TODO refactroing the internal processors to use the service model
+        //TODO : refactroing the internal processors to use the service model
 
         PortTypeProcessor portTypeProcessor = new PortTypeProcessor(context);
         portTypeProcessor.process(serviceInfo);

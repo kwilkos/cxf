@@ -51,6 +51,7 @@
 	    <groupId>org.apache.cxf</groupId>
 	    <artifactId>cxf-tools2-validator</artifactId>
 	    <version>${project.version}</version>
+	    
 	</dependency>
 	<dependency>
 	    <groupId>org.apache.cxf</groupId>

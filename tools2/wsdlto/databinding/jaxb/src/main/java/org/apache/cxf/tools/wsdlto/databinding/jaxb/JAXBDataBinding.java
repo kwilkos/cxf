@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -34,6 +33,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import com.sun.codemodel.JCodeModel;
+import com.sun.tools.xjc.api.Mapping;
+import com.sun.tools.xjc.api.Property;
 import com.sun.tools.xjc.api.S2JJAXBModel;
 import com.sun.tools.xjc.api.TypeAndAnnotation;
 import com.sun.tools.xjc.api.XJC;
@@ -52,7 +53,7 @@ import org.apache.cxf.tools.util.ProcessorUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
-    protected S2JJAXBModel rawJaxbModelGenCode;
+    private static S2JJAXBModel rawJaxbModelGenCode;
     private ToolContext env;
     private ServiceInfo serviceInfo;
     private Definition def;
@@ -62,9 +63,6 @@ public class JAXBDataBinding implements DataBindingProfile {
         env = penv;
         serviceInfo = env.get(ServiceInfo.class);
         def = (Definition)env.get(Definition.class);
-        
-        Set<InputSource> jaxbBindings = (Set<InputSource>)env.get(ToolConstants.NS_JAXB_BINDINGS);
-
                 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();        
         
@@ -78,6 +76,8 @@ public class JAXBDataBinding implements DataBindingProfile {
         
         
         Collection<SchemaInfo> schemas = serviceInfo.getTypeInfo().getSchemas();
+        
+        Collection<InputSource> jaxbBindings = env.getJaxbBindingFile().values();
         
         for (SchemaInfo schema : schemas) {
             Element element = schema.getElement();
@@ -140,8 +140,7 @@ public class JAXBDataBinding implements DataBindingProfile {
 
             if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-                //TO DO....
-                // enable jaxb plugin
+                //TODO : enable jaxb plugin
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
                 
                 jcodeModel.build(fileCodeWriter);
@@ -158,11 +157,26 @@ public class JAXBDataBinding implements DataBindingProfile {
     }
     
     public String getType(QName qname) {
-        TypeAndAnnotation typeAnno = rawJaxbModelGenCode.getJavaType(qname);        
-        if (typeAnno.getTypeClass() != null) {
+        Mapping mapping = rawJaxbModelGenCode.get(qname);
+        TypeAndAnnotation typeAnno = mapping.getType();
+        if (typeAnno != null && typeAnno.getTypeClass() != null) {
             return typeAnno.getTypeClass().fullName();
         }
         return null;
         
+    }
+    
+    public String getWrappedElementType(QName wrapperElement, QName item) {
+        Mapping mapping = rawJaxbModelGenCode.get(wrapperElement);
+        if (mapping != null) {
+            List<? extends Property> propList = mapping.getWrapperStyleDrilldown();
+            for (Property pro : propList) {
+                if (pro.elementName().getNamespaceURI().equals(item.getNamespaceURI()) 
+                    && pro.elementName().getLocalPart().equals(item.getLocalPart())) {
+                    return pro.type().fullName();
+                }
+            }
+        }
+        return null;
     }
 }

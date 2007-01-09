@@ -35,6 +35,7 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
+
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.SoapBindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebMethodAnnotator;
@@ -113,8 +114,14 @@ public class OperationProcessor  extends AbstractProcessor {
 
 
     private void setWrapper(OperationInfo operation) {
-        MessagePartInfo inputPart = operation.getInput().getMessageParts().iterator().next();
-        MessagePartInfo outputPart = operation.getOutput().getMessageParts().iterator().next();
+        MessagePartInfo inputPart = null;
+        if (operation.getInput() != null && operation.getInput().getMessageParts() != null) {
+            inputPart = operation.getInput().getMessageParts().iterator().next();
+        }
+        MessagePartInfo outputPart = null;
+        if (operation.getOutput() != null && operation.getOutput().getMessageParts() != null) {
+            outputPart = operation.getOutput().getMessageParts().iterator().next();
+        }
         
         if (inputPart != null) {
             wrapperRequest = new JavaParameter();

@@ -58,12 +58,11 @@
 	    <artifactId>cxf-tools2-wsdlto-databinding-jaxb</artifactId>
 	    <version>${project.version}</version>	 	
 	</dependency>
-	
-	
+		
 	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-tools2-wsdlto-core</artifactId>
-	    <version>${project.version}</version>
+		    <groupId>org.apache.cxf</groupId>
+		    <artifactId>cxf-tools2-wsdlto-frontend-jaxws</artifactId>
+		    <version>${project.version}</version>
 	</dependency>
     </dependencies>
 </project>
