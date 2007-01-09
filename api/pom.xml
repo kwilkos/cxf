@@ -80,6 +80,10 @@
             <groupId>javax.annotation</groupId>
             <artifactId>jsr250-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>woodstox</groupId> 
+            <artifactId>wstx-asl</artifactId> 
+        </dependency>
     </dependencies>
 
     <build>

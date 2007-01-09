@@ -19,6 +19,11 @@
 
 package org.apache.cxf.wsdl;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+import java.io.StringReader;
+
 import java.util.List;
 
 import javax.wsdl.Definition;
@@ -27,12 +32,16 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensionRegistry;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.abc.test.AnotherPolicyType;
+import org.apache.cxf.abc.test.NewServiceType;
 import org.apache.cxf.abc.test.TestPolicyType;
+
+import org.apache.cxf.common.util.PackageUtils;
 
 public class JAXBExtensionHelperTest extends TestCase {
 
@@ -69,6 +78,10 @@ public class JAXBExtensionHelperTest extends TestCase {
                         "org.apache.cxf.abc.test.AnotherPolicyType", Thread.currentThread()
                                         .getContextClassLoader());
 
+        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Definition",
+                        "org.apache.cxf.abc.test.NewServiceType", Thread.currentThread()
+                                        .getContextClassLoader());
+
         String file = this.getClass().getResource("/wsdl/test_ext.wsdl").getFile();
 
         wsdlReader.setExtensionRegistry(registry);
@@ -96,6 +109,64 @@ public class JAXBExtensionHelperTest extends TestCase {
         assertEquals("Unexpected value for TestPolicyType stringAttr", "hello", tp.getStringAttr());
         assertTrue("Unexpected value for AnotherPolicyType floatAttr",
             Math.abs(0.1F - ap.getFloatAttr()) < 0.5E-5);
+    }
+
+    public void testPrettyPrintXMLStreamWriter() throws Exception {
+        JAXBExtensionHelper.addExtensions(registry, "javax.wsdl.Definition",
+                        "org.apache.cxf.abc.test.NewServiceType", Thread.currentThread()
+                                        .getContextClassLoader());
+
+        String file = this.getClass().getResource("/wsdl/test_ext.wsdl").getFile();
+
+        wsdlReader.setExtensionRegistry(registry);
+
+        wsdlDefinition = wsdlReader.readWSDL(file);
+
+        List extList = wsdlDefinition.getExtensibilityElements();
+        NewServiceType newService = null;
+        for (Object ext : extList) {
+            if (ext instanceof NewServiceType) {
+                newService = (NewServiceType) ext;
+                break;
+            }
+        }
+
+        assertNotNull("Could not find extension element NewServiceType", newService);
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        JAXBContext context = JAXBContext.newInstance(PackageUtils.getPackageName(NewServiceType.class),
+                                                      NewServiceType.class.getClassLoader());
+        JAXBExtensionHelper helper = new JAXBExtensionHelper(context, NewServiceType.class);
+        helper.marshall(javax.wsdl.Definition.class,
+                        new QName("http://cxf.apache.org/test/hello_world", "newService"),
+                        newService,
+                        new PrintWriter(stream),
+                        wsdlDefinition,
+                        registry);
+        BufferedReader reader = new BufferedReader(new StringReader(new String(stream.toByteArray())));
+        String actual = reader.readLine();
+        int spaces = 0;
+        while (actual != null) {
+            if (!actual.endsWith("/>")) {
+                if (!actual.contains("</")) {
+                    spaces += 2;
+                } else {
+                    spaces -= 2;
+                }
+            }
+            checkSpaces(actual, spaces);
+            actual = reader.readLine();
+        }
+    }
+
+    private void checkSpaces(String actual, int spaces) {
+        String space = "";
+        for (int i = 0; i < spaces; i++) {
+            space += " ";
+        }
+        assertTrue("Indentation level not proper when marshalling a extension element;" + actual,
+                   actual.startsWith(space));
     }
 
 }

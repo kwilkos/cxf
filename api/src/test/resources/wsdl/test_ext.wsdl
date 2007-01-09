@@ -25,6 +25,24 @@
     xmlns:tns="http://cxf.apache.org/test/hello_world" 
     xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
+    <test:newService name="testDefinitionExtensibility">
+        <test:struct name="testString1">
+            <test:member name="x" />
+            <test:member name="y" />
+            <test:member name="z" />
+        </test:struct>
+        <test:struct name="testString2">
+            <test:member name="x" />
+            <test:member name="y" />
+            <test:member name="z" />
+            <test:struct name="innerTestString1">
+                <test:member name="x" />
+                <test:member name="y" />
+                <test:member name="z" />
+            </test:struct>
+        </test:struct>
+    </test:newService>
+
     <message name="greetMe">
         <part name="stringParam0" type="xsd:string"/>
     </message>
