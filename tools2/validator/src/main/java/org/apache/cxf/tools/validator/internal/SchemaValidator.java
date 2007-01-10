@@ -65,7 +65,6 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.util.WSDLExtensionRegister;
 
 public class SchemaValidator extends AbstractValidator {
     
@@ -225,8 +224,10 @@ public class SchemaValidator extends AbstractValidator {
                 WSDLFactory wsdlFactory = WSDLFactory.newInstance();
                 WSDLReader reader = wsdlFactory.newWSDLReader();
                 reader.setFeature("javax.wsdl.verbose", false);
-                WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, reader);
-                register.registerExtensions();
+                // REVIST: Get the wsdl builder from the frontend which loaded by the plugin
+                //         Extension should be done in the builder
+                // WSDLExtensionRegister register = new WSDLExtensionRegister(wsdlFactory, reader);
+                // register.registerExtensions();
                 def = reader.readWSDL(wsdlsource.getSystemId());
             } catch (WSDLException e) {
                 throw new ToolException(e);

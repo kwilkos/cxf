@@ -28,7 +28,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 
-public class ServiceGenerator extends AbstractGenerator {
+public class ServiceGenerator extends AbstractJAXWSGenerator {
     //private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     private static final String SERVICE_TEMPLATE = TEMPLATE_BASE + "/service.vm";
 
@@ -54,7 +54,7 @@ public class ServiceGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;

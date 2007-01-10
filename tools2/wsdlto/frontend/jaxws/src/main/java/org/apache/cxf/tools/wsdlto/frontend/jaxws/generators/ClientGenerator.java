@@ -30,7 +30,7 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 
-public class ClientGenerator extends AbstractGenerator {
+public class ClientGenerator extends AbstractJAXWSGenerator {
 
     private static final String CLT_TEMPLATE = TEMPLATE_BASE + "/client.vm";
 
@@ -59,7 +59,7 @@ public class ClientGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;

@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
 
@@ -36,14 +35,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.sun.xml.bind.api.JAXBRIContext;
-
 import org.apache.cxf.helpers.JavaUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.util.ClassCollector;
+import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
@@ -60,7 +58,7 @@ public final class ProcessorUtil {
     }
 
     public static String resolvePartName(MessagePartInfo part) {
-        return mangleNameToVariableName(part.getName().getLocalPart());
+        return NameUtil.mangleNameToVariableName(part.getName().getLocalPart());
     }
 
     public static String getPartType(MessagePartInfo part) {
@@ -68,7 +66,7 @@ public final class ProcessorUtil {
     }
 
     public static String resolvePartType(MessagePartInfo part) {
-        return mangleNameToClassName(getPartType(part));
+        return NameUtil.mangleNameToClassName(getPartType(part));
     }
     
     public static String getType(MessagePartInfo part, ToolContext context, boolean fullname) {
@@ -129,12 +127,8 @@ public final class ProcessorUtil {
         return part.getConcreteName().getNamespaceURI();
     }
 
-    public static String mangleNameToClassName(String clzName) {
-        return JAXBRIContext.mangleNameToClassName(clzName);
-    }
-
     public static String mangleNameToVariableName(String vName) {
-        String result  = JAXBRIContext.mangleNameToVariableName(vName);
+        String result  = NameUtil.mangleNameToVariableName(vName);
         if (JavaUtils.isJavaKeyword(result)) {
             return KEYWORDS_PREFIX + result;
         } else {
@@ -171,30 +165,6 @@ public final class ProcessorUtil {
 
     private static String resolvePath(String path) {
         return path.replace('\\', '/');
-    }
-
-    public static URL[] pathToURLs(String path) {
-        StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
-        URL[] urls = new URL[st.countTokens()];
-        int count = 0;
-        while (st.hasMoreTokens()) {
-            File file = new File(st.nextToken());
-            URL url = null;
-            try {
-                url = file.toURL();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            if (url != null) {
-                urls[count++] = url;
-            }
-        }
-        if (urls.length != count) {
-            URL[] tmp = new URL[count];
-            System.arraycopy(urls, 0, tmp, 0, count);
-            urls = tmp;
-        }
-        return urls;
     }
 
     public static String classNameToFilePath(String className) {

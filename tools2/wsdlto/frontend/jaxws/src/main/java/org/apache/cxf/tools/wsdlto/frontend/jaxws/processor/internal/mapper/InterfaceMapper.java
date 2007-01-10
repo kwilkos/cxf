@@ -23,9 +23,8 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaInterface;
+import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
-
-
 
 public final class InterfaceMapper {
     //private static final Logger LOG = LogUtils.getL7dLogger(InterfaceMapper.class);
@@ -44,7 +43,7 @@ public final class InterfaceMapper {
         String webServiceName = interfaceInfo.getName().getLocalPart();
 
         intf.setWebServiceName(webServiceName);
-        intf.setName(ProcessorUtil.mangleNameToClassName(webServiceName));
+        intf.setName(NameUtil.mangleNameToClassName(webServiceName));
         intf.setNamespace(namespace);
         intf.setPackageName(packageName);
         intf.setLocation(loc);

@@ -33,7 +33,7 @@ import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.util.ClassCollector;
-
+import org.apache.cxf.tools.util.NameUtil;
 
 public class FaultProcessor extends AbstractProcessor {
     private ClassCollector  collector;
@@ -65,7 +65,7 @@ public class FaultProcessor extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     private void processFault(JavaMethod method, FaultInfo faultMessage) throws ToolException {
         JavaModel model = method.getInterface().getJavaModel();
-        String name = ProcessorUtil.mangleNameToClassName(faultMessage.getName().getLocalPart());
+        String name = NameUtil.mangleNameToClassName(faultMessage.getName().getLocalPart());
         //Fix issue 305770
         String namespace = faultMessage.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));

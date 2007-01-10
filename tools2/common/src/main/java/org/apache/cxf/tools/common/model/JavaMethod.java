@@ -34,7 +34,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.tools.common.ToolException;
 
 public class JavaMethod implements JavaAnnotatable {
-    private static final Logger LOG = LogUtils.getL7dLogger(JavaMethod .class);
+    private static final Logger LOG = LogUtils.getL7dLogger(JavaMethod.class);
     private String name;
     private String operationName;
     private JavaReturn javaReturn;

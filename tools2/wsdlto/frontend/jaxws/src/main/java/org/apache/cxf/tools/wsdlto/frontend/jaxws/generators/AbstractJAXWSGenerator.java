@@ -17,27 +17,16 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.common.extensions.jaxws;
+package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
-import java.io.*;
+import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.wsdlto.core.AbstractGenerator;
 
-import javax.wsdl.Definition;
-import javax.wsdl.WSDLException;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.ExtensionRegistry;
-import javax.wsdl.extensions.ExtensionSerializer;
-import javax.xml.namespace.QName;
+public abstract class AbstractJAXWSGenerator extends AbstractGenerator {
+    protected static final String TEMPLATE_BASE = "org/apache/cxf/tools/wsdlto/frontend/jaxws/template";
 
-public class JAXWSBindingSerializer implements ExtensionSerializer, Serializable {
-    public static final long serialVersionUID = 1;
-
-    public void marshall(Class parentType,
-                         QName elementType,
-                         ExtensibilityElement extension,
-                         PrintWriter pw,
-                         Definition def,
-                         ExtensionRegistry extReg)
-        throws WSDLException {
-        // TODO
-    }
+    public abstract boolean passthrough();
+    
+    public abstract void generate(ToolContext penv) throws ToolException;
 }

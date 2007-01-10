@@ -53,8 +53,8 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.util.ProcessorUtil;
 import org.apache.cxf.tools.util.StAXUtil;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public final class CustomizationParser {
     // For WSDL1.1

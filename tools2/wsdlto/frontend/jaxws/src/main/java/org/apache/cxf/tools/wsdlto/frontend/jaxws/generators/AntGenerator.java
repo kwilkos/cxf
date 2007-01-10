@@ -24,7 +24,7 @@ import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaModel;
 
-public class AntGenerator extends AbstractGenerator {
+public class AntGenerator extends AbstractJAXWSGenerator {
 
     private static final String ANT_TEMPLATE = TEMPLATE_BASE + "/build.vm";
 
@@ -43,7 +43,7 @@ public class AntGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;

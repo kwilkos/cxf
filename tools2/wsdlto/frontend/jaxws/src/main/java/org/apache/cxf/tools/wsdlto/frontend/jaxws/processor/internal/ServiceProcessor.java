@@ -53,7 +53,7 @@ import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.ProcessorUtil;
+import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 
@@ -100,7 +100,7 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private void processService(JavaModel model) throws ToolException {
         JavaServiceClass sclz = new JavaServiceClass(model);
-        String name = ProcessorUtil.mangleNameToClassName(service.getName().getLocalPart());
+        String name = NameUtil.mangleNameToClassName(service.getName().getLocalPart());
         String namespace = service.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
 
@@ -150,7 +150,7 @@ public class ServiceProcessor extends AbstractProcessor {
     }
 
     private JavaPort processPort(JavaModel model, EndpointInfo port) throws ToolException {
-        JavaPort jport = new JavaPort(ProcessorUtil.mangleNameToClassName(port.getName().getLocalPart()));
+        JavaPort jport = new JavaPort(NameUtil.mangleNameToClassName(port.getName().getLocalPart()));
         jport.setPortName(port.getName().getLocalPart());
         BindingInfo binding = port.getBinding();
         jport.setBindingAdress(port.getAddress());
@@ -177,10 +177,10 @@ public class ServiceProcessor extends AbstractProcessor {
         
         if (infBinding != null && infBinding.getJaxwsClass() != null 
             && infBinding.getJaxwsClass().getClassName() != null) {
-            String className = ProcessorUtil.mangleNameToClassName(infBinding.getJaxwsClass().getClassName());
+            String className = NameUtil.mangleNameToClassName(infBinding.getJaxwsClass().getClassName());
             jport.setInterfaceClass(className);
         } else {
-            jport.setInterfaceClass(ProcessorUtil.mangleNameToClassName(portType));
+            jport.setInterfaceClass(NameUtil.mangleNameToClassName(portType));
         }
 
         bindingType = getBindingType(binding);
@@ -224,8 +224,7 @@ public class ServiceProcessor extends AbstractProcessor {
             }
         }
              
-        String portType = ProcessorUtil
-            .mangleNameToClassName(binding.getInterface().getName().getLocalPart());
+        String portType = NameUtil.mangleNameToClassName(binding.getInterface().getName().getLocalPart());
         
         JavaInterface jf = model.getInterfaces().get(portType);
        

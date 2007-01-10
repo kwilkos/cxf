@@ -28,7 +28,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 
-public class SEIGenerator extends AbstractGenerator {
+public class SEIGenerator extends AbstractJAXWSGenerator {
 
     private static final String SEI_TEMPLATE = TEMPLATE_BASE + "/sei.vm";
 
@@ -62,7 +62,7 @@ public class SEIGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;

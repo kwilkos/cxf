@@ -30,7 +30,7 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 
-public class ServerGenerator extends AbstractGenerator {
+public class ServerGenerator extends AbstractJAXWSGenerator {
 
     private static final String SRV_TEMPLATE = TEMPLATE_BASE + "/server.vm";
 
@@ -57,7 +57,7 @@ public class ServerGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;

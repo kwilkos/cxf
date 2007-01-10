@@ -28,7 +28,6 @@ import javax.xml.namespace.QName;
 import org.xml.sax.InputSource;
 
 import org.apache.cxf.tools.common.model.JavaModel;
-import org.apache.cxf.tools.util.ProcessorUtil;
 import org.apache.cxf.tools.util.PropertyUtil;
 import org.apache.cxf.tools.util.URIParserUtil;
 
@@ -182,7 +181,7 @@ public class ToolContext {
         if (hasNamespace(ns)) {
             return mapNamespaceToPackageName(ns);
         } else {
-            String pkg = ProcessorUtil.parsePackageName(ns, null);
+            String pkg = URIParserUtil.parsePackageName(ns, null);
             setPackageName(pkg);
             return pkg;
         }

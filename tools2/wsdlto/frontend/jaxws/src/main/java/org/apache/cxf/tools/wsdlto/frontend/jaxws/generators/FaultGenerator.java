@@ -28,9 +28,9 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaExceptionClass;
 import org.apache.cxf.tools.common.model.JavaField;
 import org.apache.cxf.tools.common.model.JavaModel;
-import org.apache.cxf.tools.util.ProcessorUtil;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
-public class FaultGenerator extends AbstractGenerator {
+public class FaultGenerator extends AbstractJAXWSGenerator {
 
     private static final String FAULT_TEMPLATE = TEMPLATE_BASE + "/fault.vm";
 
@@ -58,7 +58,7 @@ public class FaultGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;

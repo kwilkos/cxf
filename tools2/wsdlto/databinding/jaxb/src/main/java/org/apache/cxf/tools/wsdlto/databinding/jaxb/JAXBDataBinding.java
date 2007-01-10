@@ -49,8 +49,9 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ClassCollector;
-import org.apache.cxf.tools.util.ProcessorUtil;
+import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
     private static S2JJAXBModel rawJaxbModelGenCode;
@@ -105,7 +106,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
             }
-            String packageName = ProcessorUtil.parsePackageName(targetNamespace, null);
+            String packageName = URIParserUtil.parsePackageName(targetNamespace, null);
             if (!addedToClassCollector(packageName)) {
                 allocator.assignClassName(packageName, "*");
             }

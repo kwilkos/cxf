@@ -27,7 +27,6 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.wsdlto.core.WSDLToProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.PortTypeProcessor;
-//import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.SEIAnnotationProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ServiceProcessor;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.BindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebServiceAnnotator;
@@ -58,15 +57,10 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         ServiceProcessor serviceProcessor = new ServiceProcessor(context);
         serviceProcessor.process(serviceInfo);
 
-        //         SEIAnnotationProcessor seiAnnotationProcessor = new SEIAnnotationProcessor(context);
-        //         seiAnnotationProcessor.process(serviceInfo);
-
         JavaInterface intf = javaModel.getInterfaces().values().iterator().next();
         intf.annotate(new WebServiceAnnotator());
-        //new WebServiceAnnotator().annotate(intf);
         if (serviceInfo.getBindings().size() > 0) {
             intf.annotate(new BindingAnnotator());
-            //new BindingAnnotator().annotate(intf);
         }
 
 

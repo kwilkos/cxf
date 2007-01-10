@@ -25,7 +25,7 @@ import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
 
-public class HandlerConfigGenerator extends AbstractGenerator {
+public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
 
     //private static final String HANDLER_CHAIN_NAME = "";
    // private JavaInterface intf;

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
+package org.apache.cxf.tools.wsdlto.core;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -42,20 +42,13 @@ import org.apache.velocity.app.Velocity;
 
 public abstract class AbstractGenerator implements FrontEndGenerator {
 
-    public static final String TEMPLATE_BASE = "org/apache/cxf/tools/wsdlto/frontend/jaxws/template";
     private static final Logger LOG = LogUtils.getL7dLogger(AbstractGenerator.class);
     protected ToolContext env;
-    //protected JavaModel javaModel;
     protected Map<String, Object> attributes = new HashMap<String, Object>();
     protected String name;
-    //protected ClassCollector collector;
 
     public AbstractGenerator() {
     }
-
-    public abstract boolean passthrough();
-
-    public abstract void generate(ToolContext penv) throws ToolException;
 
     protected void doWrite(String templateName, Writer outputs) throws ToolException {
         Template tmpl = null;

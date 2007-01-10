@@ -23,7 +23,7 @@ import javax.wsdl.OperationType;
 
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.tools.common.model.JavaMethod;
-import org.apache.cxf.tools.util.ProcessorUtil;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public final class MethodMapper {
     

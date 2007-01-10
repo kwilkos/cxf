@@ -19,6 +19,9 @@
 
 package org.apache.cxf.tools.util;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,6 +41,40 @@ public final class URIParserUtil {
 
     private URIParserUtil() {
         // complete
+    }
+
+    public static URL[] pathToURLs(String path) {
+        StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
+        URL[] urls = new URL[st.countTokens()];
+        int count = 0;
+        while (st.hasMoreTokens()) {
+            File file = new File(st.nextToken());
+            URL url = null;
+            try {
+                url = file.toURL();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            if (url != null) {
+                urls[count++] = url;
+            }
+        }
+        if (urls.length != count) {
+            URL[] tmp = new URL[count];
+            System.arraycopy(urls, 0, tmp, 0, count);
+            urls = tmp;
+        }
+        return urls;
+    }
+
+    public static String parsePackageName(String namespace, String defaultPackageName) {
+        String packageName = (defaultPackageName != null && defaultPackageName.trim().length() > 0)
+            ? defaultPackageName : null;
+
+        if (packageName == null) {
+            packageName = getPackageName(namespace);
+        }
+        return packageName;
     }
 
     public static String getPackageName(String nameSpaceURI) {

@@ -30,7 +30,7 @@ import org.apache.cxf.tools.common.model.JavaModel;
 import org.apache.cxf.tools.common.model.JavaPort;
 import org.apache.cxf.tools.common.model.JavaServiceClass;
 
-public class ImplGenerator extends AbstractGenerator {
+public class ImplGenerator extends AbstractJAXWSGenerator {
 
     private static final String IMPL_TEMPLATE = TEMPLATE_BASE + "/impl.vm";
 
@@ -61,7 +61,7 @@ public class ImplGenerator extends AbstractGenerator {
 
     public void generate(ToolContext penv) throws ToolException {
         this.env = penv;
-        JavaModel javaModel = env.getJavaModel();
+        JavaModel javaModel = env.get(JavaModel.class);
 
         if (passthrough()) {
             return;
