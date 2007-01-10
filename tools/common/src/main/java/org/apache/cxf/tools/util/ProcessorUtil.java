@@ -285,6 +285,12 @@ public final class ProcessorUtil {
             }          
         } 
         
+        if (boxify) {
+            Class cls = JAXBUtils.holderClass(jtype); 
+            if (cls != null) {
+                jtype = cls.getName();
+            }
+        }
         
         return jtype;
     }
