@@ -24,10 +24,10 @@ This demo requires ActiveMQ 4.X. Before you run this demo,
 please make sure you have installed the ActiveMQ 4.X and
 set ACTIVEMQ_HOME and ACTIVEMQ_VERSION environment variables.
 
-Befor you run this demo, please start up the JMS message broker first.
+Before you run this demo, please start up the JMS message broker first.
 
-From ActiveMQ 4.X insallation launch ActiveMQ JMS broker in seperate window
-or in background using the commandline:
+From your ActiveMQ 4.X installation launch ActiveMQ JMS broker in a
+separate window or in the background using the commandline:
 
 For Unix:
 
