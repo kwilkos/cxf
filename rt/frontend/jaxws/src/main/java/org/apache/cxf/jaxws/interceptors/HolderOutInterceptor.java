@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.interceptors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.xml.ws.Holder;
 
@@ -36,6 +37,8 @@ import org.apache.cxf.service.model.OperationInfo;
 
 public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger LOG = Logger.getLogger(HolderOutInterceptor.class.getName());
+
     public HolderOutInterceptor() {
         super();
         addBefore(WrapperClassOutInterceptor.class.getName());
@@ -48,14 +51,25 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
         Exchange exchange = message.getExchange();
         OperationInfo op = exchange.get(OperationInfo.class);
         
+        LOG.fine("op: " + op);
+        if (null != op) {
+            LOG.fine("op.hasOutput(): " + op.hasOutput());
+            if (op.hasOutput()) {
+                LOG.fine("op.getOutput().size(): " + op.getOutput().size());
+            }
+        }
+
         if (op == null || !op.hasOutput() || op.getOutput().size() == 0) {
+            LOG.fine("Returning.");
             return;
         }
 
         List<MessagePartInfo> parts = op.getOutput().getMessageParts();
+        LOG.fine("output message parts: " + parts);
         
         // is this a client invocation?
         if (Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE))) {
+            LOG.fine("client invocation");
             // Extract the Holders and store them for later
             List<Holder> holders = new ArrayList<Holder>();
             int size = op.getInput().size();
@@ -66,6 +80,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             
             for (MessagePartInfo part : parts) {
                 int idx = part.getIndex();
+                LOG.fine("part name: " + part.getName() + ", index: " + idx);
                 if (idx >= 0) {
                     Holder holder = (Holder) outObjects.get(idx);
                     if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {

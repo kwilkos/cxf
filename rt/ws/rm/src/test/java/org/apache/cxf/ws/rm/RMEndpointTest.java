@@ -46,6 +46,9 @@ public class RMEndpointTest extends TestCase {
         OperationInfo oi = intf.getOperation(new QName(ns, "CreateSequence"));
         assertNotNull("No operation info.", oi);
         assertTrue("Operation is oneway.", !oi.isOneWay());
+        assertTrue("Operation is unwrapped.", !oi.isUnwrapped());
+        assertTrue("Operation is unwrappedCapable.", !oi.isUnwrappedCapable());
+        assertNull("Unexpected unwrapped operation.", oi.getUnwrappedOperation());
         
         oi = intf.getOperation(new QName(ns, "TerminateSequence"));
         assertNotNull("No operation info.", oi);
@@ -62,9 +65,6 @@ public class RMEndpointTest extends TestCase {
         oi = intf.getOperation(new QName(ns, "CreateSequenceResponseOneway"));
         assertNotNull("No operation info.", oi);
         assertTrue("Operation is toway.", oi.isOneWay());
-        
     }
-    
 
-    
 }

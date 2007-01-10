@@ -47,15 +47,19 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
+import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.soap.MAPCodec;
@@ -438,9 +442,9 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         } else if (RMConstants.getCreateSequenceResponseAction().equals(action)) {
             if (RMContextUtils.isServerSide(message)) {
                 boi = bi.getOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
-                isOneway = false;
             } else {
                 boi = bi.getOperation(RMConstants.getCreateSequenceOperationName());
+                isOneway = false;
             }
         } else if (RMConstants.getSequenceAckAction().equals(action)) {
             boi = bi.getOperation(RMConstants.getSequenceAckOperationName()); 
@@ -449,6 +453,7 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
         }
         assert boi != null;
         exchange.put(BindingOperationInfo.class, boi);
+        exchange.put(OperationInfo.class, boi.getOperationInfo());
         exchange.setOneWay(isOneway); 
         
         // Fix requestor role (as the client side message observer always sets it to TRUE) 
@@ -466,7 +471,30 @@ public class RMSoapInterceptor extends AbstractSoapInterceptor {
                 message.put(RMMessageConstants.ORIGINAL_REQUESTOR_ROLE, originalRequestorRole);
             }
             message.put(Message.REQUESTOR_ROLE, Boolean.FALSE);
-        }          
+        }       
+        
+        // replace WrappedInInterceptor with BareInInterceptor if necessary
+        // as RM protocol messages use paremeter style BARE
+
+        InterceptorChain chain = message.getInterceptorChain();
+        ListIterator it = chain.getIterator();            
+        boolean bareIn = false;
+        boolean wrappedIn = false;
+        while (it.hasNext() && !wrappedIn && !bareIn) {
+            PhaseInterceptor pi = (PhaseInterceptor)it.next();
+            if (WrappedInInterceptor.class.getName().equals(pi.getId())) {
+                wrappedIn = true;
+                it.remove();
+                LOG.fine("Removed WrappedInInterceptor from chain.");
+            } else if (BareInInterceptor.class.getName().equals(pi.getId())) {
+                bareIn = true;
+            }
+      
+        }
+        if (!bareIn) {
+            chain.add(new BareInInterceptor());
+            LOG.fine("Added BareInInterceptor to chain.");
+        }
     }
 
     private RMManager getManager(SoapMessage message) {

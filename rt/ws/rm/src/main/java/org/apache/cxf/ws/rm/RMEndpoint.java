@@ -49,13 +49,19 @@ import org.apache.cxf.ws.addressing.Names;
 public class RMEndpoint {
     
     private static final QName SERVICE_NAME = 
-        new QName(RMConstants.getNamespace(), "SequenceAbstractService");
+        new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractService");
     private static final QName INTERFACE_NAME = 
-         new QName(RMConstants.getNamespace(), "SequenceAbstractPortType");
+         new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractPortType");
     private static final QName BINDING_NAME = 
-        new QName(RMConstants.getNamespace(), "SequenceAbstractSoapBinding");
+        new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractSoapBinding");
     private static final QName PORT_NAME = 
-        new QName(RMConstants.getNamespace(), "SequenceAbstractSoapPort");
+        new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractSoapPort");
+    private static final QName CREATE_PART_NAME =
+        new QName(RMConstants.getWsdlNamespace(), "create");
+    private static final QName CREATE_RESPONSE_PART_NAME =
+        new QName(RMConstants.getWsdlNamespace(), "createResponse");
+    private static final QName TERMINATE_PART_NAME =
+        new QName(RMConstants.getWsdlNamespace(), "terminate");
         
     private final RMManager manager;
     private final Endpoint applicationEndpoint;
@@ -66,6 +72,7 @@ public class RMEndpoint {
     private Endpoint endpoint;
     private Proxy proxy;
     private Servant servant;
+    private boolean unwrapped;
     
     
     public RMEndpoint(RMManager m, Endpoint ae) {
@@ -253,63 +260,73 @@ public class RMEndpoint {
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
-        partInfo = messageInfo.addMessagePart("create");
+        partInfo = messageInfo.addMessagePart(CREATE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceType.class);
-        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
-        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
-        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
-        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
-        partInfo = unwrappedMessageInfo.addMessagePart("create");
-        partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
-        partInfo.setElement(true);
-        partInfo.setTypeClass(CreateSequenceType.class);
+
+        if (unwrapped) {
+            unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+            unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+            operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+            unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+            partInfo = unwrappedMessageInfo.addMessagePart("create");
+            partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
+            partInfo.setElement(true);
+            partInfo.setTypeClass(CreateSequenceType.class);
+        }
         
         messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName());
         operationInfo.setOutput(messageInfo.getName().getLocalPart(), messageInfo);
-        partInfo = messageInfo.addMessagePart("createResponse");
+        partInfo = messageInfo.addMessagePart(CREATE_RESPONSE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceResponseType.class);
-        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
-        unwrappedOperationInfo.setOutput(operationInfo.getOutputName(), unwrappedMessageInfo);
-        partInfo = unwrappedMessageInfo.addMessagePart("createResponse");
-        partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
-        partInfo.setElement(true);
-        partInfo.setTypeClass(CreateSequenceResponseType.class);
+        partInfo.setIndex(-1);
+        if (unwrapped) {
+            unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+            unwrappedOperationInfo.setOutput(operationInfo.getOutputName(), unwrappedMessageInfo);
+            partInfo = unwrappedMessageInfo.addMessagePart(CREATE_RESPONSE_PART_NAME);
+            partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
+            partInfo.setElement(true);
+            partInfo.setTypeClass(CreateSequenceResponseType.class);
+        }
         
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceOnewayOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
-        partInfo = messageInfo.addMessagePart("create");
+        partInfo = messageInfo.addMessagePart(CREATE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceType.class);
-        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
-        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
-        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
-        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
-        partInfo = unwrappedMessageInfo.addMessagePart("create");
-        partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
-        partInfo.setElement(true);
-        partInfo.setTypeClass(CreateSequenceType.class);
+        if (unwrapped) {
+            unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+            unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+            operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+            unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+            partInfo = unwrappedMessageInfo.addMessagePart(CREATE_PART_NAME);
+            partInfo.setElementQName(RMConstants.getCreateSequenceOperationName());
+            partInfo.setElement(true);
+            partInfo.setTypeClass(CreateSequenceType.class);
+        }
         
         operationInfo = ii.addOperation(RMConstants.getCreateSequenceResponseOnewayOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getCreateSequenceResponseOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
-        partInfo = messageInfo.addMessagePart("createResponse");
+        partInfo = messageInfo.addMessagePart(CREATE_RESPONSE_PART_NAME);
         partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(CreateSequenceResponseType.class);
-        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
-        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
-        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
-        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
-        partInfo = unwrappedMessageInfo.addMessagePart("createResponse");
-        partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
-        partInfo.setElement(true);
-        partInfo.setTypeClass(CreateSequenceResponseType.class);
+        if (unwrapped) {
+            unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+            unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+            operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+            unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+            partInfo = unwrappedMessageInfo.addMessagePart(CREATE_RESPONSE_PART_NAME);
+            partInfo.setElementQName(RMConstants.getCreateSequenceResponseOperationName());
+            partInfo.setElement(true);
+            partInfo.setTypeClass(CreateSequenceResponseType.class);
+        }
     }
     
     void buildTerminateSequenceOperationInfo(InterfaceInfo ii) {
@@ -323,18 +340,20 @@ public class RMEndpoint {
         operationInfo = ii.addOperation(RMConstants.getTerminateSequenceOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getTerminateSequenceOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
-        partInfo = messageInfo.addMessagePart("terminate");
+        partInfo = messageInfo.addMessagePart(TERMINATE_PART_NAME);
         partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
         partInfo.setElement(true);
         partInfo.setTypeClass(TerminateSequenceType.class);
-        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
-        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
-        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
-        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
-        partInfo = unwrappedMessageInfo.addMessagePart("terminate");
-        partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
-        partInfo.setElement(true);
-        partInfo.setTypeClass(TerminateSequenceType.class);
+        if (unwrapped) {
+            unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+            unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+            operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+            unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+            partInfo = unwrappedMessageInfo.addMessagePart(TERMINATE_PART_NAME);
+            partInfo.setElementQName(RMConstants.getTerminateSequenceOperationName());
+            partInfo.setElement(true);
+            partInfo.setTypeClass(TerminateSequenceType.class);
+        }
     }
 
     void buildSequenceAckOperationInfo(InterfaceInfo ii) {
@@ -347,10 +366,12 @@ public class RMEndpoint {
         operationInfo = ii.addOperation(RMConstants.getSequenceAckOperationName());
         messageInfo = operationInfo.createMessage(RMConstants.getSequenceAckOperationName());
         operationInfo.setInput(messageInfo.getName().getLocalPart(), messageInfo);
-        unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
-        unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
-        operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
-        unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        if (unwrapped) {
+            unwrappedMessageInfo = new MessageInfo(operationInfo, messageInfo.getName());
+            unwrappedOperationInfo = new UnwrappedOperationInfo(operationInfo);
+            operationInfo.setUnwrappedOperation(unwrappedOperationInfo);
+            unwrappedOperationInfo.setInput(operationInfo.getInputName(), unwrappedMessageInfo);
+        }
     }
 
     void buildBindingInfo(ServiceInfo si) {

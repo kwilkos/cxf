@@ -83,6 +83,13 @@ public class SequenceTest extends ClientServerTestBase {
         TestSuite suite = new TestSuite(SequenceTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
+                /*
+                // special case handling for WS-Addressing system test to avoid
+                // UUID related issue when server is run as separate process
+                // via maven on Win2k
+                boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
+                assertTrue("server did not launch correctly", launchServer(Server.class, inProcess));
+                */
                 assertTrue("server did not launch correctly", launchServer(Server.class));
             }
             
@@ -316,7 +323,7 @@ public class SequenceTest extends ClientServerTestBase {
         // await multiple of 3 resends to avoid shutting down server
         // in the course of retransmission - this is harmless but pollutes test output
         
-        awaitMessages(3, 0, 5000);
+        awaitMessages(3, 0, 7500);
         
     }
     
@@ -649,8 +656,6 @@ public class SequenceTest extends ClientServerTestBase {
         LOG.fine("Initialised greeter bus with configuration: " + cfgResource);
 
         outRecorder = new OutMessageRecorder();
-        greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
-        greeterBus.getInInterceptors().add(new JaxwsInterceptorRemover());
         greeterBus.getOutInterceptors().add(outRecorder);
         inRecorder = new InMessageRecorder();
         greeterBus.getInInterceptors().add(inRecorder);

@@ -21,7 +21,6 @@ package org.apache.cxf.ws.rm;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,11 +28,7 @@ import java.util.logging.Logger;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.interceptor.InterceptorChain;
-import org.apache.cxf.jaxws.interceptors.HolderInInterceptor;
-import org.apache.cxf.jaxws.interceptors.HolderOutInterceptor;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.PhaseInterceptor;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.MAPAggregator;
@@ -104,33 +99,6 @@ public class RMInInterceptor extends AbstractRMInterceptor {
         if (RMConstants.getCreateSequenceAction().equals(action)
             || RMConstants.getCreateSequenceResponseAction().equals(action)
             || RMConstants.getTerminateSequenceAction().equals(action)) {
-
-            InterceptorChain chain = message.getInterceptorChain();
-            ListIterator it = chain.getIterator();            
-            while (it.hasNext()) {
-                PhaseInterceptor pi = (PhaseInterceptor)it.next();
-                if ("org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor".equals(pi.getId())) {
-                    it.remove();
-                    LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
-                } else if (HolderInInterceptor.class.getName().equals(pi.getId())) {
-                    it.remove();
-                    LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
-                }
-            }
-            
-            Message m = message.getExchange().getOutMessage();
-            if (m != null) {
-                chain = m.getInterceptorChain(); 
-                it = chain.getIterator();            
-                while (it.hasNext()) {
-                    PhaseInterceptor pi = (PhaseInterceptor)it.next();
-                    if (HolderOutInterceptor.class.getName().equals(pi.getId())) {
-                        it.remove();
-                        LOG.fine("Removed WrapperClassInInterceptor from interceptor chain.");
-                    }
-                }
-            }
-
             return;
         } else if (RMConstants.getSequenceAckAction().equals(action)) {
             processAcknowledgments(rmps);

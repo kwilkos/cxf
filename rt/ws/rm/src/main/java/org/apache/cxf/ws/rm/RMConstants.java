@@ -76,19 +76,22 @@ public final class RMConstants {
     private static final Set<QName> HEADERS;
     
     private static final QName WSRM_CREATE_SEQUENCE_QNAME =
-        new QName(WSRM_NAMESPACE_NAME, "CreateSequence");
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequence");
     
     private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_QNAME =
-        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponse");
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequenceResponse");
     
     private static final QName WSRM_CREATE_SEQUENCE_ONEWAY_QNAME =
-        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceOneway");
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequenceOneway");
     
     private static final QName WSRM_CREATE_SEQUENCE_RESPONSE_ONEWAY_QNAME =
-        new QName(WSRM_NAMESPACE_NAME, "CreateSequenceResponseOneway");
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "CreateSequenceResponseOneway");
     
     private static final QName WSRM_TERMINATE_SEQUENCE_QNAME =
-        new QName(WSRM_NAMESPACE_NAME, "TerminateSequence");
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "TerminateSequence");
+    
+    private static final QName WSRM_SEQUENCE_ACKNOWLEDGEMENT_QNAME =
+        new QName(WSRM_WSDL_NAMESPACE_NAME, "SequenceAcknowledgement");
 
     private static final String WSRM_CREATE_SEQUENCE_ACTION =
         WSRM_NAMESPACE_NAME + "/CreateSequence";
@@ -217,7 +220,7 @@ public final class RMConstants {
     }
     
     public static QName getSequenceAckOperationName() {
-        return WSRM_SEQUENCE_ACK_QNAME;
+        return WSRM_SEQUENCE_ACKNOWLEDGEMENT_QNAME;
     }
     
     public static String getCreateSequenceAction() {
