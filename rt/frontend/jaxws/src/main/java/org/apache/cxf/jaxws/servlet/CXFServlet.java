@@ -22,6 +22,8 @@ package org.apache.cxf.jaxws.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -34,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.ws.Provider;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,6 +49,10 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.jaxws.JAXWSMethodInvoker;
+import org.apache.cxf.jaxws.ProviderInvoker;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -185,6 +192,7 @@ public class CXFServlet extends HttpServlet {
         buildEndpoint(implName, serviceName, wsdlName, portName, urlPat);
     }
 
+    @SuppressWarnings("unchecked")
     public void buildEndpoint(String implName, String serviceName, String wsdlName, String portName,
                               String urlPat) throws ServletException {
 
@@ -193,7 +201,42 @@ public class CXFServlet extends HttpServlet {
             Class cls = ClassLoaderUtils.loadClass(implName, getClass());
             Object impl = cls.newInstance();
 
-            EndpointImpl ep = new EndpointImpl(bus, impl, (String)null);
+            JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(cls);
+
+            JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
+            serviceFactory.setBus(bus);
+            if (implInfo.isWebServiceProvider()) {
+                serviceFactory.setInvoker(new ProviderInvoker((Provider<?>)impl));
+            } else {
+                serviceFactory.setInvoker(new JAXWSMethodInvoker(impl));
+            }
+            serviceFactory.setServiceClass(impl.getClass());
+            
+            if (!"".equals(wsdlName)) {
+                URL url = null;
+                try {
+                    url = new URL(wsdlName);
+                } catch (MalformedURLException e) {
+                    //ignore
+                }
+                if (url == null) {
+                    try {
+                        url = getServletConfig().getServletContext().getResource("/" + wsdlName);
+                    } catch (MalformedURLException e) {
+                        //ignore
+                    }
+                }
+                if (url == null) {
+                    try {
+                        url = getServletConfig().getServletContext().getResource(wsdlName);
+                    } catch (MalformedURLException e) {
+                        //ignore
+                    }
+                }
+                serviceFactory.setWsdlURL(url);
+            }
+            
+            EndpointImpl ep = new EndpointImpl(bus, impl, serviceFactory);
             LOG.info("publish the servcie to {context}/ " + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
             
             // TODO we may need to get the url-pattern from servlet context
