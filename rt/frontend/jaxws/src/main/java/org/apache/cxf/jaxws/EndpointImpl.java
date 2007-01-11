@@ -266,17 +266,13 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
     
     /**
-     * Obtain handler chain from configuration first. If none is specified,
-     * default to the chain configured in the code, i.e. in annotations.
+     * Obtain handler chain from annotations.
      *
      */
     private void configureHandlers() {
         LOG.fine("loading handler chain for endpoint");
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-        //TBD: get configuratoin from config file
-        //List<Handler> chain = builder.buildHandlerChainFromConfiguration(hc);
-        //builder.setHandlerInitEnabled(configuration.getBoolean(ENABLE_HANDLER_INIT));
         List<Handler> chain = null;
 
         if (null == chain || chain.size() == 0) {

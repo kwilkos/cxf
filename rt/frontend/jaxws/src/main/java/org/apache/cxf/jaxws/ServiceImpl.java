@@ -87,15 +87,16 @@ public class ServiceImpl extends ServiceDelegate {
     private Map<QName, PortInfoImpl> portInfos = new HashMap<QName, PortInfoImpl>();
     private Executor executor;
     private QName serviceName;
-//    private Class<?> clazz;
+    private Class<?> clazz;
 
     public ServiceImpl(Bus b, URL url, QName name, Class<?> cls) {
         bus = b;
         wsdlURL = url;
         this.serviceName = name;
-//        clazz = cls;
+        clazz = cls;
         
-        handlerResolver = new HandlerResolverImpl(bus, name);
+        handlerResolver = new HandlerResolverImpl(bus, name, clazz);
+        
     }
 
     public void addPort(QName portName, String bindingId, String address) {

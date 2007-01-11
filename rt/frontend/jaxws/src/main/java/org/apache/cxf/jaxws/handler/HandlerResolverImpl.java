@@ -32,21 +32,18 @@ import javax.xml.ws.handler.PortInfo;
 import org.apache.cxf.Bus;
 
 public class HandlerResolverImpl implements HandlerResolver {
-    public static final String PORT_CONFIGURATION_URI =
-        "http://cxf.apache.org/bus/jaxws/port-config";
-
     private final Map<PortInfo, List<Handler>> handlerMap = new HashMap<PortInfo, List<Handler>>();
-    //private Configuration busConfiguration;
-    //private QName service;
-    private ClassLoader serviceEndpointInterfaceClassLoader;
+    
+    //private QName service;   
+    private Class<?> annotationClass;
 
-    public HandlerResolverImpl(Bus bus, QName serviceName) {
-        //this.busConfiguration = pBusConfiguration;
+    public HandlerResolverImpl(Bus bus, QName serviceName, Class<?> clazz) {
         //this.service = pService;
+        this.annotationClass = clazz;
     }
 
     public HandlerResolverImpl() {
-        this(null, null);
+        this(null, null, null);
     }
 
     public List<Handler> getHandlerChain(PortInfo portInfo) {
@@ -61,34 +58,27 @@ public class HandlerResolverImpl implements HandlerResolver {
 
     private List<Handler> createHandlerChain(PortInfo portInfo) {
         List<Handler> chain = null;
-        /*
-        Configuration portConfiguration = null;
-        String id = portInfo.getPortName().getLocalPart();
-        if (service != null) {
-            id = service.toString() + "/" + portInfo.getPortName().getLocalPart();
-        }
-        if (null != busConfiguration) {
-            portConfiguration = busConfiguration
-                .getChild(PORT_CONFIGURATION_URI, id);
-        }
-        if (null != portConfiguration) {
-            HandlerChainBuilder builder = new HandlerChainBuilder();
-            builder.setHandlerClassLoader(serviceEndpointInterfaceClassLoader);
-            HandlerChainType hc = (HandlerChainType)portConfiguration.getObject("handlerChain");
-            chain = builder.buildHandlerChainFromConfiguration(hc);
-        }
-        */
+
         if (null == chain) {
             chain = new ArrayList<Handler>();
+        }
+        if (annotationClass != null) {
+            chain.addAll(getHandlersFromAnnotation(annotationClass));            
         }
         return chain;
     }
 
-    public ClassLoader getServiceEndpointInterfaceClassLoader() {
-        return serviceEndpointInterfaceClassLoader;
-    }
+    /**
+     * Obtain handler chain from annotations.
+     * 
+     * @param obj A endpoint implementation class or a SEI, or a generated
+     *            service class.
+     */
+    private List<Handler> getHandlersFromAnnotation(Class<?> clazz) {
+        AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-    public void setServiceEndpointInterfaceClassLoader(ClassLoader classLoader) {
-        this.serviceEndpointInterfaceClassLoader = classLoader;
+        List<Handler> chain = builder.buildHandlerChainFromClass(clazz);
+        
+        return chain;
     }
 }

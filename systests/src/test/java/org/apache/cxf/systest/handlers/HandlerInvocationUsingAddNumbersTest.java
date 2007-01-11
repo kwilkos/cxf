@@ -20,7 +20,6 @@
 package org.apache.cxf.systest.handlers;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -43,14 +42,13 @@ import org.apache.handlers.types.AddNumbersResponse;
 import org.apache.handlers.types.ObjectFactory;
 
 
-public class HandlerClientServerTest extends ClientServerTestBase {
+public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
 
     static QName serviceName = new QName("http://apache.org/handlers", "AddNumbersService");
-
     static QName portName = new QName("http://apache.org/handlers", "AddNumbersPort");
    
     public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(HandlerClientServerTest.class);
+        TestSuite suite = new TestSuite(HandlerInvocationUsingAddNumbersTest.class);
         return new ClientServerSetupBase(suite) {
             public void startServers() throws Exception {
                 assertTrue("server did not launch correctly", launchServer(HandlerServer.class));
@@ -58,17 +56,26 @@ public class HandlerClientServerTest extends ClientServerTestBase {
         };
     }
 
-    public void testInvokeLogicalHandler() throws Exception {
+    public void testAddHandlerProgrammaticallyClientSide() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
 
         AddNumbersService service = new AddNumbersService(wsdl, serviceName);
         AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
         
-        //Add client side handlers programmatically
         SmallNumberHandler sh = new SmallNumberHandler();
-        List<Handler> newHandlerChain = new ArrayList<Handler>();
-        newHandlerChain.add(sh);
-        ((BindingProvider)port).getBinding().setHandlerChain(newHandlerChain);
+        addHandlersProgrammatically((BindingProvider)port, sh);
+
+        int result = port.addNumbers(10, 20);
+        assertEquals(200, result);
+        int result1 = port.addNumbers(5, 6);
+        assertEquals(11, result1);
+    }
+    
+    public void testAddHandlerByAnnotationClientSide() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
+
+        AddNumbersServiceWithAnnotation service = new AddNumbersServiceWithAnnotation(wsdl, serviceName);
+        AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
 
         int result = port.addNumbers(10, 20);
         assertEquals(200, result);
@@ -86,11 +93,8 @@ public class HandlerClientServerTest extends ClientServerTestBase {
         JAXBContext jc = JAXBContext.newInstance("org.apache.handlers.types");
         Dispatch<Object> disp = service.createDispatch(portName, jc, Service.Mode.PAYLOAD);
  
-        //Add client side handlers programmatically
         SmallNumberHandler sh = new SmallNumberHandler();
-        List<Handler> newHandlerChain = new ArrayList<Handler>();
-        newHandlerChain.add(sh);
-        ((BindingProvider)disp).getBinding().setHandlerChain(newHandlerChain);
+        addHandlersProgrammatically(disp, sh);
         
         org.apache.handlers.types.AddNumbers req = new org.apache.handlers.types.AddNumbers();        
         req.setArg0(10);
@@ -102,6 +106,14 @@ public class HandlerClientServerTest extends ClientServerTestBase {
         assertNotNull(response);
         AddNumbersResponse value = (AddNumbersResponse)response.getValue();
         assertEquals(200, value.getReturn());
+    }
+    
+    private void addHandlersProgrammatically(BindingProvider bp, Handler...handlers) {
+        List<Handler> handlerChain = bp.getBinding().getHandlerChain();
+        assertNotNull(handlerChain);
+        for (Handler h : handlers) {
+            handlerChain.add(h);
+        }    
     }
 
 }
