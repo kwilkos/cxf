@@ -147,7 +147,7 @@ public class DestinationSequence extends AbstractSequence {
                 range.setUpper(messageNumber);
                 acknowledgement.getAcknowledgementRange().add(i, range);
             }
-            
+            mergeRanges();
             notifyAll();
         }
         
@@ -155,6 +155,21 @@ public class DestinationSequence extends AbstractSequence {
         
         scheduleAcknowledgement();
         
+    }
+    
+    void mergeRanges() {
+        List<AcknowledgementRange> ranges = acknowledgement.getAcknowledgementRange();
+        if (null == ranges) {
+            return;
+        }
+        for (int i = ranges.size() - 1; i > 0; i--) {
+            AcknowledgementRange current = ranges.get(i);
+            AcknowledgementRange previous = ranges.get(i - 1);
+            if (current.getLower().subtract(previous.getUpper()).equals(BigInteger.ONE)) {
+                previous.setUpper(current.getUpper());
+                ranges.remove(i);
+            }
+        }
     }
     
     final void setDestination(Destination d) {

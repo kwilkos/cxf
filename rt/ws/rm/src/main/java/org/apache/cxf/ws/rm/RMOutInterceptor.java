@@ -116,21 +116,23 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
             
             // get the current sequence, requesting the creation of a new one if necessary
             
-            SourceSequence seq = getManager().getSequence(inSeqId, message, maps);
-            assert null != seq;
+            synchronized (source) {
+                SourceSequence seq = getManager().getSequence(inSeqId, message, maps);
+                assert null != seq;
 
-            // increase message number and store a sequence type object in
-            // context
+                // increase message number and store a sequence type object in
+                // context
 
-            seq.nextMessageNumber(inSeqId, inMessageNumber);
-            rmpsOut.setSequence(seq);
+                seq.nextMessageNumber(inSeqId, inMessageNumber);
+                rmpsOut.setSequence(seq);
 
-            // if this was the last message in the sequence, reset the
-            // current sequence so that a new one will be created next 
-            // time the handler is invoked
+                // if this was the last message in the sequence, reset the
+                // current sequence so that a new one will be created next
+                // time the handler is invoked
 
-            if (seq.isLastMessage()) {
-                source.setCurrent(null);
+                if (seq.isLastMessage()) {
+                    source.setCurrent(null);
+                }
             }
         } else {
             if (!RMContextUtils.isRequestor(message)

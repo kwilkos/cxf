@@ -127,31 +127,6 @@ public class DestinationSequenceTest extends TestCase {
         control.verify();
     }
     
-    public void testGetAcknowledgementAsStream() throws SequenceFault {
-        /*
-        destination.getHandler();
-        expectLastCall().andReturn(handler).times(3);
-        handler.getStore();
-        expectLastCall().andReturn(null);
-        handler.getConfigurationHelper();
-        expectLastCall().andReturn(configurationHelper).times(2);
-        configurationHelper.getRMAssertion();
-        expectLastCall().andReturn(rma);
-        configurationHelper.getAcksPolicy();
-        expectLastCall().andReturn(ap);
-        control.replay();
-        
-        DestinationSequence seq = new DestinationSequence(id, ref, destination);
-        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
-        assertEquals(0, ranges.size());
-              
-        seq.acknowledge(new BigInteger("1"));  
-        assertNotNull(seq.getAcknowledgmentAsStream());
-        
-        control.verify();
-        */
-    }
-    
     public void testAcknowledgeBasic() throws SequenceFault {
         setUpDestination();
         control.replay();
@@ -264,6 +239,49 @@ public class DestinationSequenceTest extends TestCase {
         assertEquals(6, r.getUpper().intValue()); 
         
         control.verify();
+    }
+    
+    public void testMerge() {
+        DestinationSequence seq = new DestinationSequence(id, ref, destination);
+        List<AcknowledgementRange> ranges = seq.getAcknowledgment().getAcknowledgementRange();
+        AcknowledgementRange r;
+        for (int i = 0; i < 5; i++) {
+            r = new AcknowledgementRange();
+            r.setLower(new BigInteger(Integer.toString(3 * i + 1)));
+            r.setUpper(new BigInteger(Integer.toString(3 * i + 3)));
+            ranges.add(r);
+        }
+        seq.mergeRanges();
+        assertEquals(1, ranges.size());
+        r = ranges.get(0);
+        assertEquals(BigInteger.ONE, r.getLower());
+        assertEquals(new BigInteger("15"), r.getUpper());
+        ranges.clear();
+        for (int i = 0; i < 5; i++) {
+            r = new AcknowledgementRange();
+            r.setLower(new BigInteger(Integer.toString(3 * i + 1)));
+            r.setUpper(new BigInteger(Integer.toString(3 * i + 2)));
+            ranges.add(r);
+        }
+        seq.mergeRanges();
+        assertEquals(5, ranges.size());
+        ranges.clear();
+        for (int i = 0; i < 5; i++) {
+            if (i != 2) {
+                r = new AcknowledgementRange();
+                r.setLower(new BigInteger(Integer.toString(3 * i + 1)));
+                r.setUpper(new BigInteger(Integer.toString(3 * i + 3)));
+                ranges.add(r);
+            }
+        }
+        seq.mergeRanges();
+        assertEquals(2, ranges.size());
+        r = ranges.get(0);
+        assertEquals(BigInteger.ONE, r.getLower());
+        assertEquals(new BigInteger("6"), r.getUpper());
+        r = ranges.get(1);
+        assertEquals(BigInteger.TEN, r.getLower());
+        assertEquals(new BigInteger("15"), r.getUpper());        
     }
     
     public void testMonitor() throws SequenceFault {

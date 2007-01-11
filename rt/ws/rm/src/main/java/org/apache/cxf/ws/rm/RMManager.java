@@ -94,10 +94,6 @@ public class RMManager extends RMManagerConfigBean {
         return timer;
     }
     
-    public synchronized RMEndpoint getReliableEndpoint(Endpoint e) {
-        return reliableEndpoints.get(e);
-    }
-
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
         Endpoint endpoint = RMContextUtils.getEndpoint(message);
         RMEndpoint rme = reliableEndpoints.get(endpoint);

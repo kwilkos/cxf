@@ -74,6 +74,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestOnewayMessageLoss = testAll;
     private boolean doTestTwowayMessageLoss = testAll;
     private boolean doTestTwowayNonAnonymousNoOffer = testAll;
+    private boolean doTestConcurrency = testAll;
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(SequenceTest.class);
@@ -636,6 +637,31 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyActions(expectedActions, false);
         mf.verifyMessageNumbers(new String[] {null, null, "1"}, false);
         mf.verifyAcknowledgements(new boolean[] {false, false, false}, false);
+    }
+
+    public void testConcurrency() throws Exception {
+        if (!doTestConcurrency) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/concurrent.xml");
+
+        for (int i = 0; i < 5; i++) {
+            greeter.greetMeAsync(Integer.toString(i));
+        }
+
+        // CreateSequence and five greetMe messages
+        // full and partial responses to each
+
+        awaitMessages(6, 12, 7500);
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        mf.verifyMessages(6, true);
+        String[] expectedActions = new String[6];
+        expectedActions[0] = RMConstants.getCreateSequenceAction();
+        for (int i = 1; i < expectedActions.length; i++) {
+            expectedActions[i] = GREETME_ACTION;
+        }
+        mf.verifyActions(expectedActions, true);
     }
 
     // --- test utilities ---
