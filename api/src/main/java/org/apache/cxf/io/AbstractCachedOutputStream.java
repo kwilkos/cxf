@@ -105,6 +105,7 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     public void close() throws IOException {
         currentStream.flush();
         currentStream.close();
+        dispose();
         if (null != callbacks) {
             for (CachedOutputStreamCallback cb : callbacks) {
                 cb.onClose(this);
