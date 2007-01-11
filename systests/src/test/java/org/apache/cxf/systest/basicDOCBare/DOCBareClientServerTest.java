@@ -63,6 +63,9 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
 
         PutLastTradedPricePortType putLastTradedPrice = service.getPort(portName,
                                                                         PutLastTradedPricePortType.class);
+        String response = putLastTradedPrice.bareNoParam();
+        assertEquals("testResponse", response);
+        
         TradePriceData priceData = new TradePriceData();
         priceData.setTickerPrice(1.0f);
         priceData.setTickerSymbol("CELTIX");

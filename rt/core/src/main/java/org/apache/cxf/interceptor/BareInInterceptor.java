@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
@@ -38,6 +39,7 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.MessageInfo;
 //import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
@@ -49,12 +51,12 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(BareInInterceptor.class);
 
     private static Set<String> filter = new HashSet<String>();
-    
+
     static {
         filter.add("void");
         filter.add("javax.activation.DataHandler");
     }
-    
+
     public BareInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
@@ -62,10 +64,10 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
     }
 
     public void handleMessage(Message message) {
-        if (isGET(message) && message.getContent(List.class) != null) {  
+        if (isGET(message) && message.getContent(List.class) != null) {
             LOG.info("BareInInterceptor skipped in HTTP GET method");
             return;
-        }        
+        }
 
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         Exchange exchange = message.getExchange();
@@ -80,13 +82,27 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         // the message?
         //MessageInfo msgInfo = message.get(MessageInfo.class);
         BindingMessageInfo msgInfo = null;
-        
+
         boolean client = isRequestor(message);
-        
+
         Collection<OperationInfo> ops = null;
         if (bop == null) {
             ops = new ArrayList<OperationInfo>();
             ops.addAll(service.getServiceInfo().getInterface().getOperations());
+            if (xmlReader.getEventType() == XMLStreamReader.END_ELEMENT && !client) {
+                //empty input
+                //TO DO : check duplicate operation with no input
+                for (OperationInfo op : ops) {
+                    MessageInfo bmsg = op.getInput();
+                    if (bmsg.getMessageParts().size() == 0) {
+                        BindingOperationInfo boi = ep.getEndpointInfo().getBinding().getOperation(op);
+                        exchange.put(BindingOperationInfo.class, boi);
+                        exchange.put(OperationInfo.class, op);
+                        exchange.setOneWay(op.isOneWay());
+                    }
+                }
+
+            }
         } else if (msgInfo == null) {
             // XXX - Is the call to
             // AbstractInDatabindingInterceptor.getMessageInfo()
@@ -100,12 +116,14 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                 msgInfo = bop.getInput();
             }
         }
-        
+
         int paramNum = 0;
+
+        
         while (StaxUtils.toNextElement(xmlReader)) {
             QName elName = xmlReader.getName();
             Object o = null;
-            
+
             MessagePartInfo p;
             if (msgInfo != null && msgInfo.getMessageParts() != null) {
                 assert msgInfo.getMessageParts().size() > paramNum;
@@ -117,16 +135,14 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             if (p == null) {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
             }
-            
+
             o = dr.read(p, message);
-            
+
             if (o != null) {
                 parameters.add(o);
             }
             paramNum++;
         }
-        if (parameters.size() > 0) {
-            message.setContent(List.class, parameters);
-        }
+        message.setContent(List.class, parameters);
     }
 }
