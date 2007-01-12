@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package demos.ws_addressing.common;
+package demo.ws_addressing.common;
 
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
