@@ -79,6 +79,7 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
                 }
             }
         }
+        onCompletion(message);
     }
 
     public void handleFault(T message) {
@@ -86,7 +87,7 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
     }
 
     public void onCompletion(T message) {
-        if (isRequestor(message) && (isOneway(message) || !isOutbound(message))) {
+        if (!isOutbound(message)) {
             getInvoker(message).mepComplete(message);
         }
     }

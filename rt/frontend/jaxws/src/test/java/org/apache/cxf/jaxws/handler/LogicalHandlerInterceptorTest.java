@@ -42,7 +42,6 @@ import org.easymock.classextension.IMocksControl;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.easymock.classextension.EasyMock.createNiceControl;
 
@@ -88,18 +87,6 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(binding);
         assertEquals("unexpected phase", "user-logical", li.getPhase());
         li.handleMessage(message);
-        control.verify();
-    }
-
-    public void testOnCompletion() {
-        expect(message.getExchange()).andReturn(exchange).anyTimes();
-        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
-        expect(exchange.getOutMessage()).andReturn(message);
-        invoker.mepComplete(message);
-        expectLastCall();
-        control.replay();
-        LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(binding);
-        li.onCompletion(message);
         control.verify();
     }
 

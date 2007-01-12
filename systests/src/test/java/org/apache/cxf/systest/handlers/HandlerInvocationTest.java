@@ -253,7 +253,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     }
        
     //TODO: Commented out due to CXF-334
-    public void xtestHandlersInvoked() throws Exception {
+    public void testHandlersInvoked() throws Exception {
         TestHandler<LogicalMessageContext> handler1 = new TestHandler<LogicalMessageContext>(false);
         TestHandler<LogicalMessageContext>  handler2 = new TestHandler<LogicalMessageContext>(false);
         TestSOAPHandler soapHandler1 = new TestSOAPHandler(false);
