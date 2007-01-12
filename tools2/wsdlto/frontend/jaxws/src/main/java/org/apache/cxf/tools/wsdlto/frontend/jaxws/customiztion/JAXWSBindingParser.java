@@ -82,6 +82,7 @@ public class JAXWSBindingParser {
             // other binding
             for (int i = 0; i < children.getLength(); i++) {
                 Node child = children.item(i);
+
                 if (isAsyncElement(child)) {
                     jaxwsBinding.setEnableAsyncMapping(getNodeValue(child));
                 }

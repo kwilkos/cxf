@@ -46,19 +46,26 @@ public abstract class AbstractToolContainer implements ToolContainer {
     private OutputStream outOutputStream;
     private OutputStream errOutputStream;
     
-    
-
+   
+ 
     public class GenericOutputStream extends OutputStream {
         public void write(int b) throws IOException {
 
         }
     }
 
+    public AbstractToolContainer() {
+        
+    }
+    
     public AbstractToolContainer(ToolSpec ts) throws BadUsageException {
         toolspec = ts;
     }
 
     public void setArguments(String[] args) {
+        if (args == null) {
+            return;
+        }
         arguments = new String[args.length];
         System.arraycopy(args, 0, arguments, 0, args.length);
         setMode(args);

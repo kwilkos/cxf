@@ -35,7 +35,6 @@ import org.apache.cxf.tools.common.model.JavaInterface;
 import org.apache.cxf.tools.common.model.JavaMethod;
 import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaReturn;
-
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.SoapBindingAnnotator;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.annotator.WebMethodAnnotator;
@@ -46,8 +45,7 @@ import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper.Meth
 public class OperationProcessor  extends AbstractProcessor {
    
     private JavaParameter wrapperRequest;
-    private JavaParameter wrapperResponse;
-        
+    private JavaParameter wrapperResponse;   
     public OperationProcessor(ToolContext c) {
         super(c);
     }
@@ -55,17 +53,11 @@ public class OperationProcessor  extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     public void process(JavaInterface intf, OperationInfo operation) throws ToolException {
         JavaMethod method = new MethodMapper().map(operation);
-        method.setInterface(intf);
-        
-        // TODO: add customizing
-       
-        
+        method.setInterface(intf);             
         processMethod(method, operation, null);
         Collection<FaultInfo> faults = operation.getFaults();
-
         FaultProcessor faultProcessor = new FaultProcessor(context);
         faultProcessor.process(method, faults);
-
         intf.addMethod(method);
     }
 

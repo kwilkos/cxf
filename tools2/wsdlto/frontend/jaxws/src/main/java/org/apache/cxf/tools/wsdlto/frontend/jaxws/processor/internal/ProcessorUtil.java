@@ -70,8 +70,13 @@ public final class ProcessorUtil {
     }
     
     public static String getType(MessagePartInfo part, ToolContext context, boolean fullname) {
+        String type = "";
         DataBindingProfile dataBinding = context.get(DataBindingProfile.class);
-        String type = dataBinding.getType(getElementName(part));
+        if (part.isElement()) {
+            type = dataBinding.getType(getElementName(part));
+        } else {
+            type = dataBinding.getType(part.getTypeQName());
+        }
         if (type == null) {
             type = resolvePartType(part);
         }
@@ -115,12 +120,13 @@ public final class ProcessorUtil {
                 return resolvePartType(part);
             }
         }
-        String name = dataBinding.getType(getElementName(part));
-        if (name == null) {
-            return resolvePartType(part);
+        String name = "";
+        if (part.isElement()) {
+            name = dataBinding.getType(getElementName(part));
+        } else {
+            name = dataBinding.getType(part.getTypeQName());
         }
-        return name;
-       
+        return name;       
     }
 
     public static String resolvePartNamespace(MessagePartInfo part) {

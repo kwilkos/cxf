@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.wsdl.OperationType;
 import javax.xml.namespace.QName;
 
-
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessageInfo;
@@ -146,6 +145,27 @@ public class ParameterProcessor extends AbstractProcessor {
             addParameter(method, getParameterFromQName(part.getElementQName(), 
                                                        item, JavaType.Style.IN, part));
         }
+        
+        /*Map<String, Part> inputPartsMap = inputMessage.getParts();
+        Collection<Part> inputParts = inputPartsMap.values();
+        if (inputParts.size() > 1) {
+            processInput(method, inputMessage);
+            return;
+        } else if (inputParts.isEmpty()) {
+            return;
+        }
+        Part part = inputParts.iterator().next();
+        
+        List<? extends Property> block = dataBinder.getBlock(part);
+        if (block != null) {
+            if (block.size() == 0) {
+                // complete
+            }
+            for (Property item : block) {
+                addParameter(method, getParameterFromProperty(item, JavaType.Style.IN, part));
+            }
+        }*/
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -223,7 +243,7 @@ public class ParameterProcessor extends AbstractProcessor {
             return;
         }
         method.setReturn(null);
-        if (inputWrapElement.size() == 1 && outputWrapElement != null) {
+        if (outputWrapElement.size() == 1 && inputWrapElement != null) {
             QName outElement = outputWrapElement.iterator().next();
             boolean sameWrapperChild = false;
             for (QName inElement : inputWrapElement) {
@@ -294,22 +314,22 @@ public class ParameterProcessor extends AbstractProcessor {
                                                 MessagePartInfo part) {
 
         String fullJavaName = "";
-        String simpleJavaName = "";
+        //String simpleJavaName = "";
               
         fullJavaName = this.dataBinding.getWrappedElementType(wrapperElement, item);
-        simpleJavaName = fullJavaName;
+        //simpleJavaName = fullJavaName;
         
-        int index = fullJavaName.lastIndexOf(".");
+        //int index = fullJavaName.lastIndexOf(".");
         
-        if (index > -1) {
+        /*if (index > -1) {
             simpleJavaName = fullJavaName.substring(index);    
-        }
+        }*/
         
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         if (targetNamespace == null) {
             targetNamespace = wrapperElement.getNamespaceURI();
         }
-        JavaParameter parameter = new JavaParameter(simpleJavaName, fullJavaName, targetNamespace);
+        JavaParameter parameter = new JavaParameter(item.getLocalPart(), fullJavaName, targetNamespace);
         parameter.setStyle(style);
         parameter.setQName(item);
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {

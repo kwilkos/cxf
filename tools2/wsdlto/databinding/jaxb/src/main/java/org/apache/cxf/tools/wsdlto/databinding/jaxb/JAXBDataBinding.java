@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -64,41 +63,39 @@ public class JAXBDataBinding implements DataBindingProfile {
         env = penv;
         serviceInfo = env.get(ServiceInfo.class);
         def = (Definition)env.get(Definition.class);
-                
-        SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();        
-        
+
+        SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
+
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
         allocator.setInterface(serviceInfo.getInterface(), env.mapPackageName(def.getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
-        
+
         JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
         schemaCompiler.setErrorListener(listener);
-        
-        
+
         Collection<SchemaInfo> schemas = serviceInfo.getTypeInfo().getSchemas();
-        
+
         Collection<InputSource> jaxbBindings = env.getJaxbBindingFile().values();
-        
+
         for (SchemaInfo schema : schemas) {
             Element element = schema.getElement();
             String tns = element.getAttribute("targetNamespace");
             schemaCompiler.parseSchema(tns, element);
         }
-                 
+
         for (InputSource binding : jaxbBindings) {
             schemaCompiler.parseSchema(binding);
         }
-       
+
         rawJaxbModelGenCode = schemaCompiler.bind();
         addedEnumClassToCollector(schemas, allocator);
     }
-  
-    
+
     // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
-    // class is an enum.  We need to use this method to add the missed file
+    // class is an enum. We need to use this method to add the missed file
     // to classCollector.
-    private void addedEnumClassToCollector(Collection<SchemaInfo> schemaList,
+    private void addedEnumClassToCollector(Collection<SchemaInfo> schemaList, 
                                            ClassNameAllocatorImpl allocator) {
         for (SchemaInfo schema : schemaList) {
             Element schemaElement = schema.getElement();
@@ -112,7 +109,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             }
         }
     }
-    
+
     private boolean addedToClassCollector(String packageName) {
         ClassCollector classCollector = env.get(ClassCollector.class);
         List<String> files = (List<String>)classCollector.getGeneratedFileInfo();
@@ -123,27 +120,25 @@ public class JAXBDataBinding implements DataBindingProfile {
                 return true;
             }
         }
-        return false;        
+        return false;
     }
 
-   
-    
     public void generate(ToolContext context) throws ToolException {
         initialize(context);
         if (rawJaxbModelGenCode == null) {
             return;
         }
-        
+
         try {
             String dir = (String)env.get(ToolConstants.CFG_OUTPUTDIR);
-             
+
             TypesCodeWriter fileCodeWriter = new TypesCodeWriter(new File(dir), env.getExcludePkgList());
 
             if (rawJaxbModelGenCode instanceof S2JJAXBModel) {
                 S2JJAXBModel schem2JavaJaxbModel = (S2JJAXBModel)rawJaxbModelGenCode;
-                //TODO : enable jaxb plugin
+                // TODO : enable jaxb plugin
                 JCodeModel jcodeModel = schem2JavaJaxbModel.generateCode(null, null);
-                
+
                 jcodeModel.build(fileCodeWriter);
                 env.put(JCodeModel.class, jcodeModel);
                 for (String str : fileCodeWriter.getExcludeFileList()) {
@@ -152,27 +147,35 @@ public class JAXBDataBinding implements DataBindingProfile {
             }
             return;
         } catch (IOException e) {
-            Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG); 
+            Message msg = new Message("FAIL_TO_GENERATE_TYPES", LOG);
             throw new ToolException(msg);
         }
     }
-    
+
     public String getType(QName qname) {
         Mapping mapping = rawJaxbModelGenCode.get(qname);
-        TypeAndAnnotation typeAnno = mapping.getType();
+
+        TypeAndAnnotation typeAnno = null;
+
+        if (mapping != null) {
+            typeAnno = mapping.getType();
+        } else {
+            typeAnno = rawJaxbModelGenCode.getJavaType(qname);
+        }
+
         if (typeAnno != null && typeAnno.getTypeClass() != null) {
             return typeAnno.getTypeClass().fullName();
         }
         return null;
-        
+
     }
-    
+
     public String getWrappedElementType(QName wrapperElement, QName item) {
         Mapping mapping = rawJaxbModelGenCode.get(wrapperElement);
         if (mapping != null) {
             List<? extends Property> propList = mapping.getWrapperStyleDrilldown();
             for (Property pro : propList) {
-                if (pro.elementName().getNamespaceURI().equals(item.getNamespaceURI()) 
+                if (pro.elementName().getNamespaceURI().equals(item.getNamespaceURI())
                     && pro.elementName().getLocalPart().equals(item.getLocalPart())) {
                     return pro.type().fullName();
                 }

@@ -52,13 +52,15 @@ import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     String toolName;
-
+    
+    
     public WSDLToJavaContainer(String name, ToolSpec toolspec) throws Exception {        
         super(name, toolspec);
         this.toolName = name;
@@ -83,12 +85,33 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     @SuppressWarnings("unchecked")
     public void execute(boolean exitOnFinish) throws ToolException {
         try {
-            super.execute(exitOnFinish);
+            if (getArgument() != null) {
+                super.execute(exitOnFinish);
+            }
             if (!hasInfoOption()) {
                 buildToolContext();
                 validate(context);
                 
                 FrontEndProfile frontend = context.get(FrontEndProfile.class);
+                
+                if (frontend == null) {
+                    String name = WSDLToJava.DEFAULT_FRONTEND_NAME;
+                    if (context.get(ToolConstants.CFG_FRONTEND) != null) {
+                        name = (String)context.get(ToolConstants.CFG_FRONTEND);
+                    }
+                    frontend = PluginLoader.getInstance().getFrontEndProfile(name);
+                    context.put(FrontEndProfile.class, frontend);
+                }
+                
+                DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
+                if (dataBindingProfile == null) {
+                    String name = WSDLToJava.DEFAULT_DATABINDING_NAME;
+                    if (context.get(ToolConstants.CFG_DATABINDING) != null) {
+                        name = (String)context.get(ToolConstants.CFG_DATABINDING);
+                    }
+                    dataBindingProfile = PluginLoader.getInstance().getDataBindingProfile(name);
+                    context.put(DataBindingProfile.class, dataBindingProfile);
+                }
                 
                 ToolConstants.WSDLVersion version = getWSDLVersion();
 
@@ -308,9 +331,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             context.put(ToolConstants.CFG_WSDL_VERSION, WSDLVersion.WSDL11);
         }
         
-        if (isVerboseOn()) {
+        /*if (isVerboseOn()) {
             context.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
-        }
+        }*/
 
         setExcludePackageAndNamespaces(context);
         loadDefaultNSPackageMapping(context);
@@ -388,6 +411,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (passthrough()) {
             return;
         }
-        context.get(DataBindingProfile.class).generate(context);
+        DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
+        dataBindingProfile.generate(context);
     }
 }

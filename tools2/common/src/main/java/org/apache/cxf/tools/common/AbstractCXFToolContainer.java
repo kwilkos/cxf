@@ -48,8 +48,8 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     private boolean verbose;
     private String usage;
     private final ErrorVisitor errors = new ErrorVisitor();
-
-
+    
+    
     public AbstractCXFToolContainer(String nm, ToolSpec toolspec) throws Exception {
         super(toolspec);
         name = nm;
@@ -61,6 +61,9 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     }
     public boolean hasInfoOption() throws ToolException {
         commandDocument = getCommandDocument();
+        if (commandDocument == null) {
+            return false;
+        }
         if ((commandDocument.hasParameter("help")) || (commandDocument.hasParameter("version"))) {
             return true;
         }
@@ -75,8 +78,7 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
             if (commandDocument.hasParameter("verbose")) {
                 verbose = true;
                 outputFullCommandLine();
-                outputVersion();
-                
+                outputVersion();               
             }
             checkParams(errors);
         }             
@@ -111,6 +113,9 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     public abstract void checkParams(ErrorVisitor err) throws ToolException;
 
     public boolean isVerboseOn() {
+        if (context != null && context.isVerbose()) {
+            return true;
+        }
         return verbose;
     }
 
@@ -257,6 +262,9 @@ public abstract class AbstractCXFToolContainer extends AbstractToolContainer {
     protected Map<String, Object> getParametersMap(Set stringArrayKeys) {
         Map<String, Object> map = new HashMap<String, Object>();
         CommandDocument doc = getCommandDocument();
+        if (doc == null) {
+            return map;
+        }
         String[] keys = doc.getParameterNames();
         if (keys == null) {
             return map;

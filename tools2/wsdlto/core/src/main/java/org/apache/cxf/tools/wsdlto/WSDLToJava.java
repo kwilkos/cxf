@@ -33,9 +33,11 @@ import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
 public class WSDLToJava {
 
+    
+    public static final String DEFAULT_FRONTEND_NAME = "jaxws";
+    public static final String DEFAULT_DATABINDING_NAME = "jaxb";
+    
     private static String[] args;
-    private static final String DEFAULT_FRONTEND_NAME = "jaxws";
-    private static final String DEFAULT_DATABINDING_NAME = "jaxb";
     
     private PluginLoader pluginLoader = PluginLoader.getInstance();
 
@@ -59,10 +61,16 @@ public class WSDLToJava {
         return pluginLoader.getDataBindingProfile(name);
     }
     
-    protected void run(ToolContext context) throws Exception {
-        context.put(ToolConstants.CFG_CMD_ARG, args);
+    public void run(ToolContext context) throws Exception {
+        FrontEndProfile frontend = null;
+        if (args != null) {
+            context.put(ToolConstants.CFG_CMD_ARG, args);
+            frontend = loadFrontEnd(getFrontEndName(args));
+        } else {
+            frontend = loadFrontEnd("");
+        }
         
-        FrontEndProfile frontend = loadFrontEnd(getFrontEndName(args));
+        
         context.put(FrontEndProfile.class, frontend);
                
         DataBindingProfile databinding = loadDataBinding(getDataBindingName(args));
@@ -87,6 +95,9 @@ public class WSDLToJava {
     }
     
     private static boolean isSet(String[] keys) {
+        if (args == null) {
+            return false;
+        }
         List<String> pargs = Arrays.asList(args);
         
         for (String key : keys) {

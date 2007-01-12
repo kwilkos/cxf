@@ -37,7 +37,7 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
-//import org.apache.cxf.tools.plugin.Generator;
+import org.apache.cxf.tools.plugin.Generator;
 import org.apache.cxf.tools.plugin.Plugin;
 
 public final class PluginLoader {
@@ -147,7 +147,7 @@ public final class PluginLoader {
         return frontend;
     }
 
-   /* private String getGeneratorClass(FrontEnd frontend, Generator generator) {
+    private String getGeneratorClass(FrontEnd frontend, Generator generator) {
         String fullPackage = generator.getPackage();
         if (StringUtils.isEmpty(fullPackage)) {
             fullPackage = frontend.getGenerators().getPackage();
@@ -156,13 +156,13 @@ public final class PluginLoader {
             fullPackage = frontend.getPackage();
         }
         return fullPackage + "." + generator.getName();
-    }*/
+    }
     
     private List<FrontEndGenerator> getFrontEndGenerators(FrontEnd frontend) {
         List<FrontEndGenerator> generators = new ArrayList<FrontEndGenerator>();
 
-        //String fullClzName = null;
-       /* try {
+        String fullClzName = null;
+        try {
             for (Generator generator : frontend.getGenerators().getGenerator()) {
                 fullClzName = getGeneratorClass(frontend, generator);
                 Class clz = this.getClass().getClassLoader().loadClass(fullClzName);
@@ -172,7 +172,7 @@ public final class PluginLoader {
             LOG.log(Level.SEVERE, "FRONTEND_PROFILE_LOAD_FAIL", fullClzName);
             Message msg = new Message("FRONTEND_PROFILE_LOAD_FAIL", LOG, fullClzName);
             throw new ToolException(msg, e);
-        }*/
+        }
         
         return generators;
     }

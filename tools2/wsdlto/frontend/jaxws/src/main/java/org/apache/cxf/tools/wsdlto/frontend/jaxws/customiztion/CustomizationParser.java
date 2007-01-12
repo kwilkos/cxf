@@ -487,5 +487,31 @@ public final class CustomizationParser {
     
     public Set<InputSource> getJaxbBindings() {
         return this.jaxbBindings;
-    }    
+    }
+    
+    public static JAXWSBinding mergeJawsBinding(JAXWSBinding binding1, JAXWSBinding binding2) {
+        if (binding1 != null && binding2 != null) {
+            if (binding2.isEnableAsyncMapping()) {
+                binding1.setEnableAsyncMapping(true);
+            }
+            if (binding2.isEnableWrapperStyle()) {
+                binding1.setEnableWrapperStyle(true);
+            }
+            if (binding2.isEnableMime()) {
+                binding1.setEnableMime(true);
+            }
+
+            if (binding2.getJaxwsClass() != null) {
+                binding1.setJaxwsClass(binding2.getJaxwsClass());
+            }
+
+            if (binding2.getJaxwsPara() != null) {
+                binding1.setJaxwsPara(binding2.getJaxwsPara());
+            }
+            return binding1;
+        }
+
+        return binding1 == null ? binding2 : binding1;
+    }
+    
 }
