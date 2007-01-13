@@ -47,5 +47,8 @@ public class HttpUriMapperTest extends TestCase {
         url = new URL("http://localhost:8080/SoapContext/SoapPort/");
         path = url.getPath();
         assertEquals("/", HttpUriMapper.getResourceBase(path));
+        url = new URL("http://localhost:8080/SoapPort");
+        path = url.getPath();
+        assertEquals("/SoapPort", HttpUriMapper.getResourceBase(path));
     }
 }
