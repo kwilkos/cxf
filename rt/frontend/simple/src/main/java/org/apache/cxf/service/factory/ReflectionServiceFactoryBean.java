@@ -64,7 +64,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.workqueue.SynchronousExecutor;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
@@ -357,12 +356,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             }
         }
         
-        TypeInfo typeInfo = serviceInfo.getTypeInfo();
-        if (typeInfo == null) {
-            typeInfo = new TypeInfo(serviceInfo);
-            serviceInfo.setTypeInfo(typeInfo);
-        }
-        
         Document[] docs;
         try {
             docs = XmlSchemaSerializer.serializeSchema(schema, false);
@@ -370,9 +363,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             throw new ServiceConstructionException(e1);
         }
         Element e = docs[0].getDocumentElement();
-        SchemaInfo schemaInfo = new SchemaInfo(typeInfo, getServiceNamespace());
+        SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, getServiceNamespace());
         schemaInfo.setElement(e);
-        typeInfo.addSchema(schemaInfo);
+        schemaInfo.setSchema(schema);
+        serviceInfo.addSchema(schemaInfo);
     }
 
     private void createWrappedMessage(MessageInfo wrappedMessage, 

@@ -399,7 +399,7 @@ public final class EndpointReferenceUtils {
             SchemaFactory factory = SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI);
             List<Source> schemaSources = new ArrayList<Source>();
-            for (SchemaInfo schemaInfo : serviceInfo.getTypeInfo().getSchemas()) {
+            for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
                 Source source = new DOMSource(schemaInfo.getElement());
                 source.setSystemId(schemaInfo.getElement().getBaseURI());
                 if (source != null) {

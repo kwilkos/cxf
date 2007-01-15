@@ -50,7 +50,6 @@ import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
-
 import org.apache.cxf.resource.XmlSchemaURIResolver;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -65,11 +64,9 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
-
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -129,10 +126,8 @@ public class WSDLServiceBuilder {
         service.setProperty(WSDL_DEFINITION, def);
         service.setProperty(WSDL_SERVICE, serv);
 
-        TypeInfo typeInfo = new TypeInfo(service);
-        XmlSchemaCollection schemas = getSchemas(def, typeInfo);
+        XmlSchemaCollection schemas = getSchemas(def, service);
         service.setProperty(WSDL_SCHEMA_LIST, schemas);
-        service.setTypeInfo(typeInfo);
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
         copyExtensors(service, def.getExtensibilityElements());
@@ -160,13 +155,13 @@ public class WSDLServiceBuilder {
         return service;
     }
 
-    private XmlSchemaCollection getSchemas(Definition def, TypeInfo typeInfo) {
+    private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);
-        extractSchema(def, schemaCol, typeInfo);
+        extractSchema(def, schemaCol, serviceInfo);
         for (Definition def2 : defList) {
-            extractSchema(def2, schemaCol, typeInfo);
+            extractSchema(def2, schemaCol, serviceInfo);
         }
         return schemaCol;
     }
@@ -184,7 +179,7 @@ public class WSDLServiceBuilder {
         }
     }
 
-    private void extractSchema(Definition def, XmlSchemaCollection schemaCol, TypeInfo typeInfo) {
+    private void extractSchema(Definition def, XmlSchemaCollection schemaCol, ServiceInfo serviceInfo) {
         Types typesElement = def.getTypes();
         if (typesElement != null) {
             for (Object obj : typesElement.getExtensibilityElements()) {
@@ -208,10 +203,11 @@ public class WSDLServiceBuilder {
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
                     schemaCol.setSchemaResolver(new XmlSchemaURIResolver());
                     XmlSchema xmlSchema = schemaCol.read(schemaElem);
-                    SchemaInfo schemaInfo = new SchemaInfo(typeInfo, xmlSchema.getTargetNamespace());
+                    
+                    SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, xmlSchema.getTargetNamespace());
                     schemaInfo.setElement(schemaElem);
-                    typeInfo.addSchema(schemaInfo);
-
+                    schemaInfo.setSchema(xmlSchema);
+                    serviceInfo.addSchema(schemaInfo);
                 }
             }
         }

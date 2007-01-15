@@ -71,7 +71,7 @@ public final class ServiceModelUtil {
         } else {
             tns = messagePartInfo.getTypeQName().getNamespaceURI();
         }
-        for (SchemaInfo schema : serviceInfo.getTypeInfo().getSchemas()) {
+        for (SchemaInfo schema : serviceInfo.getSchemas()) {
             if (tns.equals(schema.getNamespaceURI())) {
                 schemaInfo = schema;
             }

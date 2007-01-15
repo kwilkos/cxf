@@ -59,7 +59,6 @@ import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
@@ -195,12 +194,6 @@ public final class JAXBDataBinding implements DataBinding {
         col = new XmlSchemaCollection();
 
         try {
-            TypeInfo typeInfo = serviceInfo.getTypeInfo();
-            if (typeInfo == null) {
-                typeInfo = new TypeInfo(serviceInfo);
-                serviceInfo.setTypeInfo(typeInfo);
-            }
-
             for (DOMResult r : generateJaxbSchemas()) {
                 Document d = (Document)r.getNode();
                 String ns = d.getDocumentElement().getAttribute("targetNamespace");
@@ -224,9 +217,9 @@ public final class JAXBDataBinding implements DataBinding {
                     continue;
                 }
 
-                SchemaInfo schema = new SchemaInfo(typeInfo, ns);
+                SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
                 schema.setElement(d.getDocumentElement());
-                typeInfo.addSchema(schema);
+                serviceInfo.addSchema(schema);
                 col.read(d.getDocumentElement());
             }
         } catch (IOException e) {

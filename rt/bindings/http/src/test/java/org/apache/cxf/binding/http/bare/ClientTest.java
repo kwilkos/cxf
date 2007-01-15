@@ -70,7 +70,7 @@ public class ClientTest extends AbstractRestTest {
         
         customer = (Customer) objects[0];
         assertEquals("Dan Diephouse", customer.getName());
-        
+//        
 //        objects = client.invoke(new QName("http://cxf.apache.org/jra", "deleteCustomer"), 
 //        customer.getId());
 //        assertTrue(objects == null || objects.length == 0);

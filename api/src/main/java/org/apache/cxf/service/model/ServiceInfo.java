@@ -19,8 +19,10 @@
 
 package org.apache.cxf.service.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,10 +32,10 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     QName name;
     String targetNamespace;
     InterfaceInfo intf;
-    TypeInfo typeInfo;
     Map<QName, BindingInfo> bindings = new ConcurrentHashMap<QName, BindingInfo>(2);
     Map<QName, EndpointInfo> endpoints = new ConcurrentHashMap<QName, EndpointInfo>(2);
     Map<QName, MessageInfo> messages;
+    List<SchemaInfo> schemas = new ArrayList<SchemaInfo>(4);
     
     public ServiceInfo() {
     }
@@ -83,14 +85,6 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     public Collection<BindingInfo> getBindings() {
         return Collections.unmodifiableCollection(bindings.values());
     }
-
-    public TypeInfo getTypeInfo() {
-        return typeInfo;
-    }
-
-    public void setTypeInfo(TypeInfo typeInfo) {
-        this.typeInfo = typeInfo;
-    }
     
     public Map<QName, MessageInfo> getMessages() {
         if (messages != null) {
@@ -110,5 +104,22 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     
     public MessageInfo getMessage(QName qname) {
         return getMessages().get(qname);
+    }
+    
+    public void addSchema(SchemaInfo schemaInfo) {
+        schemas.add(schemaInfo);
+    }
+
+    public SchemaInfo getSchema(String namespaceURI) {
+        for (SchemaInfo s : schemas) {
+            if (s.getNamespaceURI().equals(namespaceURI)) {
+                return s;
+            }
+        }
+        return null;
+    }
+    
+    public Collection<SchemaInfo> getSchemas() {
+        return Collections.unmodifiableCollection(schemas);
     }
 }

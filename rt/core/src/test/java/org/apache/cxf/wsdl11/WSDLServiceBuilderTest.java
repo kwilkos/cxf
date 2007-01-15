@@ -55,7 +55,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.service.model.TypeInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
@@ -328,10 +327,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         XmlSchemaCollection schemas = serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST,
                 XmlSchemaCollection.class);
         assertNotNull(schemas);
-        TypeInfo typeInfo = serviceInfo.getTypeInfo();
-        assertNotNull(typeInfo);
-        assertEquals(typeInfo.getSchemas().size(), 1);
-        SchemaInfo schemaInfo = typeInfo.getSchemas().iterator().next();
+        assertEquals(serviceInfo.getSchemas().size(), 1);
+        SchemaInfo schemaInfo = serviceInfo.getSchemas().iterator().next();
         assertNotNull(schemaInfo);
         assertEquals(schemaInfo.getNamespaceURI(), "http://apache.org/hello_world_soap_http/types");
         assertEquals(schemas.read(schemaInfo.getElement()).getTargetNamespace(),
@@ -393,10 +390,8 @@ public class WSDLServiceBuilderTest extends TestCase {
             fout.close();
         }
         setUpWSDL(IMPORT_WSDL_PATH, 0);
-        TypeInfo types = serviceInfo.getTypeInfo();
-        assertNotNull(types);
-        assertNotNull(types.getSchemas());
-        Element ele = types.getSchemas().iterator().next().getElement();
+        assertNotNull(serviceInfo.getSchemas());
+        Element ele = serviceInfo.getSchemas().iterator().next().getElement();
         assertNotNull(ele);
         Schema schema = EndpointReferenceUtils.getSchema(serviceInfo);        
         assertNotNull(schema);        

@@ -34,7 +34,6 @@ public class SchemaInfoTest extends TestCase {
     }
     
     public void testConstructor() throws Exception {
-        assertNull(schemaInfo.getTypeInfo());
         assertNull(schemaInfo.getElement());
         assertEquals(schemaInfo.getNamespaceURI(),
                      "http://apache.org/hello_world_soap_http/types");

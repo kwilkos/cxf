@@ -21,19 +21,26 @@ package org.apache.cxf.service.model;
 
 import org.w3c.dom.Element;
 
+import org.apache.ws.commons.schema.XmlSchema;
+
 public final class SchemaInfo extends AbstractPropertiesHolder {
   
-    TypeInfo typeInfo;
+    ServiceInfo serviceInfo;
     String namespaceUri;
     Element element;
+    boolean isElementQualified;
+    boolean isAttributeQualified;
+    XmlSchema schema;
     
-    public SchemaInfo(TypeInfo typeInfo, String namespaceUri) {
-        this.typeInfo = typeInfo;
+    public SchemaInfo(ServiceInfo serviceInfo, String namespaceUri) {
+        this.serviceInfo = serviceInfo;
         this.namespaceUri = namespaceUri;
+        this.isElementQualified = false;
+        this.isAttributeQualified = false;
     }
     
-    public TypeInfo getTypeInfo() {
-        return typeInfo;
+    public ServiceInfo getServiceInfo() {
+        return serviceInfo;
     }
 
     public String getNamespaceURI() {
@@ -49,6 +56,30 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
     }
 
     public void setElement(Element element) {
-        this.element = element;
+        this.element = element;        
+        String form = element.getAttribute("elementFormDefault");
+        if ((form != null) && form.equals("qualified")) {
+            isElementQualified = true;
+        }
+        form = element.getAttribute("attributeFormDefault");
+        if ((form != null) && form.equals("qualified")) {
+            isAttributeQualified = true;
+        }
+    }
+
+    public boolean isElementFormQualified() {
+        return isElementQualified;
+    }
+
+    public boolean isAttributeFormQualified() {
+        return isAttributeQualified;
+    }
+
+    public XmlSchema getSchema() {
+        return schema;
+    }
+
+    public void setSchema(XmlSchema schema) {
+        this.schema = schema;
     }
 }

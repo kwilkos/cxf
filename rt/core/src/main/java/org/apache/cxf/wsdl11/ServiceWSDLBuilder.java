@@ -63,7 +63,6 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.service.model.TypeInfo;
 
 public final class ServiceWSDLBuilder {
     
@@ -99,8 +98,8 @@ public final class ServiceWSDLBuilder {
             definition.setQName(service.getName());
             definition.setTargetNamespace(service.getTargetNamespace());
             addExtensibiltyElements(definition, getWSDL11Extensors(service));
-            if (service.getTypeInfo() != null) {
-                buildTypes(service.getTypeInfo());
+            if (service.getSchemas() != null && service.getSchemas().size() > 0) {
+                buildTypes(service.getSchemas());
             }
             buildPortType(service.getInterface());
             buildBinding(service.getBindings());
@@ -123,9 +122,9 @@ public final class ServiceWSDLBuilder {
         }
     }
 
-    protected void buildTypes(TypeInfo typeInfo) {
+    protected void buildTypes(Collection<SchemaInfo> schemas) {
         Types types = definition.createTypes();
-        for (SchemaInfo schemaInfo : typeInfo.getSchemas()) {
+        for (SchemaInfo schemaInfo : schemas) {
             SchemaImpl schemaImpl = new SchemaImpl();
             schemaImpl.setRequired(true);
             schemaImpl.setElementType(SCHEMA_QNAME);
