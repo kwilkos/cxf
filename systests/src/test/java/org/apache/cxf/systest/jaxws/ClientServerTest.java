@@ -46,9 +46,12 @@ import org.w3c.dom.Node;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+//import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
+//import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
+//import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
@@ -164,6 +167,23 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
+    public void testGetPortOnePara() throws Exception {
+
+        Service service = Service.create(serviceName);
+        
+        Greeter greeter = service.getPort(Greeter.class);
+        String response = new String("Bonjour");
+         
+        try {
+            greeter.greetMe("test");
+            String reply = greeter.sayHi();
+            assertNotNull("no response received from service", reply);
+            assertEquals(response, reply);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
+
     public void testDocLitBareConnection() throws Exception {
         
         SOAPServiceDocLitBare service = new SOAPServiceDocLitBare();

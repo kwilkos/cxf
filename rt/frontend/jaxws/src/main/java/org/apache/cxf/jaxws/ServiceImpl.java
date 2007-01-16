@@ -33,6 +33,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
@@ -253,9 +254,28 @@ public class ServiceImpl extends ServiceDelegate {
 
         EndpointInfo ei = null;
         if (portName == null) {
-            if (1 == si.getEndpoints().size()) {
-                ei = si.getEndpoints().iterator().next();
-                pn = new QName(service.getName().getNamespaceURI(), ei.getName().getLocalPart());
+            if (1 <= si.getEndpoints().size()) {
+                Iterator it = si.getEndpoints().iterator();
+                if (1 == si.getEndpoints().size()) {
+                    ei = (EndpointInfo) it.next();
+                    pn = new QName(service.getName().getNamespaceURI(), ei.getName().getLocalPart());
+                } else {
+                    WebService webService = (WebService) serviceEndpointInterface
+                        .getAnnotation(WebService.class);
+                    String name = webService.name();
+                    String nameSpace = webService.targetNamespace();
+                    QName portTypeName = new QName(nameSpace, name);
+                    EndpointInfo epi = null;
+                    while (it.hasNext()) {
+                        epi = (EndpointInfo) it.next();
+                        //InterfaceInfo interfaceInfo = epi.getBinding().getInterface();
+                        if (epi.getBinding().getInterface().getName().equals(portTypeName)) {
+                            pn = new QName(service.getName().getNamespaceURI(), epi.getName().getLocalPart());
+                            ei = epi;
+                            break;
+                        }
+                    }
+                }
             }
         } else {
             // first check the endpointInfo from portInfos
