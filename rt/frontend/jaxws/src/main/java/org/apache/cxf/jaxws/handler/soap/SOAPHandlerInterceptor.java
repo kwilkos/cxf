@@ -86,6 +86,10 @@ public class SOAPHandlerInterceptor extends
     }
 
     public void handleMessage(SoapMessage message) {
+
+        if (getInvoker(message).getProtocolHandlers().isEmpty()) {
+            return;
+        }
         if (getInvoker(message).isOutbound()) {
             OutputStream os = message.getContent(OutputStream.class);
             CachedStream cs = new CachedStream();

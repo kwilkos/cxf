@@ -339,7 +339,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         } else {
             String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
             LOG.log(Level.WARNING, m);
-            throw new IOException(m);
+            throw new IOException(m);            
         }
 
         if (isOneWay(outMessage)) {
@@ -428,9 +428,11 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
          * reset output stream ... etc.)
          */
         protected void doFlush() throws IOException {
-            OutputStream responseStream = flushHeaders(outMessage);
-            if (null != responseStream && !alreadyFlushed()) {
-                resetOut(responseStream, true);
+            if (!alreadyFlushed()) {
+                OutputStream responseStream = flushHeaders(outMessage);
+                if (null != responseStream) {
+                    resetOut(responseStream, true);
+                }
             }
         }
 
