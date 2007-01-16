@@ -332,7 +332,7 @@ public final class CustomizationParser {
         } catch (URISyntaxException e2) {
             //ignore
         }
-        InputSource is = new InputSource(bindingFile);
+        InputSource is = new InputSource(bindingURI.toString());
         XMLStreamReader reader = StAXUtil.createFreshXMLStreamReader(is);
 
         StAXUtil.toStartTag(reader);

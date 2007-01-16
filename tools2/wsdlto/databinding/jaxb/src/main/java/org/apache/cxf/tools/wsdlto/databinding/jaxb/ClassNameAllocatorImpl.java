@@ -31,8 +31,10 @@ import org.apache.cxf.tools.util.URIParserUtil;
 public class ClassNameAllocatorImpl implements ClassNameAllocator {
     private static final String TYPE_SUFFIX = "_Type";
     private ClassCollector collector;
+
     public ClassNameAllocatorImpl(ClassCollector classCollector) {
         collector = classCollector;
+
     }
 
     private boolean isNameCollision(String packageName, String className) {

@@ -20,6 +20,7 @@ package org.apache.cxf.tools.wsdlto.databinding.jaxb;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
@@ -27,6 +28,7 @@ import java.util.logging.Logger;
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.xml.sax.InputSource;
@@ -42,6 +44,7 @@ import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -57,6 +60,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     private ToolContext env;
     private ServiceInfo serviceInfo;
     private Definition def;
+    private List<String> schemaSystemIds = new ArrayList<String>();
 
     @SuppressWarnings("unchecked")
     private void initialize(ToolContext penv) throws ToolException {
@@ -65,7 +69,9 @@ public class JAXBDataBinding implements DataBindingProfile {
         def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-
+        if (env.getPackageName() != null) {
+            schemaCompiler.setDefaultPackageName(env.getPackageName());
+        }
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
         allocator.setInterface(serviceInfo.getInterface(), env.mapPackageName(def.getTargetNamespace()));
@@ -74,14 +80,25 @@ public class JAXBDataBinding implements DataBindingProfile {
         JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
         schemaCompiler.setErrorListener(listener);
 
-        Collection<SchemaInfo> schemas = serviceInfo.getTypeInfo().getSchemas();
+        Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
 
         Collection<InputSource> jaxbBindings = env.getJaxbBindingFile().values();
 
         for (SchemaInfo schema : schemas) {
-            Element element = schema.getElement();
-            String tns = element.getAttribute("targetNamespace");
-            schemaCompiler.parseSchema(tns, element);
+            Document[] docs = schema.getSchema().getAllSchemas();
+            for (int i = 0; i < docs.length; i++) {
+                Element ele = docs[i].getDocumentElement();
+                String systemId = schema.getElement().getBaseURI();
+                String tns = ele.getAttribute("targetNamespace");              
+                if (StringUtils.isEmpty(tns)) {
+                    continue;
+                }
+                if (schemaSystemIds.contains(schema.getElement().getBaseURI())) {
+                    systemId = schema.getElement().getBaseURI() + "#" + tns;
+                } 
+                schemaCompiler.parseSchema(systemId, ele);
+            }
+            
         }
 
         for (InputSource binding : jaxbBindings) {

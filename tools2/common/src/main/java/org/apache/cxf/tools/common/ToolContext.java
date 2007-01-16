@@ -181,6 +181,9 @@ public class ToolContext {
         if (hasNamespace(ns)) {
             return mapNamespaceToPackageName(ns);
         } else {
+            if (getPackageName() != null) {
+                return getPackageName();
+            }
             String pkg = URIParserUtil.parsePackageName(ns, null);
             setPackageName(pkg);
             return pkg;

@@ -62,7 +62,7 @@ public class CodeGenTest extends ProcessorTestBase {
     }
 
     public void testRPCLit() throws Exception {
-       
+
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_rpc_lit.wsdl"));
         processor.setContext(env);
         processor.execute(false);
@@ -274,7 +274,6 @@ public class CodeGenTest extends ProcessorTestBase {
 
     }
 
-    
     public void testDocLitHolder() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/mapping-doc-literal.wsdl"));
         processor.setContext(env);
@@ -297,7 +296,131 @@ public class CodeGenTest extends ProcessorTestBase {
         webParamAnno = AnnotationUtil.getWebParam(method, "z");
         assertEquals("OUT", webParamAnno.mode().name());
     }
-     
+
+    public void testSchemaImport() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
+        
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File[] files = apache.listFiles();
+        assertEquals(2, files.length);
+        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
+        assertTrue(helloworldsoaphttp.exists());
+        File types = new File(helloworldsoaphttp, "types");
+        assertTrue(types.exists());
+        files = helloworldsoaphttp.listFiles();
+        assertEquals(1, files.length);
+        files = types.listFiles();
+        assertEquals(files.length, 10);
+        File schemaImport = new File(apache, "schema_import");
+        assertTrue(schemaImport.exists());
+        files = schemaImport.listFiles();
+        assertEquals(4, files.length);
+
+        Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
+        assertEquals(4, clz.getMethods().length);
+
+        Method method = clz.getMethod("pingMe", new Class[] {});
+        assertEquals("void", method.getReturnType().getSimpleName());
+        assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
+
+    }
+
+    public void testExceptionNameCollision() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer.wsdl"));
+
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File invoiceserver = new File(apache, "invoiceserver");
+        assertTrue(invoiceserver.exists());
+        File invoice = new File(apache, "invoice");
+        assertTrue(invoice.exists());
+
+        File exceptionCollision = new File(invoiceserver, "NoSuchCustomerFault_Exception.java");
+        assertTrue(exceptionCollision.exists());
+
+        File[] files = invoiceserver.listFiles();
+        assertEquals(13, files.length);
+        files = invoice.listFiles();
+        assertEquals(files.length, 9);
+
+        Class clz = classLoader.loadClass("org.apache.invoiceserver.InvoiceServer");
+        assertEquals(3, clz.getMethods().length);
+
+        Method method = clz.getMethod("getInvoicesForCustomer", new Class[] {String.class, String.class});
+        assertEquals("NoSuchCustomerFault_Exception", method.getExceptionTypes()[0].getSimpleName());
+
+    }
+
+    public void testAllNameCollision() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_collision.wsdl"));
+        env.setPackageName("org.apache");
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+
+        File[] files = apache.listFiles();
+        assertEquals(14, files.length);
+
+        File typeCollision = new File(apache, "Greeter_Type.java");
+        assertTrue(typeCollision.exists());
+        File exceptionCollision = new File(apache, "Greeter_Exception.java");
+        assertTrue(exceptionCollision.exists());
+        File serviceCollision = new File(apache, "Greeter_Service.java");
+        assertTrue(serviceCollision.exists());
+
+        Class clz = classLoader.loadClass("org.apache.Greeter");
+        assertTrue("SEI class Greeter modifier should be interface", clz.isInterface());
+
+        clz = classLoader.loadClass("org.apache.Greeter_Exception");
+        clz = classLoader.loadClass("org.apache.Greeter_Service");
+    }
+
+    public void testImportNameCollision() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL,
+                getLocation("/wsdl2java_wsdl/helloworld-portname_servicename.wsdl"));
+        env.setPackageName("org.apache");
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+
+        File[] files = apache.listFiles();
+        assertEquals(4, files.length);
+
+        File serviceCollision = new File(apache, "HelloWorldServiceImpl_Service.java");
+        assertTrue(serviceCollision.exists());
+
+        Class clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl");
+        assertTrue("SEI class HelloWorldServiceImpl modifier should be interface", clz.isInterface());
+
+        clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl_Service");
+    }
 
     private String getLocation(String wsdlFile) {
         return this.getClass().getResource(wsdlFile).getFile();

@@ -83,7 +83,7 @@
         </dependency>
 
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
             <scope>runtime</scope>
         </dependency>
