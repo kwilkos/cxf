@@ -34,7 +34,7 @@ import javax.wsdl.extensions.mime.MIMEPart;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class MIMEBindingValidator
-    extends AbstractValidator {
+    extends AbstractDefinitionValidator {
 
     public MIMEBindingValidator(Definition def) {
         super(def);

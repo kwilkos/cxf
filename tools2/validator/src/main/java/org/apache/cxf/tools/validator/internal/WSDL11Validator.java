@@ -44,7 +44,7 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 
-public class WSDL11Validator extends AbstractValidator {
+public class WSDL11Validator extends AbstractDefinitionValidator {
 
     private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
 
@@ -89,7 +89,7 @@ public class WSDL11Validator extends AbstractValidator {
         validators.add(new UniqueBodyPartsValidator(this.def));
         validators.add(new WSIBPValidator(this.def));
         validators.add(new MIMEBindingValidator(this.def));
-        validators.add(new XMLFormatValidator(this.def));
+        //validators.add(new XMLFormatValidator(this.def));
 
         for (AbstractValidator validator : validators) {
             if (!validator.isValid()) {

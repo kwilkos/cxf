@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -49,12 +50,14 @@ import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
 import org.apache.cxf.tools.common.toolspec.parser.ErrorVisitor;
 import org.apache.cxf.tools.util.ClassCollector;
+import org.apache.cxf.tools.validator.internal.AbstractValidator;
+import org.apache.cxf.tools.validator.internal.ServiceValidator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
-
+    
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
@@ -124,6 +127,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                         (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
                     builder.setContext(context);
                     Definition definition = builder.build(wsdlURL);
+                    
                     builder.customize();
                     context.put(Definition.class, builder.getWSDLModel());
                     if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
@@ -132,12 +136,14 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
                     WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
                     service = serviceBuilder.buildService(definition, getServiceQName(definition));
-                    context.put(ServiceInfo.class, service);
                     context.put(ClassCollector.class, new ClassCollector());
                 } else {
                     // TODO: wsdl2.0 support
                 }
-
+                context.put(ServiceInfo.class, service);
+                if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+                    validate(service);
+                }
                 // Generate types
                 
                 generateTypes();                
@@ -413,5 +419,15 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
         DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
         dataBindingProfile.generate(context);
+    }
+
+    public void validate(ServiceInfo service) throws ToolException {
+        ServiceValidator validator = new ServiceValidator();
+        validator.addValidators(getServiceValidators());
+        validator.isValid();
+    }
+
+    public List<AbstractValidator> getServiceValidators() {
+        return new ArrayList<AbstractValidator>();
     }
 }

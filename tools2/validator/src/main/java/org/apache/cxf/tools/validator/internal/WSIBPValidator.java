@@ -39,7 +39,7 @@ import org.apache.cxf.tools.common.extensions.soap.SoapBody;
 import org.apache.cxf.tools.common.extensions.soap.SoapHeader;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 
-public class WSIBPValidator extends AbstractValidator {
+public class WSIBPValidator extends AbstractDefinitionValidator {
     private List<String> operationMap = new ArrayList<String>();
     private WSDLHelper wsdlHelper = new WSDLHelper();
     

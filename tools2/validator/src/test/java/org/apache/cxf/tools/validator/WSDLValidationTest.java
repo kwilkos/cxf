@@ -24,6 +24,8 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import org.apache.cxf.tools.common.ToolTestBase;
+//import org.apache.cxf.wsdl11.WSDLBuilder;
+//import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 
 public class WSDLValidationTest extends ToolTestBase {
     public void setUp() {
@@ -140,7 +142,7 @@ public class WSDLValidationTest extends ToolTestBase {
         }
 
     }
-    
+
     private String getLocation(String wsdlFile) throws IOException {
         Enumeration<URL> e = WSDLValidationTest.class.getClassLoader().getResources(wsdlFile);
         while (e.hasMoreElements()) {

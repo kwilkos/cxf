@@ -19,31 +19,29 @@
 
 package org.apache.cxf.tools.validator.internal;
 
-import java.util.List;
-import java.util.Vector;
-
+import javax.wsdl.Definition;
+import javax.xml.stream.Location;
 import org.apache.cxf.tools.common.ToolContext;
 
-public abstract class AbstractValidator {
-    protected List<String> errorMessages = new Vector<String>();
-    protected ToolContext env;
-    
-    public AbstractValidator() {
-        
-    }
-    
-    public abstract boolean isValid();
+public abstract class AbstractDefinitionValidator extends AbstractValidator {
+    protected Definition def;
 
-    public void addErrorMessage(String err) {
-        errorMessages.add(err);
+    public AbstractDefinitionValidator() {
+        super();
     }
 
-    public String getErrorMessage() {
-        StringBuffer strbuffer = new StringBuffer();
-        for (int i = 0; i < errorMessages.size(); i++) {
-            strbuffer.append(errorMessages.get(i));
-            strbuffer.append(System.getProperty("line.separator"));
-        }
-        return strbuffer.toString();
+    public AbstractDefinitionValidator(Definition definition) {
+        this.def = definition;
+    }
+
+    public AbstractDefinitionValidator(Definition definition, ToolContext pEnv) {
+        this.def = definition;
+        this.env = pEnv;
+    }
+
+    public void addError(Location loc, String msg) {
+        String errMsg = loc != null ? "line " + loc.getLineNumber() + " of " : "";
+        errMsg = errMsg + def.getDocumentBaseURI() + " " + msg;
+        addErrorMessage(errMsg);
     }
 }

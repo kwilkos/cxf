@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -323,6 +324,9 @@ public class ServiceProcessor extends AbstractProcessor {
         List<ExtensibilityElement> inbindings = null;
         if (operation.getInput() != null) {
             inbindings = operation.getInput().getExtensors(ExtensibilityElement.class);
+            if (inbindings == null) {
+                inbindings = new ArrayList<ExtensibilityElement>();
+            }
         }
         String use = null;
         for (ExtensibilityElement ext : inbindings) {
@@ -367,6 +371,9 @@ public class ServiceProcessor extends AbstractProcessor {
         if (operation.getOutput() != null) {
             List<ExtensibilityElement> outbindings =
                 operation.getOutput().getExtensors(ExtensibilityElement.class);
+            if (outbindings == null) {
+                outbindings = new ArrayList<ExtensibilityElement>();
+            }
             for (ExtensibilityElement ext : outbindings) {
                 if (SOAPBindingUtil.isSOAPHeader(ext)) {
                     SoapHeader soapHeader = SOAPBindingUtil.getSoapHeader(ext);
@@ -454,15 +461,18 @@ public class ServiceProcessor extends AbstractProcessor {
 
         // begin process input
         if (bop.getInput() != null) {
-            for (ExtensibilityElement ext : bop.getInput().getExtensors(ExtensibilityElement.class)) {
-                if (SOAPBindingUtil.isSOAPBody(ext)) {
-                    bodyMessage = getMessage(operationName, true);
-                }
-                if (SOAPBindingUtil.isSOAPHeader(ext)) {
-                    header = SOAPBindingUtil.getSoapHeader(ext);
-                    headerMessage = header.getMessage();
-                    if (header.getPart().length() > 0) {
-                        containParts = true;
+            List<ExtensibilityElement> extensors = bop.getInput().getExtensors(ExtensibilityElement.class);
+            if (extensors != null) {
+                for (ExtensibilityElement ext : extensors) {
+                    if (SOAPBindingUtil.isSOAPBody(ext)) {
+                        bodyMessage = getMessage(operationName, true);
+                    }
+                    if (SOAPBindingUtil.isSOAPHeader(ext)) {
+                        header = SOAPBindingUtil.getSoapHeader(ext);
+                        headerMessage = header.getMessage();
+                        if (header.getPart().length() > 0) {
+                            containParts = true;
+                        }
                     }
                 }
             }
@@ -484,15 +494,18 @@ public class ServiceProcessor extends AbstractProcessor {
 
         // process output
         if (bop.getOutput() != null) {
-            for (ExtensibilityElement ext : bop.getOutput().getExtensors(ExtensibilityElement.class)) {
-                if (SOAPBindingUtil.isSOAPBody(ext)) {
-                    bodyMessage = getMessage(operationName, false);
-                }
-                if (SOAPBindingUtil.isSOAPHeader(ext)) {
-                    header = SOAPBindingUtil.getSoapHeader(ext);
-                    headerMessage = header.getMessage();
-                    if (header.getPart().length() > 0) {
-                        containParts = true;
+            List<ExtensibilityElement> extensors = bop.getOutput().getExtensors(ExtensibilityElement.class);
+            if (extensors != null) {
+                for (ExtensibilityElement ext : extensors) {
+                    if (SOAPBindingUtil.isSOAPBody(ext)) {
+                        bodyMessage = getMessage(operationName, false);
+                    }
+                    if (SOAPBindingUtil.isSOAPHeader(ext)) {
+                        header = SOAPBindingUtil.getSoapHeader(ext);
+                        headerMessage = header.getMessage();
+                        if (header.getPart().length() > 0) {
+                            containParts = true;
+                        }
                     }
                 }
             }

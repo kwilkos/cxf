@@ -66,7 +66,7 @@ import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 
-public class SchemaValidator extends AbstractValidator {
+public class SchemaValidator extends AbstractDefinitionValidator {
     
     protected static final Logger LOG = LogUtils.getL7dLogger(SchemaValidator.class);
     
@@ -86,13 +86,11 @@ public class SchemaValidator extends AbstractValidator {
     
 
     public SchemaValidator(String schemaDir) throws ToolException {
-        super(schemaDir);
         schemaLocation = schemaDir;
         defaultSchemas = getDefaultSchemas();
     }
 
     public SchemaValidator(String schemaDir, String wsdl, String[] schemas) throws ToolException {
-        super(schemaDir);
         schemaLocation = schemaDir;
         defaultSchemas = getDefaultSchemas();
         wsdlsrc = wsdl;

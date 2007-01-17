@@ -30,7 +30,7 @@ import javax.wsdl.Part;
 import javax.wsdl.PortType;
 import javax.xml.namespace.QName;
 
-public class UniqueBodyPartsValidator extends AbstractValidator {
+public class UniqueBodyPartsValidator extends AbstractDefinitionValidator {
     private Map<QName, String> uniqueBodyPartsMap;
 
     public UniqueBodyPartsValidator(Definition def) {

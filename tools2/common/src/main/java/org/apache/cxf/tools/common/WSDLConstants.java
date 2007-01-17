@@ -106,4 +106,5 @@ public final class WSDLConstants {
     public static final int RPC_WRAPPED = 3;
     public static final int ERORR_STYLE_USE = -1;
 
+    public static final String XML_BINDING_NS = "http://cxf.apache.org/bindings/xformat";
 }

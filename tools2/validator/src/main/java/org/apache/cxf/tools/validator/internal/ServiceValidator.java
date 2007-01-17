@@ -19,31 +19,30 @@
 
 package org.apache.cxf.tools.validator.internal;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
-import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.common.ToolException;
 
-public abstract class AbstractValidator {
-    protected List<String> errorMessages = new Vector<String>();
-    protected ToolContext env;
-    
-    public AbstractValidator() {
-        
-    }
-    
-    public abstract boolean isValid();
+public class ServiceValidator extends AbstractValidator {
+    private final List<AbstractValidator> validators = new ArrayList<AbstractValidator>();
 
-    public void addErrorMessage(String err) {
-        errorMessages.add(err);
+    public ServiceValidator() {
     }
 
-    public String getErrorMessage() {
-        StringBuffer strbuffer = new StringBuffer();
-        for (int i = 0; i < errorMessages.size(); i++) {
-            strbuffer.append(errorMessages.get(i));
-            strbuffer.append(System.getProperty("line.separator"));
+    public void addValidators(List<AbstractValidator> v) {
+        validators.addAll(v);
+    }
+    
+    public boolean isValid() throws ToolException {
+        System.err.println("==== servicevalidator");
+        for (AbstractValidator validator : validators) {
+            System.err.println("validator: " + validator.getClass());
+            if (!validator.isValid()) {
+                addErrorMessage(validator.getErrorMessage());
+                throw new ToolException(this.getErrorMessage());
+            }
         }
-        return strbuffer.toString();
+        return true;
     }
 }
