@@ -108,14 +108,13 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         if (!context.containsKey(ToolConstants.CFG_BINDING)) {
             return;
         }
-        cusParser = CustomizationParser.getInstance();
+        cusParser = new CustomizationParser();
         cusParser.parse(context);
         jaxbBindings = cusParser.getJaxbBindings();
         handlerChain = cusParser.getHandlerChains();
 
         context.put(ToolConstants.NS_JAXB_BINDINGS, jaxbBindings);
         context.put(ToolConstants.HANDLER_CHAIN, handlerChain);
-
         try {
             this.wsdlDefinition = buildCustomizedDefinition();
         } catch (Exception e) {

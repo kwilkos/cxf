@@ -460,7 +460,8 @@ public class ServiceProcessor extends AbstractProcessor {
         int result = this.noHEADER;
 
         // begin process input
-        if (bop.getInput() != null) {
+        if (bop.getInput() != null 
+            && bop.getInput().getExtensors(ExtensibilityElement.class) != null) {
             List<ExtensibilityElement> extensors = bop.getInput().getExtensors(ExtensibilityElement.class);
             if (extensors != null) {
                 for (ExtensibilityElement ext : extensors) {
@@ -493,7 +494,7 @@ public class ServiceProcessor extends AbstractProcessor {
         containParts = false;
 
         // process output
-        if (bop.getOutput() != null) {
+        if (bop.getOutput() != null && bop.getOutput().getExtensors(ExtensibilityElement.class) != null) {
             List<ExtensibilityElement> extensors = bop.getOutput().getExtensors(ExtensibilityElement.class);
             if (extensors != null) {
                 for (ExtensibilityElement ext : extensors) {

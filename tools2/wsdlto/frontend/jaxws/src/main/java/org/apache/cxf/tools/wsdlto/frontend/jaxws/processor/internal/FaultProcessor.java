@@ -67,13 +67,14 @@ public class FaultProcessor extends AbstractProcessor {
         JavaModel model = method.getInterface().getJavaModel();
         String name = NameUtil.mangleNameToClassName(faultMessage.getName().getLocalPart());
         //Fix issue 305770
+        
         String namespace = faultMessage.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Exception";
         }
-        
+                
         String fullClassName = packageName + "." + name;
         collector.addExceptionClassName(packageName, name, fullClassName);        
 

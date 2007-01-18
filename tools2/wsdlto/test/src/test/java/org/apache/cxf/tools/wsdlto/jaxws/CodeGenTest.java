@@ -22,19 +22,26 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+
+//import javax.jws.HandlerChain;
+import javax.jws.HandlerChain;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import javax.xml.ws.WebFault;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.WSDLToJavaContainer;
+
+
 
 public class CodeGenTest extends ProcessorTestBase {
     private WSDLToJavaContainer processor;
@@ -59,13 +66,14 @@ public class CodeGenTest extends ProcessorTestBase {
     public void tearDown() {
         super.tearDown();
         processor = null;
+        env = null;
     }
 
     public void testRPCLit() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_rpc_lit.wsdl"));
         processor.setContext(env);
-        processor.execute(false);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -112,7 +120,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testAsynMethod() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_async.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -146,7 +154,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testHelloWorldSoap12() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_soap12.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -203,7 +211,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testHelloWorld() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -277,7 +285,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testDocLitHolder() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/mapping-doc-literal.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
         assertNotNull(output);
         File org = new File(output, "org");
         assertTrue(org.exists());
@@ -301,7 +309,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
         
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -337,7 +345,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer.wsdl"));
 
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -370,7 +378,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_collision.wsdl"));
         env.setPackageName("org.apache");
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -401,7 +409,7 @@ public class CodeGenTest extends ProcessorTestBase {
                 getLocation("/wsdl2java_wsdl/helloworld-portname_servicename.wsdl"));
         env.setPackageName("org.apache");
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -422,6 +430,197 @@ public class CodeGenTest extends ProcessorTestBase {
         clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl_Service");
     }
 
+    public void testSoapHeader() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/soap_header.wsdl"));
+        env.setPackageName("org.apache");
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+
+        File[] files = apache.listFiles();
+        assertEquals(12, files.length);
+
+        Class clz = classLoader.loadClass("org.apache.HeaderTester");
+        assertEquals(3, clz.getMethods().length);
+
+        SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
+        assertEquals("BARE", soapBindingAnno.parameterStyle().name());
+        assertEquals("LITERAL", soapBindingAnno.use().name());
+        assertEquals("DOCUMENT", soapBindingAnno.style().name());
+
+        Class para = classLoader.loadClass("org.apache.InoutHeader");
+
+        Method method = clz.getMethod("inoutHeader", new Class[] {para, Holder.class});
+
+        soapBindingAnno = AnnotationUtil.getPrivMethodAnnotation(method, SOAPBinding.class);
+        assertEquals("BARE", soapBindingAnno.parameterStyle().name());
+        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "SOAPHeaderInfo");
+        assertEquals("INOUT", webParamAnno.mode().name());
+        assertEquals(true, webParamAnno.header());
+        assertEquals("header_info", webParamAnno.partName());
+
+    }
+
+    public void testHolderHeader() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_holder.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+
+        Class clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
+        assertEquals(1, clz.getMethods().length);
+
+        SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
+        assertEquals("BARE", soapBindingAnno.parameterStyle().name());
+        assertEquals("LITERAL", soapBindingAnno.use().name());
+        assertEquals("DOCUMENT", soapBindingAnno.style().name());
+
+        Class para = classLoader.loadClass("org.apache.hello_world_holder.types.GreetMe");
+        Method method = clz.getMethod("sayHi", new Class[] {Holder.class, para});
+        assertEquals("GreetMeResponse", method.getReturnType().getSimpleName());
+
+        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "greetMe");
+        assertEquals(true, webParamAnno.header());
+
+        webParamAnno = AnnotationUtil.getWebParam(method, "sayHi");
+        assertEquals("INOUT", webParamAnno.mode().name());
+
+    }
+
+
+    public void testWSAddress() throws Exception {
+        env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "ws.address");
+        env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/ws_address_binding.wsdl"));
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_addr.wsdl"));
+        
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+
+        File ws = new File(output, "ws");
+        assertTrue(ws.exists());
+        File address = new File(ws, "address");
+        assertTrue(address.exists());
+
+        File[] files = address.listFiles();
+        assertEquals(5, files.length);
+        File handlerConfig = new File(address, "Greeter_handler.xml");
+        assertTrue(handlerConfig.exists());
+
+        Class clz = classLoader.loadClass("ws.address.Greeter");
+        HandlerChain handlerChainAnno = AnnotationUtil.getPrivClassAnnotation(clz, HandlerChain.class);
+        assertEquals("Greeter_handler.xml", handlerChainAnno.file());
+        assertNotNull("Handler chain xml generate fail!", 
+                      classLoader.getResource("ws/address/Greeter_handler.xml"));
+    }
+ 
+    
+
+    public void testSupportXMLBindingBare() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_bare.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
+    
+    public void testSupportXMLBindingWrapped() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_wrapped.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+    }
+
+    
+    public void testRouterWSDL() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/router.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+    }
+    
+    public void testVoidInOutMethod() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/interoptestdoclit.wsdl"));
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File soapinterop = new File(org, "soapinterop");
+        assertTrue(soapinterop.exists());
+        File wsdlinterop = new File(soapinterop, "wsdlinteroptestdoclit");
+        assertTrue(wsdlinterop.exists());
+        File xsd = new File(soapinterop, "xsd");
+        assertTrue(xsd.exists());
+        File[] files = wsdlinterop.listFiles();
+        assertEquals(3, files.length);
+        files = xsd.listFiles();
+        assertEquals(4, files.length);
+
+        Class clz = classLoader
+            .loadClass("org.soapinterop.wsdlinteroptestdoclit.WSDLInteropTestDocLitPortType");
+
+        Method method = clz.getMethod("echoVoid", new Class[] {});
+        WebMethod webMethodAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebMethod.class);
+        assertEquals(method.getName() + "()" + " Annotation : WebMethod.operationName ", "echoVoid",
+                     webMethodAnno.operationName());
+    }
+
+    public void testWsdlImport() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_wsdl_import.wsdl"));
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+
+        File helloWorld = new File(apache, "hello_world");
+        assertTrue(helloWorld.exists());
+
+        Class clz = classLoader.loadClass("org.apache.hello_world.Greeter");
+        assertEquals(3, clz.getMethods().length);
+
+        Method method = clz.getMethod("pingMe", new Class[] {});
+        assertEquals("void", method.getReturnType().getSimpleName());
+        assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
+        assertEquals("org.apache.hello_world.messages.PingMeFault", method.getExceptionTypes()[0]
+            .getCanonicalName());
+    }
+
+    public void testWebFault() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer-issue305570.wsdl"));
+        processor.setContext(env);
+        processor.execute(true);
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File invoiceserver = new File(apache, "invoiceserver");
+        assertTrue(invoiceserver.exists());
+        File invoice = new File(apache, "invoice");
+        assertTrue(invoice.exists());
+
+        Class clz = classLoader.loadClass("org.apache.invoiceserver.NoSuchCustomerFault");
+        WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
+        assertEquals("WebFault annotaion name attribute error", "NoSuchCustomer", webFault.name());
+
+    }
+
+    
+    
     private String getLocation(String wsdlFile) {
         return this.getClass().getResource(wsdlFile).getFile();
     }

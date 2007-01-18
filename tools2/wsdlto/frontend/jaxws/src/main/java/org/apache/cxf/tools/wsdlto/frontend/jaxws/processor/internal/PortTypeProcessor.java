@@ -23,11 +23,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
+
 import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
 
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaInterface;
@@ -53,6 +57,9 @@ public class PortTypeProcessor extends AbstractProcessor {
 
         JavaInterface intf = new InterfaceMapper(context).map(interfaceInfo);
         intf.setJavaModel(jmodel);
+        Element handler = (Element)context.get(ToolConstants.HANDLER_CHAIN);
+        intf.setHandlerChains(handler);
+        
         
         Collection<OperationInfo> operations = interfaceInfo.getOperations();
        

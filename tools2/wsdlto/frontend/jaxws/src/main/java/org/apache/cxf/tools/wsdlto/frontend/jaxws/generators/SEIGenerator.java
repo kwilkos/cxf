@@ -56,8 +56,8 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
 
     private boolean hasHandlerConfig(JavaInterface intf) {
         //TODO : enbale handler chain
-        //return intf.getHandlerChains() != null;
-        return false;
+        return intf.getHandlerChains() != null;
+        
     }
 
     public void generate(ToolContext penv) throws ToolException {
@@ -89,6 +89,7 @@ public class SEIGenerator extends AbstractJAXWSGenerator {
             setCommonAttributes();
 
             doWrite(SEI_TEMPLATE, parseOutputName(intf.getPackageName(), intf.getName()));
+
         }
     }
 }

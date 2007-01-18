@@ -30,12 +30,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Logger;
+
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
@@ -57,9 +60,10 @@ import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
 import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
+
     
 public class WSDLToJavaContainer extends AbstractCXFToolContainer {
-
+    protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     String toolName;
     
@@ -86,88 +90,97 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
     
     @SuppressWarnings("unchecked")
+    public void execute() throws ToolException {
+        if (!hasInfoOption()) {
+            buildToolContext();
+            validate(context);
+            
+            FrontEndProfile frontend = context.get(FrontEndProfile.class);
+            
+            if (frontend == null) {
+                String name = WSDLToJava.DEFAULT_FRONTEND_NAME;
+                if (context.get(ToolConstants.CFG_FRONTEND) != null) {
+                    name = (String)context.get(ToolConstants.CFG_FRONTEND);
+                }
+                frontend = PluginLoader.getInstance().getFrontEndProfile(name);
+                context.put(FrontEndProfile.class, frontend);
+            }
+            
+            DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
+            if (dataBindingProfile == null) {
+                String name = WSDLToJava.DEFAULT_DATABINDING_NAME;
+                if (context.get(ToolConstants.CFG_DATABINDING) != null) {
+                    name = (String)context.get(ToolConstants.CFG_DATABINDING);
+                }
+                dataBindingProfile = PluginLoader.getInstance().getDataBindingProfile(name);
+                context.put(DataBindingProfile.class, dataBindingProfile);
+            }
+            
+            ToolConstants.WSDLVersion version = getWSDLVersion();
+
+            ServiceInfo service = null;
+            String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
+            
+            // Build the ServiceModel from the WSDLModel
+            if (version == ToolConstants.WSDLVersion.WSDL11) {
+                AbstractWSDLBuilder<Definition> builder =
+                    (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
+                builder.setContext(context);
+                Definition definition = builder.build(wsdlURL);
+                
+                builder.customize();
+                context.put(Definition.class, builder.getWSDLModel());
+                if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+                    builder.validate(definition);
+                }
+
+                WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
+                service = serviceBuilder.buildService(definition, getServiceQName(definition));
+                context.put(ClassCollector.class, new ClassCollector());
+            } else {
+                // TODO: wsdl2.0 support
+            }
+            context.put(ServiceInfo.class, service);
+            if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
+                validate(service);
+            }
+            // Generate types
+            
+            generateTypes();                
+
+            // Build the JavaModel from the ServiceModel
+            context.put(ServiceInfo.class, service);
+            Processor processor = frontend.getProcessor();
+            processor.setEnvironment(context);
+            processor.process();
+
+            // Generate artifacts                
+            for (FrontEndGenerator generator : frontend.getGenerators()) {
+                generator.generate(context);
+            }
+
+            // Build projects: compile classes and copy resources etc.
+            if (context.optionSet(ToolConstants.CFG_COMPILE)) {
+                new ClassUtils().compile(context);
+            }
+
+            if (context.isExcludeNamespaceEnabled()) {
+                try {
+                    removeExcludeFiles();
+                } catch (IOException e) {
+                    throw new ToolException(e);
+                }
+            }
+        } 
+    }
+
     public void execute(boolean exitOnFinish) throws ToolException {
         try {
             if (getArgument() != null) {
                 super.execute(exitOnFinish);
             }
-            if (!hasInfoOption()) {
-                buildToolContext();
-                validate(context);
-                
-                FrontEndProfile frontend = context.get(FrontEndProfile.class);
-                
-                if (frontend == null) {
-                    String name = WSDLToJava.DEFAULT_FRONTEND_NAME;
-                    if (context.get(ToolConstants.CFG_FRONTEND) != null) {
-                        name = (String)context.get(ToolConstants.CFG_FRONTEND);
-                    }
-                    frontend = PluginLoader.getInstance().getFrontEndProfile(name);
-                    context.put(FrontEndProfile.class, frontend);
-                }
-                
-                DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
-                if (dataBindingProfile == null) {
-                    String name = WSDLToJava.DEFAULT_DATABINDING_NAME;
-                    if (context.get(ToolConstants.CFG_DATABINDING) != null) {
-                        name = (String)context.get(ToolConstants.CFG_DATABINDING);
-                    }
-                    dataBindingProfile = PluginLoader.getInstance().getDataBindingProfile(name);
-                    context.put(DataBindingProfile.class, dataBindingProfile);
-                }
-                
-                ToolConstants.WSDLVersion version = getWSDLVersion();
-
-                ServiceInfo service = null;
-                String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
-                
-                // Build the ServiceModel from the WSDLModel
-                if (version == ToolConstants.WSDLVersion.WSDL11) {
-                    AbstractWSDLBuilder<Definition> builder =
-                        (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
-                    builder.setContext(context);
-                    Definition definition = builder.build(wsdlURL);
-                    
-                    builder.customize();
-                    context.put(Definition.class, builder.getWSDLModel());
-                    if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
-                        builder.validate(definition);
-                    }
-
-                    WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
-                    service = serviceBuilder.buildService(definition, getServiceQName(definition));
-                    context.put(ClassCollector.class, new ClassCollector());
-                } else {
-                    // TODO: wsdl2.0 support
-                }
-                context.put(ServiceInfo.class, service);
-                if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
-                    validate(service);
-                }
-                // Generate types
-                
-                generateTypes();                
-
-                // Build the JavaModel from the ServiceModel
-                context.put(ServiceInfo.class, service);
-                Processor processor = frontend.getProcessor();
-                processor.setEnvironment(context);
-                processor.process();
-
-                // Generate artifacts                
-                for (FrontEndGenerator generator : frontend.getGenerators()) {
-                    generator.generate(context);
-                }
-
-                // Build projects: compile classes and copy resources etc.
-                if (context.optionSet(ToolConstants.CFG_COMPILE)) {
-                    new ClassUtils().compile(context);
-                }
-
-                if (context.isExcludeNamespaceEnabled()) {
-                    removeExcludeFiles();
-                }
-            }
+            execute();
+            
         } catch (ToolException ex) {
             if (ex.getCause() instanceof BadUsageException) {
                 getInstance().printUsageException(toolName, (BadUsageException)ex.getCause());
@@ -189,6 +202,11 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     public QName getServiceQName(Definition definition) {
         QName qname = context.getQName(ToolConstants.CFG_SERVICENAME);
         if (qname == null) {
+            if (definition.getServices().size() == 0) {
+                Message msg = new Message("SERVICE_NOT_FOUND", 
+                                          LOG, new Object[] {definition.getDocumentBaseURI()});
+                throw new ToolException(msg);
+            }
             qname = (QName) definition.getServices().keySet().iterator().next();
         }
         if (StringUtils.isEmpty(qname.getNamespaceURI())) {
@@ -279,25 +297,28 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
         String wsdl = (String)env.get(ToolConstants.CFG_WSDLURL);
         
-        File wsdlFile = null;
+        URI wsdlURI = getURI(wsdl);
+        env.put(ToolConstants.CFG_WSDLURL, wsdlURI.toString());
+        
+        
+        String[] bindingFiles;
         try {
-            URI wsdlURI = new URI(wsdl);
-            if (!wsdlURI.isAbsolute()) {
-                File tmpfile = new File("");
-                wsdlURI = tmpfile.toURI().resolve(wsdlURI);
+            bindingFiles = (String[])env.get(ToolConstants.CFG_BINDING);
+            if (bindingFiles == null) {
+                return;
             }
-            wsdlFile = new File(wsdlURI);
-        } catch (URISyntaxException e) {
-            wsdlFile = new File(wsdl);
+        } catch (ClassCastException e) {
+            bindingFiles = new String[1];
+            bindingFiles[0] = (String)env.get(ToolConstants.CFG_BINDING);
         }
-        if (!wsdlFile.exists()) {
-            Message msg = new Message("FILE_NOT_EXIST", LOG, wsdl);
-            throw new ToolException(msg);
-        } else if (wsdlFile.isDirectory()) {
-            Message msg = new Message("NOT_A_FILE", LOG, wsdl);
-            throw new ToolException(msg);
+        
+        for (int i = 0; i < bindingFiles.length; i++) {
+            
+            URI bindingURI = getURI(bindingFiles[i]);
+            bindingFiles[i] = bindingURI.toString();
         }
-        env.put(ToolConstants.CFG_WSDLURL, wsdlFile.toURI().toString());        
+        
+        env.put(ToolConstants.CFG_BINDING,  bindingFiles);        
     }
 
     public void setAntProperties(ToolContext env) {
@@ -336,11 +357,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         if (!context.containsKey(ToolConstants.CFG_WSDL_VERSION)) {
             context.put(ToolConstants.CFG_WSDL_VERSION, WSDLVersion.WSDL11);
         }
-        
-        /*if (isVerboseOn()) {
-            context.put(ToolConstants.CFG_VERBOSE, Boolean.TRUE);
-        }*/
-
+       
         setExcludePackageAndNamespaces(context);
         loadDefaultNSPackageMapping(context);
         setPackageAndNamespaces(context);
@@ -411,6 +428,29 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             return true;
         }
         return false;
+    }
+    
+    private URI getURI(String arg) {
+        File tmpFile = null;
+        URI uri = null;
+        try {
+            uri = new URI(arg);
+            if (!uri.isAbsolute()) {
+                File tmpfile = new File("");
+                uri = tmpfile.toURI().resolve(uri);
+            }
+            tmpFile = new File(uri);
+        } catch (URISyntaxException e) {
+            tmpFile = new File(arg);
+        }
+        if (!tmpFile.exists()) {
+            Message msg = new Message("FILE_NOT_EXIST", LOG, tmpFile.toURI());
+            throw new ToolException(msg);
+        } else if (tmpFile.isDirectory()) {
+            Message msg = new Message("NOT_A_FILE", LOG, tmpFile.toURI());
+            throw new ToolException(msg);
+        }
+        return tmpFile.toURI();
     }
     
     public void generateTypes() throws ToolException {

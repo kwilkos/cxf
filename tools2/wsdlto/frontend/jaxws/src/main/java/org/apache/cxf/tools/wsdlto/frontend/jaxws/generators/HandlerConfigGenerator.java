@@ -19,16 +19,23 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.generators;
 
+import java.io.Writer;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaAnnotation;
 import org.apache.cxf.tools.common.model.JavaInterface;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.ProcessorUtil;
 
 public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
 
-    //private static final String HANDLER_CHAIN_NAME = "";
-   // private JavaInterface intf;
+    private static final String HANDLER_CHAIN_NAME = "";
+    private JavaInterface intf;
     private JavaAnnotation handlerChainAnnotation;
 
     public HandlerConfigGenerator() {
@@ -48,19 +55,19 @@ public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
     }
 
     public void setJavaInterface(JavaInterface javaInterface) {
-       // this.intf = javaInterface;
+        this.intf = javaInterface;
     }
 
     public void generate(ToolContext penv) throws ToolException {
         
-       //TODO: Enable Handler Chain
+       
         this.env = penv;
 
         if (passthrough()) {
             return;
         }
 
-       /* Element e = this.intf.getHandlerChains();
+        Element e = this.intf.getHandlerChains();
         NodeList nl = e.getElementsByTagNameNS(ToolConstants.HANDLER_CHAINS_URI,
                                                ToolConstants.HANDLER_CHAIN);
         if (nl.getLength() > 0) {
@@ -71,10 +78,10 @@ public class HandlerConfigGenerator extends AbstractJAXWSGenerator {
             generateHandlerChainFile(e, parseOutputName(this.intf.getPackageName(),
                                                         fName,
                                                         ".xml"));
-        }*/
+        }
     }
 
-    /*private void generateHandlerChainFile(Element hChains, Writer writer) throws ToolException {
+    private void generateHandlerChainFile(Element hChains, Writer writer) throws ToolException {
         XMLUtils.generateXMLFile(hChains, writer);
-    }*/
+    }
 }

@@ -21,6 +21,9 @@ package org.apache.cxf.tools.common.model;
 
 import java.util.*;
 import javax.jws.soap.SOAPBinding;
+
+import org.w3c.dom.Element;
+
 import org.apache.cxf.tools.common.ToolException;
 
 public class JavaInterface implements JavaAnnotatable {
@@ -39,6 +42,7 @@ public class JavaInterface implements JavaAnnotatable {
     private final Set<String> imports = new TreeSet<String>();
 
     private String webserviceName;
+    private Element handlerChains;
       
     public JavaInterface() {
     }
@@ -186,6 +190,14 @@ public class JavaInterface implements JavaAnnotatable {
 
     public void annotate(Annotator annotator) {
         annotator.annotate(this);
+    }
+    
+    public Element getHandlerChains() {
+        return this.handlerChains;
+    }
+
+    public void setHandlerChains(Element elem) {
+        this.handlerChains = elem;
     }
     
 }

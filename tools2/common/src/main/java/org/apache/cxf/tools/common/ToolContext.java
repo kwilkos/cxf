@@ -184,9 +184,8 @@ public class ToolContext {
             if (getPackageName() != null) {
                 return getPackageName();
             }
-            String pkg = URIParserUtil.parsePackageName(ns, null);
-            setPackageName(pkg);
-            return pkg;
+            return URIParserUtil.parsePackageName(ns, null);
+            
         }
     }
 

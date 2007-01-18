@@ -60,7 +60,7 @@ public final class CustomizationParser {
     // For WSDL1.1
     private static final Logger LOG = LogUtils.getL7dLogger(CustomizationParser.class);
     private static final XPathFactory XPF = XPathFactory.newInstance();
-    private static CustomizationParser parser;
+    
 
     private final XPath xpath = XPF.newXPath();
 
@@ -68,26 +68,16 @@ public final class CustomizationParser {
     private final List<Element> jaxwsBindings = new ArrayList<Element>();
     private final Set<InputSource> jaxbBindings = new HashSet<InputSource>();
     
+    
     private Element handlerChains;
     private Element wsdlNode;
     private String wsdlURL;
 
-    private CustomizationParser() {
-
-    }
-
-    public static CustomizationParser getInstance() {
-        if (parser == null) {
-            parser = new CustomizationParser();
-            parser.clean();
-        }
-        return parser;
-    }
-
-    public void clean() {
+    public CustomizationParser() {
         jaxwsBindings.clear();
         jaxbBindings.clear();
     }
+
 
     public Element getHandlerChains() {
         return this.handlerChains;
@@ -258,6 +248,9 @@ public final class CustomizationParser {
         
         if (firstChild == null && cloneNode.getNodeName().indexOf("bindings") > -1) {
             firstChild = node;
+            if (wsdlNode.getAttributeNode("xmls:jaxws") == null) {
+                wsdlNode.setAttribute("xmlns:jaxws", ToolConstants.JAXWS_BINDINGS.getNamespaceURI());
+            }
         }
         
         Element cloneEle = (Element)cloneNode;
@@ -326,13 +319,7 @@ public final class CustomizationParser {
     }
 
     private void addBinding(String bindingFile) throws XMLStreamException {
-        URI bindingURI = null;
-        try {
-            bindingURI = new URI(bindingFile);
-        } catch (URISyntaxException e2) {
-            //ignore
-        }
-        InputSource is = new InputSource(bindingURI.toString());
+        InputSource is = new InputSource(bindingFile);
         XMLStreamReader reader = StAXUtil.createFreshXMLStreamReader(is);
 
         StAXUtil.toStartTag(reader);
@@ -341,7 +328,8 @@ public final class CustomizationParser {
             InputStream inputStream;
             Element root = null;
             try {
-                inputStream = new FileInputStream(new File(bindingURI));
+                URI uri = new URI(bindingFile);
+                inputStream = new FileInputStream(new File(uri));
                 root = DOMUtils.readXml(inputStream).getDocumentElement();
             } catch (Exception e1) {
                 Message msg = new Message("CAN_NOT_READ_AS_ELEMENT", LOG, new Object[] {bindingFile});
