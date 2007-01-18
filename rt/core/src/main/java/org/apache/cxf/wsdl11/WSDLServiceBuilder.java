@@ -540,7 +540,8 @@ public class WSDLServiceBuilder {
         }
         for (Part part : cast(msg.getParts().values(), Part.class)) {
             if (!orderedParam.contains(part)) {
-                MessagePartInfo pi = minfo.addMessagePart(part.getName());
+                MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), 
+                        part.getName()));
                 if (part.getTypeName() != null) {
                     pi.setTypeQName(part.getTypeName());
                     pi.setElement(false);

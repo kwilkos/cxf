@@ -72,7 +72,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             LOG.fine("client invocation");
             // Extract the Holders and store them for later
             List<Holder> holders = new ArrayList<Holder>();
-            int size = op.getInput().size();
+            int size = op.getInput().size() + op.getOutput().size();
             List<Object> newObjects = new ArrayList<Object>(size);
             for (int i = 0; i < size; i++) {
                 newObjects.add(null);

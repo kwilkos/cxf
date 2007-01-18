@@ -19,6 +19,7 @@
 
 package org.apache.cxf.binding.soap.interceptor;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamException;
@@ -75,11 +76,27 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                     throw new SoapFault("The number of arguments is not equal!", 
                                         ((SoapMessage) message).getVersion().getSender());
                 }
-
+                int notNullIndex = 0;
+                List<MessagePartInfo> llist = new LinkedList<MessagePartInfo>();
+                for (MessagePartInfo mpi : parts) {
+                    if (!llist.contains(mpi)) {
+                        int i = 0;
+                        for (; i < llist.size(); i++) {
+                            if (llist.get(i).getIndex() > mpi.getIndex()) {
+                                i++;
+                                break;
+                            }
+                        }
+                        llist.add(i, mpi);
+                    }
+                }
                 for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = objs.get(idx);
-                    MessagePartInfo part = (MessagePartInfo) parts.get(idx);
-
+                    Object arg = null;
+                    for (arg = objs.get(notNullIndex); arg == null; notNullIndex++) {
+                        arg = objs.get(notNullIndex);
+                    }
+                    notNullIndex++;
+                    MessagePartInfo part = (MessagePartInfo) llist.get(idx);
                     dataWriter.write(arg, part, message);
                 }
             }

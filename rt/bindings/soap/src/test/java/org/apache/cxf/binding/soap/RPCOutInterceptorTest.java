@@ -58,6 +58,7 @@ public class RPCOutInterceptorTest extends TestBase {
                 .toString());
         BindingInfo bi = si.getBinding(new QName(TNS, "Greeter_SOAPBinding_RPCLit"));
         BindingOperationInfo boi = bi.getOperation(new QName(TNS, OPNAME));
+        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setIndex(-1);
         soapMessage.getExchange().put(BindingOperationInfo.class, boi);
 
         control.reset();
@@ -131,6 +132,7 @@ public class RPCOutInterceptorTest extends TestBase {
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
+                     
         assertEquals(new QName("http://apache.org/hello_world_rpclit", "out"), reader.getName());
 
         StaxUtils.nextEvent(reader);

@@ -51,7 +51,9 @@ public class RPCInInterceptorTest extends TestBase {
         BindingInfo bi = si.getBinding(new QName(TNS, "Greeter_SOAPBinding_RPCLit"));
         BindingOperationInfo boi = bi.getOperation(new QName(TNS, OPNAME));
         boi.getOperationInfo().getInput().getMessagePartByIndex(0).setTypeClass(MyComplexStruct.class);
+        boi.getOperationInfo().getInput().getMessagePartByIndex(0).setIndex(0);
         boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setTypeClass(MyComplexStruct.class);
+        boi.getOperationInfo().getOutput().getMessagePartByIndex(0).setIndex(-1);
         soapMessage.getExchange().put(BindingOperationInfo.class, boi);
 
         control.reset(); 

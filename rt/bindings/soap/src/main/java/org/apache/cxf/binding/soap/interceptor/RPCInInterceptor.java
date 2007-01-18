@@ -96,28 +96,40 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
 
         StaxUtils.nextEvent(xmlReader);
         while (StaxUtils.toNextElement(xmlReader)) {
-            QName name = xmlReader.getName();
-            int idx = parameters.size();
-            MessagePartInfo p = msg.getMessageParts().get(idx);
-            if (p == null) {
+            QName name = xmlReader.getName();            
+            MessagePartInfo part = null;
+            for (MessagePartInfo mpi : msg.getMessageParts()) {
+                if (mpi.getName().getLocalPart().equals(name.getLocalPart())) { 
+                    part = mpi;
+                    break;
+                }
+            }
+            if (part == null) {
                 throw new SoapFault("Parameter " + xmlReader.getName() + " does not exist!",
-                                    ((SoapMessage)message).getVersion().getSender());
-            }
-            QName elName = new QName(operation.getOperationInfo().getName().getNamespaceURI(), 
-                    p.getName().getLocalPart());
-
-            if (!elName.getLocalPart().equals(name.getLocalPart())) {
-                String expMessage = "Parameter " + name + " is not equal to the name ["
-                                    + elName.getLocalPart() + "] in the servicemodel!";
-                throw new SoapFault(expMessage, ((SoapMessage)message).getVersion().getSender());
-            }
-            Object param = null;
-            param = dr.read(p, message);
-            if (param != null) {
-                parameters.add(param);
-            } else {
-                throw new RuntimeException(p.getName() + " can not be unmarshalled");
-            }
+                              ((SoapMessage)message).getVersion().getSender());
+            }            
+            Object param = dr.read(part, message);
+            parameters.add(param);
+//            MessagePartInfo p = msg.getMessageParts().get(idx);
+//            if (p == null) {
+//                throw new SoapFault("Parameter " + xmlReader.getName() + " does not exist!",
+//                                    ((SoapMessage)message).getVersion().getSender());
+//            }
+//            QName elName = new QName(operation.getOperationInfo().getName().getNamespaceURI(), 
+//                    p.getName().getLocalPart());
+//
+//            if (!elName.getLocalPart().equals(name.getLocalPart())) {
+//                String expMessage = "Parameter " + name + " is not equal to the name ["
+//                                    + elName.getLocalPart() + "] in the servicemodel!";
+//                throw new SoapFault(expMessage, ((SoapMessage)message).getVersion().getSender());
+//            }
+//            Object param = null;
+//            param = dr.read(p, message);
+//            if (param != null) {
+//                parameters.add(param);
+//            } else {
+//                throw new RuntimeException(p.getName() + " can not be unmarshalled");
+//            }
         }
         message.setContent(List.class, parameters);
     }
