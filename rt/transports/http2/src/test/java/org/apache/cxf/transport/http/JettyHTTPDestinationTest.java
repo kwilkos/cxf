@@ -326,10 +326,9 @@ public class JettyHTTPDestinationTest extends TestCase {
         request.getMethod();
         EasyMock.expectLastCall().andReturn(method);
         
-        if ("GET".equals(method)) {
-            System.out.println("query = " + query);
-            request.getRequestURI();
-            EasyMock.expectLastCall().andReturn("http://localhost/" + "bar/foo" +  query);            
+        if ("GET".equals(method)) {            
+            request.getQueryString();
+            EasyMock.expectLastCall().andReturn(query);            
         } 
         
         if (setRedirectURL) {

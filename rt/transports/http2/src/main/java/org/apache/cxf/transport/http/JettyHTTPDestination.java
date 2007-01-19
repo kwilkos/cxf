@@ -253,8 +253,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             return;
         }
 
-        if ("GET".equals(req.getMethod()) && req.getQueryString() != null 
-            && req.getQueryString().toLowerCase().equals("wsdl")) {
+        if ("GET".equals(req.getMethod()) && "wsdl".equalsIgnoreCase(req.getQueryString())) {
             try {
 
                 resp.addHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
