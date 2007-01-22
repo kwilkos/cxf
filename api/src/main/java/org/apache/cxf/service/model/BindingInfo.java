@@ -30,7 +30,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 
-public class BindingInfo extends AbstractPropertiesHolder {
+public class BindingInfo extends AbstractDescriptionElement {
     
     private static final Logger LOG = LogUtils.getL7dLogger(BindingInfo.class);
     

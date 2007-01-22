@@ -27,10 +27,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
-
 import org.apache.ws.commons.schema.XmlSchemaCollection;
 
-public class ServiceInfo extends AbstractPropertiesHolder {
+public class ServiceInfo extends AbstractDescriptionElement {
     QName name;
     String targetNamespace;
     InterfaceInfo intf;

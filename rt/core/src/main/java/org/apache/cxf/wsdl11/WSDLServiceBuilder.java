@@ -56,6 +56,7 @@ import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.DescriptionInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -107,22 +108,41 @@ public class WSDLServiceBuilder {
     
     @SuppressWarnings("unchecked")
     public List<ServiceInfo> buildService(Definition d) {
+        DescriptionInfo description = new DescriptionInfo();
+        description.setName(d.getQName());
+        copyExtensors(description, d.getExtensibilityElements());
+       
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
         for (java.util.Iterator<QName> ite = d.getServices().keySet().iterator(); ite.hasNext();) {
             QName qn = ite.next();            
-            serviceList.add(buildService(d, qn));
+            serviceList.add(buildService(d, qn, description));
         }
         return serviceList;
     }
 
     public ServiceInfo buildService(Definition d, QName name) {
-        Service service = d.getService(name);
+        return buildService(d, name, null);
+    }
 
-        return buildService(d, service);
+    private ServiceInfo buildService(Definition d, QName name, DescriptionInfo description) {
+        Service service = d.getService(name);
+        return buildService(d, service, description);
     }
 
     public ServiceInfo buildService(Definition def, Service serv) {
+        return buildService(def, serv, null);
+    }
+
+    private ServiceInfo buildService(Definition def, Service serv, DescriptionInfo d) {
+        DescriptionInfo description = d;
+        if (null == description) {
+            description = new DescriptionInfo();
+            description.setName(def.getQName());
+            copyExtensors(description, def.getExtensibilityElements());
+        }
         ServiceInfo service = new ServiceInfo();
+        service.setDescription(description);
+        description.getDescribed().add(service);
         service.setProperty(WSDL_DEFINITION, def);
         service.setProperty(WSDL_SERVICE, serv);
 
@@ -130,7 +150,7 @@ public class WSDLServiceBuilder {
         service.setProperty(WSDL_SCHEMA_LIST, schemas);
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
-        copyExtensors(service, def.getExtensibilityElements());
+        copyExtensors(service, serv.getExtensibilityElements());
 
         PortType portType = null;
         for (Port port : cast(serv.getPorts().values(), Port.class)) {
@@ -251,6 +271,11 @@ public class WSDLServiceBuilder {
         copyExtensors(ei, port.getExtensibilityElements());
 
         service.addEndpoint(ei);
+        DescriptionInfo d = service.getDescription();
+        if (null != d) {
+            ei.setDescription(d);
+            d.getDescribed().add(ei);
+        }
         return ei;
     }
 
@@ -302,6 +327,11 @@ public class WSDLServiceBuilder {
         }
 
         service.addBinding(bi);
+        DescriptionInfo d = service.getDescription();
+        if (null != d) {
+            bi.setDescription(d);
+            d.getDescribed().add(bi);
+        }
         return bi;
     }
 
@@ -323,6 +353,11 @@ public class WSDLServiceBuilder {
 
     public void buildInterface(ServiceInfo si, PortType p) {
         InterfaceInfo inf = si.createInterface(p.getQName());
+        DescriptionInfo d = si.getDescription();
+        if (null != d) {
+            inf.setDescription(si.getDescription());
+            d.getDescribed().add(inf);
+        }
         this.copyExtensors(inf, p.getExtensibilityElements());
         inf.setProperty(WSDL_PORTTYPE, p);
         for (Operation op : cast(p.getOperations(), Operation.class)) {

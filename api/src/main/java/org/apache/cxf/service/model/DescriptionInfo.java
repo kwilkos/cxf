@@ -17,33 +17,30 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.service.model;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 
-/**
- * Encapsulation of version specific WS-Policy constants.
- */
-public class PolicyConstantsImpl implements PolicyConstants {
-        
-    public PolicyConstantsImpl() {
-    }
+public class DescriptionInfo extends AbstractPropertiesHolder {
+    QName name;
+    String uri;
 
-    public String getNamespaceURI() {        
-        return Names.WSP_NAMESPACE_NAME;
+    List<AbstractDescriptionElement> described = new ArrayList<AbstractDescriptionElement>();
+
+    public DescriptionInfo() {
     }
     
-    public String getWSUNamespaceURI() {
-        return Names.WSU_NAMESPACE_NAME;
+    public void setName(QName n) {
+        name = n;
     }
-
-    public QName getPolicyQName() {
-        return Names.WSP_POLICY_QNAME; 
+    public QName getName() {
+        return name;
     }
-
-    public QName getPolicyReferenceQName() {
-        return Names.WSP_POLICY_REFERENCE_QNAME;
+   
+    public List<AbstractDescriptionElement> getDescribed() {
+        return described;
     }
-    
-    
 }

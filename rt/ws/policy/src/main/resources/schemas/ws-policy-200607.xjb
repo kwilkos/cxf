@@ -21,9 +21,9 @@
   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   jaxb:extensionBindingPrefixes="xjc">
-    <jaxb:bindings schemaLocation="ws-policy.xsd" node="/xs:schema">
+    <jaxb:bindings schemaLocation="ws-policy-200607.xsd" node="/xs:schema">
         <jaxb:schemaBindings>
-            <jaxb:package name="org.apache.cxf.ws.policy"/>
+            <jaxb:package name="org.apache.cxf.ws.policy.v200607"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
 </jaxb:bindings>

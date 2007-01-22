@@ -21,7 +21,7 @@ package org.apache.cxf.service.model;
 
 import javax.xml.namespace.QName;
 
-public class EndpointInfo extends AbstractPropertiesHolder {
+public class EndpointInfo extends AbstractDescriptionElement {
     String transportId;
     ServiceInfo service;
     BindingInfo binding;

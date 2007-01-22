@@ -115,6 +115,39 @@ public class SequenceTest extends ClientServerTestBase {
         }
     }
 
+    public void xtestRMServerPlainClient() throws Exception {
+        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml");
+
+        SpringBusFactory bf = new SpringBusFactory();
+        
+        controlBus = bf.createBus();
+        bf.setDefaultBus(controlBus);
+        controlBus = new SpringBusFactory().getDefaultBus();
+
+        ControlService cs = new ControlService();
+        control = cs.getControlPort();
+
+        assertTrue("Failed to start greeter",
+            control.startGreeter("org/apache/cxf/systest/ws/rm/twoway.xml"));
+        
+
+        greeterBus = bf.createBus();
+        bf.setDefaultBus(greeterBus);
+        LOG.fine("Initialised greeter default bus with configuration");
+
+        outRecorder = new OutMessageRecorder();
+        greeterBus.getOutInterceptors().add(outRecorder);
+        inRecorder = new InMessageRecorder();
+        greeterBus.getInInterceptors().add(inRecorder);
+
+        GreeterService gs = new GreeterService();
+        greeter = gs.getGreeterPort();
+        LOG.fine("Created greeter client.");
+
+        greeter.greetMe("Andrea");
+
+    }
+
     // --- tests ---
     
     public void testOnewayAnonymousAcks() throws Exception {
