@@ -342,6 +342,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         XmlSchemaCollection col = new XmlSchemaCollection();
         XmlSchema schema = new XmlSchema(getServiceNamespace(), col);
         schema.setElementFormDefault(new XmlSchemaForm(XmlSchemaForm.QUALIFIED));
+        serviceInfo.setXmlSchemaCollection(col);
         
         NamespaceMap nsMap = new NamespaceMap();
         nsMap.add("xsd", "http://www.w3.org/2001/XMLSchema");

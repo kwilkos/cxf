@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
 
+import org.apache.ws.commons.schema.XmlSchemaCollection;
+
 public class ServiceInfo extends AbstractPropertiesHolder {
     QName name;
     String targetNamespace;
@@ -36,6 +38,7 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     Map<QName, EndpointInfo> endpoints = new ConcurrentHashMap<QName, EndpointInfo>(2);
     Map<QName, MessageInfo> messages;
     List<SchemaInfo> schemas = new ArrayList<SchemaInfo>(4);
+    private XmlSchemaCollection xmlSchemaCollection;
     
     public ServiceInfo() {
     }
@@ -121,5 +124,13 @@ public class ServiceInfo extends AbstractPropertiesHolder {
     
     public Collection<SchemaInfo> getSchemas() {
         return Collections.unmodifiableCollection(schemas);
+    }
+
+    public void setXmlSchemaCollection(XmlSchemaCollection col) {
+        this.xmlSchemaCollection = col;
+    }
+
+    public XmlSchemaCollection getXmlSchemaCollection() {
+        return xmlSchemaCollection;
     }
 }

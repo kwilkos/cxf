@@ -157,6 +157,8 @@ public class WSDLServiceBuilder {
 
     private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
+        serviceInfo.setXmlSchemaCollection(schemaCol);
+        
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);
         extractSchema(def, schemaCol, serviceInfo);

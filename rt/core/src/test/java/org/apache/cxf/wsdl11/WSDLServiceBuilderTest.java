@@ -352,6 +352,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertNotNull(greetMe);
         assertEquals("greetMe OperationInfo name error", greetMe.getName(), name);
         assertFalse("greetMe should be a Unwrapped operation ", greetMe.isUnwrappedCapable());
+        
+        assertNotNull(serviceInfo.getXmlSchemaCollection());
     }
 
     public void testImport() throws Exception {
