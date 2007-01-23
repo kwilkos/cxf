@@ -85,7 +85,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(files.length, 3);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_rpclit.GreeterRPCLit");
 
         javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
         assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
@@ -97,7 +97,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
         assertEquals("Generate operation error", 3, clz.getMethods().length);
 
-        Class paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
+        Class<?> paraClass = classLoader.loadClass("org.apache.hello_world_rpclit.types.MyComplexStruct");
         Method method = clz.getMethod("sendReceiveData", new Class[] {paraClass});
         assertEquals("MyComplexStruct", method.getReturnType().getSimpleName());
         
@@ -128,7 +128,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File[] files = async.listFiles();
         assertEquals(4, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
 
         Method method1 = clz.getMethod("greetMeSometimeAsync", new Class[] {java.lang.String.class,
                                                                             javax.xml.ws.AsyncHandler.class});
@@ -165,7 +165,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(7, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap12_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
                    .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface",
@@ -223,7 +223,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
         assertTrue("class " + clz.getName() + " modifier is not public", Modifier
             .isPublic(clz.getModifiers()));
         assertTrue("class " + clz.getName() + " modifier is interface", Modifier.isInterface(clz
@@ -293,7 +293,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File[] files = mapping.listFiles();
         assertEquals(7, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
+        Class<?> clz = classLoader.loadClass("org.apache.mapping.SomethingServer");
         Method method = clz.getMethod("doSomething", new Class[] {int.class, javax.xml.ws.Holder.class,
                                                                   javax.xml.ws.Holder.class});
         assertEquals("boolean", method.getReturnType().getSimpleName());
@@ -330,7 +330,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = schemaImport.listFiles();
         assertEquals(4, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.schema_import.Greeter");
         assertEquals(4, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
@@ -383,7 +383,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = invoice.listFiles();
         assertEquals(files.length, 9);
 
-        Class clz = classLoader.loadClass("org.apache.invoiceserver.InvoiceServer");
+        Class<?> clz = classLoader.loadClass("org.apache.invoiceserver.InvoiceServer");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("getInvoicesForCustomer", new Class[] {String.class, String.class});
@@ -414,7 +414,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File serviceCollision = new File(apache, "Greeter_Service.java");
         assertTrue(serviceCollision.exists());
 
-        Class clz = classLoader.loadClass("org.apache.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.Greeter");
         assertTrue("SEI class Greeter modifier should be interface", clz.isInterface());
 
         clz = classLoader.loadClass("org.apache.Greeter_Exception");
@@ -441,7 +441,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File serviceCollision = new File(apache, "HelloWorldServiceImpl_Service.java");
         assertTrue(serviceCollision.exists());
 
-        Class clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl");
+        Class<?> clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl");
         assertTrue("SEI class HelloWorldServiceImpl modifier should be interface", clz.isInterface());
 
         clz = classLoader.loadClass("org.apache.HelloWorldServiceImpl_Service");
@@ -463,7 +463,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         // File[] files = apache.listFiles();
         // assertEquals(6, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_async_soap_http.GreeterAsync");
         assertEquals(3, clz.getMethods().length);
 
     }
@@ -484,7 +484,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File[] files = apache.listFiles();
         assertEquals(12, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.HeaderTester");
+        Class<?> clz = classLoader.loadClass("org.apache.HeaderTester");
         assertEquals(3, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -510,7 +510,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         processor.setEnvironment(env);
         processor.process();
 
-        Class clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world_holder.Greeter");
         assertEquals(1, clz.getMethods().length);
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
@@ -551,7 +551,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = types.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.cxf.Greeter");
+        Class<?> clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
         clz = classLoader.loadClass("org.apache.types.GreetMe");
     }
@@ -577,7 +577,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = cxf.listFiles();
         assertEquals(17, files.length);
 
-        Class clz = classLoader.loadClass("org.cxf.GreetMe");
+        Class<?> clz = classLoader.loadClass("org.cxf.GreetMe");
         assertTrue("Generate " + clz.getName() + "error", Modifier.isPublic(clz.getModifiers()));
         clz = classLoader.loadClass("org.apache.Greeter");
     }
@@ -605,7 +605,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = cxf.listFiles();
         assertEquals(6, files.length);
 
-        Class clz = classLoader.loadClass("org.cxf.Greeter");
+        Class<?> clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
 
@@ -628,7 +628,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File handlerConfig = new File(address, "Greeter_handler.xml");
         assertTrue(handlerConfig.exists());
 
-        Class clz = classLoader.loadClass("ws.address.Greeter");
+        Class<?> clz = classLoader.loadClass("ws.address.Greeter");
         HandlerChain handlerChainAnno = AnnotationUtil.getPrivClassAnnotation(clz, HandlerChain.class);
         assertEquals("Greeter_handler.xml", handlerChainAnno.file());
         assertNotNull("Handler chain xml generate fail!", classLoader
@@ -696,7 +696,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
                                       getLocation("/wsdl2java_wsdl/hello_world.wsdl")};
         WSDLToJava.main(args);
 
-        Class clz = classLoader.loadClass("org.cxf.Greeter");
+        Class<?> clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
         clz = classLoader.loadClass("org.apache.types.GreetMe");
     }
@@ -749,7 +749,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld-noservice.wsdl"));
         processor.setEnvironment(env);
         processor.process();
-        Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
+        Class<?> clz = classLoader
+            .loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
         Method method = clz.getMethod("getGreetings", new Class[] {java.lang.String.class});
         WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
         assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webResultAnno.targetNamespace());
@@ -767,7 +768,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld-nobinding.wsdl"));
         processor.setEnvironment(env);
         processor.process();
-        Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
+        Class<?> clz = classLoader
+            .loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
 
         SOAPBinding soapBindingAnno = AnnotationUtil.getPrivClassAnnotation(clz, SOAPBinding.class);
         assertNull("SOAPBinding Annotation should be null", soapBindingAnno);
@@ -803,7 +805,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         files = xsd.listFiles();
         assertEquals(4, files.length);
 
-        Class clz = classLoader
+        Class<?> clz = classLoader
             .loadClass("org.soapinterop.wsdlinteroptestdoclit.WSDLInteropTestDocLitPortType");
 
         Method method = clz.getMethod("echoVoid", new Class[] {});
@@ -828,7 +830,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File helloWorld = new File(apache, "hello_world");
         assertTrue(helloWorld.exists());
 
-        Class clz = classLoader.loadClass("org.apache.hello_world.Greeter");
+        Class<?> clz = classLoader.loadClass("org.apache.hello_world.Greeter");
         assertEquals(3, clz.getMethods().length);
 
         Method method = clz.getMethod("pingMe", new Class[] {});
@@ -854,7 +856,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         File invoice = new File(apache, "invoice");
         assertTrue(invoice.exists());
 
-        Class clz = classLoader.loadClass("org.apache.invoiceserver.NoSuchCustomerFault");
+        Class<?> clz = classLoader.loadClass("org.apache.invoiceserver.NoSuchCustomerFault");
         WebFault webFault = AnnotationUtil.getPrivClassAnnotation(clz, WebFault.class);
         assertEquals("WebFault annotaion name attribute error", "NoSuchCustomer", webFault.name());
 
@@ -971,7 +973,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305773/hello_world.wsdl"));
             processor.setEnvironment(env);
             processor.process();
-            Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
+            Class<?> clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
 
             WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
             assertEquals("Greeter", webServiceAnn.name());
@@ -1043,7 +1045,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         }
 
         try {
-            Class clz = classLoader
+            Class<?> clz = classLoader
                 .loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
@@ -1064,7 +1066,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         }
 
         try {
-            Class clz = classLoader
+            Class<?> clz = classLoader
                 .loadClass("org.apache.hello_world_soap_http.types.CreateProcess$MyProcess");
             assertNotNull("Customization binding code should be generated", clz);
         } catch (ClassNotFoundException e) {
@@ -1106,7 +1108,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug161/header2.wsdl"));
         processor.setEnvironment(env);
         processor.process();
-        Class clz = classLoader.loadClass("org.apache.header2.Header2Test");
+        Class<?> clz = classLoader.loadClass("org.apache.header2.Header2Test");
         Class header = classLoader.loadClass("org.apache.header2.Header");
         Method method = clz.getMethod("headerMethod", new Class[] {Holder.class, header});       
         assertNotNull("method should be generated", method);

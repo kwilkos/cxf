@@ -82,7 +82,7 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
     }
 
     public void testAnnotation() throws Exception {
-        Class claz = PutLastTradedPricePortType.class;
+        Class<PutLastTradedPricePortType> claz = PutLastTradedPricePortType.class;
         TradePriceData priceData = new TradePriceData();
         Holder<TradePriceData> holder = new Holder<TradePriceData>(priceData);
         Method method = claz.getMethod("sayHi", holder.getClass());

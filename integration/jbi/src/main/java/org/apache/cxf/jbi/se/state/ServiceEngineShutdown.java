@@ -75,7 +75,8 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
             File cxfConfig = new File(metaInfDir, CXF_CONFIG_FILE); 
             
             if (cxfConfig.exists()) { 
-                System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME, cxfConfig.toURL().toString());
+                System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME,
+                                   cxfConfig.toURI().toURL().toString());
                 LOG.info(new Message("SE.SET.CONFIGURATION", LOG) + Configurer.USER_CFG_FILE_PROPERTY_NAME);
             } else { 
                 LOG.severe(new Message("SE.NOT.FOUND.CONFIGURATION", LOG).toString() + metaInfDir);
@@ -128,7 +129,7 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
                 urls = new URL[jars.length];
                 int i = 0;
                 for (File jar : jars) { 
-                    urls[i] = jar.toURL();
+                    urls[i] = jar.toURI().toURL();
                     i++;
                 }
             }

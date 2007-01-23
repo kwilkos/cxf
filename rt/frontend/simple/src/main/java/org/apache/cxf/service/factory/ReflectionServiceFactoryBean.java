@@ -645,7 +645,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return fi;
     }
 
-    protected Class getBeanClass(Class exClass) {
+    protected Class<?> getBeanClass(Class<?> exClass) {
         return exClass;
     }
 

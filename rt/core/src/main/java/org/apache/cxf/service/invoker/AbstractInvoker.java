@@ -160,7 +160,7 @@ public abstract class AbstractInvoker implements Invoker {
      * @return the more specific method, or the original method if the
      *         targetClass doesn't specialize it or implement it or is null
      */
-    public static Method getMostSpecificMethod(Method method, Class targetClass) {
+    public static Method getMostSpecificMethod(Method method, Class<?> targetClass) {
         if (method != null && targetClass != null) {
             try {
                 method = targetClass.getMethod(method.getName(), method.getParameterTypes());

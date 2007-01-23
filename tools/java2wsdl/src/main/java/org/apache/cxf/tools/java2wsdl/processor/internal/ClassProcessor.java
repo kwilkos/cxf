@@ -47,7 +47,7 @@ import org.apache.cxf.tools.util.URIParserUtil;
 public class ClassProcessor {
     private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
 
-    Class seiClass;
+    Class<?> seiClass;
 
     WSDLModel model;
 
@@ -55,7 +55,7 @@ public class ClassProcessor {
 
     private final ToolContext env;
 
-    public ClassProcessor(Class clz, ToolContext penv) {
+    public ClassProcessor(Class<?> clz, ToolContext penv) {
         seiClass = clz;
         env = penv;
     }

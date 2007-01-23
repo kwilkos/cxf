@@ -64,7 +64,7 @@ public final class StringUtils {
         try {
             return new URL(spec);
         } catch (MalformedURLException e) {
-            return new File(spec).toURL();
+            return new File(spec).toURI().toURL();
         }
     }
 

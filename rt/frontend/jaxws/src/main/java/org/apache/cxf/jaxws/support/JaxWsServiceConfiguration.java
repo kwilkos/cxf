@@ -163,7 +163,7 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     Method getDeclaredMethod(Method method) {
-        Class endpointClass = implInfo.getEndpointClass();
+        Class<?> endpointClass = implInfo.getEndpointClass();
 
         if (!method.getDeclaringClass().equals(endpointClass)) {
             try {

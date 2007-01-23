@@ -154,7 +154,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
     
     
     @Override
-    protected Class getBeanClass(Class exClass) {
+    protected Class<?> getBeanClass(Class<?> exClass) {
         try {
             Method getFaultInfo = exClass.getMethod("getFaultInfo", new Class[0]);
             

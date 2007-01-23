@@ -182,6 +182,6 @@ public class WSDLHelper {
         WSDLFactory wsdlFactory = WSDLFactory.newInstance();
         WSDLReader reader = wsdlFactory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
-        return reader.readWSDL(wsdlFile.toURL().toString());
+        return reader.readWSDL(wsdlFile.toURI().toURL().toString());
     }
 }

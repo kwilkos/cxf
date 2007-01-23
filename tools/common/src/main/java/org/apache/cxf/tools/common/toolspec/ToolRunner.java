@@ -34,17 +34,17 @@ public final class ToolRunner {
         // utility class - never constructed
     }
 
-    public static void runTool(Class clz, InputStream toolspecStream,
+    public static void runTool(Class<? extends ToolContainer> clz, InputStream toolspecStream,
                                boolean validate, String[] args) throws Exception {
         runTool(clz, toolspecStream, validate, args, true);
     }
 
-    public static void runTool(Class clz, InputStream toolspecStream,
+    public static void runTool(Class<? extends ToolContainer> clz, InputStream toolspecStream,
                                boolean validate, String[] args, ToolContext context) throws Exception {
         runTool(clz, toolspecStream, validate, args, true, context);
     }
 
-    public static void runTool(Class clz,
+    public static void runTool(Class<? extends ToolContainer> clz,
                                InputStream toolspecStream,
                                boolean validate,
                                String[] args,
@@ -52,7 +52,7 @@ public final class ToolRunner {
         runTool(clz, toolspecStream, validate, args, true, null);
     }
     
-    public static void runTool(Class clz,
+    public static void runTool(Class<? extends ToolContainer> clz,
                                InputStream toolspecStream,
                                boolean validate,
                                String[] args,
@@ -64,14 +64,14 @@ public final class ToolRunner {
             ToolContainer container = null;
 
             try {
-                Constructor cons = clz.getConstructor(
+                Constructor<? extends ToolContainer> cons = clz.getConstructor(
                                                       new Class[] {
                                                           ToolSpec.class
                                                       });
-                container = (ToolContainer)cons.newInstance(
-                                                            new Object[] {
-                                                                new ToolSpec(toolspecStream, validate)
-                                                            });
+                container = cons.newInstance(
+                                             new Object[] {
+                                                 new ToolSpec(toolspecStream, validate)
+                                             });
             } catch (Exception ex) {
                 Message message = new Message("CLZ_CANNOT_BE_CONSTRUCTED", LOG, clz.getName());
                 LOG.log(Level.SEVERE, message.toString());

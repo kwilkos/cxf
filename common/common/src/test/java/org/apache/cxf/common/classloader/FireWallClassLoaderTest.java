@@ -67,11 +67,11 @@ public class FireWallClassLoaderTest extends TestCase {
         os.write("This is a test".getBytes());
         os.close();
         tmpFile.deleteOnExit();
-        String urlString = tmpFile.toURL().toString();
+        String urlString = tmpFile.toURI().toURL().toString();
 
         ClassLoader c = new FireWallClassLoader(getClass().getClassLoader(), new String[] {"java."});
-        Class urlClass = c.loadClass("java.net.URL");
-        Constructor urlConstr = urlClass.getConstructor(new Class[] {String.class});
+        Class<?> urlClass = c.loadClass("java.net.URL");
+        Constructor<?> urlConstr = urlClass.getConstructor(new Class[] {String.class});
         Object url = urlConstr.newInstance(new Object[] {urlString});
         Method meth = url.getClass().getMethod("openConnection", new Class[] {});
         Object urlConn = meth.invoke(url, new Object[] {});

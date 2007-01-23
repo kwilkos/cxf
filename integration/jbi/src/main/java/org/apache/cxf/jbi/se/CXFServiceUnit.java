@@ -75,7 +75,7 @@ public class CXFServiceUnit {
         
         URL url = null; 
         try { 
-            url = new File(path + File.separator).toURL();
+            url = new File(path + File.separator).toURI().toURL();
             
         } catch (MalformedURLException ex) {
             LOG.log(Level.SEVERE, new Message("SU.FAILED.INIT", LOG).toString(), ex);
@@ -251,7 +251,7 @@ public class CXFServiceUnit {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(jbiXml.toURL().toString());
+            Document doc = builder.parse(jbiXml.toURI().toURL().toString());
             
             Element providesEl = (Element)findNode(doc.getDocumentElement(), "provides");
             Element consumersEl = (Element)findNode(doc.getDocumentElement(), "consumes");

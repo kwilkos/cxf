@@ -155,8 +155,8 @@ public class WSDL11Validator extends AbstractValidator {
                     }
                 });
                 for (int i = 0; i < files.length; i++) {
-                    InputSource is = new InputSource(files[i].toURL().openStream());
-                    is.setSystemId(files[i].toURL().toString());
+                    InputSource is = new InputSource(files[i].toURI().toURL().openStream());
+                    is.setSystemId(files[i].toURI().toURL().toString());
                     xsdList.add(is);
                 }
             }

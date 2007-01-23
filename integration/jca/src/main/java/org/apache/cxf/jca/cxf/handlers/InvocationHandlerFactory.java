@@ -35,7 +35,7 @@ public class InvocationHandlerFactory {
 
     private static final Logger LOG = Logger.getLogger(InvocationHandlerFactory.class.getName());
 
-    final Class[] handlerChainTypes;
+    final Class<?>[] handlerChainTypes;
 
     private final Bus bus;
     private final CXFManagedConnection managedConnection;
@@ -96,7 +96,7 @@ public class InvocationHandlerFactory {
         return first;
     }
 
-    private Class[] getHandlerChainDefinition() throws IOException, ClassNotFoundException {
+    private Class<?>[] getHandlerChainDefinition() throws IOException, ClassNotFoundException {
 
         String[] classNames = {"org.apache.cxf.jca.cxf.handlers.ProxyInvocationHandler",
                                "org.apache.cxf.jca.cxf.handlers.ObjectMethodInvocationHandler",

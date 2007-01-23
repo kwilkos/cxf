@@ -52,7 +52,7 @@ public class WSDLToJavaExSoapHeaderTest
                                       getLocation("/wsdl2java_wsdl/soapheader_test.wsdl")};
         WSDLToJava.main(args);
 
-        Class clz = classLoader.loadClass("org.apache.header_test.TestHeader");        
+        Class<?> clz = classLoader.loadClass("org.apache.header_test.TestHeader");        
         Method method = clz.getMethod("testHeader4", new Class[] {java.lang.String.class,
                                                                   Holder.class});
         if (method == null) {
@@ -72,8 +72,8 @@ public class WSDLToJavaExSoapHeaderTest
                                       getLocation("/wsdl2java_wsdl/soapheader_test.wsdl")};
         WSDLToJava.main(args);
 
-        Class clz = classLoader.loadClass("org.apache.header_test.TestHeader");
-        Class paramClz = classLoader.loadClass("org.apache.header_test.types.TestHeader5");
+        Class<?> clz = classLoader.loadClass("org.apache.header_test.TestHeader");
+        Class<?> paramClz = classLoader.loadClass("org.apache.header_test.types.TestHeader5");
         assertEquals(5, clz.getMethods().length);
         
         Method method = clz.getMethod("testHeader5", new Class[] {paramClz});

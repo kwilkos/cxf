@@ -84,7 +84,7 @@ public class WebServiceClassFinder {
         List<Class<?>> classes = new ArrayList<Class<?>>();
 
         File root = new File(rootPath);
-        URL[] urls = {root.toURL()};
+        URL[] urls = {root.toURI().toURL()};
         URLClassLoader loader = new URLClassLoader(urls, parent);
 
         find(root, loader, classes, matcher);

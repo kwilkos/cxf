@@ -287,7 +287,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
         try {
-            jcaBusFactory.loadProperties(new File("/rubbish_name.properties").toURL());
+            jcaBusFactory.loadProperties(new File("/rubbish_name.properties").toURI().toURL());
             fail("expect an exception .");
         } catch (ResourceException re) {
             assertTrue("Cause is FileNotFoundException, cause: " + re.getCause(),

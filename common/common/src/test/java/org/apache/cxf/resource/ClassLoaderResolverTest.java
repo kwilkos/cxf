@@ -49,7 +49,7 @@ public class ClassLoaderResolverTest extends TestCase {
         writer.write("\n");
         writer.close();
 
-        URL[] urls = {resource.getParentFile().toURL()};
+        URL[] urls = {resource.getParentFile().toURI().toURL()};
         ClassLoader loader = new URLClassLoader(urls); 
         assertNotNull(loader.getResourceAsStream(resourceName));
         assertNull(ClassLoader.getSystemResourceAsStream(resourceName));

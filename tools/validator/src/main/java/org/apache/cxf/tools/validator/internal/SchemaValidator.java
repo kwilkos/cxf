@@ -289,7 +289,7 @@ public class SchemaValidator extends AbstractValidator {
             List<String> xsdUrls = new ArrayList<String>(files.length);
             for (File file : files) {
                 try {
-                    String s = file.toURL().toString();
+                    String s = file.toURI().toURL().toString();
                     xsdUrls.add(s);
                     if (s.indexOf("http-conf") > 0) {
                         xsdUrls.add(0, s);
@@ -306,7 +306,7 @@ public class SchemaValidator extends AbstractValidator {
     private String getWsdlUrl(String path) throws IOException {
         File file = new File(path);
         if (file != null && file.exists()) {
-            return file.toURL().toString();
+            return file.toURI().toURL().toString();
         }
 
         return null;

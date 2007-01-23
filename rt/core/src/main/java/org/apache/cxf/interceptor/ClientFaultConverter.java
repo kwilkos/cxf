@@ -95,8 +95,8 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         DataReader<Node> reader = dataBinding.getDataReaderFactory().createReader(Node.class);
         Object e = reader.read(part, exDetail);
         if (!(e instanceof Exception)) {
-            Class exClass = faultWanted.getProperty(Class.class.getName(), Class.class);
-            Class beanClass = e.getClass();
+            Class<?> exClass = faultWanted.getProperty(Class.class.getName(), Class.class);
+            Class<?> beanClass = e.getClass();
             try {
                 Constructor constructor = exClass.getConstructor(new Class[]{String.class, beanClass});
                 e = constructor.newInstance(new Object[]{fault.getMessage(), e});
