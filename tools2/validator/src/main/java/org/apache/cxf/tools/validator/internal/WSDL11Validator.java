@@ -131,7 +131,14 @@ public class WSDL11Validator extends AbstractDefinitionValidator {
                     URIResolver resolver = new URIResolver(ele.getName());
                     if (resolver.isResolved()) {
                         InputSource is = new InputSource(resolver.getInputStream());
-                        is.setSystemId(ele.getName());
+                        // Use the resolved URI of the schema if available.
+                        // The ibm jdk won't resolve the schema if we set
+                        // the id to the relative path.
+                        if (resolver.getURI() != null) {
+                            is.setSystemId(resolver.getURI().toString());
+                        } else {
+                            is.setSystemId(ele.getName());
+                        }
                         xsdList.add(is);
                     }
                 }
