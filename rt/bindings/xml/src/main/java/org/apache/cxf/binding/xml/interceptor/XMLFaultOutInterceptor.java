@@ -18,25 +18,22 @@
  */
 package org.apache.cxf.binding.xml.interceptor;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.w3c.dom.Node;
+
 import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.binding.xml.XMLFault;
 import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.databinding.DataWriter;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.NSStack;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.FaultInfo;
-import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 
 public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
@@ -67,37 +64,14 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
             writer.writeCharacters(t == null ? xmlFault.getMessage() : t.toString());
             // fault string
             writer.writeEndElement();
-            // call data writer to marshal exception
-            BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
-            if (t != null && bop != null) {
-                if (bop.isUnwrapped()) {
-                    bop = bop.getWrappedOperation();
-                }
-                Iterator<FaultInfo> it = bop.getOperationInfo().getFaults().iterator();
-                MessagePartInfo part = null;
-                while (it.hasNext()) {
-                    FaultInfo fi = it.next();
-                    for (MessagePartInfo mpi : fi.getMessageParts()) {
-                        Class cls = mpi.getTypeClass();
-                        try {
-                            Method method = t.getClass().getMethod("getFaultInfo", new Class[0]);
-                            Class sub = method.getReturnType();
-                            if (cls != null && cls.equals(sub)) {
-                                part = mpi;
-                                break;
-                            }
-                        } catch (NoSuchMethodException ne) {
-                            // Ignore as it is not a User Defined Fault.
-                        }
-                    }
-                }
-                if (part != null) {
-                    StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
-                            XMLConstants.NS_XML_FORMAT);
-                    DataWriter<Message> dataWriter = getMessageDataWriter(message);
-                    dataWriter.write(getFaultInfo(t), part, message);
-                    writer.writeEndElement();
-                }
+            // call StaxUtils to write Fault detail.
+            
+            if (xmlFault.getDetail() != null) {
+                StaxUtils.writeStartElement(writer, prefix, XMLFault.XML_FAULT_DETAIL,
+                        XMLConstants.NS_XML_FORMAT);
+                StaxUtils.writeNode(DOMUtils.getChild(xmlFault.getDetail(), Node.ELEMENT_NODE), 
+                                    writer, false);
+                writer.writeEndElement();
             }
             // fault root
             writer.writeEndElement();
@@ -105,17 +79,5 @@ public class XMLFaultOutInterceptor extends AbstractOutDatabindingInterceptor {
         } catch (XMLStreamException xe) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("XML_WRITE_EXC", BUNDLE), xe);
         }
-    }
-
-    private static Object getFaultInfo(Throwable fault) {
-        try {
-            Method faultInfoMethod = fault.getClass().getMethod("getFaultInfo");
-            if (faultInfoMethod != null) {
-                return faultInfoMethod.invoke(fault);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException("Could not get faultInfo out of Exception", ex);
-        }
-        return null;
     }
 }
