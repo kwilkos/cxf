@@ -53,9 +53,11 @@ import org.apache.neethi.PolicyReference;
 public class PolicyBuilder {
     
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(PolicyBuilder.class);
+ 
     private AssertionBuilderRegistry assertionBuilderRegistry;
+   
     
-    void setAssertionBuilderRegistry(AssertionBuilderRegistry abr) {
+    public void setAssertionBuilderRegistry(AssertionBuilderRegistry abr) {
         assertionBuilderRegistry = abr;        
     }
     
@@ -87,9 +89,11 @@ public class PolicyBuilder {
         
         // setting the URI value
         String uri = element.getAttribute("URI");
+        /*
         if (uri.startsWith("#")) {
             uri = element.getBaseURI() + uri;
         }
+        */
         reference.setURI(uri);
         return reference;
     }
@@ -129,14 +133,6 @@ public class PolicyBuilder {
     }
 
     private PolicyOperator processOperationElement(Element operationElement, PolicyOperator operator) {
-
-        
-        /*
-        System.out.println("Constructing policy operator from element of type: {"
-            + operationElement.getNamespaceURI() + "}" 
-            + operationElement.getLocalName());
-        }
-        */
         
         if (Constants.TYPE_POLICY == operator.getType()) {
             Policy policyOperator = (Policy)operator;
@@ -193,4 +189,5 @@ public class PolicyBuilder {
         }
         return operator;
     }
+    
 }

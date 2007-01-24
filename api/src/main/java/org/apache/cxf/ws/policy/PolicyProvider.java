@@ -17,29 +17,25 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy.builders.xml;
+package org.apache.cxf.ws.policy;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.neethi.Policy;
 
-import javax.xml.namespace.QName;
+/**
+ * 
+ */
+public interface PolicyProvider {
 
-import org.w3c.dom.Element;
-
-import org.apache.cxf.ws.policy.AssertionBuilder;
-import org.apache.neethi.Assertion;
-
-public class XMLPrimitiveAssertionBuilder implements AssertionBuilder {
-
-    private Collection<QName> known = new ArrayList<QName>();
+    Policy getEffectivePolicy(ServiceInfo si);
     
-    public Assertion build(Element element) {
-        return new XmlPrimtiveAssertion(element);
-    }
-
-    public Collection<QName> getKnownElements() {
-        return known;
-    }
+    Policy getEffectivePolicy(EndpointInfo ei);
     
+    Policy getEffectivePolicy(BindingOperationInfo bi);
+    
+    Policy getEffectivePolicy(BindingMessageInfo bmi);
     
 }

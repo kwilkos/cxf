@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class AbstractPropertiesHolder {
+public abstract class AbstractPropertiesHolder implements Extensible {
     private AtomicReference<Map<String, Object>> propertyMap = new AtomicReference<Map<String, Object>>();
     private AtomicReference<Object[]> extensors = new AtomicReference<Object[]>();
     

@@ -109,6 +109,7 @@ public class WSDLServiceBuilder {
     @SuppressWarnings("unchecked")
     public List<ServiceInfo> buildService(Definition d) {
         DescriptionInfo description = new DescriptionInfo();
+        description.setProperty(WSDL_DEFINITION, d);
         description.setName(d.getQName());
         copyExtensors(description, d.getExtensibilityElements());
        
@@ -137,6 +138,7 @@ public class WSDLServiceBuilder {
         DescriptionInfo description = d;
         if (null == description) {
             description = new DescriptionInfo();
+            description.setProperty(WSDL_DEFINITION, def);
             description.setName(def.getQName());
             copyExtensors(description, def.getExtensibilityElements());
         }
@@ -378,12 +380,14 @@ public class WSDLServiceBuilder {
             MessageInfo minfo = opInfo.createMessage(input.getMessage().getQName());
             opInfo.setInput(input.getName(), minfo);
             buildMessage(minfo, input.getMessage(), paramOrder);
+            copyExtensors(minfo, input.getExtensibilityElements());
         }
         Output output = op.getOutput();
         if (output != null) {
             MessageInfo minfo = opInfo.createMessage(output.getMessage().getQName());
             opInfo.setOutput(output.getName(), minfo);
             buildMessage(minfo, output.getMessage(), paramOrder);
+            copyExtensors(minfo, output.getExtensibilityElements());
         }
         Map<?, ?> m = op.getFaults();
         for (Map.Entry<?, ?> rawentry : m.entrySet()) {

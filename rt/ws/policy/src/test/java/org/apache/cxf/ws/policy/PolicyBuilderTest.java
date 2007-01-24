@@ -27,24 +27,28 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.ws.policy.builders.AssertionBuilder;
 import org.apache.cxf.ws.policy.builders.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
+import org.apache.neethi.PolicyReference;
 
 public class PolicyBuilderTest extends TestCase {
     
-    public void testGetPolicy() throws Exception {
-        String name = "/samples/test25.xml";
-        InputStream is = PolicyBuilderTest.class.getResourceAsStream(name);
-        PolicyBuilder builder = new PolicyBuilder();
+    private PolicyBuilder builder;
+    
+    public void setUp() {
+        builder = new PolicyBuilder();
         AssertionBuilderRegistry abr = new AssertionBuilderRegistry();
         builder.setAssertionBuilderRegistry(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
         abr.registerBuilder(new QName("http://sample.org/Assertions", "A"), ab);
         abr.registerBuilder(new QName("http://sample.org/Assertions", "B"), ab);
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "C"), ab);        
+        abr.registerBuilder(new QName("http://sample.org/Assertions", "C"), ab);
+    }
+    public void testGetPolicy() throws Exception {
+        String name = "/samples/test25.xml";
+        InputStream is = PolicyBuilderTest.class.getResourceAsStream(name);        
         
         Policy p = builder.getPolicy(is);
         assertNotNull(p);
@@ -53,5 +57,21 @@ public class PolicyBuilderTest extends TestCase {
         for (int i = 0; i < 3; i++) {
             assertEquals(Constants.TYPE_ASSERTION, a.get(i).getType());
         }
+    }
+    
+    public void testGetPolicyReference() throws Exception {
+        String name = "/samples/test26.xml";
+        InputStream is = PolicyBuilderTest.class.getResourceAsStream(name);        
+        
+        PolicyReference pr = builder.getPolicyReference(is);
+        assertEquals("#PolicyA", pr.getURI());
+        
+        name = "/samples/test27.xml";
+        is = PolicyBuilderTest.class.getResourceAsStream(name);        
+        
+        pr = builder.getPolicyReference(is);
+        assertEquals("http://sample.org/test.wsdl#PolicyA", pr.getURI()); 
+        
+        
     }
 }

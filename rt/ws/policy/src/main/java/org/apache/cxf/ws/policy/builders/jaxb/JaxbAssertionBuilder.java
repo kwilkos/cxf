@@ -33,7 +33,7 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.ws.policy.builders.AssertionBuilder;
+import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy.builders;
+package org.apache.cxf.ws.policy;
 
 import java.util.Collection;
 
