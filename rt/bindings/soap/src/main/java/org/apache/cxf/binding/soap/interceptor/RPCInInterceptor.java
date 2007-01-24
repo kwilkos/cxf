@@ -110,26 +110,6 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             }            
             Object param = dr.read(part, message);
             parameters.add(param);
-//            MessagePartInfo p = msg.getMessageParts().get(idx);
-//            if (p == null) {
-//                throw new SoapFault("Parameter " + xmlReader.getName() + " does not exist!",
-//                                    ((SoapMessage)message).getVersion().getSender());
-//            }
-//            QName elName = new QName(operation.getOperationInfo().getName().getNamespaceURI(), 
-//                    p.getName().getLocalPart());
-//
-//            if (!elName.getLocalPart().equals(name.getLocalPart())) {
-//                String expMessage = "Parameter " + name + " is not equal to the name ["
-//                                    + elName.getLocalPart() + "] in the servicemodel!";
-//                throw new SoapFault(expMessage, ((SoapMessage)message).getVersion().getSender());
-//            }
-//            Object param = null;
-//            param = dr.read(p, message);
-//            if (param != null) {
-//                parameters.add(param);
-//            } else {
-//                throw new RuntimeException(p.getName() + " can not be unmarshalled");
-//            }
         }
         message.setContent(List.class, parameters);
     }

@@ -85,7 +85,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                     Holder holder = (Holder) outObjects.get(idx);
                     if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
                         newObjects.set(idx, holder.value);
-                    } 
+                    }
                     holders.add(holder);
                 }
             }
@@ -101,8 +101,23 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                     i++;
                     continue;
                 }
-                
-                newObjects.set(part.getIndex(), outObjects.get(i));
+                List<String> ordering = part.getMessageInfo().getOperation().getParameterOrdering();
+                if (ordering != null && ordering.size() > 0) {
+                    int orderIdx = -1;
+                    for (int j = 0; j < ordering.size(); j++) {
+                        if (ordering.get(j).equals(part.getName().getLocalPart())) {
+                            orderIdx = j;
+                            break;
+                        }
+                    }
+                    if (orderIdx != -1) {                        
+                        newObjects.set(part.getIndex(), outObjects.get(orderIdx));
+                    } else {
+                        newObjects.set(part.getIndex(), outObjects.get(i));
+                    }                    
+                } else {
+                    newObjects.set(part.getIndex(), outObjects.get(i));
+                }
                 i++;
             }
             

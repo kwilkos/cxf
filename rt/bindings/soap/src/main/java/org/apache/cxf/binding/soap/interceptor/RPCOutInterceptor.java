@@ -90,14 +90,13 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                         llist.add(i, mpi);
                     }
                 }
-                for (int idx = 0; idx < countParts; idx++) {
-                    Object arg = null;
-                    for (arg = objs.get(notNullIndex); arg == null; notNullIndex++) {
-                        arg = objs.get(notNullIndex);
+                for (int idx = 0; idx < countParts; idx++) {                    
+                    while (objs.get(notNullIndex) == null) {
+                        notNullIndex++;
                     }
-                    notNullIndex++;
                     MessagePartInfo part = (MessagePartInfo) llist.get(idx);
-                    dataWriter.write(arg, part, message);
+                    dataWriter.write(objs.get(notNullIndex), part, message);
+                    notNullIndex++;
                 }
             }
             // Finishing the writing.
