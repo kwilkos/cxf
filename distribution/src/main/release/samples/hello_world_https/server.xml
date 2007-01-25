@@ -35,6 +35,17 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                   <sec:WantClientAuthentication>true</sec:WantClientAuthentication>
                   <sec:RequireClientAuthentication>true</sec:RequireClientAuthentication>
                   <sec:TrustStore>src/demo/hw_https/resources/celtixp12.truststore</sec:TrustStore>
+                  <sec:CiphersuiteFilters>
+                      <!-- these filters ensure that a ciphersuite with
+                      export-suitable or null encryption is used,
+                      but exclude anonymous Diffie-Hellman key change as
+                      this is vulnerable to man-in-the-middle attacks --> 
+                      <sec:include>.*_EXPORT_.*</sec:include>
+                      <sec:include>.*_EXPORT1024_.*</sec:include>
+                      <sec:include>.*_WITH_DES_.*</sec:include>
+                      <sec:include>.*_WITH_NULL_.*</sec:include>
+                      <sec:exclude>.*_DH_anon_.*</sec:exclude>
+                  </sec:CiphersuiteFilters>
               </sec:sslServer>
           </value>
       </property>

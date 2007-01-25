@@ -77,6 +77,13 @@
     </xs:complexType>
     <xs:element name="authorization" type="tns:AuthorizationPolicy"/>
 
+    <xs:complexType name="FiltersType">
+        <xs:sequence>
+            <xs:element name="include" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="exclude" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+            
     <xs:complexType name="SSLServerPolicy">
         <xs:annotation>
             <xs:documentation>
@@ -151,6 +158,27 @@
                 </xs:annotation>      
             </xs:element>
 
+            <xs:element name="CiphersuiteFilters" type="tns:FiltersType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    As an alternative to configuring an explicit list of ciphesuites
+                    via the Ciphersuites element, a set of filters may be specified
+                    instead. These are interpreted as a sequence of regular expressions,
+                    indicating which ciphersuites to include or exclude. The default set 
+                    of ciphersuites provided by the underlying SSL engine are then pruned,
+                    so that only those matching at least one include, and not matching
+                    an exclude, remain enabled.
+                    The default is to include the following:
+                        ".*_EXPORT_.*",
+                        ".*_EXPORT1024_.*",
+                        ".*_WITH_DES_.*",
+                        ".*_WITH_NULL_.*"
+                    Note that these defaults must be hard-coded as JAXB does not
+                    support these being encoded in the schema.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            
             <xs:element name="TrustStore" type="xs:string" minOccurs="0" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
@@ -280,6 +308,28 @@
                     </xs:documentation>
                 </xs:annotation>      
             </xs:element>
+
+            <xs:element name="CiphersuiteFilters" type="tns:FiltersType" minOccurs="0" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                    As an alternative to configuring an explicit list of ciphesuites
+                    via the Ciphersuites element, a set of filters may be specified
+                    instead. These are interpreted as a sequence of regular expressions,
+                    indicating which ciphersuites to include or exclude. The default set 
+                    of ciphersuites provided by the underlying SSL engine are then pruned,
+                    so that only those matching at least one include, and not matching
+                    an exclude, remain enabled.
+                    The default is to include the following:
+                        ".*_EXPORT_.*",
+                        ".*_EXPORT1024_.*",
+                        ".*_WITH_DES_.*",
+                        ".*_WITH_NULL_.*"
+                    Note that these defaults must be hard-coded as JAXB does not
+                    support these being encoded in the schema.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            
 
             <xs:element name="TrustStore" type="xs:string" minOccurs="0" maxOccurs="1">
                 <xs:annotation>

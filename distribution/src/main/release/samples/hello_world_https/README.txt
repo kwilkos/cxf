@@ -67,7 +67,11 @@ src/demo/hw_https/resources/celtix.p12 to the server and so the server
 authenticates the client's certificate using its trust store
 src/demo/hw_https/resources/abigcompany_ca.pem. Likewise the client
 authenticates the servers certificate against its CA
-src/demo/hw_https/resources/abigcompany_ca.pem.
+src/demo/hw_https/resources/abigcompany_ca.pem. 
+Note also the usage of the CiphersuitesFilters configuration in
+the client.xml and server.xml, where each party imposes different
+ciphersuites contraints, so that the ciphersuite eventually
+negotiated during the TLS handshake is acceptable to both sides.
 
 But please note that it is not adviseable to store sensitive data such
 as passwords stored in a clear text configuration file, unless the

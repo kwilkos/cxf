@@ -31,6 +31,16 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                   <sec:KeystorePassword>celtixpass</sec:KeystorePassword>
                   <sec:KeyPassword>celtixpass</sec:KeyPassword>
                   <sec:TrustStore>src/demo/hw_https/resources/abigcompany_ca.pem</sec:TrustStore>
+                  <sec:CiphersuiteFilters>
+                      <!-- these filters ensure that a ciphersuite with
+                      export-suitable but non-null encryption is used,
+                      and prefers the stronger SHA over MD5 message digests -->
+                      <sec:include>.*_EXPORT_.*</sec:include>
+                      <sec:include>.*_EXPORT1024_.*</sec:include>
+                      <sec:include>.*_WITH_DES_.*</sec:include>
+                      <sec:exclude>.*_WITH_NULL_.*</sec:exclude>
+                      <sec:exclude>.*_MD5</sec:exclude>
+                  </sec:CiphersuiteFilters>
               </sec:sslClient>
           </value>
       </property> 

@@ -37,6 +37,8 @@ public final class JettySslConnectorFactory implements JettyConnectorFactory {
     {"SessionCaching", "SessionCacheKey", "MaxChainLength",
      "CertValidator", "TrustStoreAlgorithm", "TrustStoreType"};
     
+    private static final String[] DERIVATIVE = {"CiphersuiteFilters"};
+    
     SSLServerPolicy sslPolicy;
         
     /**
@@ -114,5 +116,7 @@ public final class JettySslConnectorFactory implements JettyConnectorFactory {
         return UNSUPPORTED;
     }
 
-   
+    protected String[] getDerivative() {
+        return DERIVATIVE;
+    }
 }

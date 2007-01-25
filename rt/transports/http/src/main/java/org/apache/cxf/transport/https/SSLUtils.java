@@ -25,19 +25,27 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.configuration.security.FiltersType;
 
 /**
  * Holder for utility methods related to manipulating SSL settings, common
@@ -54,6 +62,15 @@ public final class SSLUtils {
     
     private static final boolean DEFAULT_REQUIRE_CLIENT_AUTHENTICATION = false;
     private static final boolean DEFAULT_WANT_CLIENT_AUTHENTICATION = true;
+    
+    /**
+     * By default, only include export-compatible ciphersuites.
+     */
+    private static final List<String> DEFAULT_CIPHERSUITE_FILTERS_INCLUDE =
+        Arrays.asList(new String[] {".*_EXPORT_.*",
+                                    ".*_EXPORT1024_.*",
+                                    ".*_WITH_DES_.*",
+                                    ".*_WITH_NULL_.*"});
 
 
     private SSLUtils() {
@@ -113,7 +130,7 @@ public final class SSLUtils {
         if ((keyStorePassword == null) && (keyStoreLocation != null)) {
             LogUtils.log(log, Level.WARNING,
                          "FAILED_TO_LOAD_KEYSTORE_NULL_PASSWORD", 
-                         new Object[]{keyStoreLocation});
+                         keyStoreLocation);
         }
         return keystoreManagers;
     }
@@ -132,7 +149,7 @@ public final class SSLUtils {
             LogUtils.log(log,
                          Level.INFO,
                          "LOADED_KEYSTORE",
-                         new Object[]{keyStoreLocation});
+                         keyStoreLocation);
         } catch (Exception e) {
             LogUtils.log(log,
                          Level.WARNING,
@@ -179,10 +196,7 @@ public final class SSLUtils {
         TrustManagerFactory tmf  = 
             TrustManagerFactory.getInstance(trustStoreMgrFactoryAlgorithm);
         tmf.init(trustedCertStore);
-        LogUtils.log(log,
-                     Level.INFO,
-                     "LOADED_TRUST_STORE",
-                     new Object[]{trustStoreLocation});
+        LogUtils.log(log, Level.INFO, "LOADED_TRUST_STORE", trustStoreLocation);
         trustStoreManagers = tmf.getTrustManagers();
 
         return trustStoreManagers;
@@ -235,7 +249,7 @@ public final class SSLUtils {
                 logMsg = "KEY_STORE_NOT_SET";
             }
         }
-        LogUtils.log(log, Level.INFO, logMsg, new Object[]{keyStoreLocation});
+        LogUtils.log(log, Level.INFO, logMsg, keyStoreLocation);
         return keyStoreLocation;
     }
     
@@ -247,7 +261,7 @@ public final class SSLUtils {
             keyStoreType = DEFAULT_KEYSTORE_TYPE;
             logMsg = "KEY_STORE_TYPE_NOT_SET";
         }
-        LogUtils.log(log, Level.INFO, logMsg, new Object[]{keyStoreType});
+        LogUtils.log(log, Level.INFO, logMsg, keyStoreType);
         return keyStoreType;
     }  
     
@@ -293,8 +307,7 @@ public final class SSLUtils {
                 KeyManagerFactory.getDefaultAlgorithm();
             logMsg = "KEY_STORE_ALGORITHM_NOT_SET";
         }
-        LogUtils.log(log, Level.INFO, logMsg, 
-                     new Object[] {keyStoreMgrFactoryAlgorithm});
+        LogUtils.log(log, Level.INFO, logMsg, keyStoreMgrFactoryAlgorithm);
         return keyStoreMgrFactoryAlgorithm;
     } 
     
@@ -309,32 +322,118 @@ public final class SSLUtils {
                 TrustManagerFactory.getDefaultAlgorithm();
             logMsg = "TRUST_STORE_ALGORITHM_NOT_SET";
         }
-        LogUtils.log(log, Level.INFO, logMsg, 
-                     new Object[] {trustStoreMgrFactoryAlgorithm});
+        LogUtils.log(log, Level.INFO, logMsg, trustStoreMgrFactoryAlgorithm);
         return trustStoreMgrFactoryAlgorithm;
     }    
     
+    public static SSLContext getSSLContext(String protocol,
+                                           KeyManager[] keyStoreManagers,
+                                           TrustManager[] trustStoreManagers)
+        throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext ctx = SSLContext.getInstance(protocol);
+        ctx.init(keyStoreManagers, trustStoreManagers, null);
+        return ctx;
+    }
+    
+    public static String[] getSupportedCipherSuites(SSLContext context) {
+        return context.getSocketFactory().getSupportedCipherSuites();
+    }
+
+    public static String[] getServerSupportedCipherSuites(SSLContext context) {
+        return context.getServerSocketFactory().getSupportedCipherSuites();
+    }
+
     public static String[] getCiphersuites(List<String> cipherSuitesList,
+                                           String[] supportedCipherSuites,
+                                           FiltersType filters,
                                            Logger log) {
         String[] cipherSuites = null;
         if (!(cipherSuitesList == null || cipherSuitesList.isEmpty())) {
-            int numCipherSuites = cipherSuitesList.size();
-            cipherSuites = new String[numCipherSuites];
-            String ciphsStr = null;
-            for (int i = 0; i < numCipherSuites; i++) {
-                cipherSuites[i] = cipherSuitesList.get(i);
-                if (ciphsStr == null) {
-                    ciphsStr = cipherSuites[i];
+            cipherSuites = getCiphersFromList(cipherSuitesList, log);
+        } else {
+            LogUtils.log(log, Level.INFO, "CIPHERSUITES_NOT_SET");
+            if (filters == null) {
+                LogUtils.log(log, Level.INFO, "CIPHERSUITE_FILTERS_NOT_SET");                
+            }
+            List<String> filteredCipherSuites = new ArrayList<String>();
+            List<Pattern> includes =
+                filters != null
+                ? compileRegexPatterns(filters.getInclude(), true, log)
+                : compileRegexPatterns(DEFAULT_CIPHERSUITE_FILTERS_INCLUDE, true, log);
+            List<Pattern> excludes =
+                filters != null
+                ? compileRegexPatterns(filters.getExclude(), false, log)
+                : null;
+            for (int i = 0; i < supportedCipherSuites.length; i++) {
+                if (matchesOneOf(supportedCipherSuites[i], includes)
+                    && !matchesOneOf(supportedCipherSuites[i], excludes)) {
+                    LogUtils.log(log,
+                                 Level.INFO,
+                                 "CIPHERSUITE_INCLUDED",
+                                 supportedCipherSuites[i]);
+                    filteredCipherSuites.add(supportedCipherSuites[i]);
                 } else {
-                    ciphsStr += ", " + cipherSuites[i];
+                    LogUtils.log(log,
+                                 Level.INFO,
+                                 "CIPHERSUITE_EXCLUDED",
+                                 supportedCipherSuites[i]);
                 }
             }
-            LogUtils.log(log, Level.INFO, "CIPHERSUITE_SET", new Object[]{ciphsStr});
-        } else {
-            LogUtils.log(log, Level.INFO, "CIPHERSUITE_NOT_SET");
-        }
+            LogUtils.log(log,
+                         Level.INFO,
+                         "CIPHERSUITES_FILTERED",
+                         filteredCipherSuites);
+            cipherSuites = getCiphersFromList(filteredCipherSuites, log);
+        } 
         return cipherSuites;
     }         
+    
+    private static List<Pattern> compileRegexPatterns(List<String> regexes,
+                                                      boolean include,
+                                                      Logger log) {
+        List<Pattern> patterns = new ArrayList<Pattern>();
+        if (regexes != null) {
+            String msg = include
+                         ? "CIPHERSUITE_INCLUDE_FILTER"
+                         : "CIPHERSUITE_EXCLUDE_FILTER";
+            for (String s : regexes) {
+                LogUtils.log(log, Level.INFO, msg, s);
+                patterns.add(Pattern.compile(s));
+            }
+        }
+        return patterns;
+    }
+    
+    private static boolean matchesOneOf(String s, List<Pattern> patterns) {
+        boolean matches = false;
+        if (patterns != null) {
+            for (Pattern pattern : patterns) {
+                Matcher matcher = pattern.matcher(s);
+                if (matcher.matches()) {
+                    matches = true;
+                    break;
+                }
+            }
+        }
+        return matches;
+    }
+    
+    private static String[] getCiphersFromList(List<String> cipherSuitesList,
+                                               Logger log) {
+        int numCipherSuites = cipherSuitesList.size();
+        String[] cipherSuites = new String[numCipherSuites];
+        String ciphsStr = null;
+        for (int i = 0; i < numCipherSuites; i++) {
+            cipherSuites[i] = cipherSuitesList.get(i);
+            if (ciphsStr == null) {
+                ciphsStr = cipherSuites[i];
+            } else {
+                ciphsStr += ", " + cipherSuites[i];
+            }
+        }
+        LogUtils.log(log, Level.INFO, "CIPHERSUITES_SET", ciphsStr);
+        return cipherSuites;
+    }
     
     public static String getTrustStore(String trustStoreLocation, Logger log) {
         String logMsg = null;
@@ -350,7 +449,7 @@ public final class SSLUtils {
                 logMsg = "TRUST_STORE_NOT_SET";
             }
         }
-        LogUtils.log(log, Level.INFO, logMsg, new Object[]{trustStoreLocation});
+        LogUtils.log(log, Level.INFO, logMsg, trustStoreLocation);
         return trustStoreLocation;
     }
     
@@ -363,7 +462,7 @@ public final class SSLUtils {
             trustStoreType = DEFAULT_TRUST_STORE_TYPE;
             logMsg = "TRUST_STORE_TYPE_NOT_SET";
         }
-        LogUtils.log(log, Level.INFO, logMsg, new Object[]{trustStoreType});
+        LogUtils.log(log, Level.INFO, logMsg, trustStoreType);
         return trustStoreType;
     }
     
@@ -373,7 +472,7 @@ public final class SSLUtils {
             LogUtils.log(log,
                          Level.INFO,
                          "SECURE_SOCKET_PROTOCOL_SET",
-                         new Object[] {secureSocketProtocol});
+                         secureSocketProtocol);
         } else {
             LogUtils.log(log, Level.INFO, "SECURE_SOCKET_PROTOCOL_NOT_SET");
             secureSocketProtocol = DEFAULT_SECURE_SOCKET_PROTOCOL;
@@ -393,7 +492,7 @@ public final class SSLUtils {
             LogUtils.log(log,
                          Level.INFO,
                          "REQUIRE_CLIENT_AUTHENTICATION_SET", 
-                         new Object[]{requireClientAuthentication});
+                         requireClientAuthentication);
         } else {
             LogUtils.log(log,
                          Level.WARNING,
@@ -414,7 +513,7 @@ public final class SSLUtils {
             LogUtils.log(log,
                          Level.INFO,
                          "WANT_CLIENT_AUTHENTICATION_SET", 
-                         new Object[]{wantClientAuthentication});
+                         wantClientAuthentication);
         } else {
             LogUtils.log(log,
                          Level.WARNING,
@@ -449,12 +548,13 @@ public final class SSLUtils {
                          client
                          ? "UNSUPPORTED_SSL_CLIENT_POLICY_DATA"
                          : "UNSUPPORTED_SSL_SERVER_POLICY_DATA",
-                         new Object[]{policy});
+                         policy);
         }    
     }
     
     protected static boolean testAllDataHasSetupMethod(Object policy,
-                                                       String[] unsupported) {
+                                                       String[] unsupported,
+                                                       String[] derivative) {
         Method[] sslPolicyMethods = policy.getClass().getDeclaredMethods();
         Method[] methods = SSLUtils.class.getMethods();
         boolean ok = true;
@@ -467,7 +567,8 @@ public final class SSLUtils {
                                                   sslPolicyMethodName.length());
                 String thisMethodName = "get" + dataName;
                 ok = hasMethod(methods, thisMethodName)
-                     || isUnSupported(unsupported, dataName);
+                     || isExcluded(unsupported, dataName)
+                     || isExcluded(derivative, dataName);
             }
         }
         return ok;
@@ -481,11 +582,11 @@ public final class SSLUtils {
         return found;
     }
     
-    private static boolean isUnSupported(String[] unsupported,
-                                         String dataName) {
+    private static boolean isExcluded(String[] excluded,
+                                      String dataName) {
         boolean found = false;
-        for (int i = 0; i < unsupported.length && !found; i++) {
-            found = unsupported[i].equals(dataName);
+        for (int i = 0; i < excluded.length && !found; i++) {
+            found = excluded[i].equals(dataName);
         }
         return found;
         

@@ -283,7 +283,9 @@ public class JettySslConnectorFactoryTest extends TestCase {
         assertTrue("A new element has been "
                    + "added to SSLServerPolicy without a corresponding "
                    + "setup method in the configurer.",
-                   SSLUtils.testAllDataHasSetupMethod(policy, factory.getUnSupported()));
+                   SSLUtils.testAllDataHasSetupMethod(policy,
+                                                      factory.getUnSupported(),
+                                                      factory.getDerivative()));
     }
     
     private JettySslConnectorFactory createFactory(SSLServerPolicy policy,

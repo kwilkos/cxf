@@ -20,7 +20,10 @@
 package org.apache.cxf.transport.https;
 
 import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
@@ -36,6 +39,8 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
     private static final String[] UNSUPPORTED =
     {"SessionCaching", "SessionCacheKey", "MaxChainLength",
      "CertValidator", "TrustStoreAlgorithm", "TrustStoreType"};
+
+    private static final String[] DERIVATIVE = {"CiphersuiteFilters"};
     
     SSLServerPolicy sslPolicy;
         
@@ -65,26 +70,31 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
      * @param listener the secure listener
      */
     public void decorate(SslListener secureListener) {
-        secureListener.setKeystore(
-            SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG));
-        secureListener.setKeystoreType(
-            SSLUtils.getKeystoreType(sslPolicy.getKeystoreType(), LOG));
-        secureListener.setPassword(
-            SSLUtils.getKeystorePassword(sslPolicy.getKeystorePassword(),
-                                         LOG));
-        secureListener.setKeyPassword(
-            SSLUtils.getKeyPassword(sslPolicy.getKeyPassword(), LOG));
-        secureListener.setAlgorithm(
+        String keyStoreLocation =
+            SSLUtils.getKeystore(sslPolicy.getKeystore(), LOG);
+        secureListener.setKeystore(keyStoreLocation);
+        String keyStoreType =
+            SSLUtils.getKeystoreType(sslPolicy.getKeystoreType(), LOG);
+        secureListener.setKeystoreType(keyStoreType);
+        String keyStorePassword =
+            SSLUtils.getKeystorePassword(sslPolicy.getKeystorePassword(), LOG);
+        secureListener.setPassword(keyStorePassword);
+        String keyPassword =
+            SSLUtils.getKeyPassword(sslPolicy.getKeyPassword(), LOG);
+        secureListener.setKeyPassword(keyPassword);
+        String keyStoreMgrFactoryAlgorithm =
             SSLUtils.getKeystoreAlgorithm(sslPolicy.getKeystoreAlgorithm(),
-                                          LOG));
-        secureListener.setCipherSuites(
-            SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(), LOG));
+                                          LOG);
+        secureListener.setAlgorithm(keyStoreMgrFactoryAlgorithm);
+        
         System.setProperty("javax.net.ssl.trustStore",
                            SSLUtils.getTrustStore(sslPolicy.getTrustStore(),
                                                   LOG));
-        secureListener.setProtocol(
+        String secureSocketProtocol =
             SSLUtils.getSecureSocketProtocol(sslPolicy.getSecureSocketProtocol(),
-                                             LOG));
+                                             LOG);
+        secureListener.setProtocol(secureSocketProtocol);
+        
         secureListener.setWantClientAuth(
             SSLUtils.getWantClientAuthentication(
                                    sslPolicy.isSetWantClientAuthentication(),
@@ -96,6 +106,27 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
                                 sslPolicy.isRequireClientAuthentication(),
                                 LOG));
         
+        try {
+            SSLContext ctx = SSLUtils.getSSLContext(
+                secureSocketProtocol,
+                SSLUtils.getKeyStoreManagers(keyStoreLocation,
+                                             keyStoreType,
+                                             keyStorePassword,
+                                             keyPassword,
+                                             keyStoreMgrFactoryAlgorithm,
+                                             secureSocketProtocol,
+                                             LOG),
+                null);
+            secureListener.setCipherSuites(
+                SSLUtils.getCiphersuites(sslPolicy.getCiphersuites(),
+                                         SSLUtils.getServerSupportedCipherSuites(ctx),
+                                         sslPolicy.getCiphersuiteFilters(),
+                                         LOG));
+        } catch (Exception e) {
+            LogUtils.log(LOG, Level.SEVERE, "SSL_CONTEXT_INIT_FAILURE", e);
+            e.printStackTrace();
+        }
+
         SSLUtils.logUnSupportedPolicies(sslPolicy,
                                         false,
                                         UNSUPPORTED,
@@ -111,5 +142,9 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
     
     protected String[] getUnSupported() {
         return UNSUPPORTED;
+    }
+    
+    protected String[] getDerivative() {
+        return DERIVATIVE;
     }
 }

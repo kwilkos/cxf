@@ -127,6 +127,21 @@ public final class LogUtils {
      * @param logger the Logger the log to
      * @param level the severity level
      * @param message the log message
+     * @param parameter the parameter to substitute into message
+     */      
+    public static void log(Logger logger, 
+                           Level level, 
+                           String message, 
+                           Object parameter) {
+        log(logger, level, message, new Object[] {parameter});
+    }
+    
+    /**
+     * Checks log level and logs
+     *
+     * @param logger the Logger the log to
+     * @param level the severity level
+     * @param message the log message
      * @param parameters the parameters to substitute into message
      */      
     public static void log(Logger logger, 

@@ -423,6 +423,7 @@ public final class SSLUtils {
         return wantClientAuthentication;
     }    
    
+    
     protected static void logUnSupportedPolicies(Object policy,
                                                  boolean client,
                                                  String[] unsupported,
@@ -454,7 +455,8 @@ public final class SSLUtils {
     }
     
     protected static boolean testAllDataHasSetupMethod(Object policy,
-                                                       String[] unsupported) {
+                                                       String[] unsupported,
+                                                       String[] derivative) {
         Method[] sslPolicyMethods = policy.getClass().getDeclaredMethods();
         Method[] methods = SSLUtils.class.getMethods();
         boolean ok = true;
@@ -467,7 +469,8 @@ public final class SSLUtils {
                                                   sslPolicyMethodName.length());
                 String thisMethodName = "get" + dataName;
                 ok = hasMethod(methods, thisMethodName)
-                     || isUnSupported(unsupported, dataName);
+                     || isExcluded(unsupported, dataName)
+                     || isExcluded(derivative, dataName);
             }
         }
         return ok;
@@ -481,11 +484,11 @@ public final class SSLUtils {
         return found;
     }
     
-    private static boolean isUnSupported(String[] unsupported,
-                                         String dataName) {
+    private static boolean isExcluded(String[] excluded,
+                                      String dataName) {
         boolean found = false;
-        for (int i = 0; i < unsupported.length && !found; i++) {
-            found = unsupported[i].equals(dataName);
+        for (int i = 0; i < excluded.length && !found; i++) {
+            found = excluded[i].equals(dataName);
         }
         return found;
         

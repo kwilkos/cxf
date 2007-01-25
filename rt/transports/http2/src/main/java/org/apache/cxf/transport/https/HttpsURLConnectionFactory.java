@@ -44,6 +44,8 @@ public final class HttpsURLConnectionFactory implements URLConnectionFactory {
     {"SessionCaching", "SessionCacheKey", "MaxChainLength",
      "CertValidator", "ProxyHost", "ProxyPort"};
     
+    private static final String[] DERIVATIVE = {"CiphersuiteFilters"};
+    
     SSLClientPolicy sslPolicy;
     
     /**
@@ -143,6 +145,10 @@ public final class HttpsURLConnectionFactory implements URLConnectionFactory {
        
     protected String[] getUnSupported() {
         return UNSUPPORTED;
+    }
+    
+    protected String[] getDerivative() {
+        return DERIVATIVE;
     }
 }
 
