@@ -44,19 +44,11 @@
         <dependency>
             <groupId>httpunit</groupId>
             <artifactId>httpunit</artifactId>
-            <version>1.6.1</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>rhino</groupId>
-                    <artifactId>js</artifactId>
-                </exclusion>
-	    </exclusions>
         </dependency>
         <dependency>
             <groupId>jtidy</groupId>
             <artifactId>jtidy</artifactId>
-            <version>4aug2000r7-dev</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -125,13 +117,13 @@
             <version>${spring.version}</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.0</version>
+                <version>1.0</version>
                 <executions>
                     <execution>
                         <id>add-source</id>

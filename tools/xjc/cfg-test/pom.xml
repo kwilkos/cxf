@@ -66,7 +66,6 @@
         <dependency>
             <groupId>jaxme</groupId>
             <artifactId>jaxme2</artifactId>
-            <version>0.5.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -76,7 +75,6 @@
             <plugin>
                 <groupId>com.sun.tools.xjc.maven2</groupId>
                 <artifactId>maven-jaxb-plugin</artifactId>
-                <version>1.0</version>
                 <executions>
                     <execution>
                         <configuration>

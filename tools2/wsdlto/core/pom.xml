@@ -26,135 +26,127 @@
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf-tools2-wsdlto</artifactId>
-	<version>2.0-incubator-RC-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-tools2-wsdlto</artifactId>
+        <version>2.0-incubator-RC-SNAPSHOT</version>
     </parent>
 
     <properties>
-	<topDirectoryLocation>../../</topDirectoryLocation>
+        <topDirectoryLocation>../../</topDirectoryLocation>
     </properties>
 
     <dependencies>
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-tools2-common</artifactId>
-	    <version>${project.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-common-schemas</artifactId>
-	    <version>${project.version}</version>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-tools2-validator</artifactId>
-	    <version>${project.version}</version>
-	    
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-rt-core</artifactId>
-	    <version>${project.version}</version>
-	</dependency>
-
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-api</artifactId>
-	    <version>${project.version}</version>
-	</dependency>
-
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>org.easymock</groupId>
-	    <artifactId>easymockclassextension</artifactId>
-	    <scope>test</scope>
-	</dependency>
-	<dependency>
-	    <groupId>asm</groupId>
-	    <artifactId>asm</artifactId>
-	    <scope>test</scope>
-	</dependency>
-
-	<dependency>
-	    <groupId>velocity</groupId>
-	    <artifactId>velocity</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>wsdl4j</groupId>
-	    <artifactId>wsdl4j</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-xjc</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-impl</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>javax.xml.ws</groupId>
-	    <artifactId>jaxws-api</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>javax.xml.soap</groupId>
-	    <artifactId>saaj-api</artifactId>
-	</dependency>
-	<dependency>
-	            <groupId>org.codehaus.woodstox</groupId>
-	            <artifactId>wstx-asl</artifactId>
-	            <scope>runtime</scope>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools2-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-common-utilities</artifactId>
-	    <version>${project.version}</version>
-	</dependency>
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-common-schemas</artifactId>
-	    <version>${project.version}</version>
-	</dependency>
-<!--
-	<dependency>
-	    <groupId>org.codehaus.castor</groupId>
-	    <artifactId>castor</artifactId>
-	    <version>1.0.4</version>
-	</dependency>
--->
-        
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-schemas</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools2-validator</artifactId>
+            <version>${project.version}</version>
+
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>velocity</groupId>
+            <artifactId>velocity</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.ws</groupId>
+            <artifactId>jaxws-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.soap</groupId>
+            <artifactId>saaj-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>wstx-asl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-utilities</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-common-schemas</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
     <build>
-	<plugins>
-	    <plugin>
-		<groupId>org.apache.cxf</groupId>
-		<artifactId>cxf-common-xsd</artifactId>
-		<version>${project.version}</version>
-		<executions>
-		    <execution>
-			<id>generate-sources</id>
-			<phase>generate-sources</phase>
-			<configuration>
-			    <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-			    <xsdOptions>
-				<xsdOption>
-				    <xsd>${basedir}/src/main/resources/schemas/plugin.xsd</xsd>
-				</xsdOption>
-			    </xsdOptions>
-			</configuration>
-			<goals>
-			    <goal>xsdtojava</goal>
-			</goals>
-		    </execution>
-		</executions>
-	    </plugin>
-	</plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-common-xsd</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <xsdOptions>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/plugin.xsd</xsd>
+                                </xsdOption>
+                            </xsdOptions>
+                        </configuration>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 </project>

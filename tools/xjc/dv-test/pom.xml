@@ -49,23 +49,19 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-            <version>${jaxb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb.impl.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-xjc</artifactId>
-            <version>${jaxb.impl.version}</version>
         </dependency>
 
         <dependency>
             <groupId>jaxme</groupId>
             <artifactId>jaxme2</artifactId>
-            <version>0.5.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -86,14 +82,13 @@
             <plugin>
                 <groupId>com.sun.tools.xjc.maven2</groupId>
                 <artifactId>maven-jaxb-plugin</artifactId>
-                <version>1.0</version>
                 <executions>
                     <execution>
                         <configuration>
                             <generateDirectory>${basedir}/target/generated/src/test/java</generateDirectory>
                             <schemaDirectory>${basedir}/src/test/resources/schemas/configuration</schemaDirectory>
                             <includeSchema>*.xsd</includeSchema>
-                            <extension>true</extension> 
+                            <extension>true</extension>
                             <args>-Xdv</args>
                         </configuration>
                         <goals>
@@ -108,13 +103,6 @@
                         <version>${project.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                </configuration>
             </plugin>
         </plugins>
     </build>

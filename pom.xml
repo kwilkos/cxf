@@ -51,7 +51,7 @@
             <id>apache.incubating</id>
             <name>Apache Incubating Repository</name>
             <url>scp://people.apache.org/www/people.apache.org/repo/m2-incubating-repository</url>
-	</repository>
+        </repository>
     </distributionManagement>
 
     <inceptionYear>2006</inceptionYear>
@@ -131,10 +131,10 @@
         <assembly.version>2.1</assembly.version>
         <cobertura.version>2.0</cobertura.version>
         <compiler.version>2.0.1</compiler.version>
-        <dependency.plugin.version>1.0</dependency.plugin.version>
+        <dependency.plugin.version>2.0-alpha-1</dependency.plugin.version>
         <eclipse.plugin.version>2.2</eclipse.plugin.version>
         <jar.version>2.1</jar.version>
-        <javadoc.version>2.0</javadoc.version>
+        <javadoc.version>2.2</javadoc.version>
         <jxr.version>2.0</jxr.version>
         <mprojectinfo.version>2.0</mprojectinfo.version>
         <resources.version>2.2</resources.version>
@@ -232,6 +232,11 @@
         </testResources>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>com.sun.tools.xjc.maven2</groupId>
+                    <artifactId>maven-jaxb-plugin</artifactId>
+                    <version>1.1</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -378,14 +383,14 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>3.8.1</version>
+                <version>3.8.2</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
-                <version>2.0.1</version>
+                <version>2.0.4</version>
                 <scope>provided</scope>
                 <exclusions>
                     <exclusion>
@@ -394,17 +399,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-    
-
-
-
-
-
 
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-project</artifactId>
-                <version>2.0.1</version>
+                <version>2.0.4</version>
                 <scope>provided</scope>
                 <exclusions>
                     <exclusion>
@@ -413,7 +412,28 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-artifact</artifactId>
+                <scope>provided</scope>
+                <version>2.0.4</version>
+            </dependency>
+            <dependency>
+                <groupId>httpunit</groupId>
+                <artifactId>httpunit</artifactId>
+                <version>1.6.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>rhino</groupId>
+                        <artifactId>js</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>jtidy</groupId>
+                <artifactId>jtidy</artifactId>
+                <version>4aug2000r7-dev</version>
+            </dependency>
             <dependency>
                 <groupId>ant</groupId>
                 <artifactId>ant</artifactId>
@@ -588,11 +608,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>3.8.1</version>
-            </dependency>
-            <dependency>
                 <groupId>org.easymock</groupId>
                 <artifactId>easymockclassextension</artifactId>
                 <version>2.2.1</version>
@@ -600,7 +615,7 @@
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>1.5.3</version>
+                <version>2.2.3</version>
             </dependency>
             <dependency>
                 <groupId>velocity</groupId>
@@ -637,7 +652,7 @@
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
                 <version>${geronimo.version}</version>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jms_1.1_spec</artifactId>
@@ -658,16 +673,16 @@
                 <artifactId>activemq-core</artifactId>
                 <version>${activemq.version}</version>
             </dependency>
-	    <dependency>
-		<groupId>rhino</groupId>
-		<artifactId>js</artifactId>
-		<version>${rhino.version}</version>
-	    </dependency>
-	    <dependency>
-		<groupId>xmlbeans</groupId>
-		<artifactId>xbean</artifactId>
-		<version>${xmlbeans.version}</version>
-	    </dependency>
+            <dependency>
+                <groupId>rhino</groupId>
+                <artifactId>js</artifactId>
+                <version>${rhino.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>xmlbeans</groupId>
+                <artifactId>xbean</artifactId>
+                <version>${xmlbeans.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -865,7 +880,7 @@
                                         <get src="${checkstyle.url}" dest="${full.eclipse.workspace}/cxf-checkstyle.xml" />
 
                                         <copy file="${basedir}/${topDirectoryLocation}/etc/apache-header.txt" tofile="${full.eclipse.workspace}/apache-header.txt" />
-        
+
                                         <!-- Add checkstyle config -->
                                         <copy file="${basedir}/${topDirectoryLocation}/etc/eclipse/template.checkstyle-config.xml" tofile="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml" overwrite="no">
                                             <filterset>
@@ -878,16 +893,16 @@
                                             <param name="checkstyleconfig" expression="${full.eclipse.workspace}/cxf-checkstyle.xml" />
                                         </xslt>
                                         <copy file="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml.new" tofile="${full.eclipse.workspace}/.metadata/.plugins/com.atlassw.tools.eclipse.checkstyle/checkstyle-config.xml" overwrite="yes" />
-        
-        
+
+
                                         <!-- Add warning flags that we want -->
                                         <propertyfile file="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs">
                                             <entry key="org.eclipse.jdt.core.compiler.problem.missingSerialVersion" value="ignore" />
                                             <entry key="org.eclipse.jdt.core.compiler.problem.unusedImport" value="ignore" />
                                             <entry key="org.eclipse.jdt.core.compiler.problem.annotationSuperInterface" value="ignore" />
                                         </propertyfile>
-        
-        
+
+
                                         <!-- Add code format rules -->
                                         <concat destfile="${full.eclipse.workspace}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.jdt.core.prefs" append="true" fixlastline="true">
                                             <filelist dir="${basedir}/${topDirectoryLocation}/etc/eclipse" files="org.eclipse.jdt.core.prefs" />
@@ -898,7 +913,7 @@
                                             <entry key="formatter_profile" value="_CXF Java Conventions" />
                                             <entry key="org.eclipse.jdt.ui.formatterprofiles" value="${eclipse.code.format}" />
                                             <entry key="org.eclipse.jdt.ui.text.custom_code_templates" value="${eclipse.code.templates}" />
-        
+
                                             <!-- Add import order -->
                                             <entry key="org.eclipse.jdt.ui.importorder" value="java;javax;org.w3c;org.xml;junit;com;org;" />
                                             <!-- Sort order -->
