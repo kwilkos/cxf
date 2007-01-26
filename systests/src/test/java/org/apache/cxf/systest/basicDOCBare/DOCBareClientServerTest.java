@@ -44,6 +44,10 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
                                                 "SOAPService");
     private final QName portName = new QName("http://apache.org/hello_world_doc_lit_bare", "SoapPort");
 
+    public void setUp() {
+        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.cxf.CXFBusFactory");
+    }
+    
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(DOCBareClientServerTest.class);
         return new ClientServerSetupBase(suite) {

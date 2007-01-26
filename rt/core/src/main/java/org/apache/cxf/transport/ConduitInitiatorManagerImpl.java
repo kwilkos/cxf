@@ -31,6 +31,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.extension.ExtensionManager;
 
 public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManager {
 
@@ -39,6 +40,8 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     final Map<String, ConduitInitiator> conduitInitiators;
     
     private Bus bus;
+    
+    private ExtensionManager extensionManager;
 
     public ConduitInitiatorManagerImpl() {
         conduitInitiators = new ConcurrentHashMap<String, ConduitInitiator>();
@@ -47,6 +50,12 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
     public ConduitInitiatorManagerImpl(Map<String, ConduitInitiator> conduitInitiators) {
         this.conduitInitiators = conduitInitiators;
     }
+    
+    @Resource
+    public void setExtensionManager(ExtensionManager em) {
+        extensionManager = em;
+    }
+    
     
     @Resource
     public void setBus(Bus b) {
@@ -93,6 +102,12 @@ public final class ConduitInitiatorManagerImpl implements ConduitInitiatorManage
      */
     public ConduitInitiator getConduitInitiator(String namespace) throws BusException {
         ConduitInitiator factory = conduitInitiators.get(namespace);
+        
+        if (null == factory && extensionManager != null) { 
+            extensionManager.activateViaNS(namespace);            
+            factory = conduitInitiators.get(namespace);
+        }
+        
         if (null == factory) {
             throw new BusException(new Message("NO_CONDUIT_INITIATOR", BUNDLE, namespace));
         }

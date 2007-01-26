@@ -164,14 +164,14 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
                ? new URLConnectionFactory() {
                        public URLConnection createConnection(Proxy proxy, URL u)
                            throws IOException {
-                           return proxy != null 
+                           return proxy != null
                                   ? u.openConnection(proxy)
                                   : u.openConnection();
                        }
                    }
                : new HttpsURLConnectionFactory(policy);
     }
-    
+
     protected static JettyListenerFactory getListenerFactory(SSLServerPolicy policy) {
         return policy == null
                ? new JettyListenerFactory() {

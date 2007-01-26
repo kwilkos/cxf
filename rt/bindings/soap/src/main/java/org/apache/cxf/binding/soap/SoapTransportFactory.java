@@ -20,9 +20,11 @@
 package org.apache.cxf.binding.soap;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.soap.SOAPAddress;
@@ -57,7 +59,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
     WSDLEndpointFactory, ConduitInitiator {
     public static final String TRANSPORT_ID = "http://schemas.xmlsoap.org/soap/";
     private Bus bus;
-
+    private Collection<String> activationNamespaces;
     public SoapTransportFactory() {
         super();
     }
@@ -102,13 +104,13 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
             op.setStyle(soi.getStyle());
 
             b.addExtensor(op);
-            
+
             if (b.getInput() != null) {
                 SOAPBodyImpl body = new SOAPBodyImpl();
                 body.setUse("literal");
                 b.getInput().addExtensor(body);
             }
-            
+
             if (b.getOutput() != null) {
                 SOAPBodyImpl body = new SOAPBodyImpl();
                 body.setUse("literal");
@@ -134,7 +136,7 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
 
         return null;
     }
-    
+
 
     public Conduit getConduit(EndpointInfo ei, EndpointReferenceType target) throws IOException {
         return getConduit(ei);
@@ -162,5 +164,25 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
     public void setBus(Bus bus) {
         this.bus = bus;
     }
+
+    @Resource
+    public void setActivationNamespaces(Collection<String> ans) {
+        activationNamespaces = ans;
+    }
+
+    @PostConstruct
+    void registerWithBindingManager() {
+        if (null == bus) {
+            return;
+        }
+
+        DestinationFactoryManager dfm = bus.getExtension(DestinationFactoryManager.class);
+        if (null != dfm) {
+            for (String ns : activationNamespaces) {
+                dfm.registerDestinationFactory(ns, this);
+            }
+        }
+    }
+
 
 }
