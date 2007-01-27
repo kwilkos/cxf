@@ -21,12 +21,9 @@ package org.apache.cxf.binding.soap;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.mime.MIMEContent;
@@ -34,10 +31,8 @@ import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.wsdl.extensions.mime.MIMEPart;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
-import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.interceptor.MustUnderstandInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCInInterceptor;
 import org.apache.cxf.binding.soap.interceptor.RPCOutInterceptor;
@@ -78,42 +73,20 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class SoapBindingFactory extends AbstractBindingFactory {
 
-    private Map cachedBinding = new HashMap<BindingInfo, Binding>();
-
     private boolean mtomEnabled = true;
     
-    private Bus bus;
     private Collection<String> activationNamespaces;    
-       
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
+
+    public Collection<String> getActivationNamespaces() {
+        return activationNamespaces;
     }
-    
+
     @Resource
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
 
-    @PostConstruct
-    void register() {
-        if (null == bus) {
-            return;
-        }
-        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
-        if (null != bfm) {
-            for (String ns : activationNamespaces) {
-                bfm.registerBindingFactory(ns, this);
-            }
-        }
-    }
-
     public Binding createBinding(BindingInfo binding) {
-
-        if (cachedBinding.get(binding) != null) {
-            return (Binding) cachedBinding.get(binding);
-        }
-
         // TODO what about the mix style/use?
 
         // The default style should be doc-lit wrapped.

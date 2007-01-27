@@ -21,10 +21,12 @@ package org.apache.cxf.jca.cxf.test;
 
 
 import java.util.ResourceBundle;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
+import org.apache.cxf.service.model.AbstractPropertiesHolder;
 
 public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {    
     // for initialise behaviours
@@ -81,6 +83,12 @@ public class DummyBus extends AbstractBasicInterceptorProvider implements Bus {
     
     //    @Override
     public String getId() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+    public <T> T getConfiguration(AbstractPropertiesHolder props, T defaultValue, Class<T> type) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -54,17 +54,15 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
     public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer) {
         bus = b;
         endpointInfo = endpoint;
-        
+
+        setAddressPolicy(endpointInfo.getTraversedExtensor(new JMSAddressPolicyType(), 
+                                                           JMSAddressPolicyType.class));
+        setSessionPoolConfig(endpointInfo.getTraversedExtensor(new JMSSessionPoolConfigPolicy(), 
+                                                               JMSSessionPoolConfigPolicy.class));
+ 
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(this);
-        }
-        
-        if (!isSetSessionPoolConfig()) {
-            setSessionPoolConfig(new JMSSessionPoolConfigPolicy());
-        }
-        if (!isSetAddressPolicy()) {
-            setAddressPolicy(new JMSAddressPolicyType());
         }
     }
 

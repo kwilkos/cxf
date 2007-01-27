@@ -24,10 +24,8 @@
            xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
            xmlns:sec="http://cxf.apache.org/configuration/security" 
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           xmlns:cfg="http://cxf.apache.org/configuration/cfg"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
-           jaxb:extensionBindingPrefixes="cfg"
            jaxb:version="2.0">
 
     <xs:import namespace="http://cxf.apache.org/transports/http/configuration" schemaLocation="../wsdl/http-conf.xsd"/>
@@ -38,12 +36,7 @@
     <xs:element name="proxyAuthorization" type="sec:AuthorizationPolicy"/>
     <xs:element name="sslClient" type="sec:SSLClientPolicy"/>
 
-    <xs:complexType name="HTTPConduitConfigBean">        
-        <xs:annotation>
-            <xs:appinfo>                
-                <cfg:configurable/>
-            </xs:appinfo>
-        </xs:annotation>
+    <xs:complexType name="HTTPConduitConfigBean">
         <xs:sequence>
             <xs:element ref="tns:client" minOccurs="0"/>
             <xs:element ref="tns:authorization" minOccurs="0"/>

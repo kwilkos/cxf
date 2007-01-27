@@ -23,12 +23,10 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="cxf" class="org.apache.cxf.bus.spring.SpringBusImpl"/>
+    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl"/>
     
     <bean class="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor"/>
     
-    <bean id="org.apache.cxf.extension.ExtensionManager" class="org.apache.cxf.bus.spring.extension.ExtensionManagerImpl"/>
-  
     <bean id="org.apache.cxf.resource.ResourceManager" class="org.apache.cxf.bus.resource.ResourceManagerImpl">
        <constructor-arg>
             <list>
@@ -40,7 +38,12 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean>
         
     <bean id="org.apache.cxf.binding.BindingFactoryManager" class="org.apache.cxf.binding.BindingFactoryManagerImpl">
-        <property name="extensionManager" ref="org.apache.cxf.extension.ExtensionManager"/>
+        <constructor-arg>
+            <bean class="org.apache.cxf.configuration.spring.SpringBeanMap">
+              <property name="type" value="org.apache.cxf.binding.BindingFactory"/>
+              <property name="idsProperty" value="activationNamespaces"/>
+            </bean>
+        </constructor-arg>
         <property name="bus" ref="cxf"/>
     </bean>
     

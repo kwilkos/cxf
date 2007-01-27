@@ -87,7 +87,7 @@
                                     <xsd>${basedir}/src/main/resources/schemas/configuration/instrumentation.xsd</xsd>
                                     <extension>true</extension>
                                     <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
+                                        <extensionArg>-Xdv</extensionArg>
                                     </extensionArgs>
                                 </xsdOption>
                             </xsdOptions>
@@ -98,11 +98,6 @@
                     </execution>
                 </executions>
                 <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-cfg</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
                     <dependency>
                         <groupId>org.apache.cxf</groupId>
                         <artifactId>cxf-tools-xjc-dv</artifactId>

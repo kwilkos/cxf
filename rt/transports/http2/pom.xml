@@ -108,7 +108,7 @@
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
                                     <extension>true</extension>
                                     <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
+                                        <extensionArg>-Xdv</extensionArg>
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
@@ -120,8 +120,7 @@
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
                                     <extension>true</extension>
                                     <extensionArgs>
-                                        <extensionArg>-Xdv</extensionArg>
-                                        <extensionArg>-Xcfg</extensionArg>                                    
+                                        <extensionArg>-Xdv</extensionArg>                                
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
@@ -133,7 +132,7 @@
                                     <bindingFile>${basedir}/src/main/resources/schemas/wsdl/http-conf.xjb</bindingFile>
                                     <extension>true</extension>
                                     <extensionArgs>
-                                        <extensionArg>-Xcfg</extensionArg>
+                                        <extensionArg>-Xdv</extensionArg>
                                     </extensionArgs>
                                     <deleteDirs>
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
@@ -148,11 +147,6 @@
                     </execution>
                 </executions>
                 <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-cfg</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
                     <dependency>
                         <groupId>org.apache.cxf</groupId>
                         <artifactId>cxf-tools-xjc-dv</artifactId>

@@ -29,7 +29,6 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
@@ -69,7 +68,7 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 /**
  * HTTP Conduit implementation.
  */
-public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
+public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Configurable {
 
     public static final String HTTP_CONNECTION = "http.connection";
     
@@ -139,11 +138,12 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                        EndpointReferenceType t,
                        URLConnectionFactory factory,
                        ServerEngine eng) throws IOException {
-        init();
         bus = b;
         endpointInfo = ei;
         alternateConnectionFactory = factory;
-
+        
+        init();
+        
         decoupledEngine = eng;
         url = t == null
               ? new URL(getAddress())
@@ -157,7 +157,6 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
                             : HTTPTransportFactory.getConnectionFactory(sslClient);
     }
     
-    @Override
     public String getBeanName() {
         if (endpointInfo.getName() != null) {
             return endpointInfo.getName().toString() + ".http-conduit";
@@ -628,23 +627,12 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit {
     }    
 
     private void init() {
-        if (!isSetClient()) {
-            setClient(new HTTPClientPolicy());
-        }
-        if (!isSetAuthorization()) {
-            setAuthorization(new AuthorizationPolicy());
-        }
-        if (!isSetProxyAuthorization()) {
-            setProxyAuthorization(new AuthorizationPolicy());
-        }
-
-        List <ConfigurationProvider> providers = getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        ConfigurationProvider p = new ServiceModelHttpConfigurationProvider(endpointInfo, false);
-        providers.add(p);
-        setOverwriteProviders(providers);
+        // Initialize some default values for the configuration
+        setClient(endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class));
+        setAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
+                                                           AuthorizationPolicy.class));
+        setProxyAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
+                                                                AuthorizationPolicy.class));
     }
 
     private String getAddress() {

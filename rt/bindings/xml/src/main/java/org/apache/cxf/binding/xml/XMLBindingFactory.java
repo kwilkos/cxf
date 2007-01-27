@@ -22,13 +22,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
-import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.xml.interceptor.XMLFaultInInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLFaultOutInterceptor;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
@@ -42,30 +39,15 @@ public class XMLBindingFactory extends AbstractBindingFactory {
 
     private Map cachedBinding = new HashMap<BindingInfo, Binding>();
 
-    private Bus bus;
     private Collection<String> activationNamespaces;
-    
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
+
     @Resource
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
-    
-    @PostConstruct
-    void register() {
-        if (null == bus) {
-            return;
-        }
-        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
-        if (null != bfm) {
-            for (String ns : activationNamespaces) {
-                bfm.registerBindingFactory(ns, this);
-            }
-        }
+
+    public Collection<String> getActivationNamespaces() {
+        return activationNamespaces;
     }
 
     public Binding createBinding(BindingInfo binding) {

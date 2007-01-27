@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -164,11 +165,10 @@ public class HTTPConduitTest extends TestCase {
                                      boolean httpConnection,
                                      boolean autoRedirect,
                                      boolean decoupled) throws Exception {
-        endpointInfo = control.createMock(EndpointInfo.class);
+        endpointInfo = new EndpointInfo();
+        endpointInfo.setAddress(NOWHERE + "bar/foo");
         target = getEPR("bar/foo");
         connectionFactory = control.createMock(URLConnectionFactory.class);
-        endpointInfo.getAddress();
-        EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(2);
         if (send) {
             //proxy = control.createMock(Proxy.class);
             proxy =  null;
@@ -214,8 +214,9 @@ public class HTTPConduitTest extends TestCase {
                
         
         control.replay();
-        
-        HTTPConduit conduit = new HTTPConduit(null, 
+
+        CXFBusImpl bus = new CXFBusImpl();
+        HTTPConduit conduit = new HTTPConduit(bus, 
                                               endpointInfo,
                                               null,
                                               connectionFactory,

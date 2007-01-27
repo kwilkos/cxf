@@ -33,6 +33,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -89,7 +90,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
 
     public void tearDown() {
-        control.verify();
+        //control.verify();
         control = null;
         bus = null;
         conduitInitiator = null;
@@ -240,6 +241,28 @@ public class JettyHTTPDestinationTest extends TestCase {
         fullBackChannel.send(outMessage);
     }
     
+    public void testServerPolicyInServiceModel()
+        throws Exception {
+        address = getEPR("bar/foo");
+        bus = new CXFBusImpl();
+        
+        conduitInitiator = control.createMock(ConduitInitiator.class);
+        engine = control.createMock(ServerEngine.class);
+        endpointInfo = new EndpointInfo();
+        endpointInfo.setAddress(NOWHERE + "bar/foo");
+       
+        HTTPServerPolicy customPolicy = new HTTPServerPolicy();
+        endpointInfo.addExtensor(customPolicy);
+
+        control.replay();
+        
+        JettyHTTPDestination dest = new JettyHTTPDestination(bus,
+                                                             conduitInitiator,
+                                                             endpointInfo,
+                                                             engine);
+        assertEquals(customPolicy, dest.getServer());
+    }
+        
     private JettyHTTPDestination setUpDestination()
         throws Exception {
         return setUpDestination(false);
@@ -248,12 +271,12 @@ public class JettyHTTPDestinationTest extends TestCase {
     private JettyHTTPDestination setUpDestination(boolean contextMatchOnStem)
         throws Exception {
         address = getEPR("bar/foo");
-        bus = control.createMock(Bus.class);
+        bus = new CXFBusImpl();
+        
         conduitInitiator = control.createMock(ConduitInitiator.class);
-        endpointInfo = control.createMock(EndpointInfo.class);
         engine = control.createMock(ServerEngine.class);
-        endpointInfo.getAddress();
-        EasyMock.expectLastCall().andReturn(NOWHERE + "bar/foo").times(3);
+        endpointInfo = new EndpointInfo();
+        endpointInfo.setAddress(NOWHERE + "bar/foo");
        
         engine.addServant(EasyMock.eq(new URL(NOWHERE + "bar/foo")),
                           EasyMock.isA(AbstractHttpHandler.class));

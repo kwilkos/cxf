@@ -25,10 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 import java.util.concurrent.Executor;
@@ -44,7 +42,7 @@ import javax.naming.NamingException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Message;
@@ -64,7 +62,7 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
 
-public class JMSDestination extends JMSTransportBase implements Destination {
+public class JMSDestination extends JMSTransportBase implements Destination, Configurable {
     static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);    
     final EndpointReferenceType reference;
     final ConduitInitiator conduitInitiator;
@@ -84,8 +82,7 @@ public class JMSDestination extends JMSTransportBase implements Destination {
         address.setValue(endpointInfo.getAddress());
         reference.setAddress(address);        
     }
-    
-    @Override
+   
     public String getBeanName() {
         return endpointInfo.getName().toString() + ".jms-destination-base";
     }
@@ -261,41 +258,24 @@ public class JMSDestination extends JMSTransportBase implements Destination {
     
     private void initConfig() {
         
-        final class JMSDestinationConfiguration extends JMSDestinationConfigBean {
+        final class JMSDestinationConfiguration extends JMSDestinationConfigBean implements Configurable {
 
-            @Override
             public String getBeanName() {
                 return endpointInfo.getName().toString() + ".jms-destination";
             }
         }
+        
         JMSDestinationConfigBean bean = new JMSDestinationConfiguration();
+
+        bean.setServer(endpointInfo.getTraversedExtensor(new JMSServerBehaviorPolicyType(), 
+                                                         JMSServerBehaviorPolicyType.class));
+        bean.setServerConfig(endpointInfo.getTraversedExtensor(new JMSServerConfig(), JMSServerConfig.class));
+        
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(bean);
         }
         
-        if (!bean.isSetServer()) {
-            bean.setServer(new JMSServerBehaviorPolicyType());
-        }
-        if (!bean.isSetServerConfig()) {
-            bean.setServerConfig(new JMSServerConfig());
-        }
-        
-        ConfigurationProvider p = new ServiceModelJMSConfigurationProvider(endpointInfo);
-        List<ConfigurationProvider> providers = getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        providers.add(p);
-        setOverwriteProviders(providers);
-        
-        providers = bean.getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        providers.add(p);
-        bean.setOverwriteProviders(providers);
-
         jmsDestinationConfigBean = bean;
     }
 

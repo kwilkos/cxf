@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.HttpUriMapper;
@@ -40,7 +41,8 @@ import org.mortbay.jetty.nio.SelectChannelConnector;
 
 
 
-public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implements ServerEngine {
+public final class JettyHTTPServerEngine extends HTTPListenerConfigBean 
+    implements ServerEngine, Configurable {
     private static final long serialVersionUID = 1L;
     
     private static Map<Integer, JettyHTTPServerEngine> portMap =
@@ -57,12 +59,9 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean implemen
         port = p;
     }
     
-    @Override
     public String getBeanName() {
         return JettyHTTPServerEngine.class.getName() + "." + port;
     }
-
-
 
     static synchronized JettyHTTPServerEngine getForPort(Bus bus, String protocol, int p) {
         return getForPort(bus, protocol, p, null);

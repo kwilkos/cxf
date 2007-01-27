@@ -32,7 +32,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.extension.ExtensionManager;
 
 public final class DestinationFactoryManagerImpl implements DestinationFactoryManager {
 
@@ -40,7 +39,6 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
 
     final Map<String, DestinationFactory> destinationFactories;
     Properties factoryNamespaceMappings;
-    private ExtensionManager extensionManager; 
 
     private Bus bus;
 
@@ -52,13 +50,6 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
         this.destinationFactories = destinationFactories;
     }
 
-  
-
-    @Resource
-    public void setExtensionManager(ExtensionManager em) {
-        extensionManager = em;
-    }
-    
     @Resource
     public void setBus(Bus b) {
         bus = b;
@@ -106,11 +97,6 @@ public final class DestinationFactoryManagerImpl implements DestinationFactoryMa
      */
     public DestinationFactory getDestinationFactory(String namespace) throws BusException {
         DestinationFactory factory = destinationFactories.get(namespace);
-        if (null == factory && extensionManager != null) {
-            extensionManager.activateViaNS(namespace);            
-            factory = destinationFactories.get(namespace);
-        }
-        
         if (null == factory) {
             throw new BusException(new Message("NO_DEST_FACTORY", BUNDLE, namespace));
         }

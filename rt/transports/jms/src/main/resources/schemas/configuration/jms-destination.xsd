@@ -24,10 +24,8 @@
            xmlns:jms="http://cxf.apache.org/transports/jms"
            xmlns:jms-conf="http://cxf.apache.org/transports/jms/jms-conf"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           xmlns:cfg="http://cxf.apache.org/configuration/cfg"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
-           jaxb:extensionBindingPrefixes="cfg"
            jaxb:version="2.0">
 
     <xs:import namespace="http://cxf.apache.org/transports/jms" schemaLocation="../wsdl/jms.xsd"/>
@@ -36,12 +34,7 @@
     <xs:element name="serverConfig" type="jms-conf:JMSServerConfig"/>
     <xs:element name="server" type="jms:JMSServerBehaviorPolicyType"/>
 
-    <xs:complexType name="JMSDestinationConfigBean">        
-        <xs:annotation>
-            <xs:appinfo>                
-                <cfg:configurable/>
-            </xs:appinfo>
-        </xs:annotation>
+    <xs:complexType name="JMSDestinationConfigBean">
         <xs:sequence>
             <xs:element ref="tns:serverConfig" minOccurs="0"/>
             <xs:element ref="tns:server" minOccurs="0"/>

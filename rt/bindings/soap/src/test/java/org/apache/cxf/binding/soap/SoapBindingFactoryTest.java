@@ -66,7 +66,6 @@ public class SoapBindingFactoryTest extends TestCase {
     
     private BindingFactoryManager getBindingFactoryManager(String ns, Bus bus) throws BusException {
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
-        bindingFactory.setBus(bus);
         BindingFactoryManager bfm = new BindingFactoryManagerImpl();
         bfm.registerBindingFactory(ns, bindingFactory);
         return bfm;

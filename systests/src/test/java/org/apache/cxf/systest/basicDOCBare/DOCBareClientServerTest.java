@@ -45,7 +45,7 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
     private final QName portName = new QName("http://apache.org/hello_world_doc_lit_bare", "SoapPort");
 
     public void setUp() {
-        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.cxf.CXFBusFactory");
+        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.CXFBusFactory");
     }
     
     public static Test suite() throws Exception {
@@ -63,7 +63,7 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
         assertNotNull("WSDL is null", wsdl);
 
         SOAPService service = new SOAPService(wsdl, serviceName);
-        assertNotNull("Service is ull ", service);
+        assertNotNull("Service is null", service);
 
         PutLastTradedPricePortType putLastTradedPrice = service.getPort(portName,
                                                                         PutLastTradedPricePortType.class);

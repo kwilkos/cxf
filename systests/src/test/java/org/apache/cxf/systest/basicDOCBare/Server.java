@@ -33,7 +33,7 @@ public class Server extends TestServerBase {
 
 
     protected void run()  {
-        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.cxf.CXFBusFactory");  
+        System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.CXFBusFactory");  
         Object implementor = new PutLastTradedPriceImpl();
         String address = "http://localhost:9107/SOAPDocLitBareService/SoapPort";      
         Endpoint ep = Endpoint.create(implementor);

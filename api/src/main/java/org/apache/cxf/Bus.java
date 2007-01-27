@@ -38,5 +38,4 @@ public interface Bus extends InterceptorProvider {
     void shutdown(boolean wait);
     
     void run();
-
 }

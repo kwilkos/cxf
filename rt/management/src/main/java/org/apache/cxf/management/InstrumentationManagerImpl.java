@@ -68,7 +68,6 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
         }
     }
 
-    @Override
     public String getBeanName() {
         return InstrumentationManager.class.getName();
     }

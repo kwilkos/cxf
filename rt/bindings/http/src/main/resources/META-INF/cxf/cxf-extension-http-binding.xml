@@ -25,7 +25,6 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <bean class="org.apache.cxf.binding.http.HttpBindingFactory" lazy-init="true">
-        <property name="bus" ref="cxf"/>
         <property name="activationNamespaces">
             <set>
                 <value>http://apache.org/cxf/binding/http</value>

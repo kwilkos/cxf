@@ -22,10 +22,8 @@
     xmlns:tns="http://cxf.apache.org/management"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-    xmlns:cfg="http://cxf.apache.org/configuration/cfg"
     elementFormDefault="qualified" 
     attributeFormDefault="unqualified"
-    jaxb:extensionBindingPrefixes="cfg"
     jaxb:version="2.0">
     
     <xs:complexType name="InstrumentationType">
@@ -42,12 +40,7 @@
     <xs:element name="instrumentation" type="tns:InstrumentationType"/>
     <xs:element name="JMXConnectorPolicy" type="tns:JMXConnectorPolicyType"/>   
 
-     <xs:complexType name="InstrumentationManagerConfigBean">        
-        <xs:annotation>
-            <xs:appinfo>                
-                <cfg:configurable/>
-            </xs:appinfo>
-        </xs:annotation>
+     <xs:complexType name="InstrumentationManagerConfigBean">  
         <xs:sequence>
             <xs:element ref="tns:instrumentation" minOccurs="0"/>
             <xs:element ref="tns:JMXConnectorPolicy" minOccurs="0"/>

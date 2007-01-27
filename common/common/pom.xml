@@ -118,12 +118,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>jaxme</groupId>
-            <artifactId>jaxme2</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
    
     <!-- will remove this after it is got sync to central repository -->

@@ -34,9 +34,11 @@ import javax.servlet.ServletOutputStream;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.CXFBusImpl;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.ExchangeImpl;
@@ -231,6 +233,28 @@ public class JettyHTTPDestinationTest extends TestCase {
         fullBackChannel.send(outMessage);
     }
     
+    public void testServerPolicyInServiceModel()
+        throws Exception {
+        policy = new HTTPServerPolicy();
+        address = getEPR("bar/foo");
+        bus = new CXFBusImpl();
+        
+        conduitInitiator = EasyMock.createMock(ConduitInitiator.class);
+        endpointInfo = new EndpointInfo();
+        endpointInfo.setAddress(NOWHERE + "bar/foo");
+        endpointInfo.addExtensor(policy);  
+        endpointInfo.addExtensor(new SSLServerPolicy());    
+        
+        engine = EasyMock.createMock(ServerEngine.class);
+        EasyMock.replay();
+
+        JettyHTTPDestination dest = new JettyHTTPDestination(bus,
+                                                             conduitInitiator,
+                                                             endpointInfo,
+                                                             engine);
+        assertEquals(policy, dest.getServer());
+    }
+    
     private JettyHTTPDestination setUpDestination()
         throws Exception {
         return setUpDestination(false);
@@ -241,22 +265,20 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         policy = new HTTPServerPolicy();
         address = getEPR("bar/foo");
-        bus = EasyMock.createMock(Bus.class);
+        bus = new CXFBusImpl();
         conduitInitiator = EasyMock.createMock(ConduitInitiator.class);
-        endpointInfo = EasyMock.createMock(EndpointInfo.class);
+        
         engine = EasyMock.createMock(ServerEngine.class);        
-        EasyMock.expect(endpointInfo.getAddress()).andReturn(NOWHERE + "bar/foo").anyTimes();        
-        endpointInfo.getExtensor(HTTPServerPolicy.class);
-        EasyMock.expectLastCall().andReturn(policy).anyTimes();        
-        endpointInfo.getProperty("contextMatchStrategy");
-        EasyMock.expectLastCall().andReturn("stem");
-        endpointInfo.getProperty("fixedParameterOrder");
-        EasyMock.expectLastCall().andReturn(true);            
+        endpointInfo = new EndpointInfo();
+        endpointInfo.setAddress(NOWHERE + "bar/foo");
+        endpointInfo.addExtensor(policy);    
+        endpointInfo.getExtensor(SSLServerPolicy.class);
+        endpointInfo.addExtensor(new SSLServerPolicy());
+        
         engine.addServant(EasyMock.eq(new URL(NOWHERE + "bar/foo")),
                           EasyMock.isA(AbstractHandler.class));
         EasyMock.expectLastCall();
         EasyMock.replay(engine);
-        EasyMock.replay(endpointInfo);
         
         JettyHTTPDestination dest = new JettyHTTPDestination(bus,
                                                              conduitInitiator,

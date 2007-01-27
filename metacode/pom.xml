@@ -149,11 +149,6 @@
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-tools-xjc-cfg</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
                         <artifactId>cxf-tools-xjc-dv</artifactId>
                         <version>${project.version}</version>
                     </dependency>

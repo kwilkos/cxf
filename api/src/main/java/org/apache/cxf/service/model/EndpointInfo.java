@@ -66,4 +66,25 @@ public class EndpointInfo extends AbstractDescriptionElement {
     public void setAddress(String a) {
         address = a;
     }
+    
+    @Override
+    public <T> T getTraversedExtensor(T defaultValue, Class<T> type) {
+        T value = getExtensor(type);
+        
+        if (value == null) {
+            if (value == null && binding != null) {
+                value = binding.getExtensor(type);
+            }
+            
+            if (service != null && value == null) {
+                value = service.getExtensor(type);
+            }
+            
+            if (value == null) {
+                value = defaultValue;
+            }
+        }
+        
+        return value;
+    }
 }

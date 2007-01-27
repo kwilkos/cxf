@@ -21,7 +21,6 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
@@ -49,7 +48,8 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 /**
  * Common base for HTTP Destination implementations.
  */
-public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean  implements Destination {
+public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
+    implements Destination, Configurable {
     static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
     
     private static final long serialVersionUID = 1L;
@@ -77,8 +77,8 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
         conduitInitiator = ci;
         endpointInfo = ei;
         
-        init();
- 
+        setServer(endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class));
+        
         nurl = new URL(getAddressValue());
         name = nurl.getPath();
 
@@ -88,7 +88,6 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
         reference.setAddress(address);
     }
     
-    @Override
     public String getBeanName() {
         String beanName = null;
         if (endpointInfo.getName() != null) {
@@ -172,19 +171,6 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
     protected final String getAddressValue() {       
         return StringUtils.addDefaultPortIfMissing(endpointInfo.getAddress());
     }        
-
-    private void init() {
-        if (!isSetServer()) {
-            setServer(new HTTPServerPolicy());
-        }
-        List <ConfigurationProvider> providers = getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        ConfigurationProvider p = new ServiceModelHttpConfigurationProvider(endpointInfo, true);
-        providers.add(p);
-        setOverwriteProviders(providers);
-    }
 
     void setPolicies(Map<String, List<String>> headers) {
         HTTPServerPolicy policy = getServer(); 

@@ -20,13 +20,10 @@ package org.apache.cxf.binding.http;
 
 import java.util.Collection;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.binding.AbstractBindingFactory;
 import org.apache.cxf.binding.Binding;
-import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.http.interceptor.ContentTypeOutInterceptor;
 import org.apache.cxf.binding.http.interceptor.DatabindingInSetupInterceptor;
 import org.apache.cxf.binding.http.interceptor.DatabindingOutSetupInterceptor;
@@ -41,30 +38,15 @@ import org.apache.cxf.service.model.BindingInfo;
 public class HttpBindingFactory extends AbstractBindingFactory {
 
     public static final String HTTP_BINDING_ID = "http://apache.org/cxf/binding/http";
-    private Bus bus;
     private Collection<String> activationNamespaces;    
-       
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
-    }
     
     @Resource
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
-
-    @PostConstruct
-    void register() {
-        if (null == bus) {
-            return;
-        }
-        BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
-        if (null != bfm) {
-            for (String ns : activationNamespaces) {
-                bfm.registerBindingFactory(ns, this);
-            }
-        }
+    
+    public Collection<String> getActivationNamespaces() {
+        return activationNamespaces;
     }
 
     public Binding createBinding(BindingInfo bi) {

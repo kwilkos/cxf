@@ -24,7 +24,6 @@
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <bean class="org.apache.cxf.binding.xml.XMLBindingFactory" lazy-init="true">
-        <property name="bus" ref="cxf"/>
         <property name="activationNamespaces">
             <set>
                 <value>http://cxf.apache.org/bindings/xformat</value>

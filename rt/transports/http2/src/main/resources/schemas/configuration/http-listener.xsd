@@ -27,7 +27,6 @@
            xmlns:cfg="http://cxf.apache.org/configuration/cfg"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
-           jaxb:extensionBindingPrefixes="cfg"
            jaxb:version="2.0">
 
     <xs:import namespace="http://cxf.apache.org/transports/http/configuration" schemaLocation="../wsdl/http-conf.xsd"/>
@@ -36,12 +35,7 @@
     <xs:element name="listener" type="http-conf:HTTPListenerPolicy"/>
     <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
 
-    <xs:complexType name="HTTPListenerConfigBean">        
-        <xs:annotation>
-            <xs:appinfo>                
-                <cfg:configurable/>
-            </xs:appinfo>
-        </xs:annotation>
+    <xs:complexType name="HTTPListenerConfigBean">
         <xs:sequence>
             <xs:element ref="tns:listener" minOccurs="0"/>
             <xs:element ref="tns:sslServer" minOccurs="0"/>

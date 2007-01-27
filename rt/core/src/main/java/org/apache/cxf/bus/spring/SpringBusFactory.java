@@ -35,18 +35,16 @@ public class SpringBusFactory implements BusFactory {
     
     private static final String DEFAULT_BUS_ID = "cxf";
     
-    private static final Logger LOG = LogUtils.getL7dLogger(SpringBusImpl.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(SpringBusFactory.class);
     
     private static Bus defaultBus;
 
     private ApplicationContext context;
 
     public SpringBusFactory() {
-        super();
     }
 
     public SpringBusFactory(ApplicationContext context) {
-        super();
         this.context = context;
     }
     

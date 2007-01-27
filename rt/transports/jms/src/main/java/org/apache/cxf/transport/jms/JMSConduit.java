@@ -25,8 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,14 +38,13 @@ import javax.naming.NamingException;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.configuration.ConfigurationProvider;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
@@ -55,12 +52,10 @@ import org.apache.cxf.transport.jms.conduit.JMSConduitConfigBean;
 import org.apache.cxf.transports.jms.JMSClientBehaviorPolicyType;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
 import org.apache.cxf.transports.jms.jms_conf.JMSClientConfig;
-
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
-public class JMSConduit extends JMSTransportBase implements Conduit {
+public class JMSConduit extends JMSTransportBase implements Conduit, Configurable {
     private static final Logger LOG = LogUtils.getL7dLogger(JMSConduit.class);
-    
       
     protected JMSConduitConfigBean jmsConduitConfigBean;   
     
@@ -78,8 +73,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
 
         initConfig();
     } 
-     
-    @Override
+    
     public String getBeanName() {
         return endpointInfo.getName().toString() + ".jms-conduit-base";
     }
@@ -154,8 +148,7 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
         incomingObserver = observer;        
         LOG.info("registering incoming observer: " + incomingObserver);        
     }
-    
-    
+
     /**
      * Receive mechanics.
      *
@@ -196,43 +189,25 @@ public class JMSConduit extends JMSTransportBase implements Conduit {
 
     private void initConfig() {
         
-        final class JMSConduitConfiguration extends JMSConduitConfigBean {
+        final class JMSConduitConfiguration extends JMSConduitConfigBean implements Configurable {
 
-            @Override
             public String getBeanName() {
                 return endpointInfo.getName().toString() + ".jms-conduit";
             }
         }
+        
+        // It'd be really nice if we did this in a way that wsa more friendly to the API
         JMSConduitConfigBean bean = new JMSConduitConfiguration();
+        
+        bean.setClient(endpointInfo.getTraversedExtensor(new JMSClientBehaviorPolicyType(), 
+                                                         JMSClientBehaviorPolicyType.class));
+        bean.setClientConfig(endpointInfo.getTraversedExtensor(new JMSClientConfig(), JMSClientConfig.class));
+
         Configurer configurer = bus.getExtension(Configurer.class);
         if (null != configurer) {
             configurer.configureBean(bean);
         }
         
-        if (!bean.isSetClient()) {
-            bean.setClient(new JMSClientBehaviorPolicyType());
-        }
-        if (!bean.isSetClientConfig()) {
-            bean.setClientConfig(new JMSClientConfig());
-        }
-
-        ConfigurationProvider p = new ServiceModelJMSConfigurationProvider(endpointInfo);
-        List<ConfigurationProvider> providers = getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        providers.add(p);
-        setOverwriteProviders(providers);
-        
-        // providers = bean.getFallbackProviders();
-        providers = bean.getOverwriteProviders();
-        if (null == providers) {
-            providers = new ArrayList<ConfigurationProvider>();
-        }
-        providers.add(p);
-        // bean.setFallbackProviders(providers);
-        bean.setOverwriteProviders(providers);
-
         jmsConduitConfigBean = bean;
 
     }
