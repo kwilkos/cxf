@@ -401,8 +401,8 @@ public final class EndpointReferenceUtils {
             List<Source> schemaSources = new ArrayList<Source>();
             for (SchemaInfo schemaInfo : serviceInfo.getSchemas()) {
                 Source source = new DOMSource(schemaInfo.getElement());
-                source.setSystemId(schemaInfo.getElement().getBaseURI());
                 if (source != null) {
+                    source.setSystemId(schemaInfo.getElement().getBaseURI());
                     schemaSources.add(source);
                 }
             }

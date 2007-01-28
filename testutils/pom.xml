@@ -73,8 +73,13 @@
 
                 <executions>
                     <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
+                        <!--
+                            Run in validate phase to ensure wsdls exist
+                            before running wsdl2java in generate-sources
+                            phase.
+                        -->
+                        <id>validate</id>
+                        <phase>validate</phase>
                         <configuration>
                             <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
                             <tasks>

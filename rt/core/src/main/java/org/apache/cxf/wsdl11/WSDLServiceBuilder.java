@@ -221,7 +221,8 @@ public class WSDLServiceBuilder {
                     for (Object prefix : def.getNamespaces().keySet()) {
                         String ns = (String)def.getNamespaces().get(prefix);
                         if (!"".equals(prefix) && !schemaElem.hasAttribute("xmlns:" + prefix)) {
-                            schemaElem.setAttribute("xmlns:" + prefix, ns);
+                            schemaElem.setAttributeNS(javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
+                                "xmlns:" + prefix, ns);
                         }
                     }
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
