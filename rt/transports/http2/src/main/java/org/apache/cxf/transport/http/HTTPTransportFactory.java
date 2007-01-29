@@ -53,6 +53,8 @@ import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
 import org.apache.cxf.transport.https.JettySslConnectorFactory;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
+import org.mortbay.jetty.AbstractConnector;
+//import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
@@ -174,8 +176,9 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
     protected static JettyConnectorFactory getConnectorFactory(SSLServerPolicy policy) {
         return policy == null
                ? new JettyConnectorFactory() {                     
-                   public SelectChannelConnector createConnector(int port) {
+                   public AbstractConnector createConnector(int port) {
                        SelectChannelConnector result = new SelectChannelConnector();
+                       //SocketConnector result = new SocketConnector();
                        result.setPort(port);
                        return result;
                    }

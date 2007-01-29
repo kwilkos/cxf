@@ -19,7 +19,8 @@
 
 package org.apache.cxf.transport.http;
 
-import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.jetty.AbstractConnector;
+
 
 /**
  * Encapsulates creation of Jetty listener.
@@ -31,5 +32,5 @@ public interface JettyConnectorFactory {
      * 
      * @param port the listen port
      */
-    SelectChannelConnector createConnector(int port);
+    AbstractConnector createConnector(int port);
 }

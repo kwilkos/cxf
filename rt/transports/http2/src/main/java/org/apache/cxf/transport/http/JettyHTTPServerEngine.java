@@ -31,12 +31,13 @@ import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.transport.HttpUriMapper;
 import org.apache.cxf.transport.http.listener.HTTPListenerConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPListenerPolicy;
+import org.mortbay.jetty.AbstractConnector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.AbstractHandler;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
-import org.mortbay.jetty.nio.SelectChannelConnector;
+
 
 
 
@@ -50,7 +51,7 @@ public final class JettyHTTPServerEngine extends HTTPListenerConfigBean
    
     private int servantCount;
     private Server server;
-    private SelectChannelConnector connector;
+    private AbstractConnector connector;
     private JettyConnectorFactory connectorFactory;
     private ContextHandlerCollection contexts;
     private final int port;
