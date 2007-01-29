@@ -17,8 +17,7 @@
   specific language governing permissions and limitations
   under the License.
 -->
-<!--XSD file template-->
-<!--Created by IONA Artix Designer-->
+
 <schema targetNamespace="http://apache.org/Invoice" 
 	xmlns="http://www.w3.org/2001/XMLSchema" 
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 

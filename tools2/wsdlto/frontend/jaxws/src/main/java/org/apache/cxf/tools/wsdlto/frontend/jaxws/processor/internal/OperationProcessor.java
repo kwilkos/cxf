@@ -21,6 +21,7 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.apache.cxf.service.model.FaultInfo;
@@ -64,6 +65,9 @@ public class OperationProcessor  extends AbstractProcessor {
     @SuppressWarnings("unchecked")
     public void processMethod(JavaMethod method, OperationInfo operation, 
                               JAXWSBinding globalBinding) throws ToolException {
+        if (isAsynCMethod(method)) {
+            return;
+        }
         MessageInfo inputMessage = operation.getInput();
         MessageInfo outputMessage = operation.getOutput();
 
@@ -99,9 +103,14 @@ public class OperationProcessor  extends AbstractProcessor {
             || opBinding != null && opBinding.isEnableAsyncMapping()) {
             enableAsync = true;
         }
-        if (!method.isOneWay() && enableAsync) {
+        
+               
+        if (!method.isOneWay() 
+            && enableAsync && !isAddedAsyMethod(method)) {
             addAsyncMethod(method);
         }
+        
+       
     }
 
 
@@ -136,10 +145,17 @@ public class OperationProcessor  extends AbstractProcessor {
         }
     }
 
+    private boolean isAsynCMethod(JavaMethod method) {
+        if (method.getName().toLowerCase()
+            .equals((method.getOperationName() + ToolConstants.ASYNC_METHOD_SUFFIX).toLowerCase())) {
+            return true;
+        }
+        return false;
+    }
+    
     private void addAsyncMethod(JavaMethod method) throws ToolException {
         addPollingMethod(method);
         addCallbackMethod(method);
-
         method.getInterface().addImport("javax.xml.ws.AsyncHandler");
         method.getInterface().addImport("java.util.concurrent.Future");
         method.getInterface().addImport("javax.xml.ws.Response");
@@ -219,5 +235,16 @@ public class OperationProcessor  extends AbstractProcessor {
         sb.append(response);
         sb.append(">");
         return sb.toString();
+    }
+    
+    private boolean isAddedAsyMethod(JavaMethod method) {
+        List<JavaMethod> jmethods = method.getInterface().getMethods();
+        for (JavaMethod jm : jmethods) {
+            if (!jm.getName().toLowerCase().equals(jm.getOperationName().toLowerCase())) {
+                return  true;
+                
+            }
+        }
+        return false;
     }
 }

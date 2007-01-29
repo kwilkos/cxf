@@ -126,14 +126,17 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 AbstractWSDLBuilder<Definition> builder =
                     (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
                 builder.setContext(context);
-                Definition definition = builder.build(wsdlURL);
                 
+                //TODO: Modify builder api, let customized definition make sense.
+                builder.build(wsdlURL);
                 builder.customize();
-                context.put(Definition.class, builder.getWSDLModel());
+                Definition definition = builder.getWSDLModel();
+                
+                context.put(Definition.class, definition);
                 if (context.optionSet(ToolConstants.CFG_VALIDATE_WSDL)) {
                     builder.validate(definition);
                 }
-
+                                
                 WSDLServiceBuilder serviceBuilder = new WSDLServiceBuilder(getBus());
                 service = serviceBuilder.buildService(definition, getServiceQName(definition));
                 context.put(ClassCollector.class, new ClassCollector());

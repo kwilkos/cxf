@@ -22,8 +22,6 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-
-//import javax.jws.HandlerChain;
 import javax.jws.HandlerChain;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
@@ -40,8 +38,6 @@ import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.WSDLToJavaContainer;
-
-
 
 public class CodeGenTest extends ProcessorTestBase {
     private WSDLToJavaContainer processor;
@@ -307,7 +303,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
     public void testSchemaImport() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
-        
+
         processor.setContext(env);
         processor.execute();
 
@@ -492,12 +488,11 @@ public class CodeGenTest extends ProcessorTestBase {
 
     }
 
-
     public void testWSAddress() throws Exception {
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "ws.address");
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/ws_address_binding.wsdl"));
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_addr.wsdl"));
-        
+
         processor.setContext(env);
         processor.execute();
 
@@ -516,36 +511,14 @@ public class CodeGenTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("ws.address.Greeter");
         HandlerChain handlerChainAnno = AnnotationUtil.getPrivClassAnnotation(clz, HandlerChain.class);
         assertEquals("Greeter_handler.xml", handlerChainAnno.file());
-        assertNotNull("Handler chain xml generate fail!", 
-                      classLoader.getResource("ws/address/Greeter_handler.xml"));
-    }
- 
-    
-
-    public void testSupportXMLBindingBare() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_bare.wsdl"));
-        processor.setContext(env);
-        processor.execute();
-    }
-    
-    
-    public void testSupportXMLBindingWrapped() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_wrapped.wsdl"));
-        processor.setContext(env);
-        processor.execute();
+        assertNotNull("Handler chain xml generate fail!", classLoader
+            .getResource("ws/address/Greeter_handler.xml"));
     }
 
-    
-    public void testRouterWSDL() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/router.wsdl"));
-        processor.setContext(env);
-        processor.execute();
-    }
-    
     public void testVoidInOutMethod() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/interoptestdoclit.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -574,7 +547,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testWsdlImport() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_wsdl_import.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -600,7 +573,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testWebFault() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer-issue305570.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 
@@ -619,8 +592,115 @@ public class CodeGenTest extends ProcessorTestBase {
 
     }
 
-    
-    
+    public void testMultiSchemaParsing() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/multi_schema.wsdl"));
+
+        processor.setContext(env);
+        processor.execute();
+
+        assertNotNull(output);
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File tempuri = new File(org, "tempuri");
+        assertTrue(tempuri.exists());
+        File header = new File(tempuri, "header");
+        assertTrue(header.exists());
+
+        File[] files = header.listFiles();
+        assertEquals(3, files.length);
+    }
+
+    public void testDefaultParameterOrder() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug161/header2.wsdl"));
+        processor.setContext(env);
+        processor.execute(true);
+        Class clz = classLoader.loadClass("org.apache.header2.Header2Test");
+        Class header = classLoader.loadClass("org.apache.header2.Header");
+        Method method = clz.getMethod("headerMethod", new Class[] {Holder.class, header});
+        assertNotNull("method should be generated", method);
+    }
+
+    public void testSupportXMLBindingBare() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_bare.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+
+        Class clz = classLoader.loadClass("org.apache.xml_http_bare.GreetingPortType");
+
+        Method method = clz.getMethod("sayHello", new Class[] {java.lang.String.class});
+        assertNotNull("sayHello is not be generated", method);
+
+        SOAPBinding soapBindingAnn = (SOAPBinding)clz.getAnnotation(SOAPBinding.class);
+        assertEquals(soapBindingAnn.parameterStyle(), SOAPBinding.ParameterStyle.BARE);
+
+    }
+
+    public void testSupportXMLBindingWrapped() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_http_wrapped.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader.loadClass("org.apache.xml_http_wrapped.GreetingPortType");
+
+        Method method = clz.getMethod("sayHello", new Class[] {java.lang.String.class});
+        assertNotNull("sayHello is not be generated", method);
+
+        javax.xml.ws.RequestWrapper reqAnno = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
+        assertNotNull("WrapperBean Annotation could not be found", reqAnno);
+    }
+
+    public void testRouterWSDL() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/router.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+
+        Class clz = classLoader.loadClass("org.apache.hello_world_doc_lit.Greeter");
+
+        Method method = clz.getMethod("greetMe", new Class[] {java.lang.String.class});
+        assertNotNull("greetMe is not be generated", method);
+
+        javax.xml.ws.RequestWrapper reqAnno = method.getAnnotation(javax.xml.ws.RequestWrapper.class);
+        assertNotNull("WrapperBean Annotation could not be found", reqAnno);
+
+        clz = classLoader.loadClass("org.apache.hwrouter.HTTPSoapServiceDestination");
+        assertNotNull("HTTPSoapServiceDestination is not be generated", clz);
+
+    }
+
+    public void testWSDLContainsJavaKeywords() throws Exception {
+
+        env.put(ToolConstants.CFG_WSDLURL,
+                getLocation("/wsdl2java_wsdl/hello_world_with_keywords_operation.wsdl"));
+
+        processor.setContext(env);
+        processor.execute(true);
+
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
+        Class sayHi = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
+        Method method = clz.getMethod("_do", new Class[] {sayHi});
+        assertNotNull("method which name contains java keywords is not be generated", method);
+
+    }
+
+    public void testInvalidMepOperation() throws Exception {
+        try {
+            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/invalid_mep.wsdl"));
+            processor.setContext(env);
+            processor.execute(true);
+        } catch (Exception e) {
+            assertTrue("Invalid wsdl should be diagnosed", e.getMessage()
+                .indexOf("Invalid WSDL,wsdl:operation") > -1);
+        }
+
+    }
+
+    public void testWSDLWithEnumType() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_with_enum_type.wsdl"));
+        processor.setContext(env);
+        processor.execute(true);
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.ActionType");
+        assertNotNull("Enum class could not be found", clz);
+    }
+
     private String getLocation(String wsdlFile) {
         return this.getClass().getResource(wsdlFile).getFile();
     }

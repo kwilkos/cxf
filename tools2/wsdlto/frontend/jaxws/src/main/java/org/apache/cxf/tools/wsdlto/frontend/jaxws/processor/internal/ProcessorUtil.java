@@ -222,7 +222,7 @@ public final class ProcessorUtil {
         }
 
         if (jtype == null) {
-            if (!type.equals(resolvePartType(part))) {
+            if (!resolvePartType(part).equals(type)) {
                 jtype = resolvePartType(part, context, true);
             } else {
                 jtype = parsePackageName(namespace, userPackage) + "." + type;

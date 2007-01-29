@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -30,6 +32,8 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.xml.sax.InputSource;
 
@@ -44,7 +48,6 @@ import com.sun.tools.xjc.api.impl.s2j.SchemaCompilerImpl;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -60,7 +63,7 @@ public class JAXBDataBinding implements DataBindingProfile {
     private ToolContext env;
     private ServiceInfo serviceInfo;
     private Definition def;
-    private List<String> schemaSystemIds = new ArrayList<String>();
+    private Map<String, Element> sysIdSchemeMap = new HashMap<String, Element>();
 
     @SuppressWarnings("unchecked")
     private void initialize(ToolContext penv) throws ToolException {
@@ -88,14 +91,27 @@ public class JAXBDataBinding implements DataBindingProfile {
             Document[] docs = schema.getSchema().getAllSchemas();
             for (int i = 0; i < docs.length; i++) {
                 Element ele = docs[i].getDocumentElement();
+                this.removeImportElement(ele);
+      
                 String systemId = schema.getElement().getBaseURI();
+                if (systemId == null) {
+                    systemId = def.getDocumentBaseURI();
+                }
                 String tns = ele.getAttribute("targetNamespace");              
                 if (StringUtils.isEmpty(tns)) {
                     continue;
                 }
-                if (schemaSystemIds.contains(schema.getElement().getBaseURI())) {
+                  
+                if (sysIdSchemeMap.containsKey(schema.getElement().getBaseURI())) {
                     systemId = schema.getElement().getBaseURI() + "#" + tns;
-                } 
+                    int index = 0;
+                    while (sysIdSchemeMap.containsKey(systemId)) {
+                        systemId = systemId + index++;
+                    }
+                    
+                }
+                
+                sysIdSchemeMap.put(systemId, ele);
                 schemaCompiler.parseSchema(systemId, ele);
             }
             
@@ -199,5 +215,22 @@ public class JAXBDataBinding implements DataBindingProfile {
             }
         }
         return null;
+    }   
+    
+    
+    private void removeImportElement(Element element) {
+        NodeList nodeList = element.getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "import");
+        List<Node> ns = new ArrayList<Node>();
+        for (int tmp = 0; tmp < nodeList.getLength(); tmp++) {
+
+            Node importNode = nodeList.item(tmp);
+            ns.add(importNode);
+        }
+        for (Node item : ns) {
+            Node schemaNode = item.getParentNode();
+            schemaNode.removeChild(item);
+        }
+      
     }
+    
 }
