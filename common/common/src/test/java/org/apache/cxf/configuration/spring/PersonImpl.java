@@ -20,12 +20,26 @@ package org.apache.cxf.configuration.spring;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class PersonImpl implements Person {
-    public Collection<String> getIds() {
-        List<String> ids = new ArrayList<String>();
+    private static int loadCount;
+    private Collection<String> ids;
+    
+    public PersonImpl() {
+        ids = new ArrayList<String>();
         ids.add("dan");
+        loadCount++;
+    }
+    
+    public Collection<String> getIds() {
         return ids;
+    }
+
+    public void setIds(Collection<String> ids) {
+        this.ids = ids;
+    }
+
+    public static int getLoadCount() {
+        return loadCount;
     }
 }

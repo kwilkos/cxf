@@ -36,21 +36,22 @@ public class SpringBeanMapTest extends TestCase {
         Map<String, Person> beans = (Map<String, Person>)context.getBean("mapOfPersons");
         assertNotNull(beans);
 
-        assertEquals(1, beans.size());
+        assertEquals(2, beans.size());
 
         Person p = (Person)beans.get("dan");
         assertNotNull(p);
+ 
+        assertEquals(1, PersonImpl.getLoadCount());
+        
+        Person jane = (Person)beans.get("jane");
+        assertNotNull(jane);
+        assertEquals(2, PersonImpl.getLoadCount());
         
         Collection<Person> values = beans.values();
-        assertEquals(1, values.size());
-        Person p2 = values.iterator().next();
-        assertNotNull(p2);
-        assertEquals(p, p2);
-        
+        assertEquals(2, values.size());
+
         Set<Entry<String, Person>> entries = beans.entrySet();
-        Entry<String, Person> e = entries.iterator().next();
-        assertEquals("dan", e.getKey());
-        assertEquals(p, e.getValue());
+        assertEquals(2, entries.size());
         
         Person p3 = new PersonImpl();
         beans.put("foo", p3);
@@ -59,6 +60,5 @@ public class SpringBeanMapTest extends TestCase {
         
         beans.put("dan", p3);
         assertEquals(p3, beans.get("dan"));
-        
     }
 }

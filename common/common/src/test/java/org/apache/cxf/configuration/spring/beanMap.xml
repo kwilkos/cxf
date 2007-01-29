@@ -29,4 +29,12 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     
     <bean id="dan" class="org.apache.cxf.configuration.spring.PersonImpl"/>
 
+    <bean id="jane" class="org.apache.cxf.configuration.spring.PersonImpl" lazy-init="true">
+      <property name="ids">
+        <list>
+          <value>jane</value>
+        </list>
+      </property>
+    </bean>
+
 </beans>

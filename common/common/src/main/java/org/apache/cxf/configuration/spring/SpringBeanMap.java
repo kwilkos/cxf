@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.cxf.helpers.CastUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.Mergeable;
+import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.BeanIsAbstractException;
 import org.springframework.beans.factory.InitializingBean;
@@ -61,7 +63,7 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
             return;
         }
 
-        String[] beanNames = beanFactory.getBeanDefinitionNames();
+        String[] beanNames = beanFactory.getBeanNamesForType(type);
 
         ConfigurableApplicationContext ctxt = (ConfigurableApplicationContext)beanFactory;
 
@@ -73,19 +75,34 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
                 continue;
             }
 
-            Class beanType = ctxt.getType(beanNames[i]);
-            if (beanType == null || !type.isAssignableFrom(beanType)) {
-                continue;
-            }
-
             try {
-                Collection<String> ids = getIds(ctxt.getBean(beanNames[i]));
+                Collection<?> ids = null;
+                PropertyValue pv = def.getPropertyValues().getPropertyValue(idsProperty);
+                
+                if (pv != null) {
+                    Object value = pv.getValue();
+                    if (!(value instanceof Collection)) {
+                        throw new RuntimeException("The property " + idsProperty + " must be a collection!");
+                    }
+
+                    if (value instanceof Mergeable) {
+                        if (!((Mergeable)value).isMergeEnabled()) {
+                            ids = (Collection<?>)value;
+                        }
+                    } else {
+                        ids = (Collection<?>)value;
+                    }
+                } 
+                
                 if (ids == null) {
-                    continue;
+                    ids = getIds(ctxt.getBean(beanNames[i]));
+                    if (ids == null) {
+                        continue;
+                    }
                 }
                 
-                for (String id : ids) {
-                    idToBeanName.put(id, beanNames[i]);
+                for (Object id : ids) {
+                    idToBeanName.put(id.toString(), beanNames[i]);
                 }
             } catch (BeanIsAbstractException e) {
                 // The bean is abstract, we won't be doing anything with it.
