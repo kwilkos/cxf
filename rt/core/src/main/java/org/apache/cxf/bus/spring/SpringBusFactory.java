@@ -31,7 +31,7 @@ import org.apache.cxf.configuration.spring.ConfigurerImpl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
-public class SpringBusFactory implements BusFactory {
+public class SpringBusFactory extends BusFactory {
     
     private static final String DEFAULT_BUS_ID = "cxf";
     

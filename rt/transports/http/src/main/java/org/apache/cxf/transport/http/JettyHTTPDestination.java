@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
@@ -57,15 +58,13 @@ import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
-
-    static {
-        log = LogUtils.getL7dLogger(JettyHTTPDestination.class);
-    }
-    
+   
     public static final String HTTP_REQUEST = JettyHTTPDestination.class.getName() + ".REQUEST";
     public static final String HTTP_RESPONSE = JettyHTTPDestination.class.getName() + ".RESPONSE";
-
+    
     protected static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
+
+    private static final Logger LOG = LogUtils.getL7dLogger(JettyHTTPDestination.class);
 
     protected ServerEngine engine;
     protected ServerEngine alternateEngine;
@@ -97,6 +96,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         alternateEngine = eng;
     }
 
+    protected Logger getLogger() {
+        return LOG;
+    }
+    
     /**
      * Post-configure retreival of server engine.
      */
@@ -121,7 +124,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Activate receipt of incoming messages.
      */
     protected void activateIncoming() {
-        log.log(Level.INFO, "Activating receipt of incoming messages");
+        LOG.log(Level.INFO, "Activating receipt of incoming messages");
         try {
             URL url = new URL(getAddressValue());
             if (contextMatchOnExact()) {
@@ -144,7 +147,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 });
             }
         } catch (Exception e) {
-            log.log(Level.WARNING, "URL creation failed: ", e);
+            LOG.log(Level.WARNING, "URL creation failed: ", e);
         }
     }
 
@@ -152,7 +155,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Deactivate receipt of incoming messages.
      */
     protected void deactivateIncoming() {
-        log.log(Level.INFO, "Deactivating receipt of incoming messages");
+        LOG.log(Level.INFO, "Deactivating receipt of incoming messages");
         engine.removeServant(nurl);   
     }
     
@@ -314,8 +317,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected void serviceRequest(final HttpRequest req, final HttpResponse resp)
         throws IOException {
         try {
-            if (log.isLoggable(Level.INFO)) {
-                log.info("Service http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Service http request on thread: " + Thread.currentThread());
             }
 
             MessageImpl inMessage = new MessageImpl();
@@ -341,8 +344,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             resp.commit();
             req.setHandled(true);
         } finally {
-            if (log.isLoggable(Level.INFO)) {
-                log.info("Finished servicing http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
     }
@@ -376,12 +379,12 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             }
         } else if (null != responseObj) {
             String m = (new org.apache.cxf.common.i18n.Message("UNEXPECTED_RESPONSE_TYPE_MSG",
-                log, responseObj.getClass())).toString();
-            log.log(Level.WARNING, m);
+                LOG, responseObj.getClass())).toString();
+            LOG.log(Level.WARNING, m);
             throw new IOException(m);   
         } else {
-            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", log)).toString();
-            log.log(Level.WARNING, m);
+            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
+            LOG.log(Level.WARNING, m);
             throw new IOException(m);            
         }
 

@@ -32,7 +32,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.jaxws.JaxWsClientProxy;
@@ -110,7 +110,7 @@ public class ClientMtomXopTest extends ClientServerTestBase {
 
     private static <T> T createPort(QName serviceName, QName portName, Class<T> serviceEndpointInterface)
         throws Exception {
-        Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
+        Bus bus = BusFactory.newInstance().getDefaultBus();
         ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
         serviceFactory.setBus(bus);
         serviceFactory.setServiceName(serviceName);

@@ -28,7 +28,7 @@ import java.util.Map;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.attachment.AttachmentDeserializer;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
@@ -104,7 +104,7 @@ public class MtomServerTest extends AbstractCXFTest {
 
     @Override
     protected Bus createBus() throws BusException {
-        return BusFactoryHelper.newInstance().getDefaultBus();
+        return BusFactory.newInstance().getDefaultBus();
     }
 
 }

@@ -35,8 +35,6 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
  */
 public abstract class AbstractDestination implements Destination {
 
-    @SuppressWarnings("PMD:LoggerIsNotStaticFinal")
-    protected static Logger log;
     protected final EndpointReferenceType reference;
     protected final EndpointInfo endpointInfo;
     protected MessageObserver incomingObserver;
@@ -46,6 +44,8 @@ public abstract class AbstractDestination implements Destination {
         reference = ref;
         endpointInfo = ei;
     }
+    
+    protected abstract Logger getLogger();
     
     /**
      * @return the reference associated with this Destination
@@ -116,12 +116,12 @@ public abstract class AbstractDestination implements Destination {
             MessageObserver old = incomingObserver;
             incomingObserver = observer;
             if (observer != null) {
-                log.info("registering incoming observer: " + observer);
+                getLogger().info("registering incoming observer: " + observer);
                 if (old == null) {
                     activateIncoming();
                 }
             } else {
-                log.info("unregistering incoming observer: " + incomingObserver);
+                getLogger().info("unregistering incoming observer: " + incomingObserver);
                 if (old != null) {
                     deactivateIncoming();
                 }

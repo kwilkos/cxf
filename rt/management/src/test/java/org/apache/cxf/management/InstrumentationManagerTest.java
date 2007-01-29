@@ -27,7 +27,6 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.event.ComponentEventFilter;
 import org.apache.cxf.event.Event;
 import org.apache.cxf.event.EventProcessor;
@@ -39,7 +38,7 @@ public class InstrumentationManagerTest extends TestCase {
     Bus bus;
     
     public void setUp() throws Exception {
-        BusFactory bf = BusFactoryHelper.newInstance();
+        BusFactory bf = BusFactory.newInstance();
         bus =  bf.createBus();
         bf.setDefaultBus(bus);
         im = bus.getExtension(InstrumentationManager.class);

@@ -88,22 +88,22 @@ public class SmallNumberHandler implements LogicalHandler<LogicalMessageContext>
     }
 
     public final boolean handleFault(LogicalMessageContext messageContext) {
-        System.out.println("LogicalMessageHandler handleFault called");
-        System.out.println(messageContext);
+        //System.out.println("LogicalMessageHandler handleFault called");
+        //System.out.println(messageContext);
 
         return true;
     }
 
     public void close(MessageContext ctx) {
-        System.out.println("LogicalHandler close called");
+        //System.out.println("LogicalHandler close called");
     }
 
     public void init(Map config) {
-        System.out.println("LogicalHandler init called");
+        //System.out.println("LogicalHandler init called");
     }
 
     public void destroy() {
-        System.out.println("LogicalHandler close called");
+        //System.out.println("LogicalHandler close called");
     }
 
     private boolean isSmall(int i) {

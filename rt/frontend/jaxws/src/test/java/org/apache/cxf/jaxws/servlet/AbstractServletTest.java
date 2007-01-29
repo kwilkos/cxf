@@ -31,7 +31,7 @@ import com.meterware.servletunit.ServletRunner;
 import com.meterware.servletunit.ServletUnitClient;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.test.AbstractCXFTest;
 
 public abstract class AbstractServletTest extends AbstractCXFTest {
@@ -53,18 +53,18 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
     
     public void tearDown() {
         bus.shutdown(false);
-        BusFactoryHelper.newInstance().setDefaultBus(null);                
+        BusFactory.newInstance().setDefaultBus(null);                
     }
        
     //CXFservlet has create the bus, so we need to use this bus for service init 
     @Override
     public Bus getBus() {
-        return BusFactoryHelper.newInstance().getDefaultBus();
+        return BusFactory.newInstance().getDefaultBus();
     }
     
     @Override
     public Bus createBus() {
-        return BusFactoryHelper.newInstance().getDefaultBus();
+        return BusFactory.newInstance().getDefaultBus();
     }
     /**
      * @return The web.xml to use for testing.

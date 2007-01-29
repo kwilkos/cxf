@@ -39,7 +39,6 @@ import junit.textui.TestRunner;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.connector.CXFConnectionFactory;
 import org.apache.hello_world_soap_http.Greeter;
 import org.easymock.classextension.EasyMock;
@@ -193,7 +192,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
 
     
         Subject subj = new Subject();
-        BusFactory bf = BusFactoryHelper.newInstance();        
+        BusFactory bf = BusFactory.newInstance();        
         Bus bus = bf.createBus();
         bf.setDefaultBus(bus);
         ManagedConnectionFactoryImpl factory = EasyMock.createMock(ManagedConnectionFactoryImpl.class);

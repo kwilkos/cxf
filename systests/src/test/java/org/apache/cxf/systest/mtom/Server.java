@@ -23,7 +23,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.jaxws.binding.soap.SOAPBindingImpl;
@@ -44,7 +44,7 @@ public class Server extends TestServerBase {
         Object implementor = new TestMtomImpl();
         String address = "http://localhost:9036/mime-test";
         try {
-            Bus bus = BusFactoryHelper.newInstance().getDefaultBus();
+            Bus bus = BusFactory.newInstance().getDefaultBus();
             JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(implementor.getClass());
             AbstractServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
             serviceFactory.setBus(bus);

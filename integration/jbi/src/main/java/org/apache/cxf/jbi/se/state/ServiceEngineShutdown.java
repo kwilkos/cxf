@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 import javax.jbi.JBIException;
 import javax.jbi.component.ComponentContext;
 
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
@@ -101,7 +101,7 @@ public class ServiceEngineShutdown extends AbstractServiceEngineStateMachine {
         try { 
             LOG.info(new Message("SE.INIT.BUS", LOG).toString());
             if (null == bus) {
-                bus = BusFactoryHelper.newInstance().createBus();
+                bus = BusFactory.newInstance().createBus();
             }
             LOG.info(new Message("SE.INIT.BUS.COMPLETE", LOG).toString());
         } catch (Exception ex) { 

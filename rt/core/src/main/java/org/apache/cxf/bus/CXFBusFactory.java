@@ -26,7 +26,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.extension.ExtensionManagerBus;
 
-public class CXFBusFactory implements BusFactory {
+public class CXFBusFactory extends BusFactory {
     
     private static Bus defaultBus;
 

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -68,12 +69,9 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
  */
 public class HTTPConduit extends AbstractConduit {
     
-    static {
-        log = LogUtils.getL7dLogger(HTTPConduit.class);
-    }
-
     public static final String HTTP_CONNECTION = "http.connection";
-        
+    private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
+    
     private final Bus bus;
     private HTTPConduitConfigBean config;
     private final URLConnectionFactory alternateConnectionFactory;
@@ -98,7 +96,7 @@ public class HTTPConduit extends AbstractConduit {
              ei,
              null);
     }
-
+    
     /**
      * Constructor
      * 
@@ -144,6 +142,11 @@ public class HTTPConduit extends AbstractConduit {
               : new URL(t.getAddress().getValue());
     }
 
+    protected Logger getLogger() {
+        return LOG;
+    }
+
+    
     /**
      * Post-configure retreival of connection factory.
      */
@@ -366,7 +369,7 @@ public class HTTPConduit extends AbstractConduit {
                 config.getClient().getDecoupledEndpoint());
         if (reference != null) {
             String decoupledAddress = reference.getAddress().getValue();
-            log.info("creating decoupled endpoint: " + decoupledAddress);
+            LOG.info("creating decoupled endpoint: " + decoupledAddress);
             try {
                 decoupledURL = new URL(decoupledAddress);
                 if (decoupledEngine == null) {
@@ -384,7 +387,7 @@ public class HTTPConduit extends AbstractConduit {
                 decoupledHandler.duplicate();
             } catch (Exception e) {
                 // REVISIT move message to localizable Messages.properties
-                log.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
+                LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
             }
         }
         return new DecoupledDestination(reference, incomingObserver);

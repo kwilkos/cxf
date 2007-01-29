@@ -36,7 +36,7 @@ import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -86,7 +86,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     }
 
     public Bus getBus() {
-        return BusFactoryHelper.newInstance().getDefaultBus();
+        return BusFactory.newInstance().getDefaultBus();
     }
     
     @SuppressWarnings("unchecked")

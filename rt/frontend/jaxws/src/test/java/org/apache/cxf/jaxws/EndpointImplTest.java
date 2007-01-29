@@ -27,7 +27,7 @@ import javax.xml.ws.WebServiceContext;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.invoker.BeanInvoker;
@@ -42,7 +42,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
     
     @Override
     protected Bus createBus() throws BusException {
-        return BusFactoryHelper.newInstance().getDefaultBus();
+        return BusFactory.newInstance().getDefaultBus();
     }
 
 

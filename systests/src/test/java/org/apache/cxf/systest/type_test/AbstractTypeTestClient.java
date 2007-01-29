@@ -775,8 +775,17 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
     public void testGMonth() throws Exception {
         javax.xml.datatype.DatatypeFactory datatypeFactory = javax.xml.datatype.DatatypeFactory.newInstance();
 
-        XMLGregorianCalendar x = datatypeFactory.newXMLGregorianCalendar("--08--");
-        XMLGregorianCalendar yOrig = datatypeFactory.newXMLGregorianCalendar("--12--+05:00");
+        XMLGregorianCalendar x;
+        XMLGregorianCalendar yOrig;
+        
+        try {
+            x = datatypeFactory.newXMLGregorianCalendar("--08");
+            yOrig = datatypeFactory.newXMLGregorianCalendar("--12+05:00");
+        } catch (java.lang.IllegalArgumentException iae) {
+            // broken XMLGregorianCalendar impl
+            x = datatypeFactory.newXMLGregorianCalendar("--08--");
+            yOrig = datatypeFactory.newXMLGregorianCalendar("--12--+05:00");
+        }
 
         Holder<XMLGregorianCalendar> y = new Holder<XMLGregorianCalendar>(yOrig);
         Holder<XMLGregorianCalendar> z = new Holder<XMLGregorianCalendar>();

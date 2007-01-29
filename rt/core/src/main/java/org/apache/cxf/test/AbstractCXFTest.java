@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.message.Message;
@@ -85,12 +85,12 @@ public class AbstractCXFTest extends TestCase {
         if (bus != null) {
             bus.shutdown(false);
         } 
-        BusFactoryHelper.newInstance().setDefaultBus(null);
+        BusFactory.newInstance().setDefaultBus(null);
     }
 
 
     protected Bus createBus() throws BusException {
-        return BusFactoryHelper.newInstance().createBus();
+        return BusFactory.newInstance().createBus();
     }
 
     protected byte[] invokeBytes(String address, 

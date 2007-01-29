@@ -24,7 +24,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
@@ -152,7 +152,7 @@ public abstract class AbstractEndpointFactory {
 
     public Bus getBus() {
         if (bus == null) {
-            bus = BusFactoryHelper.newInstance().getDefaultBus();
+            bus = BusFactory.newInstance().getDefaultBus();
         }
         return bus;
     }

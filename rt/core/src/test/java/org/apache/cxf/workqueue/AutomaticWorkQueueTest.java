@@ -276,7 +276,12 @@ public class AutomaticWorkQueueTest extends TestCase {
                 // ignore
             }
         }
-        assertEquals(workqueue.getLowWaterMark(), workqueue.getPoolSize());
+        if (System.getProperty("java.version").startsWith("1.6")) {
+            //ThreadPoolExecutor in 1.6 is broken.   The size can get below the low watermark
+            assertTrue(workqueue.getLowWaterMark() >= workqueue.getPoolSize());
+        } else {
+            assertEquals(workqueue.getLowWaterMark(), workqueue.getPoolSize());            
+        }
     }
 
     public void testThreadPoolShrinkUnbounded() {

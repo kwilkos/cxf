@@ -28,7 +28,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
@@ -58,7 +58,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     
     public void setUp() throws Exception {
         super.setUp();
-        BusFactoryHelper.newInstance().setDefaultBus(getBus());
+        BusFactory.newInstance().setDefaultBus(getBus());
         
         Object implementor = new TestHeaderImpl();
         String address = "http://localhost:9104/SoapHeaderContext/SoapHeaderPort";

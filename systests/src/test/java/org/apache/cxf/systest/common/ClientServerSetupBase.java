@@ -23,7 +23,6 @@ import junit.framework.Test;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.testutil.common.AbstractClientServerSetupBase;
 
 public abstract class ClientServerSetupBase extends AbstractClientServerSetupBase {
@@ -38,7 +37,7 @@ public abstract class ClientServerSetupBase extends AbstractClientServerSetupBas
         if (configFileName != null) {
             System.setProperty("cxf.config.file", configFileName);
         }
-        BusFactory bf = BusFactoryHelper.newInstance();
+        BusFactory bf = BusFactory.newInstance();
         bus = bf.createBus();
         bf.setDefaultBus(bus);
         super.setUp();

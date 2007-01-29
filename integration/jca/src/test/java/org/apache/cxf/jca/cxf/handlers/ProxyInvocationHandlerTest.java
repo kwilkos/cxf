@@ -25,7 +25,6 @@ import junit.textui.TestRunner;
 //import org.apache.cxf.Bus;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.BusFactoryHelper;
 import org.apache.cxf.jca.cxf.CXFInvocationHandler;
 import org.apache.cxf.jca.cxf.CXFInvocationHandlerData;
 import org.apache.cxf.jca.cxf.CXFManagedConnection;
@@ -57,7 +56,7 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
 
    
     public void testInvokeSetsBusCurrent() throws Throwable {
-        BusFactory bf = BusFactoryHelper.newInstance();
+        BusFactory bf = BusFactory.newInstance();
         Bus oldBus = bf.getDefaultBus();
         
         testObject.invoke(target, testMethod, new Object[] {});

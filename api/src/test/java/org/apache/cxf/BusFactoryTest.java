@@ -23,22 +23,22 @@ import junit.framework.TestCase;
 
 
 
-public class BusFactoryHelperTest extends TestCase {
+public class BusFactoryTest extends TestCase {
     
     public void tearDown() {
         System.clearProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);        
     }
     
     public void testGetInstance() {
-        BusFactory factory = BusFactoryHelper.newInstance();
+        BusFactory factory = BusFactory.newInstance();
         assertNull(factory);
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, TestBusFactory.class.getName());
-        factory = BusFactoryHelper.newInstance();
+        factory = BusFactory.newInstance();
         assertTrue(factory instanceof TestBusFactory);
     }
     
     
-    public static class TestBusFactory implements BusFactory {
+    public static class TestBusFactory extends BusFactory {
 
         public Bus createBus() {
             return null;

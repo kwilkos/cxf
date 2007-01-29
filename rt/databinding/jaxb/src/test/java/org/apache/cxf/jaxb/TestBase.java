@@ -32,7 +32,7 @@ import javax.xml.stream.XMLStreamWriter;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactoryHelper;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.binding.BindingFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -70,7 +70,7 @@ public class TestBase extends TestCase {
     BindingOperationInfo operation;
 
     public void setUp() throws Exception {
-        bus = BusFactoryHelper.newInstance().createBus();
+        bus = BusFactory.newInstance().createBus();
 
         BindingFactoryManager bfm = bus.getExtension(BindingFactoryManager.class);
 

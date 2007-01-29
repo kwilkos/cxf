@@ -33,14 +33,14 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
  */
 public abstract class AbstractConduit implements Conduit {
 
-    @SuppressWarnings("PMD:LoggerIsNotStaticFinal")
-    protected static Logger log;
     protected final EndpointReferenceType target;
     protected MessageObserver incomingObserver;
 
     public AbstractConduit(EndpointReferenceType t) {
         target = t;
     }
+
+    protected abstract Logger getLogger();
     
     /**
      * @return the reference associated with the target Destination
@@ -73,6 +73,6 @@ public abstract class AbstractConduit implements Conduit {
      */
     public void setMessageObserver(MessageObserver observer) {
         incomingObserver = observer;
-        log.info("registering incoming observer: " + incomingObserver);
+        getLogger().info("registering incoming observer: " + incomingObserver);
     }
 }
