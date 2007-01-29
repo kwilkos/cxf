@@ -260,7 +260,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                                                              conduitInitiator,
                                                              endpointInfo,
                                                              engine);
-        assertEquals(customPolicy, dest.getServer());
+        assertEquals(customPolicy, dest.getConfig().getServer());
     }
         
     private JettyHTTPDestination setUpDestination()
@@ -288,7 +288,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                                                              endpointInfo,
                                                              engine);
         dest.retrieveEngine();
-        policy = dest.getServer();
+        policy = dest.getConfig().getServer();
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;

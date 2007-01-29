@@ -25,10 +25,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.common.util.StringUtils;
@@ -38,8 +36,8 @@ import org.apache.cxf.configuration.security.SSLServerPolicy;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.AttributedURIType;
@@ -49,16 +47,13 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
 /**
  * Common base for HTTP Destination implementations.
  */
-public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean 
-    implements Destination, Configurable {
-    static final Logger LOG = LogUtils.getL7dLogger(AbstractHTTPDestination.class);
+public abstract class AbstractHTTPDestination extends AbstractDestination {
     
     private static final long serialVersionUID = 1L;
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
-    protected final EndpointInfo endpointInfo;
-    protected final EndpointReferenceType reference;
+    protected HTTPDestinationConfigBean config;
     protected String name;
     protected URL nurl;
 
@@ -74,37 +69,18 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean
                                    ConduitInitiator ci,
                                    EndpointInfo ei)
         throws IOException {
+        super(new EndpointReferenceType(), ei);
         bus = b;
         conduitInitiator = ci;
-        endpointInfo = ei;
         
-        setServer(endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class));
-        setSslServer(endpointInfo.getTraversedExtensor(new SSLServerPolicy(), SSLServerPolicy.class));
-        
+        initConfig();
+         
         nurl = new URL(getAddressValue());
         name = nurl.getPath();
-
-        reference = new EndpointReferenceType();
+        
         AttributedURIType address = new AttributedURIType();
         address.setValue(getAddressValue());
         reference.setAddress(address);
-    }
-    
-    public String getBeanName() {
-        String beanName = null;
-        if (endpointInfo.getName() != null) {
-            beanName = endpointInfo.getName().toString() + ".http-destination";
-        }
-        return beanName;
-    }
-
-
-
-    /**
-     * @return the reference associated with this Destination
-     */    
-    public EndpointReferenceType getAddress() {
-        return reference;
     }
 
     /**
@@ -174,8 +150,14 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean
         return StringUtils.addDefaultPortIfMissing(endpointInfo.getAddress());
     }        
 
+    private void initConfig() {
+        config = new ConfigBean();
+        config.setServer(endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class));
+        config.setSslServer(endpointInfo.getTraversedExtensor(new SSLServerPolicy(), SSLServerPolicy.class));
+    }
+
     void setPolicies(Map<String, List<String>> headers) {
-        HTTPServerPolicy policy = getServer(); 
+        HTTPServerPolicy policy = config.getServer(); 
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
                         Arrays.asList(new String[] {policy.getCacheControl().value()}));
@@ -209,6 +191,16 @@ public abstract class AbstractHTTPDestination extends HTTPDestinationConfigBean
     }
 
     boolean contextMatchOnExact() {
-        return "exact".equals(getContextMatchStrategy());
+        return "exact".equals(config.getContextMatchStrategy());
     }    
+
+    private class ConfigBean extends HTTPDestinationConfigBean implements Configurable {
+        public String getBeanName() {
+            String beanName = null;
+            if (endpointInfo.getName() != null) {
+                beanName = endpointInfo.getName().toString() + ".http-destination";
+            }
+            return beanName;
+        }
+    }
 }

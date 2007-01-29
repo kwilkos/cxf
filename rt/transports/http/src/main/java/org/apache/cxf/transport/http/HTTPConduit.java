@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -49,6 +48,7 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractConduit;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
@@ -66,24 +66,19 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 /**
  * HTTP Conduit implementation.
  */
-public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Configurable {
+public class HTTPConduit extends AbstractConduit {
+    
+    static {
+        log = LogUtils.getL7dLogger(HTTPConduit.class);
+    }
 
     public static final String HTTP_CONNECTION = "http.connection";
-    
-    /**
-     * REVISIT: temporary mechanism to allow decoupled response endpoint
-     * to be configured, pending the maturation on the real config model
-     */
-    public static final String HTTP_DECOUPLED_ENDPOINT =
-        "http.decoupled.endpoint";
-    
-    private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
+        
     private final Bus bus;
+    private HTTPConduitConfigBean config;
     private final URLConnectionFactory alternateConnectionFactory;
     private URLConnectionFactory connectionFactory;
     private URL url;
-    private MessageObserver incomingObserver;
-    private EndpointReferenceType target;
     
     private ServerEngine decoupledEngine;
     private URL decoupledURL;
@@ -136,42 +131,36 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
                        EndpointReferenceType t,
                        URLConnectionFactory factory,
                        ServerEngine eng) throws IOException {
+        super(getTargetReference(ei, t));
         bus = b;
         endpointInfo = ei;
         alternateConnectionFactory = factory;
-        
-        init();
+
+        initConfig();
         
         decoupledEngine = eng;
         url = t == null
-              ? new URL(getAddress())
+              ? new URL(endpointInfo.getAddress())
               : new URL(t.getAddress().getValue());
-        target = getTargetReference(t);
     }
 
+    /**
+     * Post-configure retreival of connection factory.
+     */
     protected void retrieveConnectionFactory() {
         connectionFactory = alternateConnectionFactory != null
                             ? alternateConnectionFactory
-                            : HTTPTransportFactory.getConnectionFactory(sslClient);
-    }
-    
-    public String getBeanName() {
-        if (endpointInfo.getName() != null) {
-            return endpointInfo.getName().toString() + ".http-conduit";
-        }
-        return null;
+                            : HTTPTransportFactory.getConnectionFactory(
+                                  config.getSslClient());
     }
     
     /**
-     * Register a message observer for incoming messages.
-     * 
-     * @param observer the observer to notify on receipt of incoming
+     * @return the encapsulated config bean
      */
-    public void setMessageObserver(MessageObserver observer) {
-        incomingObserver = observer;
-        LOG.info("registering incoming observer: " + incomingObserver);
+    protected HTTPConduitConfigBean getConfig() {
+        return config;
     }
-
+        
     /**
      * Send an outbound message.
      * 
@@ -184,8 +173,8 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
             connectionFactory.createConnection(getProxy(), currentURL);
         connection.setDoOutput(true);        
         //TODO using Message context to deceided HTTP send properties        
-        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
-        connection.setReadTimeout((int)getClient().getReceiveTimeout());
+        connection.setConnectTimeout((int)config.getClient().getConnectionTimeout());
+        connection.setReadTimeout((int)config.getClient().getReceiveTimeout());
         connection.setUseCaches(false);
         
         if (connection instanceof HttpURLConnection) {
@@ -196,13 +185,14 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
             } else {
                 hc.setRequestMethod("POST");
             }
-            if (getClient().isAutoRedirect()) {
+            if (config.getClient().isAutoRedirect()) {
                 //cannot use chunking if autoredirect as the request will need to be
                 //completely cached locally and resent to the redirect target
                 hc.setInstanceFollowRedirects(true);
             } else {
                 hc.setInstanceFollowRedirects(false);
-                if (!hc.getRequestMethod().equals("GET") && client.isAllowChunking()) {
+                if (!hc.getRequestMethod().equals("GET")
+                        && config.getClient().isAllowChunking()) {
                     hc.setChunkedStreamingMode(2048);
                 }
             }
@@ -230,32 +220,21 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
         return new URL(result);    
     }
     
-   
-    /**
-     * @return the reference associated with the target Destination
-     */    
-    public EndpointReferenceType getTarget() {
-        return target;
-    }
-    
     /**
      * Retreive the back-channel Destination.
      * 
      * @return the backchannel Destination (or null if the backchannel is
      * built-in)
      */
+    @Override
     public synchronized Destination getBackChannel() {
         if (decoupledDestination == null
-            && getConfiguredDecoupledEndpoint() != null) {
+            && config.getClient().getDecoupledEndpoint() != null) {
             decoupledDestination = setUpDecoupledDestination(); 
         }
         return decoupledDestination;
     }
     
-    public void close(Message msg) throws IOException {
-        msg.getContent(OutputStream.class).close();        
-    }
-
     /**
      * Close the conduit
      */
@@ -292,18 +271,19 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
     }
     
     /**
-     * Get the target reference which may be constructor-provided or 
-     * configured.
+     * Get the target reference .
      * 
+     * @param ei the corresponding EndpointInfo
      * @param t the constructor-provider target
      * @return the actual target
      */
-    private EndpointReferenceType getTargetReference(EndpointReferenceType t) {
+    private static EndpointReferenceType getTargetReference(EndpointInfo ei,
+                                                            EndpointReferenceType t) {
         EndpointReferenceType ref = null;
         if (null == t) {
             ref = new EndpointReferenceType();
             AttributedURIType address = new AttributedURIType();
-            address.setValue(getAddress());
+            address.setValue(ei.getAddress());
             ref.setAddress(address);
         } else {
             ref = t;
@@ -382,10 +362,11 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
      */
     private DecoupledDestination setUpDecoupledDestination() {        
         EndpointReferenceType reference =
-            EndpointReferenceUtils.getEndpointReference(getConfiguredDecoupledEndpoint());
+            EndpointReferenceUtils.getEndpointReference(
+                config.getClient().getDecoupledEndpoint());
         if (reference != null) {
             String decoupledAddress = reference.getAddress().getValue();
-            LOG.info("creating decoupled endpoint: " + decoupledAddress);
+            log.info("creating decoupled endpoint: " + decoupledAddress);
             try {
                 decoupledURL = new URL(decoupledAddress);
                 if (decoupledEngine == null) {
@@ -403,22 +384,12 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
                 decoupledHandler.duplicate();
             } catch (Exception e) {
                 // REVISIT move message to localizable Messages.properties
-                LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
+                log.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
             }
         }
         return new DecoupledDestination(reference, incomingObserver);
     }
     
-    /**
-     * REVISIT: temporary mechanism to allow decoupled response endpoint
-     * to be configured, pending the maturation on the real config model
-     */
-    private String getConfiguredDecoupledEndpoint() {
-        return getClient().getDecoupledEndpoint() != null
-               ? getClient().getDecoupledEndpoint()
-               : System.getProperty(HTTP_DECOUPLED_ENDPOINT);
-    }
-
     /**
      * Wrapper output stream responsible for flushing headers and handling
      * the incoming HTTP-level response (not necessarily the MEP response).
@@ -622,22 +593,19 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
         }
     }    
 
-    private void init() {
+    private void initConfig() {
+        config = new ConfigBean();
         // Initialize some default values for the configuration
-        setClient(endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class));
-        setAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
-                                                           AuthorizationPolicy.class));
-        setProxyAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
-                                                                AuthorizationPolicy.class));
-    }
-
-    private String getAddress() {
-        return endpointInfo.getAddress();
+        config.setClient(endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class));
+        config.setAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
+                                                                  AuthorizationPolicy.class));
+        config.setProxyAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
+                                                                       AuthorizationPolicy.class));
     }
 
     private Proxy getProxy() {
         Proxy proxy = null;
-        HTTPClientPolicy policy = getClient(); 
+        HTTPClientPolicy policy = config.getClient(); 
         if (policy.isSetProxyServer()) {
             proxy = new Proxy(Proxy.Type.valueOf(policy.getProxyServerType().toString()),
                               new InetSocketAddress(policy.getProxyServer(),
@@ -647,7 +615,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
     }
 
     private void setPolicies(Message message, Map<String, List<String>> headers) {
-        AuthorizationPolicy authPolicy = getAuthorization();
+        AuthorizationPolicy authPolicy = config.getAuthorization();
         AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
         String userName = (String)message.get(Message.USERNAME);
         String passwd = (String)message.get(Message.PASSWORD);
@@ -676,7 +644,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
             headers.put("Authorization",
                         Arrays.asList(new String[] {type}));
         }
-        AuthorizationPolicy proxyAuthPolicy = getProxyAuthorization();
+        AuthorizationPolicy proxyAuthPolicy = config.getProxyAuthorization();
         if (proxyAuthPolicy.isSetUserName()) {
             userName = proxyAuthPolicy.getUserName();
             if (userName != null) {
@@ -699,7 +667,7 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
                             Arrays.asList(new String[] {type}));
             }
         }
-        HTTPClientPolicy policy = getClient();
+        HTTPClientPolicy policy = config.getClient();
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
                         Arrays.asList(new String[] {policy.getCacheControl().value()}));
@@ -740,5 +708,14 @@ public class HTTPConduit extends HTTPConduitConfigBean implements Conduit, Confi
             headers.put("Referer",
                         Arrays.asList(new String[] {policy.getReferer()}));
         }
+    }
+
+    private class ConfigBean extends HTTPConduitConfigBean implements Configurable {
+        public String getBeanName() {
+            if (endpointInfo.getName() != null) {
+                return endpointInfo.getName().toString() + ".http-conduit";
+            }
+            return null;
+        }        
     }
 }

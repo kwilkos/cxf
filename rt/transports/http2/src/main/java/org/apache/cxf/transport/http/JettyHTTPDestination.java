@@ -38,10 +38,10 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
-import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -49,6 +49,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
@@ -59,6 +60,10 @@ import org.mortbay.jetty.handler.AbstractHandler;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
 
+    static {
+        log = LogUtils.getL7dLogger(JettyHTTPDestination.class);
+    }
+    
     public static final String HTTP_REQUEST = JettyHTTPDestination.class.getName() + ".REQUEST";
     public static final String HTTP_RESPONSE = JettyHTTPDestination.class.getName() + ".RESPONSE";
 
@@ -66,7 +71,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
 
     protected ServerEngine engine;
     protected ServerEngine alternateEngine;
-    protected MessageObserver incomingObserver;
 
     /**
      * Constructor, using Jetty server engine.
@@ -89,111 +93,103 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param eng the server engine
      * @throws IOException
      */
-
     public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
         super(b, ci, endpointInfo);
         alternateEngine = eng;
     }
 
+    /**
+     * Post-configure retreival of server engine.
+     */
     protected void retrieveEngine() {
         engine = alternateEngine != null
                  ? alternateEngine
-                 : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort(), sslServer);
+                 : JettyHTTPServerEngine.getForPort(bus,
+                                                    nurl.getProtocol(),
+                                                    nurl.getPort(),
+                                                    config.getSslServer());
     }
 
     /**
-     * Register a message observer for incoming messages.
-     * 
-     * @param observer the observer to notify on receipt of incoming
+     * @return the encapsulated config bean
      */
-    public synchronized void setMessageObserver(MessageObserver observer) {
-        if (null != observer) {
-            LOG.info("registering incoming observer: " + observer);
-            try {
-                URL url = new URL(getAddressValue());
-                //The handler is bind with the context, 
-                //we need to set the things on on context
-                if (contextMatchOnExact()) {
-                    engine.addServant(url, new AbstractHandler() {
-                        public void handle(String target, HttpServletRequest req,
-                                           HttpServletResponse resp, int dispatch) throws IOException {
-                            //if (target.equals(getName())) {
-                            doService(req, resp);
-                            //}
-                        }
-                    });
-                } else {
-                    engine.addServant(url, new AbstractHandler() {
-                        public void handle(String target,  HttpServletRequest req,
-                                           HttpServletResponse resp, int dispatch) throws IOException {
-                            //if (target.startsWith(getName())) {
-                            doService(req, resp);
-                            //}
-                        }                        
-                    });
-                }
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, "URL creation failed: ", e);
-            }
-        } else {
-            LOG.info("unregistering incoming observer: " + incomingObserver);
-            engine.removeServant(nurl);
-        }
-        incomingObserver = observer;
+    protected HTTPDestinationConfigBean getConfig() {
+        return config;
     }
-
+    
     /**
-     * Retreive a back-channel Conduit, which must be policy-compatible
-     * with the current Message and associated Destination. For example
-     * compatible Quality of Protection must be asserted on the back-channel.
-     * This would generally only be an issue if the back-channel is decoupled.
-     * 
-     * @param inMessage the current inbound message (null to indicate a 
-     * disassociated back-channel)
-     * @param partialResponse in the decoupled case, this is expected to be the
-     * outbound Message to be sent over the in-built back-channel. 
-     * @param address the backchannel address (null to indicate anonymous)
-     * @return a suitable Conduit
+     * Activate receipt of incoming messages.
      */
-    public Conduit getBackChannel(Message inMessage, Message partialResponse, EndpointReferenceType address)
-        throws IOException {
-        HttpServletResponse response = (HttpServletResponse)inMessage.get(HTTP_RESPONSE);
-        Conduit backChannel = null;
-        Exchange ex = inMessage.getExchange();
-        EndpointReferenceType target = address != null ? address : ex.get(EndpointReferenceType.class);
-        if (target == null) {
-            backChannel = new BackChannelConduit(response);
-        } else {
-            if (partialResponse != null) {
-                // setup the outbound message to for 202 Accepted
-                partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
-                backChannel = new BackChannelConduit(response);
-                ex.put(EndpointReferenceType.class, target);
-            } else {
-                backChannel = conduitInitiator.getConduit(endpointInfo, target);
-                // ensure decoupled back channel input stream is closed
-                backChannel.setMessageObserver(new MessageObserver() {
-                    public void onMessage(Message m) {
-                        if (m.getContentFormats().contains(InputStream.class)) {
-                            InputStream is = m.getContent(InputStream.class);
-                            try {
-                                is.close();
-                            } catch (Exception e) {
-                                // ignore
-                            }
-                        }
+    protected void activateIncoming() {
+        log.log(Level.INFO, "Activating receipt of incoming messages");
+        try {
+            URL url = new URL(getAddressValue());
+            //The handler is bind with the context, 
+            //we need to set the things on on context
+            if (contextMatchOnExact()) {
+                engine.addServant(url, new AbstractHandler() {
+                    public void handle(String target, HttpServletRequest req,
+                                       HttpServletResponse resp, int dispatch) throws IOException {
+                        //if (target.equals(getName())) {
+                        doService(req, resp);
+                        //}
                     }
                 });
+            } else {
+                engine.addServant(url, new AbstractHandler() {
+                    public void handle(String target,  HttpServletRequest req,
+                                       HttpServletResponse resp, int dispatch) throws IOException {
+                        //if (target.startsWith(getName())) {
+                        doService(req, resp);
+                        //}
+                    }                        
+                });
             }
+        } catch (Exception e) {
+            log.log(Level.WARNING, "URL creation failed: ", e);
         }
-        return backChannel;
+    
     }
 
     /**
-     * Shutdown the Destination, i.e. stop accepting incoming messages.
+     * Deactivate receipt of incoming messages.
      */
-    public void shutdown() {
+    protected void deactivateIncoming() {
+        log.log(Level.INFO, "Deactivating receipt of incoming messages");
+        engine.removeServant(nurl);        
+    }
+
+    /**
+     * @param inMessage the incoming message
+     * @return the inbuilt backchannel
+     */
+    protected Conduit getInbuiltBackChannel(Message inMessage) {
+        HttpServletResponse response = (HttpServletResponse)inMessage.get(HTTP_RESPONSE);
+        return new BackChannelConduit(response);
+    }
+
+    /**
+     * Mark message as a partial message.
+     * 
+     * @param partialResponse the partial response message
+     * @param the decoupled target
+     * @return true iff partial responses are supported
+     */
+    protected boolean markPartialResponse(Message partialResponse,
+                                       EndpointReferenceType decoupledTarget) {
+        // setup the outbound message to for 202 Accepted
+        partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
+        partialResponse.getExchange().put(EndpointReferenceType.class,
+                                          decoupledTarget);
+        return true;
+    }
+
+    /**
+     * @return the associated conduit initiator
+     */
+    protected ConduitInitiator getConduitInitiator() {
+        return conduitInitiator;
     }
 
     /**
@@ -246,8 +242,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
         
-        if (getServer().isSetRedirectURL()) {
-            resp.sendRedirect(getServer().getRedirectURL());
+        if (config.getServer().isSetRedirectURL()) {
+            resp.sendRedirect(config.getServer().getRedirectURL());
             resp.flushBuffer();
             baseRequest.setHandled(true);
             return;
@@ -282,8 +278,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
         try {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
+            if (log.isLoggable(Level.INFO)) {
+                log.info("Service http request on thread: " + Thread.currentThread());
             }
 
             MessageImpl inMessage = new MessageImpl();            
@@ -297,7 +293,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             if (!StringUtils.isEmpty(getAddressValue())) {
                 inMessage.put(Message.BASE_PATH, new URL(getAddressValue()).getPath());
             }
-            inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
+            inMessage.put(Message.FIXED_PARAMETER_ORDER, config.isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
             
             setHeaders(inMessage);
@@ -309,8 +305,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             resp.flushBuffer();
             baseRequest.setHandled(true);
         } finally {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
+            if (log.isLoggable(Level.INFO)) {
+                log.info("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
     }
@@ -339,12 +335,12 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             }
         } else if (null != responseObj) {
             String m = (new org.apache.cxf.common.i18n.Message("UNEXPECTED_RESPONSE_TYPE_MSG",
-                LOG, responseObj.getClass())).toString();
-            LOG.log(Level.WARNING, m);
+                log, responseObj.getClass())).toString();
+            log.log(Level.WARNING, m);
             throw new IOException(m);   
         } else {
-            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
-            LOG.log(Level.WARNING, m);
+            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", log)).toString();
+            log.log(Level.WARNING, m);
             throw new IOException(m);
         }
 

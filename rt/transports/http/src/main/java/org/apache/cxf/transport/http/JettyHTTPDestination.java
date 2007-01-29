@@ -36,6 +36,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
@@ -47,6 +48,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
@@ -56,6 +58,10 @@ import org.mortbay.http.handler.AbstractHttpHandler;
 
 public class JettyHTTPDestination extends AbstractHTTPDestination {
 
+    static {
+        log = LogUtils.getL7dLogger(JettyHTTPDestination.class);
+    }
+    
     public static final String HTTP_REQUEST = JettyHTTPDestination.class.getName() + ".REQUEST";
     public static final String HTTP_RESPONSE = JettyHTTPDestination.class.getName() + ".RESPONSE";
 
@@ -63,7 +69,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
 
     protected ServerEngine engine;
     protected ServerEngine alternateEngine;
-    protected MessageObserver incomingObserver;
 
     /**
      * Constructor, using Jetty server engine.
@@ -86,56 +91,100 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param eng the server engine
      * @throws IOException
      */
-
     public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
         super(b, ci, endpointInfo);
         alternateEngine = eng;
     }
 
+    /**
+     * Post-configure retreival of server engine.
+     */
     protected void retrieveEngine() {
         engine = alternateEngine != null
                  ? alternateEngine
-                 : JettyHTTPServerEngine.getForPort(bus, nurl.getProtocol(), nurl.getPort(), sslServer);
+                 : JettyHTTPServerEngine.getForPort(bus,
+                                                    nurl.getProtocol(),
+                                                    nurl.getPort(),
+                                                    config.getSslServer());
+    }
+    
+    /**
+     * @return the encapsulated config bean
+     */
+    protected HTTPDestinationConfigBean getConfig() {
+        return config;
+    }
+
+    
+    /**
+     * Activate receipt of incoming messages.
+     */
+    protected void activateIncoming() {
+        log.log(Level.INFO, "Activating receipt of incoming messages");
+        try {
+            URL url = new URL(getAddressValue());
+            if (contextMatchOnExact()) {
+                engine.addServant(url, new AbstractHttpHandler() {
+                    public void handle(String pathInContext, String pathParams, HttpRequest req,
+                                       HttpResponse resp) throws IOException {
+                        if (pathInContext.equals(getName())) {
+                            doService(req, resp);
+                        }
+                    }
+                });
+            } else {
+                engine.addServant(url, new AbstractHttpHandler() {
+                    public void handle(String pathInContext, String pathParams, HttpRequest req,
+                                       HttpResponse resp) throws IOException {                            
+                        if (pathInContext.startsWith(getName())) {
+                            doService(req, resp);
+                        }
+                    }
+                });
+            }
+        } catch (Exception e) {
+            log.log(Level.WARNING, "URL creation failed: ", e);
+        }
     }
 
     /**
-     * Register a message observer for incoming messages.
-     * 
-     * @param observer the observer to notify on receipt of incoming
+     * Deactivate receipt of incoming messages.
      */
-    public synchronized void setMessageObserver(MessageObserver observer) {
-        if (null != observer) {
-            LOG.info("registering incoming observer: " + observer);
-            try {
-                URL url = new URL(getAddressValue());
-                if (contextMatchOnExact()) {
-                    engine.addServant(url, new AbstractHttpHandler() {
-                        public void handle(String pathInContext, String pathParams, HttpRequest req,
-                                           HttpResponse resp) throws IOException {
-                            if (pathInContext.equals(getName())) {
-                                doService(req, resp);
-                            }
-                        }
-                    });
-                } else {
-                    engine.addServant(url, new AbstractHttpHandler() {
-                        public void handle(String pathInContext, String pathParams, HttpRequest req,
-                                           HttpResponse resp) throws IOException {                            
-                            if (pathInContext.startsWith(getName())) {
-                                doService(req, resp);
-                            }
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, "URL creation failed: ", e);
-            }
-        } else {
-            LOG.info("unregistering incoming observer: " + incomingObserver);
-            engine.removeServant(nurl);
-        }
-        incomingObserver = observer;
+    protected void deactivateIncoming() {
+        log.log(Level.INFO, "Deactivating receipt of incoming messages");
+        engine.removeServant(nurl);   
+    }
+    
+    /**
+     * @param inMessage the incoming message
+     * @return the inbuilt backchannel
+     */
+    protected Conduit getInbuiltBackChannel(Message inMessage) {
+        HttpResponse response = (HttpResponse)inMessage.get(HTTP_RESPONSE);
+        return new BackChannelConduit(response);
+    }
+
+    /**
+     * Mark message as a partial message.
+     * 
+     * @param partialResponse the partial response message
+     * @param the decoupled target
+     * @return true iff partial responses are supported
+     */
+    protected boolean markPartialResponse(Message partialResponse,
+                                       EndpointReferenceType decoupledTarget) {
+        // setup the outbound message to for 202 Accepted
+        partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
+        partialResponse.getExchange().put(EndpointReferenceType.class, decoupledTarget);
+        return true;
+    }
+
+    /**
+     * @return the associated conduit initiator
+     */
+    protected ConduitInitiator getConduitInitiator() {
+        return conduitInitiator;
     }
 
     /**
@@ -186,12 +235,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     /**
-     * Shutdown the Destination, i.e. stop accepting incoming messages.
-     */
-    public void shutdown() {
-    }
-
-    /**
      * Copy the request headers into the message.
      * 
      * @param message the current message
@@ -237,8 +280,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     protected void doService(HttpRequest req, HttpResponse resp) throws IOException {
-        if (getServer().isSetRedirectURL()) {
-            resp.sendRedirect(getServer().getRedirectURL());
+        if (config.getServer().isSetRedirectURL()) {
+            resp.sendRedirect(config.getServer().getRedirectURL());
             resp.commit();
             req.setHandled(true);
             return;
@@ -271,8 +314,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected void serviceRequest(final HttpRequest req, final HttpResponse resp)
         throws IOException {
         try {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
+            if (log.isLoggable(Level.INFO)) {
+                log.info("Service http request on thread: " + Thread.currentThread());
             }
 
             MessageImpl inMessage = new MessageImpl();
@@ -286,7 +329,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             if (!StringUtils.isEmpty(getAddressValue())) {
                 inMessage.put(Message.BASE_PATH, new URL(getAddressValue()).getPath());
             }
-            inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
+            inMessage.put(Message.FIXED_PARAMETER_ORDER, config.isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
             
             setHeaders(inMessage);
@@ -298,8 +341,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             resp.commit();
             req.setHandled(true);
         } finally {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
+            if (log.isLoggable(Level.INFO)) {
+                log.info("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
     }
@@ -333,12 +376,12 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             }
         } else if (null != responseObj) {
             String m = (new org.apache.cxf.common.i18n.Message("UNEXPECTED_RESPONSE_TYPE_MSG",
-                LOG, responseObj.getClass())).toString();
-            LOG.log(Level.WARNING, m);
+                log, responseObj.getClass())).toString();
+            log.log(Level.WARNING, m);
             throw new IOException(m);   
         } else {
-            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
-            LOG.log(Level.WARNING, m);
+            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", log)).toString();
+            log.log(Level.WARNING, m);
             throw new IOException(m);            
         }
 

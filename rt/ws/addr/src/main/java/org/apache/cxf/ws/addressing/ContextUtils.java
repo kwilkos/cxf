@@ -337,13 +337,12 @@ public final class ContextUtils {
             
             try {
                 Destination target = inMessage.getDestination();
+                exchange.setOutMessage(partialResponse);
                 Conduit backChannel = target.getBackChannel(inMessage,
                                                             partialResponse,
                                                             reference);
                 if (backChannel != null) {
                     // set up interceptor chains and send message
-
-                    exchange.setOutMessage(partialResponse);
                     InterceptorChain chain =
                         fullResponse != null
                         ? fullResponse.getInterceptorChain()
