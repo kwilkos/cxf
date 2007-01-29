@@ -63,7 +63,9 @@ public final class IriDecoderHelper {
                     int locEnd = locPath.indexOf('}', idx1);
                     String name = locPath.substring(idx1 + 1, locEnd);
                     idx1 = locEnd;
-                    int end = findPartEnd(path, idx2);
+                    String endFragment = getEndFragment(locEnd + 1, locPath);
+
+                    int end = findPartEnd(path, idx2, endFragment);
                     String value = path.substring(idx2, end);
                     idx2 = end;
                     values.add(new Param(name, value));
@@ -85,6 +87,18 @@ public final class IriDecoderHelper {
         return values;
     }
 
+    private static String getEndFragment(int i, String locPath) {
+        int end = locPath.indexOf('{', i);
+        
+        if (end == -1) {
+            end = locPath.length();
+        } else if (locPath.charAt(end + 1) == '{') {
+            return getEndFragment(end + 1, locPath);
+        }
+        
+        return locPath.substring(i, end);
+    }
+
     public static void addParams(String input, int start, int stop, List<Param> params) {
         while (start < stop) {
             int eq = input.indexOf('=', start);
@@ -98,18 +112,25 @@ public final class IriDecoderHelper {
     }
 
     /**
+     * @param endFragment 
      * 
      */
-    public static int findPartEnd(String path, int c) {
+    public static int findPartEnd(String path, int c, String endFragment) {
         int end = path.length();
-        int i = path.indexOf('/', c);
+        int i = end;
+        
+        if (!"".equals(endFragment)) {
+            i = path.indexOf(endFragment, c);
+            if (i >= c && i < end) {
+                end = i;
+            }
+        }
+        
+        i =  path.indexOf('?', c);
         if (i >= c && i < end) {
             end = i;
         }
-        i = path.indexOf('?', c);
-        if (i >= c && i < end) {
-            end = i;
-        }
+        
         return end;
     }
 
