@@ -20,17 +20,25 @@ properly configured, or if you are planning on using wsdl2java,
 javac, and java to build and run the demos, you must set the
 environment.
 
-This demo requires ActiveMQ 4.0.X. Before you run this
-demo, please make sure you had installed the ActiveMQ 4.0.X and
+This demo requires ActiveMQ 4.1.X. Before you run this
+demo, please make sure you had installed the ActiveMQ 4.1.X and
 set ACTIVEMQ_HOME and ACTIVEMQ_VERSION environment variables.
+Also, the ACTIVEMQ_VERSION environment variable should include the 
+'-incubator' suffix. For example,
 
-Befor you run this demo, start up the JMS message broker.
+For Unix:
+export ACTIVEMQ_VERSION=4.1.0-incubator
 
-From ActiveMQ 4.0.X insallation launch ActiveMQ JMS Broker in seperate window
+For Windows:
+set ACTIVEMQ_VERSION=4.1.0-incubator
+ 
+
+Before you run this demo, start up the JMS message broker.
+
+From ActiveMQ 4.1.X insallation launch ActiveMQ JMS Broker in seperate window
 or in background using the commands:
 
 For Unix:
-
 cd <activemq.home.dir>/bin
 activemq
 
@@ -87,13 +95,13 @@ Now compile the provided client and server applications with the commands:
 For UNIX:  
   
   export CLASSPATH=$CLASSPATH:$CXF_HOME/lib/cxf-incubator.jar:./build/classes:
-$ACTIVEMQ_HOME/incubator-activemq-$ACTIVEMQ_VERSION.jar
+$ACTIVEMQ_HOME/apache-activemq-$ACTIVEMQ_VERSION.jar
   javac -d build/classes src/demo/jms_greeter/client/*.java
   javac -d build/classes src/demo/jms_greeter/server/*.java
 
 For Windows:
   set classpath=%classpath%;%CXF_HOME%\lib\cxf-incubator.jar;.\build\classes;
-%ACTIVEMQ_HOME%\incubator-activemq-%ACTIVEMQ_VERSION%.jar
+%ACTIVEMQ_HOME%\apache-activemq-%ACTIVEMQ_VERSION%.jar
   javac -d build\classes src\demo\jms_greeter\client\*.java
   javac -d build\classes src\demo\jms_greeter\server\*.java
 

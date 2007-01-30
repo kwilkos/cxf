@@ -31,7 +31,7 @@
     <fail message="this sample need to use activemq, please setup ACTIVEMQ_VERSION in your envrionment"
         unless="activemq.version"/>
 
-    <property name="thirdparty.classpath" location="${activemq.home}/incubator-activemq-${activemq.version}.jar"/>
+    <property name="thirdparty.classpath" location="${activemq.home}/apache-activemq-${activemq.version}.jar"/>
     
     <import file="../common_build.xml"/>
 
