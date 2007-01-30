@@ -59,12 +59,8 @@ public class JMSTransportFactory extends AbstractTransportFactory
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo, EndpointReferenceType target) throws IOException {
-        Conduit conduit = 
+        JMSConduit conduit = 
             target == null ? new JMSConduit(bus, endpointInfo) : new JMSConduit(bus, endpointInfo, target);
-        Configurer configurer = bus.getExtension(Configurer.class);
-        if (null != configurer) {
-            configurer.configureBean(conduit);
-        }
         return conduit;
     }
 

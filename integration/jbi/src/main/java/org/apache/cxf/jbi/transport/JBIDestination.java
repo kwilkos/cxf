@@ -37,22 +37,21 @@ import org.apache.cxf.jbi.se.CXFServiceUnitManager;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractConduit;
+import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
-public class JBIDestination implements Destination {
-
+public class JBIDestination extends AbstractDestination {
+    
     private static final Logger LOG = LogUtils.getL7dLogger(JBIDestination.class);
+    
     private final DeliveryChannel channel;
     private final CXFServiceUnitManager suManager; 
     private ConduitInitiator conduitInitiator;
-    private EndpointInfo endpointInfo;
-    private EndpointReferenceType reference;
-    private MessageObserver incomingObserver;
     private JBIDispatcher dispatcher;
     private volatile boolean running; 
     
@@ -60,106 +59,51 @@ public class JBIDestination implements Destination {
                           EndpointInfo info,
                           DeliveryChannel dc,
                           CXFServiceUnitManager sum) {
+        super(getTargetReference(info.getAddress()), info);
         this.conduitInitiator = ci;
-        this.endpointInfo = info;
         this.channel = dc;
         this.suManager = sum;
-        reference = new EndpointReferenceType();
-        AttributedURIType address = new AttributedURIType();
-        address.setValue(endpointInfo.getAddress());
-        reference.setAddress(address);        
     }
     
-    public EndpointReferenceType getAddress() {
-        return reference;
+    protected Logger getLogger() {
+        return LOG;
     }
-
-    public Conduit getBackChannel(Message inMessage, Message partialResponse, EndpointReferenceType address)
-        throws IOException {
-        Conduit backChannel = null;
-        if (address == null) {
-            backChannel = new BackChannelConduit(address, inMessage, this);
-        } else {
-            if (partialResponse != null) {
-                // just send back the partialResponse 
-                backChannel = new BackChannelConduit(address, inMessage , this);
-            } else {                
-                backChannel = conduitInitiator.getConduit(endpointInfo, address);
-                // ensure decoupled back channel input stream is closed
-                backChannel.setMessageObserver(new MessageObserver() {
-                    public void onMessage(Message m) {
-                        //need to set up the headers 
-                        if (m.getContentFormats().contains(InputStream.class)) {
-                            InputStream is = m.getContent(InputStream.class);
-                            try {
-                                is.close();
-                            } catch (Exception e) {
-                                // ignore
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        return backChannel;
-
+    
+    /**
+     * @param inMessage the incoming message
+     * @return the inbuilt backchannel
+     */
+    protected Conduit getInbuiltBackChannel(Message inMessage) {
+        return new BackChannelConduit(EndpointReferenceUtils.getAnonymousEndpointReference(),
+                                      inMessage);
     }
-
+    
     public void shutdown() {
         running = false;
     }
-
-    public void setMessageObserver(MessageObserver observer) {
-        if (null != observer) {
-            try {
-                activate();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            LOG.log(Level.FINE, "JBIDestination shutdown()");
-            try {
-                deactivate();
-            } catch (IOException e) {
-                //Ignore for now.
-            }
-        }
-        incomingObserver = observer;
-
-    }
     
-    public MessageObserver getMessageObserver() {
-        return incomingObserver;
-    }
-
-    private void deactivate() throws IOException {
+    public void deactivate() {
         running = false;
     }
 
-    private void activate() throws IOException {
-        LOG.info(new org.apache.cxf.common.i18n.Message(
-            "ACTIVE.JBI.SERVER.TRANSPORT", LOG).toString());
+    public void activate()  {
+        getLogger().info(new org.apache.cxf.common.i18n.Message(
+            "ACTIVE.JBI.SERVER.TRANSPORT", getLogger()).toString());
         dispatcher = new JBIDispatcher();
         new Thread(dispatcher).start();
     }
     
     // this should deal with the cxf message 
-    protected class BackChannelConduit implements Conduit {
+    protected class BackChannelConduit extends AbstractConduit {
         
         protected Message inMessage;
-        protected EndpointReferenceType target;
         protected JBIDestination jbiDestination;
                 
-        BackChannelConduit(EndpointReferenceType ref, Message message, JBIDestination dest) {
+        BackChannelConduit(EndpointReferenceType ref, Message message) {
+            super(ref);
             inMessage = message;
-            target = ref;
-            jbiDestination = dest;
         }
         
-        public void close(Message msg) throws IOException {
-            msg.getContent(OutputStream.class).close();        
-        }
-
         /**
          * Register a message observer for incoming messages.
          * 
@@ -181,29 +125,10 @@ public class JBIDestination implements Destination {
                 inMessage.get(JBIConstants.MESSAGE_EXCHANGE_PROPERTY));
             message.setContent(OutputStream.class,
                                new JBIDestinationOutputStream(inMessage, channel));
-        }
-        
-        /**
-         * @return the reference associated with the target Destination
-         */    
-        public EndpointReferenceType getTarget() {
-            return target;
-        }
-        
-        /**
-         * Retreive the back-channel Destination.
-         * 
-         * @return the backchannel Destination (or null if the backchannel is
-         * built-in)
-         */
-        public Destination getBackChannel() {
-            return null;
-        }
-        
-        /**
-         * Close the conduit
-         */
-        public void close() {
+        }        
+
+        protected Logger getLogger() {
+            return LOG;
         }
     }
 
@@ -213,8 +138,8 @@ public class JBIDestination implements Destination {
             
             try { 
                 running = true;
-                LOG.info(new org.apache.cxf.common.i18n.Message(
-                    "RECEIVE.THREAD.START", LOG).toString());
+                getLogger().info(new org.apache.cxf.common.i18n.Message(
+                    "RECEIVE.THREAD.START", getLogger()).toString());
                 do {
                     MessageExchange exchange = null;
                     synchronized (channel) {
@@ -230,12 +155,12 @@ public class JBIDestination implements Destination {
                         try { 
                             Thread.currentThread().setContextClassLoader(csu.getClassLoader());
                             if (csu != null) { 
-                                LOG.info(new org.apache.cxf.common.i18n.Message(
-                                    "DISPATCH.TO.SU", LOG).toString());
+                                getLogger().info(new org.apache.cxf.common.i18n.Message(
+                                    "DISPATCH.TO.SU", getLogger()).toString());
                                 dispatch(exchange);
                             } else {
-                                LOG.info(new org.apache.cxf.common.i18n.Message(
-                                    "NO.SU.FOUND", LOG).toString());
+                                getLogger().info(new org.apache.cxf.common.i18n.Message(
+                                    "NO.SU.FOUND", getLogger()).toString());
                             }
                         } finally { 
                             Thread.currentThread().setContextClassLoader(oldLoader);
@@ -243,18 +168,18 @@ public class JBIDestination implements Destination {
                     } 
                 } while(running);
             } catch (Exception ex) {
-                LOG.log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
-                    "ERROR.DISPATCH.THREAD", LOG).toString(), ex);
+                getLogger().log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
+                    "ERROR.DISPATCH.THREAD", getLogger()).toString(), ex);
             } 
-            LOG.fine(new org.apache.cxf.common.i18n.Message(
-                "JBI.SERVER.TRANSPORT.MESSAGE.PROCESS.THREAD.EXIT", LOG).toString());
+            getLogger().fine(new org.apache.cxf.common.i18n.Message(
+                "JBI.SERVER.TRANSPORT.MESSAGE.PROCESS.THREAD.EXIT", getLogger()).toString());
         }
 
     }
     
     private void dispatch(MessageExchange exchange) throws IOException {
         QName opName = exchange.getOperation(); 
-        LOG.fine("dispatch method: " + opName);
+        getLogger().fine("dispatch method: " + opName);
         
         NormalizedMessage nm = exchange.getMessage("in");
         try {
@@ -274,8 +199,8 @@ public class JBIDestination implements Destination {
                 getMessageObserver().onMessage(inMessage);
             
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
-                "ERROR.PREPARE.MESSAGE", LOG).toString(), ex);
+            getLogger().log(Level.SEVERE, new org.apache.cxf.common.i18n.Message(
+                "ERROR.PREPARE.MESSAGE", getLogger()).toString(), ex);
             throw new IOException(ex.getMessage());
         }
 

@@ -31,6 +31,7 @@ import javax.jms.TextMessage;
 
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean;
@@ -40,7 +41,7 @@ import org.apache.cxf.transports.jms.context.JMSPropertyType;
 import org.apache.cxf.transports.jms.jms_conf.JMSSessionPoolConfigPolicy;
 
 
-public class JMSTransportBase extends JMSTransportBaseConfigBean {    
+public class JMSTransportBase extends JMSTransportBaseConfigBean implements Configurable {    
     
     protected Destination targetDestination;
     protected Destination replyDestination;
@@ -48,12 +49,14 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
     protected Bus bus;
     //protected EndpointReferenceType targetEndpoint;
     protected EndpointInfo endpointInfo;
+    protected String beanNameSuffix;
     
     
     //--Constructors------------------------------------------------------------
-    public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer) {
+    public JMSTransportBase(Bus b, EndpointInfo endpoint, boolean isServer, String suffix) {
         bus = b;
         endpointInfo = endpoint;
+        beanNameSuffix = suffix;
 
         setAddressPolicy(endpointInfo.getTraversedExtensor(new JMSAddressPolicyType(), 
                                                            JMSAddressPolicyType.class));
@@ -65,6 +68,11 @@ public class JMSTransportBase extends JMSTransportBaseConfigBean {
             configurer.configureBean(this);
         }
     }
+    
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + beanNameSuffix;
+    }
+
 
     /**
      * Callback from the JMSProviderHub indicating the ClientTransport has

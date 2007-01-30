@@ -27,6 +27,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
@@ -81,7 +83,10 @@ public class JMSDestinationTest extends AbstractJMSTester {
         if (send) {
             // setMessageObserver
             observer = new MessageObserver() {
-                public void onMessage(Message m) {                    
+                public void onMessage(Message m) {
+                    Exchange exchange = new ExchangeImpl();
+                    exchange.setInMessage(m);
+                    m.setExchange(exchange);
                     destMessage = m;                                    
                 }
             };
@@ -102,16 +107,16 @@ public class JMSDestinationTest extends AbstractJMSTester {
         JMSDestination destination = setupJMSDestination(false);
         assertEquals("Can't get the right ServerConfig's MessageTimeToLive ",
                      500,
-                     destination.jmsDestinationConfigBean.getServerConfig().getMessageTimeToLive());
+                     destination.config.getServerConfig().getMessageTimeToLive());
         assertEquals("Can't get the right Server's MessageSelector",
                      "cxf_message_selector",
-                     destination.jmsDestinationConfigBean.getServer().getMessageSelector());
+                     destination.config.getServer().getMessageSelector());
         assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
                      10,
-                     destination.getSessionPoolConfig().getLowWaterMark());
+                     destination.base.getSessionPoolConfig().getLowWaterMark());
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
-                     destination.getAddressPolicy().getConnectionPassword());
+                     destination.base.getAddressPolicy().getConnectionPassword());
         bf.setDefaultBus(null);
         
     }
@@ -199,6 +204,9 @@ public class JMSDestinationTest extends AbstractJMSTester {
         //set up MessageObserver for handlering the conduit message
         MessageObserver observer = new MessageObserver() {
             public void onMessage(Message m) {                    
+                Exchange exchange = new ExchangeImpl();
+                exchange.setInMessage(m);
+                m.setExchange(exchange);
                 verifyReceivedMessage(m);
                 verifyHeaders(m, outMessage);
                 //setup the message for 

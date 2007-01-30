@@ -59,21 +59,23 @@ public class LocalTransportFactory extends AbstractTransportFactory
     }
 
     public Destination getDestination(EndpointInfo ei) throws IOException {
-        return getDestination(createReference(ei));
+        return getDestination(ei, createReference(ei));
     }
 
-    public Destination getDestination(EndpointReferenceType reference) throws IOException {
+    protected Destination getDestination(EndpointInfo ei,
+                                         EndpointReferenceType reference)
+        throws IOException {
         Destination d = destinations.get(reference.getAddress().getValue());
         if (d == null) {
-            d = createDestination(reference);
+            d = createDestination(ei, reference);
             destinations.put(reference.getAddress().getValue(), d);
         }
         return d;
     }
 
-    private Destination createDestination(EndpointReferenceType reference) {
+    private Destination createDestination(EndpointInfo ei, EndpointReferenceType reference) {
         LOG.info("Creating destination for address " + reference.getAddress().getValue());
-        return new LocalDestination(this, reference);
+        return new LocalDestination(this, reference, ei);
     }
 
     void remove(LocalDestination destination) {
@@ -81,11 +83,11 @@ public class LocalTransportFactory extends AbstractTransportFactory
     }
 
     public Conduit getConduit(EndpointInfo ei) throws IOException {
-        return new LocalConduit((LocalDestination)getDestination(createReference(ei)));
+        return new LocalConduit((LocalDestination)getDestination(ei));
     }
 
     public Conduit getConduit(EndpointInfo ei, EndpointReferenceType target) throws IOException {
-        return new LocalConduit((LocalDestination)getDestination(target));
+        return new LocalConduit((LocalDestination)getDestination(ei, target));
     }
 
     EndpointReferenceType createReference(EndpointInfo ei) {

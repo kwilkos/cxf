@@ -40,9 +40,6 @@ import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
-import org.apache.cxf.ws.addressing.AttributedURIType;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-
 
 /**
  * Common base for HTTP Destination implementations.
@@ -69,18 +66,14 @@ public abstract class AbstractHTTPDestination extends AbstractDestination {
                                    ConduitInitiator ci,
                                    EndpointInfo ei)
         throws IOException {
-        super(new EndpointReferenceType(), ei);
+        super(getTargetReference(getAddressValue(ei)), ei);  
         bus = b;
         conduitInitiator = ci;
         
         initConfig();
          
-        nurl = new URL(getAddressValue());
+        nurl = new URL(getAddressValue(ei));
         name = nurl.getPath();
-        
-        AttributedURIType address = new AttributedURIType();
-        address.setValue(getAddressValue());
-        reference.setAddress(address);
     }
 
     /**
@@ -146,8 +139,8 @@ public abstract class AbstractHTTPDestination extends AbstractDestination {
     protected abstract void copyRequestHeaders(Message message,
                                                Map<String, List<String>> headers);
 
-    protected final String getAddressValue() {       
-        return StringUtils.addDefaultPortIfMissing(endpointInfo.getAddress());
+    protected static String getAddressValue(EndpointInfo ei) {       
+        return StringUtils.addDefaultPortIfMissing(ei.getAddress());
     }        
 
     private void initConfig() {

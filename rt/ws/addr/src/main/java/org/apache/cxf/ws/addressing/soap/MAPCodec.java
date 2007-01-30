@@ -529,9 +529,8 @@ public class MAPCodec extends AbstractSoapInterceptor {
      */
     private void restoreExchange(SoapMessage message, AddressingProperties maps) {
         if (maps.getRelatesTo() != null) {
-            // REVISIT remove if not partial response
             Exchange correlatedExchange =
-                uncorrelatedExchanges.get(maps.getRelatesTo().getValue());
+                uncorrelatedExchanges.remove(maps.getRelatesTo().getValue());
             if (correlatedExchange != null) {
                 synchronized (correlatedExchange) {
                     Exchange tmpExchange = message.getExchange();

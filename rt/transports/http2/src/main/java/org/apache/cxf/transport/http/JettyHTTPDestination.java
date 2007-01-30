@@ -46,13 +46,11 @@ import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
@@ -63,8 +61,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     
     public static final String HTTP_REQUEST = JettyHTTPDestination.class.getName() + ".REQUEST";
     public static final String HTTP_RESPONSE = JettyHTTPDestination.class.getName() + ".RESPONSE";
-
-    protected static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
 
     private static final Logger LOG = LogUtils.getL7dLogger(JettyHTTPDestination.class);
     
@@ -124,10 +120,10 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     /**
      * Activate receipt of incoming messages.
      */
-    protected void activateIncoming() {
+    protected void activate() {
         LOG.log(Level.INFO, "Activating receipt of incoming messages");
         try {
-            URL url = new URL(getAddressValue());
+            URL url = new URL(getAddressValue(endpointInfo));
             //The handler is bind with the context, 
             //we need to set the things on on context
             if (contextMatchOnExact()) {
@@ -158,7 +154,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     /**
      * Deactivate receipt of incoming messages.
      */
-    protected void deactivateIncoming() {
+    protected void deactivate() {
         LOG.log(Level.INFO, "Deactivating receipt of incoming messages");
         engine.removeServant(nurl);        
     }
@@ -293,8 +289,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
             inMessage.setContent(InputStream.class, req.getInputStream());
-            if (!StringUtils.isEmpty(getAddressValue())) {
-                inMessage.put(Message.BASE_PATH, new URL(getAddressValue()).getPath());
+            if (!StringUtils.isEmpty(getAddressValue(endpointInfo))) {
+                inMessage.put(Message.BASE_PATH, new URL(getAddressValue(endpointInfo)).getPath());
             }
             inMessage.put(Message.FIXED_PARAMETER_ORDER, config.isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
@@ -356,27 +352,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     /**
      * Backchannel conduit.
      */
-    protected class BackChannelConduit implements Conduit {
+    protected class BackChannelConduit
+        extends AbstractDestination.AbstractBackChannelConduit {
 
         protected HttpServletResponse response;
-        protected EndpointReferenceType target;
 
         BackChannelConduit(HttpServletResponse resp) {
             response = resp;
-            target = EndpointReferenceUtils.getEndpointReference(ANONYMOUS_ADDRESS);
-        }
-
-        public void close(Message msg) throws IOException {
-            msg.getContent(OutputStream.class).close();
-        }
-
-        /**
-         * Register a message observer for incoming messages.
-         * 
-         * @param observer the observer to notify on receipt of incoming
-         */
-        public void setMessageObserver(MessageObserver observer) {
-            // shouldn't be called for a back channel conduit
         }
 
         /**
@@ -389,29 +371,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         public void send(Message message) throws IOException {
             message.put(HTTP_RESPONSE, response);
             message.setContent(OutputStream.class, new WrappedOutputStream(message, response));
-        }
-
-        /**
-         * @return the reference associated with the target Destination
-         */
-        public EndpointReferenceType getTarget() {
-            return target;
-        }
-
-        /**
-         * Retreive the back-channel Destination.
-         * 
-         * @return the backchannel Destination (or null if the backchannel is
-         * built-in)
-         */
-        public Destination getBackChannel() {
-            return null;
-        }
-
-        /**
-         * Close the conduit
-         */
-        public void close() {
         }
     }
 

@@ -40,8 +40,6 @@ public abstract class AbstractConduit implements Conduit {
         target = t;
     }
 
-    protected abstract Logger getLogger();
-    
     /**
      * @return the reference associated with the target Destination
      */    
@@ -65,14 +63,35 @@ public abstract class AbstractConduit implements Conduit {
     public void close(Message msg) throws IOException {
         msg.getContent(OutputStream.class).close();        
     }
+    
+    /**
+     * Close the conduit.
+     */
+    public void close() {
+        // nothing to do by default
+    }
 
     /**
      * Register a message observer for incoming messages.
      * 
      * @param observer the observer to notify on receipt of incoming
+     * message
      */
     public void setMessageObserver(MessageObserver observer) {
         incomingObserver = observer;
         getLogger().info("registering incoming observer: " + incomingObserver);
     }
+    
+    /**
+     * @return the observer to notify on receipt of incoming message
+     */
+    public MessageObserver getMessageObserver() {
+        return incomingObserver;
+    }
+
+    /**
+     * @return the logger to use
+     */
+    protected abstract Logger getLogger();
+
 }

@@ -57,16 +57,16 @@ public class JMSConduitTest extends AbstractJMSTester {
                          "HelloWorldQueueBinMsgService",
                          "HelloWorldQueueBinMsgPort");
         JMSConduit conduit = setupJMSConduit(false, false);
-        assertNotNull(conduit.jmsConduitConfigBean);
+        assertNotNull(conduit.config);
         assertEquals("Can't get the right ClientReceiveTimeout",
                      500,
-                     conduit.jmsConduitConfigBean.getClientConfig().getClientReceiveTimeout());
+                     conduit.config.getClientConfig().getClientReceiveTimeout());
         assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
                      10,
-                     conduit.getSessionPoolConfig().getLowWaterMark());
+                     conduit.base.getSessionPoolConfig().getLowWaterMark());
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
-                     conduit.getAddressPolicy().getConnectionPassword());
+                     conduit.base.getAddressPolicy().getConnectionPassword());
         bf.setDefaultBus(null);
         
     }

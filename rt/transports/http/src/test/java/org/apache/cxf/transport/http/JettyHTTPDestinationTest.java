@@ -176,7 +176,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertNull("unexpected backchannel-backchannel",
                    backChannel.getBackChannel());
         assertEquals("unexpected target",
-                     JettyHTTPDestination.ANONYMOUS_ADDRESS,
+                     EndpointReferenceUtils.ANONYMOUS_ADDRESS,
                      backChannel.getTarget().getAddress().getValue());
     }
     

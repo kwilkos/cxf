@@ -20,7 +20,6 @@
 package org.apache.cxf.jaxws.servlet;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -44,15 +43,14 @@ import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
-public class ServletDestination implements Destination {
+public class ServletDestination extends AbstractDestination {
 
     public static final String HTTP_REQUEST =
         "HTTP_SERVLET_REQUEST";
@@ -65,11 +63,8 @@ public class ServletDestination implements Destination {
 
     protected final Bus bus;
     protected final ConduitInitiator conduitInitiator;
-    protected final EndpointInfo endpointInfo;
-    protected final EndpointReferenceType reference;
     protected String name;
     protected URL nurl;
-    protected MessageObserver incomingObserver;
     
     
     /**
@@ -85,21 +80,9 @@ public class ServletDestination implements Destination {
                               ConduitInitiator ci,
                               EndpointInfo ei)
         throws IOException {
+        super(getTargetReference(ei.getAddress()), ei);  
         bus = b;
         conduitInitiator = ci;
-        endpointInfo = ei;
-        
-        reference = new EndpointReferenceType();
-        AttributedURIType add = new AttributedURIType();
-        add.setValue(ei.getAddress());
-        reference.setAddress(add);
-    }
-
-    /**
-     * @return the reference associated with this Destination
-     */    
-    public EndpointReferenceType getAddress() {
-        return reference;
     }
 
     /**
@@ -147,68 +130,32 @@ public class ServletDestination implements Destination {
         }
     }
     
-
-
-    /**
-     * Register a message observer for incoming messages.
-     * 
-     * @param observer the observer to notify on receipt of incoming
-     */
-    public synchronized void setMessageObserver(MessageObserver observer) {
-        LOG.info("set the observer for address " + getAddress().getAddress().getValue());
-        incomingObserver = observer;
+    protected Logger getLogger() {
+        return LOG;
     }
-    
+
     /**
-     * Retreive a back-channel Conduit, which must be policy-compatible
-     * with the current Message and associated Destination. For example
-     * compatible Quality of Protection must be asserted on the back-channel.
-     * This would generally only be an issue if the back-channel is decoupled.
-     * 
-     * @param inMessage the current inbound message (null to indicate a 
-     * disassociated back-channel)
-     * @param partialResponse in the decoupled case, this is expected to be the
-     * outbound Message to be sent over the in-built back-channel. 
-     * @param address the backchannel address (null to indicate anonymous)
-     * @return a suitable Conduit
+     * @param inMessage the incoming message
+     * @return the inbuilt backchannel
      */
-    public Conduit getBackChannel(Message inMessage,
-                                  Message partialResponse,
-                                  EndpointReferenceType address) throws IOException {
+    protected Conduit getInbuiltBackChannel(Message inMessage) {
         HttpServletResponse response = (HttpServletResponse)inMessage.get(HTTP_RESPONSE);
-        Conduit backChannel = null;
-        if (address == null) {
-            backChannel = new BackChannelConduit(address, response);
-        } else {
-            if (partialResponse != null) {
-                // setup the outbound message to for 202 Accepted
-                partialResponse.put(Message.RESPONSE_CODE,
-                                    HttpURLConnection.HTTP_ACCEPTED);
-                backChannel = new BackChannelConduit(address, response);
-            } else {
-                backChannel = conduitInitiator.getConduit(endpointInfo, address);
-                // ensure decoupled back channel input stream is closed
-                backChannel.setMessageObserver(new MessageObserver() {
-                    public void onMessage(Message m) {
-                        if (m.getContentFormats().contains(InputStream.class)) {
-                            InputStream is = m.getContent(InputStream.class);
-                            try {
-                                is.close();
-                            } catch (Exception e) {
-                                // ignore
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        return backChannel;
+        return new BackChannelConduit(response);
     }
-
+   
     /**
-     * Shutdown the Destination, i.e. stop accepting incoming messages.
+     * Mark message as a partial message.
+     * 
+     * @param partialResponse the partial response message
+     * @param the decoupled target
+     * @return true iff partial responses are supported
      */
-    public void shutdown() {  
+    protected boolean markPartialResponse(Message partialResponse,
+                                          EndpointReferenceType decoupledTarget) {
+        partialResponse.put(Message.RESPONSE_CODE,
+                            HttpURLConnection.HTTP_ACCEPTED);
+        partialResponse.getExchange().put(EndpointReferenceType.class, decoupledTarget);
+        return true;
     }
         
     /**
@@ -273,28 +220,14 @@ public class ServletDestination implements Destination {
         }
         
     }
-
     
-    protected class BackChannelConduit implements Conduit {
+    protected class BackChannelConduit
+        extends AbstractDestination.AbstractBackChannelConduit {
         
         protected HttpServletResponse response;
-        protected EndpointReferenceType target;
         
-        BackChannelConduit(EndpointReferenceType ref, HttpServletResponse resp) {
+        BackChannelConduit(HttpServletResponse resp) {
             response = resp;
-            target = ref;
-        }
-        public void close(Message msg) throws IOException {
-            msg.getContent(OutputStream.class).close();        
-        }
-
-        /**
-         * Register a message observer for incoming messages.
-         * 
-         * @param observer the observer to notify on receipt of incoming
-         */
-        public void setMessageObserver(MessageObserver observer) {
-            // shouldn't be called for a back channel conduit
         }
 
         /**
@@ -307,29 +240,6 @@ public class ServletDestination implements Destination {
             message.put(HTTP_RESPONSE, response);
             message.setContent(OutputStream.class,
                                new WrappedOutputStream(message, response));
-        }
-        
-        /**
-         * @return the reference associated with the target Destination
-         */    
-        public EndpointReferenceType getTarget() {
-            return target;
-        }
-        
-        /**
-         * Retreive the back-channel Destination.
-         * 
-         * @return the backchannel Destination (or null if the backchannel is
-         * built-in)
-         */
-        public Destination getBackChannel() {
-            return null;
-        }
-        
-        /**
-         * Close the conduit
-         */
-        public void close() {
         }
     }
     
@@ -415,5 +325,4 @@ public class ServletDestination implements Destination {
     public EndpointInfo getEndpointInfo() {
         return endpointInfo;
     }
-
 }

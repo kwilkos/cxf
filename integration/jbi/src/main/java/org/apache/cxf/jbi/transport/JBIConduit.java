@@ -30,58 +30,29 @@ import javax.jbi.messaging.DeliveryChannel;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transport.AbstractConduit;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 
-public class JBIConduit implements Conduit {
-    
+public class JBIConduit extends AbstractConduit {
+
     private static final Logger LOG = LogUtils.getL7dLogger(JBIConduit.class);
-       
-    private MessageObserver incomingObserver;
-    private EndpointReferenceType target;
+
     private DeliveryChannel channel;
            
-    
-    
     public JBIConduit(EndpointReferenceType target, DeliveryChannel dc) {           
-        this.target = target;
+        super(target);
         channel = dc;
     }
 
+    protected Logger getLogger() {
+        return LOG;
+    }
+    
     public void send(Message message) throws IOException {
-        LOG.log(Level.FINE, "JBIConduit send message");
+        getLogger().log(Level.FINE, "JBIConduit send message");
                 
         message.setContent(OutputStream.class,
                            new JBIConduitOutputStream(message, channel, target, this));
-    }
-
-    public void close(Message message) throws IOException {
-        message.getContent(OutputStream.class).close();        
-    }
-
-    public EndpointReferenceType getTarget() {
-        return target;
-    }
-
-    public Destination getBackChannel() {
-        return null;
-    }
-
-    public void close() {
-        
-    }
-
-    public void setMessageObserver(MessageObserver observer) {
-        incomingObserver = observer;     
-    }
-    
-    public MessageObserver getMessageObserver() {
-        return incomingObserver;
-    }
-
-    
-     
+    }    
 }

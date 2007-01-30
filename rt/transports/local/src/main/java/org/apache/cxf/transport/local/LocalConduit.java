@@ -23,44 +23,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
+import java.util.logging.Logger;
 
 import org.apache.cxf.attachment.CachedOutputStream;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
-import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.transport.AbstractConduit;
 
-public class LocalConduit implements Conduit {
+public class LocalConduit extends AbstractConduit {
 
     public static final String IN_CONDUIT = LocalConduit.class.getName() + ".inConduit";
     public static final String IN_EXCHANGE = LocalConduit.class.getName() + ".inExchange";
 
+    private static final Logger LOG = LogUtils.getL7dLogger(LocalConduit.class);
+    
     private LocalDestination destination;
-    private MessageObserver observer;
 
     public LocalConduit(LocalDestination destination) {
+        super(destination.getAddress());
         this.destination = destination;
     }
-
-    public void close(Message msg) throws IOException {
-        msg.getContent(OutputStream.class).close();        
-    }
-    public void close() {
-    }
-
-    public Destination getBackChannel() {
-        return null;
-    }
-
-    public EndpointReferenceType getTarget() {
-        return destination.getAddress();
-    }
-
+    
     public void send(final Message message) throws IOException {
         final PipedInputStream stream = new PipedInputStream();
         final LocalConduit conduit = this;
@@ -92,12 +79,8 @@ public class LocalConduit implements Conduit {
         // TODO: put on executor
         new Thread(receiver).start();
     }
-
-    public void setMessageObserver(MessageObserver o) {
-        this.observer = o;
-    }
-
-    public MessageObserver getMessageObserver() {
-        return observer;
+    
+    protected Logger getLogger() {
+        return LOG;
     }
 }

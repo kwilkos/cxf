@@ -26,7 +26,9 @@ import java.util.logging.Logger;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 /**
  * Abstract base class factoring out common Destination logic, 
@@ -44,8 +46,6 @@ public abstract class AbstractDestination implements Destination {
         reference = ref;
         endpointInfo = ei;
     }
-    
-    protected abstract Logger getLogger();
     
     /**
      * @return the reference associated with this Destination
@@ -118,15 +118,22 @@ public abstract class AbstractDestination implements Destination {
             if (observer != null) {
                 getLogger().info("registering incoming observer: " + observer);
                 if (old == null) {
-                    activateIncoming();
+                    activate();
                 }
             } else {
                 getLogger().info("unregistering incoming observer: " + incomingObserver);
                 if (old != null) {
-                    deactivateIncoming();
+                    deactivate();
                 }
             }
         }
+    }
+    
+    /**
+     * @return the observer to notify on receipt of incoming message
+     */
+    public MessageObserver getMessageObserver() {
+        return incomingObserver;
     }
     
     /**
@@ -160,16 +167,62 @@ public abstract class AbstractDestination implements Destination {
     /**
      * Activate receipt of incoming messages.
      */
-    protected abstract void activateIncoming();
+    protected void activate() {
+        // nothing to do by default
+    }
 
     /**
      * Deactivate receipt of incoming messages.
      */
-    protected abstract void deactivateIncoming();
+    protected void deactivate() {
+        // nothing to do by default        
+    }
     
+    /**
+     * Get the exposed reference.
+     * 
+     * @param address the corresponding EndpointInfo
+     * @return the actual reference
+     */
+    protected static EndpointReferenceType getTargetReference(String addr) {
+        EndpointReferenceType ref = new EndpointReferenceType();
+        AttributedURIType address = new AttributedURIType();
+        address.setValue(addr);
+        ref.setAddress(address);        
+        return ref;
+    }
+    
+    /**
+     * @return the logger to use
+     */
+    protected abstract Logger getLogger();
+
     /**
      * @param inMessage the incoming message
      * @return the inbuilt backchannel
      */
     protected abstract Conduit getInbuiltBackChannel(Message inMessage);
+    
+    /**
+     * Backchannel conduit.
+     */
+    protected abstract class AbstractBackChannelConduit extends AbstractConduit {
+
+        public AbstractBackChannelConduit() {
+            super(EndpointReferenceUtils.getAnonymousEndpointReference());
+        }
+
+        /**
+         * Register a message observer for incoming messages.
+         * 
+         * @param observer the observer to notify on receipt of incoming
+         */
+        public void setMessageObserver(MessageObserver observer) {
+            // shouldn't be called for a back channel conduit
+        }
+        
+        protected Logger getLogger() {
+            return AbstractDestination.this.getLogger();
+        }
+    }
 }

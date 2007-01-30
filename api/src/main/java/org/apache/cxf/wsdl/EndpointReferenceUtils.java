@@ -68,6 +68,8 @@ import org.apache.cxf.ws.addressing.wsdl.ServiceNameType;
  */
 public final class EndpointReferenceUtils {
 
+    public static final String ANONYMOUS_ADDRESS = "http://www.w3.org/2005/08/addressing/anonymous";
+
     static WeakHashMap<ServiceInfo, Schema> schemaMap = new WeakHashMap<ServiceInfo, Schema>();
 
     private static final Logger LOG = LogUtils.getL7dLogger(EndpointReferenceUtils.class);
@@ -550,7 +552,7 @@ public final class EndpointReferenceUtils {
     }
     
     /**
-     * Create an endpoint reference for the provided .
+     * Create an endpoint reference for the provided address.
      * @param address - address URI
      * @return EndpointReferenceType - the endpoint reference
      */
@@ -560,6 +562,18 @@ public final class EndpointReferenceUtils {
         setAddress(reference, address);
         return reference;
     }
+    
+    /**
+     * Create an anonymous endpoint reference.
+     * @return EndpointReferenceType - the endpoint reference
+     */
+    public static EndpointReferenceType getAnonymousEndpointReference() {
+        
+        EndpointReferenceType reference = new EndpointReferenceType();
+        setAddress(reference, ANONYMOUS_ADDRESS);
+        return reference;
+    }
+
 
     /**
      * Get the WebService for the provided class.  If the class
