@@ -36,7 +36,9 @@ public abstract class AbstractProtocolHandlerInterceptor<T extends Message>
     
     public void handleMessage(T message) {
         MessageContext context = createProtocolMessageContext(message);
-        getInvoker(message).invokeProtocolHandlers(isRequestor(message), context);
+        HandlerChainInvoker invoker = getInvoker(message);
+        invoker.setProtocolMessageContext(context);
+        invoker.invokeProtocolHandlers(isRequestor(message), context);
         onCompletion(message);
     }
     

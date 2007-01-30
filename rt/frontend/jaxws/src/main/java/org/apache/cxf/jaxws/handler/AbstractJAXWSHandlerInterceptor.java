@@ -38,12 +38,11 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
     
     boolean isOutbound(T message) {
         return message == message.getExchange().getOutMessage()
-               || message == message.getExchange().getOutFaultMessage();
+            || message == message.getExchange().getOutFaultMessage();
     }
     
     protected boolean isRequestor(T message) {
-        Boolean b = (Boolean)message.get(Message.REQUESTOR_ROLE);
-        return b == null ? true : b.booleanValue();
+        return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
     protected HandlerChainInvoker getInvoker(T message) {
@@ -59,6 +58,15 @@ public abstract class AbstractJAXWSHandlerInterceptor<T extends Message> extends
         } else {
             invoker.setInbound();
         }
+        
+        if (message.getExchange().isOneWay()
+            || ((isRequestor(message) && !isOutbound(message)) 
+                || (!isRequestor(message) && isOutbound(message)))) {
+            invoker.setResponseExpected(false);
+        } else { 
+            invoker.setResponseExpected(true);
+        }
+        
         return invoker;
     }
     

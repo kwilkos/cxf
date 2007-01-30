@@ -82,7 +82,9 @@ public class LogicalHandlerInterceptorTest extends TestCase {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(exchange.getOutMessage()).andReturn(message);
-        expect(invoker.invokeLogicalHandlers(eq(true), isA(LogicalMessageContext.class))).andReturn(true);
+        expect(invoker.invokeLogicalHandlers(eq(false), isA(LogicalMessageContext.class)))
+            .andReturn(true);
+
         control.replay();
         LogicalHandlerInterceptor<Message> li = new LogicalHandlerInterceptor<Message>(binding);
         assertEquals("unexpected phase", "user-logical", li.getPhase());

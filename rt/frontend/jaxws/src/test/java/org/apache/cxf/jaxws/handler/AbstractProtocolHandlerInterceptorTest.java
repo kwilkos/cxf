@@ -59,7 +59,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         expect(message.getExchange()).andReturn(exchange).anyTimes();
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(
-                invoker.invokeProtocolHandlers(eq(true),
+                invoker.invokeProtocolHandlers(eq(false),
                         isA(MessageContext.class))).andReturn(true);
         expect(exchange.getOutMessage()).andReturn(message);
         control.replay();
@@ -73,7 +73,7 @@ public class AbstractProtocolHandlerInterceptorTest extends TestCase {
         expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker);
         expect(exchange.getOutMessage()).andReturn(message);
         expect(
-                invoker.invokeProtocolHandlers(eq(true),
+                invoker.invokeProtocolHandlers(eq(false),
                         isA(MessageContext.class))).andReturn(false);
         control.replay();
         IIOPHandlerInterceptor pi = new IIOPHandlerInterceptor(binding);

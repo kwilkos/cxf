@@ -58,7 +58,9 @@ public class HandlerChainInvoker {
     private boolean handlerProcessingAborted; 
     private boolean closed;  
     private Exception fault;
-
+    private MessageContext logicalMessageContext;
+    private MessageContext protocolMessageContext;
+    
     public HandlerChainInvoker(List<Handler> hc) {
         this(hc, true);
     }    
@@ -94,6 +96,20 @@ public class HandlerChainInvoker {
         return streamHandlers;
     }
 
+    public MessageContext getLogicalMessageContext() {
+        return logicalMessageContext;
+    }
+    public void setLogicalMessageContext(MessageContext mc) {
+        logicalMessageContext = mc;
+    }
+    
+    public MessageContext getProtocolMessageContext() {
+        return protocolMessageContext;
+    }
+    public void setProtocolMessageContext(MessageContext mc) {
+        protocolMessageContext = mc;
+    }
+    
     public boolean invokeLogicalHandlers(boolean requestor, LogicalMessageContext context) { 
         // objectCtx.setRequestorRole(requestor);
         context.put(MessageContext.MESSAGE_OUTBOUND_PROPERTY, isOutbound()); 
@@ -280,6 +296,7 @@ public class HandlerChainInvoker {
                     continueProcessing = h.handleMessage(ctx);
                 }
                 if (!continueProcessing) {
+                    callReversedHandlers(ctx);
                     break;
                 }
                 markHandlerInvoked(h); 
@@ -296,6 +313,44 @@ public class HandlerChainInvoker {
         return continueProcessing;
     } 
 
+    private boolean callReversedHandlers(MessageContext ctx) {
+        int index = invokedHandlers.size() - 1;
+        if (responseExpected) {
+            while (index >= 0) {
+//                if (Boolean.FALSE.equals(invokedHandlers.get(index).handleMessage(ctx))) {
+//                    return false;
+//                }
+                Handler handler = invokedHandlers.get(index);
+                if (handler instanceof LogicalHandler) {
+                    if (Boolean.FALSE.equals(handler.
+                                             handleMessage(logicalMessageContext))) { 
+                        return false;
+                    }
+                } else {
+                    if (Boolean.FALSE.equals(handler.
+                                             handleMessage(protocolMessageContext))) {
+                        return false;
+                    }
+                }
+                index--;
+            }
+        }
+        closeHandlers(ctx);
+        return true;
+    }
+
+    private void closeHandlers(MessageContext ctx) {
+        int index = invokedHandlers.size() - 1;
+        while (index >= 0) {
+            Handler handler = invokedHandlers.get(index);
+            if (handler instanceof LogicalHandler) {
+                handler.close(logicalMessageContext);
+            } else {
+                handler.close(protocolMessageContext);
+            }
+            index--;
+        }
+    }
     
     private boolean invokeThisHandler(Handler h) {
         boolean ret = true;

@@ -41,6 +41,7 @@ public class LogicalHandlerInterceptor<T extends Message> extends AbstractJAXWSH
         HandlerChainInvoker invoker = getInvoker(message);
         if (!invoker.getLogicalHandlers().isEmpty()) {
             LogicalMessageContextImpl lctx = new LogicalMessageContextImpl(message);
+            invoker.setLogicalMessageContext(lctx);
             if (!invoker.invokeLogicalHandlers(isRequestor(message), lctx)) {
                 //TODO: reverseHandlers();
 
