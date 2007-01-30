@@ -23,6 +23,7 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeImpl;
 import org.apache.cxf.jaxb_element_test.JaxbElementTestImpl;
+import org.apache.cxf.ordered_param_holder.OrderedParamHolderImpl;
 import org.apache.cxf.systest.common.TestServerBase;
 
 
@@ -36,6 +37,11 @@ public class ServerMisc extends TestServerBase {
         Object implementor2 = new JaxbElementTestImpl();
         address = "http://localhost:9001/jaxb_element_test";
         Endpoint.publish(address, implementor2);
+
+        Object implementor3 = new OrderedParamHolderImpl();
+        address = "http://localhost:9002/ordered_param_holder/";
+        Endpoint.publish(address, implementor3);
+
     }
 
     public static void main(String[] args) {

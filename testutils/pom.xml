@@ -329,7 +329,9 @@
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/jaxb_element_test.wsdl</wsdl>
                                 </wsdlOption>
-
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/ordered_param_holder.wsdl</wsdl>
+                                </wsdlOption>
                             </wsdlOptions>
                         </configuration>
                         <goals>
