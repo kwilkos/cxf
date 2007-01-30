@@ -178,7 +178,11 @@ public final class ProcessorUtil {
         if (location.startsWith("http://")) {
             return location;
         } else {
-            return resolvePath(new File(location).getCanonicalPath());
+            File file = new File(location);
+            if (file.exists()) {
+                return resolvePath(file.getCanonicalPath());
+            }
+            return location;
         }
     }
 
@@ -186,7 +190,11 @@ public final class ProcessorUtil {
         if (location.startsWith("http://")) {
             return new URL(location);
         } else {
-            return new File(getAbsolutePath(location)).toURI().toURL();
+            File file = new File(location);
+            if (file.exists()) {
+                return new File(getAbsolutePath(location)).toURI().toURL();
+            }
+            return new URL(location);
         }
     }
 

@@ -140,7 +140,14 @@ public class URIResolver {
         }
 
         if (uri != null && "file".equals(uri.getScheme())) {
-            file = new File(uri);
+            try {
+                file = new File(uri);
+            } catch (IllegalArgumentException iae) {
+                file = new File(uri.toURL().getPath());
+                if (!file.exists()) {
+                    file = null;
+                }
+            }
         }
 
         if (is == null && file != null && file.exists()) {

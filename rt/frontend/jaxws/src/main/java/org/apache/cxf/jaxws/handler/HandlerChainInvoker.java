@@ -313,6 +313,7 @@ public class HandlerChainInvoker {
         return continueProcessing;
     } 
 
+    @SuppressWarnings("unchecked")
     private boolean callReversedHandlers(MessageContext ctx) {
         int index = invokedHandlers.size() - 1;
         if (responseExpected) {
