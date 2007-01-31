@@ -43,7 +43,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.http.conduit.HTTPConduitConfigBean;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
@@ -219,14 +218,13 @@ public class HTTPConduitTest extends TestCase {
                                               decoupledEngine);
         conduit.retrieveConnectionFactory();
 
-        HTTPConduitConfigBean config = conduit.getConfig();
         if (send) {
-            config.getClient().setConnectionTimeout(303030);
-            config.getClient().setReceiveTimeout(404040);
+            conduit.getClient().setConnectionTimeout(303030);
+            conduit.getClient().setReceiveTimeout(404040);
             if (httpConnection) {
-                config.getClient().setAutoRedirect(autoRedirect);
+                conduit.getClient().setAutoRedirect(autoRedirect);
                 if (!autoRedirect) {
-                    config.getClient().setAllowChunking(true);
+                    conduit.getClient().setAllowChunking(true);
                 } 
             }
         }
@@ -235,7 +233,7 @@ public class HTTPConduitTest extends TestCase {
             URL decoupledURL = null;
             if (decoupled) {
                 decoupledURL = new URL(NOWHERE + "response");
-                config.getClient().setDecoupledEndpoint(decoupledURL.toString());
+                conduit.getClient().setDecoupledEndpoint(decoupledURL.toString());
             } 
         }
        

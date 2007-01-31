@@ -59,7 +59,7 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
     }
 
     BusApplicationContext(String cf, boolean include, ApplicationContext parent) {
-        super((String[])null, parent);
+        super((String[])null, parent, false);
         cfgFile = cf;
         includeDefaults = include;
     }

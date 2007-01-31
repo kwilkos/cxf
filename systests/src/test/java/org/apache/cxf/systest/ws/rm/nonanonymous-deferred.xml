@@ -21,17 +21,14 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:wsrm-mgmt="http://cxf.apache.org/ws/rm/manager"
        xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
-       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
        xsi:schemaLocation="
+http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-    <bean name="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit" abstract="true">
-        <property name="client">
-            <value>
-                <http-conf:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
-            </value>
-        </property>
-    </bean>
+  
+    <http:conduit id="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
+      <http:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
+    </http:conduit>
     
     <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
         <property name="bus" ref="cxf"/>  

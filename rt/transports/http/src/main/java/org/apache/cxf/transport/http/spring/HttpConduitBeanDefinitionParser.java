@@ -16,24 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
+package org.apache.cxf.transport.http.spring;
+
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
-public class EndpointBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class HttpConduitBeanDefinitionParser extends AbstractBeanDefinitionParser {
+
+    private static final String HTTP_NS = "http://cxf.apache.org/transports/http/configuration";
 
     @Override
     protected void doParse(Element element, BeanDefinitionBuilder bean) {
-        mapAttributeToProperty(element, bean, "class", "serviceClass");
+        bean.setAbstract(true);
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "client"), "client");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "proxyAuthorization"), 
+                                 "proxyAuthorization");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "authorization"), "authorization");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "sslClient"), "sslClient");
+    }
+    
+    @Override
+    protected String getJaxbPackage() {
+        return "org.apache.cxf.transports.http.configuration";
     }
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return JaxWsServerFactoryBean.class;
+        return HTTPConduit.class;
     }
 
 }

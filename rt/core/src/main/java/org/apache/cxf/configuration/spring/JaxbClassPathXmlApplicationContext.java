@@ -55,7 +55,13 @@ public class JaxbClassPathXmlApplicationContext extends ClassPathXmlApplicationC
     
     public JaxbClassPathXmlApplicationContext(String[] locations, ApplicationContext parent) 
         throws BeansException {
-        super(locations, parent);
+        this(locations, parent, true);
+    }
+    
+    public JaxbClassPathXmlApplicationContext(String[] locations, ApplicationContext parent, boolean refresh) 
+        throws BeansException {
+        super(locations, refresh);
+        setParent(parent);
         cfgFileLocations = locations;
     }
     

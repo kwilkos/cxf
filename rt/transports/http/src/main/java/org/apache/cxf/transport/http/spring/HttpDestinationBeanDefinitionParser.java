@@ -16,24 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
+package org.apache.cxf.transport.http.spring;
+
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 
-public class EndpointBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class HttpDestinationBeanDefinitionParser extends AbstractBeanDefinitionParser {
+
+    private static final String HTTP_NS = "http://cxf.apache.org/transports/http/configuration";
 
     @Override
     protected void doParse(Element element, BeanDefinitionBuilder bean) {
-        mapAttributeToProperty(element, bean, "class", "serviceClass");
+        bean.setAbstract(true);
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "server"), "server");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "sslServer"), "sslServer");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "authorization"), "authorization");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "fixedParameterOrder"),
+                                 "fixedParameterOrder");
+        mapElementToJaxbProperty(element, bean, new QName(HTTP_NS, "contextMatchStrategy"),
+                                 "contextMatchStrategy");
+    }
+    
+    @Override
+    protected String getJaxbPackage() {
+        return "org.apache.cxf.transports.http.configuration";
     }
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return JaxWsServerFactoryBean.class;
+        return AbstractHTTPDestination.class;
     }
 
 }

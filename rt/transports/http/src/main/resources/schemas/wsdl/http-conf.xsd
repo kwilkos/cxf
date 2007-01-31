@@ -22,13 +22,50 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            xmlns:http-conf="http://cxf.apache.org/transports/http/configuration" 
            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+           xmlns:sec="http://cxf.apache.org/configuration/security"
            elementFormDefault="qualified" 
            attributeFormDefault="unqualified"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:version="2.0">
 
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/wsdl/wsdl.xsd"/>
+    <xs:import namespace="http://cxf.apache.org/configuration/security" schemaLocation="../../../../../../../../common/schemas/src/main/resources/schemas/configuration/security.xsd"/>
 
+    <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
+    <xs:element name="authorization" type="sec:AuthorizationPolicy"/>
+    <xs:element name="sslServer" type="sec:SSLServerPolicy"/>
+    <xs:element name="contextMatchStrategy" type="xs:string" default="stem"/>
+    <xs:element name="fixedParameterOrder" type="xs:boolean" default="false"/>
+
+    <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
+    <xs:element name="proxyAuthorization" type="sec:AuthorizationPolicy"/>
+    <xs:element name="sslClient" type="sec:SSLClientPolicy"/>
+
+    <xs:element name="conduit">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="http-conf:client" minOccurs="0"/>
+                <xs:element ref="http-conf:authorization" minOccurs="0"/>
+                <xs:element ref="http-conf:proxyAuthorization" minOccurs="0"/>
+                <xs:element ref="http-conf:sslClient" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="destination">
+      <xs:complexType>        
+        <xs:sequence>
+            <xs:element ref="http-conf:server" minOccurs="0"/>
+            <xs:element ref="http-conf:authorization" minOccurs="0"/>
+            <xs:element ref="http-conf:sslServer" minOccurs="0"/>
+            <xs:element ref="http-conf:contextMatchStrategy" minOccurs="0"/>
+            <xs:element ref="http-conf:fixedParameterOrder" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:string" use="required"/>
+      </xs:complexType>
+   </xs:element>
+   
     <xs:complexType name="HTTPServerPolicy">
         <xs:annotation>
             <xs:documentation>HTTP Server configuration properties.
@@ -136,8 +173,6 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="server" type="http-conf:HTTPServerPolicy"/>
-
 
     <xs:complexType name="HTTPClientPolicy">
         <xs:annotation>
@@ -332,7 +367,6 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="client" type="http-conf:HTTPClientPolicy"/>
     
     <xs:complexType name="HTTPListenerPolicy">
     	<xs:sequence>

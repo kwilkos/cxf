@@ -16,24 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
+package org.apache.cxf.transport.http.spring;
 
-import org.w3c.dom.Element;
+import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
-import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-
-public class EndpointBeanDefinitionParser extends AbstractBeanDefinitionParser {
-
-    @Override
-    protected void doParse(Element element, BeanDefinitionBuilder bean) {
-        mapAttributeToProperty(element, bean, "class", "serviceClass");
+public class NamespaceHandler extends NamespaceHandlerSupport {
+    public void init() {
+        registerBeanDefinitionParser("conduit", new HttpConduitBeanDefinitionParser());        
+        registerBeanDefinitionParser("destination", new HttpDestinationBeanDefinitionParser());        
     }
-
-    @Override
-    protected Class getBeanClass(Element arg0) {
-        return JaxWsServerFactoryBean.class;
-    }
-
 }

@@ -43,7 +43,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -101,16 +100,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                  : JettyHTTPServerEngine.getForPort(bus,
                                                     nurl.getProtocol(),
                                                     nurl.getPort(),
-                                                    config.getSslServer());
+                                                    getSslServer());
     }
-    
-    /**
-     * @return the encapsulated config bean
-     */
-    protected HTTPDestinationConfigBean getConfig() {
-        return config;
-    }
-
     
     /**
      * Activate receipt of incoming messages.
@@ -228,8 +219,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     }
 
     protected void doService(HttpRequest req, HttpResponse resp) throws IOException {
-        if (config.getServer().isSetRedirectURL()) {
-            resp.sendRedirect(config.getServer().getRedirectURL());
+        if (getServer().isSetRedirectURL()) {
+            resp.sendRedirect(getServer().getRedirectURL());
             resp.commit();
             req.setHandled(true);
             return;
@@ -273,7 +264,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             if (!StringUtils.isEmpty(getAddressValue(endpointInfo))) {
                 inMessage.put(Message.BASE_PATH, new URL(getAddressValue(endpointInfo)).getPath());
             }
-            inMessage.put(Message.FIXED_PARAMETER_ORDER, config.isFixedParameterOrder());
+            inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
             
             setHeaders(inMessage);
