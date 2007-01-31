@@ -78,7 +78,7 @@ public abstract class ManagedConnectionTestBase extends TestCase {
         
         BusFactory bf = BusFactory.newInstance();
         bus = bf.createBus();
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         
         
         EasyMock.reset(factory); 

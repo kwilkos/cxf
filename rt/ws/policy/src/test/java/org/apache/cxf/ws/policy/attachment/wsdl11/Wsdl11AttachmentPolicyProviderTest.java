@@ -31,6 +31,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -78,7 +79,8 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
     }
     
     public static void oneTimeSetUp() {
-        bus = new SpringBusFactory().getDefaultBus();
+        BusFactory.setDefaultBus(null);
+        bus = new SpringBusFactory().createBus();
         WSDLManager manager = bus.getExtension(WSDLManager.class);
         int n = 17;
         services = new ServiceInfo[n];
@@ -101,7 +103,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
     
     public static void oneTimeTearDown() {
         bus.shutdown(true);
-        new SpringBusFactory().setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         endpoints = null;
         services = null;
         

@@ -51,7 +51,7 @@ public class ProxyInvocationHandler extends CXFInvocationHandlerBase  {
         ManagedConnectionFactoryImpl mcf = (ManagedConnectionFactoryImpl)o;
         //NOTE reset the inited bus to current ,so CXF-rt can play with JCA setup bus
         Bus bus = mcf.getBus();        
-        BusFactory.newInstance().setDefaultBus(bus);        
+        BusFactory.setDefaultBus(bus);        
         return invokeNext(proxy, method, args);
     }
 }

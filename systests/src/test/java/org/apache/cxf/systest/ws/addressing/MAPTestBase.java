@@ -34,6 +34,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
@@ -92,7 +93,7 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
 
                 SpringBusFactory bf = new SpringBusFactory();
                 Bus bus = bf.createBus(config);
-                bf.setDefaultBus(bus);
+                BusFactory.setDefaultBus(bus);
                 setBus(bus);
 
                 mapVerifier = new MAPVerifier();

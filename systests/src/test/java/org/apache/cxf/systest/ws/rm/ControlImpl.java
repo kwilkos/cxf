@@ -29,6 +29,7 @@ import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.types.StartGreeterResponse;
@@ -50,7 +51,7 @@ public class ControlImpl implements Control {
        
         SpringBusFactory bf = new SpringBusFactory();
         greeterBus = bf.createBus(cfgResource);
-        bf.setDefaultBus(greeterBus);
+        BusFactory.setDefaultBus(greeterBus);
         LOG.info("Initialised bus with cfg file resource: " + cfgResource);
         // greeterBus.getOutInterceptors().add(new JaxwsInterceptorRemover());
         greeterBus.getOutInterceptors().add(new OutMessageRecorder());

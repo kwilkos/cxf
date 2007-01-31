@@ -53,7 +53,7 @@ public class AbstractJMSTester extends TestCase {
     public void setUp() {
         BusFactory bf = BusFactory.newInstance();
         bus = bf.createBus();
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
     }
     
     public void tearDown() {

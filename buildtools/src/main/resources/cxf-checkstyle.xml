@@ -88,7 +88,7 @@ lengths, if/try depths, etc...
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
         <module name="ImportOrder">
-            <property name="groups" value="java,javax,org.w3c,org.xml,w3c"/>
+            <property name="groups" value="java,javax,org.w3c,org.xml,junit"/>
             <property name="ordered" value="true"/>
         </module>
         <!--

@@ -37,8 +37,6 @@ public class SpringBusFactory extends BusFactory {
     
     private static final Logger LOG = LogUtils.getL7dLogger(SpringBusFactory.class);
     
-    private static Bus defaultBus;
-
     private ApplicationContext context;
 
     public SpringBusFactory() {
@@ -47,18 +45,7 @@ public class SpringBusFactory extends BusFactory {
     public SpringBusFactory(ApplicationContext context) {
         this.context = context;
     }
-    
-    public synchronized Bus getDefaultBus() {
-        if (null == defaultBus) {
-            defaultBus = createBus();
-        }
-        return defaultBus;
-    }
-
-    public void setDefaultBus(Bus bus) {
-        defaultBus = bus;
-    }
-    
+        
     public Bus createBus() {
         return createBus((String)null);
     }
@@ -87,6 +74,7 @@ public class SpringBusFactory extends BusFactory {
         Configurer configurer = new ConfigurerImpl(bac);
         bus.setExtension(configurer, Configurer.class);
 
+        possiblySetDefaultBus(bus);
         return bus;
     }
     
@@ -112,6 +100,7 @@ public class SpringBusFactory extends BusFactory {
         Configurer configurer = new ConfigurerImpl(bac);
         bus.setExtension(configurer, Configurer.class);
 
+        possiblySetDefaultBus(bus);
         return bus;
     }
     

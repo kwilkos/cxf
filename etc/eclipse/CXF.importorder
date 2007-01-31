@@ -20,8 +20,6 @@
 #
 #Organize Import Order
 #Thu Aug 11 12:37:29 EDT 2005
-6=org
-5=com
 4=junit
 3=org.xml
 2=org.w3c

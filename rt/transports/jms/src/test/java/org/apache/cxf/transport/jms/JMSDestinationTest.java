@@ -26,6 +26,7 @@ import java.io.InputStream;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -97,9 +98,9 @@ public class JMSDestinationTest extends AbstractJMSTester {
     
     public void testGetConfiguration() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
-        bf.setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         bus = bf.createBus("/wsdl/jms_test_config.xml");
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         setupServiceInfo("http://cxf.apache.org/jms_conf_test",
                          "/wsdl/jms_test_no_addr.wsdl",
                          "HelloWorldQueueBinMsgService",
@@ -117,7 +118,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
                      destination.base.getAddressPolicy().getConnectionPassword());
-        bf.setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         
     }
     

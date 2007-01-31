@@ -42,7 +42,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
     
     @Override
     protected Bus createBus() throws BusException {
-        return BusFactory.newInstance().getDefaultBus();
+        return BusFactory.getDefaultBus();
     }
 
 

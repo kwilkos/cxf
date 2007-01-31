@@ -194,7 +194,7 @@ public class ManagedConnectionFactoryImplTest extends TestCase {
         Subject subj = new Subject();
         BusFactory bf = BusFactory.newInstance();        
         Bus bus = bf.createBus();
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         ManagedConnectionFactoryImpl factory = EasyMock.createMock(ManagedConnectionFactoryImpl.class);
         factory.getBus();
         // In ManagedConnectionImpl:

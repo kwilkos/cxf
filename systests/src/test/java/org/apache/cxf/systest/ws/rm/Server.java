@@ -23,6 +23,7 @@ package org.apache.cxf.systest.ws.rm;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.systest.common.TestServerBase;
 
@@ -34,7 +35,7 @@ public class Server extends TestServerBase {
 
         SpringBusFactory factory = new SpringBusFactory();
         Bus bus = factory.createBus();
-        factory.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         setBus(bus);
 
         ControlImpl implementor = new ControlImpl();

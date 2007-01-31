@@ -110,7 +110,7 @@ public class ClientMtomXopTest extends ClientServerTestBase {
 
     private static <T> T createPort(QName serviceName, QName portName, Class<T> serviceEndpointInterface)
         throws Exception {
-        Bus bus = BusFactory.newInstance().getDefaultBus();
+        Bus bus = BusFactory.getDefaultBus();
         ReflectionServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
         serviceFactory.setBus(bus);
         serviceFactory.setServiceName(serviceName);

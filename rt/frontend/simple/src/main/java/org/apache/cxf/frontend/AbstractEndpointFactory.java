@@ -152,7 +152,7 @@ public abstract class AbstractEndpointFactory {
 
     public Bus getBus() {
         if (bus == null) {
-            bus = BusFactory.newInstance().getDefaultBus();
+            bus = BusFactory.getDefaultBus();
         }
         return bus;
     }

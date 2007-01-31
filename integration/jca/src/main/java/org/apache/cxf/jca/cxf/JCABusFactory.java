@@ -99,9 +99,8 @@ public class JCABusFactory {
     protected Bus createBus(ClassLoader loader) throws ResourceException {
         try {
             //REVISIT we need to use the CXF defualt BusFactory
-            Class busClazz = Class.forName(getBusClassName(), true, loader);
-            bf = (org.apache.cxf.BusFactory) busClazz.newInstance();
-            bus = bf.getDefaultBus();
+            bf = org.apache.cxf.BusFactory.newInstance(getBusClassName());
+            bus = bf.createBus();
         } catch (Exception ex) {
             throw new ResourceAdapterInternalException("Failed to initialize cxf runtime", ex);
         }

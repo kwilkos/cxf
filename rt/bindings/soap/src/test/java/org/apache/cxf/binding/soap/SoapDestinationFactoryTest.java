@@ -21,9 +21,10 @@ package org.apache.cxf.binding.soap;
 
 import javax.wsdl.extensions.soap.SOAPAddress;
 
+import junit.framework.TestCase;
+
 import com.ibm.wsdl.extensions.soap.SOAPAddressImpl;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.service.model.EndpointInfo;

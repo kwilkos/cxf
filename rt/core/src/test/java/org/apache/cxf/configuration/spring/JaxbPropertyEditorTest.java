@@ -21,14 +21,15 @@ package org.apache.cxf.configuration.spring;
 
 import javax.xml.bind.DatatypeConverter;
 
-import com.sun.xml.bind.DatatypeConverterImpl;
-
 import junit.framework.TestCase;
+
+import com.sun.xml.bind.DatatypeConverterImpl;
 
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.foo.Address;
 import org.apache.cxf.configuration.foo.Foo;
 import org.apache.cxf.configuration.foo.Point;
+
 
 public class JaxbPropertyEditorTest extends TestCase {
 

@@ -39,7 +39,7 @@ public abstract class ClientServerSetupBase extends AbstractClientServerSetupBas
         }
         BusFactory bf = BusFactory.newInstance();
         bus = bf.createBus();
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         super.setUp();
     }
     

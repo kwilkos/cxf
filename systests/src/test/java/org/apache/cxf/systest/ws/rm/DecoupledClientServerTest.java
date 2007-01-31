@@ -27,6 +27,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
@@ -51,7 +52,7 @@ public class DecoupledClientServerTest extends ClientServerTestBase {
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled.xml");
-            bf.setDefaultBus(bus);
+            BusFactory.setDefaultBus(bus);
             LoggingInInterceptor in = new LoggingInInterceptor();
             bus.getInInterceptors().add(in);
             bus.getInFaultInterceptors().add(in);
@@ -101,7 +102,7 @@ public class DecoupledClientServerTest extends ClientServerTestBase {
     public void testDecoupled() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled.xml");
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         LoggingInInterceptor in = new LoggingInInterceptor();
         bus.getInInterceptors().add(in);
         bus.getInFaultInterceptors().add(in);

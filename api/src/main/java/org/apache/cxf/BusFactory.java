@@ -33,6 +33,8 @@ public abstract class BusFactory {
     public static final String BUS_FACTORY_PROPERTY_NAME = "org.apache.cxf.bus.factory";
     public static final String DEFAULT_BUS_FACTORY = "org.apache.cxf.bus.CXFBusFactory";
 
+    protected static Bus defaultBus;
+
     private static final Logger LOG = LogUtils.getL7dLogger(BusFactory.class, "APIMessages");
     
 
@@ -51,19 +53,44 @@ public abstract class BusFactory {
      * 
      * @return the default bus.
      */
-    public abstract Bus getDefaultBus();
+    public static synchronized Bus getDefaultBus() {
+        if (defaultBus == null) {
+            defaultBus = newInstance().createBus();
+        }
+        return defaultBus;
+    }
     
     /**
      * Sets the default bus.
      * @param bus the default bus.
      */
-    public abstract void setDefaultBus(Bus bus);    
-    
+    public static synchronized void setDefaultBus(Bus bus) {
+        defaultBus = bus;
+    }
+
+    /**
+     * Sets the default bus if a default bus is not already set.
+     * @param bus the default bus.
+     * @return true if the bus was not set and is now set
+     */
+    public static synchronized boolean possiblySetDefaultBus(Bus bus) {
+        if (defaultBus == null) {
+            defaultBus = bus;            
+            return true;
+        }
+        return false;
+    }
+
     
     public static BusFactory newInstance() {
+        return newInstance(null);
+    }
+    public static BusFactory newInstance(String className) {
         BusFactory instance = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String className = getBusFactoryClass(null, classLoader);
+        if (className == null) {
+            className = getBusFactoryClass(null, classLoader);
+        }
         Class<? extends BusFactory> busFactoryClass;
         try {
             busFactoryClass = Class.forName(className, true, classLoader).asSubclass(BusFactory.class);

@@ -26,6 +26,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.ControlService;
@@ -122,8 +123,7 @@ public class SequenceTest extends ClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         
         controlBus = bf.createBus();
-        bf.setDefaultBus(controlBus);
-        controlBus = new SpringBusFactory().getDefaultBus();
+        BusFactory.setDefaultBus(controlBus);
 
         ControlService cs = new ControlService();
         control = cs.getControlPort();
@@ -133,7 +133,7 @@ public class SequenceTest extends ClientServerTestBase {
         
 
         greeterBus = bf.createBus();
-        bf.setDefaultBus(greeterBus);
+        BusFactory.setDefaultBus(greeterBus);
         LOG.fine("Initialised greeter default bus with configuration");
 
         outRecorder = new OutMessageRecorder();
@@ -755,14 +755,13 @@ public class SequenceTest extends ClientServerTestBase {
         SpringBusFactory bf = new SpringBusFactory();
         
         controlBus = bf.createBus();
-        bf.setDefaultBus(controlBus);
-        controlBus = new SpringBusFactory().getDefaultBus();
+        BusFactory.setDefaultBus(controlBus);
 
         ControlService cs = new ControlService();
         control = cs.getControlPort();
         
         greeterBus = bf.createBus(cfgResource);
-        bf.setDefaultBus(greeterBus);
+        BusFactory.setDefaultBus(greeterBus);
         LOG.fine("Initialised greeter bus with configuration: " + cfgResource);
 
         outRecorder = new OutMessageRecorder();

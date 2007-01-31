@@ -40,7 +40,7 @@ public class InstrumentationManagerTest extends TestCase {
     public void setUp() throws Exception {
         BusFactory bf = BusFactory.newInstance();
         bus =  bf.createBus();
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         im = bus.getExtension(InstrumentationManager.class);
     }
     

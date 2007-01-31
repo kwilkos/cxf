@@ -44,11 +44,5 @@ public class BusFactoryTest extends TestCase {
             return null;
         }
 
-        public Bus getDefaultBus() {
-            return null;
-        }
-
-        public void setDefaultBus(Bus bus) {         
-        }
     }
 }

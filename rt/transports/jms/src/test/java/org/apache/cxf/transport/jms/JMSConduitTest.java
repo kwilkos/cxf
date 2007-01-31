@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -49,9 +50,9 @@ public class JMSConduitTest extends AbstractJMSTester {
     public void testGetConfiguration() throws Exception {
         // setup the new bus to get the configuration file
         SpringBusFactory bf = new SpringBusFactory();
-        bf.setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         bus = bf.createBus("/wsdl/jms_test_config.xml");
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
         setupServiceInfo("http://cxf.apache.org/jms_conf_test",
                          "/wsdl/jms_test_no_addr.wsdl",
                          "HelloWorldQueueBinMsgService",
@@ -67,7 +68,7 @@ public class JMSConduitTest extends AbstractJMSTester {
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
                      conduit.base.getAddressPolicy().getConnectionPassword());
-        bf.setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         
     }
     

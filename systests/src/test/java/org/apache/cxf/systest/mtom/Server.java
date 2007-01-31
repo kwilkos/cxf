@@ -44,7 +44,7 @@ public class Server extends TestServerBase {
         Object implementor = new TestMtomImpl();
         String address = "http://localhost:9036/mime-test";
         try {
-            Bus bus = BusFactory.newInstance().getDefaultBus();
+            Bus bus = BusFactory.getDefaultBus();
             JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(implementor.getClass());
             AbstractServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean(implInfo);
             serviceFactory.setBus(bus);

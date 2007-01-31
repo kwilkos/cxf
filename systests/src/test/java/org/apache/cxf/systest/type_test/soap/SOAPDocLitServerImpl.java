@@ -23,6 +23,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
 
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.cxf.systest.type_test.TypeTestImpl;
@@ -33,8 +34,9 @@ public class SOAPDocLitServerImpl extends TestServerBase {
 
     public void run()  {
         SpringBusFactory sf = new SpringBusFactory();
-        sf.setDefaultBus(null);
-        sf.setDefaultBus(sf.createBus("org/apache/cxf/systest/type_test/databinding-schema-validation.xml"));
+        BusFactory.setDefaultBus(null);
+        BusFactory.setDefaultBus(
+            sf.createBus("org/apache/cxf/systest/type_test/databinding-schema-validation.xml"));
         Object implementor = new SOAPTypeTestImpl();
         String address = "http://localhost:9007/SOAPService/SOAPPort/";
         Endpoint.publish(address, implementor);              

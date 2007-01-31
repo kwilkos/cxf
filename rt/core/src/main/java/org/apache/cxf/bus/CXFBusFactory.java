@@ -28,19 +28,6 @@ import org.apache.cxf.bus.extension.ExtensionManagerBus;
 
 public class CXFBusFactory extends BusFactory {
     
-    private static Bus defaultBus;
-
-    public synchronized Bus getDefaultBus() {
-        if (null == defaultBus) {
-            defaultBus = new ExtensionManagerBus();
-        }
-        return defaultBus;
-    }
-
-    public void setDefaultBus(Bus bus) {
-        defaultBus = bus;
-    }
-    
     public Bus createBus() {
         return createBus(new HashMap<Class, Object>());
     }
@@ -50,7 +37,9 @@ public class CXFBusFactory extends BusFactory {
     }
     
     public Bus createBus(Map<Class, Object> e, Map<String, Object> properties) {
-        return new ExtensionManagerBus(e, properties);
+        Bus bus = new ExtensionManagerBus(e, properties);
+        possiblySetDefaultBus(bus);
+        return bus;
     }
     
 }

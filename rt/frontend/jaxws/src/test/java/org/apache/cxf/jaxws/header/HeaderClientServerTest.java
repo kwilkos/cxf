@@ -58,7 +58,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     
     public void setUp() throws Exception {
         super.setUp();
-        BusFactory.newInstance().setDefaultBus(getBus());
+        BusFactory.setDefaultBus(getBus());
         
         Object implementor = new TestHeaderImpl();
         String address = "http://localhost:9104/SoapHeaderContext/SoapHeaderPort";

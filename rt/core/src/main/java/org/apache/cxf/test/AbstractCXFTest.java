@@ -85,7 +85,7 @@ public class AbstractCXFTest extends TestCase {
         if (bus != null) {
             bus.shutdown(false);
         } 
-        BusFactory.newInstance().setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
     }
 
 

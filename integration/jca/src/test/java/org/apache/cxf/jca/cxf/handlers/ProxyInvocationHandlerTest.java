@@ -56,16 +56,15 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
 
    
     public void testInvokeSetsBusCurrent() throws Throwable {
-        BusFactory bf = BusFactory.newInstance();
-        Bus oldBus = bf.getDefaultBus();
+        Bus oldBus = BusFactory.getDefaultBus();
         
         testObject.invoke(target, testMethod, new Object[] {});
 
-        Bus  newBus = bf.getDefaultBus();
+        Bus  newBus = BusFactory.getDefaultBus();
        
         assertSame("Current Bus has been set and is as expected, val=" + newBus, newBus, mockBus);
          // set back the JVM current local variable        
-        bf.setDefaultBus(oldBus);
+        BusFactory.setDefaultBus(oldBus);
     }
 
     public static Test suite() {

@@ -104,7 +104,7 @@ public class MtomServerTest extends AbstractCXFTest {
 
     @Override
     protected Bus createBus() throws BusException {
-        return BusFactory.newInstance().getDefaultBus();
+        return BusFactory.getDefaultBus();
     }
 
 }

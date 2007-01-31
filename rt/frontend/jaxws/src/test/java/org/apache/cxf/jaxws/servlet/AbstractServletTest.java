@@ -53,18 +53,18 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
     
     public void tearDown() {
         bus.shutdown(false);
-        BusFactory.newInstance().setDefaultBus(null);                
+        BusFactory.setDefaultBus(null);                
     }
        
     //CXFservlet has create the bus, so we need to use this bus for service init 
     @Override
     public Bus getBus() {
-        return BusFactory.newInstance().getDefaultBus();
+        return BusFactory.getDefaultBus();
     }
     
     @Override
     public Bus createBus() {
-        return BusFactory.newInstance().getDefaultBus();
+        return BusFactory.getDefaultBus();
     }
     /**
      * @return The web.xml to use for testing.

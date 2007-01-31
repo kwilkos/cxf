@@ -57,26 +57,26 @@ public class ConfiguredEndpointTest extends TestCase {
     private BusFactory factory;
     
     public void tearDown() {
-        Bus bus = factory.getDefaultBus();
+        Bus bus = BusFactory.getDefaultBus();
         if (null != bus) {
             bus.shutdown(true);
-            factory.setDefaultBus(null);
+            BusFactory.setDefaultBus(null);
         }
         System.clearProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);
     }
    
     public void testCXFDefaultClientEndpoint() {
         factory = new CXFBusFactory();
-        factory.setDefaultBus(null);
-        factory.getDefaultBus();
+        BusFactory.setDefaultBus(null);
+        factory.createBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
         doTestDefaultClientEndpoint();
     }
      
     public void testSpringDefaultClientEndpoint() {
         factory = new SpringBusFactory();
-        factory.setDefaultBus(null);
-        factory.getDefaultBus();
+        BusFactory.setDefaultBus(null);
+        factory.createBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
         doTestDefaultClientEndpoint();
     }
@@ -126,11 +126,11 @@ public class ConfiguredEndpointTest extends TestCase {
     public void xtestCXFConfiguredClientEndpoint() {
         CXFBusFactory cf = new CXFBusFactory();
         factory = cf;
-        factory.setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME,
             "org/apache/cxf/jaxws/configured-endpoints.xml");
-        cf.setDefaultBus(cf.createBus(null, properties));
+        BusFactory.setDefaultBus(cf.createBus(null, properties));
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
         doTestConfiguredClientEndpoint();
     }
@@ -138,8 +138,8 @@ public class ConfiguredEndpointTest extends TestCase {
     public void testSpringConfiguredClientEndpoint() {
         SpringBusFactory sf = new SpringBusFactory();
         factory = sf;
-        factory.setDefaultBus(null);
-        sf.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
+        BusFactory.setDefaultBus(null);
+        BusFactory.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
         doTestConfiguredClientEndpoint();
     }
@@ -194,8 +194,8 @@ public class ConfiguredEndpointTest extends TestCase {
     
     public void testCXFDefaultServerEndpoint() {
         factory = new CXFBusFactory();
-        factory.setDefaultBus(null);
-        factory.getDefaultBus();
+        BusFactory.setDefaultBus(null);
+        factory.createBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
         initializeBus();
         doTestDefaultServerEndpoint();
@@ -203,8 +203,8 @@ public class ConfiguredEndpointTest extends TestCase {
      
     public void testSpringDefaultServerEndpoint() {
         factory = new SpringBusFactory();
-        factory.setDefaultBus(null);
-        factory.getDefaultBus();
+        BusFactory.setDefaultBus(null);
+        factory.createBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
         initializeBus();
         doTestDefaultServerEndpoint();
@@ -244,11 +244,11 @@ public class ConfiguredEndpointTest extends TestCase {
     public void xtestCXFConfiguredServerEndpoint() {
         CXFBusFactory cf = new CXFBusFactory();
         factory = cf;
-        factory.setDefaultBus(null);
+        BusFactory.setDefaultBus(null);
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME,
             "org/apache/cxf/jaxws/configured-endpoints.xml");
-        cf.setDefaultBus(cf.createBus(null, properties));
+        BusFactory.setDefaultBus(cf.createBus(null, properties));
         initializeBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, CXFBusFactory.class.getName());
         doTestConfiguredServerEndpoint();
@@ -257,8 +257,8 @@ public class ConfiguredEndpointTest extends TestCase {
     public void testSpringConfiguredServerEndpoint() {
         SpringBusFactory sf = new SpringBusFactory();
         factory = sf;
-        factory.setDefaultBus(null);
-        sf.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
+        BusFactory.setDefaultBus(null);
+        BusFactory.setDefaultBus(sf.createBus("org/apache/cxf/jaxws/configured-endpoints.xml"));
         initializeBus();
         System.setProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME, SpringBusFactory.class.getName());
         doTestConfiguredServerEndpoint();
@@ -312,7 +312,7 @@ public class ConfiguredEndpointTest extends TestCase {
     }
       
     private void initializeBus() {
-        Bus bus = factory.getDefaultBus();
+        Bus bus = BusFactory.getDefaultBus();
         
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
 

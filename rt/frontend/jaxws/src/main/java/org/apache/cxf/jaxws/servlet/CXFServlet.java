@@ -108,7 +108,8 @@ public class CXFServlet extends HttpServlet {
             }
             
             // This constructor works whether there is a context or not
-            bus = new SpringBusFactory(ctx).getDefaultBus();
+            bus = new SpringBusFactory(ctx).createBus();
+            SpringBusFactory.setDefaultBus(bus);
         }
         if (null != busid) {
             BUS_MAP.put(busid, new WeakReference<Bus>(bus));
@@ -279,8 +280,7 @@ public class CXFServlet extends HttpServlet {
         BUS_MAP.remove(s);
         bus.shutdown(true);
         //clean up the defaultBus
-        new SpringBusFactory().setDefaultBus(null);
-        
+        SpringBusFactory.setDefaultBus(null);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {

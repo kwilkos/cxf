@@ -27,6 +27,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
@@ -52,7 +53,7 @@ public class DecoupledBareTest extends ClientServerTestBase {
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
             Bus bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled_bare.xml");
-            bf.setDefaultBus(bus);
+            BusFactory.setDefaultBus(bus);
             
             Object implementor = new DocLitBareGreeterImpl();
             String address = "http://localhost:7600/SoapContext/SoapPort";
@@ -95,7 +96,7 @@ public class DecoupledBareTest extends ClientServerTestBase {
     public void testDecoupled() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled_bare.xml");
-        bf.setDefaultBus(bus);
+        BusFactory.setDefaultBus(bus);
        
         SOAPServiceAddressingDocLitBare service = new SOAPServiceAddressingDocLitBare();
         assertNotNull(service);

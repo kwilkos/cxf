@@ -26,9 +26,9 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 import javax.xml.namespace.QName;
 
-import com.sun.xml.bind.DatatypeConverterImpl;
-
 import junit.framework.TestCase;
+
+import com.sun.xml.bind.DatatypeConverterImpl;
 
 import org.apache.cxf.configuration.Configurable;
 
