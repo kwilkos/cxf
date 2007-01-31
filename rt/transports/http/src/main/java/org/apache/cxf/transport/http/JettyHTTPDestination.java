@@ -32,10 +32,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
@@ -48,8 +44,9 @@ import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
+import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
@@ -237,24 +234,20 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             req.setHandled(true);
             return;
         }
-
-        if ("GET".equals(req.getMethod()) && req.getURI().toString().toLowerCase().endsWith("?wsdl")) {
-            try {
-
-                resp.addField(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
-
-                OutputStream os = resp.getOutputStream();
-
-                WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-                Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
-                wsdlWriter.writeWSDL(def, os);
-                resp.getOutputStream().flush();
-                resp.commit();
-                req.setHandled(true);
-                return;
-            } catch (Exception ex) {
-
-                ex.printStackTrace();
+        QueryHandlerRegistry queryHandlerRegistry = bus.getExtension(QueryHandlerRegistry.class);
+        if (queryHandlerRegistry != null) { 
+            for (QueryHandler qh : queryHandlerRegistry.getHandlers()) {
+                if (qh.isRecognizedQuery(req.getURI().toString(), endpointInfo)) {
+                    if (resp.getField(HttpHeaderHelper.CONTENT_TYPE) == null) {
+                        resp.addField(HttpHeaderHelper.CONTENT_TYPE, 
+                                      qh.getResponseContentType(req.getURI().toString()));
+                    }
+                    qh.writeResponse(req.getURI().toString(), endpointInfo, resp.getOutputStream());
+                    resp.getOutputStream().flush(); 
+                    resp.commit();
+                    req.setHandled(true);
+                    return;
+                }
             }
         }
 

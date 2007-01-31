@@ -36,4 +36,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </list>
         </property>
     </bean>
+    <bean id="org.apache.cxf.transports.http.QueryHandlerRegistry" class="org.apache.cxf.transport.http.QueryHandlerRegistryImpl">
+        <property name="bus" ref="cxf"/>
+    </bean>
 </beans>

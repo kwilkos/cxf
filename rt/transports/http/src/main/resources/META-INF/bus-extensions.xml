@@ -27,4 +27,6 @@
         <namespace>http://cxf.apache.org/transports/http/configuration</namespace>
         <namespace>http://cxf.apache.org/bindings/xformat</namespace>
     </extension>
+    <extension class="org.apache.cxf.transport.http.QueryHandlerRegistryImpl"
+       	   interface="org.apache.cxf.transports.http.QueryHandlerRegistry"/>   
 </extensions>

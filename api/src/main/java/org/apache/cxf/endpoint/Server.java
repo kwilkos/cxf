@@ -28,4 +28,7 @@ public interface Server  {
     void stop();
     
     Destination getDestination();
+    
+    Endpoint getEndpoint();
+        
 }

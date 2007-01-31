@@ -46,6 +46,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
@@ -83,6 +85,9 @@ public class JettyHTTPDestinationTest extends TestCase {
     private InputStream is;
     private OutputStream os;
     private IMocksControl control;
+    private WSDLQueryHandler wsdlQueryHandler;
+    private QueryHandlerRegistry  queryHandlerRegistry;
+    private List<QueryHandler> queryHandlerList; 
 
     
     public void setUp() throws Exception {
@@ -121,7 +126,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
 
     public void testDoServiceRedirectURL() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(true);
         destination.doService(request, response);
 
@@ -137,14 +142,14 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
 
     public void testDoService() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(false);
         destination.doService(request, response);
         verifyDoService();
     }
     
     public void testDoServiceWithHttpGET() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(false,
                        false,
                        false,
@@ -164,9 +169,23 @@ public class JettyHTTPDestinationTest extends TestCase {
                      "?customerId=abc&cutomerAdd=def");
 
     }
+    
+    public void testDoServiceWithHttpGETandQueryWSDL() throws Exception {
+        destination = setUpDestination(false, true);
+        setUpDoService(false,
+                       false,
+                       false,
+                       "GET",
+                       "?wsdl");
+        
+        destination.doService(request, response);
+        assertNotNull("unexpected null response", response);
+        assertEquals("text/xml", response.getContentType());
+        
+    }
 
     public void testGetAnonBackChannel() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(false);
         destination.doService(request, response);
         setUpInMessage();
@@ -181,7 +200,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
     
     public void testGetBackChannelSend() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(false, true);
         destination.doService(request, response);
         setUpInMessage();
@@ -193,7 +212,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
 
     public void testGetBackChannelSendFault() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(false, true);
         destination.doService(request, response);
         setUpInMessage();
@@ -205,7 +224,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
     
     public void testGetBackChannelSendOneway() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         setUpDoService(false, true);
         destination.doService(request, response);
         setUpInMessage();
@@ -217,7 +236,7 @@ public class JettyHTTPDestinationTest extends TestCase {
     }
 
     public void testGetBackChannelSendDecoupled() throws Exception {
-        destination = setUpDestination(false);
+        destination = setUpDestination(false, false);
         replyTo = getEPR(NOWHERE + "response/foo");
         setUpDoService(false, true, true);
         destination.doService(request, response);
@@ -265,13 +284,17 @@ public class JettyHTTPDestinationTest extends TestCase {
         
     private JettyHTTPDestination setUpDestination()
         throws Exception {
-        return setUpDestination(false);
+        return setUpDestination(false, false);
     };
     
-    private JettyHTTPDestination setUpDestination(boolean contextMatchOnStem)
+    private JettyHTTPDestination setUpDestination(boolean contextMatchOnStem, boolean mockedBus)
         throws Exception {
         address = getEPR("bar/foo");
-        bus = new CXFBusImpl();
+        if (!mockedBus) {
+            bus = new CXFBusImpl();
+        } else {
+            bus = control.createMock(Bus.class);
+        }
         
         conduitInitiator = control.createMock(ConduitInitiator.class);
         engine = control.createMock(ServerEngine.class);
@@ -373,6 +396,9 @@ public class JettyHTTPDestinationTest extends TestCase {
             //    response.commit();
             //    EasyMock.expectLastCall();                
             //}
+            if ("GET".equals(method) && "?wsdl".equals(query)) {
+                verifyGetWSDLQuery();
+            }
         }
         
         if (decoupled) {
@@ -383,6 +409,7 @@ public class JettyHTTPDestinationTest extends TestCase {
             decoupledBackChannel.send(EasyMock.eq(outMessage));
             EasyMock.expectLastCall();
         }
+        
         control.replay();
     }
     
@@ -409,6 +436,23 @@ public class JettyHTTPDestinationTest extends TestCase {
         challenges.add(CUSTOM_CHALLENGE);
         responseHeaders.put(CHALLENGE_HEADER, challenges);
     }
+    
+    private void verifyGetWSDLQuery() throws Exception {
+        wsdlQueryHandler = control.createMock(WSDLQueryHandler.class);
+        queryHandlerRegistry = control.createMock(QueryHandlerRegistry.class);
+        queryHandlerList = new ArrayList<QueryHandler>();
+        queryHandlerList.add(wsdlQueryHandler);
+        bus.getExtension(QueryHandlerRegistry.class);
+        EasyMock.expectLastCall().andReturn(queryHandlerRegistry);
+        queryHandlerRegistry.getHandlers();
+        EasyMock.expectLastCall().andReturn(queryHandlerList);
+        wsdlQueryHandler.isRecognizedQuery("http://localhost/bar/foo?wsdl", endpointInfo);
+        EasyMock.expectLastCall().andReturn(true);   
+        wsdlQueryHandler.getResponseContentType("http://localhost/bar/foo?wsdl");
+        EasyMock.expectLastCall().andReturn("text/xml");
+        wsdlQueryHandler.writeResponse("http://localhost/bar/foo?wsdl", endpointInfo, os);
+        EasyMock.expectLastCall().once();
+    }
 
     private void verifyDoService() throws Exception {
         assertNotNull("unexpected null message", inMessage);
@@ -431,7 +475,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         
         
         assertEquals("unexpected getMethod calls",
-                      2,
+                     1,
                      request.getMethodCallCount());
         assertEquals("unexpected getInputStream calls",
                      1,

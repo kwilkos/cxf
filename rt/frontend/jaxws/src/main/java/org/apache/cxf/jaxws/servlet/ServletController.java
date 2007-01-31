@@ -33,20 +33,21 @@ import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
@@ -182,7 +183,6 @@ public class ServletController {
         try {
             OutputStream os = response.getOutputStream();
 
-            WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
             EndpointInfo ei = d.getEndpointInfo();
             Definition def = new ServiceWSDLBuilder(ei.getService()).build();
             Port port = def.getService(ei.getService().getName()).getPort(ei.getName().getLocalPart());
@@ -198,9 +198,23 @@ public class ServletController {
                     add.setLocation(request.getRequestURL().toString());
                 }
             }
+            
+            Bus bus = CXFServlet.BUS_MAP.get("bus.id").get();
+            if (bus.getExtension(QueryHandlerRegistry.class) != null) { 
+                for (QueryHandler qh : bus.getExtension(QueryHandlerRegistry.class).getHandlers()) {
+                    if (qh.isRecognizedQuery(request.getQueryString(), ei)) {
+                      
+                        try {
+                            qh.writeResponse(request.getRequestURL().toString(), ei, os);
+                        } catch (Exception e) {
+                            throw new ServletException(e);
+                        }
+                    }
+                }
+            }
 
-            wsdlWriter.writeWSDL(def, os);
             response.getOutputStream().flush();
+            
         } catch (WSDLException e) {
             throw new ServletException(e);
         } catch (IOException e) {

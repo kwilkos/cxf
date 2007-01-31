@@ -37,11 +37,15 @@ public class ServerImpl implements Server {
     private MessageObserver messageObserver;
     private Endpoint endpoint;
     private ServerRegistry serverRegistry;
+    private Bus bus;
+    private ServerLifeCycleManager mgr;
     
     public ServerImpl(Bus bus, Endpoint endpoint, MessageObserver observer) 
         throws BusException, IOException {
+        
         this.endpoint = endpoint;
-        this.messageObserver = observer;       
+        this.messageObserver = observer;  
+        this.bus = bus;
 
         EndpointInfo ei = endpoint.getEndpointInfo();
         DestinationFactory destinationFactory = bus.getExtension(DestinationFactoryManager.class)
@@ -58,18 +62,26 @@ public class ServerImpl implements Server {
         this.destination = destination;
     }
 
-    public void start() {        
+    public void start() {     
+        
         getDestination().setMessageObserver(messageObserver);
         //regist the active server to run
         if (null != serverRegistry) {
             LOG.fine("register the server to serverRegistry ");
             serverRegistry.register(this);
         }
+        mgr = bus.getExtension(ServerLifeCycleManager.class);
+        if (mgr != null) {
+            mgr.startServer(this);
+        }
     }
 
     public void stop() {
         LOG.fine("Server is stopping.");
-        getDestination().setMessageObserver(null);        
+        getDestination().setMessageObserver(null);  
+        if (mgr != null) {
+            mgr.stopServer(this);
+        }
     }
 
     public MessageObserver getMessageObserver() {

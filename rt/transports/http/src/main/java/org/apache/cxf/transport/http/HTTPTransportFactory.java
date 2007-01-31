@@ -51,6 +51,7 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
 import org.apache.cxf.transport.https.JettySslListenerFactory;
+import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLEndpointFactory;
 import org.mortbay.http.SocketListener;
@@ -99,6 +100,11 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
             for (String ns : activationNamespaces) {
                 dfm.registerDestinationFactory(ns, this);
             }
+        }
+        
+        QueryHandlerRegistry qhr = bus.getExtension(QueryHandlerRegistry.class);
+        if (null != qhr) {
+            qhr.registerHandler(new WSDLQueryHandler());
         }
     }
 
