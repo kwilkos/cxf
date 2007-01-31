@@ -30,6 +30,7 @@ import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.service.Service;
@@ -230,8 +231,18 @@ public class RMEndpoint {
             // What we really should do here is on use the same interceptors on the outbound
             // path that would be used by the application endpoint without presuming any knowledge
             // of the applications endpoint's frontend.
-            endpoint = new JaxWsEndpointImpl(manager.getBus(), service, ei);
-            // endpoint = new JaxWsEndpointImpl(manager.getBus(), service, ei);
+            EndpointImpl e = new JaxWsEndpointImpl(manager.getBus(), service, ei);
+            
+
+            // use same endpoint specific interceptor as for the application endpoint
+            e.setOutInterceptors(applicationEndpoint.getOutInterceptors());
+            e.setOutFaultInterceptors(applicationEndpoint.getOutFaultInterceptors());
+            e.setInInterceptors(applicationEndpoint.getInInterceptors());
+            e.setInFaultInterceptors(applicationEndpoint.getInFaultInterceptors());
+
+            endpoint = e;
+
+
         } catch (EndpointException ex) {
             throw new RuntimeException(ex);
         }

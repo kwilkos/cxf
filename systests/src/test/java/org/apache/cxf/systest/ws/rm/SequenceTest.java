@@ -69,6 +69,7 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestOnewayAnonymousAcksSequenceLength1 = testAll;
     private boolean doTestOnewayAnonymousAcksSupressed = testAll;
     private boolean doTestTwowayNonAnonymous = testAll;
+    private boolean doTestTwowayNonAnonymousEndpointSpecific = testAll;
     private boolean doTestTwowayNonAnonymousDeferred = testAll;
     private boolean doTestTwowayNonAnonymousMaximumSequenceLength2 = testAll;
     private boolean doTestOnewayMessageLoss = testAll;
@@ -366,6 +367,56 @@ public class SequenceTest extends ClientServerTestBase {
             return;
         }
         setupGreeter("org/apache/cxf/systest/ws/rm/twoway.xml");
+
+        greeter.greetMe("one");
+        greeter.greetMe("two");
+        greeter.greetMe("three");
+
+        // CreateSequence and three greetMe messages
+        // TODO there should be partial responses to the decoupled responses!
+
+        awaitMessages(4, 8);
+        
+        MessageFlow mf = new MessageFlow(outRecorder.getOutboundMessages(), inRecorder.getInboundMessages());
+        
+        
+        mf.verifyMessages(4, true);
+        String[] expectedActions = new String[] {RMConstants.getCreateSequenceAction(), 
+                                                 GREETME_ACTION,
+                                                 GREETME_ACTION, 
+                                                 GREETME_ACTION};
+        mf.verifyActions(expectedActions, true);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, true);
+        mf.verifyLastMessage(new boolean[] {false, false, false, false}, true);
+        mf.verifyAcknowledgements(new boolean[] {false, false, true, true}, true);
+
+        // createSequenceResponse plus 3 greetMeResponse messages plus
+        // one partial response for each of the four messages
+        // the first partial response should no include an acknowledgement, the other three should
+
+        mf.verifyMessages(8, false);
+        mf.verifyPartialResponses(4, new boolean[4]);
+
+        mf.purgePartialResponses();
+
+        expectedActions = new String[] {RMConstants.getCreateSequenceResponseAction(), 
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION, 
+                                        GREETME_RESPONSE_ACTION};
+        mf.verifyActions(expectedActions, false);
+        mf.verifyMessageNumbers(new String[] {null, "1", "2", "3"}, false);
+        mf.verifyLastMessage(new boolean[4], false);
+        mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
+    }
+
+    // the same as above but using endpoint specific interceptor configuration
+
+    public void testTwowayNonAnonymousEndpointSpecific() throws Exception {
+        if (!doTestTwowayNonAnonymousEndpointSpecific) {
+            return;
+        }
+        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-endpoint-specific.xml");
+
 
         greeter.greetMe("one");
         greeter.greetMe("two");
