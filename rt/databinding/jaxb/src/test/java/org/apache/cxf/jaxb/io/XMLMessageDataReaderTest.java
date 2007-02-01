@@ -57,8 +57,6 @@ public class XMLMessageDataReaderTest extends TestCase {
         assertTrue(XMLUtils.toString((Source)source).contains(expected));
     }
 
-    // XMLMessageDataReader needs to tolerate empty input stream
-    // in order to deal with HTTP GET, no exceptions should be thrown.
     public void testReadEmptyInputStream() throws Exception {
         InputStream is = getTestStream("../resources/emptyReq.xml");
         assertNotNull(is);
@@ -68,6 +66,10 @@ public class XMLMessageDataReaderTest extends TestCase {
         XMLMessage xmlMsg = new XMLMessage(msg);
 
         Object source = reader.read(null, xmlMsg, DOMSource.class);
+        assertNull(source);
+        
+        msg.setContent(InputStream.class, null);
+        source = reader.read(null, xmlMsg, DOMSource.class);
         assertNull(source);
     }
 

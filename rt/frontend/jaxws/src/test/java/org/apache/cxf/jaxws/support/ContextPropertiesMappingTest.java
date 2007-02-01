@@ -18,14 +18,20 @@
  */
 package org.apache.cxf.jaxws.support;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.attachment.AttachmentImpl;
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
@@ -103,6 +109,10 @@ public class ContextPropertiesMappingTest extends TestCase {
         Object outMessageHeader = outMessage.get(Message.PROTOCOL_HEADERS);
         assertEquals("the outMessage PROTOCOL_HEADERS should be update", responseHeader, outMessageHeader);
         
+        Object inAttachments = ctx.get(MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
+        assertNotNull("inbound attachments object must be initialized", inAttachments);
+        assertTrue("inbound attachments must be in a Map", inAttachments instanceof Map);
+        assertTrue("no inbound attachments expected", ((Map)inAttachments).isEmpty());
     }
     
     public void testUpdateWebServiceContext() {
@@ -125,4 +135,36 @@ public class ContextPropertiesMappingTest extends TestCase {
         assertEquals("incorrect response code returned", RESPONSE_CODE, respCode);
     }
 
+    @SuppressWarnings("unchecked")
+    public void testCreateWebServiceContextWithInAttachments() {
+        Exchange exchange = new ExchangeImpl();
+        Message inMessage = new MessageImpl();
+        
+        Collection<Attachment> attachments = new LinkedList<Attachment>();
+
+        DataSource source = EasyMock.createNiceMock(DataSource.class);
+        DataHandler handler1 = new DataHandler(source);
+        attachments.add(new AttachmentImpl("part1", handler1));
+        DataHandler handler2 = new DataHandler(source);
+        attachments.add(new AttachmentImpl("part2", handler2));
+        inMessage.setAttachments(attachments);
+        
+        inMessage.putAll(message);
+        exchange.setInMessage(inMessage);
+        exchange.setOutMessage(new MessageImpl());
+        
+        MessageContext ctx = ContextPropertiesMapping.createWebServiceContext(exchange);
+        
+        Object inAttachments = ctx.get(MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
+        assertNotNull("inbound attachments object must be initialized", inAttachments);
+        assertTrue("inbound attachments must be in a Map", inAttachments instanceof Map);
+        Map<String, DataHandler> dataHandlers = (Map)inAttachments;
+        assertEquals("two inbound attachments expected", 2, dataHandlers.size());
+        
+        assertTrue("part1 attachment is missing", dataHandlers.containsKey("part1"));
+        // should do as it's the same instance
+        assertTrue("part1 handler is missing", dataHandlers.get("part1") == handler1);
+        assertTrue("part2 attachment is missing", dataHandlers.containsKey("part2"));
+        assertTrue("part2 handler is missing", dataHandlers.get("part2") == handler2);
+    }
 }

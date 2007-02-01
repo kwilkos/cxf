@@ -223,10 +223,13 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * @param headers the current set of headers
      */
     protected void copyResponseHeaders(Message message, HttpServletResponse response) {
-        response.setContentType((String) message.get(Message.CONTENT_TYPE));
-
         Map<?, ?> headers = (Map<?, ?>)message.get(Message.PROTOCOL_HEADERS);
         if (null != headers) {
+            
+            if (!headers.containsKey(Message.CONTENT_TYPE)) {
+                response.setContentType((String) message.get(Message.CONTENT_TYPE));
+            }
+            
             for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
                 String header = (String)iter.next();
                 List<?> headerList = (List<?>)headers.get(header);
@@ -234,6 +237,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                     response.addHeader(header, (String)value);
                 }
             }
+        } else {
+            response.setContentType((String) message.get(Message.CONTENT_TYPE));
         }
     }
 

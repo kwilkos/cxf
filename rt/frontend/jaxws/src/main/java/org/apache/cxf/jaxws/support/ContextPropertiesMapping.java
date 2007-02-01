@@ -18,15 +18,20 @@
  */
 package org.apache.cxf.jaxws.support;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.activation.DataHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 
@@ -129,7 +134,11 @@ public final class ContextPropertiesMapping {
         if (null != requestHeaders) {
             ctx.put(MessageContext.HTTP_REQUEST_HEADERS, requestHeaders);
         }       
-               
+
+        addMessageAttachments(ctx, 
+                              exchange.getInMessage(), 
+                              MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
+        
         Message outMessage = exchange.getOutMessage();
         if (null != outMessage) {
             Object responseHeaders =
@@ -141,6 +150,26 @@ public final class ContextPropertiesMapping {
             ctx.put(MessageContext.HTTP_RESPONSE_HEADERS, responseHeaders);
         }   
         return ctx;
+    }
+    
+    private static void addMessageAttachments(MessageContext ctx,
+                                              Message message,
+                                              String propertyName) {
+        Map<String, DataHandler> dataHandlers = null;
+
+        Collection<Attachment> attachments = message.getAttachments();
+        if (attachments != null) {
+            
+            //preserve the order of iteration
+            dataHandlers = new LinkedHashMap<String, DataHandler>();
+            for (Attachment attachment : attachments) {
+                dataHandlers.put(attachment.getId(), attachment.getDataHandler());
+            }
+        }
+
+        ctx.put(propertyName, 
+                dataHandlers == null ? Collections.EMPTY_MAP
+                                     : Collections.unmodifiableMap(dataHandlers));
     }
     
     public static void updateWebServiceContext(Exchange exchange, MessageContext ctx) {

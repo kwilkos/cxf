@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws.interceptors;
 
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -44,6 +45,8 @@ import org.apache.cxf.phase.Phase;
 
 public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
 
+    private static final Logger LOG = Logger.getLogger(DispatchInInterceptor.class.getName());
+    
     public DispatchInInterceptor() {
         super();
         setPhase(Phase.READ);
@@ -51,6 +54,12 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
 
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
+        
+        if (isGET(message)) {
+            LOG.info("DispatchInInterceptor skipped in HTTP GET method");
+            return;
+        }
+        
         Service.Mode m = message.getExchange().get(Service.Mode.class);
         Class type = message.getExchange().get(Class.class);
 

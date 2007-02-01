@@ -62,13 +62,12 @@ public class XMLMessageDataReader implements DataReader<XMLMessage> {
         Object obj = null;
         InputStream is = input.getContent(InputStream.class);
 
+        if (is == null) {
+            // TODO LOG ERROR here
+            return null;
+        } 
         try {
-            // Tolerate empty InputStream in order to deal with HTTP GET
-            if (is == null || is.available() == 0) {
-                // TODO LOG ERROR here
-                return null;
-            }
-
+            
             // Processing Souce type
             if (DOMSource.class.isAssignableFrom(type)) {
                 Document doc = XMLUtils.parse(is);

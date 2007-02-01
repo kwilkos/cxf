@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxws.interceptors;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.activation.DataSource;
@@ -115,7 +116,9 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
             transformer.transform((Source)obj, new StreamResult(os));
         }
         if (obj instanceof DataSource) {
+            InputStream is = ((DataSource)obj).getInputStream();
             IOUtils.copy(((DataSource)obj).getInputStream(), os);
+            is.close();
         }
     }
 

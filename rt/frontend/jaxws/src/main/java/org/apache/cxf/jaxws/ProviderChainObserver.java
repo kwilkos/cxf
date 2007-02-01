@@ -19,9 +19,13 @@
 
 package org.apache.cxf.jaxws;
 
+import javax.activation.DataSource;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.Binding;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchInInterceptor;
 import org.apache.cxf.jaxws.interceptors.DispatchOutInterceptor;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
@@ -52,10 +56,6 @@ public class ProviderChainObserver implements MessageObserver {
         exchange.setInMessage(message);
         message.setExchange(exchange);
 
-        // message.setContent(Class.class, implInfo.getProviderParameterType());
-        // message.setContent(javax.xml.ws.Service.Mode.class,
-        // implInfo.getServiceMode());
-
         exchange.put(javax.xml.ws.Service.Mode.class, implInfo.getServiceMode());
         exchange.put(Class.class, implInfo.getProviderParameterType());
 
@@ -78,6 +78,13 @@ public class ProviderChainObserver implements MessageObserver {
 
         // Modified the binding in interceptors
         endpoint.getBinding().getInInterceptors().clear();
+        
+        Class type = message.getExchange().get(Class.class);
+        if (!DataSource.class.isAssignableFrom(type)
+            && !SoapMessage.class.isAssignableFrom(type)) {
+            endpoint.getBinding().getInInterceptors().add(new AttachmentInInterceptor());
+        }
+        
         endpoint.getBinding().getInInterceptors().add(new DispatchInInterceptor());
         chain.add(endpoint.getBinding().getInInterceptors());
         // Modified the binding out interceptors
