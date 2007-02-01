@@ -35,7 +35,6 @@ import java.util.concurrent.Future;
 import javax.xml.namespace.QName;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Endpoint;
 import javax.xml.ws.Response;
 import javax.xml.ws.Service;
 import javax.xml.xpath.XPathConstants;
@@ -55,12 +54,9 @@ import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.DocLitBare;
-import org.apache.hello_world_soap_http.DocLitBareGreeterImpl;
 import org.apache.hello_world_soap_http.Greeter;
-import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
@@ -81,36 +77,6 @@ public class ClientServerTest extends ClientServerTestBase {
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
                                                "SoapPort2");
 
-    public static class Server extends TestServerBase {
-        
-
-        protected void run()  {            
-            URL url = getClass().getResource("fault-stack-trace.xml");
-            if (url != null) {
-                System.setProperty("cxf.config.file.url", url.toString());
-            }
-            Object implementor = new GreeterImpl();
-            String address = "http://localhost:9000/SoapContext/SoapPort";
-            Endpoint.publish(address, implementor);
-            implementor = new DocLitBareGreeterImpl();
-            address = "http://localhost:7600/SoapContext/SoapPort";
-            Endpoint.publish(address, implementor);
-        }
-        
-
-        public static void main(String[] args) {
-            try { 
-                Server s = new Server(); 
-                s.start();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(-1);
-            } finally { 
-                System.out.println("done!");
-            }
-        }
-    }
-   
     public static Test suite() throws Exception {
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {

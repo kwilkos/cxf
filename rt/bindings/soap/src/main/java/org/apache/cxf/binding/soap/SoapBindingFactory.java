@@ -52,12 +52,11 @@ import org.apache.cxf.binding.soap.model.SoapOperationInfo;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
-import org.apache.cxf.interceptor.BareInInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.interceptor.WrappedOutInterceptor;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -146,10 +145,12 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getOutInterceptors().add(new RPCOutInterceptor());
         } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
                         && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
-            sb.getInInterceptors().add(new BareInInterceptor());
+            //sb.getInInterceptors().add(new BareInInterceptor());
+            sb.getInInterceptors().add(new DocLiteralInInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         } else {
-            sb.getInInterceptors().add(new WrappedInInterceptor());
+            //sb.getInInterceptors().add(new WrappedInInterceptor());
+            sb.getInInterceptors().add(new DocLiteralInInterceptor());
             sb.getOutInterceptors().add(new WrappedOutInterceptor());
             sb.getOutInterceptors().add(new BareOutInterceptor());
         }
