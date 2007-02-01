@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 
@@ -108,6 +109,9 @@ public class CXFBusImpl extends AbstractBasicInterceptorProvider implements Bus 
         }
         if (null != lifeCycleManager) {
             lifeCycleManager.postShutdown();
+        }
+        if (BusFactory.getDefaultBus(false) == this) { 
+            BusFactory.setDefaultBus(null);
         }
     }
     

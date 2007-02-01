@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.i18n.BundleUtils;
@@ -56,14 +57,20 @@ public class URIMappingInterceptor extends AbstractInDatabindingInterceptor {
 
     public void handleMessage(Message message) throws Fault {
         String method = (String)message.get(Message.HTTP_REQUEST_METHOD);
-        LOG.info("Invoking HTTP method " + method);        
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Invoking HTTP method " + method);
+        }
         if (!isGET(message)) {
-            LOG.info("URIMappingInterceptor can only handle HTTP GET, not HTTP " + method);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "URIMappingInterceptor can only handle HTTP GET, not HTTP " + method);
+            }
             return;
         }
 
         String opName = getOperationName(message);
-        LOG.info("URIMappingInterceptor get operation: " + opName);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("URIMappingInterceptor get operation: " + opName);
+        }
         BindingOperationInfo op = ServiceModelUtil.getOperation(message.getExchange(), opName);
         
         if (op == null || opName == null || op.getName() == null

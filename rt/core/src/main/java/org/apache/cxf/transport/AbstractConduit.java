@@ -21,6 +21,7 @@ package org.apache.cxf.transport;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.message.Message;
@@ -79,7 +80,9 @@ public abstract class AbstractConduit implements Conduit {
      */
     public void setMessageObserver(MessageObserver observer) {
         incomingObserver = observer;
-        getLogger().info("registering incoming observer: " + incomingObserver);
+        if (getLogger().isLoggable(Level.FINE)) {
+            getLogger().fine("registering incoming observer: " + incomingObserver);
+        }
     }
     
     /**

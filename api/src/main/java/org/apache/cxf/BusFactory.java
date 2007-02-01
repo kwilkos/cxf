@@ -22,7 +22,6 @@ package org.apache.cxf;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,7 +53,17 @@ public abstract class BusFactory {
      * @return the default bus.
      */
     public static synchronized Bus getDefaultBus() {
-        if (defaultBus == null) {
+        return getDefaultBus(true);
+    }
+    
+    /**
+     * Returns the default bus
+     * @param createIfNeeded Set to true to create a default bus if one doesn't exist
+     * @return the default bus.
+     */
+    public static synchronized Bus getDefaultBus(boolean createIfNeeded) {
+        if (defaultBus == null
+            && createIfNeeded) {
             defaultBus = newInstance().createBus();
         }
         return defaultBus;
@@ -81,15 +90,31 @@ public abstract class BusFactory {
         return false;
     }
 
-    
+    /**
+     * Create a new BusFactory
+     * 
+     * The class of the BusFactory is determined by looking for the system propery: 
+     * org.apache.cxf.bus.factory
+     * or by searching the classpath for:
+     * META-INF/services/org.apache.cxf.bus.factory
+     * 
+     * @return a new BusFactory to be used to create Bus objects
+     */
     public static BusFactory newInstance() {
         return newInstance(null);
     }
+    
+    /**
+     * Create a new BusFactory
+     * @param className The class of the BusFactory to create.  If null, uses the
+     * default search algorithm.
+     * @return a new BusFactory to be used to create Bus objects
+     */
     public static BusFactory newInstance(String className) {
         BusFactory instance = null;
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (className == null) {
-            className = getBusFactoryClass(null, classLoader);
+            className = getBusFactoryClass(classLoader);
         }
         Class<? extends BusFactory> busFactoryClass;
         try {
@@ -101,17 +126,9 @@ public abstract class BusFactory {
         return instance;
     }
     
-    private static String getBusFactoryClass(Map<String, Object> properties, ClassLoader classLoader) {
+    private static String getBusFactoryClass(ClassLoader classLoader) {
         
         String busFactoryClass = null;
-        
-        // check properties  
-        if (null != properties) {
-            busFactoryClass = (String)properties.get(BusFactory.BUS_FACTORY_PROPERTY_NAME);
-            if (isValidBusFactoryClass(busFactoryClass)) {
-                return busFactoryClass;
-            }
-        }
         
         // next check system properties
         busFactoryClass = System.getProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);

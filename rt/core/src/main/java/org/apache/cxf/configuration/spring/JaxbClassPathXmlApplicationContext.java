@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.springframework.beans.BeansException;
@@ -104,7 +103,7 @@ public class JaxbClassPathXmlApplicationContext extends ClassPathXmlApplicationC
             if (cpr.exists()) {
                 resources.add(cpr);
             } else {
-                LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
+                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
             }
         }
         

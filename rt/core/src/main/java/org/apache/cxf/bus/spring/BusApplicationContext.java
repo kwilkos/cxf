@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
@@ -98,7 +97,7 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
         if (cpr.exists()) {
             resources.add(cpr);
         } else {
-            LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
+            LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
         }
         
         if (null != cfgFileURL) {
@@ -106,8 +105,7 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
             if (ur.exists()) {
                 resources.add(ur);
             } else {
-                LOG.log(Level.INFO, 
-                        new Message("USER_CFG_FILE_URL_NOT_FOUND_MSG", LOG, cfgFileURL).toString());
+                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_NOT_FOUND_MSG", cfgFileURL);
             }    
         } 
         
@@ -118,12 +116,10 @@ public class BusApplicationContext extends JaxbClassPathXmlApplicationContext {
                 if (ur.exists()) {
                     resources.add(ur);
                 } else {
-                    LOG.log(Level.INFO, 
-                            new Message("USER_CFG_FILE_URL_NOT_FOUND_MSG", LOG, sysCfgFileUrl).toString());
+                    LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_NOT_FOUND_MSG", sysCfgFileUrl);
                 }            
             } catch (MalformedURLException e) {            
-                LOG.log(Level.WARNING, 
-                        new Message("USER_CFG_FILE_URL_ERROR_MSG", LOG, sysCfgFileUrl).toString());
+                LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_URL_ERROR_MSG", sysCfgFileUrl);
             }
         }
         

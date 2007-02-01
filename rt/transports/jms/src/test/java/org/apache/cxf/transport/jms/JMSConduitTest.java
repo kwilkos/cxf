@@ -68,6 +68,7 @@ public class JMSConduitTest extends AbstractJMSTester {
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
                      conduit.base.getAddressPolicy().getConnectionPassword());
+        bus.shutdown(false);
         BusFactory.setDefaultBus(null);
         
     }

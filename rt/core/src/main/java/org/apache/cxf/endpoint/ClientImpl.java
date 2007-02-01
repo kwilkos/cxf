@@ -169,7 +169,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (inMsg != null) {
             if (null != responseContext) {                   
                 responseContext.putAll(inMsg);
-                LOG.info("set responseContext to be" + responseContext);
+                if (LOG.isLoggable(Level.FINE)) {
+                    LOG.fine("set responseContext to be" + responseContext);
+                }
             }
             resList = inMsg.getContent(List.class);
         }
@@ -199,7 +201,9 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
     private void setContext(Map<String, Object> ctx, Message message) {
         if (ctx != null) {            
             message.putAll(ctx);
-            LOG.info("set requestContext to message be" + ctx);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("set requestContext to message be" + ctx);
+            }
         }        
     }
 

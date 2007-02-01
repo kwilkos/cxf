@@ -168,7 +168,6 @@
                     <enable package="org.apache.cxf"/>
                 </assertions>
                 <sysproperty key="java.util.logging.config.file" value="@{logging-properties-file}"/>
-                <sysproperty key="log4j.configuration" value="file:///${cxf.etc.dir}/log4j.properties"/>
             </java>
         </sequential>
     </macrodef>

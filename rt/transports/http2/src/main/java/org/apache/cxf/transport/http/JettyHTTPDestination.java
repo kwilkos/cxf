@@ -282,8 +282,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
         try {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Service http request on thread: " + Thread.currentThread());
             }
 
             MessageImpl inMessage = new MessageImpl();            
@@ -309,8 +309,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             resp.flushBuffer();
             baseRequest.setHandled(true);
         } finally {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
     }

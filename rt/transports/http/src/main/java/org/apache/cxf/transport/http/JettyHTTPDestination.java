@@ -107,7 +107,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Activate receipt of incoming messages.
      */
     protected void activate() {
-        LOG.log(Level.INFO, "Activating receipt of incoming messages");
+        LOG.log(Level.FINE, "Activating receipt of incoming messages");
         try {
             URL url = new URL(getAddressValue(endpointInfo));
             if (contextMatchOnExact()) {
@@ -138,7 +138,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      * Deactivate receipt of incoming messages.
      */
     protected void deactivate() {
-        LOG.log(Level.INFO, "Deactivating receipt of incoming messages");
+        LOG.log(Level.FINE, "Deactivating receipt of incoming messages");
         engine.removeServant(nurl);   
     }
     
@@ -254,8 +254,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected void serviceRequest(final HttpRequest req, final HttpResponse resp)
         throws IOException {
         try {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Service http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Service http request on thread: " + Thread.currentThread());
             }
 
             MessageImpl inMessage = new MessageImpl();
@@ -281,8 +281,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             resp.commit();
             req.setHandled(true);
         } finally {
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.info("Finished servicing http request on thread: " + Thread.currentThread());
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
     }

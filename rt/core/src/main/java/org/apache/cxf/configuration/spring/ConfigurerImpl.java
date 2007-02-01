@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.Configurer;
@@ -62,7 +61,7 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
                 LogUtils.log(LOG, Level.WARNING, "APP_CONTEXT_CREATION_FAILED_MSG", ex, (Object[])null);
             }
         } else {
-            LOG.log(Level.INFO, new Message("USER_CFG_FILE_NOT_FOUND_MSG", LOG, cfgFile).toString());
+            LogUtils.log(LOG, Level.INFO, "USER_CFG_FILE_NOT_FOUND_MSG", cfgFile);
         }
     }
     
@@ -93,13 +92,16 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         
         try {
             super.configureBean(beanInstance);
-            LOG.fine("Successfully performed injection.");
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Successfully performed injection.");
+            }
         } catch (NoSuchBeanDefinitionException ex) {
             // users often wonder why the settings in their configuration files seem
             // to have no effect - the most common cause is that they have been using
             // incorrect bean ids
-            LogUtils.log(LOG, Level.INFO, "NO_MATCHING_BEAN_MSG", new Object[] {beanName});
-            LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
+            if (LOG.isLoggable(Level.INFO)) {
+                LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
+            }
         }
     }
     
@@ -118,8 +120,8 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
         }
         
         if (null == beanName) {
-            LogUtils.log(LOG, Level.INFO, "COULD_NOT_DETERMINE_BEAN_NAME_MSG", 
-                         new Object[] {beanInstance.getClass().getName()});
+            LogUtils.log(LOG, Level.INFO, "COULD_NOT_DETERMINE_BEAN_NAME_MSG",
+                         beanInstance.getClass().getName());
         }
       
         return beanName;
