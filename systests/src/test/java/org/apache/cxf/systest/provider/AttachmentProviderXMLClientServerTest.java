@@ -110,7 +110,8 @@ public class AttachmentProviderXMLClientServerTest extends ClientServerTestBase 
         for (int i = 0; i < atts.getLength(); i++) {
             Element expElem = (Element)atts.item(i);
             String child = expElem.getFirstChild().getNodeValue();
-            if (contentId.equals(expElem.getAttribute("contentId"))
+            String contentIdVal = expElem.getAttribute("contentId");
+            if (contentId.equals(contentIdVal)
                 && (Base64Utility.encode(value.getBytes()).equals(child)
                     || Base64Utility.encode((value + "\n").getBytes()).equals(child))) {
                 return;    
