@@ -18,8 +18,11 @@
  */
 package org.apache.cxf.tools.wsdlto.validator;
 
+import java.io.InputStream;
+
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.wsdlto.WSDLToJavaContainer;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
     
@@ -34,7 +37,9 @@ public class ValidatorTest extends ProcessorTestBase {
     }
     
     public void testXMLFormat() throws Exception {
-        processor = new JAXWSContainer(null);
+        InputStream ins = JAXWSContainer.class.getResourceAsStream("jaxws-toolspec.xml");
+        ToolSpec toolspec = new ToolSpec(ins, true);
+        processor = new JAXWSContainer(toolspec);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/xml_format_root.wsdl"));
         processor.setContext(env);
 

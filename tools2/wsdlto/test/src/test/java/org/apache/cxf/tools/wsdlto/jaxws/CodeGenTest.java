@@ -19,6 +19,7 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -36,11 +37,12 @@ import javax.xml.ws.WebFault;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.util.AnnotationUtil;
-import org.apache.cxf.tools.wsdlto.WSDLToJavaContainer;
+import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
 public class CodeGenTest extends ProcessorTestBase {
-    private WSDLToJavaContainer processor;
+    private JAXWSContainer processor;
     private ClassLoader classLoader;
 
     public void setUp() throws Exception {
@@ -54,8 +56,10 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_IMPL, "impl");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-
-        processor = new WSDLToJavaContainer("jaxws", null);
+        InputStream ins = JAXWSContainer.class.getResourceAsStream("jaxws-toolspec.xml");
+        ToolSpec toolspec = new ToolSpec(ins, true);
+        processor = new JAXWSContainer(toolspec); 
+        //processor = new WSDLToJavaContainer("jaxws", null);
 
     }
 
@@ -372,7 +376,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
     public void testAllNameCollision() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_collision.wsdl"));
-        env.setPackageName("org.apache");
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.apache");
         processor.setContext(env);
         processor.execute();
 
@@ -428,7 +432,7 @@ public class CodeGenTest extends ProcessorTestBase {
 
     public void testSoapHeader() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/soap_header.wsdl"));
-        env.setPackageName("org.apache");
+        env.put(ToolConstants.CFG_PACKAGENAME, "org.apache");
         processor.setContext(env);
         processor.execute();
 
@@ -690,7 +694,6 @@ public class CodeGenTest extends ProcessorTestBase {
             assertTrue("Invalid wsdl should be diagnosed", e.getMessage()
                 .indexOf("Invalid WSDL,wsdl:operation") > -1);
         }
-
     }
 
     public void testWSDLWithEnumType() throws Exception {

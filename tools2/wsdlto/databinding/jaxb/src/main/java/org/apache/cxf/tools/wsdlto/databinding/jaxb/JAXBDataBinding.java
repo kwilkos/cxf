@@ -30,8 +30,10 @@ import java.util.logging.Logger;
 import javax.wsdl.Definition;
 import javax.xml.namespace.QName;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -54,8 +56,10 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.util.ClassCollector;
+import org.apache.cxf.tools.util.JAXBUtils;
 import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+
 
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
@@ -72,9 +76,8 @@ public class JAXBDataBinding implements DataBindingProfile {
         def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-        if (env.getPackageName() != null) {
-            schemaCompiler.setDefaultPackageName(env.getPackageName());
-        }
+        
+              
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
         allocator.setInterface(serviceInfo.getInterface(), env.mapPackageName(def.getTargetNamespace()));
@@ -98,10 +101,11 @@ public class JAXBDataBinding implements DataBindingProfile {
                     systemId = def.getDocumentBaseURI();
                 }
                 String tns = ele.getAttribute("targetNamespace");              
+                
                 if (StringUtils.isEmpty(tns)) {
                     continue;
                 }
-                  
+                 
                 if (sysIdSchemeMap.containsKey(schema.getElement().getBaseURI())) {
                     systemId = schema.getElement().getBaseURI() + "#" + tns;
                     int index = 0;
@@ -112,6 +116,30 @@ public class JAXBDataBinding implements DataBindingProfile {
                 }
                 
                 sysIdSchemeMap.put(systemId, ele);
+                
+                String excludePkg = null;
+                
+                if (env.hasExcludeNamespace(tns)) {
+                    excludePkg = env.getExcludePackageName(tns);
+                    if (excludePkg != null) {
+                        env.getExcludePkgList().add(excludePkg);
+                    } else {
+                        env.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
+                    }
+                }
+                
+                String pkgName = null;
+                if (env.hasNamespace(tns) || env.get(ToolConstants.CFG_PACKAGENAME) != null) {
+                    pkgName = env.mapPackageName(tns);
+                }
+                
+                pkgName = pkgName != null ? pkgName : excludePkg;
+                          
+                if (pkgName != null) {
+                    Node pkgNode = JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
+                    ele.appendChild(pkgNode);
+                }
+
                 schemaCompiler.parseSchema(systemId, ele);
             }
             
@@ -136,7 +164,7 @@ public class JAXBDataBinding implements DataBindingProfile {
             if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
             }
-            String packageName = URIParserUtil.parsePackageName(targetNamespace, null);
+            String packageName = env.mapPackageName(targetNamespace);
             if (!addedToClassCollector(packageName)) {
                 allocator.assignClassName(packageName, "*");
             }
@@ -233,4 +261,48 @@ public class JAXBDataBinding implements DataBindingProfile {
       
     }
     
+    public  Node cloneNode(Document document, Node node, boolean deep) throws DOMException {
+        if (document == null || node == null) {
+            return null;
+        }
+        int type = node.getNodeType();
+        
+        if (node.getOwnerDocument() == document) {
+            return node.cloneNode(deep);
+        }
+        Node clone;
+        switch (type) {
+        case Node.CDATA_SECTION_NODE:
+            clone = document.createCDATASection(node.getNodeValue());
+            break;
+        case Node.COMMENT_NODE:
+            clone = document.createComment(node.getNodeValue());
+            break;
+        case Node.ENTITY_REFERENCE_NODE:
+            clone = document.createEntityReference(node.getNodeName());
+            break;
+        case Node.ELEMENT_NODE:
+            clone = document.createElement(node.getNodeName());
+            NamedNodeMap attributes = node.getAttributes();
+            for (int i = 0; i < attributes.getLength(); i++) {
+                ((Element)clone).setAttribute(attributes.item(i).getNodeName(), attributes.item(i)
+                    .getNodeValue());
+            }
+            break;
+       
+        case Node.TEXT_NODE:
+            clone = document.createTextNode(node.getNodeValue());
+            break;
+        default:
+            return null;
+        }
+        if (deep && type == Node.ELEMENT_NODE) {
+            Node child = node.getFirstChild();
+            while (child != null) {
+                clone.appendChild(cloneNode(document, child, true));
+                child = child.getNextSibling();
+            }
+        }
+        return clone;
+    }
 }

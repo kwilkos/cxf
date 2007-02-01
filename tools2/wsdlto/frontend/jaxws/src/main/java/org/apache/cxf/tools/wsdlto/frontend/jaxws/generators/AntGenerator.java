@@ -41,13 +41,14 @@ public class AntGenerator extends AbstractJAXWSGenerator {
         return true;
     }
 
-    public void generate(ToolContext penv) throws ToolException {
+    public void generate(ToolContext penv) throws ToolException {       
         this.env = penv;
         JavaModel javaModel = env.get(JavaModel.class);
-
+        
         if (passthrough()) {
             return;
         }
+
         clearAttributes();
         setAttributes("intfs", javaModel.getInterfaces().values());
         setAttributes("wsdlLocation", javaModel.getLocation());

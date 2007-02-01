@@ -66,8 +66,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     protected static final Logger LOG = LogUtils.getL7dLogger(WSDLToJavaContainer.class);
     private static final String DEFAULT_NS2PACKAGE = "http://www.w3.org/2005/08/addressing";
     String toolName;
-    
-    
+ 
     public WSDLToJavaContainer(String name, ToolSpec toolspec) throws Exception {        
         super(name, toolspec);
         this.toolName = name;
@@ -254,7 +253,13 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
     
     public void setPackageAndNamespaces(ToolContext env) {
         if (env.get(ToolConstants.CFG_PACKAGENAME) != null) {
-            String[] pns = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
+            String[] pns = null;
+            try {
+                pns = (String[])env.get(ToolConstants.CFG_PACKAGENAME);
+            } catch (ClassCastException e) {
+                pns = new String[1];
+                pns[0] = (String)env.get(ToolConstants.CFG_PACKAGENAME);
+            }
             for (int j = 0; j < pns.length; j++) {
                 int pos = pns[j].indexOf("=");
                 String packagename = pns[j];
