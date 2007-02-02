@@ -198,7 +198,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
     }
 
     //TODO: commented out due to CXF-333
-    public void xtestLogicalHandlerThrowsProtocolExceptionClientSide() throws Exception {
+    public void testLogicalHandlerThrowsProtocolExceptionClientSide() throws Exception {
 
         final String clientHandlerMessage = "handler1 client side";
 
@@ -219,6 +219,7 @@ public class HandlerInvocationTest extends ClientServerTestBase {
             assertEquals(clientHandlerMessage, e.getMessage());
         }
         assertTrue(!handler2.isHandleFaultInvoked());
+        
         assertTrue(handler1.isCloseInvoked());
         assertTrue(!handler2.isCloseInvoked());
     }

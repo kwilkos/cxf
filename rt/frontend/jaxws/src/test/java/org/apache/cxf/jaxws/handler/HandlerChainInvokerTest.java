@@ -46,7 +46,6 @@ public class HandlerChainInvokerTest extends TestCase {
     Message message = new MessageImpl();
     LogicalMessageContext lmc = new LogicalMessageContextImpl(message);
     MessageContext pmc = new WrappedMessageContext(message);
-    StreamMessageContext smc = new StreamMessageContextImpl(message);
 
     TestLogicalHandler[] logicalHandlers = new TestLogicalHandler[HANDLER_COUNT];
     TestProtocolHandler[] protocolHandlers = new TestProtocolHandler[HANDLER_COUNT];
@@ -151,7 +150,7 @@ public class HandlerChainInvokerTest extends TestCase {
         ret = invoker.invokeLogicalHandlers(false, lmc);
         assertTrue(ret);
         assertFalse(invoker.isClosed());
-        assertEquals(1, logicalHandlers[0].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[0].getHandleMessageCount());
         assertEquals(0, logicalHandlers[1].getHandleMessageCount());
         assertTrue(invoker.isInbound());
     }
@@ -181,16 +180,23 @@ public class HandlerChainInvokerTest extends TestCase {
         ProtocolException pe = new ProtocolException("banzai");
         logicalHandlers[1].setException(pe);
 
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
-        assertFalse(continueProcessing);
+        boolean continueProcessing = true;
+        try {
+            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (ProtocolException e) {
+            assertEquals("banzai", e.getMessage());
+        }
         assertTrue(invoker.faultRaised());
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
         assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+
         continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
-        assertTrue(continueProcessing);
+
+        assertFalse(continueProcessing);
         assertTrue(invoker.faultRaised());
-        assertFalse(invoker.isClosed());
+        assertTrue(invoker.isClosed());
         assertSame(pe, invoker.getFault());
 
         assertEquals(1, logicalHandlers[0].getHandleMessageCount());
@@ -210,8 +216,13 @@ public class HandlerChainInvokerTest extends TestCase {
         RuntimeException re = new RuntimeException("banzai");
         logicalHandlers[1].setException(re);
 
-        boolean continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
-        assertFalse(continueProcessing);
+        boolean continueProcessing = true;
+        try {
+            continueProcessing = invoker.invokeLogicalHandlers(false, lmc);
+            fail("did not get expected exception");
+        } catch (RuntimeException e) {
+            assertEquals("banzai", e.getMessage());
+        }
         assertFalse(invoker.faultRaised());
         assertTrue(invoker.isClosed());
 
@@ -322,8 +333,8 @@ public class HandlerChainInvokerTest extends TestCase {
         doInvokeProtocolHandlers(true);
         invoker.invokeLogicalHandlers(true, lmc);
 
-        assertEquals(2, invoker.getInvokedHandlers().size());
-        assertTrue(!invoker.getInvokedHandlers().contains(logicalHandlers[1]));
+        assertEquals(3, invoker.getInvokedHandlers().size());
+//        assertTrue(!invoker.getInvokedHandlers().contains(logicalHandlers[1]));
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[0]));
         assertTrue(invoker.getInvokedHandlers().contains(protocolHandlers[1]));
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
@@ -335,10 +346,10 @@ public class HandlerChainInvokerTest extends TestCase {
         // now, invoke handlers on outbound leg
         invoker.invokeLogicalHandlers(true, lmc);
 
-        assertEquals(1, logicalHandlers[1].getHandleMessageCount());
+        assertEquals(2, logicalHandlers[1].getHandleMessageCount());
         assertEquals(0, logicalHandlers[0].getHandleMessageCount());
-        assertEquals(2, protocolHandlers[0].getHandleMessageCount());
-        assertEquals(2, protocolHandlers[1].getHandleMessageCount());
+        assertEquals(3, protocolHandlers[0].getHandleMessageCount());
+        assertEquals(3, protocolHandlers[1].getHandleMessageCount());
 
     }
 
