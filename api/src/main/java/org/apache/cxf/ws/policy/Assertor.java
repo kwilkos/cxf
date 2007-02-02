@@ -19,25 +19,13 @@
 
 package org.apache.cxf.ws.policy;
 
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
-
-import org.apache.cxf.extension.RegistryExtension;
 import org.apache.neethi.Assertion;
 
-
 /**
- * AssertionBuilderRegistry is used to manage AssertionBuilders and
- * create Assertion objects from given xml elements.
+ * API used in the WS-Policy framework to check if the condition specified by the given
+ * Assertion object is met.
  */
-public interface AssertionBuilderRegistry extends RegistryExtension<QName, AssertionBuilder> {
+public interface Assertor {
     
-    /**
-     * Returns an assertion that is built using the specified xml element.
-     * 
-     * @param element the element from which to build an Assertion.
-     * @return an Assertion that is built using the specified element.
-     */
-    Assertion build(Element element);
+    boolean asserts(Assertion a);
 }

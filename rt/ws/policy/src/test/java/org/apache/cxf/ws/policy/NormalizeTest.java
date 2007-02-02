@@ -34,15 +34,15 @@ public class NormalizeTest extends TestCase {
     public void testNormalise() throws Exception {
         
         PolicyBuilder builder = new PolicyBuilder();
-        AssertionBuilderRegistry abr = new AssertionBuilderRegistry();
+        AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder.setAssertionBuilderRegistry(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder(); 
-        abr.registerBuilder(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "SecurityToken"), ab);
-        abr.registerBuilder(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "SecurityHeader"), ab);
-        abr.registerBuilder(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "Integrity"), ab);
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "A"), ab);
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "B"), ab);
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "C"), ab);
+        abr.register(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "SecurityToken"), ab);
+        abr.register(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "SecurityHeader"), ab);
+        abr.register(new QName("http://schemas.xmlsoap.org/ws/2002/12/secext", "Integrity"), ab);
+        abr.register(new QName("http://sample.org/Assertions", "A"), ab);
+        abr.register(new QName("http://sample.org/Assertions", "B"), ab);
+        abr.register(new QName("http://sample.org/Assertions", "C"), ab);
         
         int n = 26;
         for (int i = 1; i < n; i++) {

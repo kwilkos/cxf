@@ -22,8 +22,32 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <bean id="org.apache.cxf.ws.policy.AssertionBuilderRegistry" class="org.apache.cxf.ws.policy.AssertionBuilderRegistry">
-        <property name="bus" ref="cxf"/>
+    <bean id="org.apache.cxf.ws.policy.AssertionBuilderRegistry" class="org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl">
+        <constructor-arg>
+            <bean class="org.apache.cxf.extension.BusExtensionRegistrar">
+              <property name="bus" ref="cxf"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.apache.cxf.configuration.spring.SpringBeanQNameMap">
+              <property name="type" value="org.apache.cxf.ws.policy.AssertionBuilder"/>
+              <property name="idsProperty" value="knownElements"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <bean id="org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistry" class="org.apache.cxf.ws.policy.PolicyInterceptorProviderRegistryImpl">
+        <constructor-arg>
+            <bean class="org.apache.cxf.extension.BusExtensionRegistrar">
+              <property name="bus" ref="cxf"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="org.apache.cxf.configuration.spring.SpringBeanQNameMap">
+              <property name="type" value="org.apache.cxf.ws.policy.PolicyInterceptorProvider"/>
+              <property name="idsProperty" value="assertionTypes"/>
+            </bean>
+        </constructor-arg>
     </bean>
     
 </beans>

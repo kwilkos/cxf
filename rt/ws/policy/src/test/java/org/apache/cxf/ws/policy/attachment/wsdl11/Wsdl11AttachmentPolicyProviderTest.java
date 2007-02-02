@@ -31,24 +31,28 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
-import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
+import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.builders.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
 import org.apache.neethi.util.PolicyComparator;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 /**
  * 
@@ -57,17 +61,22 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
 
     private static final String NAMESPACE_URI = "http://apache.org/cxf/calculator";
     private static final QName OPERATION_NAME = new QName(NAMESPACE_URI, "add");
-    private static Bus bus;
+    // private static Bus bus;
     private static ServiceInfo[] services;
     private static EndpointInfo[] endpoints;
     private Wsdl11AttachmentPolicyProvider app; 
+    
     
     public static Test suite() {
         TestSuite suite = new TestSuite(Wsdl11AttachmentPolicyProviderTest.class);
         TestSetup wrapper = new TestSetup(suite) {
 
             protected void setUp() {
-                oneTimeSetUp();
+                try {
+                    oneTimeSetUp();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
 
             protected void tearDown() {
@@ -78,7 +87,40 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         return wrapper;
     }
     
-    public static void oneTimeSetUp() {
+    public static void oneTimeSetUp() throws Exception {
+        
+        IMocksControl control = EasyMock.createNiceControl();
+        Bus bus = control.createMock(Bus.class);
+        WSDLManager manager = new WSDLManagerImpl();       
+        WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);
+        DestinationFactoryManager dfm = control.createMock(DestinationFactoryManager.class);
+        EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andReturn(dfm).anyTimes();
+        EasyMock.expect(dfm.getDestinationFactory(EasyMock.isA(String.class))).andReturn(null).anyTimes();
+        BindingFactoryManager bfm = control.createMock(BindingFactoryManager.class);
+        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bfm).anyTimes();
+        EasyMock.expect(bfm.getBindingFactory(EasyMock.isA(String.class))).andReturn(null).anyTimes();
+        control.replay();
+        
+        int n = 17;
+        services = new ServiceInfo[n];
+        endpoints = new EndpointInfo[n];
+        for (int i = 0; i < n; i++) {
+            String resourceName = "/attachment/wsdl11/test" + i + ".wsdl";
+            URL url = Wsdl11AttachmentPolicyProviderTest.class.getResource(resourceName);       
+            try {
+                services[i] = builder.buildService(manager.getDefinition(url)).get(0);
+            } catch (WSDLException ex) {
+                ex.printStackTrace();
+                fail("Failed to build service from resource " + resourceName);
+            }
+            assertNotNull(services[i]);
+            endpoints[i] = services[i].getEndpoints().iterator().next();
+            assertNotNull(endpoints[i]);
+        }
+        
+        control.verify();
+        
+        /*
         BusFactory.setDefaultBus(null);
         bus = new SpringBusFactory().createBus();
         WSDLManager manager = bus.getExtension(WSDLManager.class);
@@ -99,23 +141,27 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
             endpoints[i] = services[i].getEndpoints().iterator().next();
             assertNotNull(endpoints[i]);
         }
+        */
     }
     
     public static void oneTimeTearDown() {
+        /*
         bus.shutdown(true);
         BusFactory.setDefaultBus(null);
+        */
         endpoints = null;
         services = null;
         
     }
     
     public void setUp() {
-        AssertionBuilderRegistry abr = bus.getExtension(AssertionBuilderRegistry.class);
-        assertNotNull(abr);
+        // AssertionBuilderRegistry abr = bus.getExtension(AssertionBuilderRegistry.class);
+        AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
+        // assertNotNull(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
-        abr.registerBuilder(new QName("http://cxf.apache.org/test/assertions", "A"), ab);
-        abr.registerBuilder(new QName("http://cxf.apache.org/test/assertions", "B"), ab);
-        abr.registerBuilder(new QName("http://cxf.apache.org/test/assertions", "C"), ab);
+        abr.register(new QName("http://cxf.apache.org/test/assertions", "A"), ab);
+        abr.register(new QName("http://cxf.apache.org/test/assertions", "B"), ab);
+        abr.register(new QName("http://cxf.apache.org/test/assertions", "C"), ab);
         
         PolicyBuilder pb = new PolicyBuilder(); 
         pb.setAssertionBuilderRegistry(abr);

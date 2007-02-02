@@ -21,23 +21,13 @@ package org.apache.cxf.ws.policy;
 
 import javax.xml.namespace.QName;
 
-import org.w3c.dom.Element;
-
 import org.apache.cxf.extension.RegistryExtension;
-import org.apache.neethi.Assertion;
 
 
 /**
- * AssertionBuilderRegistry is used to manage AssertionBuilders and
- * create Assertion objects from given xml elements.
+ * InterceptorProviderRegistry is used to manage InterceptorProviders that provide
+ * assertion domain specific interceptors.
  */
-public interface AssertionBuilderRegistry extends RegistryExtension<QName, AssertionBuilder> {
-    
-    /**
-     * Returns an assertion that is built using the specified xml element.
-     * 
-     * @param element the element from which to build an Assertion.
-     * @return an Assertion that is built using the specified element.
-     */
-    Assertion build(Element element);
+public interface PolicyInterceptorProviderRegistry 
+    extends RegistryExtension<QName, PolicyInterceptorProvider> {
 }

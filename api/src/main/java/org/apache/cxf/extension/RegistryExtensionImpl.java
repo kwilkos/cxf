@@ -17,27 +17,45 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.extension;
 
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
-
-import org.apache.cxf.extension.RegistryExtension;
-import org.apache.neethi.Assertion;
-
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * AssertionBuilderRegistry is used to manage AssertionBuilders and
- * create Assertion objects from given xml elements.
+ * 
  */
-public interface AssertionBuilderRegistry extends RegistryExtension<QName, AssertionBuilder> {
+public class RegistryExtensionImpl<K, T> implements RegistryExtension<K, T> {
     
-    /**
-     * Returns an assertion that is built using the specified xml element.
-     * 
-     * @param element the element from which to build an Assertion.
-     * @return an Assertion that is built using the specified element.
-     */
-    Assertion build(Element element);
+    protected final Map<K, T> entries;
+    
+    protected RegistryExtensionImpl() {
+        this(null);
+    }
+    
+    protected RegistryExtensionImpl(Map<K, T> e) {
+        if (null == e) {
+            e = new ConcurrentHashMap<K, T>();
+        } else if (!(e instanceof ConcurrentHashMap)) {
+            e = new ConcurrentHashMap<K, T>(e);
+        }
+        entries = e;
+    }
+    
+
+    public void register(K k, T t) {
+        entries.put(k, t);
+    }
+
+    public void unregister(K k) {
+        entries.remove(k);
+    }
+
+    public T get(K k) {
+        return  entries.get(k);
+    }
+
+    
+    
+    
 }

@@ -39,12 +39,12 @@ public class PolicyBuilderTest extends TestCase {
     
     public void setUp() {
         builder = new PolicyBuilder();
-        AssertionBuilderRegistry abr = new AssertionBuilderRegistry();
+        AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder.setAssertionBuilderRegistry(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "A"), ab);
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "B"), ab);
-        abr.registerBuilder(new QName("http://sample.org/Assertions", "C"), ab);
+        abr.register(new QName("http://sample.org/Assertions", "A"), ab);
+        abr.register(new QName("http://sample.org/Assertions", "B"), ab);
+        abr.register(new QName("http://sample.org/Assertions", "C"), ab);
     }
     public void testGetPolicy() throws Exception {
         String name = "/samples/test25.xml";

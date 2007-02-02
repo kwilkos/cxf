@@ -17,27 +17,33 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.extension;
 
-import javax.xml.namespace.QName;
+import org.apache.cxf.Bus;
 
-import org.w3c.dom.Element;
-
-import org.apache.cxf.extension.RegistryExtension;
-import org.apache.neethi.Assertion;
 
 
 /**
- * AssertionBuilderRegistry is used to manage AssertionBuilders and
- * create Assertion objects from given xml elements.
+ * Helper class to be used as constructor argument for classes that want to be
+ * registered as bus extensions. It avoids a @Resource annotated data member of type Bus
+ * in the extension class and a @PostConstruct annotated method in which the extension
+ * registration takes place.
  */
-public interface AssertionBuilderRegistry extends RegistryExtension<QName, AssertionBuilder> {
+public class BusExtensionRegistrar {
+   
+    private Bus bus;    
     
-    /**
-     * Returns an assertion that is built using the specified xml element.
-     * 
-     * @param element the element from which to build an Assertion.
-     * @return an Assertion that is built using the specified element.
-     */
-    Assertion build(Element element);
+    public void setBus(Bus b) {
+        bus = b;
+    }
+
+    public Bus getBus() {
+        return bus;
+    }
+
+    public <T> void registerExtension(T extension, Class<T> extensionType) {
+        if (null != bus) {
+            bus.setExtension(extension, extensionType);
+        }
+    }
 }

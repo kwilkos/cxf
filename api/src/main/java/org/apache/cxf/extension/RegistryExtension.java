@@ -17,27 +17,32 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
-
-import javax.xml.namespace.QName;
-
-import org.w3c.dom.Element;
-
-import org.apache.cxf.extension.RegistryExtension;
-import org.apache.neethi.Assertion;
-
+package org.apache.cxf.extension;
 
 /**
- * AssertionBuilderRegistry is used to manage AssertionBuilders and
- * create Assertion objects from given xml elements.
+ * 
  */
-public interface AssertionBuilderRegistry extends RegistryExtension<QName, AssertionBuilder> {
+public interface RegistryExtension<K, T> {
     
     /**
-     * Returns an assertion that is built using the specified xml element.
-     * 
-     * @param element the element from which to build an Assertion.
-     * @return an Assertion that is built using the specified element.
+     * Registers an object of type T with this registry. 
+     *  
+     * @param k the key under which rto register the object
+     * @param t the object to register
      */
-    Assertion build(Element element);
+    void register(K k, T t);
+
+    /**
+     * Unregisters the object stored under the given key from this registry.
+     *  
+     * @param k the key 
+     */
+    void unregister(K k);
+
+    /**
+     * Returns the object stored under the given key.
+     * @param k the  key
+     * @return the object stored under the key
+     */
+    T get(K k);
 }

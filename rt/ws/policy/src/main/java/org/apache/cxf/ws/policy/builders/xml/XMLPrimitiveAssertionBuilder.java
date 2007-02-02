@@ -31,15 +31,13 @@ import org.apache.neethi.Assertion;
 
 public class XMLPrimitiveAssertionBuilder implements AssertionBuilder {
 
-    private Collection<QName> known = new ArrayList<QName>();
+    private Collection<QName> knownElements = new ArrayList<QName>();
     
     public Assertion build(Element element) {
         return new XmlPrimtiveAssertion(element);
     }
 
     public Collection<QName> getKnownElements() {
-        return known;
+        return knownElements;
     }
-    
-    
 }
