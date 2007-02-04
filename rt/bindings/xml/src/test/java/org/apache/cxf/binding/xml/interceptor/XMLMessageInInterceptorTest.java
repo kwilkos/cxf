@@ -25,6 +25,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
@@ -33,6 +34,7 @@ import org.apache.hello_world_xml_http.wrapped.types.GreetMe;
 public class XMLMessageInInterceptorTest extends TestBase {
 
     XMLMessageInInterceptor in = new XMLMessageInInterceptor();
+    DocLiteralInInterceptor docLitIn = new DocLiteralInInterceptor();
 
     public void setUp() throws Exception {
         super.setUp();
@@ -51,6 +53,7 @@ public class XMLMessageInInterceptorTest extends TestBase {
         op.getInput().getMessagePartByIndex(1).setTypeClass(String.class);
         
         in.handleMessage(xmlMessage);
+        docLitIn.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 2 param", 2, list.size());
@@ -68,6 +71,7 @@ public class XMLMessageInInterceptorTest extends TestBase {
         op.getInput().getMessagePartByIndex(0).setTypeClass(String.class);
         
         in.handleMessage(xmlMessage);
+        docLitIn.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 1 param", 1, list.size());
@@ -84,6 +88,7 @@ public class XMLMessageInInterceptorTest extends TestBase {
         op.getInput().getMessagePartByIndex(0).setTypeClass(GreetMe.class);
         
         in.handleMessage(xmlMessage);
+        docLitIn.handleMessage(xmlMessage);
         List list = xmlMessage.getContent(List.class);
         assertNotNull(list);
         assertEquals("expect 1 param", 1, list.size());

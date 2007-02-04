@@ -19,6 +19,7 @@
 package org.apache.cxf.binding.http.interceptor;
 
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.interceptor.StaxInInterceptor;
@@ -31,6 +32,7 @@ public class DatabindingInSetupInterceptor extends AbstractPhaseInterceptor<Mess
 
     private static final WrappedInInterceptor WRAPPED_IN = new WrappedInInterceptor();
     private static final XMLMessageInInterceptor XML_IN = new XMLMessageInInterceptor();
+    private static final DocLiteralInInterceptor DOCLIT_IN = new DocLiteralInInterceptor();
     private static final URIParameterInInterceptor URI_IN = new URIParameterInInterceptor();
     private static final StaxInInterceptor STAX_IN = new StaxInInterceptor();
     private static final DispatchInterceptor DISPATCH_IN = new DispatchInterceptor();
@@ -47,6 +49,7 @@ public class DatabindingInSetupInterceptor extends AbstractPhaseInterceptor<Mess
         if (client) {
             chain.add(WRAPPED_IN);
             chain.add(XML_IN);
+            chain.add(DOCLIT_IN);
             chain.add(STAX_IN);
         } else {
             chain.add(URI_IN);

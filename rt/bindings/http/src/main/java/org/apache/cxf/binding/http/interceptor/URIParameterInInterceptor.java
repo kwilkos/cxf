@@ -36,6 +36,7 @@ import org.apache.cxf.binding.http.IriDecoderHelper.Param;
 import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.binding.xml.interceptor.XMLMessageInInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.message.Message;
@@ -82,6 +83,7 @@ public class URIParameterInInterceptor extends AbstractPhaseInterceptor<Message>
         }
 
         message.getInterceptorChain().add(new XMLMessageInInterceptor());
+        message.getInterceptorChain().add(new DocLiteralInInterceptor());
 
         MessagePartInfo part = parts.get(0);
 

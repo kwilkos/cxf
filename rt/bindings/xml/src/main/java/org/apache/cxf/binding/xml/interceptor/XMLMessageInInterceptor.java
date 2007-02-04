@@ -32,9 +32,8 @@ import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
-import org.apache.cxf.interceptor.BareInInterceptor;
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.interceptor.WrappedInInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -50,34 +49,31 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
     private static final Logger LOG = Logger.getLogger(XMLMessageInInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(XMLMessageInInterceptor.class);
     
-    // TODO: this should be part of the chain!!
-    private BareInInterceptor bareInterceptor = new BareInInterceptor();
-    private WrappedInInterceptor wrappedInterceptor = new WrappedInInterceptor();
-    
     public XMLMessageInInterceptor() {
         super();
         setPhase(Phase.UNMARSHAL);
+        addBefore(DocLiteralInInterceptor.class.getName());
     }
 
     public void handleMessage(Message message) throws Fault {
-        if (isGET(message)) {            
+        if (isGET(message)) {
             LOG.info("XMLMessageInInterceptor skipped in HTTP GET method");
             return;
         }
         Endpoint ep = message.getExchange().get(Endpoint.class);
-        
-        XMLStreamReader xsr = message.getContent(XMLStreamReader.class);        
-        DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);        
+
+        XMLStreamReader xsr = message.getContent(XMLStreamReader.class);
+        DepthXMLStreamReader reader = new DepthXMLStreamReader(xsr);
         if (!StaxUtils.toNextElement(reader)) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_OPERATION_ELEMENT", BUNDLE));
         }
-        
+
         Exchange ex = message.getExchange();
         QName startQName = reader.getName();
         // handling xml fault message
-        if (startQName.getLocalPart().equals(XMLFault.XML_FAULT_ROOT)) {            
+        if (startQName.getLocalPart().equals(XMLFault.XML_FAULT_ROOT)) {
             message.getInterceptorChain().abort();
-            
+
             if (ep.getInFaultObserver() != null) {
                 ep.getInFaultObserver().onMessage(message);
                 return;
@@ -95,29 +91,15 @@ public class XMLMessageInInterceptor extends AbstractInDatabindingInterceptor {
                 ex.setOneWay(boi.getOperationInfo().isOneWay());
             }
         } else {
-            BindingMessageInfo bmi = isRequestor ? boi.getOutput()
-                                                 : boi.getInput();
+            BindingMessageInfo bmi = isRequestor ? boi.getOutput() : boi.getInput();
 
-            if (hasRootNode(bmi, startQName)) { 
+            if (hasRootNode(bmi, startQName)) {
                 try {
                     xsr.nextTag();
                 } catch (XMLStreamException xse) {
                     throw new Fault(new org.apache.cxf.common.i18n.Message("STAX_READ_EXC", BUNDLE));
                 }
             }
-        }
-
-        if (boi != null) {
-            OperationInfo oi = boi.getOperationInfo();
-            if (!oi.isUnwrappedCapable()) {
-                bareInterceptor.handleMessage(message);
-            } else {
-                wrappedInterceptor.handleMessage(message);
-            }
-        } else { 
-            throw new Fault(new org.apache.cxf.common.i18n.Message("REQ_NOT_UNDERSTOOD", 
-                                                                   BUNDLE, 
-                                                                   startQName));
         }
     }
 
