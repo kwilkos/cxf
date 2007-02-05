@@ -1,3 +1,4 @@
+<<<<<<< .mine
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
@@ -37,6 +38,7 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
     @PostConstruct
     public void init() {
         queryHandlers = new ArrayList<QueryHandler>();
+        bus.setExtension(this, QueryHandlerRegistry.class);
     }
 
     public List<QueryHandler> getHandlers() {
@@ -57,3 +59,4 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
     }
 
 }
+
