@@ -86,7 +86,7 @@ public class ServerLauncher {
             while (!serverIsStopped) {
                 try {
                     TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
-                    mutex.wait(DEFAULT_TIMEOUT);
+                    mutex.wait(1000);
                     if (tc.isTimeoutExpired()) {
                         System.out.println("destroying server process");
                         process.destroy();
@@ -193,7 +193,7 @@ public class ServerLauncher {
                 do {
                     TimeoutCounter tc = new TimeoutCounter(DEFAULT_TIMEOUT);
                     try {
-                        mutex.wait(DEFAULT_TIMEOUT);
+                        mutex.wait(1000);
                         if (tc.isTimeoutExpired()) {
                             break;
                         }
@@ -203,7 +203,7 @@ public class ServerLauncher {
                 } while (!serverIsReady && !serverLaunchFailed);
             }
         }
-        return serverIsReady;
+        return serverIsReady && !serverLaunchFailed;
     }
 
     public int waitForServer() {
@@ -297,6 +297,7 @@ public class ServerLauncher {
     void notifyServerFailed() {
         synchronized (mutex) {
             serverIsStopped = true;
+            serverLaunchFailed = true;
             mutex.notifyAll();
         }
     }

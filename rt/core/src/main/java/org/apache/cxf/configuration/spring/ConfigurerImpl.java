@@ -99,8 +99,8 @@ public class ConfigurerImpl extends BeanConfigurerSupport implements Configurer 
             // users often wonder why the settings in their configuration files seem
             // to have no effect - the most common cause is that they have been using
             // incorrect bean ids
-            if (LOG.isLoggable(Level.INFO)) {
-                LOG.log(Level.INFO, "NO_MATCHING_BEAN_MSG", beanName);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "NO_MATCHING_BEAN_MSG", beanName);
             }
         }
     }

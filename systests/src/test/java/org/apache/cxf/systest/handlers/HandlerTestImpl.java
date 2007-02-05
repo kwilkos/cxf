@@ -75,7 +75,8 @@ public class HandlerTestImpl implements HandlerTest {
     }
 
 
-    @Resource public void setWebServiceContext(WebServiceContext ctx) {
+    @Resource
+    public void setWebServiceContext(WebServiceContext ctx) {
         context = ctx;
     }
 

@@ -160,12 +160,12 @@ public class SoapTransportFactory extends AbstractTransportFactory implements De
         return bus;
     }
 
-    @Resource
+    @Resource(name = "bus")
     public void setBus(Bus bus) {
         this.bus = bus;
     }
 
-    @Resource
+    @Resource(name = "activationNamespaces")
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }

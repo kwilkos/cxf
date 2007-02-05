@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.resource.ObjectTypeResolver;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.resource.SinglePropertyResolver;
@@ -64,6 +65,7 @@ public class ExtensionManagerImpl implements ExtensionManager {
         ResourceResolver extensionManagerResolver =
             new SinglePropertyResolver(EXTENSIONMANAGER_PROPERTY_NAME, this);
         resourceManager.addResourceResolver(extensionManagerResolver);
+        resourceManager.addResourceResolver(new ObjectTypeResolver(this));
 
         deferred = new HashMap<String, Collection<Extension>>();
 

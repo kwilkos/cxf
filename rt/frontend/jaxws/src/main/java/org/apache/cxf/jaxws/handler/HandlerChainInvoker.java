@@ -318,6 +318,7 @@ public class HandlerChainInvoker {
 
     // REVISIT
     // handleFault() return true\false, throw Exception.
+    @SuppressWarnings("unchecked")
     private boolean callReversedHandlesFault() {
         int index = invokedHandlers.size() - 2;
         while (index >= 0) {

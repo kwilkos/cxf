@@ -70,7 +70,7 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
     private Bus bus;
     private Collection<String> activationNamespaces;
 
-    @Resource
+    @Resource(name = "bus")
     public void setBus(Bus b) {
         bus = b;
     }
@@ -79,7 +79,7 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
         return bus;
     }
 
-    @Resource
+    @Resource(name = "activationNamespaces")
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }

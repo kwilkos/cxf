@@ -43,7 +43,7 @@ public class XMLBindingFactory extends AbstractBindingFactory {
 
     private Collection<String> activationNamespaces;
 
-    @Resource
+    @Resource(name = "activationNamespaces")
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }

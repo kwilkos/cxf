@@ -43,7 +43,7 @@ public class EventProcessorImpl implements EventProcessor {
         cache = eventCache == null ? new EventCacheImpl() : eventCache;
     }
     
-    @Resource
+    @Resource(name = "bus")
     public void setBus(Bus bus) {        
         this.bus = bus;
     }

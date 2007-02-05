@@ -40,14 +40,14 @@ public class ResourceInjectorTest extends TestCase {
 
     private ResourceInjector injector; 
         
-    public void setUp() { 
+    public void setUpResourceManager(String pfx) { 
 
         ResourceManager resMgr = EasyMock.createMock(ResourceManager.class);
         List<ResourceResolver> resolvers = new ArrayList<ResourceResolver>();
         
         resMgr.getResourceResolvers();
         EasyMock.expectLastCall().andReturn(resolvers);
-        resMgr.resolveResource("resource1", String.class, resolvers);
+        resMgr.resolveResource(pfx + "resource1", String.class, resolvers);
         EasyMock.expectLastCall().andReturn(RESOURCE_ONE);
         resMgr.resolveResource("resource2", String.class, resolvers);
         EasyMock.expectLastCall().andReturn(RESOURCE_TWO);
@@ -57,24 +57,27 @@ public class ResourceInjectorTest extends TestCase {
     } 
 
     public void testFieldInjection() { 
-
+        setUpResourceManager(FieldTarget.class.getCanonicalName() + "/");
         doInjectTest(new FieldTarget()); 
     }
 
     public void testSetterInjection() {
-
+        setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
         doInjectTest(new SetterTarget()); 
     }
 
     public void testClassLevelInjection() {
+        setUpResourceManager("");
         doInjectTest(new ClassTarget());
     }
 
     public void testResourcesContainer() {
+        setUpResourceManager("");
         doInjectTest(new ResourcesContainerTarget()); 
     }
 
     public void testPostConstruct() { 
+        setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
 
         SetterTarget target = new SetterTarget(); 
         doInjectTest(target); 
@@ -103,9 +106,11 @@ interface Target {
 
 class FieldTarget implements Target {
 
-    @Resource private String resource1; 
+    @Resource
+    private String resource1; 
 
-    @Resource(name = "resource2") private String resource2foo;
+    @Resource(name = "resource2")
+    private String resource2foo;
 
     public String getResource1() { 
         return resource1; 
@@ -132,7 +137,8 @@ class SetterTarget implements Target {
         return this.resource1;
     }
 
-    @Resource public final void setResource1(final String argResource1) {
+    @Resource
+    public final void setResource1(final String argResource1) {
         this.resource1 = argResource1;
     }
     
@@ -140,18 +146,21 @@ class SetterTarget implements Target {
         return this.resource2;
     }
     
-    @Resource(name = "resource2") public final void setResource2(final String argResource2) {
+    @Resource(name = "resource2")
+    public final void setResource2(final String argResource2) {
         this.resource2 = argResource2;
     }
 
-    @PostConstruct public void injectionIsAllFinishedNowThankYouVeryMuch() { 
+    @PostConstruct
+    public void injectionIsAllFinishedNowThankYouVeryMuch() { 
         injectionCompletePublic = true;
 
         // stick this here to keep PMD happy...
         injectionIsAllFinishedNowThankYouVeryMuchPrivate();
     } 
     
-    @PostConstruct private void injectionIsAllFinishedNowThankYouVeryMuchPrivate() { 
+    @PostConstruct
+    private void injectionIsAllFinishedNowThankYouVeryMuchPrivate() { 
         injectionCompletePrivate = true;
     } 
     

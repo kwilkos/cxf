@@ -56,7 +56,7 @@ public class InstrumentationManagerImpl extends InstrumentationManagerConfigBean
         return bus;
     }
     
-    @Resource
+    @Resource(name = "bus")
     public void setBus(Bus bus) {        
         this.bus = bus;
     }

@@ -30,6 +30,7 @@ import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.NullConfigurer;
 import org.apache.cxf.resource.DefaultResourceManager;
+import org.apache.cxf.resource.ObjectTypeResolver;
 import org.apache.cxf.resource.PropertiesResolver;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
@@ -86,6 +87,7 @@ public class ExtensionManagerBus extends CXFBusImpl {
         
         ResourceResolver busResolver = new SinglePropertyResolver(BUS_PROPERTY_NAME, this);
         resourceManager.addResourceResolver(busResolver);
+        resourceManager.addResourceResolver(new ObjectTypeResolver(this));
         
         e.put(ResourceManager.class, resourceManager);
 

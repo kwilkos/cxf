@@ -40,7 +40,7 @@ public class HttpBindingFactory extends AbstractBindingFactory {
     public static final String HTTP_BINDING_ID = "http://apache.org/cxf/binding/http";
     private Collection<String> activationNamespaces;    
     
-    @Resource
+    @Resource(name = "activationNamespaces")
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }

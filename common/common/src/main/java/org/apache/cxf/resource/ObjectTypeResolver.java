@@ -17,30 +17,28 @@
  * under the License.
  */
 
-package org.apache.cxf.bus.extension;
+package org.apache.cxf.resource;
 
-import java.util.Collection;
+import java.io.InputStream;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+public class ObjectTypeResolver implements ResourceResolver {
+   
+    private final Object value;
+ 
+    public ObjectTypeResolver(Object v) {
+        value = v;
+    }
 
-public class MyService {
-    @Resource(name = "activationNamespaces")
-    Collection<String> activationNamespaces;
-    
-    @Resource(name = "extensionManagerTest")
-    ExtensionManagerTest extensionManagerTest;
-    
-    
-    public MyService() {
+    public InputStream getAsStream(String name) {
+        return null;
     }
-    
-    public Collection<String> getActivationNamespaces() {
-        return activationNamespaces;
-    }
-    
-    @PostConstruct
-    void registerMyselfAsExtension() {
-        extensionManagerTest.setMyService(this);
-    }
+
+    public <T> T resolve(String resourceName, Class<T> resourceType) {
+        if (resourceName == null
+            && value != null
+            && resourceType.isInstance(value)) {
+            return resourceType.cast(value);
+        }
+        return null;
+    }    
 }

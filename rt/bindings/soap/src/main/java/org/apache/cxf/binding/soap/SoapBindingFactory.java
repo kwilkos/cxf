@@ -80,7 +80,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         return activationNamespaces;
     }
 
-    @Resource
+    @Resource(name = "activationNamespaces")
     public void setActivationNamespaces(Collection<String> ans) {
         activationNamespaces = ans;
     }
@@ -278,7 +278,7 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         bmsg.addExtensor(bodyInfo);
     }
     
-    @Resource
+    @Resource(name = "mtomEnabled")
     public void setMtomEnabled(boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
     }
