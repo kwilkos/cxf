@@ -19,6 +19,7 @@
 
 package org.apache.cxf.transport.https;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
@@ -141,11 +142,17 @@ public class JettySslConnectorFactoryTest extends TestCase {
         String trustStoreStr = getPath("resources/defaulttruststore");
         sslServerPolicy.setTrustStore(trustStoreStr);
         TestLogHandler handler = new TestLogHandler();
-        JettySslConnectorFactory factory = createFactory(sslServerPolicy, 
-                                                        "https://dummyurl",
-                                                        handler);
+        JettySslConnectorFactory factory = null;
+        String oldHome = overrideHome();
+        try {            
+            factory = createFactory(sslServerPolicy, 
+                                    "https://dummyurl",
+                                    handler);
 
-        factory.decorate(sslConnector);
+            factory.decorate(sslConnector);
+        } finally {
+            restoreHome(oldHome);
+        }
         
         assertTrue("Keystore not set properly", 
                    sslConnector.getKeystore().contains("resources/defaultkeystore"));
@@ -295,6 +302,21 @@ public class JettySslConnectorFactoryTest extends TestCase {
             new JettySslConnectorFactory(policy);
         factory.addLogHandler(handler);
         return factory;
+    }
+    
+    private static String overrideHome() {
+        String oldHome = System.getProperty("user.home");
+        String tmpHome = "" + System.getProperty("java.io.tmpdir")
+                         + File.separator
+                         + System.getProperty("user.name")
+                         + File.separator
+                         + System.currentTimeMillis();
+        System.setProperty("user.home", tmpHome);
+        return oldHome;
+    }
+   
+    private static void restoreHome(String oldHome) {
+        System.setProperty("user.home", oldHome);
     }
     
     protected static String getPath(String fileName) {

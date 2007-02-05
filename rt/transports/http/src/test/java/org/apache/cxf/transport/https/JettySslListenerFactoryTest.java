@@ -19,6 +19,7 @@
 
 package org.apache.cxf.transport.https;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
@@ -206,11 +207,17 @@ public class JettySslListenerFactoryTest extends TestCase {
         
         sslServerPolicy.setTrustStore(null);
         TestLogHandler handler = new TestLogHandler();
-        JettySslListenerFactory factory = createFactory(sslServerPolicy, 
-                                                        "https://dummyurl",
-                                                        handler);
+        JettySslListenerFactory factory = null;
+        String oldHome = overrideHome();
+        try {            
+            factory = createFactory(sslServerPolicy, 
+                                    "https://dummyurl",
+                                    handler);
 
-        factory.decorate(sslListener);
+            factory.decorate(sslListener);
+        } finally {
+            restoreHome(oldHome);
+        }
         
         assertTrue("Keystore not set properly, sslListener.getKeystore() = " + sslListener.getKeystore(), 
                    sslListener.getKeystore().contains(".keystore"));
@@ -443,6 +450,21 @@ public class JettySslListenerFactoryTest extends TestCase {
         return factory;
     }
     
+    private static String overrideHome() {
+        String oldHome = System.getProperty("user.home");
+        String tmpHome = "" + System.getProperty("java.io.tmpdir")
+                         + File.separator
+                         + System.getProperty("user.name")
+                         + File.separator
+                         + System.currentTimeMillis();
+        System.setProperty("user.home", tmpHome);
+        return oldHome;
+    }
+   
+    private static void restoreHome(String oldHome) {
+        System.setProperty("user.home", oldHome);
+    }
+
     protected static String getPath(String fileName) {
         URL keystoreURL = JettySslListenerFactoryTest.class.getResource(".");
         String str = keystoreURL.getFile(); 

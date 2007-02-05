@@ -124,7 +124,6 @@ public final class JettySslListenerFactory implements JettyListenerFactory {
                                          LOG));
         } catch (Exception e) {
             LogUtils.log(LOG, Level.SEVERE, "SSL_CONTEXT_INIT_FAILURE", e);
-            e.printStackTrace();
         }
 
         SSLUtils.logUnSupportedPolicies(sslPolicy,
