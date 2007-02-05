@@ -201,6 +201,8 @@ public class JMSClientServerTest extends ClientServerTestBase {
     }
     
     public void testContextPropogation() throws Exception {
+        final String testReturnPropertyName = "Test_Prop";
+        final String testIgnoredPropertyName = "Test_Prop_No_Return";
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms",
                                  "HelloWorldService");
         portName = new QName("http://cxf.apache.org/hello_world_jms", "HelloWorldPort");
@@ -223,9 +225,12 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 requestHeader.setJMSCorrelationID("JMS_SAMPLE_CORRELATION_ID");
                 requestHeader.setJMSExpiration(3600000L);
                 JMSPropertyType propType = new JMSPropertyType();
-                propType.setName("Test.Prop");
+                propType.setName(testReturnPropertyName);
                 propType.setValue("mustReturn");
                 requestHeader.getProperty().add(propType);
+                propType = new JMSPropertyType();
+                propType.setName(testIgnoredPropertyName);
+                propType.setValue("mustNotReturn");
                 requestContext.put(JMSConstants.JMS_CLIENT_REQUEST_HEADERS, requestHeader);
             } 
  
@@ -244,8 +249,10 @@ public class JMSClientServerTest extends ClientServerTestBase {
                 
                 assertTrue("CORRELATION ID should match :", 
                            "JMS_SAMPLE_CORRELATION_ID".equals(responseHdr.getJMSCorrelationID()));
-                assertTrue("response Headers must conain the app specific property set by request context.", 
+                assertTrue("response Headers must conain the app property set in request context.", 
                            responseHdr.getProperty() != null);
+                assertEquals("response Headers must match the app property set in request context.",
+                             testReturnPropertyName, responseHdr.getProperty().iterator().next().getName());
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

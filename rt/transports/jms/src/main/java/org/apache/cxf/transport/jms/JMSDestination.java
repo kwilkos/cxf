@@ -189,9 +189,8 @@ public class JMSDestination extends AbstractDestination {
             // get the message to be interceptor
             MessageImpl inMessage = new MessageImpl();
             inMessage.setContent(InputStream.class, new ByteArrayInputStream(bytes));
-            JMSMessageHeadersType headers = 
-                base.populateIncomingContext(message, inMessage, JMSConstants.JMS_SERVER_HEADERS);
-            inMessage.put(JMSConstants.JMS_SERVER_HEADERS, headers);
+            base.populateIncomingContext(message, inMessage, JMSConstants.JMS_SERVER_REQUEST_HEADERS);
+            inMessage.put(JMSConstants.JMS_SERVER_RESPONSE_HEADERS, new JMSMessageHeadersType());
             inMessage.put(JMSConstants.JMS_REQUEST_MESSAGE, message);
                         
             inMessage.setDestination(this);            
@@ -361,7 +360,7 @@ public class JMSDestination extends AbstractDestination {
         private void commitOutputMessage() throws IOException {
             
             JMSMessageHeadersType headers =
-                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_HEADERS);
+                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_RESPONSE_HEADERS);
             javax.jms.Message request = 
                 (javax.jms.Message) inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE);              
             
@@ -433,7 +432,7 @@ public class JMSDestination extends AbstractDestination {
 
         private void sendResponse() throws JMSException {
             JMSMessageHeadersType headers =
-                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_HEADERS);
+                (JMSMessageHeadersType) inMessage.get(JMSConstants.JMS_SERVER_REQUEST_HEADERS);
             javax.jms.Message request = 
                 (javax.jms.Message) inMessage.get(JMSConstants.JMS_REQUEST_MESSAGE);   
             

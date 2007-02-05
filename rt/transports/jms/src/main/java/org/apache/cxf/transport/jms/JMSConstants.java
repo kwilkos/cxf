@@ -28,7 +28,8 @@ public final class JMSConstants {
     public static final String BINARY_MESSAGE_TYPE = "binary";
 
     public static final String JMS_POOLEDSESSION = "jms.pooled.session";   
-    public static final String JMS_SERVER_HEADERS = "org.apache.cxf.jms.server.headers";
+    public static final String JMS_SERVER_REQUEST_HEADERS = "org.apache.cxf.jms.server.request.headers";
+    public static final String JMS_SERVER_RESPONSE_HEADERS = "org.apache.cxf.jms.server.response.headers";
     public static final String JMS_REQUEST_MESSAGE = "org.apache.cxf.jms.request.message";
     public static final String JMS_RESPONSE_MESSAGE = "org.apache.cxf.jms.reponse.message";
     public static final String JMS_CLIENT_REQUEST_HEADERS = "org.apache.cxf.jms.client.request.headers";

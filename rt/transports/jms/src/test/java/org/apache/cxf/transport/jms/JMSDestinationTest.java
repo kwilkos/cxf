@@ -36,6 +36,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
+import org.apache.cxf.transports.jms.context.JMSPropertyType;
 import org.easymock.classextension.EasyMock;
 
 public class JMSDestinationTest extends AbstractJMSTester {
@@ -173,13 +174,29 @@ public class JMSDestinationTest extends AbstractJMSTester {
         assertEquals("The reponse date should be equals", reponse, "HelloWorld");
     }
     
+    private void verifyRequestResponseHeaders(Message inMessage, Message outMessage) {
+        JMSMessageHeadersType outHeader =
+            (JMSMessageHeadersType)outMessage.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
+        
+        JMSMessageHeadersType inHeader =
+            (JMSMessageHeadersType)inMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS); 
+               
+        verifyJmsHeaderEquality(outHeader, inHeader);
+        
+    }
+    
     private void verifyHeaders(Message inMessage, Message outMessage) {
         JMSMessageHeadersType outHeader =
             (JMSMessageHeadersType)outMessage.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
         
         JMSMessageHeadersType inHeader =
-            (JMSMessageHeadersType)inMessage.get(JMSConstants.JMS_SERVER_HEADERS); 
+            (JMSMessageHeadersType)inMessage.get(JMSConstants.JMS_SERVER_REQUEST_HEADERS); 
                
+        verifyJmsHeaderEquality(outHeader, inHeader);
+        
+    }
+
+    private void verifyJmsHeaderEquality(JMSMessageHeadersType outHeader, JMSMessageHeadersType inHeader) {
         assertEquals("The inMessage and outMessage JMS Header's CorrelationID should be equals", 
                      outHeader.getJMSCorrelationID(), inHeader.getJMSCorrelationID());
         assertEquals("The inMessage and outMessage JMS Header's JMSPriority should be equals", 
@@ -237,4 +254,71 @@ public class JMSDestinationTest extends AbstractJMSTester {
     }
     
 
+    public void testPropertyExclusion() throws Exception {
+        
+        final String customPropertyName = 
+            "THIS_PROPERTY_WILL_NOT_BE_AUTO_COPIED";
+
+        inMessage = null;
+        setupServiceInfo("http://cxf.apache.org/hello_world_jms", 
+                         "/wsdl/jms_test.wsdl", 
+                         "HelloWorldService", 
+                         "HelloWorldPort");
+        //set up the conduit send to be true 
+        JMSConduit conduit = setupJMSConduit(true, false);
+        final Message outMessage = new MessageImpl();
+        setupMessageHeader(outMessage);
+        
+        JMSPropertyType excludeProp = new JMSPropertyType();
+        excludeProp.setName(customPropertyName);
+        excludeProp.setValue(customPropertyName);
+        
+        JMSMessageHeadersType headers = (JMSMessageHeadersType)
+            outMessage.get(JMSConstants.JMS_CLIENT_REQUEST_HEADERS);
+        headers.getProperty().add(excludeProp);
+
+        
+        final JMSDestination destination = setupJMSDestination(true);
+        
+        //set up MessageObserver for handlering the conduit message
+        MessageObserver observer = new MessageObserver() {
+            public void onMessage(Message m) {                    
+                Exchange exchange = new ExchangeImpl();
+                exchange.setInMessage(m);
+                m.setExchange(exchange);
+                verifyReceivedMessage(m);
+                verifyHeaders(m, outMessage);
+                //setup the message for 
+                Conduit backConduit;
+                try {
+                    backConduit = destination.getBackChannel(m, null, null);                 
+                    //wait for the message to be got from the conduit
+                    Message replyMessage = new MessageImpl();
+                    sendoutMessage(backConduit, replyMessage, true);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        };
+        destination.setMessageObserver(observer);  
+        //set is oneway false for get response from destination
+        sendoutMessage(conduit, outMessage, false);        
+        //wait for the message to be got from the destination, 
+        // create the thread to handler the Destination incomming message
+               
+        waitForReceiveInMessage();
+        verifyReceivedMessage(inMessage);
+        
+        
+        verifyRequestResponseHeaders(inMessage, outMessage);
+        
+        JMSMessageHeadersType inHeader =
+            (JMSMessageHeadersType)inMessage.get(JMSConstants.JMS_CLIENT_RESPONSE_HEADERS);
+        assertTrue("property has been excluded", inHeader.getProperty().isEmpty());
+
+        // wait for a while for the jms session recycling
+        Thread.sleep(1000);
+        destination.shutdown();
+    }
 }
