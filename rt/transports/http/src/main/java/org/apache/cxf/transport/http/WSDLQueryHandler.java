@@ -33,16 +33,16 @@ import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 public class WSDLQueryHandler implements QueryHandler {
 
     public String getResponseContentType(String uri) {
-        if (uri.toString().toLowerCase().endsWith("?wsdl")) {
+        if (uri.toLowerCase().endsWith("?wsdl")) {
             return "text/xml";
         }
         return null;
     }
 
-    public boolean isRecognizedQuery(String uri, EndpointInfo endpointInfo) {       
-        if (uri != null) {
-            return endpointInfo.getAddress().contains(uri) 
-                && uri.toString().toLowerCase().endsWith("?wsdl");   
+    public boolean isRecognizedQuery(String uri, EndpointInfo endpointInfo) {
+        if (uri != null && uri.toLowerCase().endsWith("?wsdl")) {
+            String addressContext = uri.substring(0, uri.length() - 5);            
+            return endpointInfo.getAddress().contains(addressContext);
         }
         return false;
     }

@@ -35,10 +35,18 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
     Bus bus;
     
     @PostConstruct
+    public void register() {
+        if (null != bus) {
+            bus.setExtension(this, QueryHandlerRegistry.class);
+        }
+    }
+    
+    @PostConstruct
     public void init() {
         queryHandlers = new ArrayList<QueryHandler>();
-        bus.setExtension(this, QueryHandlerRegistry.class);
+        registerHandler(new WSDLQueryHandler());
     }
+
 
     public List<QueryHandler> getHandlers() {
         return queryHandlers;

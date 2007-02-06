@@ -166,7 +166,7 @@ public class ClientServerTest extends ClientServerTestBase {
             throw (Exception)ex.getCause();
         }
     }
-    
+        
     public void testBasicConnectionAndOneway() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -582,6 +582,25 @@ public class ClientServerTest extends ClientServerTestBase {
                                                body, 
                                                XPathConstants.STRING);
         assertEquals("Hello cxf", response);
+    }
+    
+    public void testGetWSDL() throws Exception {
+        String url = "http://localhost:9000/SoapContext/SoapPort?wsdl";
+        HttpURLConnection httpConnection = getHttpConnection(url);    
+        httpConnection.connect();        
+        
+        assertEquals(200, httpConnection.getResponseCode());
+    
+        assertEquals("text/xml", httpConnection.getContentType());
+        assertEquals("OK", httpConnection.getResponseMessage());
+        
+        InputStream in = httpConnection.getInputStream();
+        assertNotNull(in);
+        
+        Document doc = XMLUtils.parse(in);
+        assertNotNull(doc);
+       
+                
     }
     
     public void testGetGreetMeFromQuery() throws Exception {
