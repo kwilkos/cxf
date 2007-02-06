@@ -129,7 +129,9 @@ public class ParameterProcessor extends AbstractProcessor {
         String targetNamespace = method.getInterface().getNamespace();
         String partName = null;
 
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
+            || parameter.isHeader()) {
+            //headers are always DOCUMENT style
             targetNamespace = parameter.getTargetNamespace();
             if (parameter.getQName() != null) {
                 name = parameter.getQName().getLocalPart();
@@ -151,7 +153,8 @@ public class ParameterProcessor extends AbstractProcessor {
             webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
         }
         webParamAnnotation.addArgument("name", name);
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
+            || parameter.isHeader()) {
             webParamAnnotation.addArgument("targetNamespace", targetNamespace);
         }
 

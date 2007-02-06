@@ -300,6 +300,8 @@ public class ServiceProcessor extends AbstractProcessor {
     private void setParameterAsHeader(JavaParameter parameter) {
         parameter.setHeader(true);
         parameter.getAnnotation().addArgument("header", "true", "");
+        parameter.getAnnotation().addArgument("name", parameter.getQName().getLocalPart());
+        parameter.getAnnotation().addArgument("targetNamespace", parameter.getTargetNamespace());
     }
 
     private void processParameter(JavaMethod jm, BindingOperation operation) throws ToolException {
