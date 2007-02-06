@@ -45,6 +45,10 @@ public class ServerXMLBinding extends TestServerBase {
         Object implementor2 = new HeaderTesterImpl();
         address = "http://localhost:9034/XMLContext/XMLPort";
         Endpoint.publish(address, implementor2);
+        
+        Object implementor3 = new org.apache.hello_world_xml_http.mixed.GreeterImpl();
+        address = "http://localhost:9028/XMLService/XMLPort";
+        Endpoint.publish(address, implementor3);
     }
 
     public static void main(String[] args) {

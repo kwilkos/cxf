@@ -53,6 +53,8 @@ import org.apache.headers.types.SOAPHeaderData;
 import org.apache.hello_world_xml_http.bare.Greeter;
 import org.apache.hello_world_xml_http.bare.XMLService;
 import org.apache.hello_world_xml_http.bare.types.MyComplexStructType;
+import org.apache.hello_world_xml_http.mixed.types.SayHi;
+import org.apache.hello_world_xml_http.mixed.types.SayHiResponse;
 import org.apache.hello_world_xml_http.wrapped.GreeterFaultImpl;
 import org.apache.hello_world_xml_http.wrapped.PingMeFault;
 
@@ -63,7 +65,12 @@ public class ClientServerXMLTest extends ClientServerTestBase {
     private final QName wrapServiceName = new QName("http://apache.org/hello_world_xml_http/wrapped",
             "XMLService");
 
+    private final QName mixedServiceName = new QName("http://apache.org/hello_world_xml_http/mixed",
+                                                     "XMLService");
+
     private final QName wrapPortName = new QName("http://apache.org/hello_world_xml_http/wrapped", "XMLPort");
+
+    private final QName mixedPortName = new QName("http://apache.org/hello_world_xml_http/mixed", "XMLPort");
 
     private final QName wrapFakePortName = new QName("http://apache.org/hello_world_xml_http/wrapped",
             "FakePort");
@@ -160,6 +167,37 @@ public class ClientServerXMLTest extends ClientServerTestBase {
             reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
             assertEquals(response2, reply);
+
+            greeter.greetMeOneWay(System.getProperty("user.name"));
+
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception) ex.getCause();
+        }
+    }
+
+    public void testMixedConnection() throws Exception {
+
+        org.apache.hello_world_xml_http.mixed.XMLService service =
+            new org.apache.hello_world_xml_http.mixed.XMLService(
+                this.getClass().getResource("/wsdl/hello_world_xml_mixed.wsdl"), mixedServiceName);
+        assertNotNull(service);
+
+        String response1 = new String("Hello ");
+        String response2 = new String("Bonjour");
+        try {
+            org.apache.hello_world_xml_http.mixed.Greeter greeter = service.getPort(mixedPortName,
+                    org.apache.hello_world_xml_http.mixed.Greeter.class);
+            String username = System.getProperty("user.name");
+            String reply = greeter.greetMe(username);
+
+            assertNotNull("no response received from service", reply);
+            assertEquals(response1 + username, reply);
+            
+            SayHi request = new SayHi();
+
+            SayHiResponse response = greeter.sayHi1(request);
+            assertNotNull("no response received from service", response);
+            assertEquals(response2, response.getResponseType());
 
             greeter.greetMeOneWay(System.getProperty("user.name"));
 

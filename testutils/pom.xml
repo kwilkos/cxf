@@ -209,6 +209,9 @@
                                     <wsdl>${basedir}/src/main/resources/wsdl/swa-mime.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_mixed.wsdl</wsdl>
+                                </wsdlOption>
+                                <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/hello_world_xml_bare.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
