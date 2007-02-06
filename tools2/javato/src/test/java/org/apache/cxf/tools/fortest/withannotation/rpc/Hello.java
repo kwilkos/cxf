@@ -17,17 +17,18 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto;
+package org.apache.cxf.tools.fortest.withannotation.rpc;
+ 
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
+import javax.jws.soap.SOAPBinding.Use;
 
-import junit.framework.TestCase;
-
-import org.apache.cxf.tools.common.ToolConstants;
-
-public class WSDLVersionTest extends TestCase {
-    
-    public void testWSDLVersion() {
-        assertEquals(ToolConstants.WSDLVersion.WSDL11, WSDLVersion.getVersion("1.1"));
-        assertEquals(ToolConstants.WSDLVersion.WSDL20, WSDLVersion.getVersion("2.0"));
-        assertEquals(ToolConstants.WSDLVersion.UNKNOWN, WSDLVersion.getVersion("3.0"));
-    }
+@WebService(name = "Hello", targetNamespace = "http://cxf.com/")
+@SOAPBinding(style = Style.RPC, use = Use.LITERAL)
+public interface Hello {
+      
+    @WebMethod(operationName = "sayHi", exclude = false)
+    String sayHi();
 }

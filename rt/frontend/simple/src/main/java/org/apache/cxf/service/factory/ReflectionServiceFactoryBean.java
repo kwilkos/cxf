@@ -171,45 +171,52 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             c.setServiceFactory(this);
         }
     }
+    
+    protected void buildServiceFromWSDL(URL url) {
+        LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
+        WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
+
+        setService(factory.create());
+
+        initializeWSDLOperations();
+
+        if (getDataBinding() != null) {
+            getDataBinding().initialize(getService().getServiceInfo());
+        }        
+    }
+    
+    protected void buildServiceFromClass() {
+        LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
+        ServiceInfo serviceInfo = new ServiceInfo();
+        ServiceImpl service = new ServiceImpl(serviceInfo);
+        
+        serviceInfo.setName(getServiceQName());
+        serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
+        
+        createInterface(serviceInfo);
+
+        if (isWrapped()) {
+            initializeWrappedElementNames(serviceInfo);
+        }
+        
+        if (getDataBinding() != null) {
+            getDataBinding().initialize(serviceInfo);
+        }
+        
+        if (isWrapped()) {
+            initializeWrappedSchema(serviceInfo);
+        }
+        
+        setService(service);        
+    }
 
     protected void initializeServiceModel() {
         URL url = getWsdlURL();
 
         if (url != null) {
-            LOG.info("Creating Service " + getServiceQName() + " from WSDL.");
-            WSDLServiceFactory factory = new WSDLServiceFactory(getBus(), url, getServiceQName());
-
-            setService(factory.create());
-
-            initializeWSDLOperations();
-
-            if (getDataBinding() != null) {
-                getDataBinding().initialize(getService().getServiceInfo());
-            }
+            buildServiceFromWSDL(url);
         } else {
-            LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
-            // If we can't find the wsdlLocation, then we should build a service model ufrom the class.
-            ServiceInfo serviceInfo = new ServiceInfo();
-            ServiceImpl service = new ServiceImpl(serviceInfo);
-            
-            serviceInfo.setName(getServiceQName());
-            serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
-            
-            createInterface(serviceInfo);
-
-            if (isWrapped()) {
-                initializeWrappedElementNames(serviceInfo);
-            }
-            
-            if (getDataBinding() != null) {
-                getDataBinding().initialize(serviceInfo);
-            }
-            
-            if (isWrapped()) {
-                initializeWrappedSchema(serviceInfo);
-            }
-            
-            setService(service);
+            buildServiceFromClass();
         }
         
         if (properties != null) {

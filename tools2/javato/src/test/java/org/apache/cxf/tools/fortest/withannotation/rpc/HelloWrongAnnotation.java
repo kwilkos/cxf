@@ -17,25 +17,18 @@
  * under the License.
  */
 
-package org.apache.cxf.tools.wsdlto;
+package org.apache.cxf.tools.fortest.withannotation.rpc;
 
-import org.apache.cxf.tools.common.ToolConstants;
+import javax.jws.WebMethod;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPBinding.Style;
+import javax.jws.soap.SOAPBinding.Use;
 
-public final class WSDLVersion {
+@WebService(name = "HelloWrongAnnotation", targetNamespace = "http://cxf.com/")
+public interface HelloWrongAnnotation {
 
-    public static final String WSDL11 = "1.1";
-    public static final String WSDL20 = "2.0";
-
-    private WSDLVersion() {
-    }
-    
-    public static ToolConstants.WSDLVersion getVersion(String version) {
-        if (WSDL11.equals(version)) {
-            return ToolConstants.WSDLVersion.WSDL11;
-        }
-        if (WSDL20.equals(version)) {
-            return ToolConstants.WSDLVersion.WSDL20;
-        }
-        return ToolConstants.WSDLVersion.UNKNOWN;
-    }
+    @SOAPBinding(style = Style.RPC, use = Use.LITERAL)
+    @WebMethod(operationName = "sayHi", exclude = false)
+    String sayHi();
 }

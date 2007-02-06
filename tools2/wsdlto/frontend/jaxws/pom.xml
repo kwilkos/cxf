@@ -52,11 +52,11 @@
 	    <artifactId>cxf-rt-core</artifactId>
 	    <version>${project.version}</version>
 	    <exclusions>
-	    	            <exclusion>
-	    	              <groupId>org.apache.cxf</groupId>
-	    	              <artifactId>cxf-testutils</artifactId>
-	    	            </exclusion>
-	      </exclusions>
+		<exclusion>
+		    <groupId>org.apache.cxf</groupId>
+		    <artifactId>cxf-testutils</artifactId>
+		</exclusion>
+	    </exclusions>
 	</dependency>
 
 	<dependency>
