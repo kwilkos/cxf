@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.systest.servlet;
 
 import java.net.URL;
 
@@ -34,10 +34,11 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
-public class CXFServletTest extends AbstractServletTest {
-    public void testPostInvokeServices() throws Exception {
-        newClient();
 
+public class CXFServletTest extends AbstractServletTest {
+    
+    // Create the 
+    protected void setupJaxwsService() {
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
@@ -45,23 +46,31 @@ public class CXFServletTest extends AbstractServletTest {
         svr.setBus(getBus());
         svr.setServiceClass(GreeterImpl.class);
         svr.setAddress("http://localhost/services/Greeter");
-
         GreeterImpl greeter = new GreeterImpl();
         BeanInvoker invoker = new BeanInvoker(greeter);
         svr.getServiceFactory().setInvoker(invoker);
 
         svr.create();
-
+        
+    }
+    
+    public void testPostInvokeServices() throws Exception {
+        setupJaxwsService();
+        
+        //Thread.sleep(6000000);
+        //newClient();        
         invoke("UTF-8");
-        invoke("iso-8859-1");
+        invoke("iso-8859-1");        
     }
 
-    private void invoke(String encoding) throws Exception {
+    private void invoke(String encoding) throws Exception {        
         WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter", 
-            getClass().getResourceAsStream("/org/apache/cxf/jaxws/GreeterMessage.xml"), 
+            getClass().getResourceAsStream("GreeterMessage.xml"), 
             "text/xml; charset=" + encoding);
-
-        WebResponse response = newClient().getResponse(req);
+        
+        ServletUnitClient client = newClient();
+        WebResponse response = client.getResponse(req);
+        client.setExceptionsThrownOnErrorStatus(false);
 
         assertEquals("text/xml", response.getContentType());
         assertEquals(encoding, response.getCharacterSet());
@@ -72,26 +81,12 @@ public class CXFServletTest extends AbstractServletTest {
         addNamespace("h", "http://apache.org/hello_world_soap_http/types");
 
         assertValid("/s:Envelope/s:Body", doc);
-        assertValid("//h:sayHiResponse", doc);
+        assertValid("//h:sayHiResponse", doc);        
     }
     
     public void testGetServiceList() throws Exception {
         ServletUnitClient client = newClient();
-        
-        JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
-        URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
-        assertNotNull(resource);
-        svr.getServiceFactory().setWsdlURL(resource);
-        svr.setBus(getBus());
-        svr.setServiceClass(GreeterImpl.class);
-        svr.setAddress("http://localhost/services/Greeter");
-
-        GreeterImpl greeter = new GreeterImpl();
-        BeanInvoker invoker = new BeanInvoker(greeter);
-        svr.getServiceFactory().setInvoker(invoker);
-
-        svr.create();
-        
+        setupJaxwsService();
         client.setExceptionsThrownOnErrorStatus(false);
 
         WebResponse res = client.getResponse("http://localhost/services");       
@@ -99,6 +94,20 @@ public class CXFServletTest extends AbstractServletTest {
         assertEquals("There should get one link for service", links.length, 1);
         assertEquals(links[0].getURLString(), "http://localhost/services/Greeter?wsdl");       
         assertEquals("text/html", res.getContentType());
+    }
+    
+    public void testGetWSDL() throws Exception {
+        ServletUnitClient client = newClient();
+        setupJaxwsService();
+        client.setExceptionsThrownOnErrorStatus(true);
+        
+        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/Greeter?wsdl");
+        
+        WebResponse res = client.getResponse(req); 
+        assertEquals(200, res.getResponseCode());
+        assertEquals("text/xml", res.getContentType());
+        assertTrue("the wsdl should contain the opertion greetMe",
+                   res.getText().contains("<wsdl:operation name=\"greetMe\">"));
     }
 
     public void testInvalidServiceUrl() throws Exception {

@@ -22,8 +22,11 @@
        xmlns:foo="http://cxf.apache.org/configuration/foo"
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="org.apache.cxf.transports.http.QueryHandlerRegistry" class="org.apache.cxf.transport.http.QueryHandlerRegistryImpl">
+        <property name="bus" ref="cxf"/>
+    </bean>
     
-    <bean class="org.apache.cxf.jaxws.servlet.ServletTransportFactory">
+    <bean class="org.apache.cxf.transport.servlet.ServletTransportFactory">
         <property name="bus" ref="cxf"/>
         <property name="transportIds">
             <set>
@@ -35,4 +38,5 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </set>
         </property>
     </bean>
+     
 </beans>

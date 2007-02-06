@@ -329,6 +329,7 @@
                         <excludes>
                             <exclude>**/*$*</exclude>
                             <exclude>**/LocatorClientServerTest.java</exclude>
+                            <exclude>**/AbstractServletTest.java</exclude>
                         </excludes>
                         <reportFormat>${surefire.format}</reportFormat>
                         <useFile>${surefire.usefile}</useFile>
@@ -422,12 +423,6 @@
                 <groupId>httpunit</groupId>
                 <artifactId>httpunit</artifactId>
                 <version>1.6.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>rhino</groupId>
-                        <artifactId>js</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>jtidy</groupId>

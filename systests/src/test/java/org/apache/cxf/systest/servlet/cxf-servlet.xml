@@ -20,12 +20,13 @@
 <endpoints>
 
     <endpoint
-        name="greeter1"
+        name="greeter1"        
         implementation="org.apache.hello_world_soap_http.GreeterImpl"
         url-pattern="/greeter1" />
 
     <endpoint
         name="greeter2"
+        publisher="org.apache.cxf.jaxws.EndpointPublisherImpl"
         implementation="org.apache.hello_world_soap_http.GreeterImpl"
         url-pattern="/greeter2" />
 

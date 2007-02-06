@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.ws.Provider;
+
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,12 +47,7 @@ import org.xml.sax.SAXException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.common.classloader.ClassLoaderUtils;
-import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.jaxws.JAXWSMethodInvoker;
-import org.apache.cxf.jaxws.ProviderInvoker;
-import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
-import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
+import org.apache.cxf.endpoint.EndpointPublisher;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -69,17 +64,21 @@ public class CXFServlet extends HttpServlet {
     static final String ADDRESS_PERFIX = "http://localhost/services";
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
     static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
-    protected Bus bus;
-
+    
+    private Bus bus;
     private ServletTransportFactory servletTransportFactory;
     private ServletController controller;
 
     public ServletController createServletController() {
-        return new ServletController(servletTransportFactory, this.getServletContext());
+        return new ServletController(servletTransportFactory, this.getServletContext(), this);
     }
 
     public ServletController getController() {
         return controller;
+    }
+    
+    public Bus getBus() {
+        return bus;
     }
 
     public void init(ServletConfig servletConfig) throws ServletException {
@@ -108,7 +107,13 @@ public class CXFServlet extends HttpServlet {
             }
             
             // This constructor works whether there is a context or not
-            bus = new SpringBusFactory(ctx).createBus();
+            // If the ctx is null, we need to load the cxf-servlet as default
+            if (ctx == null) {
+                bus = new SpringBusFactory().createBus("/META-INF/cxf/cxf-servlet.xml");
+            } else {
+                bus = new SpringBusFactory(ctx).createBus();
+            }
+            
             SpringBusFactory.setDefaultBus(bus);
         }
         if (null != busid) {
@@ -129,6 +134,7 @@ public class CXFServlet extends HttpServlet {
         if (location == null) {
             location = "/WEB-INF/cxf-servlet.xml";
         }
+                 
         InputStream ins = servletConfig.getServletContext().getResourceAsStream(location);
 
         if (ins == null) {
@@ -184,37 +190,29 @@ public class CXFServlet extends HttpServlet {
 
     public void buildEndpoint(ServletConfig servletConfig, Node node) throws ServletException {
         Element el = (Element)node;
+        String publisherName = el.getAttribute("publisher");
         String implName = el.getAttribute("implementation");
         String serviceName = el.getAttribute("service");
         String wsdlName = el.getAttribute("wsdl");
         String portName = el.getAttribute("port");
         String urlPat = el.getAttribute("url-pattern");
 
-        buildEndpoint(implName, serviceName, wsdlName, portName, urlPat);
+        buildEndpoint(publisherName, implName, serviceName, wsdlName, portName, urlPat);
     }
 
     @SuppressWarnings("unchecked")
-    public void buildEndpoint(String implName, String serviceName, String wsdlName, String portName,
+    public void buildEndpoint(String publisherName,
+                              String implName, 
+                              String serviceName, 
+                              String wsdlName, 
+                              String portName,
                               String urlPat) throws ServletException {
 
         try {
-                    
-            Class cls = ClassLoaderUtils.loadClass(implName, getClass());
-            Object impl = cls.newInstance();
-
-            JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(cls);
-
-            JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
-            serviceFactory.setBus(bus);
-            if (implInfo.isWebServiceProvider()) {
-                serviceFactory.setInvoker(new ProviderInvoker((Provider<?>)impl));
-            } else {
-                serviceFactory.setInvoker(new JAXWSMethodInvoker(impl));
-            }
-            serviceFactory.setServiceClass(impl.getClass());
+            URL url = null;
             
             if (!"".equals(wsdlName)) {
-                URL url = null;
+                
                 try {
                     url = new URL(wsdlName);
                 } catch (MalformedURLException e) {
@@ -233,16 +231,23 @@ public class CXFServlet extends HttpServlet {
                     } catch (MalformedURLException e) {
                         //ignore
                     }
-                }
-                serviceFactory.setWsdlURL(url);
+                }                
             }
+            if (null == publisherName || publisherName.length() == 0) {
+                publisherName = "org.apache.cxf.jaxws.EndpointPublisherImpl";
+            }
+            System.out.println("[publisherName] " + publisherName);
+            EndpointPublisher publisher = (EndpointPublisher)Class.forName(publisherName).newInstance();
             
-            EndpointImpl ep = new EndpointImpl(bus, impl, serviceFactory);
+            publisher.buildEndpoint(bus, implName, serviceName, url, portName);
+
             LOG.info("publish the servcie to {context}/ " + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
             
             // TODO we may need to get the url-pattern from servlet context
-            ep.publish(ADDRESS_PERFIX + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
+            publisher.publish(ADDRESS_PERFIX + (urlPat.charAt(0) == '/' ? "" : "/") + urlPat);
             
+        } catch (BusException ex) {
+            throw new ServletException(ex.getCause());        
         } catch (ClassNotFoundException ex) {
             throw new ServletException(ex);
         } catch (InstantiationException ex) {

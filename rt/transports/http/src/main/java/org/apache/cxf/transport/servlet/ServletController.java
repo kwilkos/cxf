@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,10 +60,12 @@ public class ServletController {
 
     private ServletTransportFactory transport;
     private ServletContext servletContext;
+    private CXFServlet cxfServlet;
 
-    public ServletController(ServletTransportFactory df, ServletContext servCont) {
+    public ServletController(ServletTransportFactory df, ServletContext servCont, CXFServlet servlet) {
         this.transport = df;
-        this.servletContext = servCont;   
+        this.servletContext = servCont;
+        this.cxfServlet = servlet;
     }
 
     public void invoke(HttpServletRequest request, HttpServletResponse res) throws ServletException {
@@ -178,8 +180,7 @@ public class ServletController {
                                 HttpServletResponse response, 
                                 ServletDestination d)
         throws ServletException {
-        response.setHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
-
+        
         try {
             OutputStream os = response.getOutputStream();
 
@@ -199,17 +200,20 @@ public class ServletController {
                 }
             }
             
-            Bus bus = CXFServlet.BUS_MAP.get("bus.id").get();
+            Bus bus = cxfServlet.getBus();
             if (bus.getExtension(QueryHandlerRegistry.class) != null) { 
                 for (QueryHandler qh : bus.getExtension(QueryHandlerRegistry.class).getHandlers()) {
-                    if (qh.isRecognizedQuery(request.getQueryString(), ei)) {
-                      
-                        try {
-                            qh.writeResponse(request.getRequestURL().toString(), ei, os);
-                        } catch (Exception e) {
-                            throw new ServletException(e);
+                    if (null != request.getQueryString() && request.getQueryString().length() > 0) {
+                        String requestURL = request.getPathInfo() + "?" + request.getQueryString();
+                        if (qh.isRecognizedQuery(requestURL, ei)) {
+                            response.setContentType(qh.getResponseContentType(requestURL));
+                            try {
+                                qh.writeResponse(requestURL, ei, os);
+                            } catch (Exception e) {
+                                throw new ServletException(e);
+                            }
                         }
-                    }
+                    }   
                 }
             }
 

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.systest.servlet;
 
 import org.w3c.dom.Document;
 
@@ -29,13 +29,13 @@ import org.apache.cxf.helpers.DOMUtils;
 public class SpringServletTest extends AbstractServletTest {
     @Override
     protected String getConfiguration() {
-        return "/org/apache/cxf/jaxws/servlet/web-spring.xml";
+        return "/org/apache/cxf/systest/servlet/web-spring.xml";
     }
 
     public void testInvokingSpringBeans() throws Exception {
 
         WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter",
-            getClass().getResourceAsStream("/org/apache/cxf/jaxws/GreeterMessage.xml"),
+            getClass().getResourceAsStream("GreeterMessage.xml"),
             "text/xml; charset=utf-8");
 
         WebResponse response = newClient().getResponse(req);

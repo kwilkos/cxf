@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.systest.servlet;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -52,7 +52,7 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
     } 
     
     public void tearDown() {
-        bus.shutdown(false);
+        BusFactory.getDefaultBus().shutdown(false);
         BusFactory.setDefaultBus(null);                
     }
        
@@ -70,7 +70,7 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
      * @return The web.xml to use for testing.
      */
     protected String getConfiguration() {
-        return "/org/apache/cxf/jaxws/servlet/web.xml";
+        return "/org/apache/cxf/systest/servlet/web.xml";
     }
 
     protected ServletUnitClient newClient() {

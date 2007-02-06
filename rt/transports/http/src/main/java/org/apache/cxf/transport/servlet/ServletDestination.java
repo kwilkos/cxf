@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.servlet;
+package org.apache.cxf.transport.servlet;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -190,26 +189,6 @@ public class ServletDestination extends AbstractDestination {
      * @param headers the current set of headers
      */
     protected void copyResponseHeaders(Message message, HttpServletResponse response) {
-        
-        Map<?, ?> headers = (Map<?, ?>)message.get(Message.PROTOCOL_HEADERS);
-        if (null != headers) {
-            if (!headers.containsKey(Message.CONTENT_TYPE)) {
-                setContentType(message, response);
-            }
-            for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
-                String header = (String)iter.next();
-                List<?> headerList = (List<?>)headers.get(header);
-                for (Object value : headerList) {
-                    response.addHeader(header, (String)value);
-                }
-            }
-        } else {
-            setContentType(message, response);
-        }
-        
-    }
-
-    protected void setContentType(Message message, HttpServletResponse response) {
         String ct = (String) message.get(Message.CONTENT_TYPE);
         String enc = (String) message.get(Message.ENCODING);
         
@@ -222,6 +201,7 @@ public class ServletDestination extends AbstractDestination {
             response.setContentType("text/xml; charset=" + enc);
         }
     }
+    
     
     
     protected void doMessage(MessageImpl inMessage) throws IOException {
