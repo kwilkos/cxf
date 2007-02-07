@@ -20,20 +20,16 @@
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
 import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import javax.jws.Oneway;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 public final class WrapperUtil {
-
-    private static final Logger LOG = LogUtils.getL7dLogger(WrapperUtil.class);
+    
     private WrapperUtil() {
     }
 
@@ -49,6 +45,7 @@ public final class WrapperUtil {
         } else {
             reqClassName = getPackageName(method) + ".jaxws." + AnnotationUtil.capitalize(method.getName());
         }
+
         return new Wrapper(reqClassName, reqName, reqNS);
     }
 
@@ -73,12 +70,13 @@ public final class WrapperUtil {
     public static boolean isWrapperClassExists(Method method) {
         Wrapper requestWrapper = getRequestWrapper(method);
         Wrapper responseWrapper = getResponseWrapper(method);
+        boolean isOneWay = method.isAnnotationPresent(Oneway.class);
         try {
-            AnnotationUtil.loadClass(requestWrapper.className, WrapperUtil.class.getClassLoader());
-            AnnotationUtil.loadClass(responseWrapper.className, WrapperUtil.class.getClassLoader());
+            requestWrapper.getWrapperClass();
+            if (!isOneWay) {
+                responseWrapper.getWrapperClass();
+            }
         } catch (Exception e) {
-            Message msg = new Message("LOAD_WRAPPER_CLASS_FAILED", LOG);
-            LOG.log(Level.WARNING, msg.toString());
             return false;
         }
         return true;

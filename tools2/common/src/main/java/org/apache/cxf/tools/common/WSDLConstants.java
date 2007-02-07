@@ -107,4 +107,26 @@ public final class WSDLConstants {
     public static final int ERORR_STYLE_USE = -1;
 
     public static final String XML_BINDING_NS = "http://cxf.apache.org/bindings/xformat";
+
+    public static final String WSDL11 = "1.1";
+    public static final String WSDL20 = "2.0";
+
+    public enum WSDLVersion {
+        WSDL11,
+        WSDL20,
+        UNKNOWN
+    };
+
+    private WSDLConstants() {
+    }
+    
+    public static WSDLVersion getVersion(String version) {
+        if (WSDL11.equals(version)) {
+            return WSDLVersion.WSDL11;
+        }
+        if (WSDL20.equals(version)) {
+            return WSDLVersion.WSDL20;
+        }
+        return WSDLVersion.UNKNOWN;
+    }
 }

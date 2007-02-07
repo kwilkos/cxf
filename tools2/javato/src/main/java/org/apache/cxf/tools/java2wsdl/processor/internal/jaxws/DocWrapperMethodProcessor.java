@@ -27,7 +27,6 @@ import java.lang.reflect.Type;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.jws.Oneway;
 import javax.jws.WebParam;
@@ -35,14 +34,10 @@ import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
-import javax.xml.ws.RequestWrapper;
-import javax.xml.ws.ResponseWrapper;
 import javax.xml.ws.WebFault;
 
 import com.sun.xml.bind.api.TypeReference;
 
-import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.model.JavaMethod;
@@ -52,13 +47,10 @@ import org.apache.cxf.tools.common.model.WSDLException;
 import org.apache.cxf.tools.common.model.WSDLModel;
 import org.apache.cxf.tools.common.model.WSDLParameter;
 
-import org.apache.cxf.tools.java2wsdl.processor.JavaToWSDLProcessor;
-
 import org.apache.cxf.tools.util.AnnotationUtil;
 
 
 public class DocWrapperMethodProcessor {
-    private static final Logger LOG = LogUtils.getL7dLogger(JavaToWSDLProcessor.class);
     private WSDLModel model;
 
     public DocWrapperMethodProcessor(WSDLModel wmodel) {
@@ -74,60 +66,32 @@ public class DocWrapperMethodProcessor {
         setMethodUse(javaMethod, method);
 
         // process request
-        RequestWrapper reqWrapper = method.getAnnotation(RequestWrapper.class);
-        String reqClassName = "";
-        String reqName = method.getName();
-        String reqNS = model.getTargetNameSpace();
-        if (reqWrapper != null && !StringUtils.isEmpty(reqWrapper.className())) {
-            reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
-            reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
-            reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
-        } else {      
-            reqClassName = model.getPackageName() + ".jaxws." + AnnotationUtil.capitalize(method.getName());
+        Wrapper requestWrapper = WrapperUtil.getRequestWrapper(method);
+        if (StringUtils.isEmpty(requestWrapper.targetNamespace)) {
+            requestWrapper.targetNamespace = model.getTargetNameSpace();
         }
-        
-        Class reqClass = null;
-        try {
-            reqClass = AnnotationUtil.loadClass(reqClassName, this.getClass().getClassLoader());
-        } catch (Exception e) {
-            Message msg = new Message("LOAD_REQUEST_WRAPPER_CLASS_ERROR", LOG, reqClassName);
-            throw new ToolException(msg, e);
-        }
-        QName reqQN = new QName(reqNS, reqName);
+        Class reqClass = requestWrapper.getWrapperClass();
+        QName reqQN = new QName(requestWrapper.targetNamespace, requestWrapper.localName);
         TypeReference typeRef = new TypeReference(reqQN, reqClass, new Annotation[0]);
-        WSDLParameter request = new WSDLParameter(reqName, typeRef, JavaType.Style.IN);
-        request.setTargetNamespace(reqNS);
+        WSDLParameter request = new WSDLParameter(requestWrapper.localName, typeRef, JavaType.Style.IN);
+        request.setTargetNamespace(requestWrapper.targetNamespace);
         javaMethod.addRequest(request);
 
        
         if (!isOneWayMethod(method)) {
             // process response
-            ResponseWrapper resWrapper = method.getAnnotation(ResponseWrapper.class);
-            String resClassName = "";
-            // rule 3.5 suffix -"Response"
-            String resName = method.getName() + "Response";
-            String resNS = model.getTargetNameSpace();
-            if (resWrapper != null && !StringUtils.isEmpty(resWrapper.className())) {
-                resClassName = resWrapper.className();
-                resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
-                resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
-            } else {
-                resClassName = model.getPackageName() + ".jaxws." 
-                    + AnnotationUtil.capitalize(method.getName())
-                               + "Response";
+            Wrapper responseWrapper = WrapperUtil.getResponseWrapper(method);
+            if (StringUtils.isEmpty(responseWrapper.targetNamespace)) {
+                responseWrapper.targetNamespace = model.getTargetNameSpace();
             }
-            Class resClass = null;
-            QName resQN = new QName(resNS, resName);
-            try {
-                resClass = AnnotationUtil
-                    .loadClass(resClassName, method.getDeclaringClass().getClassLoader());
-            } catch (Exception e) {
-                Message msg = new Message("LOAD_RESPONSE_WRAPPER_CLASS_ERROR", LOG, resClassName);
-                throw new ToolException(msg, e);
-            }
+            
+            Class resClass = responseWrapper.getWrapperClass();
+            QName resQN = new QName(responseWrapper.targetNamespace, responseWrapper.localName);
             typeRef = new TypeReference(resQN, resClass, new Annotation[0]);
-            WSDLParameter response = new WSDLParameter(resName, typeRef, JavaType.Style.OUT);
-            response.setTargetNamespace(resNS);
+            WSDLParameter response = new WSDLParameter(responseWrapper.localName,
+                                                       typeRef,
+                                                       JavaType.Style.OUT);
+            response.setTargetNamespace(responseWrapper.targetNamespace);
             javaMethod.addResponse(response);
             WebResult webResult = method.getAnnotation(WebResult.class);
             JavaParameter returnParameter = getReturnParameter(webResult, method);

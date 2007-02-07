@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.helpers.WSDLHelper;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
+import org.apache.cxf.tools.common.WSDLConstants;
 
 public class JavaToProcessorTest extends ProcessorTestBase {
     JavaToProcessor processor = new JavaToProcessor();
@@ -38,7 +39,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     
     public void testGetWSDLVersion() {
         processor.setEnvironment(new ToolContext());
-        assertEquals(ToolConstants.WSDLVersion.WSDL11, processor.getWSDLVersion());
+        assertEquals(WSDLConstants.WSDLVersion.WSDL11, processor.getWSDLVersion());
     }
 
     public void testSimpleClass() throws Exception {

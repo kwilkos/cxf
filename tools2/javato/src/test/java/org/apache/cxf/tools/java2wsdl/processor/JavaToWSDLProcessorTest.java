@@ -294,8 +294,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         try {        
             j2wProcessor.process();
         } catch (ToolException e) {
-            String expected = "Can not load the request wrapper class " 
-                + "org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHi";            
+            String expected = "org.apache.cxf.tools.fortest.withannotation.doc.jaxws.SayHi";
             assertTrue(e.getMessage().contains(expected));
         } catch (Exception e) {
             fail("Should not happen other exception " + e.getMessage());

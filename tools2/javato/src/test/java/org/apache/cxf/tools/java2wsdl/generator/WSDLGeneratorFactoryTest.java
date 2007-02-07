@@ -20,14 +20,14 @@
 package org.apache.cxf.tools.java2wsdl.generator;
 
 import junit.framework.TestCase;
-import org.apache.cxf.tools.common.ToolConstants;
+import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.wsdl11.WSDL11Generator;
 
 public class WSDLGeneratorFactoryTest extends TestCase {
     WSDLGeneratorFactory factory = WSDLGeneratorFactory.getInstance();
 
     public void testNewWSDL11Generator() {
-        factory.setWSDLVersion(ToolConstants.WSDLVersion.WSDL11);
+        factory.setWSDLVersion(WSDLConstants.WSDLVersion.WSDL11);
         AbstractGenerator generator = factory.newGenerator();
         assertNotNull(generator);
         assertTrue(generator instanceof WSDL11Generator);

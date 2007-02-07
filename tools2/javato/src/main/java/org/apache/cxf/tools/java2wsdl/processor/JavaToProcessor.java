@@ -31,7 +31,7 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLVersion;
+import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.java2wsdl.generator.AbstractGenerator;
 import org.apache.cxf.tools.java2wsdl.generator.WSDLGeneratorFactory;
 import org.apache.cxf.tools.java2wsdl.processor.internal.ServiceBuilder;
@@ -91,11 +91,11 @@ public class JavaToProcessor implements Processor {
                                         getClass().getClassLoader());
     }
 
-    public ToolConstants.WSDLVersion getWSDLVersion() {
+    public WSDLConstants.WSDLVersion getWSDLVersion() {
         String version = (String) context.get(ToolConstants.CFG_WSDL_VERSION);
-        ToolConstants.WSDLVersion wsVersion = WSDLVersion.getVersion(version);
-        if (wsVersion == ToolConstants.WSDLVersion.UNKNOWN) {
-            wsVersion = ToolConstants.WSDLVersion.WSDL11;
+        WSDLConstants.WSDLVersion wsVersion = WSDLConstants.getVersion(version);
+        if (wsVersion == WSDLConstants.WSDLVersion.UNKNOWN) {
+            wsVersion = WSDLConstants.WSDLVersion.WSDL11;
         }
         return wsVersion;
     }

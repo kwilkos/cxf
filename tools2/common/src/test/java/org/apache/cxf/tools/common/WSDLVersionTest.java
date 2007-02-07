@@ -24,8 +24,8 @@ import junit.framework.TestCase;
 public class WSDLVersionTest extends TestCase {
     
     public void testWSDLVersion() {
-        assertEquals(ToolConstants.WSDLVersion.WSDL11, WSDLVersion.getVersion("1.1"));
-        assertEquals(ToolConstants.WSDLVersion.WSDL20, WSDLVersion.getVersion("2.0"));
-        assertEquals(ToolConstants.WSDLVersion.UNKNOWN, WSDLVersion.getVersion("3.0"));
+        assertEquals(WSDLConstants.WSDLVersion.WSDL11, WSDLConstants.getVersion("1.1"));
+        assertEquals(WSDLConstants.WSDLVersion.WSDL20, WSDLConstants.getVersion("2.0"));
+        assertEquals(WSDLConstants.WSDLVersion.UNKNOWN, WSDLConstants.getVersion("3.0"));
     }
 }

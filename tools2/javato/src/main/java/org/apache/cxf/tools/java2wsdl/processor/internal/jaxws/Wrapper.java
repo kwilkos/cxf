@@ -19,10 +19,20 @@
 
 package org.apache.cxf.tools.java2wsdl.processor.internal.jaxws;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.util.AnnotationUtil;
+
 public class Wrapper {
+    private static final Logger LOG = LogUtils.getL7dLogger(Wrapper.class);
     protected String className;
     protected String localName;
     protected String targetNamespace;
+    protected String wrapperClass;
 
     public Wrapper() {
     }
@@ -31,5 +41,15 @@ public class Wrapper {
         this.className = clz;
         this.localName = name;
         this.targetNamespace = ns;
+    }
+
+    public Class getWrapperClass() {
+        try {
+            return AnnotationUtil.loadClass(className, getClass().getClassLoader());
+        } catch (Exception e) {
+            Message msg = new Message("LOAD_WRAPPER_CLASS_FAILED", LOG, className);
+            LOG.log(Level.WARNING, msg.toString());
+            throw new ToolException(msg);
+        }
     }
 }

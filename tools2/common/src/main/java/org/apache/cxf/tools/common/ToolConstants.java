@@ -187,11 +187,5 @@ public final class ToolConstants {
     public static final String FRONTEND_PLUGIN = "frontend";
     public static final String DATABINDING_PLUGIN = "databinding";
     
-    public static final String CFG_WSDL_VERSION = "wsdlversion";
-    
-    public enum WSDLVersion {
-        WSDL11,
-        WSDL20,
-        UNKNOWN
-    };
+    public static final String CFG_WSDL_VERSION = "wsdlversion";    
 }

@@ -48,7 +48,7 @@ import org.apache.cxf.tools.common.Processor;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.cxf.tools.common.WSDLVersion;
+import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.common.toolspec.parser.BadUsageException;
 import org.apache.cxf.tools.common.toolspec.parser.CommandDocument;
@@ -80,9 +80,9 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         return set;
     }
 
-    public ToolConstants.WSDLVersion getWSDLVersion() {
+    public WSDLConstants.WSDLVersion getWSDLVersion() {
         String version = (String) context.get(ToolConstants.CFG_WSDL_VERSION);
-        return WSDLVersion.getVersion(version);
+        return WSDLConstants.getVersion(version);
     }
 
     public Bus getBus() {
@@ -116,13 +116,13 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
                 context.put(DataBindingProfile.class, dataBindingProfile);
             }
             
-            ToolConstants.WSDLVersion version = getWSDLVersion();
+            WSDLConstants.WSDLVersion version = getWSDLVersion();
 
             ServiceInfo service = null;
             String wsdlURL = (String)context.get(ToolConstants.CFG_WSDLURL);
             
             // Build the ServiceModel from the WSDLModel
-            if (version == ToolConstants.WSDLVersion.WSDL11) {
+            if (version == WSDLConstants.WSDLVersion.WSDL11) {
                 AbstractWSDLBuilder<Definition> builder =
                     (AbstractWSDLBuilder<Definition>) frontend.getWSDLBuilder();
                 builder.setContext(context);
@@ -364,7 +364,7 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
         }
         
         if (!context.containsKey(ToolConstants.CFG_WSDL_VERSION)) {
-            context.put(ToolConstants.CFG_WSDL_VERSION, WSDLVersion.WSDL11);
+            context.put(ToolConstants.CFG_WSDL_VERSION, WSDLConstants.WSDL11);
         }
        
         setExcludePackageAndNamespaces(context);
