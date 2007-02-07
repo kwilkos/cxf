@@ -81,19 +81,27 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
         iterator = new PhaseInterceptorIterator();
     }
-
+    
     public void add(List<Interceptor> newhandlers) {
+        add(newhandlers, false);
+    }
+
+    public void add(List<Interceptor> newhandlers, boolean force) {
         if (newhandlers == null) {
             return;
         }
 
         for (Interceptor handler : newhandlers) {
-            add(handler);
+            add(handler, force);
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void add(Interceptor i) {
+        add(i, false);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void add(Interceptor i, boolean force) {
         PhaseInterceptor pi = (PhaseInterceptor)i;
 
         if (LOG.isLoggable(Level.FINE)) {
@@ -106,7 +114,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
         if (phase == null) {
             LOG.fine("Phase " + phaseName + " does not exist. Skipping handler "
                       + i.getClass().getName());
-        } else {
+        } else if (force | !phase.contains(pi)) {            
             insertInterceptor(phase, pi);
         }
     }
@@ -171,6 +179,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
                     faultOccured = true;
                     if (LOG.isLoggable(Level.FINE)) {
                         LogUtils.log(LOG, Level.FINE, "Interceptor has thrown exception, unwinding now", ex);
+                        ex.printStackTrace();
                     }
                     message.setContent(Exception.class, ex);
                     if (message.getExchange() != null) {

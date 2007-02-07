@@ -17,28 +17,31 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.ws.rm.policy;
 
-import org.apache.cxf.service.model.BindingFaultInfo;
-import org.apache.cxf.service.model.BindingMessageInfo;
-import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.neethi.Policy;
+import java.util.Collection;
+import java.util.Collections;
+
+import javax.xml.namespace.QName;
+
+import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.ws.policy.PolicyInterceptorProvider;
+import org.apache.cxf.ws.rm.RMConstants;
 
 /**
  * 
  */
-public interface PolicyProvider {
+public class RMPolicyInterceptorProvider  extends AbstractAttributedInterceptorProvider 
+    implements PolicyInterceptorProvider {
 
-    Policy getEffectivePolicy(ServiceInfo si);
+    private static final Collection<QName> ASSERTION_TYPES 
+        = Collections.singletonList(RMConstants.getRMAssertionQName());    
     
-    Policy getEffectivePolicy(EndpointInfo ei);
+    public RMPolicyInterceptorProvider() {
+        // configurable content
+    } 
     
-    Policy getEffectivePolicy(BindingOperationInfo bi);
-    
-    Policy getEffectivePolicy(BindingMessageInfo bmi);
-    
-    Policy getEffectivePolicy(BindingFaultInfo bfi);
-    
+    public Collection<QName> getAssertionTypes() {
+        return ASSERTION_TYPES;
+    }
 }

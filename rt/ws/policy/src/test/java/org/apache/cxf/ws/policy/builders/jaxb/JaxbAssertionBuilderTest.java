@@ -37,7 +37,21 @@ import org.apache.neethi.Assertion;
  */
 public class JaxbAssertionBuilderTest extends TestCase {
     
-    public void testGetSupported() throws Exception {
+    public void testConstructors() throws Exception {        
+        QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
+        try {
+            new JaxbAssertionBuilder("org.apache.cxf.test.assertions.foo.UnknownType", qn);
+            fail("Expected ClassNotFoundException not thrown.");
+        } catch (ClassNotFoundException ex) {
+            // expected
+        }
+        assertNotNull(new JaxbAssertionBuilder(qn)); 
+        assertNotNull(new JaxbAssertionBuilder("org.apache.cxf.test.assertions.foo.FooType", qn));   
+        assertNotNull(new JaxbAssertionBuilder<FooType>(FooType.class, qn));
+    }
+    
+    
+    public void testGetKnownElements() throws Exception {
         QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
         JaxbAssertionBuilder<FooType> ab = new JaxbAssertionBuilder<FooType>(FooType.class, qn);
         assertNotNull(ab);
@@ -58,8 +72,7 @@ public class JaxbAssertionBuilderTest extends TestCase {
         JaxbAssertion<FooType> jba = (JaxbAssertion<FooType>)a;
         FooType foo = jba.getData();
         assertEquals("CXF", foo.getName());
-        assertEquals(2, foo.getNumber().intValue()); 
-        
+        assertEquals(2, foo.getNumber().intValue());         
     }
 
 }

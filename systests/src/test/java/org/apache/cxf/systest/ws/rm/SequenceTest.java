@@ -20,6 +20,8 @@
 package org.apache.cxf.systest.ws.rm;
 
 import java.math.BigInteger;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
 
 import junit.framework.Test;
@@ -32,10 +34,14 @@ import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
+import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.ws.rm.RMConstants;
+import org.apache.cxf.ws.rm.RMInInterceptor;
 import org.apache.cxf.ws.rm.RMManager;
+import org.apache.cxf.ws.rm.RMOutInterceptor;
+import org.apache.cxf.ws.rm.soap.RMSoapInterceptor;
 
 
 /**
@@ -117,8 +123,13 @@ public class SequenceTest extends ClientServerTestBase {
         }
     }
 
+    /** 
+      * Server is configured with RM interceptors, client without;
+      * Addressing interceptors are installed on either side.
+      * The (oneway) application request should be dispatched straight to the
+      * implementor.
+      */
     public void xtestRMServerPlainClient() throws Exception {
-        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml");
 
         SpringBusFactory bf = new SpringBusFactory();
         
@@ -129,12 +140,15 @@ public class SequenceTest extends ClientServerTestBase {
         control = cs.getControlPort();
 
         assertTrue("Failed to start greeter",
-            control.startGreeter("org/apache/cxf/systest/ws/rm/twoway.xml"));
-        
+            control.startGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml"));
 
-        greeterBus = bf.createBus();
+        greeterBus = bf.createBus("org/apache/cxf/systest/ws/rm/anonymous.xml");
         BusFactory.setDefaultBus(greeterBus);
-        LOG.fine("Initialised greeter default bus with configuration");
+        removeRMInterceptors(greeterBus.getOutInterceptors());
+        removeRMInterceptors(greeterBus.getOutFaultInterceptors());
+        removeRMInterceptors(greeterBus.getInInterceptors());
+        removeRMInterceptors(greeterBus.getInFaultInterceptors());
+        LOG.fine("Initialised greeter bus with addressing but without RM interceptors");
 
         outRecorder = new OutMessageRecorder();
         greeterBus.getOutInterceptors().add(outRecorder);
@@ -145,7 +159,7 @@ public class SequenceTest extends ClientServerTestBase {
         greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
 
-        greeter.greetMe("Andrea");
+        greeter.greetMeOneWay("once");
 
     }
 
@@ -803,5 +817,17 @@ public class SequenceTest extends ClientServerTestBase {
         }
         assertEquals("Did not receive expected number of inbound messages", nExpectedIn, nIn);
         assertEquals("Did not send expected number of outbound messages", nExpectedOut, nOut);        
+    }
+
+    private void removeRMInterceptors(List<Interceptor> interceptors) {
+        int n = interceptors.size();
+        for (Iterator<Interceptor> it = interceptors.iterator(); it.hasNext();) {
+            Interceptor i = it.next();
+            if (i instanceof RMSoapInterceptor
+                || i instanceof RMOutInterceptor
+                || i instanceof RMInInterceptor) {
+                it.remove();
+            }
+        }
     }
 }

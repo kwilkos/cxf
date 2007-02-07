@@ -68,6 +68,20 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertSame(p, it.next());
         assertTrue(!it.hasNext());
     }
+    
+    public void testForceAddOneInterceptor() {
+        AbstractPhaseInterceptor p = setUpPhaseInterceptor("phase1", "p1");
+        control.replay();
+        chain.add(p, false);
+        Iterator<Interceptor<? extends Message>> it = chain.iterator();
+        assertSame(p, it.next());
+        assertTrue(!it.hasNext());
+        chain.add(p, true);
+        it = chain.iterator();
+        assertSame(p, it.next());
+        assertSame(p, it.next());
+        assertTrue(!it.hasNext());        
+    }
 
     @SuppressWarnings("unchecked")
     public void testAddTwoInterceptorsSamePhase() {

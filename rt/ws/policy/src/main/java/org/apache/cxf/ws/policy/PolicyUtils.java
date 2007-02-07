@@ -19,26 +19,24 @@
 
 package org.apache.cxf.ws.policy;
 
-import org.apache.cxf.service.model.BindingFaultInfo;
-import org.apache.cxf.service.model.BindingMessageInfo;
-import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.neethi.Policy;
+import org.apache.cxf.message.Message;
 
 /**
  * 
  */
-public interface PolicyProvider {
+public final class PolicyUtils {
 
-    Policy getEffectivePolicy(ServiceInfo si);
-    
-    Policy getEffectivePolicy(EndpointInfo ei);
-    
-    Policy getEffectivePolicy(BindingOperationInfo bi);
-    
-    Policy getEffectivePolicy(BindingMessageInfo bmi);
-    
-    Policy getEffectivePolicy(BindingFaultInfo bfi);
-    
+    private PolicyUtils() {
+    }
+
+    /**
+     * Determine if current messaging role is that of requestor.
+     * 
+     * @param message the current Message
+     * @return true iff the current messaging role is that of requestor
+     */
+    public static boolean isRequestor(Message message) {
+        Boolean requestor = (Boolean)message.get(Message.REQUESTOR_ROLE);
+        return requestor != null && requestor.booleanValue();
+    }
 }

@@ -61,7 +61,6 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
 
     private static final String NAMESPACE_URI = "http://apache.org/cxf/calculator";
     private static final QName OPERATION_NAME = new QName(NAMESPACE_URI, "add");
-    // private static Bus bus;
     private static ServiceInfo[] services;
     private static EndpointInfo[] endpoints;
     private Wsdl11AttachmentPolicyProvider app; 

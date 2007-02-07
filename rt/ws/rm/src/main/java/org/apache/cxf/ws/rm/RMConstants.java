@@ -69,6 +69,11 @@ public final class RMConstants {
     
     private static final String WSA_NONE_ADDRESS =
         WSA_NAMESPACE_NAME + "/none";
+    
+    private static final String RMASSERTION_NAME = "RMAssertion";
+    
+    private static final QName RMASSERTION_QNAME = 
+        new QName(WSRMP_NAMESPACE_NAME, RMASSERTION_NAME);
       
     /**
      * The set of headers understood by the protocol binding.
@@ -147,6 +152,8 @@ public final class RMConstants {
         return HEADERS;
     }
     
+    // namespaces
+    
     public static String getNamespace() {
         return WSRM_NAMESPACE_NAME; 
     }
@@ -165,7 +172,9 @@ public final class RMConstants {
     
     public static  String getWsdlNamespace() {
         return WSRM_WSDL_NAMESPACE_NAME;
-    }    
+    }  
+    
+    // schema type constants
   
     public static String getSequenceName() {
         return WSRM_SEQUENCE_NAME;
@@ -199,6 +208,8 @@ public final class RMConstants {
         return WSA_NONE_ADDRESS;
     }
     
+    // service model constants
+    
     public static QName getCreateSequenceOperationName() {
         return WSRM_CREATE_SEQUENCE_QNAME;
     }
@@ -222,6 +233,8 @@ public final class RMConstants {
     public static QName getSequenceAckOperationName() {
         return WSRM_SEQUENCE_ACKNOWLEDGEMENT_QNAME;
     }
+    
+    // actions
     
     public static String getCreateSequenceAction() {
         return WSRM_CREATE_SEQUENCE_ACTION;
@@ -251,6 +264,8 @@ public final class RMConstants {
         return WSRM_SEQUENCE_INFO_ACTION;
     }
     
+    // fault codes
+    
     public static QName getUnknownSequenceFaultCode() {
         return new QName(WSRM_NAMESPACE_NAME, WSRM_UNKNOWN_SEQUENCE_FAULT_CODE);
     }
@@ -273,5 +288,15 @@ public final class RMConstants {
     
     public static QName getLastMessageNumberExceededFaultCode() {
         return new QName(WSRM_NAMESPACE_NAME, WSRM_LAST_MESSAGE_NUMBER_EXCEEDED_FAULT_CODE);
+    }
+    
+    // policies
+    
+    public static String getRMAssertionName() {
+        return RMASSERTION_NAME;
+    }
+    
+    public static QName getRMAssertionQName() {
+        return RMASSERTION_QNAME;
     }
 }

@@ -32,7 +32,9 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
@@ -43,16 +45,43 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     private Unmarshaller unmarshaller;
     private Collection<QName> supportedTypes;
     
+    /**
+     * Constructs a JAXBAssertionBuilder from the QName of the schema type
+     * @param qn the schema type
+     * @throws JAXBException
+     * @throws ClassNotFoundException
+     */
+    public JaxbAssertionBuilder(QName qn) throws JAXBException, ClassNotFoundException {
+        this(JAXBUtils.namespaceURIToPackage(qn.getNamespaceURI())
+            + "." + JAXBUtils.nameToIdentifier(qn.getLocalPart(), JAXBUtils.IdentifierType.CLASS), qn);
+    }
     
+    /**
+     * Constructs a JAXBAssertionBuilder from the specified class name and schema type. 
+     * @param className the name of the class to which the schema type is mapped
+     * @param qn the schema type
+     * @throws JAXBException
+     * @throws ClassNotFoundException
+     */
+    @SuppressWarnings("unchecked")
+    public JaxbAssertionBuilder(String className, QName qn) throws JAXBException, ClassNotFoundException {
+        this(ClassLoaderUtils.loadClass(className, JaxbAssertionBuilder.class), qn);
+    }
+    
+    /**
+    * Constructs a JAXBAssertionBuilder from the specified class and schema type. 
+    * @param class the class to which the schema type is mapped
+    * @param qn the schema type
+    * @throws JAXBException
+    * @throws ClassNotFoundException
+    */
     public JaxbAssertionBuilder(Class<T> type, QName qn) throws JAXBException {
 
         JAXBContext context = JAXBContext.newInstance(type.getPackage().getName());
         unmarshaller = context.createUnmarshaller();
         supportedTypes = Collections.singletonList(qn);
-        
     }
-   
-    
+       
     @SuppressWarnings("unchecked")
     public Assertion build(Element element) {
         Object obj = null;

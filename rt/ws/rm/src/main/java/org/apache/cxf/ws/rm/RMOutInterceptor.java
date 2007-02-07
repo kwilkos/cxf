@@ -171,7 +171,7 @@ public class RMOutInterceptor extends AbstractRMInterceptor {
                 rmpsOut.addAck(seq);
             } else if (LOG.isLoggable(Level.FINE)) {
                 if (!seq.sendAcknowledgement()) {
-                    LOG.fine("no need to add an acknowledgements for sequence "
+                    LOG.fine("no need to add acknowledgements for sequence "
                              + seq.getIdentifier().getValue());
                 } else {
                     LOG.fine("sequences acksTo address (" + seq.getAcksTo().getAddress().getValue()

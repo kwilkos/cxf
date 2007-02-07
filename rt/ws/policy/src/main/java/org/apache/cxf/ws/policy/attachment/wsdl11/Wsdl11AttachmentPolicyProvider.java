@@ -40,6 +40,7 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.DescriptionInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.Extensible;
+import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.policy.PolicyBuilder;
@@ -63,7 +64,7 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
         new HashMap<DescriptionInfo, Map<String, Policy>>();
     
     
-    void setBuilder(PolicyBuilder b) {
+    public void setBuilder(PolicyBuilder b) {
         builder = b;
     }
     
@@ -94,7 +95,7 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
      * element that defines the operation merged with that of the corresponding 
      * wsdl11:binding/wsdl11:operation element.
      * 
-     * @param bi the BindingOperationInfo identifying the oeration in relation to a port
+     * @param bi the BindingOperationInfo identifying the operation in relation to a port
      * @return the effective policy
      */
     public Policy getEffectivePolicy(BindingOperationInfo bi) {
@@ -106,10 +107,10 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
     
     /**
      * The effective policy for a specific WSDL message (input or output) is calculated
-     * in relation to a specific port. and includes the element policy of the wsdl:message
-     * element that defines the message's type mered with the element policy of the 
+     * in relation to a specific port, and includes the element policy of the wsdl:message
+     * element that defines the message's type merged with the element policy of the 
      * wsdl11:binding and wsdl11:portType message definitions that describe the message.
-     * For example, the effective policy of a specific inout message for a specific port
+     * For example, the effective policy of a specific input message for a specific port
      * would be the (element policies of the) wsdl11:message element defining the message type,
      * the wsdl11:portType/wsdl11:operation/wsdl11:input element and the corresponding
      * wsdl11:binding/wsdl11:operation/wsdl11:input element for that message.
@@ -122,11 +123,9 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
         DescriptionInfo di = si.getDescription();
 
         Policy p = getElementPolicy(bmi, di);
-        p = p.merge(getElementPolicy(bmi.getMessageInfo(), di));
-
         MessageInfo mi = bmi.getMessageInfo();
+        p = p.merge(getElementPolicy(mi, di));
         Extensible ex = getMessageTypeInfo(mi.getName(), di);
-  
         p = p.merge(getElementPolicy(ex, di));
 
         return p;
@@ -134,8 +133,17 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
     
 
     
-    Policy getEffectivePolicy(BindingFaultInfo bfi) {
-        return null;
+    public Policy getEffectivePolicy(BindingFaultInfo bfi) {
+        ServiceInfo si = bfi.getBindingOperation().getBinding().getService();
+        DescriptionInfo di = si.getDescription();
+
+        Policy p = getElementPolicy(bfi, di);
+        FaultInfo fi = bfi.getFaultInfo();
+        p = p.merge(getElementPolicy(fi, di));
+        Extensible ex = getMessageTypeInfo(fi.getName(), di);
+        p = p.merge(getElementPolicy(ex, di));
+
+        return p;
     }
     
     Policy getElementPolicy(AbstractDescriptionElement adh) {

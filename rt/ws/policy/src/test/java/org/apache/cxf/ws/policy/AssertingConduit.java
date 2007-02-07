@@ -19,26 +19,11 @@
 
 package org.apache.cxf.ws.policy;
 
-import org.apache.cxf.service.model.BindingFaultInfo;
-import org.apache.cxf.service.model.BindingMessageInfo;
-import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.neethi.Policy;
+import org.apache.cxf.transport.Conduit;
 
 /**
  * 
  */
-public interface PolicyProvider {
+public interface AssertingConduit extends Assertor, Conduit {
 
-    Policy getEffectivePolicy(ServiceInfo si);
-    
-    Policy getEffectivePolicy(EndpointInfo ei);
-    
-    Policy getEffectivePolicy(BindingOperationInfo bi);
-    
-    Policy getEffectivePolicy(BindingMessageInfo bmi);
-    
-    Policy getEffectivePolicy(BindingFaultInfo bfi);
-    
 }
