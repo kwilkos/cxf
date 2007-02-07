@@ -148,6 +148,9 @@ public class SpringBusFactoryTest extends TestCase {
         public void handleMessage(Message message) throws Fault {   
         }
         
+        public void postHandleMessage(Message message) throws Fault {            
+        }
+        
     }
      
     

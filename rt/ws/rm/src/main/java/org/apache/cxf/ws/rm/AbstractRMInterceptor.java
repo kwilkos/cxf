@@ -89,6 +89,9 @@ public abstract class AbstractRMInterceptor implements PhaseInterceptor<Message>
         }
     } 
     
+    public void postHandleMessage(Message msg) throws Fault {
+    }
+    
     // rm logic
     
     abstract void handleMessage(Message msg, boolean isFault) throws SequenceFault;

@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamReader;
 
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 
 public abstract class AbstractPhaseInterceptor<T extends Message> implements PhaseInterceptor<T> {
@@ -84,6 +85,10 @@ public abstract class AbstractPhaseInterceptor<T extends Message> implements Pha
     }
 
     public void handleFault(T message) {
+    }
+    
+    public void postHandleMessage(T message) throws Fault {
+        
     }
     
     public boolean isGET(T message) {

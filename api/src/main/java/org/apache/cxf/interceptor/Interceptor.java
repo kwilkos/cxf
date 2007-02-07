@@ -41,4 +41,10 @@ public interface Interceptor<T extends Message> {
      */
     void handleFault(T message);
     
+    /**
+     * Clean up interceptor.
+     * @param message
+     * @throws Fault
+     */
+    void postHandleMessage(T message) throws Fault;
 }
