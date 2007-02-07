@@ -33,10 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
@@ -45,17 +43,18 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.conduit.HTTPConduitConfigBean;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.handler.AbstractHandler;
+
+import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
+
 
 public class HTTPConduitTest extends TestCase {
     private static final String NOWHERE = "http://nada.nothing.nowhere.null/";
@@ -69,8 +68,6 @@ public class HTTPConduitTest extends TestCase {
     private MessageObserver observer;
     private ServletOutputStream os;
     private ServletInputStream is;
-    private TestServerEngine decoupledEngine;
-    //private MultiMap parameters;
     private IMocksControl control;
     
     public void setUp() throws Exception {
@@ -89,8 +86,6 @@ public class HTTPConduitTest extends TestCase {
         observer = null;
         os = null;
         is = null;
-        //parameters = null;
-        decoupledEngine = null;
     }
 
     public void testGetTarget() throws Exception {
@@ -205,23 +200,33 @@ public class HTTPConduitTest extends TestCase {
                     EasyMock.expectLastCall();                    
                 }
             }
-            
-            if (decoupled) {
-                decoupledEngine = new TestServerEngine();
-                //parameters = control.createMock(MultiMap.class);
-            }            
-            
         }
                
+        CXFBusImpl bus = new CXFBusImpl();
+        URL decoupledURL = null;
+        if (decoupled) {
+            decoupledURL = new URL(NOWHERE + "response");
+            DestinationFactoryManager mgr =
+                control.createMock(DestinationFactoryManager.class);
+            DestinationFactory factory =
+                control.createMock(DestinationFactory.class);
+            Destination destination =
+                control.createMock(Destination.class);
+
+            bus.setExtension(mgr, DestinationFactoryManager.class);
+            mgr.getDestinationFactoryForUri(decoupledURL.toString());
+            EasyMock.expectLastCall().andReturn(factory);
+            factory.getDestination(EasyMock.isA(EndpointInfo.class));
+            EasyMock.expectLastCall().andReturn(destination);
+            destination.setMessageObserver(EasyMock.isA(HTTPConduit.InterposedMessageObserver.class));
+        }
         
         control.replay();
 
-        CXFBusImpl bus = new CXFBusImpl();
         HTTPConduit conduit = new HTTPConduit(bus, 
                                               endpointInfo,
                                               null,
-                                              connectionFactory,
-                                              decoupledEngine);
+                                              connectionFactory);
         conduit.retrieveConnectionFactory();
 
         HTTPConduitConfigBean config = conduit.getConfig();
@@ -235,16 +240,14 @@ public class HTTPConduitTest extends TestCase {
                 } 
             }
         }
-
+        
         if (decoupled) {
-            URL decoupledURL = null;
-            if (decoupled) {
-                decoupledURL = new URL(NOWHERE + "response");
-                config.getClient().setDecoupledEndpoint(decoupledURL.toString());
-            } 
+            config.getClient().setDecoupledEndpoint(decoupledURL.toString());
+            assertNotNull("expected back channel", conduit.getBackChannel());
+        } else {
+            assertNull("unexpected back channel", conduit.getBackChannel());
         }
        
-
         observer = new MessageObserver() {
             public void onMessage(Message m) {
                 inMessage = m;
@@ -254,19 +257,19 @@ public class HTTPConduitTest extends TestCase {
         return conduit;
     }
     
-    private void verifySentMessage(Conduit conduit, Message message)
+    private void verifySentMessage(HTTPConduit conduit, Message message)
         throws IOException {
         verifySentMessage(conduit, message, false);
     }
 
-    private void verifySentMessage(Conduit conduit,
+    private void verifySentMessage(HTTPConduit conduit,
                                    Message message,
                                    boolean expectHeaders)
         throws IOException {
         verifySentMessage(conduit, message, expectHeaders, false);
     }
     
-    private void verifySentMessage(Conduit conduit,
+    private void verifySentMessage(HTTPConduit conduit,
                                    Message message,
                                    boolean expectHeaders,
                                    boolean decoupled)
@@ -287,11 +290,6 @@ public class HTTPConduitTest extends TestCase {
         EasyMock.expectLastCall().andReturn(os);
         os.write(PAYLOAD.getBytes(), 0, PAYLOAD.length());
         EasyMock.expectLastCall();
-
-        URL decoupledURL = null;
-        if (decoupled) {
-            decoupledURL = new URL(NOWHERE + "response");
-        } 
         
         os.flush();
         EasyMock.expectLastCall();
@@ -303,26 +301,7 @@ public class HTTPConduitTest extends TestCase {
         verifyHandleResponse(decoupled);
         
         control.replay();
-        
-        Destination backChannel = null;
-        AbstractHandler decoupledHandler = null;
-        if (decoupled) {
-            decoupledEngine.verifyCallCounts(new int[]{0, 0, 0});
-            backChannel = conduit.getBackChannel();
-            assertNotNull("expected back channel", backChannel);
-            decoupledEngine.verifyCallCounts(new int[]{1, 0, 1});
-            decoupledHandler = decoupledEngine.servants.get(decoupledURL);
-            assertNotNull("expected servant registered", decoupledHandler);
-            MessageObserver decoupledObserver =
-                ((HTTPConduit.DecoupledDestination)backChannel).getMessageObserver();
-            assertSame("unexpected decoupled destination",
-                       observer,       
-                       decoupledObserver);
-        } else {
-            backChannel = conduit.getBackChannel();
-            assertNull("unexpected back channel", backChannel);
-        }
-        
+                
         wrappedOS.flush();
         wrappedOS.flush();
         wrappedOS.close();
@@ -341,13 +320,10 @@ public class HTTPConduitTest extends TestCase {
         assertSame("unexpected content", is, inMessage.getContent(InputStream.class));
         
         if (decoupled) {
-            verifyDecoupledResponse(decoupledHandler);
+            verifyDecoupledResponse(conduit);
         }
         
         conduit.close();
-        if (decoupled) {
-            decoupledEngine.verifyCallCounts(new int[]{1, 1, 2});
-        }
         
         finalVerify();
     }
@@ -400,49 +376,19 @@ public class HTTPConduitTest extends TestCase {
         EasyMock.expectLastCall().andReturn(is);
     }
     
-    private void verifyDecoupledResponse(AbstractHandler decoupledHandler)
+    private void verifyDecoupledResponse(HTTPConduit conduit)
         throws IOException {
-        inMessage = null;
-        is = EasyMock.createMock(ServletInputStream.class);
-        os = EasyMock.createMock(ServletOutputStream.class);
-        Request decoupledRequest = EasyMock.createMock(Request.class);
-        decoupledRequest.getInputStream();
-        EasyMock.expectLastCall().andReturn(is);
-        decoupledRequest.setHandled(true);
-        EasyMock.replay(decoupledRequest);
-        
-        HttpServletResponse decoupledResponse = EasyMock.createMock(HttpServletResponse.class);
-        decoupledResponse.getCharacterEncoding();
-        EasyMock.expectLastCall().andReturn("utf8");
-        decoupledResponse.getContentType();
-        EasyMock.expectLastCall().andReturn("test");
-        decoupledResponse.flushBuffer();
-        EasyMock.expectLastCall();
-        EasyMock.replay(decoupledResponse);
-       
-        try {
-            decoupledHandler.handle("pathInContext",                                
-                                    decoupledRequest,
-                                    decoupledResponse, Handler.REQUEST);
-        } catch (ServletException e) {
-            fail("There should not throw the serletException");
-        }
-        assertNotNull("expected decoupled in message", inMessage);
-        assertNotNull("expected response headers",
-                      inMessage.get(Message.PROTOCOL_HEADERS));
+        Message incoming = new MessageImpl();
+        conduit.getDecoupledObserver().onMessage(incoming);
+        assertSame("expected pass thru onMessage() notification",
+                   inMessage,
+                   incoming);
         assertEquals("unexpected response code",
                      HttpURLConnection.HTTP_OK,
                      inMessage.get(Message.RESPONSE_CODE));
-
-        assertTrue("unexpected content formats",
-                   inMessage.getContentFormats().contains(InputStream.class));
-        InputStream decoupledIS = inMessage.getContent(InputStream.class);
-        assertNotNull("unexpected content", decoupledIS);
-        
-        decoupledIS.close();
-        
-        inMessage.setContent(InputStream.class, is);
-
+        assertEquals("expected DECOUPLED_CHANNEL_MESSAGE flag set",
+                     Boolean.TRUE,
+                     inMessage.get(DECOUPLED_CHANNEL_MESSAGE));
     }
 
     private void finalVerify() {
@@ -454,43 +400,5 @@ public class HTTPConduitTest extends TestCase {
     
     static EndpointReferenceType getEPR(String s) {
         return EndpointReferenceUtils.getEndpointReference(NOWHERE + s);
-    }
-    
-    /**
-     * EasyMock does not seem able to properly mock calls to ServerEngine -
-     * expectations set seem to be ignored.
-     */
-    private class TestServerEngine implements ServerEngine {
-        private int callCounts[] = {0, 0, 0};
-        private Map<URL, AbstractHandler> servants =
-            new HashMap<URL, AbstractHandler>();
-        
-        public void addServant(URL url, AbstractHandler handler) {
-            callCounts[0]++;
-            servants.put(url, handler);
-        }
-
-        public void removeServant(URL url) {
-            callCounts[1]++;
-            servants.remove(url);
-        }
-
-        public Handler getServant(URL url) {
-            callCounts[2]++;
-            return servants.get(url);
-        }
-
-        void verifyCallCounts(int expectedCallCounts[]) {
-            assertEquals("unexpected addServant call count",
-                         expectedCallCounts[0],
-                         callCounts[0]);
-            assertEquals("unexpected removeServant call count",
-                         expectedCallCounts[1],
-                         callCounts[1]);
-            assertEquals("unexpected getServant call count",
-                         expectedCallCounts[2],
-                         callCounts[2]);
-        }
-        
     }
 }

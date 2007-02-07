@@ -19,7 +19,6 @@
 
 package org.apache.cxf.transport.http;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,9 +35,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
@@ -53,19 +49,19 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractConduit;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.transport.DestinationFactory;
+import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transport.http.conduit.HTTPConduitConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
-import org.mortbay.jetty.HttpConnection;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.handler.AbstractHandler;
 
 import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
+
+
 /**
  * HTTP Conduit implementation.
  */
@@ -80,9 +76,9 @@ public class HTTPConduit extends AbstractConduit {
     private URLConnectionFactory connectionFactory;
     private URL url;
     
-    private ServerEngine decoupledEngine;
-    private URL decoupledURL;
-    private DecoupledDestination decoupledDestination;
+    private Destination decoupledDestination;
+    private MessageObserver decoupledObserver;
+    private int decoupledDestinationRefCount;
     private EndpointInfo endpointInfo;
     
 
@@ -111,7 +107,6 @@ public class HTTPConduit extends AbstractConduit {
         this(b,
              ei,
              t,
-             null,
              null);
     }    
 
@@ -123,14 +118,12 @@ public class HTTPConduit extends AbstractConduit {
      * @param ei the endpoint info of the initiator
      * @param t the endpoint reference of the target
      * @param factory the URL connection factory
-     * @param eng the decoupled engine
      * @throws IOException
      */
     public HTTPConduit(Bus b,
                        EndpointInfo ei,
                        EndpointReferenceType t,
-                       URLConnectionFactory factory,
-                       ServerEngine eng) throws IOException {
+                       URLConnectionFactory factory) throws IOException {
         super(getTargetReference(ei, t));
         bus = b;
         endpointInfo = ei;
@@ -138,7 +131,6 @@ public class HTTPConduit extends AbstractConduit {
 
         initConfig();
         
-        decoupledEngine = eng;
         url = t == null
               ? new URL(endpointInfo.getAddress())
               : new URL(t.getAddress().getValue());
@@ -231,7 +223,7 @@ public class HTTPConduit extends AbstractConduit {
     public synchronized Destination getBackChannel() {
         if (decoupledDestination == null
             &&  config.getClient().getDecoupledEndpoint() != null) {
-            decoupledDestination = setUpDecoupledDestination(); 
+            setUpDecoupledDestination(); 
         }
         return decoupledDestination;
     }
@@ -255,12 +247,8 @@ public class HTTPConduit extends AbstractConduit {
         // in decoupled case, close response Destination if reference count
         // hits zero
         //
-        if (decoupledURL != null && decoupledEngine != null) {
-            DecoupledHandler decoupledHandler = 
-                (DecoupledHandler)decoupledEngine.getServant(decoupledURL);
-            if (decoupledHandler != null) {
-                decoupledHandler.release();
-            }
+        if (decoupledDestination != null) {
+            releaseDecoupledDestination();
         }
     }
 
@@ -358,10 +346,8 @@ public class HTTPConduit extends AbstractConduit {
 
     /**
      * Set up the decoupled Destination if necessary.
-     * 
-     * @return an appropriate decoupled Destination
      */
-    private DecoupledDestination setUpDecoupledDestination() {        
+    private void setUpDecoupledDestination() {        
         EndpointReferenceType reference =
             EndpointReferenceUtils.getEndpointReference(
                 config.getClient().getDecoupledEndpoint());
@@ -369,104 +355,50 @@ public class HTTPConduit extends AbstractConduit {
             String decoupledAddress = reference.getAddress().getValue();
             LOG.info("creating decoupled endpoint: " + decoupledAddress);
             try {
-                decoupledURL = new URL(decoupledAddress);
-                if (decoupledEngine == null) {
-                    decoupledEngine = 
-                        JettyHTTPServerEngine.getForPort(bus, 
-                                                         decoupledURL.getProtocol(),
-                                                         decoupledURL.getPort());
-                }
-                DecoupledHandler decoupledHandler =
-                    (DecoupledHandler)decoupledEngine.getServant(decoupledURL);
-                if (decoupledHandler == null) {
-                    decoupledHandler = new DecoupledHandler();
-                    decoupledEngine.addServant(decoupledURL, decoupledHandler);
-                } 
-                decoupledHandler.duplicate();
+                decoupledDestination = getDestination(decoupledAddress);
+                duplicateDecoupledDestination();
             } catch (Exception e) {
                 // REVISIT move message to localizable Messages.properties
                 LOG.log(Level.WARNING, "decoupled endpoint creation failed: ", e);
             }
         }
-        return new DecoupledDestination(reference, incomingObserver);
     }
-    
- 
 
     /**
-     * Wrapper output stream responsible for flushing headers and handling
-     * the incoming HTTP-level response (not necessarily the MEP response).
+     * @param address the address
+     * @return a Destination for the address
      */
-    private class WrappedOutputStream extends AbstractWrappedOutputStream {
-        protected URLConnection connection;
-        
-        WrappedOutputStream(Message m, URLConnection c) {
-            super(m);
-            connection = c;
+    private Destination getDestination(String address) throws IOException {
+        Destination destination = null;
+        DestinationFactoryManager factoryManager =
+            bus.getExtension(DestinationFactoryManager.class);
+        DestinationFactory factory =
+            factoryManager.getDestinationFactoryForUri(address);
+        if (factory != null) {
+            EndpointInfo ei = new EndpointInfo();
+            ei.setAddress(address);
+            destination = factory.getDestination(ei);
+            decoupledObserver = new InterposedMessageObserver();
+            destination.setMessageObserver(decoupledObserver);
         }
-
-        /**
-         * Perform any actions required on stream flush (freeze headers,
-         * reset output stream ... etc.)
-         */
-        protected void doFlush() throws IOException {
-            if (!alreadyFlushed()) {                
-                flushHeaders(outMessage);
-                if (connection instanceof HttpURLConnection) {            
-                    HttpURLConnection hc = (HttpURLConnection)connection;                    
-                    if (hc.getRequestMethod().equals("GET")) {
-                        return;
-                    }
-                }
-                resetOut(connection.getOutputStream(), true);
-            }
-        }
-
-        /**
-         * Perform any actions required on stream closure (handle response etc.)
-         */
-        protected void doClose() throws IOException {
-            handleResponse();
-        }
-        
-        protected void onWrite() throws IOException {
-            
-        }
-
-        private void handleResponse() throws IOException {
-            Exchange exchange = outMessage.getExchange();
-            int responseCode = getResponseCode(connection);
-            if (isOneway(exchange)
-                && !isPartialResponse(connection, responseCode)) {
-                // oneway operation without partial response
-                connection.getInputStream().close();
-                return;
-            }
-            
-            Message inMessage = new MessageImpl();
-            inMessage.setExchange(exchange);
-            InputStream in = null;
-            Map<String, List<String>> headers = new HashMap<String, List<String>>();
-            for (String key : connection.getHeaderFields().keySet()) {
-                headers.put(HttpHeaderHelper.getHeaderKey(key), connection.getHeaderFields().get(key));
-            }
-            inMessage.put(Message.PROTOCOL_HEADERS, headers);
-            inMessage.put(Message.RESPONSE_CODE, responseCode);
-            inMessage.put(Message.CONTENT_TYPE, connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
-
-            if (connection instanceof HttpURLConnection) {
-                HttpURLConnection hc = (HttpURLConnection)connection;
-                in = hc.getErrorStream();
-                if (null == in) {
-                    in = connection.getInputStream();
-                }
-            } else {
-                in = connection.getInputStream();
-            }
-            
-            inMessage.setContent(InputStream.class, in);
-            
-            incomingObserver.onMessage(inMessage);
+        return destination;
+    }
+    
+    /**
+     * @return the decoupled observer
+     */
+    protected MessageObserver getDecoupledObserver() {
+        return decoupledObserver;
+    }
+    
+    private synchronized void duplicateDecoupledDestination() {
+        decoupledDestinationRefCount++;
+    }
+    
+    private synchronized void releaseDecoupledDestination() {
+        if (--decoupledDestinationRefCount == 0) {
+            LOG.log(Level.INFO, "shutting down decoupled destination");
+            decoupledDestination.shutdown();
         }
     }
     
@@ -488,115 +420,6 @@ public class HTTPConduit extends AbstractConduit {
         return responseCode == HttpURLConnection.HTTP_ACCEPTED
                && connection.getContentLength() != 0;
     }
-
-    /**
-     * Wrapper output stream responsible for commiting incoming request 
-     * containing a decoupled response.
-     */
-    private class WrapperInputStream extends FilterInputStream {
-        HttpServletRequest request;
-        HttpServletResponse response;
-        boolean closed;
-        
-        WrapperInputStream(InputStream is,
-                           HttpServletRequest req,
-                           HttpServletResponse resp) {
-            super(is);
-            request = req;
-            response = resp;
-        }
-        
-        public void close() throws IOException {
-            if (!closed) {
-                closed = true;
-                response.flushBuffer(); 
-                Request baseRequest = (request instanceof Request) 
-                    ? (Request)request : HttpConnection.getCurrentConnection().getRequest();
-                baseRequest.setHandled(true);                
-            }
-        }
-    }
-    
-    /**
-     * Represented decoupled response endpoint.
-     */
-    protected class DecoupledDestination implements Destination {
-        protected MessageObserver decoupledMessageObserver;
-        private EndpointReferenceType address;
-        
-        DecoupledDestination(EndpointReferenceType ref,
-                             MessageObserver incomingObserver) {
-            address = ref;
-            decoupledMessageObserver = incomingObserver;
-        }
-
-        public EndpointReferenceType getAddress() {
-            return address;
-        }
-
-        public Conduit getBackChannel(Message inMessage,
-                                      Message partialResponse,
-                                      EndpointReferenceType addr)
-            throws IOException {
-            // shouldn't be called on decoupled endpoint
-            return null;
-        }
-
-        public void shutdown() {
-            // TODO Auto-generated method stub            
-        }
-
-        public synchronized void setMessageObserver(MessageObserver observer) {
-            decoupledMessageObserver = observer;
-        }
-        
-        protected synchronized MessageObserver getMessageObserver() {
-            return decoupledMessageObserver;
-        }
-    }
-
-    /**
-     * Handles incoming decoupled responses.
-     */
-    private class DecoupledHandler extends AbstractHandler {
-        private int refCount;
-                
-        synchronized void duplicate() {
-            refCount++;
-        }
-        
-        synchronized void release() {
-            if (--refCount == 0) {
-                decoupledEngine.removeServant(decoupledURL);
-                JettyHTTPServerEngine.destroyForPort(decoupledURL.getPort());
-            }
-        }
-        
-        public void handle(String targetURI,
-                           HttpServletRequest req,
-                           HttpServletResponse resp,
-                           int dispatch) throws IOException {
-            InputStream responseStream = req.getInputStream();
-            Message inMessage = new MessageImpl();
-            // disposable exchange, swapped with real Exchange on correlation
-            inMessage.setExchange(new ExchangeImpl());
-            inMessage.put(DECOUPLED_CHANNEL_MESSAGE, Boolean.TRUE);
-            // REVISIT: how to get response headers?
-            //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
-            setHeaders(inMessage);
-            inMessage.put(Message.ENCODING, resp.getCharacterEncoding());
-            inMessage.put(Message.CONTENT_TYPE, resp.getContentType());
-            inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
-            InputStream is = new WrapperInputStream(responseStream, req, resp);
-            inMessage.setContent(InputStream.class, is);
-
-            try {
-                decoupledDestination.getMessageObserver().onMessage(inMessage);    
-            } finally {
-                is.close();
-            }
-        }
-    }    
 
     private void initConfig() {
         config = new ConfigBean();
@@ -722,5 +545,106 @@ public class HTTPConduit extends AbstractConduit {
             }
             return null;
         }        
+    }
+    
+    /**
+     * Wrapper output stream responsible for flushing headers and handling
+     * the incoming HTTP-level response (not necessarily the MEP response).
+     */
+    private class WrappedOutputStream extends AbstractWrappedOutputStream {
+        protected URLConnection connection;
+        
+        WrappedOutputStream(Message m, URLConnection c) {
+            super(m);
+            connection = c;
+        }
+
+        /**
+         * Perform any actions required on stream flush (freeze headers,
+         * reset output stream ... etc.)
+         */
+        protected void doFlush() throws IOException {
+            if (!alreadyFlushed()) {                
+                flushHeaders(outMessage);
+                if (connection instanceof HttpURLConnection) {            
+                    HttpURLConnection hc = (HttpURLConnection)connection;                    
+                    if (hc.getRequestMethod().equals("GET")) {
+                        return;
+                    }
+                }
+                resetOut(connection.getOutputStream(), true);
+            }
+        }
+
+        /**
+         * Perform any actions required on stream closure (handle response etc.)
+         */
+        protected void doClose() throws IOException {
+            handleResponse();
+        }
+        
+        protected void onWrite() throws IOException {
+            
+        }
+
+        private void handleResponse() throws IOException {
+            Exchange exchange = outMessage.getExchange();
+            int responseCode = getResponseCode(connection);
+            if (isOneway(exchange)
+                && !isPartialResponse(connection, responseCode)) {
+                // oneway operation without partial response
+                connection.getInputStream().close();
+                return;
+            }
+            
+            Message inMessage = new MessageImpl();
+            inMessage.setExchange(exchange);
+            InputStream in = null;
+            Map<String, List<String>> headers = new HashMap<String, List<String>>();
+            for (String key : connection.getHeaderFields().keySet()) {
+                headers.put(HttpHeaderHelper.getHeaderKey(key), connection.getHeaderFields().get(key));
+            }
+            inMessage.put(Message.PROTOCOL_HEADERS, headers);
+            inMessage.put(Message.RESPONSE_CODE, responseCode);
+            inMessage.put(Message.CONTENT_TYPE, connection.getHeaderField(HttpHeaderHelper.CONTENT_TYPE));
+
+            if (connection instanceof HttpURLConnection) {
+                HttpURLConnection hc = (HttpURLConnection)connection;
+                in = hc.getErrorStream();
+                if (null == in) {
+                    in = connection.getInputStream();
+                }
+            } else {
+                in = connection.getInputStream();
+            }
+            
+            inMessage.setContent(InputStream.class, in);
+            
+            incomingObserver.onMessage(inMessage);
+        }
+    }
+    
+    /**
+     * Used to set appropriate message properties, exchange etc.
+     * as required for an incoming decoupled response (as opposed
+     * what's normally set by the Destination for an incoming
+     * request).
+     */
+    protected class InterposedMessageObserver implements MessageObserver {
+        /**
+         * Called for an incoming message.
+         * 
+         * @param inMessage
+         */
+        public void onMessage(Message inMessage) {
+            // disposable exchange, swapped with real Exchange on correlation
+            inMessage.setExchange(new ExchangeImpl());
+            inMessage.put(DECOUPLED_CHANNEL_MESSAGE, Boolean.TRUE);
+            // REVISIT: how to get response headers?
+            //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
+            setHeaders(inMessage);
+            inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
+            incomingObserver.onMessage(inMessage);
+        }
     }
 }
