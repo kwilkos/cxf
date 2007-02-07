@@ -21,14 +21,12 @@ package org.apache.cxf.tools.wsdlto.jaxws;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Modifier;
 
 import javax.jws.WebService;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
-import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.WSDLToJava;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
@@ -46,13 +44,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                               + File.separatorChar);
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
+        
         env.put(ToolConstants.CFG_IMPL, "impl");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-
-        InputStream ins = JAXWSContainer.class.getResourceAsStream("jaxws-toolspec.xml");
-        ToolSpec toolspec = new ToolSpec(ins, true);
-        processor = new JAXWSContainer(toolspec); 
+        
+        processor = new JAXWSContainer(null); 
 
     }
 
@@ -61,16 +58,16 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
+    
 
     public void testBug305729() {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305729/hello_world.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull("Process message with no part wsdl error", output);
     }
 
-    
 
     public void testBug305773() {
         try {
@@ -80,7 +77,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
             env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
             env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305773/hello_world.wsdl"));
             processor.setContext(env);
-            processor.execute(true);
+            processor.execute();
             Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
 
             WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
@@ -94,13 +91,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-   
+   /*
     public void testHangingBug() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bughanging/wsdl/wsrf.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
     }
-    
+    */
     public void testBug305700() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -108,7 +105,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305700/addNumbers.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
     }
     
     public void testNamespacePackageMapping1() throws Exception {
@@ -116,7 +113,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         File org = new File(output, "org");
         assertTrue(org.exists());
@@ -142,7 +139,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         File org = new File(output, "org");
         assertTrue("org directory is not found", org.exists());
@@ -160,7 +157,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_PACKAGENAME, "org.cxf");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
       
         File org = new File(output, "org");
         assertTrue(org.exists());
@@ -181,7 +178,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         // env.put(ToolConstants.CFG_CLIENT, ToolConstants.CFG_CLIENT);
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305772/hello_world.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
         File file = new File(output.getCanonicalPath(), "build.xml");
         FileInputStream fileinput = new FileInputStream(file);
         java.io.BufferedInputStream filebuffer = new java.io.BufferedInputStream(fileinput);
@@ -350,28 +347,11 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
         File[] files = address.listFiles();
         assertEquals(11, files.length);
-    }   
-     
-    /*
-    //TODO: Need to be fixed 
-    public void testWithNoService() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/helloworld-noservice.wsdl"));
-        processor.setContext(env);
-        processor.execute(true);
-        Class clz = classLoader.loadClass("org.apache.tuscany.samples.helloworldaxis.HelloWorldServiceImpl");
-        Method method = clz.getMethod("getGreetings", new Class[] {java.lang.String.class});
-        WebResult webResultAnno = AnnotationUtil.getPrivMethodAnnotation(method, WebResult.class);
-        assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webResultAnno.targetNamespace());
-        assertEquals("response", webResultAnno.partName());
-        assertEquals("getGreetingsResponse", webResultAnno.name());
-
-        WebParam webParamAnno = AnnotationUtil.getWebParam(method, "getGreetings");
-        assertEquals("http://helloworldaxis.samples.tuscany.apache.org", webParamAnno.targetNamespace());
-        assertEquals("request", webParamAnno.partName());
-        assertEquals("getGreetings", webParamAnno.name());
-
     }
     
+
+    
+   
     public void testBug305924ForNestedBinding() {
         try {
             String[] args = new String[] {"-all", "-compile", "-classdir",
@@ -391,22 +371,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-    
-
-     public void testBug305770() {
-        try {
-            env.put(ToolConstants.CFG_COMPILE, "compile");
-            env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
-            env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-            env.put(ToolConstants.CFG_ALL, ToolConstants.CFG_ALL);
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305770/Printer.wsdl"));
-            processor.setContext(env);
-            processor.execute(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-        
+   
     public void testBug305924ForExternalBinding() {
         try {
             String[] args = new String[] {"-all", "-compile", "-classdir",
@@ -426,11 +391,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-    
-    */
-    
-    
 
+   
     private String getLocation(String wsdlFile) {
         return this.getClass().getResource(wsdlFile).getFile();
     }

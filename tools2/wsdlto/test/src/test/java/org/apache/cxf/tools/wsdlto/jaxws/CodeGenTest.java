@@ -19,7 +19,6 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -37,7 +36,6 @@ import javax.xml.ws.WebFault;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
-import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
@@ -56,10 +54,9 @@ public class CodeGenTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_IMPL, "impl");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        InputStream ins = JAXWSContainer.class.getResourceAsStream("jaxws-toolspec.xml");
-        ToolSpec toolspec = new ToolSpec(ins, true);
-        processor = new JAXWSContainer(toolspec); 
-        //processor = new WSDLToJavaContainer("jaxws", null);
+        
+        processor = new JAXWSContainer(null); 
+
 
     }
 
@@ -617,7 +614,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testDefaultParameterOrder() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug161/header2.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
         Class clz = classLoader.loadClass("org.apache.header2.Header2Test");
         Class header = classLoader.loadClass("org.apache.header2.Header");
         Method method = clz.getMethod("headerMethod", new Class[] {Holder.class, header});
@@ -677,7 +674,7 @@ public class CodeGenTest extends ProcessorTestBase {
                 getLocation("/wsdl2java_wsdl/hello_world_with_keywords_operation.wsdl"));
 
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.Greeter");
         Class sayHi = classLoader.loadClass("org.apache.hello_world_soap_http.types.SayHi");
@@ -690,7 +687,7 @@ public class CodeGenTest extends ProcessorTestBase {
         try {
             env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/invalid_mep.wsdl"));
             processor.setContext(env);
-            processor.execute(true);
+            processor.execute();
         } catch (Exception e) {
             assertTrue("Invalid wsdl should be diagnosed", e.getMessage()
                 .indexOf("Invalid WSDL,wsdl:operation") > -1);
@@ -700,7 +697,7 @@ public class CodeGenTest extends ProcessorTestBase {
     public void testWSDLWithEnumType() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_with_enum_type.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.ActionType");
         assertNotNull("Enum class could not be found", clz);
     }

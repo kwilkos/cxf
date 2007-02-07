@@ -38,9 +38,9 @@ public class ToolContext {
     private String packageName;
     private Map<String, String> namespacePackageMap = new HashMap<String, String>();
     private Map<String, String> excludeNamespacePackageMap = new HashMap<String, String>();
-    private final Map<String, InputSource> jaxbBindingFiles = new HashMap<String, InputSource>();
-    private List<String> excludePkgList = new java.util.ArrayList<String>();
-    private List<String> excludeFileList = new java.util.ArrayList<String>();
+    private List<InputSource> jaxbBindingFiles = new ArrayList<InputSource>();
+    private List<String> excludePkgList = new ArrayList<String>();
+    private List<String> excludeFileList = new ArrayList<String>();
 
     public ToolContext() {
     }
@@ -193,11 +193,11 @@ public class ToolContext {
         return URIParserUtil.getNamespace(mapPackageName(ns));
     }
 
-    public void addJaxbBindingFile(String location, InputSource is) {
-        this.jaxbBindingFiles.put(location, is);
+    public void setJaxbBindingFiles(List<InputSource> bindings) {
+        jaxbBindingFiles = bindings;
     }
 
-    public Map<String, InputSource> getJaxbBindingFile() {
+    public List<InputSource> getJaxbBindingFile() {
         return this.jaxbBindingFiles;
     }
 

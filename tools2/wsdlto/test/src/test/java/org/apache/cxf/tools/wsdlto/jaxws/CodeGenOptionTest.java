@@ -19,11 +19,9 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.File;
-import java.io.InputStream;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
-import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.util.AnnotationUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
@@ -43,9 +41,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
 
-        InputStream ins = JAXWSContainer.class.getResourceAsStream("jaxws-toolspec.xml");
-        ToolSpec toolspec = new ToolSpec(ins, true);
-        processor = new JAXWSContainer(toolspec); 
+        processor = new JAXWSContainer(null); 
 
     }
 
@@ -66,7 +62,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
         
         Class greeterServer = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterServer");
         assertNotNull("Server should be generated", greeterServer);
@@ -79,7 +75,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
                
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));      
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
             
         Class greeterServer = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterServer");
         assertNotNull("Server should be generated", greeterServer);
@@ -90,7 +86,7 @@ public class CodeGenOptionTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_jaxws_base.wsdl"));
         env.put(ToolConstants.CFG_BINDING, getLocation("/wsdl2java_wsdl/hello_world_jaxws_binding.wsdl"));
         processor.setContext(env);
-        processor.execute(true);
+        processor.execute();
 
         assertNotNull(output);
 

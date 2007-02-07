@@ -26,7 +26,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jws.soap.SOAPBinding;
@@ -67,7 +67,7 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
     private WSDLReader wsdlReader;
     private Definition wsdlDefinition;
     
-    private Set<InputSource> jaxbBindings;
+    private List<InputSource> jaxbBindings;
     private Element handlerChain;
        
     public JAXWSDefinitionBuilder() {
@@ -110,10 +110,11 @@ public class JAXWSDefinitionBuilder extends AbstractWSDLBuilder<Definition> {
         }
         cusParser = new CustomizationParser();
         cusParser.parse(context);
+      
         jaxbBindings = cusParser.getJaxbBindings();
         handlerChain = cusParser.getHandlerChains();
-
-        context.put(ToolConstants.NS_JAXB_BINDINGS, jaxbBindings);
+       
+        context.setJaxbBindingFiles(jaxbBindings);
         context.put(ToolConstants.HANDLER_CHAIN, handlerChain);
         try {
             this.wsdlDefinition = buildCustomizedDefinition();

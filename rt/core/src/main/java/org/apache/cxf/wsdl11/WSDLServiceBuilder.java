@@ -21,6 +21,8 @@ package org.apache.cxf.wsdl11;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -43,7 +45,10 @@ import javax.wsdl.Types;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
+import javax.wsdl.extensions.schema.SchemaImport;
 import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
 
 import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 
@@ -86,13 +91,15 @@ public class WSDLServiceBuilder {
     public static final String WSDL_PORTTYPE = WSDLServiceBuilder.class.getName() + ".WSDL_PORTTYPE";
     public static final String WSDL_PORT = WSDLServiceBuilder.class.getName() + ".PORT";
     public static final String WSDL_BINDING = WSDLServiceBuilder.class.getName() + ".BINDING";
-
+    public static final String WSDL_SHEMA_ELEMENT_LIST = WSDLServiceBuilder.class.getName()
+                                                         + ".SCHEMA_ELEMENTS";
     public static final String WSDL_OPERATION = WSDLServiceBuilder.class.getName() + ".OPERATION";
     public static final String WSDL_BINDING_OPERATION = WSDLServiceBuilder.class.getName()
                                                         + ".BINDING_OPERATION";
 
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilder.class.getName());
     private Bus bus;
+    private Map<String, Element> schemaList = new HashMap<String, Element>();
 
     public WSDLServiceBuilder(Bus bus) {
         this.bus = bus;
@@ -105,17 +112,17 @@ public class WSDLServiceBuilder {
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public List<ServiceInfo> buildService(Definition d) {
         DescriptionInfo description = new DescriptionInfo();
         description.setProperty(WSDL_DEFINITION, d);
         description.setName(d.getQName());
         copyExtensors(description, d.getExtensibilityElements());
-       
+
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
         for (java.util.Iterator<QName> ite = d.getServices().keySet().iterator(); ite.hasNext();) {
-            QName qn = ite.next();            
+            QName qn = ite.next();
             serviceList.add(buildService(d, qn, description));
         }
         return serviceList;
@@ -149,6 +156,7 @@ public class WSDLServiceBuilder {
         service.setProperty(WSDL_SERVICE, serv);
 
         XmlSchemaCollection schemas = getSchemas(def, service);
+        service.setProperty(WSDL_SHEMA_ELEMENT_LIST, this.schemaList);
         service.setProperty(WSDL_SCHEMA_LIST, schemas);
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
@@ -180,13 +188,18 @@ public class WSDLServiceBuilder {
     private XmlSchemaCollection getSchemas(Definition def, ServiceInfo serviceInfo) {
         XmlSchemaCollection schemaCol = new XmlSchemaCollection();
         serviceInfo.setXmlSchemaCollection(schemaCol);
-        
+
         List<Definition> defList = new ArrayList<Definition>();
         parseImports(def, defList);
         extractSchema(def, schemaCol, serviceInfo);
+        // added
+        getSchemaList(def);
         for (Definition def2 : defList) {
             extractSchema(def2, schemaCol, serviceInfo);
+            // added
+            getSchemaList(def2);
         }
+
         return schemaCol;
     }
 
@@ -222,13 +235,13 @@ public class WSDLServiceBuilder {
                         String ns = (String)def.getNamespaces().get(prefix);
                         if (!"".equals(prefix) && !schemaElem.hasAttribute("xmlns:" + prefix)) {
                             schemaElem.setAttributeNS(javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                                "xmlns:" + prefix, ns);
+                                                      "xmlns:" + prefix, ns);
                         }
                     }
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
                     schemaCol.setSchemaResolver(new XmlSchemaURIResolver());
                     XmlSchema xmlSchema = schemaCol.read(schemaElem);
-                    
+
                     SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, xmlSchema.getTargetNamespace());
                     schemaInfo.setElement(schemaElem);
                     schemaInfo.setSchema(xmlSchema);
@@ -236,21 +249,73 @@ public class WSDLServiceBuilder {
                 }
             }
         }
+    }
 
+    // Workaround for getting the elements
+    private void getSchemaList(Definition def) {
+        Types typesElement = def.getTypes();
+        if (typesElement != null) {
+            Iterator ite = typesElement.getExtensibilityElements().iterator();
+            while (ite.hasNext()) {
+                Object obj = ite.next();
+                if (obj instanceof Schema) {
+                    Schema schema = (Schema)obj;
+                    addSchema(schema);
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addSchema(Schema schema) {
+        Map<String, List> imports = schema.getImports();
+        if (imports != null && imports.size() > 0) {
+            Collection<String> importKeys = imports.keySet();
+            for (String importNamespace : importKeys) {
+                if (!isSchemaParsed(schema.getDocumentBaseURI(), importNamespace)) {
+                    List<SchemaImport> schemaImports = imports.get(importNamespace);
+                    for (SchemaImport schemaImport : schemaImports) {
+                        Schema tempImport = schemaImport.getReferencedSchema();
+                        if (tempImport != null) {
+                            addSchema(tempImport);
+                        }
+                    }
+                }
+            }
+        }
+        if (schemaList.get(schema.getDocumentBaseURI()) == null) {
+            schemaList.put(schema.getDocumentBaseURI(), schema.getElement());
+        } else {
+            String tns = schema.getDocumentBaseURI() + "#"
+                         + schema.getElement().getAttribute("targetNamespace");
+            if (schemaList.get(tns) == null) {
+                schemaList.put(tns, schema.getElement());
+            }
+        }
+    }
+
+    private boolean isSchemaParsed(String baseUri, String ns) {
+        if (schemaList.get(baseUri) != null) {
+            Element ele = schemaList.get(baseUri);
+            String tns = ele.getAttribute("targetNamespace");
+            if (ns.equals(tns)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public EndpointInfo buildEndpoint(ServiceInfo service, BindingInfo bi, Port port) {
         List elements = port.getExtensibilityElements();
         String ns = null;
         if (null != elements && elements.size() > 0) {
-            ns = ((ExtensibilityElement)elements.get(0)).getElementType()
-                        .getNamespaceURI();
-        } else { // get the transport id from bindingInfo            
-            ExtensibilityElement extElem = (ExtensibilityElement)port.getBinding().
-                                            getExtensibilityElements().get(0);
+            ns = ((ExtensibilityElement)elements.get(0)).getElementType().getNamespaceURI();
+        } else { // get the transport id from bindingInfo
+            ExtensibilityElement extElem = (ExtensibilityElement)port.getBinding().getExtensibilityElements()
+                .get(0);
             if (extElem instanceof SOAPBindingImpl) {
-                ns = (String)((SOAPBindingImpl)extElem).getTransportURI();                  
-            }            
+                ns = (String)((SOAPBindingImpl)extElem).getTransportURI();
+            }
         }
         EndpointInfo ei = null;
 
@@ -320,8 +385,7 @@ public class WSDLServiceBuilder {
                         handleHeader(bop2.getOutput());
                     }
                     for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
-                        copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(),
-                                                              f.getName())), 
+                        copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(), f.getName())),
                                       bop.getBindingFault(f.getName()).getExtensibilityElements());
                     }
                 }
@@ -340,18 +404,18 @@ public class WSDLServiceBuilder {
 
     private void handleHeader(BindingMessageInfo bindingMessageInfo) {
         // mark all message part which should be in header
-        List<ExtensibilityElement> extensiblilityElement = 
-            bindingMessageInfo.getExtensors(ExtensibilityElement.class);
+        List<ExtensibilityElement> extensiblilityElement = bindingMessageInfo
+            .getExtensors(ExtensibilityElement.class);
         // for non-soap binding, the extensiblilityElement could be null
         if (extensiblilityElement == null) {
             return;
         }
-//        for (ExtensibilityElement element : extensiblilityElement) {
-//            LOG.info("the extensibility is " + element.getClass().getName());
-//            if (element instanceof SOAPHeader) {
-//                LOG.info("the header is " + ((SOAPHeader)element).getPart());
-//            }
-//        }
+        // for (ExtensibilityElement element : extensiblilityElement) {
+        // LOG.info("the extensibility is " + element.getClass().getName());
+        // if (element instanceof SOAPHeader) {
+        // LOG.info("the header is " + ((SOAPHeader)element).getPart());
+        // }
+        // }
     }
 
     public void buildInterface(ServiceInfo si, PortType p) {
@@ -403,7 +467,7 @@ public class WSDLServiceBuilder {
     private void checkForWrapped(OperationInfo opInfo) {
         MessageInfo inputMessage = opInfo.getInput();
         MessageInfo outputMessage = opInfo.getOutput();
-        
+
         boolean passedRule = true;
         // RULE No.1:
         // The operation's input and output message (if present) each contain
@@ -413,7 +477,7 @@ public class WSDLServiceBuilder {
             || (outputMessage != null && outputMessage.size() > 1)) {
             passedRule = false;
         }
-        
+
         if (!passedRule) {
             return;
         }
@@ -433,12 +497,11 @@ public class WSDLServiceBuilder {
         } else {
             QName inputElementName = inputPart.getElementQName();
             inputEl = schemas.getElementByQName(inputElementName);
-            if (inputEl == null 
-                || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
+            if (inputEl == null || !opInfo.getName().getLocalPart().equals(inputElementName.getLocalPart())) {
                 passedRule = false;
             }
         }
-        
+
         if (!passedRule) {
             return;
         }
@@ -457,7 +520,7 @@ public class WSDLServiceBuilder {
                 }
             }
         }
-        
+
         if (!passedRule) {
             return;
         }
@@ -473,34 +536,32 @@ public class WSDLServiceBuilder {
         XmlSchemaComplexType xsct = null;
         if (inputEl.getSchemaType() instanceof XmlSchemaComplexType) {
             xsct = (XmlSchemaComplexType)inputEl.getSchemaType();
-            if (hasAttributes(xsct) || !isWrappableSequence(xsct,
-                                                            inputEl.getQName().getNamespaceURI(),
-                                                            unwrappedInput)) {
+            if (hasAttributes(xsct)
+                || !isWrappableSequence(xsct, inputEl.getQName().getNamespaceURI(), unwrappedInput)) {
                 passedRule = false;
             }
         } else {
             passedRule = false;
         }
-        
+
         if (!passedRule) {
             return;
         }
-        
+
         if (outputMessage != null) {
             unwrappedOutput = new MessageInfo(opInfo, outputMessage.getName());
 
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
-                if (hasAttributes(xsct) || !isWrappableSequence(xsct, 
-                                                                outputEl.getQName().getNamespaceURI(),
-                                                                unwrappedOutput)) {
+                if (hasAttributes(xsct)
+                    || !isWrappableSequence(xsct, outputEl.getQName().getNamespaceURI(), unwrappedOutput)) {
                     passedRule = false;
                 }
             } else {
                 passedRule = false;
             }
         }
-               
+
         if (!passedRule) {
             return;
         }
@@ -523,9 +584,7 @@ public class WSDLServiceBuilder {
         return false;
     }
 
-    private boolean isWrappableSequence(XmlSchemaComplexType type, 
-                                        String namespaceURI, 
-                                        MessageInfo wrapper) { 
+    private boolean isWrappableSequence(XmlSchemaComplexType type, String namespaceURI, MessageInfo wrapper) {
         if (type.getParticle() instanceof XmlSchemaSequence) {
             XmlSchemaSequence seq = (XmlSchemaSequence)type.getParticle();
             XmlSchemaObjectCollection items = seq.getItems();
@@ -547,8 +606,7 @@ public class WSDLServiceBuilder {
                     mpi.setXmlSchema(el);
                 } else {
                     // anonymous type
-                    MessagePartInfo mpi = wrapper.addMessagePart(
-                        new QName(namespaceURI, el.getName()));
+                    MessagePartInfo mpi = wrapper.addMessagePart(new QName(namespaceURI, el.getName()));
                     mpi.setElementQName(mpi.getName());
                     mpi.setElement(true);
                     mpi.setXmlSchema(el);
@@ -565,11 +623,11 @@ public class WSDLServiceBuilder {
     private void buildMessage(AbstractMessageContainer minfo, Message msg, List paramOrder) {
         XmlSchemaCollection schemas = (XmlSchemaCollection)minfo.getOperation().getInterface().getService()
             .getProperty(WSDL_SCHEMA_LIST);
-               
+
         List orderedParam = msg.getOrderedParts(paramOrder);
         for (Part part : cast(orderedParam, Part.class)) {
-            MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), 
-                    part.getName()));
+            MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
+                .getName()));
             if (part.getTypeName() != null) {
                 pi.setTypeQName(part.getTypeName());
                 pi.setElement(false);
@@ -582,8 +640,8 @@ public class WSDLServiceBuilder {
         }
         for (Part part : cast(msg.getParts().values(), Part.class)) {
             if (!orderedParam.contains(part)) {
-                MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), 
-                        part.getName()));
+                MessagePartInfo pi = minfo.addMessagePart(new QName(minfo.getName().getNamespaceURI(), part
+                    .getName()));
                 if (part.getTypeName() != null) {
                     pi.setTypeQName(part.getTypeName());
                     pi.setElement(false);
@@ -592,9 +650,9 @@ public class WSDLServiceBuilder {
                     pi.setElementQName(part.getElementName());
                     pi.setElement(true);
                     pi.setXmlSchema(schemas.getElementByQName(part.getElementName()));
-                }                
+                }
             }
         }
-    }    
+    }
 
 }

@@ -112,8 +112,6 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         assertTrue(port.getExtensibilityElements().get(0) instanceof JMSAddressPolicyType);
     }
 
-
-
     public void testCustomization() {
         env.put(ToolConstants.CFG_WSDLURL, getClass().getResource("./hello_world.wsdl").toString());
         env.put(ToolConstants.CFG_BINDING, getClass().getResource("./binding2.xml").toString());
