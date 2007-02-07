@@ -156,7 +156,7 @@ public class WSDLServiceBuilder {
         service.setProperty(WSDL_SERVICE, serv);
 
         XmlSchemaCollection schemas = getSchemas(def, service);
-        service.setProperty(WSDL_SHEMA_ELEMENT_LIST, this.schemaList);
+        service.setProperty(WSDL_SCHEMA_ELEMENT_LIST, this.schemaList);
         service.setProperty(WSDL_SCHEMA_LIST, schemas);
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
