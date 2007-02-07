@@ -91,7 +91,7 @@ public class WSDLServiceBuilder {
     public static final String WSDL_PORTTYPE = WSDLServiceBuilder.class.getName() + ".WSDL_PORTTYPE";
     public static final String WSDL_PORT = WSDLServiceBuilder.class.getName() + ".PORT";
     public static final String WSDL_BINDING = WSDLServiceBuilder.class.getName() + ".BINDING";
-    public static final String WSDL_SHEMA_ELEMENT_LIST = WSDLServiceBuilder.class.getName()
+    public static final String WSDL_SCHEMA_ELEMENT_LIST = WSDLServiceBuilder.class.getName()
                                                          + ".SCHEMA_ELEMENTS";
     public static final String WSDL_OPERATION = WSDLServiceBuilder.class.getName() + ".OPERATION";
     public static final String WSDL_BINDING_OPERATION = WSDLServiceBuilder.class.getName()

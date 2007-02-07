@@ -85,7 +85,7 @@ public class JAXBDataBinding implements DataBindingProfile {
         //Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
         List<InputSource> jaxbBindings = env.getJaxbBindingFile();
         Map<String, Element> schemaLists = 
-            (Map<String, Element>)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SHEMA_ELEMENT_LIST); 
+            (Map<String, Element>)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST); 
         Set<String> keys = schemaLists.keySet();  
         for (String key : keys) {           
             Element ele = schemaLists.get(key);
