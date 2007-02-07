@@ -81,7 +81,7 @@ public class ClientServerTest extends ClientServerTestBase {
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {
                 public void startServers() throws Exception {                    
-                    assertTrue("server did not launch correctly", launchServer(Server.class));
+                    assertTrue("server did not launch correctly", launchServer(Server.class, true));
                 }
                 public void setUp() throws Exception {
                     // set up configuration to enable schema validation
@@ -93,7 +93,6 @@ public class ClientServerTest extends ClientServerTestBase {
             };
     }
 
-    
     public void testBasicConnection() throws Exception {
 
         SOAPService service = new SOAPService();
@@ -631,7 +630,24 @@ public class ClientServerTest extends ClientServerTestBase {
                                                body, 
                                                XPathConstants.STRING);
         assertEquals("Hello cxf (was CeltixFire)", response);
-    }    
+    }
+    
+    public void testBasicAuth() throws Exception {
+        Service service = Service.create(serviceName);
+        service.addPort(fakePortName, "http://schemas.xmlsoap.org/soap/", 
+                        "http://localhost:9000/SoapContext/SoapPort");
+        Greeter greeter = service.getPort(fakePortName, Greeter.class);
+
+        try {
+            BindingProvider bp = (BindingProvider)greeter;
+            bp.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, "BJ");
+            bp.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, "pswd");
+            String s = greeter.greetMe("secure");
+            assertEquals("Hello BJ", s);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+    }
     
     public static void main(String[] args) {
         junit.textui.TestRunner.run(ClientServerTest.class);

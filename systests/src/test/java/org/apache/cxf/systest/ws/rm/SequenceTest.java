@@ -820,7 +820,6 @@ public class SequenceTest extends ClientServerTestBase {
     }
 
     private void removeRMInterceptors(List<Interceptor> interceptors) {
-        int n = interceptors.size();
         for (Iterator<Interceptor> it = interceptors.iterator(); it.hasNext();) {
             Interceptor i = it.next();
             if (i instanceof RMSoapInterceptor

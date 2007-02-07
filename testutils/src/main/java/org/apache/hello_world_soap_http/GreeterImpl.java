@@ -28,8 +28,10 @@ import javax.annotation.Resource;
 
 import javax.jws.WebService;
 import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.ErrorCode;
@@ -58,6 +60,12 @@ public class GreeterImpl implements Greeter {
     }
 
     public String greetMe(String me) {
+        if ("secure".equals(me)) {
+            MessageContext ctx = context.getMessageContext();
+            return "Hello " + ctx.get(BindingProvider.USERNAME_PROPERTY);
+        }
+        
+        
         LOG.info("Invoking greetMe " + me);
         invocationCount++;
         return "Hello " + me;

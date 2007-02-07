@@ -445,9 +445,9 @@ public class HTTPConduit extends AbstractConduit {
     private void setPolicies(Message message, Map<String, List<String>> headers) {
         AuthorizationPolicy authPolicy = config.getAuthorization();
         AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
-        String userName = (String)message.get(Message.USERNAME);
-        String passwd = (String)message.get(Message.PASSWORD);
-        if (null != newPolicy && null != userName) {
+        String userName = null;
+        String passwd = null;
+        if (null != newPolicy) {
             userName = newPolicy.getUserName();
             passwd = newPolicy.getPassword();
         }

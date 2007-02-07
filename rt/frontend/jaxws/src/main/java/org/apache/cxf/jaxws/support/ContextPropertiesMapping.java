@@ -30,6 +30,7 @@ import javax.activation.DataHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
@@ -47,10 +48,6 @@ public final class ContextPropertiesMapping {
     static {
         cxf2jaxwsMap.put(Message.ENDPOINT_ADDRESS, 
                           BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
-        cxf2jaxwsMap.put(Message.USERNAME,
-                          BindingProvider.USERNAME_PROPERTY);
-        cxf2jaxwsMap.put(Message.PASSWORD,
-                          BindingProvider.PASSWORD_PROPERTY);
         
         cxf2jaxwsMap.put(Message.HTTP_REQUEST_METHOD,
                           MessageContext.HTTP_REQUEST_METHOD);
@@ -63,10 +60,6 @@ public final class ContextPropertiesMapping {
         
         jaxws2cxfMap.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, 
                          Message.ENDPOINT_ADDRESS);
-        jaxws2cxfMap.put(BindingProvider.USERNAME_PROPERTY,
-                         Message.USERNAME);
-        jaxws2cxfMap.put(BindingProvider.PASSWORD_PROPERTY,
-                         Message.PASSWORD);
                 
         jaxws2cxfMap.put(MessageContext.HTTP_REQUEST_METHOD,
                          Message.HTTP_REQUEST_METHOD);
@@ -119,10 +112,23 @@ public final class ContextPropertiesMapping {
     
     private static void mapJaxws2Cxf(Map<String, Object> context) {
         mapContext(context, jaxws2cxfMap);
+        if (context.containsKey(BindingProvider.USERNAME_PROPERTY)) {
+            AuthorizationPolicy authPolicy = new AuthorizationPolicy();
+            authPolicy.setUserName((String)context.get(BindingProvider.USERNAME_PROPERTY));
+            authPolicy.setPassword((String)context.get(BindingProvider.PASSWORD_PROPERTY));
+            context.put(AuthorizationPolicy.class.getName(), authPolicy);
+        }
     }
         
     private static void mapCxf2Jaxws(Map<String, Object> context) {
         mapContext(context, cxf2jaxwsMap);
+        
+        if (context.containsKey(AuthorizationPolicy.class.getName())) {
+            AuthorizationPolicy authPolicy =
+                (AuthorizationPolicy)context.get(AuthorizationPolicy.class.getName());
+            context.put(BindingProvider.USERNAME_PROPERTY, authPolicy.getUserName());
+            context.put(BindingProvider.PASSWORD_PROPERTY, authPolicy.getPassword());
+        }
     }
     
     

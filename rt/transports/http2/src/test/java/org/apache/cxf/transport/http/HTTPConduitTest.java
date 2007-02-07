@@ -39,6 +39,7 @@ import javax.servlet.ServletOutputStream;
 import junit.framework.TestCase;
 
 import org.apache.cxf.bus.CXFBusImpl;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
@@ -142,9 +143,13 @@ public class HTTPConduitTest extends TestCase {
         contentTypes.add("text/xml");
         contentTypes.add("charset=utf8");
         headers.put("content-type", contentTypes);
-        message.put(Message.PROTOCOL_HEADERS, headers);        
-        message.put(Message.USERNAME, "BJ");
-        message.put(Message.PASSWORD, "value");
+        message.put(Message.PROTOCOL_HEADERS, headers);
+        
+        
+        AuthorizationPolicy authPolicy = new AuthorizationPolicy();
+        authPolicy.setUserName("BJ");
+        authPolicy.setPassword("value");
+        message.put(AuthorizationPolicy.class, authPolicy);        
     }
 
     private HTTPConduit setUpConduit(boolean send) throws Exception {
