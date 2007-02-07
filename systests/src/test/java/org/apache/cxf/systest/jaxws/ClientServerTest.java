@@ -81,7 +81,7 @@ public class ClientServerTest extends ClientServerTestBase {
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {
                 public void startServers() throws Exception {                    
-                    assertTrue("server did not launch correctly", launchServer(Server.class, true));
+                    assertTrue("server did not launch correctly", launchServer(Server.class));
                 }
                 public void setUp() throws Exception {
                     // set up configuration to enable schema validation
