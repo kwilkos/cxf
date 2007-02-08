@@ -32,7 +32,6 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
 
 
 public class JMSConduitTest extends AbstractJMSTester {
@@ -58,16 +57,15 @@ public class JMSConduitTest extends AbstractJMSTester {
                          "HelloWorldQueueBinMsgService",
                          "HelloWorldQueueBinMsgPort");
         JMSConduit conduit = setupJMSConduit(false, false);
-        assertNotNull(conduit.config);
         assertEquals("Can't get the right ClientReceiveTimeout",
                      500,
-                     conduit.config.getClientConfig().getClientReceiveTimeout());
+                     conduit.getClientConfig().getClientReceiveTimeout());
         assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
                      10,
-                     conduit.base.getSessionPoolConfig().getLowWaterMark());
+                     conduit.getSessionPool().getLowWaterMark());
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
-                     conduit.base.getAddressPolicy().getConnectionPassword());
+                     conduit.getJMSAddress().getConnectionPassword());
         bus.shutdown(false);
         BusFactory.setDefaultBus(null);
         

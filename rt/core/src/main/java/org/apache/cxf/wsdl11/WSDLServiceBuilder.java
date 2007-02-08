@@ -268,6 +268,16 @@ public class WSDLServiceBuilder {
 
     @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
+        if (schemaList.get(schema.getDocumentBaseURI()) == null) {
+            schemaList.put(schema.getDocumentBaseURI(), schema.getElement());
+        } else {
+            String tns = schema.getDocumentBaseURI() + "#"
+                         + schema.getElement().getAttribute("targetNamespace");
+            if (schemaList.get(tns) == null) {
+                schemaList.put(tns, schema.getElement());
+            }
+        }
+        
         Map<String, List> imports = schema.getImports();
         if (imports != null && imports.size() > 0) {
             Collection<String> importKeys = imports.keySet();
@@ -276,20 +286,11 @@ public class WSDLServiceBuilder {
                     List<SchemaImport> schemaImports = imports.get(importNamespace);
                     for (SchemaImport schemaImport : schemaImports) {
                         Schema tempImport = schemaImport.getReferencedSchema();
-                        if (tempImport != null) {
+                        if (tempImport != null && !schemaList.containsValue(tempImport.getElement())) {
                             addSchema(tempImport);
                         }
                     }
                 }
-            }
-        }
-        if (schemaList.get(schema.getDocumentBaseURI()) == null) {
-            schemaList.put(schema.getDocumentBaseURI(), schema.getElement());
-        } else {
-            String tns = schema.getDocumentBaseURI() + "#"
-                         + schema.getElement().getAttribute("targetNamespace");
-            if (schemaList.get(tns) == null) {
-                schemaList.put(tns, schema.getElement());
             }
         }
     }

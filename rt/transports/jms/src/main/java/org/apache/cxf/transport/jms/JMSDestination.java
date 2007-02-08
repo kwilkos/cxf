@@ -53,25 +53,26 @@ import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean;
-import org.apache.cxf.transports.jms.JMSServerBehaviorPolicyType;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.jms_conf.JMSServerConfig;
 import org.apache.cxf.workqueue.WorkQueueManager;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 
 
-public class JMSDestination extends AbstractDestination {
+public class JMSDestination extends AbstractDestination implements Configurable, JMSTransport {
         
     protected static final String BASE_BEAN_NAME_SUFFIX = ".jms-destination-base";
 
     private static final Logger LOG = LogUtils.getL7dLogger(JMSDestination.class);
-
+    
+    protected ServerConfig serverConfig;
+    protected ServerBehaviorPolicyType runtimePolicy;
+    protected AddressType address;
+    protected SessionPoolType sessionPool;
+     
     final ConduitInitiator conduitInitiator;
     final JMSTransportBase base;
-    JMSDestinationConfigBean config;
+  
     PooledSession listenerSession;
     JMSListenerThread listenerThread;
     
@@ -80,7 +81,7 @@ public class JMSDestination extends AbstractDestination {
                           EndpointInfo info) throws IOException {
         super(getTargetReference(info.getAddress()), info);    
         
-        base = new JMSTransportBase(b, endpointInfo, true, BASE_BEAN_NAME_SUFFIX);
+        base = new JMSTransportBase(b, endpointInfo, true, BASE_BEAN_NAME_SUFFIX, this);
 
         conduitInitiator = ci;
 
@@ -105,7 +106,7 @@ public class JMSDestination extends AbstractDestination {
 
         try {
             getLogger().log(Level.FINE, "establishing JMS connection");
-            JMSProviderHub.connect(base, config);
+            JMSProviderHub.connect(this, serverConfig, runtimePolicy);
             //Get a non-pooled session. 
             listenerSession = base.sessionFactory.get(base.targetDestination);
             listenerThread = new JMSListenerThread(listenerSession);
@@ -159,7 +160,7 @@ public class JMSDestination extends AbstractDestination {
         
         if (correlationID == null
             || "".equals(correlationID)
-            && config.getServer().isUseMessageIDAsCorrelationID()) {
+            && getRuntimePolicy().isUseMessageIDAsCorrelationID()) {
             correlationID = request.getJMSMessageID();
         }
     
@@ -204,29 +205,61 @@ public class JMSDestination extends AbstractDestination {
         } 
     }
     
+    public void connected(javax.jms.Destination target, 
+                          javax.jms.Destination reply, 
+                          JMSSessionFactory factory) {
+        base.connected(target, reply, factory);
+    }
+
+    public String getBeanName() {
+        return endpointInfo.getName().toString() + ".jms-destination";
+    }
+    
     private void initConfig() {
-        
-        final class JMSDestinationConfiguration extends JMSDestinationConfigBean implements Configurable {
-
-            public String getBeanName() {
-                return endpointInfo.getName().toString() + ".jms-destination";
-            }
-        }
-        
-        JMSDestinationConfigBean bean = new JMSDestinationConfiguration();
-
-        bean.setServer(endpointInfo.getTraversedExtensor(new JMSServerBehaviorPolicyType(), 
-                                                         JMSServerBehaviorPolicyType.class));
-        bean.setServerConfig(endpointInfo.getTraversedExtensor(new JMSServerConfig(), JMSServerConfig.class));
+        this.runtimePolicy = endpointInfo.getTraversedExtensor(new ServerBehaviorPolicyType(),
+                                                               ServerBehaviorPolicyType.class);
+        this.serverConfig = endpointInfo.getTraversedExtensor(new ServerConfig(), ServerConfig.class);
+        this.address = endpointInfo.getTraversedExtensor(new AddressType(), AddressType.class);
+        this.sessionPool = endpointInfo.getTraversedExtensor(new SessionPoolType(), SessionPoolType.class);
         
         Configurer configurer = base.bus.getExtension(Configurer.class);
         if (null != configurer) {
-            configurer.configureBean(bean);
+            configurer.configureBean(this);
         }
-        
-        config = bean;
     }
-   
+
+    public AddressType getJMSAddress() {
+        return address;
+    }
+
+    public void setJMSAddress(AddressType a) {
+        this.address = a;
+    }
+
+    public ServerBehaviorPolicyType getRuntimePolicy() {
+        return runtimePolicy;
+    }
+
+    public void setRuntimePolicy(ServerBehaviorPolicyType runtimePolicy) {
+        this.runtimePolicy = runtimePolicy;
+    }
+
+    public ServerConfig getServerConfig() {
+        return serverConfig;
+    }
+
+    public void setServerConfig(ServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
+    public SessionPoolType getSessionPool() {
+        return sessionPool;
+    }
+
+    public void setSessionPool(SessionPoolType sessionPool) {
+        this.sessionPool = sessionPool;
+    }
+    
     protected class JMSListenerThread extends Thread {
         private final PooledSession listenSession;
 
@@ -441,7 +474,7 @@ public class JMSDestination extends AbstractDestination {
             long ttl = base.getTimeToLive(headers);
             
             if (ttl <= 0) {
-                ttl = config.getServerConfig().getMessageTimeToLive();
+                ttl = getServerConfig().getMessageTimeToLive();
             }
             
             long timeToLive = 0;

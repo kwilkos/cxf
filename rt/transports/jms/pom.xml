@@ -126,46 +126,6 @@
                                         <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
                                     </deleteDirs>
                                 </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-conf.xsd</xsd>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/jms-context.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms-context.xjb</bindingFile>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/jms-conduit.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xdv</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/jms-destination.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xdv</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
-                                <xsdOption>
-                                    <xsd>${basedir}/src/main/resources/schemas/configuration/jms-transport-base.xsd</xsd>
-                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/jms.xjb</bindingFile>
-                                    <extension>true</extension>
-                                    <extensionArgs>
-                                        <extensionArg>-Xdv</extensionArg>
-                                    </extensionArgs>
-                                    <deleteDirs>
-                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/wsdl</deleteDir>
-                                    </deleteDirs>
-                                </xsdOption>
                             </xsdOptions>
                         </configuration>
                         <goals>

@@ -30,8 +30,8 @@ import org.apache.cxf.hello_world_jms.types.ErrorCode;
 import org.apache.cxf.hello_world_jms.types.NoSuchCodeLit;
 import org.apache.cxf.hello_world_jms.types.TestRpcLitFaultResponse;
 import org.apache.cxf.transport.jms.JMSConstants;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.context.JMSPropertyType;
+import org.apache.cxf.transport.jms.JMSMessageHeadersType;
+import org.apache.cxf.transport.jms.JMSPropertyType;
 
 
 

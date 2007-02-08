@@ -23,107 +23,46 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ct="http://cxf.apache.org/configuration/types"
     xmlns:jms="http://cxf.apache.org/transports/jms"
-    xmlns:jms-conf="http://cxf.apache.org/transports/jms/jms-conf"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
-    <bean id="{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgPort.jms-conduit-base"
-        class="org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean">
-	<property name="addressPolicy">
-          <value>
-              <jms:address
-                  destinationStyle="queue"
-                  jndiConnectionFactoryName="MockConnectionFactory"
-                  jndiDestinationName="myOwnDestination"
-                  jndiReplyDestinationName="myOwnReplyDestination"
-                  connectionUserName="testUser"
-                  connectionPassword="testPassword">
-                  <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.cxf.transport.jms.MockInitialContextFactory"/>
-                  <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
-              </jms:address>
-          </value>
-      </property>
-      
-      <property name="sessionPoolConfig">
-          <value>
-              <jms-conf:sessionPoolConfig 
-                  lowWaterMark="10"
-                  highWaterMark="5000"
-              />
-          </value>
-      </property>
-  </bean>     
-
-    <bean id="{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgPort.jms-destination-base"
-        class="org.apache.cxf.transport.jms.base.JMSTransportBaseConfigBean">
-	<property name="addressPolicy">
-          <value>
-              <jms:address
-                  destinationStyle="queue"
-                  jndiConnectionFactoryName="MockConnectionFactory"
-                  jndiDestinationName="myOwnDestination"
-                  jndiReplyDestinationName="myOwnReplyDestination"
-                  connectionUserName="testUser"
-                  connectionPassword="testPassword">
-                  <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.cxf.transport.jms.MockInitialContextFactory"/>
-                  <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
-              </jms:address>
-          </value>
-      </property>
-      
-      <property name="sessionPoolConfig">
-          <value>
-              <jms-conf:sessionPoolConfig 
-                  lowWaterMark="10"
-                  highWaterMark="5000"
-              />
-          </value>
-      </property>
-  </bean>     
-	
-
-  <bean id="{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgPort.jms-conduit"
-        class="org.apache.cxf.transport.jms.conduit.JMSConduitConfigBean">
-      
-      <property name="client">
-          <value>
-              <jms:client messageType="binary"/>
-          </value>
-      </property>
-     
-           
-      <property name="clientConfig">
-          <value>
-              <jms-conf:clientConfig
-                  clientReceiveTimeout="500"
-                  messageTimeToLive="500"
-              />
-          </value>
-      </property>
-      
-  </bean>
-  
-  <bean id="{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgPort.jms-destination"
-        class="org.apache.cxf.transport.jms.destination.JMSDestinationConfigBean">
-
-      <property name="server">
-          <value>
-             <jms:server                   
-                 messageSelector="cxf_message_selector"
-                 useMessageIDAsCorrelationID="true"
-                 transactional="true"
-                 durableSubscriberName="cxf_subscriber"
-             />
-          </value>
-      </property>
-
-    <property name="serverConfig">
-        <value>
-            <jms-conf:serverConfig
-                messageTimeToLive="500"
-                durableSubscriptionClientId="test-server-id"
-            />
-        </value>
-      </property>
-  </bean>
+    <jms:conduit id="{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgPort.jms-conduit">
+      <jms:address
+          destinationStyle="queue"
+          jndiConnectionFactoryName="MockConnectionFactory"
+          jndiDestinationName="myOwnDestination"
+          jndiReplyDestinationName="myOwnReplyDestination"
+          connectionUserName="testUser"
+          connectionPassword="testPassword">
+          <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.cxf.transport.jms.MockInitialContextFactory"/>
+          <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
+      </jms:address>
+      <jms:sessionPool lowWaterMark="10" highWaterMark="5000"/>
+      <jms:runtimePolicy messageType="binary"/>
+      <jms:clientConfig clientReceiveTimeout="500" messageTimeToLive="500"/>
+    </jms:conduit>
+    
+    <jms:destination id="{http://cxf.apache.org/jms_conf_test}HelloWorldQueueBinMsgPort.jms-destination">
+      <jms:address
+          destinationStyle="queue"
+          jndiConnectionFactoryName="MockConnectionFactory"
+          jndiDestinationName="myOwnDestination"
+          jndiReplyDestinationName="myOwnReplyDestination"
+          connectionUserName="testUser"
+          connectionPassword="testPassword">
+          <jms:JMSNamingProperty name="java.naming.factory.initial" value="org.apache.cxf.transport.jms.MockInitialContextFactory"/>
+          <jms:JMSNamingProperty name="java.naming.provider.url" value="tcp://localhost:61616"/>
+      </jms:address>
+      <jms:sessionPool
+          lowWaterMark="10"
+          highWaterMark="5000"/>
+      <jms:runtimePolicy               
+         messageSelector="cxf_message_selector"
+         useMessageIDAsCorrelationID="true"
+         transactional="true"
+         durableSubscriberName="cxf_subscriber"/>
+      <jms:serverConfig
+        messageTimeToLive="500"
+        durableSubscriptionClientId="test-server-id"/>
+  </jms:destination>  
 
 </beans>

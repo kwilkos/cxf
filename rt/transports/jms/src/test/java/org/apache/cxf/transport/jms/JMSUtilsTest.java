@@ -25,12 +25,6 @@ import javax.naming.Context;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-import org.apache.cxf.transports.jms.JMSNamingPropertyType;
-
-//import org.apache.cxf.transports.jms.JMSAddressPolicyType;
-//import org.apache.cxf.transports.jms.JMSNamingPropertyType;
-
 public class JMSUtilsTest extends TestCase {
 
     public JMSUtilsTest(String name) {
@@ -54,7 +48,7 @@ public class JMSUtilsTest extends TestCase {
     // This is just a place holder for now it will be chaning in next task 
     // when the new JMS address policies and configurations are introdced.
     public void testpopulateIncomingContextNonNull() throws Exception {
-        JMSAddressPolicyType addrType =  new JMSAddressPolicyType();
+        AddressType addrType =  new AddressType();
         
         JMSNamingPropertyType prop = new JMSNamingPropertyType();
         prop.setName(Context.APPLET);

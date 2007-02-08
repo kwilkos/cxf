@@ -35,8 +35,6 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transports.jms.context.JMSMessageHeadersType;
-import org.apache.cxf.transports.jms.context.JMSPropertyType;
 import org.easymock.classextension.EasyMock;
 
 public class JMSDestinationTest extends AbstractJMSTester {
@@ -109,16 +107,16 @@ public class JMSDestinationTest extends AbstractJMSTester {
         JMSDestination destination = setupJMSDestination(false);
         assertEquals("Can't get the right ServerConfig's MessageTimeToLive ",
                      500,
-                     destination.config.getServerConfig().getMessageTimeToLive());
+                     destination.getServerConfig().getMessageTimeToLive());
         assertEquals("Can't get the right Server's MessageSelector",
                      "cxf_message_selector",
-                     destination.config.getServer().getMessageSelector());
+                     destination.getRuntimePolicy().getMessageSelector());
         assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
                      10,
-                     destination.base.getSessionPoolConfig().getLowWaterMark());
+                     destination.getSessionPool().getLowWaterMark());
         assertEquals("Can't get the right AddressPolicy's ConnectionPassword",
                      "testPassword",
-                     destination.base.getAddressPolicy().getConnectionPassword());
+                     destination.getJMSAddress().getConnectionPassword());
         BusFactory.setDefaultBus(null);
         
     }

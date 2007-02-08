@@ -24,8 +24,8 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-
 import junit.framework.TestCase;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.message.Exchange;

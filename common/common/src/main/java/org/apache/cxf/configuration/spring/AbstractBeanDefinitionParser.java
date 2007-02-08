@@ -34,8 +34,18 @@ import org.springframework.util.StringUtils;
 
 public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
     
-    protected void mapElementToJaxbProperty(Element parent, BeanDefinitionBuilder bean, QName name,
+    protected void mapElementToJaxbProperty(Element parent, 
+                                            BeanDefinitionBuilder bean, 
+                                            QName name,
                                             String string) {
+        mapElementToJaxbProperty(parent, bean, name, string, null);
+    }
+    
+    protected void mapElementToJaxbProperty(Element parent, 
+                                            BeanDefinitionBuilder bean, 
+                                            QName name,
+                                            String string,
+                                            Class<?> c) {
         Node data = null;
         NodeList nl = parent.getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
@@ -57,7 +67,12 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
             context = JAXBContext.newInstance(getJaxbPackage(), 
                                               getClass().getClassLoader());
             Unmarshaller u = context.createUnmarshaller();
-            obj = u.unmarshal(data);
+            if (c != null) {
+                obj = u.unmarshal(data, c);
+            } else {
+                obj = u.unmarshal(data);
+            }
+            
             if (obj instanceof JAXBElement<?>) {
                 JAXBElement<?> el = (JAXBElement<?>)obj;
                 obj = el.getValue();

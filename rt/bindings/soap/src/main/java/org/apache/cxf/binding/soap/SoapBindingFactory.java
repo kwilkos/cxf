@@ -278,7 +278,6 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         bmsg.addExtensor(bodyInfo);
     }
     
-    @Resource(name = "mtomEnabled")
     public void setMtomEnabled(boolean mtomEnabled) {
         this.mtomEnabled = mtomEnabled;
     }
