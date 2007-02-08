@@ -222,7 +222,7 @@ public final class DynamicClientFactory {
 
         URLClassLoader cl;
         try {
-            cl = new URLClassLoader(new URL[] {classes.toURL()}, classLoader);
+            cl = new URLClassLoader(new URL[] {classes.toURI().toURL()}, classLoader);
         } catch (MalformedURLException mue) {
             throw new IllegalStateException("Internal error; a directory returns a malformed URL: "
                                             + mue.getMessage(), mue);
