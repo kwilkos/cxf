@@ -230,6 +230,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         } else if (!isIn && isOut) {
             QName name = getOutPartName(o, method, i);
             part = o.getOutput().getMessagePart(name);
+            part.setProperty(ReflectionServiceFactoryBean.MODE_OUT, Boolean.TRUE);
             initializeParameter(part, paramType, genericType);
             part.setIndex(i);
         } else if (isIn && isOut) {

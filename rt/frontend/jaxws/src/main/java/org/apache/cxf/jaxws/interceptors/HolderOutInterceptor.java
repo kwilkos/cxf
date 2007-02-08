@@ -72,25 +72,16 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             LOG.fine("client invocation");
             // Extract the Holders and store them for later
             List<Holder> holders = new ArrayList<Holder>();
-            int size = op.getInput().size() + op.getOutput().size();
+            //int size = op.getInput().size() + op.getOutput().size();
+            int size = outObjects.size();
             List<Object> newObjects = new ArrayList<Object>(size);
             for (int i = 0; i < size; i++) {
                 newObjects.add(null);
             }
-            
-            for (MessagePartInfo part : parts) {
-                int idx = part.getIndex();
-                LOG.fine("part name: " + part.getName() + ", index: " + idx);
-                if (idx >= 0) {
-                    Holder holder = (Holder) outObjects.get(idx);
-                    if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
-                        newObjects.set(idx, holder.value);
-                    }
-                    holders.add(holder);
-                }
-            }
+            int[] argsOffset = removeOutHolderFromParaList(outObjects, parts, holders, size, newObjects);
             
             if (holders.size() == 0) {
+                
                 return;
             }
             
@@ -104,6 +95,7 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                 List<String> ordering = part.getMessageInfo().getOperation().getParameterOrdering();
                 if (ordering != null && ordering.size() > 0) {
                     int orderIdx = -1;
+                    int argsIndex = 0;
                     for (int j = 0; j < ordering.size(); j++) {
                         if (ordering.get(j).equals(part.getName().getLocalPart())) {
                             orderIdx = j;
@@ -111,9 +103,10 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
                         }
                     }
                     if (orderIdx != -1) {                        
-                        newObjects.set(part.getIndex(), outObjects.get(orderIdx));
+                        newObjects.set(part.getIndex() + argsOffset[argsIndex++], outObjects.get(orderIdx));
+                        
                     } else {
-                        newObjects.set(part.getIndex(), outObjects.get(i));
+                        newObjects.set(part.getIndex() + argsOffset[argsIndex++], outObjects.get(i));
                     }                    
                 } else {
                     newObjects.set(part.getIndex(), outObjects.get(i));
@@ -150,5 +143,38 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             }
         }
     }
+
+    private int[] removeOutHolderFromParaList(List<Object> outObjects, 
+                                            List<MessagePartInfo> parts, 
+                                            List<Holder> holders, 
+                                            int size, 
+                                            List<Object> newObjects) {
+        int rmCount = 0;
+        int[] argsOffset = new int[size];
+        int argsIndex = 0;
+        for (MessagePartInfo part : parts) {
+            int idx = part.getIndex();
+            LOG.fine("part name: " + part.getName() + ", index: " + idx);
+            
+            if (idx >= 0) {
+                Holder holder = (Holder) outObjects.get(idx);
+                if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
+                    newObjects.set(idx, holder.value);
+                    argsOffset[argsIndex++] = rmCount;
+                    
+                }
+                if (part.getProperty(ReflectionServiceFactoryBean.MODE_OUT) != null) {
+                    newObjects.remove(idx + rmCount);
+                    rmCount--;
+                    argsOffset[argsIndex] = rmCount;
+                }
+                
+                holders.add(holder);
+            }
+        }
+        return argsOffset;
+    }
+    
+    
     
 }

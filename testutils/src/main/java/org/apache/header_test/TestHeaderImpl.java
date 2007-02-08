@@ -19,6 +19,7 @@
 
 package org.apache.header_test;
 
+
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
@@ -29,6 +30,7 @@ import org.apache.header_test.types.TestHeader2Response;
 import org.apache.header_test.types.TestHeader3;
 import org.apache.header_test.types.TestHeader3Response;
 import org.apache.header_test.types.TestHeader5;
+import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
 
@@ -61,7 +63,6 @@ public class TestHeaderImpl implements TestHeader {
         TestHeader2 in,
         Holder<TestHeader2Response> out,
         Holder<TestHeader2Response> outHeader) {
-        
         TestHeader2Response outVal = new TestHeader2Response();
         outVal.setResponseType(in.getRequestType());
         out.value = outVal;
@@ -94,9 +95,17 @@ public class TestHeaderImpl implements TestHeader {
         
     }
 
-    public TestHeader5 testHeader5(
-        TestHeader5 in) {
-        return in;
+    public void testHeader5(Holder<TestHeader5ResponseBody> out,
+                            Holder<TestHeader5> outHeader,
+                            org.apache.header_test.types.TestHeader5 in) {
+        TestHeader5ResponseBody outVal = new TestHeader5ResponseBody();
+        outVal.setResponseType(1000);
+        out.value = outVal;
+        
+        TestHeader5 outHeaderVal = new TestHeader5();
+        outHeaderVal.setRequestType(in.getRequestType());
+        outHeader.value = outHeaderVal;
+        
     }
     
     public TestHeader6Response testHeaderPartBeforeBodyPart(

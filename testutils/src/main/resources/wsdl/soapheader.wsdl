@@ -82,6 +82,13 @@
                     </sequence>
                 </complexType>
             </element>
+            <element name="testHeader5ResponseBody">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" type="int"/>
+                    </sequence>
+                </complexType>
+            </element>
             <element name="testHeader6">
                 <complexType>
                     <sequence>
@@ -131,6 +138,7 @@
     </wsdl:message>
     <wsdl:message name="testHeader5Response">
         <wsdl:part name="outHeader" element="x1:testHeader5"/>
+        <wsdl:part name="out" element="x1:testHeader5ResponseBody"/>
     </wsdl:message>
     <wsdl:message name="testHeaderPartBeforeBodyPart">
         <wsdl:part name="inoutHeader" element="x1:testHeader3"/>
@@ -160,7 +168,7 @@
             <wsdl:input name="testHeader4Request" message="tns:testHeader4Request"/>
             <wsdl:output name="testHeader4Response" message="tns:testHeader4Response"/>
         </wsdl:operation>
-        <wsdl:operation name="testHeader5">
+        <wsdl:operation name="testHeader5" parameterOrder="out outHeader in">
             <wsdl:input name="testHeader5Request" message="tns:testHeader5Request"/>
             <wsdl:output name="testHeader5Response" message="tns:testHeader5Response"/>
         </wsdl:operation>
@@ -221,7 +229,7 @@
                 <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap:body parts="" use="literal"/>
+                <soap:body parts="out" use="literal"/>
                 <soap:header message="tns:testHeader5Response" part="outHeader" use="literal"/>
             </wsdl:output>
         </wsdl:operation>

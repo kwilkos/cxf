@@ -47,12 +47,12 @@ import org.apache.header_test.types.TestHeader2Response;
 import org.apache.header_test.types.TestHeader3;
 import org.apache.header_test.types.TestHeader3Response;
 import org.apache.header_test.types.TestHeader5;
+import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
 
 
 public class HeaderClientServerTest extends AbstractJaxWsTest {
-
     private final QName serviceName = new QName("http://apache.org/header_test",
                                                 "SOAPHeaderService");    
     private final QName portName = new QName("http://apache.org/header_test",
@@ -164,16 +164,16 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         assertNotNull(service);
         TestHeader proxy = service.getPort(portName, TestHeader.class);
         try {
+            Holder<TestHeader5ResponseBody> out = new Holder<TestHeader5ResponseBody>();
+            Holder<TestHeader5> outHeader = new Holder<TestHeader5>();
             TestHeader5 in = new TestHeader5();
             String val = new String(TestHeader5.class.getSimpleName());
             for (int idx = 0; idx < 2; idx++) {
-                val += idx;                
+                val += idx;            
                 in.setRequestType(val);
-                TestHeader5 returnVal = proxy.testHeader5(in);
-
-                //in copied to return                
-                assertNotNull(returnVal);
-                assertEquals(val, returnVal.getRequestType());
+                proxy.testHeader5(out, outHeader, in);
+                assertEquals(1000, out.value.getResponseType());
+                assertEquals(val, outHeader.value.getRequestType());
             }
         } catch (UndeclaredThrowableException ex) {
             throw (Exception)ex.getCause();

@@ -34,6 +34,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.header_test.TestHeaderImpl;
 import org.apache.header_test.types.TestHeader5;
+import org.apache.header_test.types.TestHeader5ResponseBody;
 
 public class HeaderTest extends AbstractJaxWsTest {
     public void testInvocation() throws Exception {
@@ -56,9 +57,13 @@ public class HeaderTest extends AbstractJaxWsTest {
         assertEquals(TestHeader5.class, part.getTypeClass());
         
         parts = op.getOutput().getMessageParts();
-        assertEquals(1, parts.size());
+        assertEquals(2, parts.size());
         
         part = parts.get(0);
+        assertNotNull(part.getTypeClass());
+        assertEquals(TestHeader5ResponseBody.class, part.getTypeClass());
+        
+        part = parts.get(1);
         assertNotNull(part.getTypeClass());
         assertEquals(TestHeader5.class, part.getTypeClass());
           
