@@ -20,6 +20,7 @@
 package org.apache.cxf.wsdl11;
 
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
@@ -44,16 +45,19 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
     private QName serviceName;
     private Definition definition;
     
-    public WSDLServiceFactory(Bus b, Definition d, QName sn) {
+    public WSDLServiceFactory(Bus b, Definition d) {
         setBus(b);
         definition = d;
-        serviceName = sn;        
     }
     
-    public WSDLServiceFactory(Bus b, URL url, QName sn) {
+    public WSDLServiceFactory(Bus b, Definition d, QName sn) {
+        this(b, d);
+        serviceName = sn;
+    }
+    
+    public WSDLServiceFactory(Bus b, URL url) {
         setBus(b);
         wsdlUrl = url;
-        serviceName = sn;        
         
         try {
             // use wsdl manager to parse wsdl or get cached definition
@@ -61,16 +65,32 @@ public class WSDLServiceFactory extends AbstractServiceFactoryBean {
         } catch (WSDLException ex) {
             throw new ServiceConstructionException(new Message("SERVICE_CREATION_MSG", LOG), ex);
         }
+        
+    }
+    
+    public WSDLServiceFactory(Bus b, URL url, QName sn) {
+        this(b, url);
+        serviceName = sn;
     }
     
     public Service create() {
-        javax.wsdl.Service wsdlService = definition.getService(serviceName);
-        if (wsdlService == null) {
-            throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE_EXC", LOG, serviceName));
+        ServiceInfo serviceInfo;
+        if (serviceName == null) {
+            List<ServiceInfo> services = new WSDLServiceBuilder(getBus()).buildService(definition);
+            if (services.size() == 0) {
+                throw new ServiceConstructionException(new Message("NO_SERVICE_EXC", LOG));
+            } else {
+                serviceInfo = services.get(0);
+                serviceName = serviceInfo.getName();
+            }
+        } else {
+            javax.wsdl.Service wsdlService = definition.getService(serviceName);
+            if (wsdlService == null) {
+                throw new ServiceConstructionException(new Message("NO_SUCH_SERVICE_EXC", LOG, serviceName));
+            }
+            serviceInfo = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
         }
-        ServiceInfo si = new WSDLServiceBuilder(getBus()).buildService(definition, wsdlService);
-        
-        ServiceImpl service = new ServiceImpl(si);
+        ServiceImpl service = new ServiceImpl(serviceInfo);
         setService(service);
         return service;
     }

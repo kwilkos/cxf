@@ -136,6 +136,15 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-xjc</artifactId>
         </dependency>
+        
+                        
+        <!-- Optional dependency so we can dynamically compile the JAXB beans for the Dynamic Client -->
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <optional>true</optional>
+        </dependency>
+        
     </dependencies>
 
 </project>

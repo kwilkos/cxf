@@ -21,7 +21,6 @@ package org.apache.cxf.transport;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-
 import junit.framework.TestCase;
 
 public class CachedOutputStreamTest extends TestCase {    

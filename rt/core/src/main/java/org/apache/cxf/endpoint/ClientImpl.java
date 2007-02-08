@@ -90,6 +90,12 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return invoke(oi, params, null);
     }
 
+    public Object[] invoke(String operationName, Object... params) throws Exception {
+        QName q = new QName(getEndpoint().getService().getName().getNamespaceURI(), operationName);
+       
+        return invoke(q, params);
+    }
+    
     public Object[] invoke(QName operationName, Object... params) throws Exception {
         BindingOperationInfo op = endpoint.getEndpointInfo().getBinding().getOperation(operationName);
         if (op == null) {
