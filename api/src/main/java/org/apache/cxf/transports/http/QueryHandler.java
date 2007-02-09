@@ -26,7 +26,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 public interface QueryHandler {
     
     /**
-     * @param URI the target URI
+     * @param uri the target URI
      * @param endpoint the current endpoint for this context (e.g. the endpoint this
      * Destination was activated for). Null if no current endpoint.
      * @return true iff the URI is a recognized WSDL query

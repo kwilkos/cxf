@@ -27,6 +27,11 @@ public interface QueryHandlerRegistry {
      * Register QueryHandler with registry
      */ 
     void registerHandler(QueryHandler handler);
+
+    /**
+    * Register QueryHandler with registry in a specified position in the list
+    */ 
+    void regsisterHandler(QueryHandler handler, int position);
     
     /**
      * Returns list of QueryHandlers
