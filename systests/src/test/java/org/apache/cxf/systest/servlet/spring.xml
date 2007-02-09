@@ -37,7 +37,5 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     <property name="address" value="http://localhost/services/Greeter"/>
     <property name="bus" ref="cxf"/>
   </bean>
-  
-  <jaxws:endpoint id="greeter" class="org.apache.hello_world_soap_http.GreeterImpl"/>
 
 </beans>
