@@ -39,6 +39,7 @@ import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
 import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.SERVER_ADDRESSING_PROPERTIES_INBOUND;
 
@@ -180,6 +181,22 @@ public class GreeterImpl implements Greeter {
     public Response<SayHiResponse> sayHiAsync() { 
         return null; 
         /*not called */
+    }
+
+    public String testNillable(String nillElem, int intElem) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public Response<TestNillableResponse> testNillableAsync(String nillElem,
+                                                            int intElem) {
+        return null;
+    }
+    
+    public Future<?> testNillableAsync(String nillElem, 
+                                       int intElem,
+                                       AsyncHandler<TestNillableResponse> asyncHandler) {
+        return null;
     }
     
 }

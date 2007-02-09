@@ -50,6 +50,23 @@
                     </sequence>
                 </complexType>
             </element>
+
+            <element name="testNillable">
+                <complexType>
+                    <sequence>
+                        <element name="NillElem" nillable="true" type="string"/>
+                        <element name="intElem" type="int"/>
+                    </sequence>
+                </complexType>
+            </element>
+            <element name="testNillableResponse">
+                <complexType>
+                    <sequence>
+                        <element name="responseType" nillable="true" type="string"/>
+                    </sequence>
+                </complexType>
+            </element>
+
             <element name="greetMeLater">
                 <complexType>
                     <sequence>
@@ -159,6 +176,12 @@
     <wsdl:message name="greetMeResponse">
         <wsdl:part name="out" element="x1:greetMeResponse"/>
     </wsdl:message>
+    <wsdl:message name="testNillableRequest">
+        <wsdl:part name="in" element="x1:testNillable"/>
+    </wsdl:message>
+    <wsdl:message name="testNillableResponse">
+        <wsdl:part name="out" element="x1:testNillableResponse"/>
+    </wsdl:message>
     <wsdl:message name="greetMeLaterRequest">
         <wsdl:part name="in" element="x1:greetMeLater"/>
     </wsdl:message>
@@ -201,6 +224,10 @@
             <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>
             <wsdl:output name="greetMeResponse" message="tns:greetMeResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="testNillable">
+            <wsdl:input name="testNillableRequest" message="tns:testNillableRequest"/>
+            <wsdl:output name="testNillableResponse" message="tns:testNillableResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="greetMeLater">
             <wsdl:input name="greetMeLaterRequest" message="tns:greetMeLaterRequest"/>
             <wsdl:output name="greetMeLaterResponse" message="tns:greetMeLaterResponse"/>
@@ -239,6 +266,15 @@
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
+            <soap:operation style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="testNillable">
             <soap:operation style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>

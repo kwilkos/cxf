@@ -112,9 +112,9 @@ public class JMSDestination extends AbstractDestination implements Configurable,
             listenerThread = new JMSListenerThread(listenerSession);
             listenerThread.start();
         } catch (JMSException ex) {
-            getLogger().log(Level.FINE, "JMS connect failed with JMSException : ", ex);
+            getLogger().log(Level.SEVERE, "JMS connect failed with JMSException : ", ex);
         } catch (NamingException nex) {
-            getLogger().log(Level.FINE, "JMS connect failed with NamingException : ", nex);
+            getLogger().log(Level.SEVERE, "JMS connect failed with NamingException : ", nex);
         }
     }
     

@@ -33,6 +33,7 @@ import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
 import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 
 
@@ -152,5 +153,22 @@ public class NotAnnotatedGreeterImpl implements Greeter {
         res.setCompany("CXF");
         res.setId(1);
         return res;
+    }
+
+    public String testNillable(String nillElem, int intElem) {
+        // TODO Auto-generated method stub
+        return null;
     }    
+    
+    public Response<TestNillableResponse> testNillableAsync(String nillElem,
+                                                            int intElem) {
+        return null;
+    }
+    
+    public Future<?> testNillableAsync(String nillElem, 
+                                       int intElem,
+                                       AsyncHandler<TestNillableResponse> asyncHandler) {
+        return null;
+    }
+    
 }

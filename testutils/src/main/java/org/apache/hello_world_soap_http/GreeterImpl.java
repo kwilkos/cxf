@@ -41,6 +41,7 @@ import org.apache.hello_world_soap_http.types.GreetMeSometimeResponse;
 import org.apache.hello_world_soap_http.types.NoSuchCodeLit;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
 import org.apache.hello_world_soap_http.types.TestDocLitFaultResponse;
+import org.apache.hello_world_soap_http.types.TestNillableResponse;
 
 @WebService(serviceName = "SOAPService",
             portName = "SoapPort",
@@ -203,5 +204,22 @@ public class GreeterImpl implements Greeter {
     public int getInvocationCount() {
         return invocationCount;
     }
+
+    public String testNillable(String nillElem, int intElem) {
+        System.out.println("the testNillable is invoked");
+        return nillElem;
+    }
+
+    public Response<TestNillableResponse> testNillableAsync(String nillElem,
+                                                            int intElem) {
+        return null;
+    }
+    
+    public Future<?> testNillableAsync(String nillElem, 
+                                       int intElem,
+                                       AsyncHandler<TestNillableResponse> asyncHandler) {
+        return null;
+    }
+    
 
 }

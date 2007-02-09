@@ -103,6 +103,7 @@ public class ClientServerTest extends ClientServerTestBase {
         String response = new String("Bonjour");
         try {
             greeter.greetMe("test");
+            
             String reply = greeter.sayHi();
             assertNotNull("no response received from service", reply);
             assertEquals(response, reply);
@@ -113,7 +114,24 @@ public class ClientServerTest extends ClientServerTestBase {
         Map<String, Object> responseContext = bp.getResponseContext();
         Integer responseCode = (Integer) responseContext.get(Message.RESPONSE_CODE);        
         assertEquals(200, responseCode.intValue());
-    } 
+    }
+    
+    public void testNillable() throws Exception {
+        SOAPService service = new SOAPService();
+        assertNotNull(service);
+
+        Greeter greeter = service.getPort(portName, Greeter.class);
+
+        try {
+            String reply = greeter.testNillable("test", 100);
+            assertEquals("test", reply);
+            reply = greeter.testNillable(null, 100);
+            assertNull(reply);
+        } catch (UndeclaredThrowableException ex) {
+            throw (Exception)ex.getCause();
+        }
+
+    }
     
     public void testAddPort() throws Exception {
         Service service = Service.create(serviceName);
