@@ -56,7 +56,7 @@ public class QueryHandlerRegistryImpl implements QueryHandlerRegistry {
         queryHandlers.add(handler);
     }
 
-    public void regsisterHandler(QueryHandler handler, int position) {
+    public void registerHandler(QueryHandler handler, int position) {
         queryHandlers.add(position, handler);
     }
     
