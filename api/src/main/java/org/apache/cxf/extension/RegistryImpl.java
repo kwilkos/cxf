@@ -17,31 +17,45 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.extension;
 
 import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.extension.BusExtension;
-import org.apache.cxf.extension.RegistryImpl;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
  */
-public class PolicyInterceptorProviderRegistryImpl 
-    extends RegistryImpl<QName, PolicyInterceptorProvider> 
-    implements PolicyInterceptorProviderRegistry, BusExtension {
-
-    public PolicyInterceptorProviderRegistryImpl() {
+public class RegistryImpl<K, T> implements Registry<K, T> {
+    
+    protected final Map<K, T> entries;
+    
+    protected RegistryImpl() {
         this(null);
     }
-
-    public PolicyInterceptorProviderRegistryImpl(Map<QName, PolicyInterceptorProvider> interceptors) {
-        super(interceptors);
-    }    
-
-    public Class getRegistrationType() {
-        return PolicyInterceptorProviderRegistry.class;
+    
+    protected RegistryImpl(Map<K, T> e) {
+        if (null == e) {
+            e = new ConcurrentHashMap<K, T>();
+        } else if (!(e instanceof ConcurrentHashMap)) {
+            e = new ConcurrentHashMap<K, T>(e);
+        }
+        entries = e;
     }
+    
+
+    public void register(K k, T t) {
+        entries.put(k, t);
+    }
+
+    public void unregister(K k) {
+        entries.remove(k);
+    }
+
+    public T get(K k) {
+        return  entries.get(k);
+    }
+
+    
+    
+    
 }

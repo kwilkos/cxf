@@ -19,31 +19,30 @@
 
 package org.apache.cxf.extension;
 
-import org.apache.cxf.Bus;
-
-
-
 /**
- * Helper class to be used as constructor argument for classes that want to be
- * registered as bus extensions. It avoids a @Resource annotated data member of type Bus
- * in the extension class and a @PostConstruct annotated method in which the extension
- * registration takes place.
+ * 
  */
-public class BusExtensionRegistrar {
-   
-    private Bus bus;    
+public interface Registry<K, T> {
     
-    public void setBus(Bus b) {
-        bus = b;
-    }
+    /**
+     * Registers an object of type T with this registry. 
+     *  
+     * @param k the key under which rto register the object
+     * @param t the object to register
+     */
+    void register(K k, T t);
 
-    public Bus getBus() {
-        return bus;
-    }
+    /**
+     * Unregisters the object stored under the given key from this registry.
+     *  
+     * @param k the key 
+     */
+    void unregister(K k);
 
-    public <T> void registerExtension(T extension, Class<T> extensionType) {
-        if (null != bus) {
-            bus.setExtension(extension, extensionType);
-        }
-    }
+    /**
+     * Returns the object stored under the given key.
+     * @param k the  key
+     * @return the object stored under the key
+     */
+    T get(K k);
 }

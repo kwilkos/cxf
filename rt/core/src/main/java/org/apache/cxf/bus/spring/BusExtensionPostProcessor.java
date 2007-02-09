@@ -19,29 +19,38 @@
 
 package org.apache.cxf.bus.spring;
 
-import org.apache.cxf.common.injection.ResourceInjector;
+import org.apache.cxf.Bus;
+import org.apache.cxf.extension.BusExtension;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.Ordered;
 
-public class Jsr250BeanPostProcessor implements BeanPostProcessor, Ordered {
+public class BusExtensionPostProcessor implements BeanPostProcessor, ApplicationContextAware, Ordered {
 
-    private ResourceInjector injector;
-    
-    Jsr250BeanPostProcessor() {
-        injector = new ResourceInjector(null, null); 
+    private Bus bus;
+
+    public void setApplicationContext(ApplicationContext ctx) {
+        bus = (Bus)ctx.getBean("cxf");
     }
 
     public int getOrder() {
-        return 1002;
+        return 1001;
     }
+    
         
     public Object postProcessAfterInitialization(Object bean, String beanId) throws BeansException {
         return bean;
     }
 
+    @SuppressWarnings("unchecked")
     public Object postProcessBeforeInitialization(Object bean, String beanId) throws BeansException {
-        injector.construct(bean);
+        if (null != bus && bean instanceof BusExtension) {
+            Class cls = ((BusExtension)bean).getRegistrationType();
+            bus.setExtension(bean, cls);
+        }
         return bean;
     }
 

@@ -17,45 +17,26 @@
  * under the License.
  */
 
-package org.apache.cxf.extension;
+package org.apache.cxf.ws.policy.builders.primitive;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.w3c.dom.Element;
 
-/**
- * 
- */
-public class RegistryExtensionImpl<K, T> implements RegistryExtension<K, T> {
+import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.neethi.Assertion;
+
+public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
+
+    private PolicyEngine engine;
     
-    protected final Map<K, T> entries;
-    
-    protected RegistryExtensionImpl() {
-        this(null);
+    public void setPolicyEngine(PolicyEngine e) {
+        engine = e;
     }
     
-    protected RegistryExtensionImpl(Map<K, T> e) {
-        if (null == e) {
-            e = new ConcurrentHashMap<K, T>();
-        } else if (!(e instanceof ConcurrentHashMap)) {
-            e = new ConcurrentHashMap<K, T>(e);
-        }
-        entries = e;
+    @Override
+    public Assertion build(Element elem) {
+        return new NestedPrimitiveAssertion(elem, engine.getBuilder());      
     }
     
-
-    public void register(K k, T t) {
-        entries.put(k, t);
-    }
-
-    public void unregister(K k) {
-        entries.remove(k);
-    }
-
-    public T get(K k) {
-        return  entries.get(k);
-    }
-
     
-    
-    
+
 }

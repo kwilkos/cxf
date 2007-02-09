@@ -17,32 +17,31 @@
  * under the License.
  */
 
-package org.apache.cxf.extension;
+package org.apache.cxf.ws.policy.builders.primitive;
 
-/**
- * 
- */
-public interface RegistryExtension<K, T> {
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
+
+import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.neethi.Assertion;
+
+public class PrimitiveAssertionBuilder implements AssertionBuilder {
+
+    private Collection<QName> knownElements = new ArrayList<QName>();
     
-    /**
-     * Registers an object of type T with this registry. 
-     *  
-     * @param k the key under which rto register the object
-     * @param t the object to register
-     */
-    void register(K k, T t);
+    public Assertion build(Element element) {
+        return new PrimitiveAssertion(element);
+    }
 
-    /**
-     * Unregisters the object stored under the given key from this registry.
-     *  
-     * @param k the key 
-     */
-    void unregister(K k);
-
-    /**
-     * Returns the object stored under the given key.
-     * @param k the  key
-     * @return the object stored under the key
-     */
-    T get(K k);
+    public Collection<QName> getKnownElements() {
+        return knownElements;
+    }
+    
+    public void setKnownElements(Collection<QName> k) {
+        knownElements = k;
+    }
 }

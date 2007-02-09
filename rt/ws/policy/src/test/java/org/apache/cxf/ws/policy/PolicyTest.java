@@ -19,26 +19,19 @@
 
 package org.apache.cxf.ws.policy;
 
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.ws.policy.builders.primitive.PrimitiveAssertion;
 import org.apache.neethi.Assertion;
-import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
-import org.apache.neethi.PolicyComponent;
-import org.apache.neethi.PolicyOperator;
 
 /**
  * 
  */
 public class PolicyTest extends TestCase {
-
-    private static final String INDENT = "  ";
-    
+ 
     public void testNothing() {
     }
     
@@ -47,92 +40,83 @@ public class PolicyTest extends TestCase {
         Assertion a1 = new TestAssertion(new QName("http://x.y.z", "a"));
         p1.addPolicyComponent(a1);
         System.out.println("Policy p1:");
-        printPolicyComponent(p1);
+        PolicyUtils.printPolicyComponent(p1);
         
         Policy p2 = new Policy();
         Assertion a2 = new TestAssertion(new QName("http://x.y.z", "b"));
         p2.addPolicyComponent(a2);
         System.out.println("Policy p2:");
-        printPolicyComponent(p2);
+        PolicyUtils.printPolicyComponent(p2);
         
         Policy p3 = new Policy();
         p3.addPolicyComponent(a1);
         System.out.println("Policy p3:");
-        printPolicyComponent(p3);
+        PolicyUtils.printPolicyComponent(p3);
         
         Policy p = p1.merge(p2);
         System.out.println("p1 merged with p2:");
-        printPolicyComponent(p);
+        PolicyUtils.printPolicyComponent(p);
         
         System.out.println("normalised merge result:");
-        printPolicyComponent(p.normalize(true));
+        PolicyUtils.printPolicyComponent(p.normalize(true));
         
         p = p1.merge(p3);
         System.out.println("p1 merged with p3:");
-        printPolicyComponent(p);
+        PolicyUtils.printPolicyComponent(p);
         
         System.out.println("normalised merge result:");
-        printPolicyComponent(p.normalize(true));
-        
-        
-        
-        
+        PolicyUtils.printPolicyComponent(p.normalize(true));    
     }
     
-    private void printPolicyComponent(PolicyComponent pc) {
-        StringBuffer buf = new StringBuffer();
-        printPolicyComponent(pc, buf, 0);
-        System.out.println(buf.toString());
+    public void xtestNormalisePrimitives() {
+        Policy p;
+        /*
+        p = getOneOptionalAssertion();
+        doNormalise(p, true);
+        
+        p = getOneAssertion();
+        doNormalise(p, true);
+        */
+        
+        p = getTwoOptionalAssertions();
+        doNormalise(p, true);
+     
+    }   
+    
+    Policy getOneAssertion() {
+        String uri = "http://www.w3.org/2007/01/addressing/metadata";
+        Policy p = new Policy();
+        p.addAssertion(new PrimitiveAssertion(new QName(uri, "AnonymousResponses"), false));
+        return p;
     }
     
-    private void printPolicyComponent(PolicyComponent pc, StringBuffer buf, int level) {
-        indent(buf, level);
-        buf.append("type: ");
-        buf.append(typeToString(pc.getType()));
-        if (Constants.TYPE_ASSERTION == pc.getType()) {
-            buf.append(" (");
-            buf.append(((Assertion)pc).getName());
-            buf.append(")");
-            nl(buf);
+    Policy getOneOptionalAssertion() {
+        String uri = "http://www.w3.org/2007/01/addressing/metadata";
+        Policy p = new Policy();
+        p.addAssertion(new PrimitiveAssertion(new QName(uri, "AnonymousResponses"), true));
+        return p;
+    }
+    
+    Policy getTwoOptionalAssertions() {
+        String uri = "http://www.w3.org/2007/01/addressing/metadata";
+        Policy p = new Policy();
+        p.addAssertion(new PrimitiveAssertion(new QName(uri, "AnonymousResponses"), true));
+        p.addAssertion(new PrimitiveAssertion(new QName(uri, "NonAnonymousResponses"), true));
+        return p;
+    }
+    
+    private void doNormalise(Policy p, boolean deep) {
+        System.out.println("compact form:");
+        PolicyUtils.printPolicyComponent(p);
+        System.out.println();
+        
+        if (deep) {
+            System.out.println("normalised form (deep):");
         } else {
-            level++;
-            List<PolicyComponent> children = CastUtils.cast(((PolicyOperator)pc).getPolicyComponents(),
-                PolicyComponent.class);
-            nl(buf);
-            for (PolicyComponent child : children) {
-                printPolicyComponent(child, buf, level);
-            }
-            level--;
+            System.out.println("normalised form (shallow):");
         }
+        PolicyUtils.printPolicyComponent(p.normalize(true));
+        System.out.println();
     }
-    
-    private void indent(StringBuffer buf, int level) {
-        for (int i = 0; i < level; i++) {
-            buf.append(INDENT);
-        }
-    }
-    
-    private void nl(StringBuffer buf) {
-        buf.append(System.getProperty("line.separator"));
-    }
-    
-    private String typeToString(short type) {
-        switch(type) {
-        case Constants.TYPE_ASSERTION:
-            return "Assertion";
-        case Constants.TYPE_ALL:
-            return "All";
-        case Constants.TYPE_EXACTLYONE:
-            return "ExactlyOne";
-        case Constants.TYPE_POLICY:
-            return "Policy";
-        case Constants.TYPE_POLICY_REF:
-            return "PolicyReference";
-        default:
-            break;
-        }
-        return "";
-    }
-    
-    
+   
 }

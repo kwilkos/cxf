@@ -21,7 +21,7 @@ package org.apache.cxf.ws.policy;
 
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.extension.RegistryExtension;
+import org.apache.cxf.extension.Registry;
 
 
 /**
@@ -29,5 +29,5 @@ import org.apache.cxf.extension.RegistryExtension;
  * assertion domain specific interceptors.
  */
 public interface PolicyInterceptorProviderRegistry 
-    extends RegistryExtension<QName, PolicyInterceptorProvider> {
+    extends Registry<QName, PolicyInterceptorProvider> {
 }

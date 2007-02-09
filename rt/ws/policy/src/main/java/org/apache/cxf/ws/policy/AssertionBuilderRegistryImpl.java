@@ -28,33 +28,30 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
-import org.apache.cxf.extension.BusExtensionRegistrar;
-import org.apache.cxf.extension.RegistryExtensionImpl;
+import org.apache.cxf.extension.BusExtension;
+import org.apache.cxf.extension.RegistryImpl;
 import org.apache.neethi.Assertion;
 
 /**
  * 
  */
-public class AssertionBuilderRegistryImpl extends RegistryExtensionImpl<QName, AssertionBuilder> 
-    implements AssertionBuilderRegistry {
-    
+public class AssertionBuilderRegistryImpl extends RegistryImpl<QName, AssertionBuilder> implements
+    AssertionBuilderRegistry, BusExtension {
+
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(AssertionBuilderRegistry.class);
-  
+
     public AssertionBuilderRegistryImpl() {
         this(null);
     }
 
-    public AssertionBuilderRegistryImpl(BusExtensionRegistrar registrar) {
-        this(registrar, null);
+    public AssertionBuilderRegistryImpl(Map<QName, AssertionBuilder> builders) {
+        super(builders);
+    }
+
+    public Class getRegistrationType() {
+        return AssertionBuilderRegistry.class;
     }
     
-    public AssertionBuilderRegistryImpl(BusExtensionRegistrar registrar, 
-                                        Map<QName, AssertionBuilder> builders) {
-        super(builders);
-        if (null != registrar) {
-            registrar.registerExtension(this, AssertionBuilderRegistry.class);
-        }
-    }
 
     public Assertion build(Element element) {
 
@@ -62,12 +59,12 @@ public class AssertionBuilderRegistryImpl extends RegistryExtensionImpl<QName, A
 
         QName qname = new QName(element.getNamespaceURI(), element.getLocalName());
         builder = get(qname);
-        
+
         if (null == builder) {
             throw new PolicyException(new Message("NO_ASSERTIONBUILDER_EXC", BUNDLE, qname.toString()));
         }
 
         return builder.build(element);
-        
+
     }
 }

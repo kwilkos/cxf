@@ -61,6 +61,10 @@ public class PolicyBuilder {
         assertionBuilderRegistry = abr;        
     }
     
+    public AssertionBuilderRegistry getAssertionBuilderRegistry() {
+        return assertionBuilderRegistry;        
+    }
+    
     /**
      * Creates a PolicyReference object from an InputStream.
      * 

@@ -19,25 +19,14 @@
 
 package org.apache.cxf.ws.policy.builders.xml;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import javax.xml.namespace.QName;
-
 import org.w3c.dom.Element;
 
-import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.cxf.ws.policy.builders.primitive.PrimitiveAssertionBuilder;
 import org.apache.neethi.Assertion;
 
-public class XMLPrimitiveAssertionBuilder implements AssertionBuilder {
-
-    private Collection<QName> knownElements = new ArrayList<QName>();
-    
+public class XMLPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
+ 
     public Assertion build(Element element) {
-        return new XmlPrimtiveAssertion(element);
-    }
-
-    public Collection<QName> getKnownElements() {
-        return knownElements;
+        return new XmlPrimitiveAssertion(element);
     }
 }

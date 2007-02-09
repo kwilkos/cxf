@@ -27,7 +27,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.extension.BusExtensionRegistrar;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -68,17 +67,12 @@ public class PolicyEngineTest extends TestCase {
     }
     
     public void testInit() {  
+        engine = new PolicyEngine();
         Bus bus = control.createMock(Bus.class);
-        BusExtensionRegistrar br = control.createMock(BusExtensionRegistrar.class);
-        br.registerExtension((PolicyEngine)EasyMock.isA(PolicyEngine.class), 
-                             EasyMock.eq(PolicyEngine.class));
-        EasyMock.expectLastCall();
-        EasyMock.expect(br.getBus()).andReturn(bus);
+        engine.setBus(bus);
         AssertionBuilderRegistry abr = control.createMock(AssertionBuilderRegistry.class);
         EasyMock.expect(bus.getExtension(AssertionBuilderRegistry.class)).andReturn(abr);
-        
         control.replay();
-        engine = new PolicyEngine(br);
         engine.init();
         assertSame(bus, engine.getBus());
         assertEquals(1, engine.getPolicyProviders().size());

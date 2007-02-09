@@ -118,6 +118,7 @@ public class WSDLServiceBuilder {
         DescriptionInfo description = new DescriptionInfo();
         description.setProperty(WSDL_DEFINITION, d);
         description.setName(d.getQName());
+        description.setBaseURI(d.getDocumentBaseURI());
         copyExtensors(description, d.getExtensibilityElements());
 
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
@@ -147,6 +148,7 @@ public class WSDLServiceBuilder {
             description = new DescriptionInfo();
             description.setProperty(WSDL_DEFINITION, def);
             description.setName(def.getQName());
+            description.setBaseURI(def.getDocumentBaseURI());
             copyExtensors(description, def.getExtensibilityElements());
         }
         ServiceInfo service = new ServiceInfo();

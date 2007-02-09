@@ -17,31 +17,9 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
+package org.apache.cxf.extension;
 
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.extension.BusExtension;
-import org.apache.cxf.extension.RegistryImpl;
-
-/**
- * 
- */
-public class PolicyInterceptorProviderRegistryImpl 
-    extends RegistryImpl<QName, PolicyInterceptorProvider> 
-    implements PolicyInterceptorProviderRegistry, BusExtension {
-
-    public PolicyInterceptorProviderRegistryImpl() {
-        this(null);
-    }
-
-    public PolicyInterceptorProviderRegistryImpl(Map<QName, PolicyInterceptorProvider> interceptors) {
-        super(interceptors);
-    }    
-
-    public Class getRegistrationType() {
-        return PolicyInterceptorProviderRegistry.class;
-    }
+public interface BusExtension {
+       
+    Class getRegistrationType();
 }

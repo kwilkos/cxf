@@ -19,13 +19,23 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.List;
+
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.ws.policy.builders.primitive.NestedPrimitiveAssertion;
+import org.apache.neethi.Assertion;
+import org.apache.neethi.Constants;
+import org.apache.neethi.PolicyComponent;
+import org.apache.neethi.PolicyOperator;
 
 /**
  * 
  */
 public final class PolicyUtils {
 
+    private static final String INDENT = "  ";
+    
     private PolicyUtils() {
     }
 
@@ -38,5 +48,68 @@ public final class PolicyUtils {
     public static boolean isRequestor(Message message) {
         Boolean requestor = (Boolean)message.get(Message.REQUESTOR_ROLE);
         return requestor != null && requestor.booleanValue();
+    }
+    
+    public static void printPolicyComponent(PolicyComponent pc) {
+        StringBuffer buf = new StringBuffer();
+        printPolicyComponent(pc, buf, 0);
+        System.out.println(buf.toString());
+    }
+    
+    private static void printPolicyComponent(PolicyComponent pc, StringBuffer buf, int level) {
+        indent(buf, level);
+        buf.append("type: ");
+        buf.append(typeToString(pc.getType()));
+        if (Constants.TYPE_ASSERTION == pc.getType()) {
+            buf.append(" ");
+            buf.append(((Assertion)pc).getName());
+            if (((Assertion)pc).isOptional()) {
+                buf.append(" (optional)");
+            }
+            nl(buf);
+            if (pc instanceof NestedPrimitiveAssertion) {
+                PolicyComponent nested = ((NestedPrimitiveAssertion)pc).getNested();
+                level++;
+                printPolicyComponent(nested, buf, level);
+                level--;                
+            }
+        } else {
+            level++;
+            List<PolicyComponent> children = CastUtils.cast(((PolicyOperator)pc).getPolicyComponents(),
+                PolicyComponent.class);
+            nl(buf);
+            for (PolicyComponent child : children) {
+                printPolicyComponent(child, buf, level);
+            }
+            level--;
+        }
+    }
+    
+    private static void indent(StringBuffer buf, int level) {
+        for (int i = 0; i < level; i++) {
+            buf.append(INDENT);
+        }
+    }
+    
+    private static void nl(StringBuffer buf) {
+        buf.append(System.getProperty("line.separator"));
+    }
+    
+    private static String typeToString(short type) {
+        switch(type) {
+        case Constants.TYPE_ASSERTION:
+            return "Assertion";
+        case Constants.TYPE_ALL:
+            return "All";
+        case Constants.TYPE_EXACTLYONE:
+            return "ExactlyOne";
+        case Constants.TYPE_POLICY:
+            return "Policy";
+        case Constants.TYPE_POLICY_REF:
+            return "PolicyReference";
+        default:
+            break;
+        }
+        return "";
     }
 }

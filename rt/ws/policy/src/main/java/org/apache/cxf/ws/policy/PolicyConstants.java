@@ -33,11 +33,16 @@ public final class PolicyConstants {
     
     private static final String POLICYREF_ELEM_NAME = "PolicyReference";
     
+    private static final String OPTIONAL_ATTR_NAME = "Optional";
+    
     private static final QName POLICY_ELEM_QNAME = 
         new QName(NAMESPACE_URI, POLICY_ELEM_NAME);
     
     private static final QName POLICYREF_QNAME = 
         new QName(NAMESPACE_URI, POLICYREF_ELEM_NAME);
+    
+    private static final QName OPTIONAL_ATTR_QNAME = 
+        new QName(NAMESPACE_URI, OPTIONAL_ATTR_NAME);
     
     
     /**
@@ -57,15 +62,33 @@ public final class PolicyConstants {
     /**
      * @return the QName of the Policy element
      */
-    public static QName getPolicyQName() {
+    public static QName getPolicyElementQName() {
         return POLICY_ELEM_QNAME;
+    }
+    
+    public static String getPolicyElementLocalName() {
+        return POLICY_ELEM_NAME;
     }
     
     /**
      * @return the QName of the PolicyReference element
      */
-    public static QName getPolicyReferenceQName() {
+    public static QName getPolicyReferenceElementQName() {
         return POLICYREF_QNAME;
     }
+    
+    public static String getPolicyReferenceElementLocalName() {
+        return POLICYREF_ELEM_NAME;
+    }
+    
+    public static QName getOptionalAttributeQName() {
+        return OPTIONAL_ATTR_QNAME;
+    }
+    
+    public static String getOptionalAttrLocalName() {
+        return OPTIONAL_ATTR_NAME;
+    }
+    
+    
     
 }

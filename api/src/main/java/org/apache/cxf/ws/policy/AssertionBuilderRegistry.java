@@ -23,7 +23,7 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import org.apache.cxf.extension.RegistryExtension;
+import org.apache.cxf.extension.Registry;
 import org.apache.neethi.Assertion;
 
 
@@ -31,7 +31,7 @@ import org.apache.neethi.Assertion;
  * AssertionBuilderRegistry is used to manage AssertionBuilders and
  * create Assertion objects from given xml elements.
  */
-public interface AssertionBuilderRegistry extends RegistryExtension<QName, AssertionBuilder> {
+public interface AssertionBuilderRegistry extends Registry<QName, AssertionBuilder> {
     
     /**
      * Returns an assertion that is built using the specified xml element.

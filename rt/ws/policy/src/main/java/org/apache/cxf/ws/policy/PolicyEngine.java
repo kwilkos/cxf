@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.extension.BusExtensionRegistrar;
+import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -38,27 +38,23 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyRegistry;
 
 /**
  * 
  */
-public class PolicyEngine {
+public class PolicyEngine implements BusExtension {
     
     private Bus bus;
     private PolicyBuilder builder;
+    private PolicyRegistry registry;
     private List<PolicyProvider> policyProviders;
 
     private Map<BindingOperationInfo, ClientPolicyInfo> clientInfo 
         = new ConcurrentHashMap<BindingOperationInfo, ClientPolicyInfo>();
 
-    public PolicyEngine() {
-        this(null);
-    }
-    public PolicyEngine(BusExtensionRegistrar registrar) {
-        if (null != registrar) {
-            registrar.registerExtension(this, PolicyEngine.class);
-            bus = registrar.getBus();
-        }
+    public Class getRegistrationType() {
+        return PolicyEngine.class;
     }
     
     public void setBus(Bus b) {
@@ -84,9 +80,21 @@ public class PolicyEngine {
     public PolicyBuilder getBuilder() {
         return builder;
     }
+    
+    public void setRegistry(PolicyRegistry r) {
+        registry = r;
+    }
+    
+    public PolicyRegistry getRegistry() {
+        return registry;
+    }
         
     @PostConstruct
     void init() {
+        if (null == registry) {
+            registry = new PolicyRegistryImpl();
+        }
+        
         if (null == builder && null != bus) {
             builder = new PolicyBuilder();
             builder.setAssertionBuilderRegistry(bus.getExtension(AssertionBuilderRegistry.class));
@@ -98,8 +106,9 @@ public class PolicyEngine {
             // for external attachments
             Wsdl11AttachmentPolicyProvider wpp = new Wsdl11AttachmentPolicyProvider();
             wpp.setBuilder(builder);
+            wpp.setRegistry(registry);
             policyProviders = Collections.singletonList((PolicyProvider)wpp);
-        }    
+        } 
     }
     
     @PostConstruct

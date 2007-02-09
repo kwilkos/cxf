@@ -61,6 +61,16 @@ public class PolicyExtensionsTest extends TestCase {
             assertNotNull(pip);
             pip = pipr.get(UNKNOWN);
             assertNull(pip);
+            
+            PolicyEngine engine = bus.getExtension(PolicyEngine.class);
+            assertNotNull(engine);            
+            PolicyBuilder builder = engine.getBuilder();
+            assertNotNull(builder);
+            assertSame(abr, builder.getAssertionBuilderRegistry());
+            assertNotNull(engine.getPolicyProviders());
+            assertNotNull(engine.getRegistry());
+            
+            
         } finally {
             if (null != bus) {
                 bus.shutdown(true);

@@ -43,6 +43,7 @@ import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.cxf.ws.policy.PolicyRegistryImpl;
 import org.apache.cxf.ws.policy.builders.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
@@ -118,45 +119,17 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         }
         
         control.verify();
-        
-        /*
-        BusFactory.setDefaultBus(null);
-        bus = new SpringBusFactory().createBus();
-        WSDLManager manager = bus.getExtension(WSDLManager.class);
-        int n = 17;
-        services = new ServiceInfo[n];
-        endpoints = new EndpointInfo[n];
-        for (int i = 0; i < n; i++) {
-            String resourceName = "/attachment/wsdl11/test" + i + ".wsdl";
-            URL url = Wsdl11AttachmentPolicyProviderTest.class.getResource(resourceName);       
-            WSDLServiceBuilder builder = new WSDLServiceBuilder(bus);
-            try {
-                services[i] = builder.buildService(manager.getDefinition(url)).get(0);
-            } catch (WSDLException ex) {
-                ex.printStackTrace();
-                fail("Failed to build service from resource " + resourceName);
-            }
-            assertNotNull(services[i]);
-            endpoints[i] = services[i].getEndpoints().iterator().next();
-            assertNotNull(endpoints[i]);
-        }
-        */
+
     }
     
     public static void oneTimeTearDown() {
-        /*
-        bus.shutdown(true);
-        BusFactory.setDefaultBus(null);
-        */
         endpoints = null;
         services = null;
         
     }
     
     public void setUp() {
-        // AssertionBuilderRegistry abr = bus.getExtension(AssertionBuilderRegistry.class);
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
-        // assertNotNull(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
         abr.register(new QName("http://cxf.apache.org/test/assertions", "A"), ab);
         abr.register(new QName("http://cxf.apache.org/test/assertions", "B"), ab);
@@ -166,7 +139,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         pb.setAssertionBuilderRegistry(abr);
         app = new Wsdl11AttachmentPolicyProvider();
         app.setBuilder(pb);
-        
+        app.setRegistry(new PolicyRegistryImpl());
     }
     
     public void testElementPolicies() throws WSDLException {

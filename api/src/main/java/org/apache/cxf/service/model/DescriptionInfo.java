@@ -39,6 +39,14 @@ public class DescriptionInfo extends AbstractPropertiesHolder {
     public QName getName() {
         return name;
     }
+    
+    public void setBaseURI(String u) {
+        uri = u;
+    }
+    
+    public String getBaseURI() {
+        return uri;
+    }
    
     public List<AbstractDescriptionElement> getDescribed() {
         return described;

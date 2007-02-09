@@ -20,28 +20,28 @@
 package org.apache.cxf.ws.policy;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.xml.namespace.QName;
-
-import org.apache.cxf.extension.BusExtension;
-import org.apache.cxf.extension.RegistryImpl;
+import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyRegistry;
 
 /**
  * 
  */
-public class PolicyInterceptorProviderRegistryImpl 
-    extends RegistryImpl<QName, PolicyInterceptorProvider> 
-    implements PolicyInterceptorProviderRegistry, BusExtension {
+public class PolicyRegistryImpl implements PolicyRegistry {
 
-    public PolicyInterceptorProviderRegistryImpl() {
-        this(null);
+    private Map<String, Policy> reg = new ConcurrentHashMap<String, Policy>();
+    
+    public Policy lookup(String key) {
+        return reg.get(key);
     }
 
-    public PolicyInterceptorProviderRegistryImpl(Map<QName, PolicyInterceptorProvider> interceptors) {
-        super(interceptors);
-    }    
-
-    public Class getRegistrationType() {
-        return PolicyInterceptorProviderRegistry.class;
+    public void register(String key, Policy policy) {
+        reg.put(key, policy);        
     }
+
+    public void remove(String key) {
+        reg.remove(key);
+    }
+
 }
