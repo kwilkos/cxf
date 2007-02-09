@@ -20,22 +20,19 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
-       xsi:schemaLocation="
-http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:http="http://cxf.apache.org/transports/http/configuration"
+       xsi:schemaLocation="http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <bean name="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit" abstract="true">     
-        <property name="client">
-            <value>
-                <http-conf:client DecoupledEndpoint="http://localhost:9999/decoupled_endpoint"/>
-            </value>
-        </property>
-    </bean>
+    <http:conduit id="{http://apache.org/hello_world_soap_http}SoapPort9001.http-conduit">
+      <http:client DecoupledEndpoint="http://localhost:9990/decoupled_endpoint"/>
+    </http:conduit>
+    
     <bean id="GZIPStream" class="demo.stream.interceptor.StreamInterceptor"/>
 
     <!-- We are adding the interceptors to the bus as we will have only one endpoint/service/bus. -->
 
-    <bean id="cxf" class="org.apache.cxf.bus.spring.SpringBusImpl">
+    <bean id="cxf" class="org.apache.cxf.bus.CXFBusImpl">
         <property name="inInterceptors">
             <list>
                 <ref bean="GZIPStream"/>
