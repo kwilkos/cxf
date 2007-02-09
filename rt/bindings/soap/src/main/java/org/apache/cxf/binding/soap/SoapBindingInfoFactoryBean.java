@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -40,6 +41,7 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
     private String style = "document";
     private String use;
     private String transportURI = "http://schemas.xmlsoap.org/soap/http";
+    private boolean mtomEnabled;
     
     @Override
     public BindingInfo create() {
@@ -49,6 +51,10 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
         info.setName(getBindingName());
         info.setStyle(getStyle());
         info.setTransportURI(getTransportURI());
+        
+        if (mtomEnabled) {
+            info.setProperty(Message.MTOM_ENABLED, Boolean.TRUE);
+        }
         
         for (OperationInfo op : si.getInterface().getOperations()) {
             SoapOperationInfo sop = new SoapOperationInfo();
@@ -160,6 +166,14 @@ public class SoapBindingInfoFactoryBean extends AbstractBindingInfoFactoryBean {
 
     public void setStyle(String style) {
         this.style = style;
+    }
+
+    public boolean isMtomEnabled() {
+        return mtomEnabled;
+    }
+
+    public void setMtomEnabled(boolean mtomEnabled) {
+        this.mtomEnabled = mtomEnabled;
     }
     
 }

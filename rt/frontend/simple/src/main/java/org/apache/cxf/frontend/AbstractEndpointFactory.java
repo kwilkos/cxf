@@ -53,7 +53,9 @@ public abstract class AbstractEndpointFactory {
         Service service = serviceFactory.getService();
         
         if (service == null) {
-            serviceFactory.setServiceClass(getServiceClass());
+            Class cls = getServiceClass();
+
+            serviceFactory.setServiceClass(cls);
             serviceFactory.setBus(getBus());
             service = serviceFactory.create();
         }

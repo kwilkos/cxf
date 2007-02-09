@@ -16,24 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.jaxws.spring;
+package org.apache.cxf.binding.soap.spring;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 
+import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.configuration.spring.AbstractBeanDefinitionParser;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.ParserContext;
 
-public class EndpointBeanDefinitionParser extends AbstractBeanDefinitionParser {
+public class SoapBindingInfoFactoryBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
     @Override
-    protected void doParse(Element element, BeanDefinitionBuilder bean) {
-        mapAttributeToProperty(element, bean, "class", "serviceClass");
+    protected void doParse(Element element, ParserContext ctx, BeanDefinitionBuilder bean) {
+        NamedNodeMap atts = element.getAttributes();
+        for (int i = 0; i < atts.getLength(); i++) {
+            Attr node = (Attr) atts.item(i);
+            
+            mapToProperty(bean, node.getLocalName(), node.getValue());
+        }
     }
 
     @Override
     protected Class getBeanClass(Element arg0) {
-        return JaxWsServerFactoryBean.class;
+        return SoapBindingInfoFactoryBean.class;
     }
 
 }

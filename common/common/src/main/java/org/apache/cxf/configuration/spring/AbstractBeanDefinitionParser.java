@@ -28,24 +28,61 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.BeanDefinitionParserDelegate;
+import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.util.StringUtils;
 
 public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    protected void setFirstChildAsProperty(Element element, ParserContext ctx, 
+                                         BeanDefinitionBuilder bean, String string) {
+        Element first = getFirstChild(element);
+        
+        if (first == null) {
+            throw new IllegalStateException(string + " property must have child elements!");
+        }
+        
+        // Seems odd that we have to do the registration, I wonder if there is a better way
+        String id;
+        BeanDefinition child;
+        if (first.getNamespaceURI().equals(BeanDefinitionParserDelegate.BEANS_NAMESPACE_URI)) {
+            BeanDefinitionHolder bdh = ctx.getDelegate().parseBeanDefinitionElement(first);
+            child = bdh.getBeanDefinition();
+            id = bdh.getBeanName();
+            
+        } else {
+            child = ctx.getDelegate().parseCustomElement(first, bean.getBeanDefinition());
+            id = child.toString();
+        }
+       
+        ctx.getRegistry().registerBeanDefinition(id, child);
+        bean.addPropertyReference(string, id);
+        
+    }
+
+    private Element getFirstChild(Element element) {
+        Element first = null;
+        NodeList children = element.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE) {
+                first = (Element) n;
+            }
+        }
+        return first;
+    }
     
-    protected void mapElementToJaxbProperty(Element parent, 
-                                            BeanDefinitionBuilder bean, 
-                                            QName name,
+    protected void mapElementToJaxbProperty(Element parent, BeanDefinitionBuilder bean, QName name,
                                             String string) {
         mapElementToJaxbProperty(parent, bean, name, string, null);
     }
-    
-    protected void mapElementToJaxbProperty(Element parent, 
-                                            BeanDefinitionBuilder bean, 
-                                            QName name,
-                                            String string,
-                                            Class<?> c) {
+
+    protected void mapElementToJaxbProperty(Element parent, BeanDefinitionBuilder bean, QName name,
+                                            String string, Class<?> c) {
         Node data = null;
         NodeList nl = parent.getChildNodes();
         for (int i = 0; i < nl.getLength(); i++) {
@@ -64,15 +101,14 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
         JAXBContext context = null;
         Object obj = null;
         try {
-            context = JAXBContext.newInstance(getJaxbPackage(), 
-                                              getClass().getClassLoader());
+            context = JAXBContext.newInstance(getJaxbPackage(), getClass().getClassLoader());
             Unmarshaller u = context.createUnmarshaller();
             if (c != null) {
                 obj = u.unmarshal(data, c);
             } else {
                 obj = u.unmarshal(data);
             }
-            
+
             if (obj instanceof JAXBElement<?>) {
                 JAXBElement<?> el = (JAXBElement<?>)obj;
                 obj = el.getValue();
@@ -90,14 +126,25 @@ public abstract class AbstractBeanDefinitionParser extends AbstractSingleBeanDef
     protected String getJaxbPackage() {
         return "";
     }
-    
-    protected void mapAttributeToProperty(Element element, 
-                                          BeanDefinitionBuilder bean, 
-                                          String attrName,
+
+    protected void mapAttributeToProperty(Element element, BeanDefinitionBuilder bean, String attrName,
                                           String propertyName) {
-        String cls = element.getAttribute(attrName);
-        if (StringUtils.hasText(cls)) {
-            bean.addPropertyValue(propertyName, cls);
+        String val = element.getAttribute(attrName);
+        mapToProperty(bean, propertyName, val);
+    }
+
+    protected void mapToProperty(BeanDefinitionBuilder bean, String propertyName, String val) {
+        if (ID_ATTRIBUTE.equals(propertyName)) {
+            return;
+        }
+        
+        if (StringUtils.hasText(val)) {
+            if (val.startsWith("#")) {
+                bean.addPropertyReference(propertyName, val.substring(1));
+            } else {
+                bean.addPropertyValue(propertyName, val);
+            }
         }
     }
+
 }

@@ -1,0 +1,1 @@
+http\://cxf.apache.org/bindings/soap=org.apache.cxf.binding.soap.spring.NamespaceHandler

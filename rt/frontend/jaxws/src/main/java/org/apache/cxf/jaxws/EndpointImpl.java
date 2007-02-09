@@ -67,6 +67,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private AbstractJaxWsServiceFactoryBean serviceFactory;
 
     private String bindingURI;
+
+    private Map<String, Object> properties;
     
     public EndpointImpl(Bus b, Object implementor, AbstractJaxWsServiceFactoryBean serviceFactory) {
         this.bus = b;
@@ -140,8 +142,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        return properties;
     }
 
     @Override
@@ -166,9 +167,12 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
 
     @Override
-    public void setProperties(Map<String, Object> arg0) {
-        // TODO Auto-generated method stub
-
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+        
+        if (server != null) {
+            server.getEndpoint().putAll(properties);
+        }
     }
 
     @Override
@@ -233,6 +237,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         }
         
         org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
+        
+        if (properties != null) {
+            endpoint.putAll(properties);
+        }
         
         configureObject(endpoint);
         
