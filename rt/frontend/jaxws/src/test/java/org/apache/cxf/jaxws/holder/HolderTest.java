@@ -58,7 +58,7 @@ public class HolderTest extends AbstractJaxWsTest {
         svr.setAddress(address);
         svr.create();
 
-        addNamespace("h", "http://holder.jaxws.cxf.apache.org");
+        addNamespace("h", "http://holder.jaxws.cxf.apache.org/");
 
         Node response = invoke(address, LocalTransportFactory.TRANSPORT_ID, "echo.xml");
         

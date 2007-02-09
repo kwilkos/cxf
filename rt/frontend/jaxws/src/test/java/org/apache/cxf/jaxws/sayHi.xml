@@ -18,7 +18,7 @@
 -->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 	<soap:Body>
-	<sayHi xmlns="http://service.jaxws.cxf.apache.org">
+	<sayHi xmlns="http://service.jaxws.cxf.apache.org/">
 		<text>hi</text>
 	</sayHi>
 	</soap:Body>

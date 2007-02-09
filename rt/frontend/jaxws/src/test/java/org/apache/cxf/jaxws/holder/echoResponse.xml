@@ -18,7 +18,7 @@
 -->
 <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
     <s:Body>
-        <echoResponse xmlns="http://holder.jaxws.cxf.apache.org">
+        <echoResponse xmlns="http://holder.jaxws.cxf.apache.org/">
             <return>one</return>
             <outS2>two</outS2>
         </echoResponse>

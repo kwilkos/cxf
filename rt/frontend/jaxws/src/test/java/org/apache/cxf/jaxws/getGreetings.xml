@@ -18,6 +18,6 @@
 -->
 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 	<soap:Body>
-		<getGreetings xmlns="http://service.jaxws.cxf.apache.org" />
+		<getGreetings xmlns="http://service.jaxws.cxf.apache.org/" />
 	</soap:Body>
 </soap:Envelope>

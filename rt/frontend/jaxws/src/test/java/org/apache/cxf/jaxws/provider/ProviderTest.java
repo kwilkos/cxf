@@ -36,7 +36,7 @@ public class ProviderTest extends AbstractJaxWsTest {
         assertNotNull(response);
         assertNoFault(response);
 
-        addNamespace("j", "http://service.jaxws.cxf.apache.org");
+        addNamespace("j", "http://service.jaxws.cxf.apache.org/");
         assertValid("//s:Body/j:sayHi", response);
     }
 }

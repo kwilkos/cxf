@@ -50,7 +50,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         Definition d = createService(false);
 
         Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
-        addNamespace("svc", "http://service.jaxws.cxf.apache.org");
+        addNamespace("svc", "http://service.jaxws.cxf.apache.org/");
         
         assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
@@ -120,7 +120,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         
         assertNotNull(res);
        
-        addNamespace("h", "http://service.jaxws.cxf.apache.org");
+        addNamespace("h", "http://service.jaxws.cxf.apache.org/");
         assertValid("//s:Body/h:sayHiResponse/h:return", res);
         
         res = invoke("local://localhost:9090/hello", 
@@ -129,7 +129,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
 
         assertNotNull(res);
         
-        addNamespace("h", "http://service.jaxws.cxf.apache.org");
+        addNamespace("h", "http://service.jaxws.cxf.apache.org/");
         assertValid("//s:Body/h:getGreetingsResponse/h:return/item", res);
     }
     

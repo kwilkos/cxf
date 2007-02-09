@@ -17,7 +17,7 @@
 	under the License.
 -->
 <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
-     xmlns="http://holder.jaxws.cxf.apache.org">
+     xmlns="http://holder.jaxws.cxf.apache.org/">
     <s:Header>
         <header>header</header>
     </s:Header>
