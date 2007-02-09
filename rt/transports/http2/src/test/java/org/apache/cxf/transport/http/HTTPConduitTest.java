@@ -394,6 +394,15 @@ public class HTTPConduitTest extends TestCase {
         assertEquals("expected DECOUPLED_CHANNEL_MESSAGE flag set",
                      Boolean.TRUE,
                      inMessage.get(DECOUPLED_CHANNEL_MESSAGE));
+        assertEquals("unexpected HTTP_REQUEST set",
+                     false,
+                     inMessage.containsKey(HTTPConduit.HTTP_REQUEST));
+        assertEquals("unexpected HTTP_RESPONSE set",
+                     false,
+                     inMessage.containsKey(HTTPConduit.HTTP_RESPONSE));
+        assertEquals("unexpected Message.ASYNC_POST_RESPONSE_DISPATCH set",
+                     false,
+                     inMessage.containsKey(Message.ASYNC_POST_RESPONSE_DISPATCH));
     }
 
     private void finalVerify() {

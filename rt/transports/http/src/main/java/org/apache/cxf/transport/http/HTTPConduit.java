@@ -65,7 +65,8 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
  * HTTP Conduit implementation.
  */
 public class HTTPConduit extends AbstractConduit implements Configurable {
-    
+    public static final String HTTP_REQUEST = "org.apache.cxf.transport.http.JettyHTTPDestination.REQUEST";
+    public static final String HTTP_RESPONSE = "org.apache.cxf.transport.http.JettyHTTPDestination.RESPONSE";
     public static final String HTTP_CONNECTION = "http.connection";
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     
@@ -674,6 +675,12 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
             //inMessage.put(Message.PROTOCOL_HEADERS, req.getXXX());
             setHeaders(inMessage);
             inMessage.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_OK);
+
+            // remove server-specific properties
+            inMessage.remove(HTTP_REQUEST);
+            inMessage.remove(HTTP_RESPONSE);
+            inMessage.remove(Message.ASYNC_POST_RESPONSE_DISPATCH);
+
             incomingObserver.onMessage(inMessage);
         }
     }
