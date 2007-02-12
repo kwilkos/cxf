@@ -138,7 +138,10 @@ public class AttachmentDeserializer {
         String id = headers.getHeader("Content-ID", null);
         if (id != null && id.startsWith("<")) {
             id = id.substring(1, id.length() - 1);
+        } else {
+            return null;
         }
+        
         id = URLDecoder.decode(id.startsWith("cid:") ? id.substring(4) : id, "UTF-8");
         
         AttachmentImpl att = new AttachmentImpl(id);
