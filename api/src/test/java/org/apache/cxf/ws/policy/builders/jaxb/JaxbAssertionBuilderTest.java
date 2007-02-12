@@ -46,7 +46,7 @@ public class JaxbAssertionBuilderTest extends TestCase {
             // expected
         }
         assertNotNull(new JaxbAssertionBuilder(qn)); 
-        assertNotNull(new JaxbAssertionBuilder("org.apache.cxf.test.assertions.foo.FooType", qn));   
+        assertNotNull(new JaxbAssertionBuilder(FooType.class.getName(), qn));   
         assertNotNull(new JaxbAssertionBuilder<FooType>(FooType.class, qn));
     }
     
@@ -74,5 +74,4 @@ public class JaxbAssertionBuilderTest extends TestCase {
         assertEquals("CXF", foo.getName());
         assertEquals(2, foo.getNumber().intValue());         
     }
-
 }

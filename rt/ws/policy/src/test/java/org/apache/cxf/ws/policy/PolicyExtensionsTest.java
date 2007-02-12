@@ -64,12 +64,11 @@ public class PolicyExtensionsTest extends TestCase {
             
             PolicyEngine engine = bus.getExtension(PolicyEngine.class);
             assertNotNull(engine);            
-            PolicyBuilder builder = engine.getBuilder();
-            assertNotNull(builder);
-            assertSame(abr, builder.getAssertionBuilderRegistry());
             assertNotNull(engine.getPolicyProviders());
             assertNotNull(engine.getRegistry());
-            
+
+            PolicyBuilder builder = bus.getExtension(PolicyBuilder.class);
+            assertNotNull(builder);
             
         } finally {
             if (null != bus) {

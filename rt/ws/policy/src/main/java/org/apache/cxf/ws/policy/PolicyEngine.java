@@ -46,7 +46,6 @@ import org.apache.neethi.PolicyRegistry;
 public class PolicyEngine implements BusExtension {
     
     private Bus bus;
-    private PolicyBuilder builder;
     private PolicyRegistry registry;
     private List<PolicyProvider> policyProviders;
 
@@ -73,14 +72,6 @@ public class PolicyEngine implements BusExtension {
         return policyProviders;
     }
     
-    public void setBuilder(PolicyBuilder b) {
-        builder = b;
-    }
-    
-    public PolicyBuilder getBuilder() {
-        return builder;
-    }
-    
     public void setRegistry(PolicyRegistry r) {
         registry = r;
     }
@@ -94,18 +85,13 @@ public class PolicyEngine implements BusExtension {
         if (null == registry) {
             registry = new PolicyRegistryImpl();
         }
-        
-        if (null == builder && null != bus) {
-            builder = new PolicyBuilder();
-            builder.setAssertionBuilderRegistry(bus.getExtension(AssertionBuilderRegistry.class));
-        }
-
-        if (null == policyProviders) {
+      
+        if (null == policyProviders && null != bus) {
             // TODO:
             // include attachment provider for wsdl 2.0 and
             // for external attachments
             Wsdl11AttachmentPolicyProvider wpp = new Wsdl11AttachmentPolicyProvider();
-            wpp.setBuilder(builder);
+            wpp.setBuilder(bus.getExtension(PolicyBuilder.class));
             wpp.setRegistry(registry);
             policyProviders = Collections.singletonList((PolicyProvider)wpp);
         } 

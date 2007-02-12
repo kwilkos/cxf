@@ -17,33 +17,26 @@
  * under the License.
  */
 
-package org.apache.cxf.message;
+package org.apache.cxf.ws.policy.builders.primitive;
 
-import java.util.Iterator;
+import org.w3c.dom.Element;
 
-import javax.activation.DataHandler;
+import org.apache.cxf.ws.policy.PolicyBuilder;
+import org.apache.neethi.Assertion;
 
-/**
- * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
- */
-public interface Attachment {
-    DataHandler getDataHandler();
+public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
 
-    /**
-     * @return The attachment id.
-     */
-    String getId();
+    private PolicyBuilder builder;
     
-    String getHeader(String name);
+    public void setPolicyBuilder(PolicyBuilder b) {
+        builder = b;
+    }
     
-    Iterator<String> getHeaderNames();
+    @Override
+    public Assertion build(Element elem) {
+        return new NestedPrimitiveAssertion(elem, builder); 
+    }
     
-    /**
-     * Whether or not this is an XOP package. This will affect the 
-     * serialization of the attachment. If true, it will be serialized
-     * as binary data, and not Base64Binary.
-     * 
-     * @return true iff this attachment is an XOP package
-     */
-    boolean isXOP();
+    
+
 }

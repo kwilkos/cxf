@@ -60,7 +60,7 @@ public class InterfaceInfo extends AbstractDescriptionElement {
     /**
      * Adds an operation to this service.
      *
-     * @param name the qualified name of the operation.
+     * @param oname the qualified name of the operation.
      * @return the operation.
      */
     public OperationInfo addOperation(QName oname) {
@@ -90,7 +90,7 @@ public class InterfaceInfo extends AbstractDescriptionElement {
     /**
      * Returns the operation info with the given name, if found.
      *
-     * @param name the name.
+     * @param oname the name.
      * @return the operation; or <code>null</code> if not found.
      */
     public OperationInfo getOperation(QName oname) {

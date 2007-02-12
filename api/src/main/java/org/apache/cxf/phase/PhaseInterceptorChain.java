@@ -150,9 +150,9 @@ public class PhaseInterceptorChain implements InterceptorChain {
     
 
     /**
-     * Invokes each phase's handler in turn.
+     * Intercept a message, invoking each phase's handlers in turn.
      * 
-     * @param context
+     * @param message the message 
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
@@ -205,10 +205,11 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
     
     /**
-     * Invokes each phase's handler in turn. Start after the Interceptor
-     * specified
+     * Intercept a message, invoking each phase's handlers in turn,
+     * starting after the specified interceptor.
      * 
-     * @param context
+     * @param message the message
+     * @param startingAfterInterceptorID the id of the interceptor 
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
@@ -223,11 +224,11 @@ public class PhaseInterceptorChain implements InterceptorChain {
     }
     
     /**
-     * Invokes following inteceptors in a sub chain until the last chain in the
-     * sub chain calls finishSubChain, which makes the flow continues in the
+     * Invokes the following inteceptors in a sub chain until the last chain in the
+     * sub chain calls finishSubChain, which makes the flow continue in the
      * main chain.
      * 
-     * @param context
+     * @param message the message
      * @throws Exception
      */
     @SuppressWarnings("unchecked")

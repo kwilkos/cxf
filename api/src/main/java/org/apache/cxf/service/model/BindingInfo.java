@@ -105,7 +105,7 @@ public class BindingInfo extends AbstractDescriptionElement {
     /**
      * Returns the operation info with the given name, if found.
      *
-     * @param name the name.
+     * @param oname the name.
      * @return the operation; or <code>null</code> if not found.
      */
     public BindingOperationInfo getOperation(QName oname) {

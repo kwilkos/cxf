@@ -30,9 +30,7 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
-import org.apache.cxf.ws.policy.PolicyBuilder;
-import org.apache.cxf.ws.policy.PolicyEngine;
-import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.cxf.ws.policy.util.PolicyComparator;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
@@ -49,17 +47,15 @@ public class NestedPrimitiveAssertionTest extends TestCase {
     private static final QName TEST_NAME2 = new QName(TEST_NAMESPACE, "AnonymousResponses");
     private static final QName TEST_NAME3 = new QName(TEST_NAMESPACE, "NonAnonymousResponses");
 
-    private PolicyBuilder builder;
+    private PolicyBuilderImpl builder;
     
     public void setUp() {
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
-        builder = new PolicyBuilder();
+        builder = new PolicyBuilderImpl();
         builder.setAssertionBuilderRegistry(abr);
-        PolicyEngine engine = new PolicyEngine();
-        engine.setBuilder(builder);
         
         NestedPrimitiveAssertionBuilder npab = new NestedPrimitiveAssertionBuilder();
-        npab.setPolicyEngine(engine);
+        npab.setPolicyBuilder(builder);
         npab.setKnownElements(Collections.singletonList(TEST_NAME1));
         abr.register(TEST_NAME1, npab);
         
@@ -70,17 +66,6 @@ public class NestedPrimitiveAssertionTest extends TestCase {
         pab.setKnownElements(known);
         abr.register(TEST_NAME2, pab);
         abr.register(TEST_NAME3, pab); 
-    }
-    
-    public void testBuildFail() throws Exception {
-        String resource = "resources/compact0.xml";
-        InputStream is = NestedPrimitiveAssertionTest.class.getResourceAsStream(resource);
-        try {
-            builder.getPolicy(is);
-            fail("Expected PolicyException not thrown.");
-        } catch (PolicyException ex) {
-            // expected
-        }
     }
     
     public void testBuildNonNested() throws Exception {

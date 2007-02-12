@@ -36,6 +36,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyRegistry;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 
@@ -53,31 +54,30 @@ public class PolicyEngineTest extends TestCase {
     
     public void testAccessors() {
         engine = new PolicyEngine();
-        assertNull(engine.getBuilder());
         assertNull(engine.getPolicyProviders());
-        PolicyBuilder builder = control.createMock(PolicyBuilder.class);
-        engine.setBuilder(builder);
+        assertNull(engine.getRegistry());
         Bus bus = control.createMock(Bus.class);
         engine.setBus(bus);
         List<PolicyProvider> providers = CastUtils.cast(Collections.EMPTY_LIST, PolicyProvider.class);
         engine.setPolicyProviders(providers);
-        assertSame(builder, engine.getBuilder());
+        PolicyRegistry reg = control.createMock(PolicyRegistry.class);
+        engine.setRegistry(reg);
         assertSame(bus, engine.getBus());
         assertSame(providers, engine.getPolicyProviders());
+        assertSame(reg, engine.getRegistry());
     }
     
     public void testInit() {  
         engine = new PolicyEngine();
         Bus bus = control.createMock(Bus.class);
         engine.setBus(bus);
-        AssertionBuilderRegistry abr = control.createMock(AssertionBuilderRegistry.class);
-        EasyMock.expect(bus.getExtension(AssertionBuilderRegistry.class)).andReturn(abr);
-        control.replay();
+        PolicyBuilder pb = control.createMock(PolicyBuilder.class);
+        EasyMock.expect(bus.getExtension(PolicyBuilder.class)).andReturn(pb);
+        control.replay(); 
         engine.init();
-        assertSame(bus, engine.getBus());
         assertEquals(1, engine.getPolicyProviders().size());
-        assertNotNull(engine.getBuilder());
-        control.verify();    
+        assertNotNull(engine.getRegistry());
+        control.verify();
     }
     
     public void testAddBusInterceptors() {        

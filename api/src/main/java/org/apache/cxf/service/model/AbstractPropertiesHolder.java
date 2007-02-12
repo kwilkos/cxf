@@ -105,11 +105,9 @@ public abstract class AbstractPropertiesHolder implements Extensible {
      * (i.e. an EndpointInfo or ServiceInfo), or it may be a property on the Bus itself.
      * If no value is found, the defaultValue is returned.
      * 
-     * @param <T>
-     * @param props
-     * @param defaultValue
-     * @param type
-     * @return
+     * @param defaultValue the default value
+     * @param type the extensor type
+     * @return the configuration value or the default
      */
     public <T> T getTraversedExtensor(T defaultValue, Class<T> type) {
         T extensor = getExtensor(type);

@@ -61,8 +61,8 @@ public abstract class AbstractMessageContainer extends AbstractPropertiesHolder 
     /**
      * Adds a message part to this container.
      *
-     * @param name  the qualified name of the message part.
-     * @param clazz the type of the message part.
+     * @param name  the qualified name of the message part
+     * @return name  the newly created <code>MessagePartInfo</code> object
      */
     public MessagePartInfo addMessagePart(QName name) {
         if (name == null) {

@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
@@ -43,20 +44,22 @@ import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyOperator;
 import org.apache.neethi.PolicyReference;
 
+
 /**
- * PolicyBuilder provides methods to create Policy and PolicyReferenceObjects
- * from an inout stream, an xml element etc.
- * It maintains a reference to the PolicyManager so that is can use the 
- * AssertionBuilderFactories registered with the PolicyManager when creating a
- * Policy object from an xml element.
+ * PolicyBuilderImpl is an implementation of the PolicyBuilder interface,
+ * provides methods to create Policy and PolicyReferenceObjects
+ * from DOM elements, but also from an input stream etc.
  */
-public class PolicyBuilder {
+public class PolicyBuilderImpl implements PolicyBuilder, BusExtension {
     
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(PolicyBuilder.class);
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(PolicyBuilderImpl.class);
  
     private AssertionBuilderRegistry assertionBuilderRegistry;
    
-    
+    public Class getRegistrationType() {
+        return PolicyBuilder.class;
+    }
+ 
     public void setAssertionBuilderRegistry(AssertionBuilderRegistry abr) {
         assertionBuilderRegistry = abr;        
     }
@@ -64,7 +67,8 @@ public class PolicyBuilder {
     public AssertionBuilderRegistry getAssertionBuilderRegistry() {
         return assertionBuilderRegistry;        
     }
-    
+
+
     /**
      * Creates a PolicyReference object from an InputStream.
      * 
@@ -78,9 +82,9 @@ public class PolicyBuilder {
     }
     
     /**
-     * Creates a PolicyReference object from an xml element.
+     * Creates a PolicyReference object from a DOM element.
      * 
-     * @param element the xml element
+     * @param element the element
      * @return the PolicyReference object constructed from the element
      */
     public PolicyReference getPolicyReference(Element element) {
@@ -90,15 +94,7 @@ public class PolicyBuilder {
         }
 
         PolicyReference reference = new PolicyReference();
-        
-        // setting the URI value
-        String uri = element.getAttribute("URI");
-        /*
-        if (uri.startsWith("#")) {
-            uri = element.getBaseURI() + uri;
-        }
-        */
-        reference.setURI(uri);
+        reference.setURI(element.getAttribute("URI"));
         return reference;
     }
     
@@ -115,9 +111,9 @@ public class PolicyBuilder {
     }
     
     /**
-     * Creates a Policy object from an xml element.
+     * Creates a Policy object from a DOM element.
      * 
-     * @param element the xml element
+     * @param element the element
      * @retun the Policy object constructed from the element
      */
     public Policy getPolicy(Element element) {

@@ -33,7 +33,7 @@ public class NormalizeTest extends TestCase {
     
     public void testNormalise() throws Exception {
         
-        PolicyBuilder builder = new PolicyBuilder();
+        PolicyBuilderImpl builder = new PolicyBuilderImpl();
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder.setAssertionBuilderRegistry(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder(); 

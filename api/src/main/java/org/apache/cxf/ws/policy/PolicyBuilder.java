@@ -17,26 +17,32 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy.builders.primitive;
+package org.apache.cxf.ws.policy;
 
 import org.w3c.dom.Element;
 
-import org.apache.cxf.ws.policy.PolicyEngine;
-import org.apache.neethi.Assertion;
+import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyReference;
 
-public class NestedPrimitiveAssertionBuilder extends PrimitiveAssertionBuilder {
 
-    private PolicyEngine engine;
+/**
+ * PolicyBuilder provides methods to create Policy and PolicyReferenceObjects
+ * from DOM elements.
+ */
+public interface PolicyBuilder {
+    /**
+     * Creates a PolicyReference object from a DOM element.
+     * 
+     * @param element the element
+     * @return the PolicyReference object constructed from the element
+     */
+    PolicyReference getPolicyReference(Element element);
     
-    public void setPolicyEngine(PolicyEngine e) {
-        engine = e;
-    }
-    
-    @Override
-    public Assertion build(Element elem) {
-        return new NestedPrimitiveAssertion(elem, engine.getBuilder());      
-    }
-    
-    
-
+    /**
+     * Creates a Policy object from an DOM element.
+     * 
+     * @param element the element
+     * @return the Policy object constructed from the element
+     */
+    Policy getPolicy(Element element);
 }

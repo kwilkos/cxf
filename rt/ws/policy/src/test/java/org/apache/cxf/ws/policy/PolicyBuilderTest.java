@@ -35,10 +35,10 @@ import org.apache.neethi.PolicyReference;
 
 public class PolicyBuilderTest extends TestCase {
     
-    private PolicyBuilder builder;
+    private PolicyBuilderImpl builder;
     
     public void setUp() {
-        builder = new PolicyBuilder();
+        builder = new PolicyBuilderImpl();
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder.setAssertionBuilderRegistry(abr);
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();

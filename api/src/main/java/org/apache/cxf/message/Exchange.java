@@ -74,15 +74,15 @@ public interface Exchange extends Map<String, Object> {
     /**
      * Convenience method for storing/retrieving typed objects from the map.
      * equivalent to:  (T)get(key.getName());
-     * @param <T> key
-     * @return
+     * @param key the key
+     * @return the value
      */
     <T> T get(Class<T> key);
     /**
      * Convenience method for storing/retrieving typed objects from the map.
      * equivalent to:  put(key.getName(), value);
-     * @param <T> key
-     * @return
+     * @param key the key
+     * @param value the value
      */
     <T> void put(Class<T> key, T value);
 }

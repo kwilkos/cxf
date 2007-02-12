@@ -27,9 +27,10 @@ import javax.xml.namespace.QName;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.ws.policy.AssertionBuilder;
+import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
-import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.builders.primitive.NestedPrimitiveAssertion;
 import org.apache.cxf.ws.policy.builders.primitive.PrimitiveAssertion;
 import org.apache.neethi.Assertion;
@@ -40,10 +41,10 @@ import org.apache.neethi.Assertion;
 public class AddressingAssertionBuilder implements AssertionBuilder {
 
     private static final Collection<QName> KNOWN = new ArrayList<QName>();
-    private PolicyEngine engine;
+    private Bus bus;
     
-    public AddressingAssertionBuilder(PolicyEngine e) {
-        engine = e;
+    public AddressingAssertionBuilder(Bus b) {
+        bus = b;
     }
     
     static {
@@ -65,7 +66,8 @@ public class AddressingAssertionBuilder implements AssertionBuilder {
             optional = Boolean.valueOf(attribute.getValue());
         }
         if (MetadataConstants.getAddressingAssertionQName().getLocalPart().equals(localName)) {
-            return new NestedPrimitiveAssertion(elem, engine.getBuilder());
+            PolicyBuilder builder = bus.getExtension(PolicyBuilder.class);
+            return new NestedPrimitiveAssertion(elem, builder);
         } else if (MetadataConstants.getAnonymousResponsesAssertionQName().getLocalPart()
             .equals(localName)) {
             return new PrimitiveAssertion(MetadataConstants.getAnonymousResponsesAssertionQName(), 

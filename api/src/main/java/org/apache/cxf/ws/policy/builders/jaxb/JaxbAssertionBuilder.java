@@ -70,7 +70,7 @@ public class JaxbAssertionBuilder<T> implements AssertionBuilder {
     
     /**
     * Constructs a JAXBAssertionBuilder from the specified class and schema type. 
-    * @param class the class to which the schema type is mapped
+    * @param type the class to which the schema type is mapped
     * @param qn the schema type
     * @throws JAXBException
     * @throws ClassNotFoundException

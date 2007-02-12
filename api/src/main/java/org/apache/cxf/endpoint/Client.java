@@ -33,7 +33,7 @@ public interface Client extends InterceptorProvider, MessageObserver {
     
     /**
      * Invokes an operation syncronously
-     * @param oi  The name of the operation to be invoked. The service namespace will be used
+     * @param operationName The name of the operation to be invoked. The service namespace will be used
      * when looking up the BindingOperationInfo.
      * @param params  The params that matches the parts of the input message of the operation
      * @return The return values that matche the parts of the output message of the operation
@@ -43,7 +43,7 @@ public interface Client extends InterceptorProvider, MessageObserver {
 
     /**
      * Invokes an operation syncronously
-     * @param oi  The name of the operation to be invoked
+     * @param operationName The name of the operation to be invoked
      * @param params  The params that matches the parts of the input message of the operation
      * @return The return values that matche the parts of the output message of the operation
      */

@@ -47,7 +47,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
         return pname;
     }
     /**
-     * @param name The name to set.
+     * @param n The name to set.
      */
     public void setName(QName n) {
         pname = n;

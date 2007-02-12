@@ -39,7 +39,7 @@ public class XmlPrimitiveAssertion extends PrimitiveAssertion {
     /**
      * Constructs a XmlPrimitiveAssertion from an xml element.
      * 
-     * @param element the xml element
+     * @param e the xml element
      */
     public XmlPrimitiveAssertion(Element e) {
         super(e);

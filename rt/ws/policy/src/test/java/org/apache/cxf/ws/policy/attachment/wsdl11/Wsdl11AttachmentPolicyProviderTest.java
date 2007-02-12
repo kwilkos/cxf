@@ -41,7 +41,7 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
-import org.apache.cxf.ws.policy.PolicyBuilder;
+import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.PolicyRegistryImpl;
 import org.apache.cxf.ws.policy.builders.xml.XMLPrimitiveAssertionBuilder;
@@ -135,7 +135,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         abr.register(new QName("http://cxf.apache.org/test/assertions", "B"), ab);
         abr.register(new QName("http://cxf.apache.org/test/assertions", "C"), ab);
         
-        PolicyBuilder pb = new PolicyBuilder(); 
+        PolicyBuilderImpl pb = new PolicyBuilderImpl(); 
         pb.setAssertionBuilderRegistry(abr);
         app = new Wsdl11AttachmentPolicyProvider();
         app.setBuilder(pb);

@@ -119,13 +119,14 @@ public abstract class AbstractCachedOutputStream extends OutputStream {
     }
 
     /**
-     * Replace the original stream with the new one, when with Attachment, needs
-     * to replace the xml writer stream with the stream used by
-     * AttachmentSerializer Or Copy the cached output stream to the "real"
+     * Replace the original stream with the new one, optionally copying the content of the old one
+     * into the new one.
+     * When with Attachment, needs to replace the xml writer stream with the stream used by
+     * AttachmentSerializer or copy the cached output stream to the "real"
      * output stream, i.e. onto the wire.
      * 
-     * @param realOS
-     *            the real output stream
+     * @param out the new output stream
+     * @param copyOldContent flag indicating if the old content should be copied
      * @throws IOException
      */
     public void resetOut(OutputStream out, boolean copyOldContent) throws IOException {
