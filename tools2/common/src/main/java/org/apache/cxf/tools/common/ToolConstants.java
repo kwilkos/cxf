@@ -163,7 +163,7 @@ public final class ToolConstants {
     // XML Binding
     public static final String XMLBINDING_ROOTNODE = "rootNode";
     public static final String XMLBINDING_HTTP_LOCATION = "location";
-    public static final String NS_XML_FORMAT = "http://cxf.apache.org/bindings/xmlformat";
+    public static final String NS_XML_FORMAT = "http://cxf.apache.org/bindings/xformat";
     public static final String XML_FORMAT_PREFIX = "xformat";
     public static final String NS_XML_HTTP = "http://schemas.xmlsoap.org/wsdl/http/";
     public static final String XML_HTTP_PREFIX = "http";

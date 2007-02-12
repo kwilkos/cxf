@@ -66,6 +66,7 @@ public final class WSDLConstants {
                                                                   "address");
     public static final QName NS_XMLHTTP_BINDING_ADDRESS = new QName("http://schemas.xmlsoap.org/wsdl/http/",
                                                                      "address");
+    
     public static final QName NS_SOAP_BINDING = new QName(SOAP11_NAMESPACE, "binding");
     public static final QName NS_SOAP_OPERATION = new QName(SOAP11_NAMESPACE,
                                                             "operation");

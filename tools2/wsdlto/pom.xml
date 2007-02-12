@@ -40,5 +40,6 @@
 	<module>frontend/jaxws</module>
 	<module>databinding/jaxb</module>
 	<module>test</module>
+	<module>misc</module>
     </modules>
 </project>

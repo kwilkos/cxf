@@ -21,4 +21,5 @@
 <properties>
     <entry key="org.apache.cxf.bindings.xml-1">javax.wsdl.BindingInput=org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
     <entry key="org.apache.cxf.bindings.xml-2">javax.wsdl.BindingOutput=org.apache.cxf.bindings.xformat.XMLBindingMessageFormat</entry>
+	<entry key="org.apache.cxf.bindings.xml-3">javax.wsdl.Binding=org.apache.cxf.bindings.xformat.XMLFormatBinding</entry>
 </properties>

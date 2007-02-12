@@ -19,15 +19,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.cxf</groupId>
-    <artifactId>cxf-tools2-validator</artifactId>
+    <artifactId>cxf-tools2-misctools</artifactId>
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
-    <name>Apache CXF Command Line Tools2 Validator</name>
+    <name>Apache CXF Command Line Misctools</name>
     <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-tools2</artifactId>
+        <artifactId>cxf-tools2-wsdlto</artifactId>
         <version>2.0-incubator-RC-SNAPSHOT</version>
     </parent>
 
@@ -36,11 +36,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-tools2-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -56,10 +51,13 @@
             <artifactId>asm</artifactId>
             <scope>test</scope>
         </dependency>
+
+
         <dependency>
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
+
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
@@ -78,30 +76,26 @@
             <artifactId>saaj-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.ws.commons</groupId>
-            <artifactId>XmlSchema</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-common-utilities</artifactId>
+            <artifactId>cxf-tools2-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
         <dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-common-schemas</artifactId>
-	    <version>${project.version}</version>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools2-wsdlto-frontend-jaxws</artifactId>
+            <version>${project.version}</version>
         </dependency>
-	<dependency>
-	    <groupId>stax</groupId>
-	    <artifactId>stax-api</artifactId>
-	</dependency>
 
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools2-validator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

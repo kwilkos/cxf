@@ -54,8 +54,9 @@ public class JavaToProcessorTest extends ProcessorTestBase {
         File wsdlFile = new File(output, "doc_wrapped_bare.wsdl");
         assertTrue("Fail to generate wsdl file", wsdlFile.exists());
 
-        String tns = "http://simple.fortest.tools.cxf.apache.org";
+        String tns = "http://simple.fortest.tools.cxf.apache.org/";
         Definition def = wsdlHelper.getDefinition(wsdlFile);
+        assertNotNull(def);
         Service wsdlService = def.getService(new QName(tns, "Hello"));
         assertNotNull("Generate WSDL Service Error", wsdlService);
     }

@@ -302,41 +302,41 @@ public class CodeGenTest extends ProcessorTestBase {
         assertEquals("OUT", webParamAnno.mode().name());
     }
 
-    public void testSchemaImport() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
+//     public void testSchemaImport() throws Exception {
+//         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_schema_import.wsdl"));
 
-        processor.setContext(env);
-        processor.execute();
+//         processor.setContext(env);
+//         processor.execute();
 
-        assertNotNull(output);
+//         assertNotNull(output);
 
-        File org = new File(output, "org");
-        assertTrue(org.exists());
-        File apache = new File(org, "apache");
-        assertTrue(apache.exists());
-        File[] files = apache.listFiles();
-        assertEquals(2, files.length);
-        File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
-        assertTrue(helloworldsoaphttp.exists());
-        File types = new File(helloworldsoaphttp, "types");
-        assertTrue(types.exists());
-        files = helloworldsoaphttp.listFiles();
-        assertEquals(1, files.length);
-        files = types.listFiles();
-        assertEquals(files.length, 10);
-        File schemaImport = new File(apache, "schema_import");
-        assertTrue(schemaImport.exists());
-        files = schemaImport.listFiles();
-        assertEquals(4, files.length);
+//         File org = new File(output, "org");
+//         assertTrue(org.exists());
+//         File apache = new File(org, "apache");
+//         assertTrue(apache.exists());
+//         File[] files = apache.listFiles();
+//         assertEquals(2, files.length);
+//         File helloworldsoaphttp = new File(apache, "hello_world_soap_http");
+//         assertTrue(helloworldsoaphttp.exists());
+//         File types = new File(helloworldsoaphttp, "types");
+//         assertTrue(types.exists());
+//         files = helloworldsoaphttp.listFiles();
+//         assertEquals(1, files.length);
+//         files = types.listFiles();
+//         assertEquals(files.length, 10);
+//         File schemaImport = new File(apache, "schema_import");
+//         assertTrue(schemaImport.exists());
+//         files = schemaImport.listFiles();
+//         assertEquals(4, files.length);
 
-        Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
-        assertEquals(4, clz.getMethods().length);
+//         Class clz = classLoader.loadClass("org.apache.schema_import.Greeter");
+//         assertEquals(4, clz.getMethods().length);
 
-        Method method = clz.getMethod("pingMe", new Class[] {});
-        assertEquals("void", method.getReturnType().getSimpleName());
-        assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
+//         Method method = clz.getMethod("pingMe", new Class[] {});
+//         assertEquals("void", method.getReturnType().getSimpleName());
+//         assertEquals("Exception class is not generated ", 1, method.getExceptionTypes().length);
 
-    }
+//     }
 
     public void testExceptionNameCollision() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/InvoiceServer.wsdl"));

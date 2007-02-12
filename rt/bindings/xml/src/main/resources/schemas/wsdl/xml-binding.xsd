@@ -37,6 +37,16 @@
 		</xs:complexContent>
 	</xs:complexType>
 
+	
+	<xs:complexType name="XMLFormatBinding">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:sequence />
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
 	<xs:element name="body" type="xformat:XMLBindingMessageFormat" />
+	<xs:element name="binding" type="xformat:XMLFormatBinding"/>
 
 </xs:schema>

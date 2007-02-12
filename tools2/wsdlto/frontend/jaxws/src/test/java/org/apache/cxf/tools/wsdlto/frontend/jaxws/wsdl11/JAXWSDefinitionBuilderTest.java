@@ -41,7 +41,7 @@ import org.apache.cxf.bindings.xformat.XMLBindingMessageFormat;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
-import org.apache.cxf.transports.jms.JMSAddressPolicyType;
+import org.apache.cxf.transport.jms.AddressType;
 
 public class JAXWSDefinitionBuilderTest extends TestCase {
     private ToolContext env;
@@ -109,7 +109,7 @@ public class JAXWSDefinitionBuilderTest extends TestCase {
         assertNotNull(port);
 
         assertEquals(3, port.getExtensibilityElements().size());
-        assertTrue(port.getExtensibilityElements().get(0) instanceof JMSAddressPolicyType);
+        assertTrue(port.getExtensibilityElements().get(0) instanceof AddressType);
     }
 
     public void testCustomization() {
