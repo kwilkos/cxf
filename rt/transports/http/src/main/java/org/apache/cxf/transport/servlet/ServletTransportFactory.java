@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.cxf.Bus;
@@ -34,8 +33,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractTransportFactory;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
-import org.apache.cxf.transport.http.WSDLQueryHandler;
-import org.apache.cxf.transports.http.QueryHandlerRegistry;
 
 public class ServletTransportFactory extends AbstractTransportFactory
     implements DestinationFactory {
@@ -60,18 +57,6 @@ public class ServletTransportFactory extends AbstractTransportFactory
         this.bus = bus;
     }
     
-    @PostConstruct
-    void registerWithQueryHandler() {
-        if (null == bus) {
-            return;
-        }
-                
-        QueryHandlerRegistry qhr = bus.getExtension(QueryHandlerRegistry.class);
-        if (null != qhr) {
-            qhr.registerHandler(new WSDLQueryHandler());
-        }
-    }
-
     public Destination getDestination(EndpointInfo endpointInfo)
         throws IOException {
         ServletDestination d = destinations.get(endpointInfo.getAddress());

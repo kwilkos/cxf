@@ -182,7 +182,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <scope>test</scope>
-            <version>${spring.version}</version>
         </dependency>
 
         <dependency>

@@ -99,12 +99,8 @@ public class HTTPTransportFactory extends AbstractTransportFactory implements Co
             for (String ns : activationNamespaces) {
                 dfm.registerDestinationFactory(ns, this);
             }
-        }
-        
-        /*QueryHandlerRegistry qhr = bus.getExtension(QueryHandlerRegistry.class);
-        if (null != qhr) {
-            qhr.registerHandler(new WSDLQueryHandler());
-        }*/
+        }       
+       
     }
 
     public Conduit getConduit(EndpointInfo endpointInfo) throws IOException {

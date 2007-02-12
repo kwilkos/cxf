@@ -37,7 +37,7 @@ import org.apache.hello_world_soap_http.GreeterImpl;
 
 public class CXFServletTest extends AbstractServletTest {
     
-    // Create the 
+    // Create the JaxWsService with the JaxWsServerFactoryBean
     protected void setupJaxwsService() {
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
