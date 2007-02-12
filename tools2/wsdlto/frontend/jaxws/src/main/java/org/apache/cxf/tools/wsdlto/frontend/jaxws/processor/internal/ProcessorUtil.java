@@ -343,7 +343,12 @@ public final class ProcessorUtil {
 
             while (ite.hasNext()) {
                 XmlSchemaElement subElement = (XmlSchemaElement)ite.next();
-                qnames.add(subElement.getQName());
+
+                if (subElement.getQName() != null) {
+                    qnames.add(subElement.getQName());
+                } else {
+                    qnames.add(subElement.getRefName());
+                }
             }
         }
         return qnames;

@@ -65,7 +65,71 @@ public class CodeGenTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
+    
+/*   
+    public void testRPCLit1() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/type_test/type_test_rpclit_soap.wsdl"));
+        processor.setContext(env);
+        processor.execute();      
 
+    }
+    
+    
+    
+   
+    public void testLocator() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_xml_bare.wsdl"));
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        processor.setContext(env);
+        processor.execute();      
+
+    }
+    
+   
+    public void testLocator2() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/basic_callback_test.wsdl"));
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_SERVICENAME, "SOAPService");
+        processor.setContext(env);
+        processor.execute();      
+
+    }
+    
+    public void testLocator3() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/basic_callback_test.wsdl"));
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_SERVICENAME, "CallbackService");
+        processor.setContext(env);
+        processor.execute();      
+
+    }
+    
+
+    
+    
+ 
+    public void testLocator_4() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_multi_service.wsdl"));
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        env.put(ToolConstants.CFG_SERVICENAME, "SOAPProviderService");
+        
+        
+        processor.setContext(env);
+        processor.execute();      
+
+    }
+
+    public void testLocator_3() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/ordered_param_holder.wsdl"));
+        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
+        processor.setContext(env);
+        processor.execute();      
+
+    }
+
+    */
+    
+    
     public void testRPCLit() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_rpc_lit.wsdl"));

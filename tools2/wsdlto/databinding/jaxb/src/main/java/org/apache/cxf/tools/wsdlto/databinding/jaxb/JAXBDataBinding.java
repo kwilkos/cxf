@@ -74,7 +74,8 @@ public class JAXBDataBinding implements DataBindingProfile {
         def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-              
+        
+        
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
         allocator.setInterface(serviceInfo.getInterface(), env.mapPackageName(def.getTargetNamespace()));
@@ -116,9 +117,11 @@ public class JAXBDataBinding implements DataBindingProfile {
                       
             if (pkgName != null) {
                 Node pkgNode = JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
-                ele.appendChild(pkgNode);
+                if (pkgNode != null) {
+                    ele.appendChild(pkgNode);
+                }
             }
-
+           
             schemaCompiler.parseSchema(key, ele);
             
         }

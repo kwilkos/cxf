@@ -19,6 +19,7 @@
 
 package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal.mapper;
 
+import org.apache.cxf.jaxb.JAXBUtils;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.model.JavaParameter;
@@ -32,21 +33,25 @@ public final class ParameterMapper {
     }
     
     public static JavaParameter map(MessagePartInfo part, JavaType.Style style, ToolContext context) {
-        String name = ProcessorUtil.resolvePartName(part);
+        String name = ProcessorUtil.mangleNameToVariableName(part.getName().getLocalPart());
         String namespace = ProcessorUtil.resolvePartNamespace(part);
         String type = ProcessorUtil.resolvePartType(part, context);
         
         JavaParameter parameter = new JavaParameter(name, type, namespace);
         parameter.setPartName(part.getName().getLocalPart());
         parameter.setQName(ProcessorUtil.getElementName(part));
+        String fullJavaName = ProcessorUtil.getFullClzName(part, context, false);
         
-        parameter.setClassName(ProcessorUtil.getFullClzName(part, context, false));
+        parameter.setClassName(fullJavaName);
 
         if (style == JavaType.Style.INOUT || style == JavaType.Style.OUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
-            
-            parameter.setHolderClass(ProcessorUtil.getFullClzName(part, context, true));
+            String holderClass = fullJavaName;
+            if (JAXBUtils.holderClass(fullJavaName) != null) {
+                holderClass = JAXBUtils.holderClass(fullJavaName).getName();
+            }  
+            parameter.setHolderClass(holderClass);
         }
         parameter.setStyle(style);
         return parameter;

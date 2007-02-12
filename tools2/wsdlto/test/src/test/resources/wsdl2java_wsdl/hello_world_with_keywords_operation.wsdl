@@ -131,7 +131,7 @@
         <wsdl:part name="in" element="x1:sayHi"/>
     </wsdl:message>
     <wsdl:message name="sayHiResponse">
-        <wsdl:part name="out" element="x1:sayHiResponse"/>
+        <wsdl:part name="return" element="x1:sayHiResponse"/>
     </wsdl:message>
     <wsdl:message name="greetMeRequest">
         <wsdl:part name="in" element="x1:greetMe"/>
@@ -169,7 +169,7 @@
     <wsdl:portType name="Greeter">
         <wsdl:operation name="do">
             <wsdl:input name="sayHiRequest" message="tns:sayHiRequest"/>
-            <wsdl:output name="sayHiResponse" message="tns:sayHiResponse"/>
+            <wsdl:output name="return" message="tns:sayHiResponse"/>
         </wsdl:operation>
         <wsdl:operation name="greetMe">
             <wsdl:input name="greetMeRequest" message="tns:greetMeRequest"/>

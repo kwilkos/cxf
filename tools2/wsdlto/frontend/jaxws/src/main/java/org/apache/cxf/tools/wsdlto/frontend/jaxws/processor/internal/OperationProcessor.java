@@ -240,7 +240,8 @@ public class OperationProcessor  extends AbstractProcessor {
     private boolean isAddedAsyMethod(JavaMethod method) {
         List<JavaMethod> jmethods = method.getInterface().getMethods();
         for (JavaMethod jm : jmethods) {
-            if (!jm.getName().toLowerCase().equals(jm.getOperationName().toLowerCase())) {
+            if (!jm.getName().toLowerCase().equals(method.getOperationName().toLowerCase()) 
+                && jm.getOperationName().toLowerCase().equals(method.getOperationName().toLowerCase())) {
                 return  true;
                 
             }

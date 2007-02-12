@@ -88,9 +88,9 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
     }
 
     public void testNewServiceSoap12() throws Exception {
-        String[] args = new String[] {"-soap12", "-transport", "http", 
+        String[] args = new String[] {"-soap12", "-transport", "http",
                                       "-e", "SOAPService", "-p", "SoapPort", "-n",
-                                      "Greeter_SOAPBinding", "-a", 
+                                      "Greeter_SOAPBinding", "-a",
                                       "http://localhost:9000/SOAPService/SoapPort", "-d",
                                       output.getCanonicalPath(),
                                       getLocation("/misctools_wsdl/hello_world_soap12.wsdl")};
@@ -127,7 +127,7 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
         } catch (ToolException e) {
             fail("Exception Encountered when parsing wsdl, error: " + e.getMessage());
         }
-        
+
     }
 
     public void testDefaultLocation() throws Exception {
@@ -226,14 +226,14 @@ public class WSDLToServiceProcessorTest extends ProcessorTestBase {
                         System.err.println("jms address break 2");
                         break;
                     }
-//                     if (!(jmsAddress.getJndiProviderURL() != null && jmsAddress.getJndiProviderURL()
+//                 if (!(jmsAddress.getJndiProviderURL() != null && jmsAddress.getJndiProviderURL()
 //                         .equals("tcp://localhost:61616"))) {
 //                         break;
-//                     }
-//                     if (!(jmsAddress.getMessageType() != null && jmsAddress.getMessageType().equals("text") 
-//                         && !jmsAddress.isUseMessageIDAsCorrelationID())) {
+//                 }
+//                 if (!(jmsAddress.getMessageType() != null && jmsAddress.getMessageType().equals("text")
+//                     && !jmsAddress.isUseMessageIDAsCorrelationID())) {
 //                         break;
-//                     }
+//                  }
                     found = true;
                     break;
                 }

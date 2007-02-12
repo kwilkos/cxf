@@ -314,24 +314,20 @@ public class ParameterProcessor extends AbstractProcessor {
                                                 MessagePartInfo part) {
 
         String fullJavaName = "";
-        //String simpleJavaName = "";
               
         fullJavaName = this.dataBinding.getWrappedElementType(wrapperElement, item);
-        //simpleJavaName = fullJavaName;
         
-        //int index = fullJavaName.lastIndexOf(".");
-        
-        /*if (index > -1) {
-            simpleJavaName = fullJavaName.substring(index);    
-        }*/
         
         String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         if (targetNamespace == null) {
             targetNamespace = wrapperElement.getNamespaceURI();
         }
-        JavaParameter parameter = new JavaParameter(item.getLocalPart(), fullJavaName, targetNamespace);
+        
+        String jpname = ProcessorUtil.mangleNameToVariableName(item.getLocalPart());
+        JavaParameter parameter = new JavaParameter(jpname, fullJavaName, targetNamespace);
         parameter.setStyle(style);
         parameter.setQName(item);
+        
         if (style == JavaType.Style.OUT || style == JavaType.Style.INOUT) {
             parameter.setHolder(true);
             parameter.setHolderName(javax.xml.ws.Holder.class.getName());
@@ -362,7 +358,8 @@ public class ParameterProcessor extends AbstractProcessor {
         if (targetNamespace == null) {
             targetNamespace = element.getNamespaceURI();
         }
-        JavaReturn returnType = new JavaReturn(simpleJavaName, fullJavaName , targetNamespace);
+        String jpname = ProcessorUtil.mangleNameToVariableName(simpleJavaName);
+        JavaReturn returnType = new JavaReturn(jpname, fullJavaName , targetNamespace);
         returnType.setQName(element);
         returnType.setStyle(JavaType.Style.OUT);
         return returnType;
@@ -396,6 +393,7 @@ public class ParameterProcessor extends AbstractProcessor {
                                               List<String> parameterList) throws ToolException {
 
         Map<QName, MessagePartInfo> inputPartsMap = inputMessage.getMessagePartsMap();
+        
         Map<QName, MessagePartInfo> outputPartsMap = outputMessage.getMessagePartsMap();
 
         List<MessagePartInfo> inputParts = inputMessage.getMessageParts();
@@ -412,7 +410,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
         if (isRequestResponse(method)) {
             for (MessagePartInfo part : outputParts) {
-                if (!parameterList.contains(part.getName())) {
+                if (!parameterList.contains(part.getName().getLocalPart())) {
                     MessagePartInfo inpart = inputMessage.getMessagePart(part.getName());
                     if (inpart == null || (inpart != null && !isSamePart(inpart, part))) {
                         outputUnlistedParts.add(part);
@@ -435,13 +433,13 @@ public class ParameterProcessor extends AbstractProcessor {
         int size = parameterList.size();
         while (index < size) {
             String partName = parameterList.get(index);
-            MessagePartInfo part = inputPartsMap.get(partName);
+            MessagePartInfo part = inputPartsMap.get(inputMessage.getMessagePartQName(partName));
             JavaType.Style style = JavaType.Style.IN;
             if (part == null) {
-                part = outputPartsMap.get(partName);
+                part = outputPartsMap.get(inputMessage.getMessagePartQName(partName));
                 style = JavaType.Style.OUT;
-            } else if (outputPartsMap.get(partName) != null 
-                && isSamePart(part, outputPartsMap.get(partName))) {
+            } else if (outputPartsMap.get(inputMessage.getMessagePartQName(partName)) != null 
+                && isSamePart(part, outputPartsMap.get(inputMessage.getMessagePartQName(partName)))) {
                 style = JavaType.Style.INOUT;
             }
             if (part != null) {

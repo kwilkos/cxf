@@ -26,31 +26,60 @@ import org.apache.cxf.tools.common.ToolConstants;
 public final class JAXBUtils {
     private JAXBUtils() {
     }
-    
+
     private static Node innerJaxbBinding(Element schema) {
         String schemaNamespace = schema.getNamespaceURI();
+
         Document doc = schema.getOwnerDocument();
-        
-        Element annotation = doc.createElementNS(schemaNamespace, "annotation");
-        Element appinfo  = doc.createElementNS(schemaNamespace, "appinfo");
-        annotation.appendChild(appinfo);
-        Element jaxbBindings = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
-        appinfo.appendChild(jaxbBindings);
+
+        NodeList annoList = doc.getElementsByTagNameNS(schemaNamespace, "annotation");
+        Element annotation = null;
+        if (annoList.getLength() > 0) {
+            annotation = (Element)annoList.item(0);
+        } else {
+            annotation = doc.createElementNS(schemaNamespace, "annotation");
+        }
+
+        NodeList appList = annotation.getElementsByTagNameNS(schemaNamespace, "appinfo");
+        Element appInfo = null;
+        if (appList.getLength() > 0) {
+            appInfo = (Element)appList.item(0);
+        } else {
+            appInfo = doc.createElementNS(schemaNamespace, "appinfo");
+            annotation.appendChild(appInfo);
+        }
+
+        Element jaxbBindings = null;
+        NodeList jaxbList = doc.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
+        if (jaxbList.getLength() > 0) {
+            jaxbBindings = (Element)jaxbList.item(0);
+        } else {
+            jaxbBindings = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "schemaBindings");
+            appInfo.appendChild(jaxbBindings);
+        }
         return jaxbBindings;
+
     }
 
     public static Node innerJaxbPackageBinding(Element schema, String packagevalue) {
         Document doc = schema.getOwnerDocument();
-        
+
         if (!XMLUtils.hasAttribute(schema, ToolConstants.NS_JAXB_BINDINGS)) {
             schema.setAttributeNS(ToolConstants.NS_JAXB_BINDINGS, "version", "2.0");
         }
 
         Node schemaBindings = innerJaxbBinding(schema);
-        
-        Element packagename = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "package");
+
+        NodeList pkgList = doc.getElementsByTagNameNS(ToolConstants.NS_JAXB_BINDINGS,
+                                                      "package");
+        Element packagename = null;
+        if (pkgList.getLength() > 0) {
+            packagename = (Element)pkgList.item(0);
+        } else {
+            packagename = doc.createElementNS(ToolConstants.NS_JAXB_BINDINGS, "package");
+        }
         packagename.setAttribute("name", packagevalue);
-        
+
         schemaBindings.appendChild(packagename);
 
         return schemaBindings.getParentNode().getParentNode();

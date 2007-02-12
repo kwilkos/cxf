@@ -420,13 +420,24 @@ public class ServiceProcessor extends AbstractProcessor {
 
     private Map getSoapOperationProp(BindingOperationInfo bop) {
         Map<String, Object> soapOPProp = new HashMap<String, Object>();
-
-        for (ExtensibilityElement ext : bop.getExtensors(ExtensibilityElement.class)) {
-            if (SOAPBindingUtil.isSOAPOperation(ext)) {
-                SoapOperation soapOP = SOAPBindingUtil.getSoapOperation(ext);
-                soapOPProp.put(this.soapOPAction, soapOP.getSoapActionURI());
-                soapOPProp.put(this.soapOPStyle, soapOP.getStyle());
+        if (bop.getExtensor(ExtensibilityElement.class) != null) {
+            for (ExtensibilityElement ext : bop.getExtensors(ExtensibilityElement.class)) {
+                if (SOAPBindingUtil.isSOAPOperation(ext)) {
+                    SoapOperation soapOP = SOAPBindingUtil.getSoapOperation(ext);
+                    soapOPProp.put(this.soapOPAction, soapOP.getSoapActionURI());
+                    soapOPProp.put(this.soapOPStyle, soapOP.getStyle());
+                }
             }
+        } else {
+            for (ExtensibilityElement ext :  bop.getBinding().getExtensors(ExtensibilityElement.class)) {
+                if (SOAPBindingUtil.isSOAPOperation(ext)) {
+                    SoapOperation soapOP = SOAPBindingUtil.getSoapOperation(ext);
+                    soapOPProp.put(this.soapOPAction, soapOP.getSoapActionURI());
+                    soapOPProp.put(this.soapOPStyle, soapOP.getStyle());
+                }
+            }
+            
+            
         }
         return soapOPProp;
     }

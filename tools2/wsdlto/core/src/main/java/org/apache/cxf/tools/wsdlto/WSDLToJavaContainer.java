@@ -39,7 +39,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.ClassUtils;
@@ -203,27 +202,28 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
 
     @SuppressWarnings("unchecked")
     public QName getServiceQName(Definition definition) {
-        QName qname = context.getQName(ToolConstants.CFG_SERVICENAME);
-        if (qname == null) {
-            if (definition.getServices().size() == 0) {
-                Message msg = new Message("SERVICE_NOT_FOUND", 
-                                          LOG, new Object[] {definition.getDocumentBaseURI()});
-                throw new ToolException(msg);
-            }
-            qname = (QName) definition.getServices().keySet().iterator().next();
-        }
-        if (StringUtils.isEmpty(qname.getNamespaceURI())) {
+        String serviceName = (String)context.get(ToolConstants.CFG_SERVICENAME);
+        QName qname = null;
+        if (serviceName != null) {
             for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
                 QName qn = ite.next();
-                if (qn.getLocalPart().equals(qname.getLocalPart())) {
+                if (qn.getLocalPart().equalsIgnoreCase(serviceName.toLowerCase())) {
                     return qn;
                 }
             }
-            qname = new QName(definition.getTargetNamespace(), qname.getLocalPart());
+        } else {
+            for (Iterator<QName> ite = definition.getServices().keySet().iterator(); ite.hasNext();) {
+                QName defatultQn = ite.next();
+                return defatultQn;
+            }
+        }
+        if (qname == null) {
+            Message msg = new Message("SERVICE_NOT_FOUND", LOG, new Object[] {serviceName});
+            throw new ToolException(msg);
         }
         return qname;
     }
-
+    
     public void loadDefaultNSPackageMapping(ToolContext env) {
         if (!env.hasExcludeNamespace(DEFAULT_NS2PACKAGE) 
             && env.getBooleanValue(ToolConstants.CFG_DEFAULT_NS, "true")) {
