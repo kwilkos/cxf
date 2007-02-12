@@ -128,7 +128,7 @@ public class ProviderServiceFactoryBean extends AbstractJaxWsServiceFactoryBean 
             
             EndpointInfo ei = new EndpointInfo(si, bindingURI);
             ei.setBinding(bi);
-            ei.setName(new QName(getServiceName() + "Port"));
+            ei.setName(getEndpointName());
             si.addEndpoint(ei);
         } else if ("soapns".equals(bindingURI)) {
             // TODO

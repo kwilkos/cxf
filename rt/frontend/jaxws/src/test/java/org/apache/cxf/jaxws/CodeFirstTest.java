@@ -52,9 +52,9 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         Document wsdl = WSDLFactory.newInstance().newWSDLWriter().getDocument(d);
         addNamespace("svc", "http://service.jaxws.cxf.apache.org/");
         
-        assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
+        assertValid("/wsdl:definitions/wsdl:service[@name='HelloService']", wsdl);
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
-        assertValid("//wsdl:portType[@name='HelloPortType']", wsdl);
+        assertValid("//wsdl:portType[@name='Hello']", wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
                     + "/wsdl:part[@type='xsd:string'][@name='text']",
                     wsdl);
@@ -67,9 +67,9 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         
         addNamespace("svc", "http://service.jaxws.cxf.apache.org");
         
-        assertValid("/wsdl:definitions/wsdl:service[@name='Hello']", wsdl);
+        assertValid("/wsdl:definitions/wsdl:service[@name='HelloService']", wsdl);
         assertValid("//wsdl:port/wsdlsoap:address[@location='" + address + "']", wsdl);
-        assertValid("//wsdl:portType[@name='HelloPortType']", wsdl);
+        assertValid("//wsdl:portType[@name='Hello']", wsdl);
         assertValid("/wsdl:definitions/wsdl:message[@name='sayHi']"
                     + "/wsdl:part[@element='ns1:sayHi'][@name='sayHi']",
                     wsdl);

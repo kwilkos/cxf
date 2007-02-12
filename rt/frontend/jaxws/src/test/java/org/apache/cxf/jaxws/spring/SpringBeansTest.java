@@ -27,7 +27,7 @@ import org.apache.cxf.jaxws.service.Hello;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SpringBeansTest extends TestCase {
-    public void xtestEndpoints() throws Exception {
+    public void testEndpoints() throws Exception {
         ClassPathXmlApplicationContext ctx = 
             new ClassPathXmlApplicationContext(new String[] {"/org/apache/cxf/jaxws/spring/endpoints.xml"});
 
@@ -64,6 +64,9 @@ public class SpringBeansTest extends TestCase {
         
         ep = (EndpointImpl) bean;
         assertTrue(ep.getImplementor() instanceof Hello);
+        
+        bean = ctx.getBean("wsdlLocation");
+        assertNotNull(bean);
     }
     
     public void testServers() throws Exception {

@@ -82,14 +82,15 @@ public class ProviderServiceFactoryBeanTest extends AbstractJaxWsTest {
 
         Service service = bean.create();
 
-        assertEquals("SourcePayloadProvider", service.getName().getLocalPart());
+        assertEquals("SourcePayloadProviderService", service.getName().getLocalPart());
         
         InterfaceInfo intf = service.getServiceInfo().getInterface();
         assertNotNull(intf);
         
         assertEquals(1, service.getServiceInfo().getEndpoints().size());
         
-        EndpointInfo ei = service.getServiceInfo().getEndpoint(new QName("SourcePayloadProviderPort"));
+        QName portName = new QName("http://support.jaxws.cxf.apache.org/", "SourcePayloadProviderPort");
+        EndpointInfo ei = service.getServiceInfo().getEndpoint(portName);
         
         assertNotNull(ei);
         

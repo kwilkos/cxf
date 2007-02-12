@@ -63,40 +63,24 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         implInfo = ((JaxWsServiceFactoryBean)serviceFactory).getJaxWsImplementorInfo();
     }
 
-    WebService getConcreteWebServiceAttribute() {
-        return getServiceFactory().getServiceClass().getAnnotation(WebService.class);
-    }
-
-    WebService getPortTypeWebServiceAttribute() {
-        Class<?> epi = implInfo.getEndpointClass();
-        WebService ws = null;
-        if (epi != null) {
-            ws = epi.getAnnotation(WebService.class);
-        }
-        if (ws == null) {
-            ws = getConcreteWebServiceAttribute();
-        }
-        return ws;
-    }
-
     @Override
     public String getServiceName() {
-        WebService ws = getConcreteWebServiceAttribute();
-        if (ws != null && ws.serviceName().length() > 0) {
-            return ws.serviceName();
+        QName service = implInfo.getServiceName();
+        if (service == null) {
+            return null;
+        } else {
+            return service.getLocalPart();
         }
-
-        return null;
     }
 
     @Override
     public String getServiceNamespace() {
-        WebService ws = getConcreteWebServiceAttribute();
-        if (ws != null && ws.targetNamespace().length() > 0) {
-            return ws.targetNamespace();
+        QName service = implInfo.getServiceName();
+        if (service == null) {
+            return null;
+        } else {
+            return service.getNamespaceURI();
         }
-
-        return null;
     }
 
     @Override
@@ -105,19 +89,24 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
+    public QName getInterfaceName() {
+        return implInfo.getInterfaceName();
+    }
+
+    @Override
     public URL getWsdlURL() {
-        WebService ws = getPortTypeWebServiceAttribute();
-        if (ws != null && ws.wsdlLocation().length() > 0) {
+        String wsdlLocation = implInfo.getWsdlLocation();
+        if (wsdlLocation != null && wsdlLocation.length() > 0) {
             try {
-                URIResolver resolver = new URIResolver(null, ws.wsdlLocation(), getClass());
+                URIResolver resolver = new URIResolver(null, wsdlLocation, getClass());
                 if (resolver.isResolved()) {
                     return resolver.getURI().toURL();
                 } else {
-                    throw new WebServiceException("Could not find WSDL with URL " + ws.wsdlLocation());
+                    throw new WebServiceException("Could not find WSDL with URL " + wsdlLocation);
                 }
             } catch (IOException e) {
                 throw new ServiceConstructionException(
-                    new Message("LOAD_WSDL_EXC", BUNDLE, ws.wsdlLocation()), e);
+                    new Message("LOAD_WSDL_EXC", BUNDLE, wsdlLocation), e);
             }
         }
         return null;

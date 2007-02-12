@@ -56,7 +56,7 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
     public JaxWsServiceFactoryBean(JaxWsImplementorInfo implInfo) {
         this();
         setJaxWsImplementorInfo(implInfo);
-        this.serviceClass = implInfo.getImplementorClass();
+        this.serviceClass = implInfo.getEndpointClass();
     }
 
     @Override

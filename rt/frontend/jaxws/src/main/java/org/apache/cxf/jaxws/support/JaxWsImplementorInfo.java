@@ -36,6 +36,7 @@ import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.common.util.PackageUtils;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 
@@ -93,18 +94,22 @@ public class JaxWsImplementorInfo {
         if (implementorAnnotation != null) {
             serviceName = implementorAnnotation.serviceName();
             namespace = implementorAnnotation.targetNamespace();
-        } else {
-            // Must be a provider
+        } else if (wsProviderAnnotation != null) {
             serviceName = wsProviderAnnotation.serviceName();
             namespace = wsProviderAnnotation.targetNamespace();
+        } else {
+            return null;
         }
+
         if (StringUtils.isEmpty(serviceName)) {
-            serviceName = implementorClass.getName();
+            serviceName = implementorClass.getSimpleName() + "Service";
         }
-        if (!StringUtils.isEmpty(namespace) && !StringUtils.isEmpty(serviceName)) {
-            return new QName(namespace, serviceName);
+
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = getDefaultNamespace(implementorClass);
         }
-        return null;
+
+        return new QName(namespace, serviceName);
     }
 
     /**
@@ -118,21 +123,64 @@ public class JaxWsImplementorInfo {
         if (implementorAnnotation != null) {
             portName = implementorAnnotation.portName();
             namespace = implementorAnnotation.targetNamespace();
-        } else {
-            // Must be a provider
+        } else if (wsProviderAnnotation != null) {
             portName = wsProviderAnnotation.portName();
             namespace = wsProviderAnnotation.targetNamespace();
+        } else {
+            return null;
         }
 
         if (StringUtils.isEmpty(portName)) {
             portName = implementorClass.getSimpleName() + "Port";
         }
 
-        if (!StringUtils.isEmpty(portName)) {
-            return new QName(namespace, portName);
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = getDefaultNamespace(implementorClass);
+        }
+
+        return new QName(namespace, portName);
+    }
+
+    public QName getInterfaceName() {
+        String name = null;
+        String namespace = null;
+
+        if (seiAnnotation != null) {
+            if (StringUtils.isEmpty(seiAnnotation.name())) {
+                name = seiClass.getSimpleName();
+            } else {
+                name = seiAnnotation.name();
+            }
+            if (StringUtils.isEmpty(seiAnnotation.targetNamespace())) {
+                namespace = getDefaultNamespace(seiClass);
+            } else {
+                namespace = seiAnnotation.targetNamespace();
+            }
+        } else if (implementorAnnotation != null) {
+            if (StringUtils.isEmpty(implementorAnnotation.name())) {
+                name = implementorClass.getSimpleName();
+            } else {
+                name = implementorAnnotation.name();
+            }
+            if (StringUtils.isEmpty(implementorAnnotation.targetNamespace())) {
+                namespace = getDefaultNamespace(implementorClass);
+            } else {
+                namespace = implementorAnnotation.targetNamespace();
+            }
         } else {
-            return new QName(namespace, "NoNamedPort");
-        }        
+            return null;
+        }
+        
+        return new QName(namespace, name);
+    }
+
+    private String getDefaultNamespace(Class clazz) {
+        Package pkg = clazz.getPackage();
+        if (pkg == null) {
+            return null;
+        } else {
+            return PackageUtils.getNamespace(pkg.getName());
+        }
     }
         
     @SuppressWarnings("unchecked")

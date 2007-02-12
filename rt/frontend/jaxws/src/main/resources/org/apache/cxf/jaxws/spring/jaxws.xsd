@@ -27,6 +27,7 @@
           <xsd:attribute name="publish" type="xsd:boolean" default="true"/>
           <xsd:attribute name="portName" type="xsd:QName" />
           <xsd:attribute name="serviceName" type="xsd:QName" />
+          <xsd:attribute name="wsdlLocation" type="xsd:string" />
         </xsd:extension>
       </xsd:complexContent>
     </xsd:complexType>
@@ -51,6 +52,7 @@
           <xsd:attribute name="serviceBean" type="xsd:string"/>
           <xsd:attribute name="start" type="xsd:boolean" default="true"/>
           <xsd:attribute name="transportId" type="xsd:string"/>
+          <xsd:attribute name="wsdlLocation" type="xsd:string" />
         </xsd:extension>
       </xsd:complexContent>
     </xsd:complexType>

@@ -48,6 +48,7 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
     private ApplicationContext context;
     private String binding;
     private Map<String, Object> properties;
+    private String wsdlLocation;
     
     public void setApplicationContext(ApplicationContext c) 
         throws BeansException {
@@ -160,4 +161,13 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
     public void setServiceFactory(AbstractJaxWsServiceFactoryBean serviceFactory) {
         this.serviceFactory = serviceFactory;
     }
+
+    public String getWsdlLocation() {
+        return wsdlLocation;
+    }
+
+    public void setWsdlLocation(String wsdlLocation) {
+        this.wsdlLocation = wsdlLocation;
+    }
+    
 }

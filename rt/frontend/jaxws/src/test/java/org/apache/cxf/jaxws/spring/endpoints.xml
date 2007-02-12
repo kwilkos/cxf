@@ -63,4 +63,8 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
   <jaxws:endpoint id="classImpl" 
     implementor="org.apache.cxf.jaxws.service.Hello"
     address="http://localhost:8080/test"/>
+    
+  <jaxws:endpoint id="wsdlLocation" 
+    implementor="#greeter" address="http://localhost:8080/simpleWithAddress"
+    wsdlLocation="wsdl/hello_world.wsdl"/>
 </beans>

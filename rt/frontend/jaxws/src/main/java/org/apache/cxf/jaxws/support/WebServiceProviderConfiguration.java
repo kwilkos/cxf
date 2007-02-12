@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceProvider;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
@@ -38,29 +37,32 @@ public class WebServiceProviderConfiguration extends AbstractServiceConfiguratio
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WebServiceProviderConfiguration.class);
 
     private JaxWsImplementorInfo implInfo;
-    private WebServiceProvider wsProvider;
     
     @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         super.setServiceFactory(serviceFactory);
         implInfo = ((ProviderServiceFactoryBean) serviceFactory).getJaxWsImplementorInfo();
-        wsProvider = implInfo.getWsProvider();
     }
+
 
     @Override
     public String getServiceName() {
-        if (wsProvider.serviceName().length() > 0) {
-            return wsProvider.serviceName();
+        QName service = implInfo.getServiceName();
+        if (service == null) {
+            return null;
+        } else {
+            return service.getLocalPart();
         }
-        return null;
     }
 
     @Override
     public String getServiceNamespace() {
-        if (wsProvider.targetNamespace().length() > 0) {
-            return wsProvider.targetNamespace();
+        QName service = implInfo.getServiceName();
+        if (service == null) {
+            return null;
+        } else {
+            return service.getNamespaceURI();
         }
-        return null;
     }
 
     @Override
@@ -70,20 +72,18 @@ public class WebServiceProviderConfiguration extends AbstractServiceConfiguratio
 
     @Override
     public URL getWsdlURL() {
-        String loc = wsProvider.wsdlLocation();
-        if (loc.length() > 0) {
+        String wsdlLocation = implInfo.getWsdlLocation();
+        if (wsdlLocation != null && wsdlLocation.length() > 0) {
             try {
-                URIResolver resolver = new URIResolver(null, loc, getClass());
+                URIResolver resolver = new URIResolver(null, wsdlLocation, getClass());
                 if (resolver.isResolved()) {
                     return resolver.getURI().toURL();
                 } else {
-                    throw new WebServiceException("Could not find WSDL with URL " + loc);
+                    throw new WebServiceException("Could not find WSDL with URL " + wsdlLocation);
                 }
             } catch (IOException e) {
-                throw new ServiceConstructionException(new Message("LOAD_WSDL_EXC", 
-                                                                   BUNDLE, 
-                                                                   loc),
-                                                       e);
+                throw new ServiceConstructionException(
+                    new Message("LOAD_WSDL_EXC", BUNDLE, wsdlLocation), e);
             }
         }
         return null;
