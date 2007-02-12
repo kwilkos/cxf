@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cxf Plug-in
+Bundle-SymbolicName: ${GROUP_ID}; singleton:=true
+Bundle-Version: 2.0.0
+Bundle-Localization: plugin
+Export-Package: #foreach ($packageName in $exportedPackages)
+ ${packageName}#if($exportedPackages.size() != $velocityCount),#end
+
+#end
+Bundle-ClassPath: #foreach ($jarfile in $jars)
+ ${libPath}/$jarfile.name #if($jars.size() != $velocityCount),#end
+
+#end
+Eclipse-LazyStart: true
+Eclipse-RegisterBuddy: org.eclipse.stp.sc.common
+Require-Bundle: org.eclipse.stp.sc.common
