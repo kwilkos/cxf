@@ -24,7 +24,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF JCA Connection</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -52,19 +52,19 @@
             <artifactId>asm</artifactId>
             <scope>test</scope>
         </dependency>
-       
-	<dependency>
+
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
- 
-	<dependency>
+
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-	
+
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
@@ -89,13 +89,13 @@
             <version>${project.version}</version>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-local</artifactId>
             <version>${project.version}</version>
@@ -112,14 +112,14 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
-	    <scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ejb_2.1_spec</artifactId>
-	    <scope>provided</scope>
-        </dependency> 
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 

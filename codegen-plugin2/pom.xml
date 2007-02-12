@@ -23,7 +23,7 @@
     <packaging>maven-plugin</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Code Generation Maven 2 Plugins for tools2</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
 
     <parent>

@@ -21,7 +21,7 @@
     <artifactId>cxf-rt-bindings</artifactId>
     <packaging>pom</packaging>
     <name>Apache CXF Runtime Bindings</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -35,7 +35,7 @@
 
     <modules>
         <module>soap</module>
-	<module>xml</module>
+        <module>xml</module>
         <module>http</module>
     </modules>
 

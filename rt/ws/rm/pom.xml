@@ -21,7 +21,7 @@
     <artifactId>cxf-rt-ws-rm</artifactId>
     <packaging>jar</packaging>
     <name>Apache CXF Runtime WS Reliable Messaging</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-api</artifactId>
@@ -113,27 +113,27 @@
                 <version>${project.version}</version>
                 <executions>
                     <execution>
-                    <id>generate-sources</id>
-                    <phase>generate-sources</phase>
-                    <configuration>
-                        <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-                        <xsdOptions>
-                            <xsdOption>
-                                <xsd>${basedir}/src/main/resources/schemas/wsdl/wsrm.xsd</xsd>
-                                <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
-                                <catalog>${basedir}/src/main/resources/schemas/wsdl/catalog.cat</catalog>
-                                <deleteDirs>
-                                    <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/ws/addressing</deleteDir>
-                                </deleteDirs>
-                            </xsdOption>
-                            <xsdOption>
-                                <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-manager.xsd</xsd>
-                                <bindingFile>${basedir}/src/main/resources/schemas/configuration/wsrm-policy.xjb</bindingFile>
-                                <extension>true</extension>
-                                <extensionArgs>
-                                    <extensionArg>-Xdv</extensionArg>
-                                </extensionArgs>`
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+                            <xsdOptions>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/wsdl/wsrm.xsd</xsd>
+                                    <bindingFile>${basedir}/src/main/resources/schemas/wsdl/wsrm.xjb</bindingFile>
+                                    <catalog>${basedir}/src/main/resources/schemas/wsdl/catalog.cat</catalog>
+                                    <deleteDirs>
+                                        <deleteDir>${basedir}/target/generated/src/main/java/org/apache/cxf/ws/addressing</deleteDir>
+                                    </deleteDirs>
                                 </xsdOption>
+                                <xsdOption>
+                                    <xsd>${basedir}/src/main/resources/schemas/configuration/wsrm-manager.xsd</xsd>
+                                    <bindingFile>${basedir}/src/main/resources/schemas/configuration/wsrm-policy.xjb</bindingFile>
+                                    <extension>true</extension>
+                                    <extensionArgs>
+                                        <extensionArg>-Xdv</extensionArg>
+                                    </extensionArgs>
+                                    `</xsdOption>
                             </xsdOptions>
                         </configuration>
                         <goals>

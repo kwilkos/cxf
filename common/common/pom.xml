@@ -23,7 +23,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Common Utilities</name>
-    <url>http://cxf.apache.org/</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -119,7 +119,7 @@
         </dependency>
 
     </dependencies>
-   
+
     <!-- will remove this after it is got sync to central repository -->
     <repositories>
         <repository>

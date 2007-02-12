@@ -23,7 +23,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Eclipse Distribution</name>
-    <url>http://cxf.apache.org/</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>

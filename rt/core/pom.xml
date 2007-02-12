@@ -23,7 +23,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Runtime Core</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -42,16 +42,16 @@
             <artifactId>cxf-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.ws.commons</groupId>
             <artifactId>XmlSchema</artifactId>
-        </dependency> 
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -62,7 +62,7 @@
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -23,7 +23,7 @@
     <packaging>pom</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Command Line Tools</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -34,13 +34,13 @@
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
     </properties>
-    
+
     <modules>
-            <module>common</module>
-            <module>validator</module>
-            <module>wsdl2java</module>
-            <module>java2wsdl</module>
-            <module>misctools</module>            
-            <module>xjc</module>
+        <module>common</module>
+        <module>validator</module>
+        <module>wsdl2java</module>
+        <module>java2wsdl</module>
+        <module>misctools</module>
+        <module>xjc</module>
     </modules>
 </project>

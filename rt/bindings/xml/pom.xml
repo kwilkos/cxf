@@ -21,7 +21,7 @@
     <artifactId>cxf-rt-bindings-xml</artifactId>
     <packaging>jar</packaging>
     <name>Apache CXF Runtime XML Binding</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -66,13 +66,13 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-	    <scope>test</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
-	    <scope>test</scope>
-	</dependency>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

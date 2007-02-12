@@ -23,47 +23,47 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Command Line Tools2 WSDLTo JAXB Databinding</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf-tools2-wsdlto</artifactId>
-	<version>2.0-incubator-RC-SNAPSHOT</version>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-tools2-wsdlto</artifactId>
+        <version>2.0-incubator-RC-SNAPSHOT</version>
     </parent>
 
     <properties>
-	<topDirectoryLocation>../../../</topDirectoryLocation>
+        <topDirectoryLocation>../../../</topDirectoryLocation>
     </properties>
-    
+
     <dependencies>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-xjc</artifactId>
-	</dependency>
-	<dependency>
-	    <groupId>com.sun.xml.bind</groupId>
-	    <artifactId>jaxb-impl</artifactId>
-	</dependency>
-	
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <scope>test</scope>
-	</dependency>
-        
         <dependency>
-		    <groupId>org.apache.cxf</groupId>
-		    <artifactId>cxf-tools2-wsdlto-core</artifactId>
-		    <version>${project.version}</version>
-	</dependency>
-        
-	<dependency>
-	    <groupId>org.apache.cxf</groupId>
-	    <artifactId>cxf-tools2-common</artifactId>
-	    <version>${project.version}</version>
-	</dependency>
-	
-	
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools2-wsdlto-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-tools2-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
     </dependencies>
 
 </project>

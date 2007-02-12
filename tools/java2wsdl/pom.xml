@@ -23,7 +23,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Command Line Tools Java2Wsdl</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -36,54 +36,54 @@
     </properties>
 
     <dependencies>
-	                      
+
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-	        
+
 
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-tools-wsdl2java</artifactId>
             <version>${project.version}</version>
         </dependency>
-	       
+
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-               
+
 
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymockclassextension</artifactId>
             <scope>test</scope>
         </dependency>
-               
+
 
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <scope>test</scope>
         </dependency>
-              
+
 
         <dependency>
             <groupId>velocity</groupId>
             <artifactId>velocity</artifactId>
         </dependency>
-       
+
 
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
         </dependency>
-               
+
 
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -93,7 +93,7 @@
             <groupId>javax.xml.ws</groupId>
             <artifactId>jaxws-api</artifactId>
             <scope>provided</scope>
-	    </dependency>               
+        </dependency>
 
         <dependency>
             <groupId>com.sun.xml.bind</groupId>

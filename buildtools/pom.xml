@@ -23,7 +23,7 @@
     <artifactId>cxf-buildtools</artifactId>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF Buildtools</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF</url>
+    <url>http://cwiki.apache.org/CXF</url>
     <packaging>jar</packaging>
 
     <scm>

@@ -21,7 +21,7 @@
     <artifactId>cxf-rt-databinding-jaxb</artifactId>
     <packaging>jar</packaging>
     <name>Apache CXF Runtime JAXB DataBinding</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -126,7 +126,7 @@
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
         </dependency>
-        
+
 
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
@@ -136,15 +136,15 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-xjc</artifactId>
         </dependency>
-        
-                        
+
+
         <!-- Optional dependency so we can dynamically compile the JAXB beans for the Dynamic Client -->
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <optional>true</optional>
         </dependency>
-        
+
     </dependencies>
 
 </project>

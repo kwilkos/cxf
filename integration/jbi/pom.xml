@@ -23,7 +23,7 @@
     <packaging>jar</packaging>
     <version>2.0-incubator-RC-SNAPSHOT</version>
     <name>Apache CXF JBI Integration</name>
-    <url>http://cwiki.apache.org/confluence/display/CXF/Index</url>
+    <url>http://cwiki.apache.org/CXF</url>
 
     <parent>
         <groupId>org.apache.cxf</groupId>
@@ -83,16 +83,16 @@
                     <artifactId>mx4j</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>	
+        </dependency>
 
-       
-	<dependency>
+
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
             <version>${project.version}</version>
         </dependency>
 
- 
 
-   </dependencies>
+
+    </dependencies>
 </project>
