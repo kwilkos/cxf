@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws.spring;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -26,6 +27,7 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.springframework.beans.BeansException;
@@ -54,7 +56,7 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
         throws BeansException {
         this.context = c;
     }
-
+   
     public Object getObject() throws Exception {
         if (endpoint != null) {
             return endpoint;
@@ -71,7 +73,13 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
         }
 
         if (serviceFactory == null) {
-            endpoint = new EndpointImpl(bus, implementor, binding);
+            //TODO support to lookup wsdl from classpath
+            if (null != wsdlLocation && wsdlLocation.length() > 0) {
+                //if wsdl can't be found, we will try to init Endpoint without wsdl
+                URL wsdl = ClassLoaderUtils.getResource(wsdlLocation, this.getClass());                
+                endpoint = new EndpointImpl(bus, implementor, binding, wsdl);
+            }
+            endpoint = new EndpointImpl(bus, implementor, binding);            
         } else {
             endpoint = new EndpointImpl(bus, implementor, serviceFactory);
         }

@@ -64,6 +64,7 @@ public class CXFServlet extends HttpServlet {
     static final String ADDRESS_PERFIX = "http://localhost/services";
     static final Map<String, WeakReference<Bus>> BUS_MAP = new Hashtable<String, WeakReference<Bus>>();
     static final Logger LOG = Logger.getLogger(CXFServlet.class.getName());
+    static final String JAXWS_ENDPOINT_FACTORY_BEAN = "org.apache.cxf.jaxws.spring.EndpointFactoryBean";
     
     private Bus bus;
     private ServletTransportFactory servletTransportFactory;
@@ -110,16 +111,20 @@ public class CXFServlet extends HttpServlet {
             // If the ctx is null, we need to load the cxf-servlet as default
             if (ctx == null) {
                 bus = new SpringBusFactory().createBus("/META-INF/cxf/cxf-servlet.xml");
+                
             } else {
                 bus = new SpringBusFactory(ctx).createBus();
             }
             
             SpringBusFactory.setDefaultBus(bus);
+            
+            initEndpointsFromContext(ctx);
+             
         }
         if (null != busid) {
             BUS_MAP.put(busid, new WeakReference<Bus>(bus));
         }
-
+                
         replaceDestionFactory();
 
         // Set up the servlet as the default server side destination factory
@@ -127,6 +132,25 @@ public class CXFServlet extends HttpServlet {
 
         // build endpoints from the web.xml or a config file
         buildEndpoints(servletConfig);
+    }
+    
+    // Need to get to know all frontend's endpoint information
+    private void initEndpointsFromContext(ApplicationContext ctx) throws ServletException {
+        Class factoryClass;        
+        if (null != ctx) {                   
+            try {
+                factoryClass = Class.forName(JAXWS_ENDPOINT_FACTORY_BEAN);
+            } catch (ClassNotFoundException ex) {
+                throw new ServletException(ex);
+            }
+            String[] beans = ctx.getBeanNamesForType(factoryClass);
+            if (null != beans) {
+                for (String bean : beans) {
+                    // just remove the & from the bean's name
+                    ctx.getBean(bean.substring(1));
+                }
+            }
+        }    
     }
 
     protected void buildEndpoints(ServletConfig servletConfig) throws ServletException {
@@ -236,7 +260,7 @@ public class CXFServlet extends HttpServlet {
             if (null == publisherName || publisherName.length() == 0) {
                 publisherName = "org.apache.cxf.jaxws.EndpointPublisherImpl";
             }
-            System.out.println("[publisherName] " + publisherName);
+            
             EndpointPublisher publisher = (EndpointPublisher)Class.forName(publisherName).newInstance();
             
             publisher.buildEndpoint(bus, implName, serviceName, url, portName);

@@ -19,6 +19,7 @@
 
 package org.apache.cxf.jaxws;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -85,7 +86,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     }
     
     @SuppressWarnings("unchecked")
-    public EndpointImpl(Bus b, Object i, String uri) {
+    public EndpointImpl(Bus b, Object i, String uri, URL wsdl) {
         bus = b;
         implementor = i;
         bindingURI = uri;
@@ -98,6 +99,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             serviceFactory = new JaxWsServiceFactoryBean(implInfo);
         }
         serviceFactory.setBus(bus);
+        if (null != wsdl) {
+            serviceFactory.setWsdlURL(wsdl);
+        }
         service = serviceFactory.create();
         
         configureObject(service);
@@ -110,8 +114,15 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             service.setInvoker(new JAXWSMethodInvoker(i));
         }
         
-        doInit = true;
+        doInit = true; 
     }
+    
+    
+    public EndpointImpl(Bus b, Object i, String uri) {
+        this(b, i, uri, (URL)null);
+    }
+   
+   
 
     public EndpointImpl(Bus bus, Object implementor) {
         this(bus, implementor, (String) null);

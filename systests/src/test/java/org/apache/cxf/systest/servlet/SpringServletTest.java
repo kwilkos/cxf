@@ -38,8 +38,17 @@ public class SpringServletTest extends AbstractServletTest {
             getClass().getResourceAsStream("GreeterMessage.xml"),
             "text/xml; charset=utf-8");
 
+        invokingEndpoint(req);
+        
+        req = new PostMethodWebRequest("http://localhost/services/Greeter1",
+            getClass().getResourceAsStream("GreeterMessage.xml"), "text/xml; charset=utf-8");
+        
+        invokingEndpoint(req);
+    }
+    
+    public void invokingEndpoint(WebRequest req) throws Exception {
+        
         WebResponse response = newClient().getResponse(req);
-
         assertEquals("text/xml", response.getContentType());
         assertEquals("utf-8", response.getCharacterSet());
 
@@ -47,7 +56,6 @@ public class SpringServletTest extends AbstractServletTest {
         assertNotNull(doc);
 
         addNamespace("h", "http://apache.org/hello_world_soap_http/types");
-
         assertValid("/s:Envelope/s:Body", doc);
         assertValid("//h:sayHiResponse", doc);
     }

@@ -37,5 +37,17 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schema/jaxws.xsd">
     <property name="address" value="http://localhost/services/Greeter"/>
     <property name="bus" ref="cxf"/>
   </bean>
-
+  
+   <jaxws:endpoint id="endpoint1" 
+              implementor="org.apache.hello_world_soap_http.GreeterImpl"
+              address="http://localhost/services/Greeter1"
+              wsdlLocation="/wsdl/hello_world.wsdl"
+              />
+   
+    <jaxws:endpoint id="endpoint2" 
+              implementor="org.apache.hello_world_soap_http.GreeterImpl"
+              address="http://localhost/services/Greeter2"
+              wsdlLocation="/wsdl/world1.wsdl"
+              />     
+  
 </beans>
