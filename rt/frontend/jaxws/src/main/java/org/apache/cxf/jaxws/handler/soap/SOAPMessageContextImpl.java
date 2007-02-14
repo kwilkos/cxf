@@ -21,8 +21,6 @@ package org.apache.cxf.jaxws.handler.soap;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-//import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ResourceBundle;
@@ -34,26 +32,33 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.XMLMessage;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class SOAPMessageContextImpl extends WrappedMessageContext implements SOAPMessageContext {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(SOAPMessageContextImpl.class);
@@ -74,14 +79,31 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                 Boolean outboundProperty = (Boolean)get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
                 if (outboundProperty) {
-                    MessageFactory factory = MessageFactory.newInstance();
-                    MimeHeaders mhs = null;
-                    //Safe to do this cast as SOAPHandlerInterceptor has explictly 
-                    //replaced OutputStream with AbstractCachedOutputStream.
-                    AbstractCachedOutputStream out = (AbstractCachedOutputStream)getWrappedMessage()
-                        .getContent(OutputStream.class);
-                    InputStream is = out.getInputStream();
-                    message = factory.createMessage(mhs, is);
+                    SoapVersion soapVersion = ((SoapMessage)getWrappedMessage()).getVersion();
+                    
+                    if (soapVersion == null) {
+                        soapVersion = Soap11.getInstance();
+                    }
+                    soapVersion = ((SoapMessage)getWrappedMessage()).getVersion();
+                 
+                    XMLStreamWriter xtw = getWrappedMessage().getContent(XMLStreamWriter.class);
+                    Document doc = ((W3CDOMStreamWriter)xtw).getDocument();
+                    
+                    XMLUtils.printDOM(doc);
+               
+                    MessageFactory factory = null;
+                    if (soapVersion.getVersion() == 1.1) {
+                        factory = MessageFactory.newInstance();
+                    } else {
+                        factory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+                    }
+                    message = factory.createMessage();
+
+                    SOAPPart soapPart = message.getSOAPPart();
+                    DOMSource preppedMsgSrc = new DOMSource(doc.getDocumentElement());
+                    soapPart.setContent(preppedMsgSrc);
+                    message.saveChanges();
+
                 } else {
                     
                     if (getWrappedMessage().getContent(Object.class) != null) {

@@ -40,6 +40,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
@@ -82,71 +83,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
     public void tearDown() {
     }
 
-    // SAAJ tree is created on demand. SAAJ wont be created without
-    // the calling of SOAPMessageContext.getMessage().
-    public void testNoCallToGetMessageOutBound() throws Exception {
-        List<Handler> list = new ArrayList<Handler>();
-        list.add(new SOAPHandler<SOAPMessageContext>() {
-            public boolean handleMessage(SOAPMessageContext smc) {
-                return true;
-            }
-
-            public boolean handleFault(SOAPMessageContext smc) {
-                return true;
-            }
-
-            public Set<QName> getHeaders() {
-                return null;
-            }
-
-            public void close(MessageContext messageContext) {
-            }
-        });
-        HandlerChainInvoker invoker = new HandlerChainInvoker(list);
-
-        IMocksControl control = createNiceControl();
-        Binding binding = control.createMock(Binding.class);
-        Exchange exchange = control.createMock(Exchange.class);
-        expect(exchange.get(HandlerChainInvoker.class)).andReturn(invoker).anyTimes();
-        SoapMessage message = new SoapMessage(new MessageImpl());
-        message.setExchange(exchange);        
-        // This is to set direction to outbound
-        expect(exchange.getOutMessage()).andReturn(message).anyTimes();
-        CachedStream originalEmptyOs = new CachedStream();
-        message.setContent(OutputStream.class, originalEmptyOs);
-
-        InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
-        // This is to simulate interceptors followed by SOAPHandlerInterceptor
-        // write outputStream
-        chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
-            public void handleMessage(SoapMessage message) throws Fault {
-                try {
-                    CachedStream os = prepareOutputStreamFromResource("resources/greetMeRpcLitResp.xml");
-                    message.setContent(OutputStream.class, os);
-                } catch (Exception e) {
-                    // do nothing
-                }
-            }
-
-        });
-        message.setInterceptorChain(chain);
-        control.replay();
-
-        SOAPHandlerInterceptor li = new SOAPHandlerInterceptor(binding);
-        li.handleMessage(message);
-        control.verify();
-
-        // Verify outputStream
-        CachedStream expectedOs = prepareOutputStreamFromResource("resources/greetMeRpcLitResp.xml");
-        assertTrue("The content of outputStream should remain unchanged", compareInputStream(expectedOs
-            .getInputStream(), originalEmptyOs.getInputStream()));
-        // Verify SOAPMessage
-        SOAPMessage resultedMessage = message.getContent(SOAPMessage.class);
-        assertNull(resultedMessage);
-    }
-
-    // SAAJ tree is created on if SOAPMessageContext.getMessage() is
-    // called. Any changes to SOAPMessage should be streamed back to
+    // SAAJ tree is created from DOMXMLStreamWriter. Any changes to SOAPMessage should be streamed back to
     // outputStream
     public void testChangeSOAPBodyOutBound() throws Exception {
         List<Handler> list = new ArrayList<Handler>();
@@ -190,14 +127,20 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         message.setContent(OutputStream.class, originalEmptyOs);
 
         InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
-        // This is to simulate interceptors followed by SOAPHandlerInterceptor
-        // write outputStream
+        //Interceptors after SOAPHandlerInterceptor DOMXMLStreamWriter to write
         chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
             public void handleMessage(SoapMessage message) throws Fault {
                 try {
-                    CachedStream os = prepareOutputStreamFromResource(
-                        "resources/greetMeRpcLitRespChanged.xml");
-                    message.setContent(OutputStream.class, os);
+                    XMLStreamWriter writer = message.getContent(XMLStreamWriter.class); 
+                    SoapVersion soapVersion = Soap11.getInstance();
+                    writer.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
+                    writer.writeStartElement(soapVersion.getPrefix(), 
+                                          soapVersion.getEnvelope().getLocalPart(),
+                                          soapVersion.getNamespace());
+                    writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
+                    writer.writeEndElement();
+                    
+                    writer.flush();
                 } catch (Exception e) {
                     // do nothing
                 }
@@ -360,14 +303,24 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         message.setContent(OutputStream.class, originalEmptyOs);
 
         InterceptorChain chain = new PhaseInterceptorChain((new PhaseManagerImpl()).getOutPhases());
-        // This is to simulate interceptors followed by SOAPHandlerInterceptor
-        // write outputStream
+        //Interceptors after SOAPHandlerInterceptor DOMXMLStreamWriter to write
         chain.add(new AbstractProtocolHandlerInterceptor<SoapMessage>(binding) {
             public void handleMessage(SoapMessage message) throws Fault {
                 try {
-                    CachedStream os = prepareOutputStreamFromResource(
-                        "resources/greetMeRpcLitRespWithHeader.xml");
-                    message.setContent(OutputStream.class, os);
+                    XMLStreamWriter writer = message.getContent(XMLStreamWriter.class); 
+                    SoapVersion soapVersion = Soap11.getInstance();
+                    writer.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
+                    writer.writeStartElement(soapVersion.getPrefix(), 
+                                          soapVersion.getEnvelope().getLocalPart(),
+                                          soapVersion.getNamespace());
+                    writer.writeNamespace(soapVersion.getPrefix(), soapVersion.getNamespace());
+                    
+                    Element headerElement = preparemSOAPHeader();
+                    StaxUtils.writeElement(headerElement, writer, true, false);
+                    
+                    writer.writeEndElement();
+                    
+                    writer.flush();
                 } catch (Exception e) {
                     // do nothing
                 }

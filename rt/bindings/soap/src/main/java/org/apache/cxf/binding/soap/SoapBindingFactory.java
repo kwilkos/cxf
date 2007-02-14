@@ -54,6 +54,8 @@ import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.DocLiteralInInterceptor;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
@@ -122,12 +124,16 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         sb.getInInterceptors().add(new StaxInInterceptor());        
         sb.getInInterceptors().add(new SoapHeaderInterceptor());
         
+        sb.getInInterceptors().add(new LoggingInInterceptor());
+      
         sb.getOutInterceptors().add(new SoapActionInterceptor());
         sb.getOutInterceptors().add(new AttachmentOutInterceptor());
         
         sb.getOutInterceptors().add(new StaxOutInterceptor());
         sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
         sb.getOutInterceptors().add(new SoapOutInterceptor());
+
+        sb.getOutInterceptors().add(new LoggingOutInterceptor());
 
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         sb.getOutFaultInterceptors().add(new SoapOutInterceptor());

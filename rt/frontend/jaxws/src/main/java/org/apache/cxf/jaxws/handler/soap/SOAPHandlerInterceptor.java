@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -34,6 +35,7 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.Binding;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
@@ -51,6 +53,7 @@ import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class SOAPHandlerInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
@@ -62,7 +65,7 @@ public class SOAPHandlerInterceptor extends
     public SOAPHandlerInterceptor(Binding binding) {
         super(binding);
         setPhase(Phase.PRE_PROTOCOL);
-        addBefore((new StaxOutInterceptor()).getId());
+        addAfter((new StaxOutInterceptor()).getId());
     }
 
     public Set<URI> getRoles() {
@@ -91,10 +94,16 @@ public class SOAPHandlerInterceptor extends
             return;
         }
         if (getInvoker(message).isOutbound()) {
-            OutputStream os = message.getContent(OutputStream.class);
-            CachedStream cs = new CachedStream();
-            message.setContent(OutputStream.class, cs);
-
+            try {
+                // Replace stax writer with DomStreamWriter
+                W3CDOMStreamWriter writer = new W3CDOMStreamWriter();
+                message.setContent(XMLStreamWriter.class, writer);
+            } catch (ParserConfigurationException e) {
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                    "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), e,
+                    message.getVersion().getSender());
+            }
+            
             message.getInterceptorChain().doInterceptInSubChain(message);
 
             super.handleMessage(message);
@@ -102,19 +111,13 @@ public class SOAPHandlerInterceptor extends
             try {
                 // Stream SOAPMessage back to output stream if necessary
                 SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
-                if (soapMessage != null) {
-                    soapMessage.writeTo(os);
-                } else {
-                    cs.flush();
-                    AbstractCachedOutputStream csnew = (AbstractCachedOutputStream) message
-                            .getContent(OutputStream.class);
-                    AbstractCachedOutputStream.copyStream(csnew
-                            .getInputStream(), os, 64 * 1024);
-                    cs.close();
-                }
 
-                os.flush();
-                message.setContent(OutputStream.class, os);
+                if (soapMessage != null) {
+                    OutputStream os = message.getContent(OutputStream.class);
+                    soapMessage.writeTo(os);
+                    os.flush();
+                } 
+                
             } catch (IOException ioe) {
                 throw new SoapFault(new org.apache.cxf.common.i18n.Message(
                         "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), ioe,

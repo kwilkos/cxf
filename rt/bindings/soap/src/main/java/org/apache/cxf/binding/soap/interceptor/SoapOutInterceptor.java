@@ -59,7 +59,6 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
         SoapVersion soapVersion = message.getVersion();
         try {            
             XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
-            message.setContent(XMLStreamWriter.class, xtw);            
             xtw.setPrefix(soapVersion.getPrefix(), soapVersion.getNamespace());
             xtw.writeStartElement(soapVersion.getPrefix(), 
                                   soapVersion.getEnvelope().getLocalPart(),
