@@ -25,8 +25,9 @@
 
     <parent>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt</artifactId>
+        <artifactId>cxf-parent</artifactId>
         <version>2.0-incubator-RC-SNAPSHOT</version>
+        <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
     <properties>
@@ -38,7 +39,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${dependency.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>unpack-schemas</id>

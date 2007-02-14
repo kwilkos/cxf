@@ -33,7 +33,6 @@
 
     <properties>
         <topDirectoryLocation>..</topDirectoryLocation>
-        <java.source.version>1.4</java.source.version>
         <cxf.version>${pom.version}</cxf.version>
     </properties>
 
@@ -114,11 +113,11 @@
             <version>${pom.version}</version>
         </dependency>
 
-	<dependency>
-	    <groupId>${pom.groupId}</groupId>
-	    <artifactId>cxf-rt-transports-jms</artifactId>
-	    <version>${pom.version}</version>
-	</dependency>
+        <dependency>
+            <groupId>${pom.groupId}</groupId>
+            <artifactId>cxf-rt-transports-jms</artifactId>
+            <version>${pom.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${pom.groupId}</groupId>
@@ -183,16 +182,7 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${java.source.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${dependency.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>unpack-javadoc</id>
@@ -212,30 +202,30 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-		    <execution>
-		        <!-- copy additional jars. These are jars we want included, but don't 
-                             really don't want tem on the classpath in the normal case -->
-			<id>add-jars</id>
-			<phase>package</phase>
-			<goals>
-			    <goal>copy</goal>
-			</goals>
-			<configuration>
-			    <outputDirectory>${project.build.directory}/additional-libs</outputDirectory>
-			    <artifactItems>
-			        <artifactItem>
-				    <groupId>${pom.groupId}</groupId>
-				    <artifactId>cxf-integration-jbi</artifactId>
-				    <version>${pom.version}</version>
-				</artifactItem>
-				<artifactItem>
-				    <groupId>${pom.groupId}</groupId>
-				    <artifactId>cxf-integration-jca</artifactId>
-				    <version>${pom.version}</version>
-				</artifactItem>
-		            </artifactItems>
-			</configuration>
-		    </execution>
+                    <execution>
+                        <!-- copy additional jars. These are jars we want included, but don't 
+                                     really don't want tem on the classpath in the normal case -->
+                        <id>add-jars</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/additional-libs</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>cxf-integration-jbi</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${pom.groupId}</groupId>
+                                    <artifactId>cxf-integration-jca</artifactId>
+                                    <version>${pom.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -254,7 +244,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>${assembly.version}</version>
                 <executions>
                     <execution>
                         <id>distribution-package</id>
@@ -287,7 +276,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>${antrun.version}</version>
                 <dependencies>
                     <dependency>
                         <groupId>ant</groupId>
@@ -313,11 +301,11 @@
                                 <property name="output.cp" value="export CXF_CLASSPATH=${cp}" />
                                 <property name="output.ext" value="" />
                                 <echo file="${basedir}/target/srcbuild_env${output.ext}" message="${output.cp}" />
-       			        <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}" />
+                                <echo file="${basedir}/target/version.properties" message="cxf.version=${pom.version}" />
                                 <copy file="${basedir}/src/main/assembly/jbi.xml" tofile="${basedir}/target/jbi.xml" overwrite="yes">
-                                            <filterset>
-                                                <filter token="CXF_VERSION" value="${pom.version}" />
-                                            </filterset>
+                                    <filterset>
+                                        <filter token="CXF_VERSION" value="${pom.version}" />
+                                    </filterset>
                                 </copy>
                             </tasks>
                         </configuration>

@@ -144,7 +144,7 @@ public class WSDL2JavaMojo extends AbstractMojo {
         
         if (doWork) {
             
-            List list = new ArrayList();
+            List<String> list = new ArrayList<String>();
             if (wsdlOption.getPackagenames() != null) {
                 Iterator it = wsdlOption.getPackagenames().iterator();
                 while (it.hasNext()) {

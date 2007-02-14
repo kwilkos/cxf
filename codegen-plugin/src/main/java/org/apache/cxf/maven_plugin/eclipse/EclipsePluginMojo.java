@@ -76,8 +76,8 @@ public class EclipsePluginMojo extends AbstractMojo {
         return "/org/apache/cxf/maven_plugin/eclipse/" + version + "/plugin.xml.vm";
     }
 
-    private List listJars() throws Exception {
-        List jars = new ArrayList();
+    private List<File> listJars() throws Exception {
+        List<File> jars = new ArrayList<File>();
         if (dependencies != null && !dependencies.isEmpty()) {            
             for (Iterator it = dependencies.iterator(); it.hasNext();) {
                 Artifact artifact = (Artifact)it.next();
@@ -119,16 +119,15 @@ public class EclipsePluginMojo extends AbstractMojo {
 
     }
 
-    private List getExportedPackages(List jars) throws Exception {
-        List packages = new ArrayList();
-        for (Iterator iter = jars.iterator(); iter.hasNext();) {
-            File jarFile = (File) iter.next();
+    private List<String> getExportedPackages(List<File> jars) throws Exception {
+        List<String> packages = new ArrayList<String>();
+        for (File jarFile : jars) {
             packages.addAll(ReflectionUtil.getPackagesFromJar(jarFile));
         }
         return packages;
     }
 
-    private void generatePluginXML(List jars) throws Exception {
+    private void generatePluginXML(List<File> jars) throws Exception {
         initVelocity();
 
         Template tmpl = null;
