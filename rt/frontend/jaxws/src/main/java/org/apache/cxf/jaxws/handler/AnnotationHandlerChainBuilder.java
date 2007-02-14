@@ -70,7 +70,7 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                 JAXBContext jc = JAXBContext
                         .newInstance(org.apache.cxf.jaxws.javaee.ObjectFactory.class);
                 Unmarshaller u = jc.createUnmarshaller();                
-                URL handlerFileURL  = clz.getResource(hcAnn.getFileName()); 
+                URL handlerFileURL  = resolveHandlerChainFile(clz, hcAnn.getFileName()); 
                 JAXBElement<?> o = (JAXBElement<?>)u.unmarshal(handlerFileURL);
 
                 HandlerChainsType handlerChainsType = (HandlerChainsType) o.getValue();

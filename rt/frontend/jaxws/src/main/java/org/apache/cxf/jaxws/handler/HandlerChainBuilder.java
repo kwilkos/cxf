@@ -21,6 +21,7 @@ package org.apache.cxf.jaxws.handler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +125,18 @@ public class HandlerChainBuilder {
         }
         return handlerChain;
     }
-
+    
+    /**
+     * Resolve handler chain configuration file associated with the given class
+     * 
+     * @param clz
+     * @param filename
+     * @return A URL object or null if no resource with this name is found
+     */    
+    protected URL resolveHandlerChainFile(Class clz, String filename) {
+        return clz.getResource(filename);
+    } 
+    
     private void configureHandler(Handler handler, PortComponentHandlerType h) {
         if (!handlerInitEnabled) {
             return;
