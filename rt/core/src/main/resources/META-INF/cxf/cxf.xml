@@ -73,7 +73,130 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     </bean>
     
     <bean id="org.apache.cxf.phase.PhaseManager" class="org.apache.cxf.phase.PhaseManagerImpl">
-        <property name="bus" ref="cxf"/>
+        <constructor-arg>
+            <list>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="receive"/>
+                    <property name="priority" value="1000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-stream"/>
+                    <property name="priority" value="2000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="user-stream"/>
+                    <property name="priority" value="3000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-stream"/>
+                    <property name="priority" value="4000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="read"/>
+                    <property name="priority" value="5000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-protocol"/>
+                    <property name="priority" value="6000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="user-protocol"/>
+                    <property name="priority" value="7000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-protocol"/>
+                    <property name="priority" value="8000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="unmarshal"/>
+                    <property name="priority" value="9000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-logical"/>
+                    <property name="priority" value="10000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="user-logical"/>
+                    <property name="priority" value="11000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-logical"/>
+                    <property name="priority" value="12000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-invoke"/>
+                    <property name="priority" value="13000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="invoke"/>
+                    <property name="priority" value="14000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-invoke"/>
+                    <property name="priority" value="15000"/>
+                </bean>
+            </list>
+        </constructor-arg>
+        <constructor-arg>
+            <list>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="setup"/>
+                    <property name="priority" value="1000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-logical"/>
+                    <property name="priority" value="2000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="user-logical"/>
+                    <property name="priority" value="3000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-logical"/>
+                    <property name="priority" value="4000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="prepare-send"/>
+                    <property name="priority" value="5000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-stream"/>
+                    <property name="priority" value="6000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="pre-protocol"/>
+                    <property name="priority" value="7000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="user-protocol"/>
+                    <property name="priority" value="8000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-protocol"/>
+                    <property name="priority" value="9000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="write"/>
+                    <property name="priority" value="10000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="marshal"/>
+                    <property name="priority" value="11000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="user-stream"/>
+                    <property name="priority" value="12000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="post-stream"/>
+                    <property name="priority" value="13000"/>
+                </bean>
+                <bean class="org.apache.cxf.phase.Phase">
+                    <property name="name" value="send"/>
+                    <property name="priority" value="14000"/>
+                </bean>
+            </list>
+        </constructor-arg>
     </bean>
     
     <bean id="org.apache.cxf.workqueue.WorkQueueManager" class="org.apache.cxf.workqueue.WorkQueueManagerImpl">

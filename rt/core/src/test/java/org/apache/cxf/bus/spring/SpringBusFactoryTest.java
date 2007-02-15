@@ -34,7 +34,9 @@ import org.apache.cxf.endpoint.ServerRegistry;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.Phase;
 import org.apache.cxf.phase.PhaseManager;
+import org.apache.cxf.phase.PhaseManagerImpl;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -70,7 +72,7 @@ public class SpringBusFactoryTest extends TestCase {
         assertEquals("Unexpected interceptors", 0, bus.getInFaultInterceptors().size());
         assertEquals("Unexpected interceptors", 0, bus.getOutInterceptors().size());
         assertEquals("Unexpected interceptors", 0, bus.getOutFaultInterceptors().size());
-        
+
     }
     
     public void testCustomFileName() {
@@ -124,6 +126,24 @@ public class SpringBusFactoryTest extends TestCase {
         bus.shutdown(true);
         EasyMock.verify(bl);
         
+    }
+
+    public void testPhases() {
+        Bus bus = new SpringBusFactory().createBus();
+        PhaseManager cxfPM = bus.getExtension(PhaseManager.class);
+        PhaseManager defaultPM = new PhaseManagerImpl();
+        List<Phase> cxfPhases = cxfPM.getInPhases();
+        List<Phase> defaultPhases = defaultPM.getInPhases();
+        assertEquals(defaultPhases.size(), cxfPhases.size());
+        for (int i = 0; i < cxfPhases.size(); i++) {
+            assertEquals(0, cxfPhases.get(i).compareTo(defaultPhases.get(i)));
+        }
+        cxfPhases = cxfPM.getOutPhases();
+        defaultPhases = defaultPM.getOutPhases();
+        assertEquals(defaultPhases.size(), cxfPhases.size());
+        for (int i = 0; i < cxfPhases.size(); i++) {
+            assertEquals(0, cxfPhases.get(i).compareTo(defaultPhases.get(i)));
+        }
     }
     
     static class TestInterceptor implements Interceptor {

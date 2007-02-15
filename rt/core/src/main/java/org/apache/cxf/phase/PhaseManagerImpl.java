@@ -22,32 +22,25 @@ package org.apache.cxf.phase;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import org.apache.cxf.extension.BusExtension;
 
-import org.apache.cxf.Bus;
-
-public class PhaseManagerImpl implements PhaseManager {
+public class PhaseManagerImpl implements PhaseManager, BusExtension {
  
-    private Bus bus;
     private  List<Phase> inPhases;
     private  List<Phase> outPhases;
-    
+   
     public PhaseManagerImpl() {
         createInPhases();
         createOutPhases();
-    } 
-    
-    @Resource
-    public void setBus(Bus b) {
-        bus = b;
     }
-    
-    @PostConstruct
-    public void register() {
-        if (null != bus) {
-            bus.setExtension(this, PhaseManager.class);
-        }
+
+    public PhaseManagerImpl(List<Phase> in, List<Phase> out) {
+        inPhases = in;
+        outPhases = out;
+    }
+
+    public Class getRegistrationType() {
+        return PhaseManager.class;
     }
 
     public List<Phase> getInPhases() {
@@ -59,11 +52,8 @@ public class PhaseManagerImpl implements PhaseManager {
     }
 
     final void createInPhases() {
+
         inPhases = new ArrayList<Phase>(); 
-        
-        // TODO: get from configuration instead
-        // bus.getConfiguration();
-        
         int i = 0;
         
         inPhases = new ArrayList<Phase>();
@@ -82,13 +72,9 @@ public class PhaseManagerImpl implements PhaseManager {
         inPhases.add(new Phase(Phase.PRE_INVOKE, ++i * 1000));
         inPhases.add(new Phase(Phase.INVOKE, ++i * 1000));
         inPhases.add(new Phase(Phase.POST_INVOKE, ++i * 1000));
-        // Collections.sort(inPhases);
     }
     
     final void createOutPhases() {
-        outPhases = new ArrayList<Phase>();
-        
-        // TODO: get from configuration instead
         
         outPhases = new ArrayList<Phase>();
         int i = 0;
@@ -115,7 +101,6 @@ public class PhaseManagerImpl implements PhaseManager {
         
         outPhases.add(new Phase(Phase.SEND, ++i * 1000));
         
-        // Collections.sort(outPhases);
     }
 
 }
