@@ -17,13 +17,11 @@
  * under the License.
  */
 
-package org.apache.cxf.ws.policy;
-
-import org.apache.cxf.transport.Conduit;
+package org.apache.cxf.ws.policy.attachment.external;
 
 /**
  * 
  */
-public interface AssertingConduit extends Assertor, Conduit {
+public class ExternalAttachmentProvider {
 
 }

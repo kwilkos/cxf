@@ -57,8 +57,8 @@ public class PrimitiveAssertion implements Assertion {
     
     public PrimitiveAssertion(Element element) {
         name = new QName(element.getNamespaceURI(), element.getLocalName());
-        Attr attribute = element.getAttributeNodeNS(PolicyConstants.getNamespaceURI(), 
-                                              PolicyConstants.getOptionalAttrLocalName());
+        Attr attribute = element.getAttributeNodeNS(PolicyConstants.NAMESPACE_URI, 
+                                              PolicyConstants.OPTIONAL_ATTR_NAME);
         if (attribute != null) {
             optional = Boolean.valueOf(attribute.getValue());
         }

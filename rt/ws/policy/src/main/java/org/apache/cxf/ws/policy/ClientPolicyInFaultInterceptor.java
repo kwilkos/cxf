@@ -26,7 +26,6 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 
@@ -38,7 +37,8 @@ public class ClientPolicyInFaultInterceptor extends AbstractPhaseInterceptor<Mes
     private Bus bus;
     
     public ClientPolicyInFaultInterceptor() {
-        setPhase(Phase.PRE_LOGICAL);
+        setId(PolicyConstants.CLIENT_POLICY_IN_FAULT_INTERCEPTOR_ID);
+        setPhase(Phase.RECEIVE);
     }
         
     public void setBus(Bus b) {
@@ -51,11 +51,6 @@ public class ClientPolicyInFaultInterceptor extends AbstractPhaseInterceptor<Mes
     
     public void handleMessage(Message msg) {        
         if (!PolicyUtils.isRequestor(msg)) {
-            return;
-        }
-        
-        BindingOperationInfo boi = msg.get(BindingOperationInfo.class);
-        if (null == boi) {
             return;
         }
         
@@ -74,15 +69,9 @@ public class ClientPolicyInFaultInterceptor extends AbstractPhaseInterceptor<Mes
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with the response and all of the operation's possible fault messages.
         
-        List<Interceptor> policyInFaultInterceptors = pe.getClientInFaultInterceptors(boi, ei, conduit);
+        List<Interceptor> policyInFaultInterceptors = pe.getClientInFaultInterceptors(ei, conduit);
         for (Interceptor poi : policyInFaultInterceptors) {
             msg.getInterceptorChain().add(poi);
         }
-        
-        // TODO:
-        // In addition we add an interceptor that towards the end of the chain determines the
-        // effective policy of the underlying message and checks if any of its alternatives are
-        // supported.
-        
     }
 }

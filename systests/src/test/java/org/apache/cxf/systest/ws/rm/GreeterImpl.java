@@ -28,6 +28,7 @@ import javax.xml.ws.Response;
 
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
+import org.apache.cxf.greeter_control.types.FaultDetail;
 import org.apache.cxf.greeter_control.types.GreetMeResponse;
 import org.apache.cxf.greeter_control.types.PingMeResponse;
 import org.apache.cxf.greeter_control.types.SayHiResponse;
@@ -45,6 +46,7 @@ public class GreeterImpl implements Greeter {
     private static final Logger LOG = Logger.getLogger(GreeterImpl.class.getName());
     private long delay;
     private String lastOnewayArg;
+    private int pingMeCount;
      
     public long getDelay() {
         return delay;
@@ -89,7 +91,16 @@ public class GreeterImpl implements Greeter {
     }
 
     public void pingMe() throws PingMeFault {
-        LOG.fine("Executing operation pingMe");        
+        pingMeCount++;
+        if ((pingMeCount % 2) > 0) {
+            LOG.fine("Executing operation pingMe");        
+        } else {
+            LOG.fine("Throwing PingMeFault while executiong operation pingMe");
+            FaultDetail fd = new FaultDetail();
+            fd.setMajor((short)2);
+            fd.setMinor((short)1);
+            throw new PingMeFault("Pings succeed only every other time.", fd);
+        }
     }
 
     public Response<PingMeResponse> pingMeAsync() {

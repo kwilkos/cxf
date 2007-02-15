@@ -22,8 +22,8 @@ package org.apache.cxf.phase;
 public class Phase implements Comparable {
     
     // can be removed from once defined as default value in configuration metadata for bus
-
-    public static final String POST_INVOKE = "post-invoke";
+  
+    public static final String SETUP = "setup";
     public static final String PRE_LOGICAL = "pre-logical";
     public static final String USER_LOGICAL = "user-logical";
     public static final String POST_LOGICAL = "post-logical";
@@ -44,6 +44,7 @@ public class Phase implements Comparable {
     public static final String UNMARSHAL = "unmarshal";
     public static final String PRE_INVOKE = "pre-invoke";
     public static final String INVOKE = "invoke";
+    public static final String POST_INVOKE = "post-invoke";
     
     
     private String name;

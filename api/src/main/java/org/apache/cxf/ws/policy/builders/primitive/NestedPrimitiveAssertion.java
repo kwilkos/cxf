@@ -63,18 +63,18 @@ public class NestedPrimitiveAssertion extends PrimitiveAssertion {
         for (Node nd = elem.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
             if (Node.ELEMENT_NODE == nd.getNodeType()) {
                 QName qn = new QName(nd.getNamespaceURI(), nd.getLocalName());
-                if (PolicyConstants.getPolicyElementQName().equals(qn)
+                if (PolicyConstants.POLICY_ELEM_QNAME.equals(qn)
                     && null == policyElem) {
                     policyElem = (Element)nd;
                 } else {
                     throw new PolicyException(new Message("UNEXPECTED_CHILD_ELEMENT_EXC", BUNDLE, 
-                                                          PolicyConstants.getPolicyElementQName()));
+                                                          PolicyConstants.POLICY_ELEM_QNAME));
                 }                
             }
         }
         if (null == policyElem) {
             throw new PolicyException(new Message("UNEXPECTED_CHILD_ELEMENT_EXC", BUNDLE, 
-                                                  PolicyConstants.getPolicyElementQName()));
+                                                  PolicyConstants.POLICY_ELEM_QNAME));
         }
         
         nested = builder.getPolicy(policyElem);  

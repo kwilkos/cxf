@@ -28,20 +28,20 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 
 /**
  * 
  */
-public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class ServerPolicyOutFaultInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private Bus bus;
     
-    public ClientPolicyOutInterceptor() {
-        setId(PolicyConstants.CLIENT_POLICY_OUT_INTERCEPTOR_ID);
+    public ServerPolicyOutFaultInterceptor() {
+        setId(PolicyConstants.SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID);
         setPhase(Phase.SETUP);
     }
-    
+        
     public void setBus(Bus b) {
         bus = b;
     }
@@ -50,8 +50,8 @@ public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message
         return bus;
     }
     
-    public void handleMessage(Message msg) {
-        if (!PolicyUtils.isRequestor(msg)) {
+    public void handleMessage(Message msg) {        
+        if (PolicyUtils.isRequestor(msg)) {
             return;
         }
         
@@ -63,18 +63,18 @@ public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message
         EndpointInfo ei = msg.get(EndpointInfo.class);
         if (null == ei) {
             return;
-        }        
+        }
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
             return;
         }
         
-        Conduit conduit = msg.getConduit();
+        Destination destination = msg.getDestination();
         
-        List<Interceptor> policyOutInterceptors = pe.getClientOutInterceptors(boi, ei, conduit);
-        for (Interceptor poi : policyOutInterceptors) {
-            msg.getInterceptorChain().add(poi);
+        List<Interceptor> outInterceptors = pe.getServerOutFaultInterceptors(boi, ei, destination);
+        for (Interceptor oi : outInterceptors) {
+            msg.getInterceptorChain().add(oi);
         }
     }
 }

@@ -93,6 +93,7 @@ public class PhaseManagerImpl implements PhaseManager {
         outPhases = new ArrayList<Phase>();
         int i = 0;
         
+        outPhases.add(new Phase(Phase.SETUP, ++i * 1000));
         outPhases.add(new Phase(Phase.PRE_LOGICAL, ++i * 1000));
         outPhases.add(new Phase(Phase.USER_LOGICAL, ++i * 1000));
         outPhases.add(new Phase(Phase.POST_LOGICAL, ++i * 1000));

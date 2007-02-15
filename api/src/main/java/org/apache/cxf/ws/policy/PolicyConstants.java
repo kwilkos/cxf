@@ -26,24 +26,37 @@ import javax.xml.namespace.QName;
  */
 public final class PolicyConstants {
     
-    private static final String NAMESPACE_URI = 
+    public static final String NAMESPACE_URI = 
         "http://schemas.xmlsoap.org/ws/2004/09/policy";
     
-    private static final String POLICY_ELEM_NAME = "Policy";
+    public static final String POLICY_ELEM_NAME = "Policy";
     
-    private static final String POLICYREF_ELEM_NAME = "PolicyReference";
+    public static final String POLICYREF_ELEM_NAME = "PolicyReference";
     
-    private static final String OPTIONAL_ATTR_NAME = "Optional";
+    public static final String OPTIONAL_ATTR_NAME = "Optional"; 
     
-    private static final QName POLICY_ELEM_QNAME = 
+    public static final QName POLICY_ELEM_QNAME = 
         new QName(NAMESPACE_URI, POLICY_ELEM_NAME);
     
-    private static final QName POLICYREF_QNAME = 
+    public static final QName POLICYREF_ELEM_QNAME = 
         new QName(NAMESPACE_URI, POLICYREF_ELEM_NAME);
     
-    private static final QName OPTIONAL_ATTR_QNAME = 
+    public static final QName OPTIONAL_ATTR_QNAME = 
         new QName(NAMESPACE_URI, OPTIONAL_ATTR_NAME);
     
+    public static final String CLIENT_POLICY_OUT_INTERCEPTOR_ID
+        = "org.apache.cxf.ws.policy.ClientPolicyOutInterceptor";
+    public static final String CLIENT_POLICY_IN_INTERCEPTOR_ID
+        = "org.apache.cxf.ws.policy.ClientPolicyInInterceptor";
+    public static final String CLIENT_POLICY_IN_FAULT_INTERCEPTOR_ID
+        = "org.apache.cxf.ws.policy.ClientPolicyInFaultInterceptor";
+    
+    public static final String SERVER_POLICY_IN_INTERCEPTOR_ID
+        = "org.apache.cxf.ws.policy.ServerPolicyInInterceptor";
+    public static final String SERVER_POLICY_OUT_INTERCEPTOR_ID
+        = "org.apache.cxf.ws.policy.ServerPolicyOutInterceptor";
+    public static final String SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID
+        = "org.apache.cxf.ws.policy.ServerPolicyOutFaultInterceptor";
     
     /**
      * Prevents instantiation.
@@ -51,44 +64,5 @@ public final class PolicyConstants {
     
     private PolicyConstants() {
     }
-    
-    /**
-     * @return namespace defined by the WS-Policy schema
-     */
-    public static String getNamespaceURI() {
-        return NAMESPACE_URI;
-    }
-    
-    /**
-     * @return the QName of the Policy element
-     */
-    public static QName getPolicyElementQName() {
-        return POLICY_ELEM_QNAME;
-    }
-    
-    public static String getPolicyElementLocalName() {
-        return POLICY_ELEM_NAME;
-    }
-    
-    /**
-     * @return the QName of the PolicyReference element
-     */
-    public static QName getPolicyReferenceElementQName() {
-        return POLICYREF_QNAME;
-    }
-    
-    public static String getPolicyReferenceElementLocalName() {
-        return POLICYREF_ELEM_NAME;
-    }
-    
-    public static QName getOptionalAttributeQName() {
-        return OPTIONAL_ATTR_QNAME;
-    }
-    
-    public static String getOptionalAttrLocalName() {
-        return OPTIONAL_ATTR_NAME;
-    }
-    
-    
     
 }

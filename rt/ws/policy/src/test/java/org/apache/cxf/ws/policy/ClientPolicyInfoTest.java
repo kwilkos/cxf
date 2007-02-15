@@ -30,12 +30,10 @@ import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.transport.Conduit;
 import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
@@ -55,17 +53,19 @@ public class ClientPolicyInfoTest extends TestCase {
     } 
     
     public void testAccessors() {
-        ClientPolicyInfo cpi = new ClientPolicyInfo();
+        ClientRequestPolicyInfo crpi = new ClientRequestPolicyInfo();
         Policy p = control.createMock(Policy.class);
         Assertion a = control.createMock(Assertion.class);
         List<Assertion> la = Collections.singletonList(a);
+        Interceptor i = control.createMock(Interceptor.class);
+        List<Interceptor> li = Collections.singletonList(i);
         control.replay();
-        cpi.setRequestPolicy(p);
-        assertSame(p, cpi.getRequestPolicy());
-        cpi.setChosenAlternative(la);
-        assertSame(la, cpi.getChosenAlternative());
-        cpi.setResponsePolicy(p);
-        assertSame(p, cpi.getResponsePolicy());
+        crpi.setRequestPolicy(p);
+        assertSame(p, crpi.getRequestPolicy());
+        crpi.setChosenAlternative(la);
+        assertSame(la, crpi.getChosenAlternative());
+        crpi.setOutInterceptors(li);
+        assertSame(li, crpi.getOutInterceptors());
         control.verify();
     }
     
@@ -93,18 +93,18 @@ public class ClientPolicyInfoTest extends TestCase {
         EasyMock.expect(merged.normalize(true)).andReturn(merged);
         
         control.replay();
-        ClientPolicyInfo cpi = new ClientPolicyInfo();
+        ClientRequestPolicyInfo cpi = new ClientRequestPolicyInfo();
         cpi.initialiseRequestPolicy(boi, ei, engine);
         assertSame(merged, cpi.getRequestPolicy());
         control.verify();
     }
     
     public void testChooseAlternative() {
-        ClientPolicyInfo cpi = new ClientPolicyInfo();
+        ClientRequestPolicyInfo cpi = new ClientRequestPolicyInfo();
         cpi.setRequestPolicy(new Policy());
         
         PolicyEngine engine = control.createMock(PolicyEngine.class);
-        Conduit conduit = control.createMock(Conduit.class);
+        Assertor assertor = control.createMock(Assertor.class);
                
         Policy policy = new Policy();
         ExactlyOne ea = new ExactlyOne();
@@ -116,10 +116,10 @@ public class ClientPolicyInfoTest extends TestCase {
         policy.addPolicyComponent(ea);
         cpi.setRequestPolicy(policy);
         
-        EasyMock.expect(engine.supportsAlternative(firstAlternative, conduit)).andReturn(false);
+        EasyMock.expect(engine.supportsAlternative(firstAlternative, assertor)).andReturn(false);
         control.replay();
         try {
-            cpi.chooseAlternative(conduit, engine);  
+            cpi.chooseAlternative(engine, assertor);  
             fail("Expected PolicyException not thrown.");
         } catch (PolicyException ex) {
             // expected
@@ -127,9 +127,9 @@ public class ClientPolicyInfoTest extends TestCase {
         control.verify();
         
         control.reset();        
-        EasyMock.expect(engine.supportsAlternative(firstAlternative, conduit)).andReturn(true);
+        EasyMock.expect(engine.supportsAlternative(firstAlternative, assertor)).andReturn(true);
         control.replay();        
-        cpi.chooseAlternative(conduit, engine); 
+        cpi.chooseAlternative(engine, assertor); 
         
         List<Assertion> chosen = cpi.getChosenAlternative();
         assertSame(1, chosen.size());
@@ -144,10 +144,10 @@ public class ClientPolicyInfoTest extends TestCase {
         other.addAssertion(a1);
         ea.addPolicyComponent(other);
         List<Assertion> secondAlternative = CastUtils.cast(other.getPolicyComponents(), Assertion.class);
-        EasyMock.expect(engine.supportsAlternative(firstAlternative, conduit)).andReturn(false);
-        EasyMock.expect(engine.supportsAlternative(secondAlternative, conduit)).andReturn(true);
+        EasyMock.expect(engine.supportsAlternative(firstAlternative, assertor)).andReturn(false);
+        EasyMock.expect(engine.supportsAlternative(secondAlternative, assertor)).andReturn(true);
         control.replay();        
-        cpi.chooseAlternative(conduit, engine); 
+        cpi.chooseAlternative(engine, assertor); 
         chosen = cpi.getChosenAlternative();
         assertSame(1, chosen.size());
         assertSame(chosen.size(), secondAlternative.size());
@@ -156,7 +156,7 @@ public class ClientPolicyInfoTest extends TestCase {
     }
     
     public void testInitialiseOutInterceptors() {
-        ClientPolicyInfo cpi = new ClientPolicyInfo();        
+        ClientRequestPolicyInfo cpi = new ClientRequestPolicyInfo();        
         List<Assertion> alternative = new ArrayList<Assertion>();
         cpi.setChosenAlternative(alternative);
         
@@ -165,7 +165,7 @@ public class ClientPolicyInfoTest extends TestCase {
         setupPolicyInterceptorProviderRegistry(engine, reg);
         
         control.replay();
-        cpi.initialiseOutInterceptors(engine);
+        cpi.initialiseInterceptors(engine);
         assertEquals(0, cpi.getOutInterceptors().size());
         control.verify();
         
@@ -175,7 +175,7 @@ public class ClientPolicyInfoTest extends TestCase {
         alternative.add(a);
         EasyMock.expect(a.isOptional()).andReturn(true);
         control.replay();
-        cpi.initialiseOutInterceptors(engine);
+        cpi.initialiseInterceptors(engine);
         assertEquals(0, cpi.getOutInterceptors().size());
         control.verify();
         
@@ -186,7 +186,7 @@ public class ClientPolicyInfoTest extends TestCase {
         EasyMock.expect(a.getName()).andReturn(qn);
         EasyMock.expect(reg.get(qn)).andReturn(null);
         control.replay();
-        cpi.initialiseOutInterceptors(engine);
+        cpi.initialiseInterceptors(engine);
         assertEquals(0, cpi.getOutInterceptors().size());
         control.verify();
         
@@ -199,104 +199,10 @@ public class ClientPolicyInfoTest extends TestCase {
         Interceptor pi = control.createMock(Interceptor.class);
         EasyMock.expect(pp.getOutInterceptors()).andReturn(Collections.singletonList(pi));
         control.replay();
-        cpi.initialiseOutInterceptors(engine);
+        cpi.initialiseInterceptors(engine);
         assertEquals(1, cpi.getOutInterceptors().size());
         assertSame(pi, cpi.getOutInterceptors().get(0));
         control.verify();     
-    }
-
- 
-    public void testInitialiseResponsePolicyOn() {
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        EndpointInfo ei = control.createMock(EndpointInfo.class);
-        PolicyEngine engine = control.createMock(PolicyEngine.class);
-        
-        EasyMock.expect(boi.getOutput()).andReturn(null);
-        control.replay();
-        ClientPolicyInfo cpi = new ClientPolicyInfo();
-        cpi.initialiseResponsePolicy(boi, ei, engine);
-        assertNull(cpi.getResponsePolicy());
-        control.verify();
-        control.reset();
-        
-        
-        ServiceInfo si = control.createMock(ServiceInfo.class);
-        BindingMessageInfo bmi = control.createMock(BindingMessageInfo.class);                     
-        EasyMock.expect(boi.getOutput()).andReturn(bmi);        
-        Policy mp = control.createMock(Policy.class);
-        EasyMock.expect(engine.getAggregatedMessagePolicy(bmi)).andReturn(mp);
-        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
-        EasyMock.expect(boi.getFaults()).andReturn(Collections.singletonList(bfi));
-        Policy fp = control.createMock(Policy.class);
-        EasyMock.expect(engine.getAggregatedFaultPolicy(bfi)).andReturn(fp);
-        Policy merged = control.createMock(Policy.class);
-        EasyMock.expect(mp.merge(fp)).andReturn(merged);        
-        Policy op = control.createMock(Policy.class);
-        EasyMock.expect(engine.getAggregatedOperationPolicy(boi)).andReturn(op);    
-        EasyMock.expect(merged.merge(op)).andReturn(merged);
-        Policy ep = control.createMock(Policy.class);
-        EasyMock.expect(engine.getAggregatedEndpointPolicy(ei)).andReturn(ep);
-        EasyMock.expect(merged.merge(ep)).andReturn(merged);
-        EasyMock.expect(ei.getService()).andReturn(si);
-        Policy sp = control.createMock(Policy.class);
-        EasyMock.expect(engine.getAggregatedServicePolicy(si)).andReturn(sp);
-        EasyMock.expect(merged.merge(sp)).andReturn(merged);
-        EasyMock.expect(merged.normalize(true)).andReturn(merged);
-        
-        control.replay();
-        cpi = new ClientPolicyInfo();
-        cpi.initialiseResponsePolicy(boi, ei, engine);
-        assertSame(merged, cpi.getResponsePolicy());
-        control.verify();
-    }
-    
-    public void testInitialiseInInterceptors() {
-        ClientPolicyInfo cpi = new ClientPolicyInfo();    
-        Policy responsePolicy = new Policy();
-        ExactlyOne ea = new ExactlyOne();
-        All alt1 = new All();  
-        QName qn1 = new QName("http://x.y.z", "a1");
-        TestAssertion a1 = new TestAssertion(qn1);
-        alt1.addAssertion(a1);
-        All alt2 = new All();
-        QName qn2 = new QName("http://x.y.z", "a2");
-        TestAssertion a2 = new TestAssertion(qn2);
-        alt2.addAssertion(a2);
-        ea.addPolicyComponent(alt1);
-        ea.addPolicyComponent(alt2);
-        responsePolicy.addPolicyComponent(ea);        
- 
-        PolicyEngine engine = control.createMock(PolicyEngine.class);
-        PolicyInterceptorProviderRegistry reg = control.createMock(PolicyInterceptorProviderRegistry.class);
-        
-        control.replay();
-        cpi.initialiseInInterceptors(engine);
-        assertTrue(cpi.getInInterceptors().isEmpty());
-        assertTrue(cpi.getInFaultInterceptors().isEmpty());
-        control.verify();
-        
-        control.reset();
-        cpi.setResponsePolicy(responsePolicy);
-        setupPolicyInterceptorProviderRegistry(engine, reg);
-        PolicyInterceptorProvider p1 = control.createMock(PolicyInterceptorProvider.class);
-        EasyMock.expect(reg.get(qn1)).andReturn(p1);
-        PolicyInterceptorProvider p2 = control.createMock(PolicyInterceptorProvider.class);
-        EasyMock.expect(reg.get(qn2)).andReturn(p2);
-        Interceptor i1 = control.createMock(Interceptor.class);
-        EasyMock.expect(p1.getInInterceptors()).andReturn(Collections.singletonList(i1));
-        EasyMock.expect(p1.getInFaultInterceptors())
-            .andReturn(CastUtils.cast(Collections.EMPTY_LIST, Interceptor.class));
-        Interceptor i2 = control.createMock(Interceptor.class);
-        EasyMock.expect(p2.getInInterceptors()).andReturn(Collections.singletonList(i2));
-        Interceptor fi2 = control.createMock(Interceptor.class);
-        EasyMock.expect(p2.getInFaultInterceptors())
-            .andReturn(Collections.singletonList(fi2));
-           
-        control.replay();
-        cpi.initialiseInInterceptors(engine);
-        assertEquals(2, cpi.getInInterceptors().size());
-        assertEquals(1, cpi.getInFaultInterceptors().size());
-        control.verify();
     }
     
     private void setupPolicyInterceptorProviderRegistry(PolicyEngine engine, 

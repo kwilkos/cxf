@@ -172,10 +172,10 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
         
         for (UnknownExtensibilityElement e : extensions) {
             Policy p = null;
-            if (PolicyConstants.getPolicyElementQName().equals(e.getElementType())) {
+            if (PolicyConstants.POLICY_ELEM_QNAME.equals(e.getElementType())) {
                 p = builder.getPolicy(e.getElement());
 
-            } else if (PolicyConstants.getPolicyReferenceElementQName().equals(e.getElementType())) {
+            } else if (PolicyConstants.POLICYREF_ELEM_QNAME.equals(e.getElementType())) {
                 PolicyReference ref = builder.getPolicyReference(e.getElement());
                 if (null != ref) {
                     p = resolveReference(ref, di);
@@ -230,7 +230,7 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
         List<UnknownExtensibilityElement> extensions = 
             description.getExtensors(UnknownExtensibilityElement.class);
         for (UnknownExtensibilityElement e : extensions) {
-            if (PolicyConstants.getPolicyElementQName().equals(e.getElementType())) {
+            if (PolicyConstants.POLICY_ELEM_QNAME.equals(e.getElementType())) {
                 Policy p = builder.getPolicy(e.getElement());
                 policyMap.put(p.getId(), p);
                 if (uri.equals(p.getId())) {

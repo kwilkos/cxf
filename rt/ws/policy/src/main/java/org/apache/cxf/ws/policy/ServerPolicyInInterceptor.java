@@ -26,22 +26,21 @@ import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 
 /**
  * 
  */
-public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class ServerPolicyInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private Bus bus;
     
-    public ClientPolicyOutInterceptor() {
-        setId(PolicyConstants.CLIENT_POLICY_OUT_INTERCEPTOR_ID);
-        setPhase(Phase.SETUP);
+    public ServerPolicyInInterceptor() {
+        setId(PolicyConstants.SERVER_POLICY_IN_INTERCEPTOR_ID);
+        setPhase(Phase.RECEIVE);
     }
-    
+        
     public void setBus(Bus b) {
         bus = b;
     }
@@ -50,30 +49,28 @@ public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message
         return bus;
     }
     
-    public void handleMessage(Message msg) {
-        if (!PolicyUtils.isRequestor(msg)) {
-            return;
-        }
-        
-        BindingOperationInfo boi = msg.get(BindingOperationInfo.class);
-        if (null == boi) {
+    public void handleMessage(Message msg) {        
+        if (PolicyUtils.isRequestor(msg)) {
             return;
         }
         
         EndpointInfo ei = msg.get(EndpointInfo.class);
         if (null == ei) {
             return;
-        }        
+        }
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
             return;
         }
         
-        Conduit conduit = msg.getConduit();
+        Destination destination = msg.getDestination();
         
-        List<Interceptor> policyOutInterceptors = pe.getClientOutInterceptors(boi, ei, conduit);
-        for (Interceptor poi : policyOutInterceptors) {
+        // We do not know the underlying message type yet - so we pre-emptively add interceptors 
+        // that can deal with any requests on the underlying endpoint
+        
+        List<Interceptor> policyInInterceptors = pe.getServerInInterceptors(ei, destination);
+        for (Interceptor poi : policyInInterceptors) {
             msg.getInterceptorChain().add(poi);
         }
     }

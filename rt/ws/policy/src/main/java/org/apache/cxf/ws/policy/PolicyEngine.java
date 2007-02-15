@@ -19,15 +19,21 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.extension.BusExtension;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -35,9 +41,14 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
+import org.apache.cxf.transport.Destination;
 import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyComponent;
+import org.apache.neethi.PolicyOperator;
+import org.apache.neethi.PolicyReference;
 import org.apache.neethi.PolicyRegistry;
 
 /**
@@ -48,9 +59,14 @@ public class PolicyEngine implements BusExtension {
     private Bus bus;
     private PolicyRegistry registry;
     private List<PolicyProvider> policyProviders;
+    private boolean registerInterceptors;
 
-    private Map<BindingOperationInfo, ClientPolicyInfo> clientInfo 
-        = new ConcurrentHashMap<BindingOperationInfo, ClientPolicyInfo>();
+    private Map<BindingOperationInfo, ClientRequestPolicyInfo> clientRequestInfo 
+        = new ConcurrentHashMap<BindingOperationInfo, ClientRequestPolicyInfo>();
+    private Map<EndpointInfo, EndpointPolicyInfo> endpointInfo 
+        = new ConcurrentHashMap<EndpointInfo, EndpointPolicyInfo>();
+    private Map<BindingOperationInfo, ServerResponsePolicyInfo> serverResponseInfo 
+        = new ConcurrentHashMap<BindingOperationInfo, ServerResponsePolicyInfo>();
 
     public Class getRegistrationType() {
         return PolicyEngine.class;
@@ -79,7 +95,15 @@ public class PolicyEngine implements BusExtension {
     public PolicyRegistry getRegistry() {
         return registry;
     }
-        
+      
+    public boolean getRegisterInterceptors() {
+        return registerInterceptors;
+    }
+
+    public void setRegisterInterceptors(boolean ri) {
+        registerInterceptors = ri;
+    }
+
     @PostConstruct
     void init() {
         if (null == registry) {
@@ -99,7 +123,7 @@ public class PolicyEngine implements BusExtension {
     
     @PostConstruct
     void addBusInterceptors() {
-        if (null == bus) {
+        if (null == bus || !registerInterceptors) {
             return;
         }
 
@@ -113,22 +137,44 @@ public class PolicyEngine implements BusExtension {
         clientInFault.setBus(bus);
         bus.getInFaultInterceptors().add(clientInFault);
         
-        // TODO: server side
+        ServerPolicyInInterceptor serverIn = new ServerPolicyInInterceptor();
+        serverIn.setBus(bus);
+        bus.getInInterceptors().add(serverIn);
+        ServerPolicyOutInterceptor serverOut = new ServerPolicyOutInterceptor();
+        serverOut.setBus(bus);
+        bus.getOutInterceptors().add(serverOut);
+        ServerPolicyOutFaultInterceptor serverOutFault = new ServerPolicyOutFaultInterceptor();
+        serverOutFault.setBus(bus);
+        bus.getOutFaultInterceptors().add(serverOutFault);
+        
+        // TODO: policy verification interceptors
     }
 
     public List<Interceptor> getClientOutInterceptors(BindingOperationInfo boi, 
-                                                      EndpointInfo ei, Conduit conduit) {
-        return getClientPolicyInfo(boi, ei, conduit).getOutInterceptors();
+                                                      EndpointInfo ei, Conduit c) {
+        return getClientRequestPolicyInfo(boi, ei, c).getOutInterceptors();
     }
     
-    public List<Interceptor> getClientInInterceptors(BindingOperationInfo boi, 
-                                                     EndpointInfo ei, Conduit conduit) {
-        return getClientPolicyInfo(boi, ei, conduit).getInInterceptors();
+    public List<Interceptor> getClientInInterceptors(EndpointInfo ei, Conduit c) {        
+        return getEndpointPolicyInfo(ei, c).getInInterceptors();
     }
     
-    public List<Interceptor> getClientInFaultInterceptors(BindingOperationInfo boi, 
-                                                     EndpointInfo ei, Conduit conduit) {
-        return getClientPolicyInfo(boi, ei, conduit).getInFaultInterceptors();
+    public List<Interceptor> getClientInFaultInterceptors(EndpointInfo ei, Conduit c) {
+        return getEndpointPolicyInfo(ei, c).getInFaultInterceptors();
+    }
+    
+    public List<Interceptor> getServerInInterceptors(EndpointInfo ei, Destination d) {
+        return getEndpointPolicyInfo(ei, d).getInInterceptors();
+    }
+    
+    public List<Interceptor> getServerOutInterceptors(BindingOperationInfo boi, 
+                                                      EndpointInfo ei, Destination d) {
+        return getServerResponsePolicyInfo(boi, ei, d).getOutInterceptors();
+    }
+    
+    public List<Interceptor> getServerOutFaultInterceptors(BindingOperationInfo boi, 
+                                                      EndpointInfo ei, Destination d) {
+        return getServerResponsePolicyInfo(boi, ei, d).getOutFaultInterceptors();
     }
 
     public Policy getAggregatedServicePolicy(ServiceInfo si) {
@@ -195,36 +241,145 @@ public class PolicyEngine implements BusExtension {
         }
         return aggregated == null ? new Policy() : aggregated;
     }
+    
+    /**
+     * Return a collection of all assertions used in the given policy component,
+     * optionally including optional assertions.
+     * The policy need not be normalised, so any policy references will have to be resolved.
+     * @param pc the policy component
+     * @param includeOptional flag indicating if optional assertions should be included
+     * @return the assertions
+     */
+    public Collection<Assertion> getAssertions(PolicyComponent pc, boolean includeOptional) {
+        
+        if (Constants.TYPE_ASSERTION == pc.getType()) {
+            return Collections.singletonList((Assertion)pc);
+        } 
+        
+        Collection<Assertion> assertions = new ArrayList<Assertion>();
+        addAssertions(pc, includeOptional, assertions);
+        return assertions;
+    }
+    
+    private void addAssertions(PolicyComponent pc, boolean includeOptional, 
+                               Collection<Assertion> assertions) {
+
+        if (Constants.TYPE_ASSERTION == pc.getType()) {
+            Assertion a = (Assertion)pc;
+            if (includeOptional || !a.isOptional()) {
+                assertions.add((Assertion)pc);
+                return;
+            }
+        } 
+        
+        if (Constants.TYPE_POLICY_REF == pc.getType()) {
+            PolicyReference pr = (PolicyReference)pc;
+            pc = pr.normalize(registry, false);
+        }
+
+        assert Constants.TYPE_POLICY == pc.getType() 
+                || Constants.TYPE_POLICY == pc.getType() 
+                || Constants.TYPE_EXACTLYONE == pc.getType();
+
+        PolicyOperator po = (PolicyOperator)pc;
+
+        List<PolicyComponent> pcs = CastUtils.cast(po.getPolicyComponents(), PolicyComponent.class);
+        for (PolicyComponent child : pcs) {
+            addAssertions(child, includeOptional, assertions);
+        }
+    }
+    
+    /**
+     * Return the vocabulary of a policy component, i.e. the set of QNames of
+     * the assertions used in the componente, duplicates removed.
+     * @param pc the policy component
+     * @param includeOptional flag indicating if optional assertions should be included
+     * @return the vocabulary
+     */
+    public Set<QName> getVocabulary(PolicyComponent pc, boolean includeOptional) {
+        Collection<Assertion> assertions = getAssertions(pc, includeOptional);
+        Set<QName> vocabulary = new HashSet<QName>();
+        for (Assertion a : assertions) {
+            vocabulary.add(a.getName());
+        }
+        return vocabulary;
+    }
+
 
     /**
-     * Check if a given list of assertions can be supported by the conduit or
-     * interceptors (which, if necessary, can be added to the interceptor
-     * chain).
+     * Check if a given list of assertions can potentially be supported by
+     * interceptors or by an already installed assertor (a conduit or transport
+     * that implements the Assertor interface).
      * 
      * @param alternative the policy alternative
-     * @param conduit the conduit
+     * @param Assertor the assertor
      * @return true iff the alternative can be supported
      */
-    boolean supportsAlternative(List<Assertion> alternative, Conduit conduit) {
+    boolean supportsAlternative(List<Assertion> alternative, Assertor assertor) {
         PolicyInterceptorProviderRegistry pipr = bus.getExtension(PolicyInterceptorProviderRegistry.class);
         for (Assertion a : alternative) {
             if (!(a.isOptional() 
                 || (null != pipr.get(a.getName())) 
-                || ((conduit instanceof Assertor) && ((Assertor)conduit).asserts(a)))) {
+                || (null != assertor && assertor.asserts(a)))) {
                 return false;
             }
         }
         return true;
     }
     
-    ClientPolicyInfo getClientPolicyInfo(BindingOperationInfo boi, EndpointInfo ei, Conduit conduit) {
-        ClientPolicyInfo cpi = clientInfo.get(boi);
-        if (null == cpi) {
-            cpi = new ClientPolicyInfo();
-            cpi.initialise(boi, ei, conduit, this);
-            clientInfo.put(boi, cpi);
+    ClientRequestPolicyInfo getClientRequestPolicyInfo(BindingOperationInfo boi, EndpointInfo ei, Conduit c) {
+        ClientRequestPolicyInfo crpi = clientRequestInfo.get(boi);
+        if (null == crpi) {
+            crpi = new ClientRequestPolicyInfo();
+            Assertor assertor = null;
+            if (c instanceof Assertor) {
+                assertor = (Assertor)c;
+            }
+            crpi.initialise(boi, ei, this, assertor);
+            clientRequestInfo.put(boi, crpi);
         }
-        return cpi;
+        return crpi;
+    }
+    
+    EndpointPolicyInfo getEndpointPolicyInfo(EndpointInfo ei, Conduit conduit) {
+        EndpointPolicyInfo epi = endpointInfo.get(ei);
+        if (null != epi) {
+            return epi;
+        }
+        Assertor assertor = conduit instanceof Assertor ? (Assertor)conduit : null;
+        return createEndpointPolicyInfo(ei, false, assertor);
+    }
+    
+    EndpointPolicyInfo getEndpointPolicyInfo(EndpointInfo ei, Destination destination) {
+        EndpointPolicyInfo epi = endpointInfo.get(ei);
+        if (null != epi) {
+            return epi;
+        }
+        Assertor assertor = destination instanceof Assertor ? (Assertor)destination : null;
+        return createEndpointPolicyInfo(ei, true, assertor);
+    }
+    
+    EndpointPolicyInfo createEndpointPolicyInfo(EndpointInfo ei, boolean isServer, Assertor assertor) {
+        EndpointPolicyInfo epi = new EndpointPolicyInfo();
+        epi.initialise(ei, isServer, this, assertor);
+        endpointInfo.put(ei, epi);
+
+        return epi;
+    }
+    
+    ServerResponsePolicyInfo getServerResponsePolicyInfo(BindingOperationInfo boi, 
+                                                         EndpointInfo ei, Destination d) {
+        ServerResponsePolicyInfo srpi = serverResponseInfo.get(boi);
+        if (null == srpi) {
+            srpi = new ServerResponsePolicyInfo();
+            Assertor assertor = null;
+            if (d instanceof Assertor) {
+                assertor = (Assertor)d;
+            }
+            srpi.initialise(boi, ei, this, assertor);
+            serverResponseInfo.put(boi, srpi);
+        }
+        return srpi;
     }
 
 

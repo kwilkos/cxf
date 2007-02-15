@@ -67,8 +67,8 @@ public class XmlPrimitiveAssertion extends PrimitiveAssertion {
     protected Assertion cloneMandatory() {
         Element e = (Element)element.cloneNode(true);
         if (isOptional()) {
-            e.removeAttributeNode(e.getAttributeNodeNS(PolicyConstants.getNamespaceURI(), 
-                                                   PolicyConstants.getOptionalAttrLocalName()));
+            e.removeAttributeNode(e.getAttributeNodeNS(PolicyConstants.NAMESPACE_URI, 
+                                                   PolicyConstants.OPTIONAL_ATTR_NAME));
         }
         return new XmlPrimitiveAssertion(e);        
     }

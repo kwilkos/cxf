@@ -24,7 +24,9 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.ws.policy.builders.primitive.PrimitiveAssertion;
+import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
+import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 
 /**
@@ -81,7 +83,45 @@ public class PolicyTest extends TestCase {
         p = getTwoOptionalAssertions();
         doNormalise(p, true);
      
-    }   
+    }  
+    
+    public void xtestMergePolciesWithAlternatives() {
+        String uri1 = "http://x.y.z";
+        Policy p1 = new Policy();
+        ExactlyOne ea = new ExactlyOne();
+        p1.addPolicyComponent(ea);
+        All all = new All();
+        ea.addPolicyComponent(all);
+        all.addPolicyComponent(new PrimitiveAssertion(new QName(uri1, "a1")));
+        all = new All();
+        ea.addPolicyComponent(all);
+        all.addPolicyComponent(new PrimitiveAssertion(new QName(uri1, "a2")));
+        
+        String uri2 = "http://a.b.c";
+        Policy p2 = new Policy();
+        ea = new ExactlyOne();
+        p2.addPolicyComponent(ea);
+        all = new All();
+        ea.addPolicyComponent(all);
+        all.addPolicyComponent(new PrimitiveAssertion(new QName(uri2, "x1")));
+        all = new All();
+        ea.addPolicyComponent(all);
+        all.addPolicyComponent(new PrimitiveAssertion(new QName(uri2, "x2")));
+        
+        System.out.println("p1:");
+        PolicyUtils.printPolicyComponent(p1);
+        System.out.println();
+        System.out.println("p2:");
+        PolicyUtils.printPolicyComponent(p1);
+        System.out.println();
+        Policy p = p1.merge(p2);
+        System.out.println("p1 merge p2:");
+        PolicyUtils.printPolicyComponent(p);
+        System.out.println();
+        System.out.println("normalised merge:");
+        PolicyUtils.printPolicyComponent(p.normalize(true));
+        System.out.println();
+    }
     
     Policy getOneAssertion() {
         String uri = "http://www.w3.org/2007/01/addressing/metadata";

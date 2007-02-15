@@ -60,8 +60,8 @@ public class AddressingAssertionBuilder implements AssertionBuilder {
         System.out.println("Using AddressingAssertionBuilder to build assertion for " + n);
         
         boolean optional = false;
-        Attr attribute = elem.getAttributeNodeNS(PolicyConstants.getNamespaceURI(), 
-                                              PolicyConstants.getOptionalAttrLocalName());
+        Attr attribute = elem.getAttributeNodeNS(PolicyConstants.NAMESPACE_URI, 
+                                              PolicyConstants.OPTIONAL_ATTR_NAME);
         if (attribute != null) {
             optional = Boolean.valueOf(attribute.getValue());
         }
