@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.message.Message;
@@ -100,7 +101,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
         add(i, false);
     }
     
-    @SuppressWarnings("unchecked")
     public void add(Interceptor i, boolean force) {
         PhaseInterceptor pi = (PhaseInterceptor)i;
 
@@ -114,7 +114,8 @@ public class PhaseInterceptorChain implements InterceptorChain {
         if (phase == null) {
             LOG.fine("Phase " + phaseName + " does not exist. Skipping handler "
                       + i.getClass().getName());
-        } else if (force | !phase.contains(pi)) {            
+        } else if (force 
+            | !containsType(CastUtils.cast(phase, PhaseInterceptor.class), pi.getId())) {            
             insertInterceptor(phase, pi);
         }
     }
@@ -366,6 +367,15 @@ public class PhaseInterceptorChain implements InterceptorChain {
         }
     }
     
+    boolean containsType(List<PhaseInterceptor> phase, String id) {
+        for (PhaseInterceptor pi : phase) {
+            if (id.equals(pi.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     class PhaseInterceptorIterator implements ListIterator<Interceptor<? extends Message>> {
         List<Interceptor<? extends Message>> called
             = new ArrayList<Interceptor<? extends Message>>();
@@ -487,5 +497,7 @@ public class PhaseInterceptorChain implements InterceptorChain {
     public void setFaultObserver(MessageObserver faultObserver) {
         this.faultObserver = faultObserver;
     }
+    
+    
 
 }
