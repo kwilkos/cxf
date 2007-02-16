@@ -108,6 +108,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         return wsdlBuilder.build();
     }
 
+    
     public void testEndpoint() throws Exception {
         Hello service = new Hello();
 
@@ -130,7 +131,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertNotNull(res);
         
         addNamespace("h", "http://service.jaxws.cxf.apache.org/");
-        assertValid("//s:Body/h:getGreetingsResponse/h:return/item", res);
+        assertValid("//s:Body/h:getGreetingsResponse/h:return/h:item", res);
     }
     
     public void testClient() throws Exception {

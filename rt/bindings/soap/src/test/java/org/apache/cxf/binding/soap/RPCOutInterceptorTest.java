@@ -107,7 +107,7 @@ public class RPCOutInterceptorTest extends TestBase {
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
-        assertEquals(new QName("http://apache.org/hello_world_rpclit", "in"), reader.getName());
+        assertEquals(new QName(null, "in"), reader.getName());
 
         StaxUtils.toNextText(reader);
         assertEquals("elem1", reader.getText());
@@ -133,7 +133,7 @@ public class RPCOutInterceptorTest extends TestBase {
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);
                      
-        assertEquals(new QName("http://apache.org/hello_world_rpclit", "out"), reader.getName());
+        assertEquals(new QName(null, "out"), reader.getName());
 
         StaxUtils.nextEvent(reader);
         StaxUtils.toNextElement(reader);

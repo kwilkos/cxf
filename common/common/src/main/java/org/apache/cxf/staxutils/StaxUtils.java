@@ -407,7 +407,11 @@ public final class StaxUtils {
         }
 
         if (declareNamespace && repairing) {
-            writer.writeNamespace(prefix, ns);
+            if (ns == null) {
+                writer.writeNamespace(prefix, "");
+            } else {
+                writer.writeNamespace(prefix, ns);
+            }
         }
 
         NodeList nodes = e.getChildNodes();

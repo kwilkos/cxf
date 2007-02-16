@@ -50,7 +50,7 @@ public class HolderTest extends AbstractJaxWsTest {
         assertEquals("one", h.echo("one", "two", holder));
         assertEquals("two", holder.value);
     }
-
+    
     public void testServer() throws Exception {
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         svr.setBus(getBus());

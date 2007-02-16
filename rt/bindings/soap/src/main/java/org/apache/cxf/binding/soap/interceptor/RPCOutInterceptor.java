@@ -76,7 +76,6 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                     throw new SoapFault("The number of arguments is not equal!", 
                                         ((SoapMessage) message).getVersion().getSender());
                 }
-                int notNullIndex = 0;
                 List<MessagePartInfo> llist = new LinkedList<MessagePartInfo>();
                 for (MessagePartInfo mpi : parts) {
                     if (!llist.contains(mpi)) {
@@ -91,12 +90,8 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                     }
                 }
                 for (int idx = 0; idx < countParts; idx++) {                    
-                    while (objs.get(notNullIndex) == null) {
-                        notNullIndex++;
-                    }
-                    MessagePartInfo part = (MessagePartInfo) llist.get(idx);
-                    dataWriter.write(objs.get(notNullIndex), part, message);
-                    notNullIndex++;
+                    MessagePartInfo part = llist.get(idx);
+                    dataWriter.write(objs.get(idx), part, message);                    
                 }
             }
             // Finishing the writing.

@@ -95,7 +95,6 @@ public class XMLMessageOutInterceptorTest extends TestBase {
         StaxUtils.nextEvent(dxr);
         StaxUtils.toNextElement(dxr);
         
-        assertEquals(bareMyComplexStructTypeQName.getNamespaceURI(), dxr.getNamespaceURI());
         assertEquals(bareMyComplexStructTypeQName.getLocalPart(), dxr.getLocalName());
         StaxUtils.toNextElement(dxr);
         StaxUtils.toNextText(dxr);

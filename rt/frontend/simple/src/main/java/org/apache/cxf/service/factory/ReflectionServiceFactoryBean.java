@@ -421,6 +421,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 final QName q = getInParameterName(op, method, j);
                 MessagePartInfo part = inMsg.addMessagePart(q);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
+                //TODO - RPC vs DOC (type vs element)
+                if (isHeader(method, j)) {
+                    part.setElementQName(q);
+                }
                 part.setIndex(j);
             }
         }
@@ -448,6 +452,9 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                     if (isInParam(method, j)) {
                         part.setProperty(MODE_INOUT, Boolean.TRUE);
                     }
+                    if (isHeader(method, j)) {
+                        part.setElementQName(q);
+                    }
                 }
             }
         }
@@ -466,6 +473,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         }
         part.setProperty(GENERIC_TYPE, type);
         part.setTypeClass(rawClass);
+        
     }
 
     protected Class getHolderClass(ParameterizedType paramType) {

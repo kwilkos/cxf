@@ -54,11 +54,8 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     }
     
     public QName getConcreteName() {
-        if (isElement) {
-            return elementName;
-        } else {
-            return pname;
-        }
+        //if !isElement, we store the non-qualified part name in element name anyway
+        return elementName;
     }
     
     public boolean isElement() { 
@@ -69,13 +66,20 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     }
     
     public QName getElementQName() {
-        return elementName;
+        if (isElement) {
+            return elementName;
+        }
+        return null;
     }
     public QName getTypeQName() {
-        return typeName;
+        if (!isElement) {
+            return typeName;
+        }
+        return null;
     }
     public void setTypeQName(QName qn) {
         isElement = false;
+        elementName = new QName(null, pname.getLocalPart());
         typeName = qn;
     }
     public void setElementQName(QName qn) {
