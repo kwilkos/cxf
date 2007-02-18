@@ -19,32 +19,32 @@
 
 package org.apache.cxf.jaxb.io;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBDataBase;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
-public class XMLStreamDataReader implements DataReader<XMLStreamReader> {
-    final JAXBDataReaderFactory factory;
-
-    public XMLStreamDataReader(JAXBDataReaderFactory cb) {
-        factory = cb;
+public class XMLStreamDataReader extends JAXBDataBase implements DataReader<XMLStreamReader> {
+    public XMLStreamDataReader(JAXBContext ctx) {
+        setJAXBContext(ctx);
     }
 
     public Object read(XMLStreamReader input) {
         return read(null, input);
     }
+
     public Object read(MessagePartInfo part, XMLStreamReader reader) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), 
-                                             factory.getSchema(), reader, part, null);
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), reader, part, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
 
     public Object read(QName name, XMLStreamReader input, Class type) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), 
-                                             factory.getSchema(), input, name, type, null);
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), input, name, type, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
-    
+
 }

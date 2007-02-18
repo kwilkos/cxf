@@ -227,7 +227,7 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         chain.add(endpoint.getInInterceptors());
 
         List<Interceptor> inInterceptors = new ArrayList<Interceptor>();
-        inInterceptors.add(new DispatchInInterceptor());
+        inInterceptors.add(new DispatchInInterceptor(cl, mode));
         chain.add(inInterceptors);
 
         // execute chain

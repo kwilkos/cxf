@@ -32,7 +32,7 @@ import javax.xml.stream.XMLStreamWriter;
 import junit.framework.TestCase;
 
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -60,9 +60,9 @@ public class XMLStreamDataWriterTest extends TestCase {
     }
 
     public void testWriteRPCLit1() throws Exception {
-        JAXBDataWriterFactory wf = getTestWriterFactory();
+        JAXBDataBinding db = getTestWriterFactory();
         
-        DataWriter<XMLStreamWriter> dw = wf.createWriter(XMLStreamWriter.class);
+        DataWriter<XMLStreamWriter> dw = db.createWriter(XMLStreamWriter.class);
         assertNotNull(dw);
         
         String val = new String("TESTOUTPUTMESSAGE");
@@ -87,9 +87,9 @@ public class XMLStreamDataWriterTest extends TestCase {
     }
 
     public void testWriteRPCLit2() throws Exception {
-        JAXBDataWriterFactory wf = getTestWriterFactory(MyComplexStruct.class);
+        JAXBDataBinding db = getTestWriterFactory(MyComplexStruct.class);
         
-        DataWriter<XMLStreamWriter> dw = wf.createWriter(XMLStreamWriter.class);
+        DataWriter<XMLStreamWriter> dw = db.createWriter(XMLStreamWriter.class);
         assertNotNull(dw);
         
         MyComplexStruct val = new MyComplexStruct();
@@ -124,9 +124,9 @@ public class XMLStreamDataWriterTest extends TestCase {
     }
 
     public void testWriteBare() throws Exception {
-        JAXBDataWriterFactory wf = getTestWriterFactory(TradePriceData.class);
+        JAXBDataBinding db = getTestWriterFactory(TradePriceData.class);
         
-        DataWriter<XMLStreamWriter> dw = wf.createWriter(XMLStreamWriter.class);
+        DataWriter<XMLStreamWriter> dw = db.createWriter(XMLStreamWriter.class);
         assertNotNull(dw);
         
         TradePriceData val = new TradePriceData();
@@ -158,9 +158,9 @@ public class XMLStreamDataWriterTest extends TestCase {
     }
     
     public void testWriteWrapper() throws Exception {
-        JAXBDataWriterFactory wf = getTestWriterFactory(GreetMe.class);
+        JAXBDataBinding db = getTestWriterFactory(GreetMe.class);
         
-        DataWriter<XMLStreamWriter> dw = wf.createWriter(XMLStreamWriter.class);
+        DataWriter<XMLStreamWriter> dw = db.createWriter(XMLStreamWriter.class);
         assertNotNull(dw);
 
         GreetMe val = new GreetMe();
@@ -187,9 +187,9 @@ public class XMLStreamDataWriterTest extends TestCase {
     }
 
     public void testWriteWrapperReturn() throws Exception {
-        JAXBDataWriterFactory wf = getTestWriterFactory(GreetMeResponse.class);
+        JAXBDataBinding db = getTestWriterFactory(GreetMeResponse.class);
         
-        DataWriter<XMLStreamWriter> dw = wf.createWriter(XMLStreamWriter.class);
+        DataWriter<XMLStreamWriter> dw = db.createWriter(XMLStreamWriter.class);
         assertNotNull(dw);
 
         GreetMeResponse retVal = new GreetMeResponse();
@@ -215,10 +215,8 @@ public class XMLStreamDataWriterTest extends TestCase {
         assertEquals("TESTOUTPUTMESSAGE", reader.getText());
     }
 
-    private JAXBDataWriterFactory getTestWriterFactory(Class... clz) throws Exception {
+    private JAXBDataBinding getTestWriterFactory(Class... clz) throws Exception {
         JAXBContext ctx = JAXBContext.newInstance(clz);
-        JAXBDataWriterFactory writerFactory = new JAXBDataWriterFactory();
-        writerFactory.setJAXBContext(ctx);
-        return writerFactory;
+        return new JAXBDataBinding(ctx);
     }
 }

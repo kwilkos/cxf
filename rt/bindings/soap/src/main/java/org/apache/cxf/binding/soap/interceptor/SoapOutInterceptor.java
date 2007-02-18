@@ -34,7 +34,6 @@ import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -194,16 +193,9 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
 
     protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-
-        DataWriter<XMLStreamWriter> dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == XMLStreamWriter.class) {
-                dataWriter = factory.createWriter(XMLStreamWriter.class);
-                break;
-            }
-        }
-
+        DataWriter<XMLStreamWriter> dataWriter = service.getDataBinding().createWriter(XMLStreamWriter.class);
+        dataWriter.setAttachments(message.getAttachments());
+        
         if (dataWriter == null) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
                 .getName()));

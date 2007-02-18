@@ -19,14 +19,28 @@
 
 package org.apache.cxf.jaxb;
 
+import java.util.Collection;
+
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.attachment.AttachmentMarshaller;
+import javax.xml.bind.attachment.AttachmentUnmarshaller;
 import javax.xml.validation.Schema;
 
-public abstract class JAXBDataFactoryBase {
+import org.apache.cxf.jaxb.attachment.JAXBAttachmentMarshaller;
+import org.apache.cxf.jaxb.attachment.JAXBAttachmentUnmarshaller;
+import org.apache.cxf.message.Attachment;
+
+/**
+ * 
+ */
+public abstract class JAXBDataBase {
     
     protected JAXBContext context; 
     protected Schema schema;
-
+    protected Collection<Attachment> attachments;
+    protected boolean attachmentProcessingEnabled;
+    protected boolean unwrapJAXBElement = true;
+    
     public void setSchema(Schema s) {
         this.schema = s;
     }
@@ -42,4 +56,25 @@ public abstract class JAXBDataFactoryBase {
         return context;
     }
 
+    public Collection<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Collection<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
+    protected AttachmentUnmarshaller getAttachmentUnmarshaller() {
+        return new JAXBAttachmentUnmarshaller(attachments);
+    }
+
+    protected AttachmentMarshaller getAttachmentMarrshaller() {
+        return new JAXBAttachmentMarshaller(attachments);
+    }
+    
+    public void setProperty(String prop, Object value) {
+        if (prop.equals(JAXBDataBinding.UNWRAP_JAXB_ELEMENT)) {
+            unwrapJAXBElement = Boolean.TRUE.equals(value);
+        }
+    }
 }

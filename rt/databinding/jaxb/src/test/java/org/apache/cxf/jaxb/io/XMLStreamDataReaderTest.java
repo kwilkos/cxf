@@ -30,7 +30,7 @@ import javax.xml.stream.XMLStreamReader;
 import junit.framework.TestCase;
 
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.staxutils.StaxStreamFilter;
 import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
@@ -53,12 +53,12 @@ public class XMLStreamDataReaderTest extends TestCase {
     }
 
     public void testReadWrapper() throws Exception {
-        JAXBDataReaderFactory rf = getTestReaderFactory(GreetMe.class);
-
+        JAXBDataBinding db = getDataBinding(GreetMe.class);
+        
         reader = getTestReader("../resources/GreetMeDocLiteralReq.xml");
         assertNotNull(reader);
         
-        DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
+        DataReader<XMLStreamReader> dr = db.createReader(XMLStreamReader.class);
         assertNotNull(dr);
         Object val = dr.read(reader);
         assertNotNull(val);
@@ -67,12 +67,12 @@ public class XMLStreamDataReaderTest extends TestCase {
     }
 
     public void testReadWrapperReturn() throws Exception {
-        JAXBDataReaderFactory rf = getTestReaderFactory(GreetMeResponse.class);
+        JAXBDataBinding db = getDataBinding(GreetMeResponse.class);
 
         reader = getTestReader("../resources/GreetMeDocLiteralResp.xml");
         assertNotNull(reader);
 
-        DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
+        DataReader<XMLStreamReader> dr = db.createReader(XMLStreamReader.class);
         assertNotNull(dr);
         
         Object retValue = dr.read(reader);
@@ -83,7 +83,7 @@ public class XMLStreamDataReaderTest extends TestCase {
     }
 
     public void testReadRPC() throws Exception {
-        JAXBDataReaderFactory rf = getTestReaderFactory(MyComplexStruct.class);
+        JAXBDataBinding db = getDataBinding(MyComplexStruct.class);
 
         QName[] tags = {new QName("http://apache.org/hello_world_rpclit", "sendReceiveData")};
 
@@ -92,7 +92,7 @@ public class XMLStreamDataReaderTest extends TestCase {
         
         XMLStreamReader localReader = getTestFilteredReader(reader, tags);
 
-        DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
+        DataReader<XMLStreamReader> dr = db.createReader(XMLStreamReader.class);
         assertNotNull(dr);
         Object val = dr.read(new QName("http://apache.org/hello_world_rpclit", "in"),
                              localReader,
@@ -107,12 +107,12 @@ public class XMLStreamDataReaderTest extends TestCase {
 
 
     public void testReadBare() throws Exception {
-        JAXBDataReaderFactory rf = getTestReaderFactory(TradePriceData.class);
+        JAXBDataBinding db = getDataBinding(TradePriceData.class);
 
         reader = getTestReader("../resources/sayHiDocLitBareReq.xml");
         assertNotNull(reader);
         
-        DataReader<XMLStreamReader> dr = rf.createReader(XMLStreamReader.class);
+        DataReader<XMLStreamReader> dr = db.createReader(XMLStreamReader.class);
         assertNotNull(dr);
         QName elName = new QName("http://apache.org/hello_world_doc_lit_bare/types", "inout");
         MessagePartInfo part = new MessagePartInfo(elName, null);
@@ -127,11 +127,9 @@ public class XMLStreamDataReaderTest extends TestCase {
         assertEquals(1.0f, ((TradePriceData)val).getTickerPrice());
     }
 
-    private JAXBDataReaderFactory getTestReaderFactory(Class... clz) throws Exception {
+    private JAXBDataBinding getDataBinding(Class... clz) throws Exception {
         JAXBContext ctx = JAXBContext.newInstance(clz);
-        JAXBDataReaderFactory readerFacotry = new JAXBDataReaderFactory();
-        readerFacotry.setJAXBContext(ctx);
-        return readerFacotry;
+        return new JAXBDataBinding(ctx);
     }
 
     private XMLStreamReader getTestFilteredReader(XMLStreamReader r, QName[] q) throws Exception {

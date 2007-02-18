@@ -56,7 +56,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
             assert operation.getName() != null;
 
             XMLStreamWriter xmlWriter = getXMLStreamWriter(message);
-            DataWriter<Message> dataWriter = getMessageDataWriter(message);
+            DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
 
             addOperationNode(nsStack, message, xmlWriter);
 
@@ -91,7 +91,7 @@ public class RPCOutInterceptor extends AbstractOutDatabindingInterceptor {
                 }
                 for (int idx = 0; idx < countParts; idx++) {                    
                     MessagePartInfo part = llist.get(idx);
-                    dataWriter.write(objs.get(idx), part, message);                    
+                    dataWriter.write(objs.get(idx), part, xmlWriter);                    
                 }
             }
             // Finishing the writing.

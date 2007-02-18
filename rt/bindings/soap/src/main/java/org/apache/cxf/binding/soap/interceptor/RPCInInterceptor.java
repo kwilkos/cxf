@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -84,7 +85,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
             operation = message.getExchange().get(BindingOperationInfo.class);
         }
         MessageInfo msg;
-        DataReader<Message> dr = getMessageDataReader(message);
+        DataReader<XMLStreamReader> dr = getDataReader(message, XMLStreamReader.class);
 
         if (!isRequestor(message)) {
             msg = operation.getOperationInfo().getInput();
@@ -108,7 +109,7 @@ public class RPCInInterceptor extends AbstractInDatabindingInterceptor {
                 throw new SoapFault("Parameter " + xmlReader.getName() + " does not exist!",
                               ((SoapMessage)message).getVersion().getSender());
             }            
-            Object param = dr.read(part, message);
+            Object param = dr.read(part, xmlReader);
             parameters.add(param);
         }
         message.setContent(List.class, parameters);

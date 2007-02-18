@@ -37,6 +37,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 import javax.xml.transform.dom.DOMResult;
 
@@ -51,10 +55,16 @@ import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.databinding.DataBinding;
-import org.apache.cxf.databinding.DataReaderFactory;
-import org.apache.cxf.databinding.DataWriterFactory;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.jaxb.io.EventDataReader;
+import org.apache.cxf.jaxb.io.EventDataWriter;
+import org.apache.cxf.jaxb.io.NodeDataReader;
+import org.apache.cxf.jaxb.io.NodeDataWriter;
+import org.apache.cxf.jaxb.io.XMLStreamDataReader;
+import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
@@ -66,28 +76,29 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 public final class JAXBDataBinding implements DataBinding {
 
     public static final String SCHEMA_RESOURCE = "SCHEMRESOURCE";
+    
+    public static final String UNWRAP_JAXB_ELEMENT = "unwrap.jaxb.element";
 
     private static final Logger LOG = Logger.getLogger(JAXBDataBinding.class.getName());
 
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(JAXBDataBinding.class);
+    
+    private static final Class<?> SUPPORTED_READER_FORMATS[] = new Class<?>[] {Node.class,
+                                                                               XMLEventReader.class,
+                                                                               XMLStreamReader.class};
+    private static final Class<?> SUPPORTED_WRITER_FORMATS[] = new Class<?>[] {Node.class,
+                                                                               XMLEventWriter.class,
+                                                                               XMLStreamWriter.class};
 
-    JAXBDataReaderFactory reader;
-
-    JAXBDataWriterFactory writer;
-
+    
     JAXBContext context;
 
     Class cls;
 
     public JAXBDataBinding() {
-        reader = new JAXBDataReaderFactory();
-        writer = new JAXBDataWriterFactory();
     }
     
     public JAXBDataBinding(Class<?>...classes) throws JAXBException {
-        reader = new JAXBDataReaderFactory();
-        writer = new JAXBDataWriterFactory();
-        
         Set<Class<?>> classSet = new HashSet<Class<?>>();
         classSet.addAll(Arrays.asList(classes));
         setContext(createJAXBContext(classSet));
@@ -100,18 +111,44 @@ public final class JAXBDataBinding implements DataBinding {
 
     public void setContext(JAXBContext ctx) {
         context = ctx;
-        reader.setJAXBContext(context);
-        writer.setJAXBContext(context);
+    }    
+    
+    @SuppressWarnings("unchecked")
+    public <T> DataWriter<T> createWriter(Class<T> c) {
+        if (c == XMLStreamWriter.class) {
+            return (DataWriter<T>)new XMLStreamDataWriter(context);
+        } else if (c == XMLEventWriter.class) {
+            return (DataWriter<T>)new EventDataWriter(context);            
+        } else if (c == Node.class) {
+            return (DataWriter<T>)new NodeDataWriter(context);
+        }
+        
+        return null;
     }
 
-    public DataReaderFactory getDataReaderFactory() {
-        return reader;
+    public Class<?>[] getSupportedWriterFormats() {
+        return SUPPORTED_WRITER_FORMATS;
     }
 
-    public DataWriterFactory getDataWriterFactory() {
-        return writer;
+    @SuppressWarnings("unchecked")
+    public <T> DataReader<T> createReader(Class<T> c) {
+        DataReader<T> dr = null;
+        if (c == XMLStreamReader.class) {
+            dr = (DataReader<T>)new XMLStreamDataReader(context);
+        } else if (c == XMLEventReader.class) {
+            dr = (DataReader<T>)new EventDataReader(context);
+        } else if (c == Node.class) {
+            dr = (DataReader<T>)new NodeDataReader(context);
+        }
+        
+        // TODO Auto-generated method stub
+        return dr;
     }
 
+    public Class<?>[] getSupportedReaderFormats() {
+        return SUPPORTED_READER_FORMATS;
+    }
+    
     public Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo) {
         Collection<String> schemaResources = CastUtils
             .cast(serviceInfo.getProperty(SCHEMA_RESOURCE, List.class), String.class);
@@ -219,6 +256,7 @@ public final class JAXBDataBinding implements DataBinding {
 
                 SchemaInfo schema = new SchemaInfo(serviceInfo, ns);
                 schema.setElement(d.getDocumentElement());
+                schema.setSystemId(r.getSystemId());
                 serviceInfo.addSchema(schema);
                 col.read(d.getDocumentElement());
             }

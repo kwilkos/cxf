@@ -17,18 +17,19 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
+package org.apache.cxf.jaxws.provider;
 
-import javax.xml.validation.Schema;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.Provider;
+import javax.xml.ws.WebServiceProvider;
 
+@WebServiceProvider()
+public class SAAJProvider implements Provider<SOAPMessage> {
 
-//REVISIT - need to move the Reader/Writer stuff, also probably 
-//need the MessageInfo/OperationInfo as a param 
-public interface DataWriterFactory {
-    
-    Class<?>[] getSupportedFormats();
-    
-    <T> DataWriter<T> createWriter(Class<T> cls);
-    void setSchema(Schema s);
+    public SAAJProvider() {
+    }
+
+    public SOAPMessage invoke(SOAPMessage request) {
+        return request;
+    }
 }
-

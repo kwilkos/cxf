@@ -20,7 +20,6 @@
 package org.apache.cxf.jaxb.attachment;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -32,22 +31,18 @@ import org.apache.cxf.attachment.AttachmentUtil;
 import org.apache.cxf.attachment.ByteDataSource;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Attachment;
-import org.apache.cxf.message.Message;
 
 public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
 
-    private static final int THRESH_HOLD = 64 * 1024;
-    private Message message;
+    private static final int THRESH_HOLD = 10 * 1024;
     private Collection<Attachment> atts;
     private boolean isXop;
 
-    public JAXBAttachmentMarshaller(Message messageParam) {
+    public JAXBAttachmentMarshaller(Collection<Attachment> attachments) {
         super();
-        this.message = messageParam;
-        if (message.getAttachments() == null) {
-            message.setAttachments(new ArrayList<Attachment>());
-        }
-        atts = message.getAttachments();
+
+        atts = attachments;
+        isXop = attachments != null;
     }
 
     public String addMtomAttachment(byte[] data, int offset, int length, String mimeType, String elementNS,
@@ -82,6 +77,7 @@ public class JAXBAttachmentMarshaller extends AttachmentMarshaller {
         if (!isXop) {
             return null;
         }        
+        
         String id;
         try {
             id = AttachmentUtil.createContentID(elementNS);

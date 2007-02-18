@@ -58,7 +58,7 @@ import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 public class SOAPHandlerInterceptor extends
         AbstractProtocolHandlerInterceptor<SoapMessage> implements
         SoapInterceptor {
-
+    public static final String SAAJ_ENABLED = "saaj.enabled";
     private static final ResourceBundle BUNDLE = BundleUtils
             .getBundle(SOAPHandlerInterceptor.class);
 
@@ -90,9 +90,11 @@ public class SOAPHandlerInterceptor extends
 
     public void handleMessage(SoapMessage message) {
 
-        if (getInvoker(message).getProtocolHandlers().isEmpty()) {
+        boolean saajEnabled = Boolean.TRUE.equals(message.getContextualProperty(SAAJ_ENABLED));
+        if (getInvoker(message).getProtocolHandlers().isEmpty() && !saajEnabled) {
             return;
         }
+        
         if (getInvoker(message).isOutbound()) {
             try {
                 // Replace stax writer with DomStreamWriter
@@ -137,7 +139,12 @@ public class SOAPHandlerInterceptor extends
                 SOAPMessage soapMessage = message.getContent(SOAPMessage.class);
 
                 if (soapMessage == null) {
-                    return;
+                    if (saajEnabled) {
+                        soapMessage = new SOAPMessageContextImpl(message).getMessage();
+                        message.setContent(SOAPMessage.class, soapMessage);
+                    } else {
+                        return;
+                    }
                 }
 
                 // soapMessage is not null means stax reader has been consumed

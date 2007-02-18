@@ -21,13 +21,10 @@ package org.apache.cxf.jaxws;
 
 import java.net.URL;
 
-import javax.xml.ws.Provider;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.endpoint.EndpointPublisher;
-import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 
 public class EndpointPublisherImpl implements EndpointPublisher {
@@ -44,14 +41,9 @@ public class EndpointPublisherImpl implements EndpointPublisher {
             Class cls = ClassLoaderUtils.loadClass(implName, getClass());
             Object impl = cls.newInstance();
     
-            JaxWsImplementorInfo implInfo = new JaxWsImplementorInfo(cls);
             JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
             serviceFactory.setBus(bus);
-            if (implInfo.isWebServiceProvider()) {
-                serviceFactory.setInvoker(new ProviderInvoker((Provider<?>)impl));
-            } else {
-                serviceFactory.setInvoker(new JAXWSMethodInvoker(impl));
-            }
+            serviceFactory.setInvoker(new JAXWSMethodInvoker(impl));
             serviceFactory.setServiceClass(impl.getClass());
             
             if (null != wsdl) {

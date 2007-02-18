@@ -17,17 +17,23 @@
  * under the License.
  */
 
-package org.apache.cxf.databinding;
+package org.apache.cxf.jaxws.provider;
 
-import javax.xml.validation.Schema;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.ws.Provider;
+import javax.xml.ws.Service;
+import javax.xml.ws.ServiceMode;
+import javax.xml.ws.WebServiceProvider;
 
+@WebServiceProvider()
+@ServiceMode(value = Service.Mode.PAYLOAD)
+@javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
+public class StreamSourcePayloadProvider implements Provider<StreamSource> {
 
-//REVISIT - need to move the Reader/Writer stuff, also probably 
-//need the MessageInfo/OperationInfo as a param 
-public interface DataReaderFactory {
-    
-    Class<?>[] getSupportedFormats();    
-    <T> DataReader<T> createReader(Class<T> cls);
-    void setSchema(Schema s);
-    
+    public StreamSourcePayloadProvider() {
+    }
+
+    public StreamSource invoke(StreamSource request) {
+        return request;
+    }
 }

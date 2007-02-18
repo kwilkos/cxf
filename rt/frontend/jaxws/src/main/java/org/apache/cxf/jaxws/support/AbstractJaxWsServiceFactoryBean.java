@@ -22,13 +22,4 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 
 public class AbstractJaxWsServiceFactoryBean extends ReflectionServiceFactoryBean {
 
-    private JaxWsImplementorInfo jaxWsImplementorInfo;
-
-    public JaxWsImplementorInfo getJaxWsImplementorInfo() {
-        return jaxWsImplementorInfo;
-    }
-
-    public void setJaxWsImplementorInfo(JaxWsImplementorInfo jaxWsImplementorInfo) {
-        this.jaxWsImplementorInfo = jaxWsImplementorInfo;
-    }
 }

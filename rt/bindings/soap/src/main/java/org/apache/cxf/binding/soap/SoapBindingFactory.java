@@ -54,8 +54,6 @@ import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.BareOutInterceptor;
 import org.apache.cxf.interceptor.DocLiteralInInterceptor;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.interceptor.StaxInInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.interceptor.URIMappingInterceptor;
@@ -74,6 +72,8 @@ import org.apache.cxf.tools.util.SOAPBindingUtil;
 
 public class SoapBindingFactory extends AbstractBindingFactory {
 
+    public static final String MESSAGE_PROCESSING_DISABLED = "disable.header.processing";
+    
     private boolean mtomEnabled = true;
     
     private Collection<String> activationNamespaces;    
@@ -119,24 +119,44 @@ public class SoapBindingFactory extends AbstractBindingFactory {
         }
 
         sb.getInInterceptors().add(new AttachmentInInterceptor());
-        sb.getInInterceptors().add(new ReadHeadersInterceptor());
-        sb.getInInterceptors().add(new MustUnderstandInterceptor());
-        sb.getInInterceptors().add(new StaxInInterceptor());        
-        sb.getInInterceptors().add(new SoapHeaderInterceptor());
+        sb.getInInterceptors().add(new StaxInInterceptor()); 
         
-        sb.getInInterceptors().add(new LoggingInInterceptor());
-      
         sb.getOutInterceptors().add(new SoapActionInterceptor());
         sb.getOutInterceptors().add(new AttachmentOutInterceptor());
-        
         sb.getOutInterceptors().add(new StaxOutInterceptor());
-        sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
-        sb.getOutInterceptors().add(new SoapOutInterceptor());
-
-        sb.getOutInterceptors().add(new LoggingOutInterceptor());
-
+        
         sb.getOutFaultInterceptors().add(new StaxOutInterceptor());
-        sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
+
+        if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
+            if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
+                sb.getInInterceptors().add(new RPCInInterceptor());
+                sb.getOutInterceptors().add(new RPCOutInterceptor());
+            } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
+                            && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
+                //sb.getInInterceptors().add(new BareInInterceptor());
+                sb.getInInterceptors().add(new DocLiteralInInterceptor());
+                sb.getOutInterceptors().add(new BareOutInterceptor());
+            } else {
+                //sb.getInInterceptors().add(new WrappedInInterceptor());
+                sb.getInInterceptors().add(new DocLiteralInInterceptor());
+                sb.getOutInterceptors().add(new WrappedOutInterceptor());
+                sb.getOutInterceptors().add(new BareOutInterceptor());
+            }
+        }
+        
+        if (!Boolean.TRUE.equals(binding.getProperty(MESSAGE_PROCESSING_DISABLED))) {
+            sb.getInInterceptors().add(new SoapHeaderInterceptor());
+            sb.getInInterceptors().add(new ReadHeadersInterceptor());
+            sb.getInInterceptors().add(new MustUnderstandInterceptor());
+            sb.getOutInterceptors().add(new SoapPreProtocolOutInterceptor());
+            sb.getOutInterceptors().add(new SoapOutInterceptor());
+            sb.getOutFaultInterceptors().add(new SoapOutInterceptor());
+
+            // REVISIT: The phase interceptor chain seems to freak out if this added
+            // first. Not sure what the deal is at the moment, I suspect the
+            // ordering algorithm needs to be improved
+            sb.getInInterceptors().add(new URIMappingInterceptor());
+        }
         
         if (version.getVersion() == 1.1) {
             sb.getInFaultInterceptors().add(new Soap11FaultInInterceptor());
@@ -146,22 +166,6 @@ public class SoapBindingFactory extends AbstractBindingFactory {
             sb.getOutFaultInterceptors().add(new Soap12FaultOutInterceptor());
         }        
 
-        if (SoapConstants.BINDING_STYLE_RPC.equalsIgnoreCase(bindingStyle)) {
-            sb.getInInterceptors().add(new RPCInInterceptor());
-            sb.getOutInterceptors().add(new RPCOutInterceptor());
-        } else if (SoapConstants.BINDING_STYLE_DOC.equalsIgnoreCase(bindingStyle)
-                        && SoapConstants.PARAMETER_STYLE_BARE.equalsIgnoreCase(parameterStyle)) {
-            //sb.getInInterceptors().add(new BareInInterceptor());
-            sb.getInInterceptors().add(new DocLiteralInInterceptor());
-            sb.getOutInterceptors().add(new BareOutInterceptor());
-        } else {
-            //sb.getInInterceptors().add(new WrappedInInterceptor());
-            sb.getInInterceptors().add(new DocLiteralInInterceptor());
-            sb.getOutInterceptors().add(new WrappedOutInterceptor());
-            sb.getOutInterceptors().add(new BareOutInterceptor());
-        }
-        
-        sb.getInInterceptors().add(new URIMappingInterceptor());
         return sb;
     }
 

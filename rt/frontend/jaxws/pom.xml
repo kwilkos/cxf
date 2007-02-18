@@ -117,6 +117,10 @@
             <scope>test</scope>
             <version>${spring.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

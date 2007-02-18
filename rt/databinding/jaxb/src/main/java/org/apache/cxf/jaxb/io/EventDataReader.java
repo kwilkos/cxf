@@ -19,19 +19,19 @@
 
 package org.apache.cxf.jaxb.io;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBDataBase;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
-public class EventDataReader implements DataReader<XMLEventReader> {
-    final JAXBDataReaderFactory factory;
+public class EventDataReader extends JAXBDataBase implements DataReader<XMLEventReader> {
 
-    public EventDataReader(JAXBDataReaderFactory cb) {
-        factory = cb;
+    public EventDataReader(JAXBContext context) {
+        setJAXBContext(context);
     }
 
     public Object read(XMLEventReader input) {
@@ -39,16 +39,18 @@ public class EventDataReader implements DataReader<XMLEventReader> {
     }
 
     public Object read(QName name, XMLEventReader input, Class type) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), factory.getSchema(), input, name,
-                                             type, null);
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), input, name,
+                                             type, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
 
     public Object read(MessagePartInfo part, XMLEventReader input) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(), 
-                                             factory.getSchema(), 
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), 
+                                             getSchema(), 
                                              input,
                                              part,
-                                             null);
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
+
 
 }

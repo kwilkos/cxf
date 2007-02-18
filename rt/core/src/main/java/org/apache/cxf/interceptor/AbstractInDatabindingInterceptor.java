@@ -31,7 +31,6 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.databinding.DataReaderFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -57,35 +56,12 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         return Boolean.TRUE.equals(message.get(Message.REQUESTOR_ROLE));
     }
 
-    protected DataReader getDataReader(Message message, Class<?> input) {
+    protected <T> DataReader<T> getDataReader(Message message, Class<T> input) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-        setSchemaInMessage(service, message);
-        DataReader dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == input) {
-                dataReader = factory.createReader(input);
-                break;
-            }
-        }
-        if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
-                                                                   BUNDLE, service.getName()));
-        }
-        return dataReader;
-    }
+        DataReader<T> dataReader = service.getDataBinding().createReader(input);
+        dataReader.setAttachments(message.getAttachments());
+        setSchemaInMessage(service, message, dataReader);
 
-    protected DataReader<Message> getMessageDataReader(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-        setSchemaInMessage(service, message);
-        DataReader<Message> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == Message.class) {
-                dataReader = factory.createReader(Message.class);
-                break;
-            }
-        }
         if (dataReader == null) {
             throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
                                                                    BUNDLE, service.getName()));
@@ -94,47 +70,17 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
     }
 
     protected DataReader<XMLStreamReader> getDataReader(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-        setSchemaInMessage(service, message);
-        DataReader<XMLStreamReader> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == XMLStreamReader.class) {
-                dataReader = factory.createReader(XMLStreamReader.class);
-                break;
-            }
-        }
-        if (dataReader == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAREADER", 
-                                                                   BUNDLE, service.getName()));
-        }
-        return dataReader;
+        return getDataReader(message, XMLStreamReader.class);
     }
 
     protected DataReader<Node> getNodeDataReader(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataReaderFactory factory = service.getDataBinding().getDataReaderFactory();
-        setSchemaInMessage(service, message);
-        DataReader<Node> dataReader = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == Node.class) {
-                dataReader = factory.createReader(Node.class);
-                break;
-            }
-        }
-        if (dataReader == null) {
-            throw new Fault(
-                            new org.apache.cxf.common.i18n.Message("NO_DATAREADER", BUNDLE, 
-                                                                   service.getName()));
-        }
-        return dataReader;
+        return getDataReader(message, Node.class);
     }
 
-    private void setSchemaInMessage(Service service, Message message) {
-        if (message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED) != null 
-                && Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
+    private void setSchemaInMessage(Service service, Message message, DataReader<?> reader) {
+        if (Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
             Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
-            service.getDataBinding().getDataReaderFactory().setSchema(schema);
+            reader.setSchema(schema);
         }
     }
     
@@ -232,10 +178,10 @@ public abstract class AbstractInDatabindingInterceptor extends AbstractPhaseInte
         return null;
     }
     
-    protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation, Exchange ex) {
+    protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation) {
         return getMessageInfo(message, operation, isRequestor(message));
     }
-    
+
     protected MessageInfo getMessageInfo(Message message, BindingOperationInfo operation, boolean requestor) {
         MessageInfo msgInfo;
         OperationInfo intfOp = operation.getOperationInfo();

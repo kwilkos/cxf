@@ -23,15 +23,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
@@ -44,7 +43,6 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.MessageInfo;
-//import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.staxutils.DepthXMLStreamReader;
@@ -53,13 +51,6 @@ import org.apache.cxf.staxutils.StaxUtils;
 public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
     private static final Logger LOG = Logger.getLogger(DocLiteralInInterceptor.class.getName());
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(DocLiteralInInterceptor.class);
-
-    private static Set<String> filter = new HashSet<String>();
-
-    static {
-        filter.add("void");
-        filter.add("javax.activation.DataHandler");
-    }
 
     public DocLiteralInInterceptor() {
         super();
@@ -74,7 +65,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
         }
 
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
-        DataReader<Message> dr = getMessageDataReader(message);
+        DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
 
         Exchange exchange = message.getExchange();
@@ -105,7 +96,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
 
             // Determine if there is a wrapper class
             if (msgInfo.getMessageParts().get(0).getTypeClass() != null) {
-                Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), message);
+                Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), xmlReader);
                 parameters.add(wrappedObject);
 
             } else {
@@ -126,7 +117,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                 // loop through each child element
                 while (StaxUtils.toNextElement(xmlReader)) {
                     MessagePartInfo part = itr.next();
-                    parameters.add(dr.read(part, message));
+                    parameters.add(dr.read(part, xmlReader));
                 }
             }
 
@@ -135,7 +126,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
             BindingMessageInfo msgInfo = null;
 
             if (bop != null) { //for xml binding or client side
-                getMessageInfo(message, bop, exchange);
+                getMessageInfo(message, bop);
                 if (client) {
                     msgInfo = bop.getOutput();
                 } else {
@@ -184,7 +175,7 @@ public class DocLiteralInInterceptor extends AbstractInDatabindingInterceptor {
                     throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
                 }
 
-                o = dr.read(p, message);
+                o = dr.read(p, xmlReader);
 
                 if (o != null) {
                     parameters.add(o);

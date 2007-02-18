@@ -20,6 +20,7 @@
 package org.apache.cxf.jaxb;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +31,26 @@ import javax.wsdl.Definition;
 import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+
+import org.w3c.dom.Node;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
+import org.apache.cxf.databinding.DataReader;
+import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxb.io.EventDataReader;
+import org.apache.cxf.jaxb.io.EventDataWriter;
+import org.apache.cxf.jaxb.io.NodeDataReader;
+import org.apache.cxf.jaxb.io.NodeDataWriter;
+import org.apache.cxf.jaxb.io.XMLStreamDataReader;
+import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -126,5 +141,48 @@ public class JAXBDataBindingTest extends TestCase {
         }
         
     }
+    public void testCreateReader() {
+        DataReader reader = jaxbDataBinding.createReader(XMLStreamReader.class);
+        assertTrue(reader instanceof XMLStreamDataReader);
+        
+        reader = jaxbDataBinding.createReader(XMLEventReader.class);
+        assertTrue(reader instanceof EventDataReader);
 
+        reader = jaxbDataBinding.createReader(Node.class);
+        assertTrue(reader instanceof NodeDataReader);
+
+        reader = jaxbDataBinding.createReader(null);
+        assertNull(reader);
+    }
+
+    public void testSupportedFormats() {
+        List<Class<?>> cls = Arrays.asList(jaxbDataBinding.getSupportedWriterFormats());
+        assertNotNull(cls);
+        assertEquals(3, cls.size());
+        assertTrue(cls.contains(XMLStreamWriter.class));
+        assertTrue(cls.contains(XMLEventWriter.class));
+        assertTrue(cls.contains(Node.class));
+
+        cls = Arrays.asList(jaxbDataBinding.getSupportedReaderFormats());
+        assertNotNull(cls);
+        assertEquals(3, cls.size());
+        assertTrue(cls.contains(XMLStreamReader.class));
+        assertTrue(cls.contains(XMLEventReader.class));
+        assertTrue(cls.contains(Node.class));
+    }
+
+    public void testCreateWriter() {
+        DataWriter writer = jaxbDataBinding.createWriter(XMLStreamWriter.class);
+        assertTrue(writer instanceof XMLStreamDataWriter);
+        
+        writer = jaxbDataBinding.createWriter(XMLEventWriter.class);
+        assertTrue(writer instanceof EventDataWriter);
+        
+        writer = jaxbDataBinding.createWriter(Node.class);
+        assertTrue(writer instanceof NodeDataWriter);
+        
+        writer = jaxbDataBinding.createWriter(null);
+        assertNull(writer);
+    }
+    
 }

@@ -19,18 +19,18 @@
 
 package org.apache.cxf.jaxb.io;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.stream.XMLEventWriter;
 
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.jaxb.JAXBDataWriterFactory;
+import org.apache.cxf.jaxb.JAXBDataBase;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
-public class EventDataWriter implements DataWriter<XMLEventWriter> {
-    final JAXBDataWriterFactory factory;
+public class EventDataWriter extends JAXBDataBase implements DataWriter<XMLEventWriter> {
 
-    public EventDataWriter(JAXBDataWriterFactory cb) {
-        factory = cb;
+    public EventDataWriter(JAXBContext ctx) {
+        setJAXBContext(ctx);
     }
     
     public void write(Object obj, XMLEventWriter output) {
@@ -39,9 +39,8 @@ public class EventDataWriter implements DataWriter<XMLEventWriter> {
     
     public void write(Object obj, MessagePartInfo part, XMLEventWriter output) {
         if (obj != null) {
-            JAXBEncoderDecoder.marshall(factory.getJAXBContext(),
-                                        factory.getSchema(), obj,
-                                        part, output, null);
+            JAXBEncoderDecoder.marshall(getJAXBContext(), getSchema(), obj, part, output, 
+                                        getAttachmentMarrshaller());
         }
     }
 }

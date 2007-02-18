@@ -18,13 +18,29 @@
  */
 package org.apache.cxf.jaxws;
 
+import javax.xml.soap.SOAPMessage;
+
+import org.apache.cxf.binding.AbstractBindingFactory;
+import org.apache.cxf.binding.soap.SoapBindingFactory;
+import org.apache.cxf.binding.soap.model.SoapBindingInfo;
+import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
+import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
+import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.invoker.Invoker;
+import org.apache.cxf.service.model.BindingInfo;
 
 /**
- * Bean to help easily create Server endpoints for JAX-WS.
+ * Bean to help easily create Server endpoints for JAX-WS. Example:
+ * <pre>
+ * JaxWsServerFactoryBean sf = JaxWsServerFactoryBean();
+ * sf.setServiceClass(MyService.class);
+ * sf.setAddress("http://acme.com/myService");
+ * sf.create();
+ * </pre>
+ * This will start a server for you and register it with the ServerManager. 
  */
 public class JaxWsServerFactoryBean extends ServerFactoryBean {
     public JaxWsServerFactoryBean() {
@@ -36,4 +52,36 @@ public class JaxWsServerFactoryBean extends ServerFactoryBean {
     protected Invoker createInvoker() {
         return new JAXWSMethodInvoker(getServiceBean());
     }
+
+    @Override
+    protected BindingInfo createBindingInfo() {
+        JaxWsServiceFactoryBean sf = (JaxWsServiceFactoryBean) getServiceFactory(); 
+        
+        JaxWsImplementorInfo implInfo = sf.getJaxWsImplementorInfo();
+        String binding = implInfo.getBindingType();
+        boolean messageMode = implInfo.getServiceMode().equals(javax.xml.ws.Service.Mode.MESSAGE);
+        BindingInfo bindingInfo;
+        if (XMLConstants.NS_XML_FORMAT.equals(binding)) {
+            XMLBindingInfoFactoryBean bindingFactory = new XMLBindingInfoFactoryBean();
+            bindingFactory.setServiceFactory(sf);
+            bindingInfo = bindingFactory.create();
+        } else {
+            bindingInfo = super.createBindingInfo();
+        }
+        
+        // This disables a bunch of unwanted interceptors for the Provider scenario. Not ideal, but it works.
+        if (implInfo.isWebServiceProvider()) {
+            bindingInfo.setProperty(AbstractBindingFactory.DATABINDING_DISABLED, Boolean.TRUE);
+            
+            if ((bindingInfo instanceof SoapBindingInfo) 
+                && messageMode
+                && !implInfo.getProviderParameterType().equals(SOAPMessage.class)) {
+                bindingInfo.setProperty(SoapBindingFactory.MESSAGE_PROCESSING_DISABLED, Boolean.TRUE);
+            }
+        }
+        
+        return bindingInfo;
+    }
+    
+    
 }

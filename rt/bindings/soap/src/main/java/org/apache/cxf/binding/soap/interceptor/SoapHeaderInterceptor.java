@@ -33,6 +33,7 @@ import org.apache.cxf.binding.soap.model.SoapHeaderInfo;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AbstractInDatabindingInterceptor;
 import org.apache.cxf.interceptor.BareInInterceptor;
+import org.apache.cxf.interceptor.DocLiteralInInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -50,6 +51,8 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
         super();
         setPhase(Phase.UNMARSHAL);
         addAfter(BareInInterceptor.class.getName());
+        addAfter(RPCInInterceptor.class.getName());
+        addAfter(DocLiteralInInterceptor.class.getName());
     }
 
     public void handleMessage(Message m) throws Fault {
@@ -75,7 +78,7 @@ public class SoapHeaderInterceptor extends AbstractInDatabindingInterceptor {
         }
         
         List<SoapHeaderInfo> headers = bmi.getExtensors(SoapHeaderInfo.class);
-        if (headers == null) {
+        if (headers == null || headers.size() == 0) {
             return;
         }
         

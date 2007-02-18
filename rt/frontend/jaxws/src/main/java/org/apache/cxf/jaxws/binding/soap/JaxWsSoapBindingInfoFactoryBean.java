@@ -26,7 +26,7 @@ import javax.jws.soap.SOAPBinding.Use;
 
 import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
 import org.apache.cxf.frontend.MethodDispatcher;
-import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 
@@ -54,8 +54,8 @@ public class JaxWsSoapBindingInfoFactoryBean extends SoapBindingInfoFactoryBean 
             .getEndpointClass();
     }
 
-    private AbstractJaxWsServiceFactoryBean getJaxWsServiceFactory() {
-        return (AbstractJaxWsServiceFactoryBean)getServiceFactory();
+    private JaxWsServiceFactoryBean getJaxWsServiceFactory() {
+        return (JaxWsServiceFactoryBean)getServiceFactory();
     }
     
     @Override

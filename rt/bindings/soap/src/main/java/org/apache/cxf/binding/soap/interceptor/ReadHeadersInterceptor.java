@@ -31,6 +31,7 @@ import javax.xml.stream.XMLStreamReader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
@@ -72,6 +73,10 @@ public class ReadHeadersInterceptor extends AbstractSoapInterceptor {
             if (xmlReader.nextTag() == XMLStreamConstants.START_ELEMENT) {
                 String ns = xmlReader.getNamespaceURI();
                 SoapVersion soapVersion = SoapVersionFactory.getInstance().getSoapVersion(ns);
+                if (soapVersion == null) {
+                    throw new SoapFault(new Message("INVALID_VERSION", LOG, ns), 
+                                        Soap11.getInstance().getSender());
+                }
                 message.setVersion(soapVersion);
                 
                 QName qn = xmlReader.getName();

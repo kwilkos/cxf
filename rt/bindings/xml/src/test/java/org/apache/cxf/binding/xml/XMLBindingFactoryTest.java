@@ -24,12 +24,13 @@ import junit.framework.TestCase;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.service.model.BindingInfo;
 
 public class XMLBindingFactoryTest extends TestCase {
     
     public void testContainsInAttachmentInterceptor() {
         XMLBindingFactory xbf = new XMLBindingFactory();
-        Binding b = xbf.createBinding(null);
+        Binding b = xbf.createBinding(new BindingInfo(null, null));
         
         boolean found = false;
         for (Interceptor interseptor : b.getInInterceptors()) {

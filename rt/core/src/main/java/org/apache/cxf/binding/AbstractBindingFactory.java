@@ -41,6 +41,8 @@ import static org.apache.cxf.helpers.CastUtils.cast;
 
 public abstract class AbstractBindingFactory implements BindingFactory, WSDLBindingFactory {
 
+    public static final String DATABINDING_DISABLED = "databinding.disabled";
+    
     @Resource
     Bus bus;
     

@@ -20,6 +20,8 @@
 package org.apache.cxf.interceptor;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamWriter;
+
 import org.apache.cxf.databinding.DataWriter;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -43,8 +45,9 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
             return;
         }
         
-        DataWriter<Message> dataWriter = getMessageDataWriter(message);
-
+        DataWriter<XMLStreamWriter> dataWriter = getDataWriter(message, XMLStreamWriter.class);
+        XMLStreamWriter xmlWriter = message.getContent(XMLStreamWriter.class);
+        
         int countParts = 0;
         List<MessagePartInfo> parts = null;
 
@@ -67,7 +70,7 @@ public class BareOutInterceptor extends AbstractOutDatabindingInterceptor {
                 Object[] els = parts.toArray();
 
                 for (int idx = 0; idx < countParts; idx++) {
-                    dataWriter.write(args[idx], (MessagePartInfo)els[idx], message);
+                    dataWriter.write(args[idx], (MessagePartInfo)els[idx], xmlWriter);
                 }
             }
         }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.activation.DataHandler;
@@ -34,16 +35,16 @@ import org.apache.cxf.attachment.LazyDataSource;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.message.Message;
+import org.apache.cxf.message.Attachment;
 
 public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBAttachmentUnmarshaller.class);
 
-    private Message message;
+    private Collection<Attachment> attachments;
 
-    public JAXBAttachmentUnmarshaller(Message messageParam) {
+    public JAXBAttachmentUnmarshaller(Collection<Attachment> attachments) {
         super();
-        this.message = messageParam;
+        this.attachments = attachments;
     }
 
     @Override
@@ -67,11 +68,7 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
 
     @Override
     public boolean isXOPPackage() {
-        String contentType = (String) message.getContextualProperty(Message.CONTENT_TYPE);
-        if (contentType != null && contentType.contains("application/xop+xml")) {
-            return true;
-        }
-        return false;
+        return attachments != null && attachments.iterator().hasNext();
     }
 
     private DataSource getAttachmentDataSource(String contentId) {
@@ -82,7 +79,6 @@ public class JAXBAttachmentUnmarshaller extends AttachmentUnmarshaller {
                 contentId = contentId.substring(4);
             }
         }
-        return new LazyDataSource(contentId, message.getAttachments());
+        return new LazyDataSource(contentId, attachments);
     }
-
 }

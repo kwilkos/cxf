@@ -19,21 +19,20 @@
 
 package org.apache.cxf.databinding;
 
-import java.util.Map;
-
-import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public interface DataBinding {
     
-    DataReaderFactory getDataReaderFactory();
+    <T> DataReader<T> createReader(Class<T> cls);
     
-    DataWriterFactory getDataWriterFactory();
+    <T> DataWriter<T> createWriter(Class<T> cls);
     
-    Map<String, SchemaInfo> getSchemas(ServiceInfo serviceInfo);
-
+    Class<?>[] getSupportedReaderFormats();
+    
+    Class<?>[] getSupportedWriterFormats();
+    
     /**
-     * Initialize the service info (i.e. type & element names) with 
+     * Initialize the service info (i.e. type & element names, Schemas) with 
      * information from the databinding.
      * @param serviceInfo
      */

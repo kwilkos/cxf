@@ -92,7 +92,7 @@ public class ClientFaultConverter extends AbstractPhaseInterceptor<Message> {
         Service s = msg.getExchange().get(Service.class);
         DataBinding dataBinding = s.getDataBinding();
 
-        DataReader<Node> reader = dataBinding.getDataReaderFactory().createReader(Node.class);
+        DataReader<Node> reader = dataBinding.createReader(Node.class);
         Object e = reader.read(part, exDetail);
         if (!(e instanceof Exception)) {
             Class<?> exClass = faultWanted.getProperty(Class.class.getName(), Class.class);

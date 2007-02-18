@@ -19,12 +19,19 @@
 
 package org.apache.cxf.databinding;
 
-import javax.xml.namespace.QName;
+import java.util.Collection;
 
+import javax.xml.namespace.QName;
+import javax.xml.validation.Schema;
+
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.service.model.MessagePartInfo;
 
 public interface DataReader<T> {
     Object read(T input);
     Object read(MessagePartInfo part, T input);
     Object read(QName name, T input, Class type);
+    void setSchema(Schema s);
+    void setAttachments(Collection<Attachment> attachments);
+    void setProperty(String prop, Object value);
 }

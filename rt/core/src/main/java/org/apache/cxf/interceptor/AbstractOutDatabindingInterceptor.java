@@ -19,14 +19,14 @@
 
 package org.apache.cxf.interceptor;
 
-import java.util.ResourceBundle;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.validation.Schema;
 
-import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.databinding.DataWriterFactory;
+import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.service.Service;
@@ -34,79 +34,32 @@ import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
 public abstract class AbstractOutDatabindingInterceptor extends AbstractPhaseInterceptor<Message> {
-    private static final ResourceBundle BUNDLE = BundleUtils
-        .getBundle(AbstractOutDatabindingInterceptor.class);
 
     protected boolean isRequestor(Message message) {
         return Boolean.TRUE.equals(message.containsKey(Message.REQUESTOR_ROLE));
     }
     
-    protected DataWriter getDataWriter(Message message, Class<?> output) {
+    protected <T> DataWriter<T> getDataWriter(Message message, Class<T> output) {
         Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-        setSchemaOutMessage(service, message);
-        DataWriter dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == output) {
-                dataWriter = factory.createWriter(output);
-                break;
-            }
-        }
-
-        if (dataWriter == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
-                .getName()));
-        }
-
-        return dataWriter;        
-    }
-
-    protected DataWriter<Message> getMessageDataWriter(Message message) {
+        DataWriter<T> writer = service.getDataBinding().createWriter(output);
         
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-        setSchemaOutMessage(service, message);
-        DataWriter<Message> dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == Message.class) {
-                dataWriter = factory.createWriter(Message.class);
-                break;
+        if (Boolean.TRUE.equals(message.getContextualProperty(Message.MTOM_ENABLED))) {
+            Collection<Attachment> atts = message.getAttachments();
+            if (atts == null) {
+                atts = new ArrayList<Attachment>();
+                message.setAttachments(atts);
             }
+            writer.setAttachments(atts);
         }
-
-        if (dataWriter == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
-                .getName()));
-        }
-
-        return dataWriter;
+        
+        setSchemaOutMessage(service, message, writer);
+        return writer;
     }
 
-    protected DataWriter<XMLStreamWriter> getDataWriter(Message message) {
-        Service service = ServiceModelUtil.getService(message.getExchange());
-        DataWriterFactory factory = service.getDataBinding().getDataWriterFactory();
-        setSchemaOutMessage(service, message);
-        DataWriter<XMLStreamWriter> dataWriter = null;
-        for (Class<?> cls : factory.getSupportedFormats()) {
-            if (cls == XMLStreamWriter.class) {
-                dataWriter = factory.createWriter(XMLStreamWriter.class);
-                break;
-            }
-        }
-
-        if (dataWriter == null) {
-            throw new Fault(new org.apache.cxf.common.i18n.Message("NO_DATAWRITER", BUNDLE, service
-                .getName()));
-        }
-
-        return dataWriter;
-    }
-    
-    private void setSchemaOutMessage(Service service, Message message) {
-        if (message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED) != null 
-                && Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
+    private void setSchemaOutMessage(Service service, Message message, DataWriter<?> writer) {
+        if (Boolean.TRUE.equals(message.getContextualProperty(Message.SCHEMA_VALIDATION_ENABLED))) {
             Schema schema = EndpointReferenceUtils.getSchema(service.getServiceInfo());
-            service.getDataBinding().getDataWriterFactory().setSchema(schema);
+            writer.setSchema(schema);
         }
     }
 

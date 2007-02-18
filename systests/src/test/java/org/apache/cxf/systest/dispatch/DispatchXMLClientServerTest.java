@@ -98,7 +98,6 @@ public class DispatchXMLClientServerTest extends ClientServerTestBase {
         Dispatch<Source> disp = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
         Source source = disp.invoke(reqMsg);
         assertNotNull(source);
-        assertTrue(source instanceof StreamSource);
                 
         String streamString = XMLUtils.toString(source); 
         Document doc = XMLUtils.parse(streamString);

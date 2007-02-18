@@ -19,8 +19,6 @@
 package org.apache.cxf.binding.xml;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -39,8 +37,6 @@ import org.apache.cxf.service.model.BindingInfo;
 
 public class XMLBindingFactory extends AbstractBindingFactory {
 
-    private Map cachedBinding = new HashMap<BindingInfo, Binding>();
-
     private Collection<String> activationNamespaces;
 
     @Resource(name = "activationNamespaces")
@@ -53,23 +49,21 @@ public class XMLBindingFactory extends AbstractBindingFactory {
     }
 
     public Binding createBinding(BindingInfo binding) {
-
-        if (cachedBinding.get(binding) != null) {
-            return (Binding) cachedBinding.get(binding);
-        }
-
         XMLBinding xb = new XMLBinding();
         
         xb.getInInterceptors().add(new AttachmentInInterceptor());
         xb.getInInterceptors().add(new StaxInInterceptor());
-        xb.getInInterceptors().add(new XMLMessageInInterceptor());
-        xb.getInInterceptors().add(new URIMappingInterceptor());
-        xb.getInInterceptors().add(new DocLiteralInInterceptor());
-               
+        
         xb.getInFaultInterceptors().add(new XMLFaultInInterceptor());
         
         xb.getOutInterceptors().add(new StaxOutInterceptor());
-        xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
+        
+        if (!Boolean.TRUE.equals(binding.getProperty(DATABINDING_DISABLED))) {
+            xb.getInInterceptors().add(new URIMappingInterceptor());
+            xb.getOutInterceptors().add(new XMLMessageOutInterceptor());
+            xb.getInInterceptors().add(new DocLiteralInInterceptor());
+            xb.getInInterceptors().add(new XMLMessageInInterceptor());
+        }
         
         xb.getOutFaultInterceptors().add(new StaxOutInterceptor());
         xb.getOutFaultInterceptors().add(new XMLFaultOutInterceptor());

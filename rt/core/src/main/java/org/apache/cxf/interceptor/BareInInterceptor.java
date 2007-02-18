@@ -71,7 +71,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
         DepthXMLStreamReader xmlReader = getXMLStreamReader(message);
         Exchange exchange = message.getExchange();
 
-        DataReader<Message> dr = getMessageDataReader(message);
+        DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> parameters = new ArrayList<Object>();
 
         Endpoint ep = exchange.get(Endpoint.class);
@@ -108,7 +108,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
             // necessary?  Should we put the BindingMessageInfo on
             // the message instead of the MessageInfo?
             // msgInfo = getMessageInfo(message, bop, exchange);
-            getMessageInfo(message, bop, exchange);
+            getMessageInfo(message, bop);
             if (client) {
                 msgInfo = bop.getOutput();
             } else {
@@ -135,7 +135,7 @@ public class BareInInterceptor extends AbstractInDatabindingInterceptor {
                 throw new Fault(new org.apache.cxf.common.i18n.Message("NO_PART_FOUND", BUNDLE, elName));
             }
 
-            o = dr.read(p, message);
+            o = dr.read(p, xmlReader);
 
             if (o != null) {
                 parameters.add(o);

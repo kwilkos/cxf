@@ -30,6 +30,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
+import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -43,7 +44,7 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
     private String address;
     private Bus bus;
     private Executor executor;
-    private AbstractJaxWsServiceFactoryBean serviceFactory;
+    private JaxWsServiceFactoryBean serviceFactory;
     private Object implementor;
     private boolean publish = true;
     private EndpointImpl endpoint;
@@ -166,7 +167,7 @@ public class EndpointFactoryBean implements FactoryBean, ApplicationContextAware
         return serviceFactory;
     }
 
-    public void setServiceFactory(AbstractJaxWsServiceFactoryBean serviceFactory) {
+    public void setServiceFactory(JaxWsServiceFactoryBean serviceFactory) {
         this.serviceFactory = serviceFactory;
     }
 

@@ -27,36 +27,28 @@ import java.util.logging.Logger;
 
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
-import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
-import javax.xml.ws.http.HTTPBinding;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
-import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.common.injection.ResourceInjector;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.context.WebContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
-import org.apache.cxf.jaxws.support.AbstractJaxWsServiceFactoryBean;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
-import org.apache.cxf.jaxws.support.ProviderServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.resource.DefaultResourceManager;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.factory.AbstractBindingInfoFactoryBean;
 
 public class EndpointImpl extends javax.xml.ws.Endpoint {
-    private static final Logger LOG = LogUtils.getL7dLogger(JaxWsServiceFactoryBean.class);
+    private static final Logger LOG = LogUtils.getL7dLogger(EndpointImpl.class);
 
     protected boolean doInit;
 
@@ -65,13 +57,10 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     private Server server;
     private Service service;
     private JaxWsImplementorInfo implInfo;
-    private AbstractJaxWsServiceFactoryBean serviceFactory;
-
-    private String bindingURI;
-
+    private JaxWsServiceFactoryBean serviceFactory;
     private Map<String, Object> properties;
     
-    public EndpointImpl(Bus b, Object implementor, AbstractJaxWsServiceFactoryBean serviceFactory) {
+    public EndpointImpl(Bus b, Object implementor, JaxWsServiceFactoryBean serviceFactory) {
         this.bus = b;
         this.serviceFactory = serviceFactory;
         this.implInfo = serviceFactory.getJaxWsImplementorInfo();
@@ -89,15 +78,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
     public EndpointImpl(Bus b, Object i, String uri, URL wsdl) {
         bus = b;
         implementor = i;
-        bindingURI = uri;
         // build up the Service model
         implInfo = new JaxWsImplementorInfo(implementor.getClass());
-        
-        if (implInfo.isWebServiceProvider()) {
-            serviceFactory = new ProviderServiceFactoryBean(implInfo);
-        } else {
-            serviceFactory = new JaxWsServiceFactoryBean(implInfo);
-        }
+        serviceFactory = new JaxWsServiceFactoryBean(implInfo);
         serviceFactory.setBus(bus);
         if (null != wsdl) {
             serviceFactory.setWsdlURL(wsdl);
@@ -108,11 +91,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         
         service.put(Message.SCHEMA_VALIDATION_ENABLED, service.getEnableSchemaValidationForAllPort());
         
-        if (implInfo.isWebServiceProvider()) {
-            service.setInvoker(new ProviderInvoker((Provider<?>)i));
-        } else {
-            service.setInvoker(new JAXWSMethodInvoker(i));
-        }
+        service.setInvoker(new JAXWSMethodInvoker(i));
         
         doInit = true; 
     }
@@ -227,25 +206,9 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         svrFactory.setServiceBean(implementor);
         configureObject(svrFactory);
         
-        // TODO: Replace with discovery mechanism!!
-        AbstractBindingInfoFactoryBean bindingFactory = null;
-        if (XMLConstants.NS_XML_FORMAT.equals(bindingURI)
-            || HTTPBinding.HTTP_BINDING.equals(bindingURI)) {
-            bindingFactory = new XMLBindingInfoFactoryBean();
-        } else {
-            // Just assume soap otherwise...
-            bindingFactory = new JaxWsSoapBindingInfoFactoryBean();
-        }
-        
-        svrFactory.setBindingFactory(bindingFactory);
-        
         server = svrFactory.create();
 
         init();
-        
-        if (implInfo.isWebServiceProvider()) {
-            getServer().setMessageObserver(new ProviderChainObserver(getEndpoint(), bus, implInfo));
-        }
         
         org.apache.cxf.endpoint.Endpoint endpoint = getEndpoint();
         

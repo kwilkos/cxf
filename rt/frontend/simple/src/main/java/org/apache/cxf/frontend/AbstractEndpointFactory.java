@@ -26,6 +26,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.soap.SoapBindingInfoFactoryBean;
+import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.service.Service;
@@ -110,8 +111,13 @@ public abstract class AbstractEndpointFactory {
             }
         }
         
+        // Get the Service from the ServiceFactory if specified
+        Service service = serviceFactory.getService();
+        BindingInfo bindingInfo = createBindingInfo();
+        service.getServiceInfo().addBinding(bindingInfo);
+        
         // SOAP nonsense
-        if (getBindingFactory() instanceof SoapBindingInfoFactoryBean) {
+        if (bindingInfo instanceof SoapBindingInfo) {
             ((SoapBindingInfoFactoryBean) getBindingFactory()).setTransportURI(transportId);
             transportId = "http://schemas.xmlsoap.org/wsdl/soap/";
         }
@@ -120,12 +126,6 @@ public abstract class AbstractEndpointFactory {
         
         DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
         destinationFactory = dfm.getDestinationFactory(transportId);
-        
-        // Get the Service from the ServiceFactory if specified
-        Service service = serviceFactory.getService();
-        getBindingFactory().setServiceFactory(serviceFactory);
-        BindingInfo bindingInfo = getBindingFactory().create();
-        service.getServiceInfo().addBinding(bindingInfo);
         
         EndpointInfo ei = new EndpointInfo(service.getServiceInfo(), transportId);
         ei.setName(endpointName);
@@ -143,7 +143,11 @@ public abstract class AbstractEndpointFactory {
         return ei;
     }
 
-    
+    protected BindingInfo createBindingInfo() {
+        getBindingFactory().setServiceFactory(serviceFactory);
+        return getBindingFactory().create();
+    }
+
     public String getAddress() {
         return address;
     }

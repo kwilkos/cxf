@@ -253,7 +253,7 @@ public final class StaxUtils {
                 writer.setPrefix(prefix, uri);
             }
         } else {
-            writer.writeStartElement(reader.getLocalName());
+            writer.writeStartElement(local);
         }
 
         // Write out the namespaces
@@ -440,7 +440,9 @@ public final class StaxUtils {
         } else if (n instanceof ProcessingInstruction) {
             ProcessingInstruction pi = (ProcessingInstruction)n;
             writer.writeProcessingInstruction(pi.getTarget(), pi.getData());
-        }
+        } else if (n instanceof Document) {
+            writeDocument((Document)n, writer, repairing);
+        } 
     }
 
     public static Document read(XMLStreamReader reader) throws XMLStreamException {

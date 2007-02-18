@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package org.apache.cxf.jaxws.support;
+package org.apache.cxf.jaxws.provider;
 
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Source;
 import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
@@ -27,13 +27,12 @@ import javax.xml.ws.WebServiceProvider;
 
 @WebServiceProvider()
 @ServiceMode(value = Service.Mode.PAYLOAD)
-@javax.xml.ws.BindingType(value = "http://cxf.apache.org/bindings/xformat")
-public class SourcePayloadProvider implements Provider<DOMSource> {
+public class SOAPSourcePayloadProvider implements Provider<Source> {
 
-    public SourcePayloadProvider() {
+    public SOAPSourcePayloadProvider() {
     }
 
-    public DOMSource invoke(DOMSource request) {
-        return null;
+    public Source invoke(Source request) {
+        return request;
     }
 }

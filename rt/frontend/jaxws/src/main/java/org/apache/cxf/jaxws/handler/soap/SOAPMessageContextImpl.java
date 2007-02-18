@@ -152,6 +152,8 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                         MessageFactory factory = MessageFactory.newInstance();
                         MimeHeaders mhs = null;
                         message = factory.createMessage(mhs, newIs);
+                        
+                        getWrappedMessage().setContent(SOAPMessage.class, message);
                     }
                 }
 

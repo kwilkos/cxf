@@ -29,9 +29,8 @@ public class Server extends TestServerBase {
         Object implementor = new RestSourcePayloadProvider();
         String address = "http://localhost:9023/XMLService/RestProviderPort/Customer";
         Endpoint.publish(address, implementor);
-    }        
-
-
+    }
+    
     public static void main(String[] args) {
         try {
             Server s = new Server();

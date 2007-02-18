@@ -162,18 +162,19 @@ public final class JAXBEncoderDecoder {
     }
 
     public static Object unmarshall(JAXBContext context, Schema schema, Object source) {
-        return unmarshall(context, schema, source, null, null);
+        return unmarshall(context, schema, source, null, null, true);
     }
 
     public static Object unmarshall(JAXBContext context, 
                                     Schema schema, 
                                     Object source,
                                     MessagePartInfo part, 
-                                    AttachmentUnmarshaller au) {
+                                    AttachmentUnmarshaller au, 
+                                    boolean unwrap) {
         Class<?> clazz = part != null ? (Class) part.getTypeClass() : null;
         QName elName = part != null ? part.getConcreteName() : null;
 
-        return unmarshall(context, schema, source, elName, clazz, au);
+        return unmarshall(context, schema, source, elName, clazz, au, unwrap);
     }
     
     public static Object unmarshall(JAXBContext context, 
@@ -181,7 +182,8 @@ public final class JAXBEncoderDecoder {
                                     Object source,
                                     QName elName,
                                     Class<?> clazz,
-                                    AttachmentUnmarshaller au) {
+                                    AttachmentUnmarshaller au, 
+                                    boolean unwrap) {
         Object obj = null;
         
         try {
@@ -210,7 +212,7 @@ public final class JAXBEncoderDecoder {
                 throw new Fault(new Message("UNMARSHAL_ERROR", BUNDLE, ex.getMessage()), ex);
             }
         }
-        return getElementValue(obj);
+        return unwrap ? getElementValue(obj) : obj;
     }
 
     public static Object getElementValue(Object obj) {

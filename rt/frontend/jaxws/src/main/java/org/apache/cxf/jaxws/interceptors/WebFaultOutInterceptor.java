@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.databinding.DataWriterFactory;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.support.JaxWsServiceConfiguration;
 import org.apache.cxf.message.Message;
@@ -63,8 +62,7 @@ public class WebFaultOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
                 Service service = message.getExchange().get(Service.class);
 
-                DataWriterFactory writerFactory = service.getDataBinding().getDataWriterFactory();
-                DataWriter<Node> writer = writerFactory.createWriter(Node.class);
+                DataWriter<Node> writer = service.getDataBinding().createWriter(Node.class);
 
                 OperationInfo op = message.getExchange().get(BindingOperationInfo.class).getOperationInfo();
                 QName faultName = getFaultName(ex);

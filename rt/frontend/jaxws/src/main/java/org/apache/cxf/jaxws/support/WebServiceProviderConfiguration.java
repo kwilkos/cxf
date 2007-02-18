@@ -20,28 +20,39 @@
 package org.apache.cxf.jaxws.support;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.transform.Source;
 import javax.xml.ws.WebServiceException;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.resource.URIResolver;
-import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 
-public class WebServiceProviderConfiguration extends AbstractServiceConfiguration {
+public class WebServiceProviderConfiguration extends JaxWsServiceConfiguration {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(WebServiceProviderConfiguration.class);
 
     private JaxWsImplementorInfo implInfo;
     
     @Override
+    public Boolean isOperation(Method method) {
+        return method.getName().equals("invoke") 
+            && method.getParameterTypes().length == 1
+            && (Source.class.isAssignableFrom(method.getParameterTypes()[0])
+                || SOAPMessage.class.isAssignableFrom(method.getParameterTypes()[0]));
+    }
+
+
+    @Override
     public void setServiceFactory(ReflectionServiceFactoryBean serviceFactory) {
         super.setServiceFactory(serviceFactory);
-        implInfo = ((ProviderServiceFactoryBean) serviceFactory).getJaxWsImplementorInfo();
+        implInfo = ((JaxWsServiceFactoryBean) serviceFactory).getJaxWsImplementorInfo();
     }
 
 

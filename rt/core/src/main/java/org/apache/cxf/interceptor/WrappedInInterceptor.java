@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.databinding.DataReader;
@@ -86,7 +87,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
 
         }
 
-        DataReader<Message> dr = getMessageDataReader(message);
+        DataReader<XMLStreamReader> dr = getDataReader(message);
         List<Object> objects;
 
         MessageInfo msgInfo = setMessage(message, operation, requestor);
@@ -95,7 +96,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
         if (operation.isUnwrappedCapable()
             && msgInfo.getMessageParts().get(0).getTypeClass() != null) {
             objects = new ArrayList<Object>();
-            Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), message);
+            Object wrappedObject = dr.read(msgInfo.getMessageParts().get(0), xmlReader);
             objects.add(wrappedObject);
 
         } else {
@@ -118,7 +119,7 @@ public class WrappedInInterceptor extends AbstractInDatabindingInterceptor {
             // loop through each child element
             while (StaxUtils.toNextElement(xmlReader)) {
                 MessagePartInfo part = itr.next();
-                objects.add(dr.read(part, message));
+                objects.add(dr.read(part, xmlReader));
             }
         }
 

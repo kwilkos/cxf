@@ -35,7 +35,6 @@ import java.util.logging.Logger;
 
 import javax.jws.WebService;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
@@ -52,6 +51,8 @@ import org.apache.cxf.binding.xml.XMLBindingInfoFactoryBean;
 import org.apache.cxf.binding.xml.XMLConstants;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
+import org.apache.cxf.databinding.DataBinding;
+import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
@@ -132,17 +133,7 @@ public class ServiceImpl extends ServiceDelegate {
         }
     }
 
-    private AbstractServiceFactoryBean createDispatchService() {
-        try {
-            return createDispatchService(new JAXBDataBinding(new Class[0]));
-        } catch (JAXBException e) {
-            throw new WebServiceException("Could not create Databinding.", e);
-        }
-    }
-    private AbstractServiceFactoryBean createDispatchService(JAXBContext context) {
-        return createDispatchService(new JAXBDataBinding(context));
-    }
-    private AbstractServiceFactoryBean createDispatchService(JAXBDataBinding db) {
+    private AbstractServiceFactoryBean createDispatchService(DataBinding db) {
         AbstractServiceFactoryBean serviceFactory;
 
         Service dispatchService = null;        
@@ -167,7 +158,7 @@ public class ServiceImpl extends ServiceDelegate {
     }
 
     public <T> Dispatch<T> createDispatch(QName portName, Class<T> type, Mode mode) {
-        AbstractServiceFactoryBean sf = createDispatchService();
+        AbstractServiceFactoryBean sf = createDispatchService(new SourceDataBinding());
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
 
         Dispatch<T> disp = new DispatchImpl<T>(bus, mode, type, getExecutor(), endpoint);
@@ -179,7 +170,7 @@ public class ServiceImpl extends ServiceDelegate {
 
     public Dispatch<Object> createDispatch(QName portName, JAXBContext context, Mode mode) {
 
-        AbstractServiceFactoryBean sf = createDispatchService(context);
+        AbstractServiceFactoryBean sf = createDispatchService(new JAXBDataBinding(context));
         Endpoint endpoint = getJaxwsEndpoint(portName, sf);
         Dispatch<Object> disp = new DispatchImpl<Object>(bus, mode, context, Object.class, getExecutor(),
                                                          endpoint);
@@ -377,31 +368,4 @@ public class ServiceImpl extends ServiceDelegate {
         // TODO if the portName null ?
         return portInfos.get(portName);
     }
-/*
-    static class PortInfo {
-        private String bindingUri;
-        private String address;
-
-        public PortInfo(String bindingUri, String address2) {
-            this.bindingUri = bindingUri;
-            this.address = address2;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
-
-        public String getBindingUri() {
-            return bindingUri;
-        }
-
-        public void setBindingUri(String bindingUri) {
-            this.bindingUri = bindingUri;
-        }
-    }
-*/
 }

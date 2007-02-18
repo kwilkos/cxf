@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.ws.BindingType;
 import javax.xml.ws.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
@@ -39,6 +40,7 @@ import org.w3c.dom.Document;
 
 @WebServiceProvider()
 @ServiceMode(value = Service.Mode.PAYLOAD)
+@BindingType("http://cxf.apache.org/bindings/xformat")
 public class RestSourcePayloadProviderHttpBinding implements Provider<DOMSource> {
 
     @Resource
@@ -97,7 +99,7 @@ public class RestSourcePayloadProviderHttpBinding implements Provider<DOMSource>
 
         try {
             factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(true);
+            factory.setNamespaceAware(true);
             builder = factory.newDocumentBuilder();
             InputStream greetMeResponse = getClass().getResourceAsStream(fileName);
 

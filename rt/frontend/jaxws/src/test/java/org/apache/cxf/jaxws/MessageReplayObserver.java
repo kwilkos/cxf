@@ -40,8 +40,8 @@ public class MessageReplayObserver implements MessageObserver {
         try {
 
             InputStream in = message.getContent(InputStream.class);
-            while (in.available() > 0) {
-                in.read();
+            while (in.read() != -1) {
+                // do nothing
             }
             
             Conduit backChannel = message.getDestination().getBackChannel(message, null, null);
@@ -50,11 +50,12 @@ public class MessageReplayObserver implements MessageObserver {
 
             OutputStream out = message.getContent(OutputStream.class);
             Assert.assertNotNull(out);
-            in = getClass().getResourceAsStream(responseMessage);
-            IOUtils.copy(in, out, 2045);
+            InputStream  res = getClass().getResourceAsStream(responseMessage);
+            IOUtils.copy(res, out, 2045);
 
-            out.close();
+            res.close();
             in.close();
+            out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -20,20 +20,20 @@
 package org.apache.cxf.jaxb.io;
 
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
 import org.apache.cxf.databinding.DataReader;
-import org.apache.cxf.jaxb.JAXBDataReaderFactory;
+import org.apache.cxf.jaxb.JAXBDataBase;
 import org.apache.cxf.jaxb.JAXBEncoderDecoder;
 import org.apache.cxf.service.model.MessagePartInfo;
 
-public class NodeDataReader implements DataReader<Node> {
-    final JAXBDataReaderFactory factory;
-    
-    public NodeDataReader(JAXBDataReaderFactory cb) {
-        factory = cb;
+public class NodeDataReader extends JAXBDataBase implements DataReader<Node> {
+
+    public NodeDataReader(JAXBContext ctx) {
+        setJAXBContext(ctx);
     }
     
     public Object read(Node input) {
@@ -41,20 +41,13 @@ public class NodeDataReader implements DataReader<Node> {
     }
 
     public Object read(MessagePartInfo part, Node xmlNode) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
-                                             factory.getSchema(),
-                                             xmlNode,
-                                             part,
-                                             null);
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), xmlNode, part, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
 
     public Object read(QName name, Node input, Class type) {
-        return JAXBEncoderDecoder.unmarshall(factory.getJAXBContext(),
-                                             factory.getSchema(),
-                                             input,
-                                             name,
-                                             type,
-                                             null);
+        return JAXBEncoderDecoder.unmarshall(getJAXBContext(), getSchema(), input, name, type, 
+                                             getAttachmentUnmarshaller(), unwrapJAXBElement);
     }
     
 }

@@ -25,7 +25,6 @@ import java.io.OutputStream;
 
 import javax.activation.DataSource;
 import javax.xml.soap.MessageFactory;
-import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.Source;
@@ -33,6 +32,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.ws.Service;
+
+import org.w3c.dom.Node;
 
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.databinding.DataWriter;
@@ -71,12 +72,12 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
                     }
                 } else if (m == Service.Mode.PAYLOAD) {
                     SOAPMessage msg = initSOAPMessage();
-                    DataWriter<SOAPBody> dataWriter = getDataWriter(message, SOAPBody.class);
-                    if (obj instanceof Source || obj instanceof Object) {
-                        dataWriter.write(obj, msg.getSOAPBody());
-                    } else if (obj instanceof SOAPMessage || obj instanceof DataSource) {
+                    DataWriter<Node> dataWriter = getDataWriter(message, Node.class);
+                    if (obj instanceof SOAPMessage || obj instanceof DataSource) {
                         throw new RuntimeException(obj.getClass()
                                                    + " is not valid in PAYLOAD mode with SOAP/HTTP");
+                    } else {
+                        dataWriter.write(obj, msg.getSOAPBody());
                     }
                     msg.writeTo(os);
                 }

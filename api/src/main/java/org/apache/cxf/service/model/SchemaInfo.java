@@ -31,6 +31,7 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
     boolean isElementQualified;
     boolean isAttributeQualified;
     XmlSchema schema;
+    String systemId;
     
     public SchemaInfo(ServiceInfo serviceInfo, String namespaceUri) {
         this.serviceInfo = serviceInfo;
@@ -81,5 +82,13 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
 
     public void setSchema(XmlSchema schema) {
         this.schema = schema;
+    }
+
+    public String getSystemId() {
+        return systemId;
+    }
+
+    public void setSystemId(String systemId) {
+        this.systemId = systemId;
     }
 }

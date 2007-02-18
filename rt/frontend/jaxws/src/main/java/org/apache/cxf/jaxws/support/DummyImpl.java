@@ -18,7 +18,13 @@
  */
 package org.apache.cxf.jaxws.support;
 
-// this class do nothing here, just for facking Impl
+// this class do nothing here, just for a dispatch impl
 public class DummyImpl {
-
+//    public void invokeOneWay(Object o) {
+//        
+//    }
+//    
+//    public Object invoke(Object o) {
+//        return null;
+//    }
 }

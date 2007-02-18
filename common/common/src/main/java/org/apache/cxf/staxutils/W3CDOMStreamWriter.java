@@ -53,6 +53,16 @@ public class W3CDOMStreamWriter implements XMLStreamWriter {
         this.document = document;
     }
 
+    public W3CDOMStreamWriter(Element e) {
+        this.document = e.getOwnerDocument();
+        
+        currentNode = e;
+
+        W3CNamespaceContext newContext = new W3CNamespaceContext();
+        newContext.setElement(currentNode);
+        this.context = newContext;
+    }
+
     public void setProperties(Map properties) {
         this.properties = properties;
     }
