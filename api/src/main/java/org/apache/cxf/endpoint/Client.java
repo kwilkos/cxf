@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.MessageObserver;
 
 public interface Client extends InterceptorProvider, MessageObserver {
@@ -71,5 +72,10 @@ public interface Client extends InterceptorProvider, MessageObserver {
                     Map<String, Object> context) throws Exception;
 
     Endpoint getEndpoint();
-   
+
+    /**
+     * Get the Conduit that messages for this client will be sent on.
+     * @return
+     */
+    Conduit getConduit();
 }

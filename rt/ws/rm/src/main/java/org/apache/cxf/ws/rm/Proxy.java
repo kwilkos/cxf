@@ -253,7 +253,7 @@ public class Proxy {
         }
         
         @Override
-        protected synchronized Conduit getConduit() {
+        public synchronized Conduit getConduit() {
             Conduit c = null;
             
             if (null != Proxy.this.reliableEndpoint.getApplicationReplyTo()) {

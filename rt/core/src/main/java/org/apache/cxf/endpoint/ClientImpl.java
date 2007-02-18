@@ -291,7 +291,7 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
     }
 
-    protected Conduit getConduit() {        
+    public Conduit getConduit() {        
         if (null == initedConduit) {
             EndpointInfo ei = endpoint.getEndpointInfo();
             String transportID = ei.getTransportId();
