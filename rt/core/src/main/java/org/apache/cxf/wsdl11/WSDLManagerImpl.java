@@ -90,6 +90,12 @@ public class WSDLManagerImpl implements WSDLManager {
     public WSDLFactory getWSDLFactory() {
         return factory;
     }
+    
+    public WeakHashMap<Object, Definition> getDefinitions() {
+        synchronized (definitionsMap) { 
+            return definitionsMap;   
+        }
+    }
 
     /*
      * (non-Javadoc)
