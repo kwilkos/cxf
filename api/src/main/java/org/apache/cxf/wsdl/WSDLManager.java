@@ -89,6 +89,6 @@ public interface WSDLManager {
      * 
      * @return all Definitions in the map
      */
-    WeakHashMap<Object, Definition> getDefinitions();
+    Map<Object, Definition> getDefinitions();
     
 }
