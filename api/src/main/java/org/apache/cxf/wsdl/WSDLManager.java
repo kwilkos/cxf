@@ -20,6 +20,7 @@
 package org.apache.cxf.wsdl;
 
 import java.net.URL;
+import java.util.Map;
 
 import javax.wsdl.Definition;
 import javax.wsdl.WSDLException;
