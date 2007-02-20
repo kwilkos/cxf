@@ -21,7 +21,9 @@ package org.apache.cxf.wsdl11;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
@@ -91,8 +93,8 @@ public class WSDLManagerImpl implements WSDLManager {
         return factory;
     }
     
-    public WeakHashMap<Object, Definition> getDefinitions() { 
-        return definitionsMap;
+    public Map<Object, Definition> getDefinitions() { 
+        return Collections.unmodifiableMap(definitionsMap);
     }
 
     /*
