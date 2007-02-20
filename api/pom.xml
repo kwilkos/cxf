@@ -48,8 +48,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
 
         <dependency>
@@ -79,8 +79,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>jsr250-api</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>

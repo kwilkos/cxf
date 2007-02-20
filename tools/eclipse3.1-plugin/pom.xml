@@ -47,16 +47,16 @@
                     <artifactId>XmlSchema</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>javax.annotation</groupId>
-                    <artifactId>jsr250-api</artifactId>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-annotation_1.0_spec</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.xml.soap</groupId>
                     <artifactId>saaj-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -91,16 +91,16 @@
                     <artifactId>XmlSchema</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>javax.annotation</groupId>
-                    <artifactId>jsr250-api</artifactId>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-annotation_1.0_spec</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.xml.soap</groupId>
                     <artifactId>saaj-api</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-servlet_2.5_spec</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.springframework</groupId>

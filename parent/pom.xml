@@ -43,7 +43,6 @@
         <compile.flags>-Xlint:unchecked,deprecation,fallthrough,finally</compile.flags>
 
 
-        <jsr250.version>1.0</jsr250.version>
         <jsr181.version>1.0-MR1</jsr181.version>
         <jaxb.version>2.0</jaxb.version>
         <jaxb.impl.version>2.0.3</jaxb.impl.version>
@@ -54,7 +53,7 @@
         <wsdl4j.version>1.6.1</wsdl4j.version>
         <derby.version>10.1.1.0</derby.version>
         <activemq.version>4.1.0-incubator</activemq.version>
-        <geronimo.version>1.0.1</geronimo.version>
+        <geronimo.version>1.1</geronimo.version>
         <rhino.version>1.6R5</rhino.version>
         <xmlbeans.version>2.2.0</xmlbeans.version>
 
@@ -366,24 +365,9 @@
                 <version>3.2.0</version>
             </dependency>
             <dependency>
-                <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.1</version>
-            </dependency>
-            <dependency>
                 <groupId>jetty</groupId>
                 <artifactId>org.mortbay.jetty</artifactId>
                 <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ws.commons</groupId>
@@ -416,6 +400,10 @@
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jsr173_api</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -438,6 +426,10 @@
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
                         <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.xml.bind</groupId>
@@ -492,12 +484,11 @@
                         <groupId>avalon-framework</groupId>
                         <artifactId>avalon-framework</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>jsr250-api</artifactId>
-                <version>${jsr250.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.jws</groupId>
@@ -558,6 +549,26 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-annotation_1.0_spec</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-servlet_2.5_spec</artifactId>
+                <version>1.1-M1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                <version>1.0-M1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-activation_1.1_spec</artifactId>
+                <version>1.0-M1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
                 <version>${geronimo.version}</version>
             </dependency>
@@ -580,6 +591,12 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-core</artifactId>
                 <version>${activemq.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.geronimo.specs</groupId>
+                        <artifactId>geronimo-jms_1.1_spec</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>rhino</groupId>

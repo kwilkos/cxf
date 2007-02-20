@@ -80,9 +80,8 @@
         </dependency>
         
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
     </dependencies>
 </project>

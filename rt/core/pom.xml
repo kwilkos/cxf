@@ -60,8 +60,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.4_spec</artifactId>
         </dependency>
 
         <dependency>

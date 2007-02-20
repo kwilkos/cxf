@@ -70,19 +70,10 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
             <scope>test</scope>
         </dependency>
-
-
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>test</scope>
-        </dependency>
-
 
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>

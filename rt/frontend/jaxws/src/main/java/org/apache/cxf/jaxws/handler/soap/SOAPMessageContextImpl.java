@@ -51,7 +51,6 @@ import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.SoapVersion;
 import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
@@ -88,9 +87,7 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                  
                     XMLStreamWriter xtw = getWrappedMessage().getContent(XMLStreamWriter.class);
                     Document doc = ((W3CDOMStreamWriter)xtw).getDocument();
-                    
-                    XMLUtils.printDOM(doc);
-               
+                                  
                     MessageFactory factory = null;
                     if (soapVersion.getVersion() == 1.1) {
                         factory = MessageFactory.newInstance();
