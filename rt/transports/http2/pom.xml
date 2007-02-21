@@ -158,12 +158,6 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <repository>
-            <id>Jetty</id>
-            <name>Jetty Maven2 Repository</name>
-            <url>http://repository.codehaus.org</url>
-        </repository>
-    </repositories>
+
 
 </project>
