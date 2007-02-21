@@ -22,12 +22,12 @@
     "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <!--
-Checks to make sure the code meets the CXF coding guidelines
+Checks to make sure the code meets the CXF coding guidelines which 
+are similar to the Sun guidelines at:
 http://java.sun.com/docs/codeconv/index.html
 
 It also enforces aa bunch of other "BestPractices like method
 lengths, if/try depths, etc...
-                        
 -->
 
 <module name="Checker">
