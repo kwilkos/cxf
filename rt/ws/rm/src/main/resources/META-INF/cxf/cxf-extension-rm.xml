@@ -29,60 +29,56 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     
     <!-- global definition of interceptors, may need to switch qualified names -->
     
-    <bean id="mapAggregator" class="org.apache.cxf.ws.addressing.MAPAggregator"/>
-    <bean id="mapCodec" class="org.apache.cxf.ws.addressing.soap.MAPCodec"/>
-    <bean id="rmLogicalOut" class="org.apache.cxf.ws.rm.RMOutInterceptor">
+    <bean class="org.apache.cxf.ws.rm.RMOutInterceptor">
         <property name="bus" ref="cxf"/>
     </bean>
-    <bean id="rmLogicalIn" class="org.apache.cxf.ws.rm.RMInInterceptor">
+    <bean class="org.apache.cxf.ws.rm.RMInInterceptor">
         <property name="bus" ref="cxf"/>
     </bean>    
-    <bean id="rmCodec" class="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
+    <bean class="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
     
-    <bean class="org.apache.cxf.ws.rm.policy.RMPolicyInterceptorProvider">
+    <bean class="org.apache.cxf.ws.policy.PolicyInterceptorProviderImpl">
+        <constructor-arg>
+            <list>
+                <bean class="javax.xml.namespace.QName">
+                    <constructor-arg value="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"/>
+                    <constructor-arg value="RMAssertion"/>
+                </bean>
+            </list>
+        </constructor-arg>
         <property name="inInterceptors">
             <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalIn"/>
-                <ref bean="rmCodec"/>
+                <ref bean="org.apache.cxf.ws.rm.RMInInterceptor"/>
+                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
             </list>
         </property>
         <property name="inFaultInterceptors">
             <list>
-                <ref bean="mapAggregator"/>
-                <!--
-                <ref bean="mapCodec"/>
-                -->
-                <ref bean="rmLogicalIn"/>
-                <ref bean="rmCodec"/>
+                <ref bean="org.apache.cxf.ws.rm.RMInInterceptor"/>
+                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
             </list>
         </property>
         <property name="outInterceptors">
             <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalOut"/>
-                <ref bean="rmCodec"/>
+                <ref bean="org.apache.cxf.ws.rm.RMOutInterceptor"/>
+                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
             </list>
         </property>
         <property name="outFaultInterceptors">
             <list>
-                <ref bean="mapAggregator"/>
-                <ref bean="mapCodec"/>
-                <ref bean="rmLogicalOut"/>
-                <ref bean="rmCodec"/>
+                <ref bean="org.apache.cxf.ws.rm.RMOutInterceptor"/>
+                <ref bean="org.apache.cxf.ws.rm.soap.RMSoapInterceptor"/>
             </list>
         </property>
     </bean>
     
-    <bean id="org.apache.cxf.ws.rm.RMAssertionBuilder" class="org.apache.cxf.ws.policy.builders.jaxb.JaxbAssertionBuilder">
+    <bean id="org.apache.cxf.ws.rm.RMAssertionBuilder" class="org.apache.cxf.ws.policy.builder.jaxb.JaxbAssertionBuilder">
         <constructor-arg value="org.apache.cxf.ws.rm.policy.RMAssertion"/>
         <constructor-arg>
             <bean class="javax.xml.namespace.QName">
-              <constructor-arg value="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"/>
-              <constructor-arg value="RMAssertion"/>
-          </bean>
+                <constructor-arg value="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"/>
+                <constructor-arg value="RMAssertion"/>
+            </bean>
         </constructor-arg>
     </bean>
     

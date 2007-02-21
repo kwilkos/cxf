@@ -20,18 +20,14 @@
 package org.apache.cxf.ws.policy.attachment.wsdl11;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.wsdl.Definition;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.xml.namespace.QName;
 
-import org.apache.cxf.common.i18n.BundleUtils;
-import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractDescriptionElement;
 import org.apache.cxf.service.model.BindingFaultInfo;
@@ -43,36 +39,31 @@ import org.apache.cxf.service.model.Extensible;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
-import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.PolicyProvider;
+import org.apache.cxf.ws.policy.attachment.AbstractPolicyProvider;
+import org.apache.cxf.ws.policy.attachment.reference.LocalServiceModelReferenceResolver;
+import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyReference;
-import org.apache.neethi.PolicyRegistry;
 
 /**
  * PolicyAttachmentManager provides methods to retrieve element policies and
  * calculate effective policies based on the policy subject's scope.
  * 
  */
-public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
-    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(Wsdl11AttachmentPolicyProvider.class);
+public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider 
+    implements PolicyProvider {
+
     
-    private PolicyBuilder builder;
-    private PolicyRegistry registry;
-    private Map<DescriptionInfo, Map<String, Policy>> resolved = 
-        new HashMap<DescriptionInfo, Map<String, Policy>>();
-    
-    
-    public void setBuilder(PolicyBuilder b) {
-        builder = b;
+    public Wsdl11AttachmentPolicyProvider() {
+        this(null);
     }
     
-    public void setRegistry(PolicyRegistry r) {
-        registry = r;
-    }
+    public Wsdl11AttachmentPolicyProvider(Bus bus) {
+        super(bus);
+    }  
     
     public Policy getEffectivePolicy(ServiceInfo si) {
         return getElementPolicy(si);
@@ -172,17 +163,13 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
         
         for (UnknownExtensibilityElement e : extensions) {
             Policy p = null;
-            if (PolicyConstants.POLICY_ELEM_QNAME.equals(e.getElementType())) {
+            if (PolicyConstants.getPolicyElemQName().equals(e.getElementType())) {
                 p = builder.getPolicy(e.getElement());
 
-            } else if (PolicyConstants.POLICYREF_ELEM_QNAME.equals(e.getElementType())) {
+            } else if (PolicyConstants.getPolicyReferenceElemQName().equals(e.getElementType())) {
                 PolicyReference ref = builder.getPolicyReference(e.getElement());
                 if (null != ref) {
                     p = resolveReference(ref, di);
-                    if (null == p) {
-                        throw new PolicyException(new Message("UNRESOLVED_POLICY_REEFERENCE_EXC", 
-                                                              BUNDLE, ref.getURI()));
-                    }
                 }
             }
             if (null != p) {
@@ -193,63 +180,34 @@ public class Wsdl11AttachmentPolicyProvider implements PolicyProvider {
         return elementPolicy;
     }
     
-    
     Policy resolveReference(PolicyReference ref, DescriptionInfo di) {
-        String uri = ref.getURI();
+        Policy p = null;
         if (isExternal(ref)) {
-            return resolveExternal(ref);
+            p = resolveExternal(ref, di.getBaseURI());
+        } else {
+            p = resolveLocal(ref, di);
         }
-
-        // Resolve the reference now that we have access to the wsdl and
-        // store the referenced policy in the registry using a *qualified* key
-        // so that later on the policy reference can be normalised with the help
-        // of the registry. 
-        
-        Policy p = resolveLocal(uri.substring(1), di);
-        if (null != p) {
-            ref.setURI(di.getBaseURI() + uri);
-            registry.register(ref.getURI(), p);
-        }
-        
+        checkResolved(ref, p);
         return p;
     }
-
-    Policy resolveLocal(String uri, DescriptionInfo description) {
-        Policy resolvedPolicy = null;
-        Map<String, Policy> policyMap = resolved.get(description);
-        if (null == policyMap) {
-            policyMap = new HashMap<String, Policy>();
-            resolved.put(description, policyMap);
-        } else {
-            resolvedPolicy = policyMap.get(uri);
-            if (null != resolvedPolicy) {
-                return resolvedPolicy;
-            }
+    
+    Policy resolveLocal(PolicyReference ref, DescriptionInfo di) {
+        String uri = ref.getURI().substring(1);
+        String absoluteURI = di.getBaseURI() + uri;
+        Policy resolved = registry.lookup(absoluteURI);
+        if (null != resolved) {
+            return resolved;
         }
-        
-        List<UnknownExtensibilityElement> extensions = 
-            description.getExtensors(UnknownExtensibilityElement.class);
-        for (UnknownExtensibilityElement e : extensions) {
-            if (PolicyConstants.POLICY_ELEM_QNAME.equals(e.getElementType())) {
-                Policy p = builder.getPolicy(e.getElement());
-                policyMap.put(p.getId(), p);
-                if (uri.equals(p.getId())) {
-                    resolvedPolicy = p; 
-                    break;
-                }                
-            }
+        ReferenceResolver resolver = new LocalServiceModelReferenceResolver(di, builder);
+        resolved = resolver.resolveReference(uri);
+        if (null != resolved) {
+            ref.setURI(absoluteURI);
+            registry.register(absoluteURI, resolved);
         }
-        return resolvedPolicy;
+        return resolved;
     }
     
-    Policy resolveExternal(PolicyReference ref) {
-        throw new PolicyException(new Message("REMOTE_POLICY_RESOLUTION_NOT_SUPPORTED_EXC", BUNDLE));
-    }
-    
-    private boolean isExternal(PolicyReference ref) {
-        return !ref.getURI().startsWith("#");
-    }
-    
+     
     private Extensible getMessageTypeInfo(QName name, DescriptionInfo di) {
         Definition def = (Definition)di.getProperty(WSDLServiceBuilder.WSDL_DEFINITION);
         if (null == def) {

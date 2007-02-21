@@ -26,32 +26,20 @@ import javax.xml.namespace.QName;
  */
 public final class MetadataConstants {
     
-    private static final String NAMESPACE_URI = 
+    public static final String NAMESPACE_URI = 
         "http://www.w3.org/2007/01/addressing/metadata";
-    
-    private static final String ADDESSING_ELEM_NAME = "Addressing";
-    private static final String ANON_RESPONSES_ELEM_NAME = "AnonymousResponses";
-    private static final String NON_ANON_RESPONSES_ELEM_NAME = "NonAnonymousResponses";
+    public static final String ADDRESSING_ELEM_NAME = "Addressing";
+    public static final String ANON_RESPONSES_ELEM_NAME = "AnonymousResponses";
+    public static final String NON_ANON_RESPONSES_ELEM_NAME = "NonAnonymousResponses";
        
-    private static final QName ADDRESSING_ASSERTION_QNAME
-        = new QName(NAMESPACE_URI, ADDESSING_ELEM_NAME);
-    private static final QName ANON_RESPONSES_ASSERTION_QNAME
+    public static final QName ADDRESSING_ASSERTION_QNAME
+        = new QName(NAMESPACE_URI, ADDRESSING_ELEM_NAME);
+    public static final QName ANON_RESPONSES_ASSERTION_QNAME
         = new QName(NAMESPACE_URI, ANON_RESPONSES_ELEM_NAME);
-    private static final QName NON_ANON_RESPONSES_ASSERTION_QNAME
+    public static final QName NON_ANON_RESPONSES_ASSERTION_QNAME
         = new QName(NAMESPACE_URI, NON_ANON_RESPONSES_ELEM_NAME);
     
     private MetadataConstants() {        
     }
     
-    public static QName getAddressingAssertionQName() {
-        return ADDRESSING_ASSERTION_QNAME;
-    }
-    
-    public static QName getAnonymousResponsesAssertionQName() {
-        return ANON_RESPONSES_ASSERTION_QNAME;
-    }
-    
-    public static QName getNonAnonymousResponsesAssertionQName() {
-        return NON_ANON_RESPONSES_ASSERTION_QNAME;
-    }
 }

@@ -58,9 +58,9 @@ public class PolicyEngineTest extends TestCase {
     
     public void testAccessors() {
         engine = new PolicyEngine();
+        assertNotNull(engine.getRegistry());
         assertNull(engine.getBus());
-        assertNull(engine.getPolicyProviders());
-        assertNull(engine.getRegistry());
+        assertNull(engine.getPolicyProviders()); 
         assertTrue(!engine.getRegisterInterceptors());
         Bus bus = control.createMock(Bus.class);
         engine.setBus(bus);
@@ -73,19 +73,6 @@ public class PolicyEngineTest extends TestCase {
         assertSame(providers, engine.getPolicyProviders());
         assertSame(reg, engine.getRegistry());
         assertTrue(engine.getRegisterInterceptors());
-    }
-    
-    public void testInit() {  
-        engine = new PolicyEngine();
-        Bus bus = control.createMock(Bus.class);
-        engine.setBus(bus);
-        PolicyBuilder pb = control.createMock(PolicyBuilder.class);
-        EasyMock.expect(bus.getExtension(PolicyBuilder.class)).andReturn(pb);
-        control.replay(); 
-        engine.init();
-        assertEquals(1, engine.getPolicyProviders().size());
-        assertNotNull(engine.getRegistry());
-        control.verify();
     }
     
     public void testDontAddBusInterceptors() {        

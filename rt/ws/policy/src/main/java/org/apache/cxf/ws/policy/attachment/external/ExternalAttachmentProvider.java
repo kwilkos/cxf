@@ -19,9 +19,229 @@
 
 package org.apache.cxf.ws.policy.attachment.external;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.service.model.BindingFaultInfo;
+import org.apache.cxf.service.model.BindingMessageInfo;
+import org.apache.cxf.service.model.BindingOperationInfo;
+import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.ws.policy.PolicyConstants;
+import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.cxf.ws.policy.attachment.AbstractPolicyProvider;
+import org.apache.cxf.ws.policy.attachment.reference.LocalDocumentReferenceResolver;
+import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
+import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyReference;
+
 /**
  * 
  */
-public class ExternalAttachmentProvider {
+public class ExternalAttachmentProvider extends AbstractPolicyProvider {
+    
+    private String uri;
+    private Collection<PolicyAttachment> attachments;
+    
+    ExternalAttachmentProvider() {        
+    }
+    
+    ExternalAttachmentProvider(Bus b) {
+        super(b);
+    }
+    
+    public void setURI(String u) {
+        uri = u;
+    }
+    
+    public String getURI() {
+        return uri;
+    }
 
+    public Policy getEffectivePolicy(BindingFaultInfo bfi) {
+        readDocument();
+        Policy p = new Policy();
+        for (PolicyAttachment pa : attachments) {
+            if (pa.appliesTo(bfi)) {
+                p = p.merge(pa.getPolicy());
+            }
+        }
+                
+        return p;
+    }
+
+    public Policy getEffectivePolicy(BindingMessageInfo bmi) {
+        readDocument();
+        Policy p = new Policy();
+        for (PolicyAttachment pa : attachments) {
+            if (pa.appliesTo(bmi)) {
+                p = p.merge(pa.getPolicy());
+            }
+        }
+                
+        return p;
+    }
+
+    public Policy getEffectivePolicy(BindingOperationInfo boi) {
+        readDocument();
+        Policy p = new Policy();
+        for (PolicyAttachment pa : attachments) {
+            if (pa.appliesTo(boi)) {
+                p = p.merge(pa.getPolicy());
+            }
+        }
+                
+        return p;
+    }
+
+    public Policy getEffectivePolicy(EndpointInfo ei) {
+        readDocument();
+        Policy p = new Policy();
+        for (PolicyAttachment pa : attachments) {
+            if (pa.appliesTo(ei)) {
+                p = p.merge(pa.getPolicy());
+            }
+        }
+                
+        return p;
+    }
+
+    public Policy getEffectivePolicy(ServiceInfo si) {
+        readDocument();
+        Policy p = new Policy();
+        for (PolicyAttachment pa : attachments) {
+            if (pa.appliesTo(si)) {
+                p = p.merge(pa.getPolicy());
+            }
+        }
+                
+        return p;
+    } 
+    
+    void readDocument() {
+        if (null != attachments) {
+            return;
+        }
+        
+        // read the document and build the attachments
+        attachments = new ArrayList<PolicyAttachment>();
+        Document doc = null;
+        try {
+            InputStream is = new URIResolver(uri).getInputStream();
+            try {
+                doc = DOMUtils.readXml(is);
+            } catch (Exception ex) {
+                throw new PolicyException(ex);
+            }
+        } catch (Exception ex) {
+            throw new PolicyException(ex);
+        }
+        NodeList nl = doc.getElementsByTagNameNS(PolicyConstants.getNamespace(), 
+                                                 PolicyConstants.getPolicyAttachmentElemName());
+        for (int i = 0; i < nl.getLength(); i++) {
+            
+            PolicyAttachment attachment = new PolicyAttachment();
+            
+            Element ae = (Element)nl.item(i);
+            
+            for (Node nd = ae.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+                if (Node.ELEMENT_NODE != nd.getNodeType()) {
+                    continue;
+                }
+                QName qn = new QName(nd.getNamespaceURI(), nd.getLocalName());
+                if (PolicyConstants.getAppliesToElemQName().equals(qn)) {
+                    Collection<DomainExpression> des = readDomainExpressions((Element)nd);
+                    if (des.isEmpty()) {
+                        // forget about this attachment
+                        continue;
+                    }
+                    attachment.setDomainExpressions(des);                    
+                } else if (PolicyConstants.getPolicyElemQName().equals(qn)) {
+                    Policy p = builder.getPolicy((Element)nd);
+                    if (null != attachment.getPolicy()) {
+                        p = p.merge(attachment.getPolicy());
+                    }
+                    attachment.setPolicy(p);
+                } else if (PolicyConstants.getPolicyReferenceElemQName().equals(qn)) {
+                    PolicyReference ref = builder.getPolicyReference((Element)nd);
+                    if (null != ref) {   
+                        Policy p = resolveReference(ref, doc);
+                        if (null != attachment.getPolicy()) {
+                            p = p.merge(attachment.getPolicy());
+                        }
+                        attachment.setPolicy(p);
+                    }                    
+                } // TODO: wsse:Security child element
+            }
+            
+            if (null == attachment.getPolicy() || null == attachment.getDomainExpressions()) {                
+                continue;
+            }
+            
+            attachments.add(attachment);
+        }
+    }
+    
+    Policy resolveReference(PolicyReference ref, Document doc) {
+        Policy p = null;
+        if (isExternal(ref)) {
+            p = resolveExternal(ref, doc.getBaseURI());
+        } else {
+            p = resolveLocal(ref, doc);
+        }
+        checkResolved(ref, p);
+        return p;
+    }
+    
+    Policy resolveLocal(PolicyReference ref, Document doc) {
+        String relativeURI = ref.getURI().substring(1);
+        String absoluteURI = doc.getBaseURI() + ref.getURI();
+        Policy resolved = registry.lookup(absoluteURI);
+        if (null != resolved) {
+            return resolved;
+        }
+        ReferenceResolver resolver = new LocalDocumentReferenceResolver(doc, builder);
+        resolved = resolver.resolveReference(relativeURI);
+        if (null != resolved) {
+            ref.setURI(absoluteURI);
+            registry.register(absoluteURI, resolved);
+        }
+        return resolved;
+    }  
+    
+    Collection<DomainExpression> readDomainExpressions(Element appliesToElem) {
+        Collection<DomainExpression> des = new ArrayList<DomainExpression>();
+        for (Node nd = appliesToElem.getFirstChild(); nd != null; nd = nd.getNextSibling()) {
+            if (Node.ELEMENT_NODE == nd.getNodeType()) {
+                DomainExpressionBuilderRegistry debr 
+                    = bus.getExtension(DomainExpressionBuilderRegistry.class);
+                assert null != debr;
+                DomainExpression de = debr.build((Element)nd);
+                des.add(de);
+            }
+        }
+        return des;
+    }
+    
+    // for test
+    
+    void setAttachments(Collection<PolicyAttachment> a) {
+        attachments = a;    
+    }
+    
+    Collection<PolicyAttachment> getAttachments() {
+        return attachments;
+    }
+    
 }

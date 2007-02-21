@@ -32,6 +32,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
 import org.apache.neethi.Assertion;
 
 /**
@@ -66,7 +67,13 @@ public class PolicyExtensionsTest extends TestCase {
             assertNotNull(engine);            
             assertNotNull(engine.getPolicyProviders());
             assertNotNull(engine.getRegistry());
-
+            
+            Collection<PolicyProvider> pps = engine.getPolicyProviders();
+            assertEquals(1, pps.size());
+            for (PolicyProvider pp : pps) {
+                assertTrue(pp instanceof Wsdl11AttachmentPolicyProvider);
+            }
+            
             PolicyBuilder builder = bus.getExtension(PolicyBuilder.class);
             assertNotNull(builder);
             

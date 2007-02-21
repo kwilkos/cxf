@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.ws.policy.builders.xml.XMLPrimitiveAssertionBuilder;
+import org.apache.cxf.ws.policy.builder.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;

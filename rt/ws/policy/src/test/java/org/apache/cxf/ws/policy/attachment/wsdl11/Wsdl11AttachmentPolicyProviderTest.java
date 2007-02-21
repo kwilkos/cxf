@@ -42,9 +42,10 @@ import org.apache.cxf.ws.policy.AssertionBuilder;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
+import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.cxf.ws.policy.PolicyRegistryImpl;
-import org.apache.cxf.ws.policy.builders.xml.XMLPrimitiveAssertionBuilder;
+import org.apache.cxf.ws.policy.builder.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
@@ -64,7 +65,8 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
     private static final QName OPERATION_NAME = new QName(NAMESPACE_URI, "add");
     private static ServiceInfo[] services;
     private static EndpointInfo[] endpoints;
-    private Wsdl11AttachmentPolicyProvider app; 
+    private Wsdl11AttachmentPolicyProvider app;
+    private String originalNamespace;
     
     
     public static Test suite() {
@@ -101,7 +103,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         EasyMock.expect(bfm.getBindingFactory(EasyMock.isA(String.class))).andReturn(null).anyTimes();
         control.replay();
         
-        int n = 17;
+        int n = 18;
         services = new ServiceInfo[n];
         endpoints = new EndpointInfo[n];
         for (int i = 0; i < n; i++) {
@@ -140,6 +142,14 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         app = new Wsdl11AttachmentPolicyProvider();
         app.setBuilder(pb);
         app.setRegistry(new PolicyRegistryImpl());
+        
+        // test data uses 2004/09 namespace
+        originalNamespace = PolicyConstants.getNamespace();
+        PolicyConstants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
+    }
+    
+    public void tearDown() {
+        PolicyConstants.setNamespace(originalNamespace);
     }
     
     public void testElementPolicies() throws WSDLException {
@@ -358,21 +368,33 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
             fail("Expected PolicyException not thrown.");
         } catch (PolicyException ex) {
             // expected
-        }
-        
-        // binding has one extension of type PolicyReference, reference is external
-        try {
-            app.getElementPolicy(endpoints[16].getBinding());
-            fail("Expected PolicyException not thrown.");
-        } catch (PolicyException ex) {
-            // expected
-        }
-        
+        }        
     }
     
     public void testResolveExternal() {
+        // service has one extension of type PolicyReference, reference is external
+        Policy p = app.getElementPolicy(services[17]);
+        verifyAssertionsOnly(p, 2);
         
+        // port has one extension of type PolicyReference, reference cannot be resolved because
+        // referenced document does not contain policy with the required if
+        try {
+            app.getElementPolicy(endpoints[17]);
+            fail("Expected PolicyException not thrown.");
+        } catch (PolicyException ex) {
+            // expected
+        } 
+        
+        // binding has one extension of type PolicyReference, reference cannot be resolved because
+        // referenced document cannot be found
+        try {
+            app.getElementPolicy(endpoints[17].getBinding());
+            fail("Expected PolicyException not thrown.");
+        } catch (PolicyException ex) {
+            // expected
+        } 
     }
+    
     
     private void verifyAssertionsOnly(Policy p, int expectedAssertions) {
         List<PolicyComponent> pcs;

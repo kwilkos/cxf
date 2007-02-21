@@ -42,7 +42,6 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
-import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
@@ -58,7 +57,7 @@ public class PolicyEngine implements BusExtension {
     
     private Bus bus;
     private PolicyRegistry registry;
-    private List<PolicyProvider> policyProviders;
+    private Collection<PolicyProvider> policyProviders;
     private boolean registerInterceptors;
 
     private Map<BindingOperationInfo, ClientRequestPolicyInfo> clientRequestInfo 
@@ -68,6 +67,10 @@ public class PolicyEngine implements BusExtension {
     private Map<BindingOperationInfo, ServerResponsePolicyInfo> serverResponseInfo 
         = new ConcurrentHashMap<BindingOperationInfo, ServerResponsePolicyInfo>();
 
+    public PolicyEngine() {
+        registry = new PolicyRegistryImpl();
+    }
+    
     public Class getRegistrationType() {
         return PolicyEngine.class;
     }
@@ -80,11 +83,11 @@ public class PolicyEngine implements BusExtension {
         return bus;
     }
     
-    public void setPolicyProviders(List<PolicyProvider> p) {
+    public void setPolicyProviders(Collection<PolicyProvider> p) {
         policyProviders = p;
     }
    
-    public List<PolicyProvider> getPolicyProviders() {
+    public Collection<PolicyProvider> getPolicyProviders() {
         return policyProviders;
     }
     
@@ -102,23 +105,6 @@ public class PolicyEngine implements BusExtension {
 
     public void setRegisterInterceptors(boolean ri) {
         registerInterceptors = ri;
-    }
-
-    @PostConstruct
-    void init() {
-        if (null == registry) {
-            registry = new PolicyRegistryImpl();
-        }
-      
-        if (null == policyProviders && null != bus) {
-            // TODO:
-            // include attachment provider for wsdl 2.0 and
-            // for external attachments
-            Wsdl11AttachmentPolicyProvider wpp = new Wsdl11AttachmentPolicyProvider();
-            wpp.setBuilder(bus.getExtension(PolicyBuilder.class));
-            wpp.setRegistry(registry);
-            policyProviders = Collections.singletonList((PolicyProvider)wpp);
-        } 
     }
     
     @PostConstruct

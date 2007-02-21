@@ -57,7 +57,7 @@
 		<soap12:fault name="addNumbersFault" use="literal" />
 	    </fault>
 	</operation>
-	<wsp:PolicyReference URI="http://example.org/test.wsdl#PolicyC"/>
+	<wsp:PolicyReference URI="test16-ext.wsdl#PolicyC"/>
     </binding>
 
     <service name="CalculatorService">

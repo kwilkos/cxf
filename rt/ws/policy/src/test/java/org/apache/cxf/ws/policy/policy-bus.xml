@@ -33,5 +33,11 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
     <bean class="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor"/>
     <bean class="org.apache.cxf.bus.spring.BusExtensionPostProcessor"/>
     <import resource="../../../../../META-INF/cxf/cxf-extension-policy.xml"/>  
+    
+    <!--
+    <bean class="org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider">
+       <property name="uri" value="test-externals.xml"/>
+    </bean>
+    -->
 
 </beans>

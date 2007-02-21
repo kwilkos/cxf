@@ -23,7 +23,7 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.ws.policy.builders.primitive.PrimitiveAssertion;
+import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
 import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
