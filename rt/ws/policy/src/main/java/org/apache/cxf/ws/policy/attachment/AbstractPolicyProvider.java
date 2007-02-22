@@ -63,10 +63,10 @@ public class AbstractPolicyProvider {
     }  
     
     @PostConstruct
-    void init() {
+    public void init() {
         if (null != bus) {
             setBuilder(bus.getExtension(PolicyBuilder.class));
-            PolicyEngine pe = bus.getExtension(PolicyEngine.class);
+            PolicyEngine pe = (PolicyEngine)bus.getExtension(PolicyEngine.class);
             setRegistry(pe.getRegistry());
         }
     }

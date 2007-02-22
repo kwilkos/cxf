@@ -20,13 +20,17 @@
 package org.apache.cxf.ws.policy;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 
 /**
@@ -34,6 +38,7 @@ import org.apache.cxf.transport.Destination;
  */
 public class ServerPolicyInInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(ServerPolicyInInterceptor.class);
     private Bus bus;
     
     public ServerPolicyInInterceptor() {
@@ -51,13 +56,18 @@ public class ServerPolicyInInterceptor extends AbstractPhaseInterceptor<Message>
     
     public void handleMessage(Message msg) {        
         if (PolicyUtils.isRequestor(msg)) {
+            LOG.fine("Is a requestor.");
             return;
         }
         
-        EndpointInfo ei = msg.get(EndpointInfo.class);
-        if (null == ei) {
+        Exchange exchange = msg.getExchange();
+        assert null != exchange;
+        
+        Endpoint e = exchange.get(Endpoint.class);
+        if (null == e) {
+            LOG.fine("No endpoint.");
             return;
-        }
+        }        
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
@@ -69,9 +79,12 @@ public class ServerPolicyInInterceptor extends AbstractPhaseInterceptor<Message>
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with any requests on the underlying endpoint
         
-        List<Interceptor> policyInInterceptors = pe.getServerInInterceptors(ei, destination);
+        List<Interceptor> policyInInterceptors = pe.getServerInInterceptors(e, destination);
         for (Interceptor poi : policyInInterceptors) {
             msg.getInterceptorChain().add(poi);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Added interceptor of type " + poi.getClass().getSimpleName());
+            }
         }
     }
 }

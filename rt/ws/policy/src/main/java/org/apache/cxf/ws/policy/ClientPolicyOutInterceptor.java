@@ -20,14 +20,18 @@
 package org.apache.cxf.ws.policy;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 
 /**
@@ -35,6 +39,7 @@ import org.apache.cxf.transport.Conduit;
  */
 public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(ClientPolicyOutInterceptor.class);
     private Bus bus;
     
     public ClientPolicyOutInterceptor() {
@@ -52,16 +57,22 @@ public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message
     
     public void handleMessage(Message msg) {
         if (!PolicyUtils.isRequestor(msg)) {
+            LOG.fine("Not a requestor.");
             return;
         }
         
-        BindingOperationInfo boi = msg.get(BindingOperationInfo.class);
+        Exchange exchange = msg.getExchange();
+        assert null != exchange;
+        
+        BindingOperationInfo boi = exchange.get(BindingOperationInfo.class);
         if (null == boi) {
+            LOG.fine("No binding operation info.");
             return;
         }
         
-        EndpointInfo ei = msg.get(EndpointInfo.class);
-        if (null == ei) {
+        Endpoint e = exchange.get(Endpoint.class);
+        if (null == e) {
+            LOG.fine("No endpoint.");
             return;
         }        
         
@@ -72,9 +83,18 @@ public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message
         
         Conduit conduit = msg.getConduit();
         
-        List<Interceptor> policyOutInterceptors = pe.getClientOutInterceptors(boi, ei, conduit);
-        for (Interceptor poi : policyOutInterceptors) {
+        // add the required interceptors
+        
+        List<Interceptor> policyOutInterceptors = pe.getClientOutInterceptors(e, boi, conduit);
+        for (Interceptor poi : policyOutInterceptors) {            
             msg.getInterceptorChain().add(poi);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Added interceptor of type " + poi.getClass().getSimpleName());
+            }
         }
+        
+        // insert assertions of the chosen alternative into the message
+        
+        msg.put(PolicyConstants.CLIENT_OUT_ASSERTIONS, pe.getClientOutAssertions(e, boi, conduit));
     }
 }

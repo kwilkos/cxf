@@ -19,6 +19,10 @@
 
 package org.apache.cxf.ws.policy.attachment.external;
 
+import java.util.Collection;
+
+import javax.xml.namespace.QName;
+
 import org.w3c.dom.Element;
 
 /**
@@ -26,6 +30,20 @@ import org.w3c.dom.Element;
  */
 public interface DomainExpressionBuilder {
     
+    /**
+     * Builds a domain expression from the given element.
+     * 
+     * @param e the element
+     * @return the domin expression
+     */
     DomainExpression build(Element e);
+    
+    /**
+     * Returns a collection of QNames describing the xml schema types for which this
+     * builder can build domain expressions.
+     * 
+     * @return collection of supported types
+     */
+    Collection<QName> getDomainExpressionTypes();
    
 }

@@ -22,6 +22,7 @@ package org.apache.cxf.ws.policy.attachment.external;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ResourceBundle;
 
 import javax.xml.namespace.QName;
 
@@ -31,8 +32,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.helpers.DOMUtils;
-import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -40,18 +42,26 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.policy.PolicyException;
+import org.apache.cxf.ws.policy.PolicyProvider;
 import org.apache.cxf.ws.policy.attachment.AbstractPolicyProvider;
 import org.apache.cxf.ws.policy.attachment.reference.LocalDocumentReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyReference;
+import org.springframework.core.io.Resource;
 
 /**
  * 
  */
-public class ExternalAttachmentProvider extends AbstractPolicyProvider {
+public class ExternalAttachmentProvider extends AbstractPolicyProvider
+    implements PolicyProvider {
     
-    private String uri;
+    private static final ResourceBundle BUNDLE = BundleUtils.getBundle(ExternalAttachmentProvider.class);
+    
+    // Use a Resource object here instead of a String so that the resource can be resolved when
+    // this bean is created
+  
+    private Resource location;
     private Collection<PolicyAttachment> attachments;
     
     ExternalAttachmentProvider() {        
@@ -61,12 +71,12 @@ public class ExternalAttachmentProvider extends AbstractPolicyProvider {
         super(b);
     }
     
-    public void setURI(String u) {
-        uri = u;
+    public void setLocation(Resource u) {
+        location = u;
     }
     
-    public String getURI() {
-        return uri;
+    public Resource getLocation() {
+        return location;
     }
 
     public Policy getEffectivePolicy(BindingFaultInfo bfi) {
@@ -138,12 +148,11 @@ public class ExternalAttachmentProvider extends AbstractPolicyProvider {
         attachments = new ArrayList<PolicyAttachment>();
         Document doc = null;
         try {
-            InputStream is = new URIResolver(uri).getInputStream();
-            try {
-                doc = DOMUtils.readXml(is);
-            } catch (Exception ex) {
-                throw new PolicyException(ex);
+            InputStream is = location.getInputStream();
+            if (null == is) {
+                throw new PolicyException(new Message("COULD_NOT_OPEN_ATTACHMENT_DOC_EXC", BUNDLE, location));
             }
+            doc = DOMUtils.readXml(is);
         } catch (Exception ex) {
             throw new PolicyException(ex);
         }

@@ -19,6 +19,9 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
@@ -35,6 +38,21 @@ import org.apache.neethi.Policy;
 public class PolicyTest extends TestCase {
  
     public void testNothing() {
+    }
+    
+    public void testContains() {
+        List<Assertion> alt1 = new ArrayList<Assertion>();
+        Assertion a11 = new PrimitiveAssertion(new QName("http://x.y.z", "a1"));
+        alt1.add(a11);
+        Assertion a12 = new PrimitiveAssertion(new QName("http://x.y.z", "a2"));
+        alt1.add(a12);
+        
+        List<Assertion> alt2 = new ArrayList<Assertion>();
+        Assertion a21 = new PrimitiveAssertion(new QName("http://x.y.z", "a1"));
+        alt2.add(a21);
+
+        assertTrue("second alternative should be contained in first alternative",
+                   PolicyUtils.contains(alt1, alt2));    
     }
     
     public void xtestMergeIdentical() {

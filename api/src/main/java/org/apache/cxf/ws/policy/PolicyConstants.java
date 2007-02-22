@@ -46,6 +46,19 @@ public final class PolicyConstants {
     public static final String SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID
         = "org.apache.cxf.ws.policy.ServerPolicyOutFaultInterceptor";
     
+    public static final String CLIENT_OUT_ASSERTIONS
+        = "org.apache.cxf.ws.policy.client.out.assertions";
+    public static final String CLIENT_IN_ASSERTIONS
+        = "org.apache.cxf.ws.policy.client.in.assertions";
+    public static final String CLIENT_INFAULT_ASSERTIONS
+        = "org.apache.cxf.ws.policy.client.infault.assertions";
+    
+    public static final String SERVER_IN_ASSERTIONS
+        = "org.apache.cxf.ws.policy.server.in.assertions";
+    public static final String SERVER_OUT_ASSERTIONS
+        = "org.apache.cxf.ws.policy.server.out.assertions";
+    public static final String SERVER_OUTFAULT_ASSERTIONS
+        = "org.apache.cxf.ws.policy.server.outfault.assertions";
     
     private static String namespaceURI; 
     

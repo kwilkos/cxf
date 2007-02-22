@@ -29,6 +29,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.phase.PhaseInterceptor;
@@ -306,20 +307,21 @@ public class PolicyEngineTest extends TestCase {
     
     public void testGetClientOutInterceptors() throws NoSuchMethodException {
         Method m = PolicyEngine.class.getDeclaredMethod("getClientRequestPolicyInfo",
-                                                        new Class[] {BindingOperationInfo.class,
-                                                                     EndpointInfo.class, Conduit.class});
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingOperationInfo.class,
+                                                                     Conduit.class});
         engine = control.createMock(PolicyEngine.class, new Method[] {m});
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
         Conduit conduit = control.createMock(Conduit.class);
         ClientRequestPolicyInfo cpi = control.createMock(ClientRequestPolicyInfo.class);
-        EasyMock.expect(engine.getClientRequestPolicyInfo(boi, ei, conduit)).andReturn(cpi);
+        EasyMock.expect(engine.getClientRequestPolicyInfo(e, boi, conduit)).andReturn(cpi);
         Interceptor i = control.createMock(Interceptor.class);
         List<Interceptor> li = Collections.singletonList(i);
         EasyMock.expect(cpi.getOutInterceptors()).andReturn(li);        
 
         control.replay();
-        List<Interceptor> clientInterceptors = engine.getClientOutInterceptors(boi, ei, conduit); 
+        List<Interceptor> clientInterceptors = engine.getClientOutInterceptors(e, boi, conduit); 
         assertSame(li, clientInterceptors);
         control.verify();
     }
@@ -346,19 +348,19 @@ public class PolicyEngineTest extends TestCase {
      
     private void doTestGetInterceptors(boolean isServer, boolean fault) throws NoSuchMethodException {
         Method m = PolicyEngine.class.getDeclaredMethod("getEndpointPolicyInfo",
-            new Class[] {EndpointInfo.class, isServer ? Destination.class : Conduit.class});
+            new Class[] {Endpoint.class, isServer ? Destination.class : Conduit.class});
         engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
         Conduit conduit = null;
         Destination destination = null;
         EndpointPolicyInfo epi = control.createMock(EndpointPolicyInfo.class);
         
         if (isServer) {
             destination = control.createMock(Destination.class);
-            EasyMock.expect(engine.getEndpointPolicyInfo(ei, destination)).andReturn(epi);
+            EasyMock.expect(engine.getEndpointPolicyInfo(e, destination)).andReturn(epi);
         } else {
             conduit = control.createMock(Conduit.class);
-            EasyMock.expect(engine.getEndpointPolicyInfo(ei, conduit)).andReturn(epi);
+            EasyMock.expect(engine.getEndpointPolicyInfo(e, conduit)).andReturn(epi);
         }
         
         Interceptor i = control.createMock(Interceptor.class);
@@ -371,10 +373,10 @@ public class PolicyEngineTest extends TestCase {
 
         control.replay();
         List<Interceptor> interceptors = fault 
-            ? engine.getClientInFaultInterceptors(ei, conduit) 
+            ? engine.getClientInFaultInterceptors(e, conduit) 
             : (isServer 
-                ? engine.getServerInInterceptors(ei, destination)
-                : engine.getClientInInterceptors(ei, conduit));
+                ? engine.getServerInInterceptors(e, destination)
+                : engine.getClientInInterceptors(e, conduit));
         assertSame(li, interceptors);
         control.verify(); 
     }
@@ -382,14 +384,15 @@ public class PolicyEngineTest extends TestCase {
     private void doTestGetServerOutInterceptors(boolean fault) throws NoSuchMethodException {
 
         Method m = PolicyEngine.class.getDeclaredMethod("getServerResponsePolicyInfo",
-                                                        new Class[] {BindingOperationInfo.class,
-                                                                     EndpointInfo.class, Destination.class});
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingOperationInfo.class,
+                                                                     Destination.class});
         engine = control.createMock(PolicyEngine.class, new Method[] {m});
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        EndpointInfo ei = control.createMock(EndpointInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
         Destination destination = control.createMock(Destination.class);
         ServerResponsePolicyInfo srpi = control.createMock(ServerResponsePolicyInfo.class);
-        EasyMock.expect(engine.getServerResponsePolicyInfo(boi, ei, destination)).andReturn(srpi);
+        EasyMock.expect(engine.getServerResponsePolicyInfo(e, boi, destination)).andReturn(srpi);
         Interceptor i = control.createMock(Interceptor.class);
         List<Interceptor> li = Collections.singletonList(i);
         if (fault) {
@@ -399,8 +402,8 @@ public class PolicyEngineTest extends TestCase {
         }
 
         control.replay();
-        List<Interceptor> interceptors = fault ? engine.getServerOutFaultInterceptors(boi, ei, destination)
-            : engine.getServerOutInterceptors(boi, ei, destination);
+        List<Interceptor> interceptors = fault ? engine.getServerOutFaultInterceptors(e, boi, destination)
+            : engine.getServerOutInterceptors(e, boi, destination);
         assertSame(li, interceptors);
         control.verify();
     }

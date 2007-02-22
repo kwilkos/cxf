@@ -29,11 +29,11 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
@@ -67,16 +67,16 @@ public class ServerResponsePolicyInfo {
         return outFaultInterceptors;
     }   
     
-    public void initialise(BindingOperationInfo boi, EndpointInfo ei, 
+    public void initialise(Endpoint e, BindingOperationInfo boi,
                            PolicyEngine engine, Assertor assertor) {
-        initialiseResponsePolicy(boi, ei, engine);
-        chooseAlternative(engine, ei, assertor);
+        initialiseResponsePolicy(e, boi, engine);
+        chooseAlternative(e, engine, assertor);
         initialiseOutInterceptors(boi, engine);
-        initialiseOutFaultInterceptors(boi, ei, engine);
+        initialiseOutFaultInterceptors(boi, engine);
     }
     
-    void initialiseResponsePolicy(BindingOperationInfo boi, EndpointInfo ei, PolicyEngine engine) {
-        responsePolicy = engine.getEndpointPolicyInfo(ei, (Destination)null).getPolicy(); 
+    void initialiseResponsePolicy(Endpoint e, BindingOperationInfo boi, PolicyEngine engine) {
+        responsePolicy = engine.getEndpointPolicyInfo(e, (Destination)null).getPolicy(); 
         responsePolicy = responsePolicy.merge(engine.getAggregatedOperationPolicy(boi));
         if (null != boi.getOutput()) {
             responsePolicy = responsePolicy.merge(engine.getAggregatedMessagePolicy(boi.getOutput()));
@@ -84,13 +84,13 @@ public class ServerResponsePolicyInfo {
         responsePolicy = (Policy)responsePolicy.normalize(true);
     }
 
-    void chooseAlternative(PolicyEngine engine, EndpointInfo ei, Assertor assertor) {
-        EndpointPolicyInfo epi = engine.getEndpointPolicyInfo(ei, (Destination)null);
+    void chooseAlternative(Endpoint e, PolicyEngine engine, Assertor assertor) {
+        EndpointPolicyInfo epi = engine.getEndpointPolicyInfo(e, (Destination)null);
         Iterator alternatives = responsePolicy.getAlternatives();
         while (alternatives.hasNext()) {
             List<Assertion> alternative = CastUtils.cast((List)alternatives.next(), Assertion.class);
             if (engine.supportsAlternative(alternative, assertor)
-                && alternative.contains(epi.getChosenAlternative())) {
+                && PolicyUtils.contains(alternative, epi.getChosenAlternative())) {
                 setChosenAlternative(alternative);
                 return;
             }
@@ -102,7 +102,8 @@ public class ServerResponsePolicyInfo {
         outInterceptors = new ArrayList<Interceptor>();
         
         if (null == boi.getOutput()) {
-            return;
+            // need out interceptors for partial responses
+            // return;
         }     
         
         PolicyInterceptorProviderRegistry reg = engine.getBus()
@@ -120,7 +121,7 @@ public class ServerResponsePolicyInfo {
         }
     }
     
-    void initialiseOutFaultInterceptors(BindingOperationInfo boi, EndpointInfo ei, PolicyEngine engine) {
+    void initialiseOutFaultInterceptors(BindingOperationInfo boi, PolicyEngine engine) {
         outFaultInterceptors = new ArrayList<Interceptor>();
         
         if (null == boi.getOutput()) {

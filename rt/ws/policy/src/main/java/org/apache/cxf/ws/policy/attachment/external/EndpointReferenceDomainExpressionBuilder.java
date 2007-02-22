@@ -19,12 +19,15 @@
 
 package org.apache.cxf.ws.policy.attachment.external;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.ResourceBundle;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
@@ -41,6 +44,9 @@ public class EndpointReferenceDomainExpressionBuilder implements DomainExpressio
     private static final ResourceBundle BUNDLE 
         = BundleUtils.getBundle(EndpointReferenceDomainExpressionBuilder.class);
     
+    private static final Collection<QName> SUPPORTED_TYPES = Collections.singletonList(
+        new QName("http://www.w3.org/2005/08/addressing", "EndpointReference"));
+    
     private Unmarshaller unmarshaller;
     
     EndpointReferenceDomainExpressionBuilder() {
@@ -51,8 +57,12 @@ public class EndpointReferenceDomainExpressionBuilder implements DomainExpressio
             throw new PolicyException(new Message("EPR_DOMAIN_EXPRESSION_BUILDER_INIT_EXC", BUNDLE, 
                                                   (Object[])null), ex);
         }
-    }
+    }  
     
+    public Collection<QName> getDomainExpressionTypes() {
+        return SUPPORTED_TYPES;
+    }
+
     public DomainExpression build(Element e) {
         Object obj = null;
         try {

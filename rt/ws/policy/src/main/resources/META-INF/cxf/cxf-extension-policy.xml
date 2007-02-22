@@ -38,13 +38,25 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
               <property name="idsProperty" value="assertionTypes"/>
             </bean>
         </constructor-arg>
-    </bean>
-
+    </bean>   
+    
+    <bean id="org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilderRegistry" 
+          class="org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilderRegistry">
+        <constructor-arg>
+            <bean class="org.apache.cxf.configuration.spring.SpringBeanQNameMap">
+              <property name="type" value="org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilder"/>
+              <property name="idsProperty" value="domainExpressionTypes"/>
+            </bean>
+        </constructor-arg>
+    </bean>   
+    
+    <bean class="org.apache.cxf.ws.policy.attachment.external.EndpointReferenceDomainExpressionBuilder"/> 
+    
     <bean id="org.apache.cxf.ws.policy.PolicyBuilder" class="org.apache.cxf.ws.policy.PolicyBuilderImpl">
         <property name="assertionBuilderRegistry" ref="org.apache.cxf.ws.policy.AssertionBuilderRegistry"/>
     </bean>
   
-    <bean class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
+    <bean id="org.apache.cxf.ws.policy.PolicyEngine" class="org.apache.cxf.ws.policy.spring.InitializingPolicyEngine">
        <property name="bus" ref="cxf"/>
     </bean>
     

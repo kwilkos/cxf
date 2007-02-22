@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.policy.attachment.external;
 
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,8 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 /**
  * 
@@ -66,9 +69,10 @@ public class ExternalAttachmentProviderTest extends TestCase {
     } 
     
     public void testBasic() {
-        assertNull(eap.getURI());
-        eap.setURI("abc.xml");
-        assertEquals("abc.xml", eap.getURI());
+        assertNull(eap.getLocation());
+        Resource uri = control.createMock(Resource.class);
+        eap.setLocation(uri);
+        assertSame(uri, eap.getLocation());
         
     }
     
@@ -142,11 +146,11 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
     
-    public void testReadDocumentNotExisting() {
+    public void testReadDocumentNotExisting() throws MalformedURLException {
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments1.xml");
         String uri = url.toExternalForm();
         uri = uri.replaceAll("attachments1.xml", "attachments0.xml");
-        eap.setURI(uri);
+        eap.setLocation(new UrlResource(uri));
         try {
             eap.readDocument();
             fail("Expected PolicyException not thrown.");
@@ -155,23 +159,23 @@ public class ExternalAttachmentProviderTest extends TestCase {
         }
     }
     
-    public void testReadDocumentWithoutAttachmentElements() {
+    public void testReadDocumentWithoutAttachmentElements() throws MalformedURLException {
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments1.xml");
         String uri = url.toExternalForm();
-        eap.setURI(uri);
+        eap.setLocation(new UrlResource(uri));
         eap.readDocument(); 
         assertTrue(eap.getAttachments().isEmpty());
     }
     
-    public void testReadDocumentAttachmentElementWithoutAppliesTo() {
+    public void testReadDocumentAttachmentElementWithoutAppliesTo() throws MalformedURLException {
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments2.xml");
         String uri = url.toExternalForm();
-        eap.setURI(uri);
+        eap.setLocation(new UrlResource(uri));
         eap.readDocument(); 
         assertTrue(eap.getAttachments().isEmpty());
     }
     
-    public void testReadDocumentUnknownDomainExpression() {
+    public void testReadDocumentUnknownDomainExpression() throws MalformedURLException {
         Bus bus = control.createMock(Bus.class);
         eap = new ExternalAttachmentProvider(bus);
         DomainExpressionBuilderRegistry debr = control.createMock(DomainExpressionBuilderRegistry.class);
@@ -180,7 +184,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
             .andThrow(new PolicyException(new Exception()));
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments3.xml");
         String uri = url.toExternalForm();
-        eap.setURI(uri);
+        eap.setLocation(new UrlResource(uri));
         
         control.replay();
         try {
@@ -192,7 +196,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
     
-    public void testReadDocumentEPRDomainExpression() {
+    public void testReadDocumentEPRDomainExpression() throws MalformedURLException {
         Bus bus = control.createMock(Bus.class);
         eap = new ExternalAttachmentProvider(bus);
         DomainExpressionBuilderRegistry debr = control.createMock(DomainExpressionBuilderRegistry.class);
@@ -206,7 +210,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
                 
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments4.xml");
         String uri = url.toExternalForm();
-        eap.setURI(uri);
+        eap.setLocation(new UrlResource(uri));
         
         control.replay();
         eap.readDocument();

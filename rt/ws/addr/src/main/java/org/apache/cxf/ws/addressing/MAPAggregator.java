@@ -21,12 +21,13 @@ package org.apache.cxf.ws.addressing;
 
 
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +35,8 @@ import javax.wsdl.extensions.ExtensibilityElement;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -41,6 +44,9 @@ import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
+import org.apache.cxf.ws.addressing.policy.MetadataConstants;
+import org.apache.cxf.ws.policy.PolicyConstants;
+import org.apache.neethi.Assertion;
 
 
 /**
@@ -64,8 +70,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     /**
      * Whether the endpoint supports WS-Addressing.
      */
-    private final AtomicBoolean usingAddressingDetermined = new AtomicBoolean(false);
-    private final AtomicBoolean usingAddressing = new AtomicBoolean(false);
+
+    private Map<Endpoint, Boolean> usingAddressing = new ConcurrentHashMap<Endpoint, Boolean>();
     
     /**
      * REVISIT allow this policy to be configured.
@@ -78,6 +84,8 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     public MAPAggregator() {
         super();
         setPhase(Phase.PRE_LOGICAL);
+        // this is necessary so that MAPs can be propagated 
+        addAfter(OutgoingChainSetupInterceptor.class.getName());
     }
 
     /**
@@ -106,38 +114,69 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
     private boolean usingAddressing(Message message) {
         boolean ret = false;
         if (ContextUtils.isRequestor(message)) {
-            if (!usingAddressingDetermined.get()) {
-                Endpoint endpoint = message.getExchange().get(Endpoint.class);
-                if (endpoint != null) {
-                    EndpointInfo endpointInfo = endpoint.getEndpointInfo();
-                    List<ExtensibilityElement> endpointExts =
-                        endpointInfo != null
-                        ? endpointInfo.getExtensors(ExtensibilityElement.class)
-                        : null;
-                    List<ExtensibilityElement> bindingExts =
-                        endpointInfo != null
-                            && endpointInfo.getBinding() != null
-                        ? endpointInfo.getBinding().getExtensors(ExtensibilityElement.class)
-                        : null;
-                    List<ExtensibilityElement> serviceExts =
-                        endpointInfo != null
-                            && endpointInfo.getService() != null
-                        ? endpointInfo.getService().getExtensors(ExtensibilityElement.class)
-                        : null;
-                    ret = hasUsingAddressing(endpointExts)
-                          || hasUsingAddressing(bindingExts)
-                          || hasUsingAddressing(serviceExts);
-                } else {
-                    ret = WSAContextUtils.retrieveUsingAddressing(message);
-                }
-                setUsingAddressing(ret);
-            } else {
-                ret = usingAddressing.get();
-            }
+            ret =  WSAContextUtils.retrieveUsingAddressing(message)
+                || hasUsingAddressing(message) 
+                || hasAddressingAssertion(message);
         } else {
             ret = getMAPs(message, false, false) != null;
         }
         return ret;
+    }
+      
+   /**
+    * Determine if the use of addressing is indicated by the presence of a
+    * the usingAddressing attribute.
+    *
+    * @param message the current message
+    * @pre message is outbound
+    * @pre requestor role
+    */
+    private boolean hasUsingAddressing(Message message) {
+        boolean ret = false;
+        Endpoint endpoint = message.getExchange().get(Endpoint.class);
+        if (null != endpoint) {
+            Boolean b = usingAddressing.get(endpoint);
+            if (null == b) {
+                EndpointInfo endpointInfo = endpoint.getEndpointInfo();
+                List<ExtensibilityElement> endpointExts = endpointInfo != null ? endpointInfo
+                    .getExtensors(ExtensibilityElement.class) : null;
+                List<ExtensibilityElement> bindingExts = endpointInfo != null
+                    && endpointInfo.getBinding() != null ? endpointInfo
+                    .getBinding().getExtensors(ExtensibilityElement.class) : null;
+                List<ExtensibilityElement> serviceExts = endpointInfo != null
+                    && endpointInfo.getService() != null ? endpointInfo
+                    .getService().getExtensors(ExtensibilityElement.class) : null;
+                ret = hasUsingAddressing(endpointExts) || hasUsingAddressing(bindingExts)
+                             || hasUsingAddressing(serviceExts);
+                b = ret ? Boolean.TRUE : Boolean.FALSE;
+                usingAddressing.put(endpoint, b);
+            } else {
+                ret = b.booleanValue();
+            }
+        }    
+        return ret;
+    }
+    
+    /**
+     * Determine if the use of addressing is indicated by an assertion in the
+     * alternative chosen for the current message.
+     * 
+     * @param message the current message
+     * @pre message is outbound
+     * @pre requestor role
+     */
+    private boolean hasAddressingAssertion(Message message) {
+        Collection<Assertion> assertions = 
+            CastUtils.cast((Collection)message.get(PolicyConstants.CLIENT_OUT_ASSERTIONS), Assertion.class);
+        if (null == assertions) {
+            return false;
+        }
+        for (Assertion a : assertions) {
+            if (MetadataConstants.ADDRESSING_ASSERTION_QNAME.equals(a.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -174,7 +213,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         } else if (!ContextUtils.isRequestor(message)) {
             // responder validates incoming MAPs
             AddressingPropertiesImpl maps = getMAPs(message, false, false);
-            setUsingAddressing(true);
             boolean isOneway = message.getExchange().isOneWay();
             continueProcessing = validateIncomingMAPs(maps, message);
             if (continueProcessing) {
@@ -378,16 +416,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
             }
         }
         return valid;
-    }
-    
-    /**
-     * Set using addressing flag.
-     * 
-     * @param using true if addressing in use.
-     */
-    private void setUsingAddressing(boolean using) {
-        usingAddressing.set(using);
-        usingAddressingDetermined.set(true);
     }
 }
 

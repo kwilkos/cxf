@@ -32,6 +32,9 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.AbstractAttributedInterceptorProvider;
+import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilder;
+import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilderRegistry;
+import org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider;
 import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
 import org.apache.neethi.Assertion;
 
@@ -41,6 +44,9 @@ import org.apache.neethi.Assertion;
 public class PolicyExtensionsTest extends TestCase {
 
     private static final QName KNOWN = new QName("http://cxf.apache.org/test/policy", "known");
+    private static final QName KNOWN_DOMAIN_EXPR_TYPE
+        = new QName("http://www.w3.org/2005/08/addressing", "EndpointReference");
+    
     private static final QName UNKNOWN = new QName("http://cxf.apache.org/test/policy", "unknown");
     
     public void testExtensions() {
@@ -63,16 +69,32 @@ public class PolicyExtensionsTest extends TestCase {
             pip = pipr.get(UNKNOWN);
             assertNull(pip);
             
+            DomainExpressionBuilderRegistry debr = bus.getExtension(DomainExpressionBuilderRegistry.class);
+            assertNotNull(debr);
+            DomainExpressionBuilder deb = debr.get(KNOWN_DOMAIN_EXPR_TYPE);
+            assertNotNull(deb);
+            deb = debr.get(UNKNOWN);
+            assertNull(deb);
+            
             PolicyEngine engine = bus.getExtension(PolicyEngine.class);
             assertNotNull(engine);            
             assertNotNull(engine.getPolicyProviders());
             assertNotNull(engine.getRegistry());
             
             Collection<PolicyProvider> pps = engine.getPolicyProviders();
-            assertEquals(1, pps.size());
+            assertEquals(2, pps.size());
+            boolean wsdlProvider = false;
+            boolean externalProvider = false;
             for (PolicyProvider pp : pps) {
-                assertTrue(pp instanceof Wsdl11AttachmentPolicyProvider);
+                if (pp instanceof Wsdl11AttachmentPolicyProvider) {
+                    wsdlProvider = true;
+                } else if (pp instanceof ExternalAttachmentProvider) {
+                    externalProvider = true;
+                }
             }
+            assertTrue(wsdlProvider);
+            assertTrue(externalProvider);
+            
             
             PolicyBuilder builder = bus.getExtension(PolicyBuilder.class);
             assertNotNull(builder);

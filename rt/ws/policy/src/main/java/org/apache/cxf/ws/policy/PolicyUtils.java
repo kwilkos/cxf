@@ -19,6 +19,7 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.cxf.helpers.CastUtils;
@@ -48,6 +49,44 @@ public final class PolicyUtils {
     public static boolean isRequestor(Message message) {
         Boolean requestor = (Boolean)message.get(Message.REQUESTOR_ROLE);
         return requestor != null && requestor.booleanValue();
+    }
+    
+    /**
+     * Determine if a collection of assertions contains a given assertion, using
+     * the equal method from the Assertion interface.
+     * 
+     * @param assertions a collection of assertions
+     * @param candidate the assertion to test
+     * @return true iff candidate is equal to one of the assertions in the collection
+     */
+    public static boolean contains(Collection<Assertion> assertions, Assertion candidate) {
+        for (Assertion a : assertions) {
+            if (a.equal(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Determine if one collection of assertions contains another collection of assertion, using
+     * the equal method from the Assertion interface.
+     * 
+     * @param assertions a collection of assertions
+     * @param candidates the collections of assertion to test
+     * @return true iff each candidate is equal to one of the assertions in the collection
+     */
+    public static boolean contains(Collection<Assertion> assertions, 
+                                   Collection<Assertion> candidates) {
+        if (null == candidates || candidates.isEmpty()) {
+            return true;
+        }
+        for (Assertion c : candidates) {
+            if (!contains(assertions, c)) {
+                return false;
+            }
+        }
+        return true;
     }
     
     public static void printPolicyComponent(PolicyComponent pc) {
