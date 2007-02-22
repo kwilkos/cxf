@@ -262,13 +262,21 @@ public final class XMLUtils {
     }
 
     public static InputStream getInputStream(Document doc) throws Exception {
-        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
-        if (impl == null) {
-            System.setProperty(DOMImplementationRegistry.PROPERTY,
-                               "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
-            registry = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = null;
+        DOMImplementation docImpl = doc.getImplementation();
+        // Try to get the DOMImplementation from doc first before
+        // defaulting to the sun implementation.
+        if (docImpl != null && docImpl.hasFeature("LS", "3.0")) {
+            impl = (DOMImplementationLS)docImpl.getFeature("LS", "3.0");
+        } else {
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
             impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+            if (impl == null) {
+                System.setProperty(DOMImplementationRegistry.PROPERTY,
+                                   "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+                registry = DOMImplementationRegistry.newInstance();
+                impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+            }
         }
         LSOutput output = impl.createLSOutput();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

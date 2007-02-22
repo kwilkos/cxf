@@ -148,7 +148,7 @@ public class SOAPHandlerInterceptor extends
                 }
 
                 // soapMessage is not null means stax reader has been consumed
-                // by SAAJ, we need to replace stax reader with a new stax reader built
+                // by SAAJ, we need to replace stax reader with a new stax reader
                 // built from the content streamed from SAAJ SOAPBody.
                 SOAPBody body = soapMessage.getSOAPBody();
 

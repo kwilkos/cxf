@@ -334,6 +334,13 @@ public class ServerLauncher {
             cmd.add("-Djava.util.logging.config.file=" + loggingPropertiesFile);
         } 
 
+        // If the client set the transformer factory property,
+        // we want the server to also set that property.
+        String transformerProperty = System.getProperty("javax.xml.transform.TransformerFactory");
+        if (null != transformerProperty) {
+            cmd.add("-Djavax.xml.transform.TransformerFactory=" + transformerProperty);
+        }
+        
         cmd.add(className);
 
         if (null != serverArgs) {

@@ -104,7 +104,7 @@ public class SOAPMessageContextImpl extends WrappedMessageContext implements SOA
                 } else {
                     
                     if (getWrappedMessage().getContent(Object.class) != null) {
-                        //The Dispath/Provider case:
+                        //The Dispatch/Provider case:
                         Object obj = getWrappedMessage().getContent(Object.class);
                         if (obj instanceof SOAPMessage) {
                             message = (SOAPMessage)obj;

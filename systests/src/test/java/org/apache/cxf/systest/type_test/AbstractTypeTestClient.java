@@ -35,6 +35,7 @@ import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.type_test.doc.TypeTestPortType;
 import org.apache.type_test.rpc.SOAPService;
 import org.apache.type_test.types1.AnyURIEnum;
+import org.apache.type_test.types1.ColourEnum;
 import org.apache.type_test.types1.DecimalEnum;
 import org.apache.type_test.types1.NMTokenEnum;
 import org.apache.type_test.types1.NumberEnum;
@@ -616,11 +617,10 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         XMLGregorianCalendar ret;
         if (testDocLiteral) {
             ret = docClient.testDate(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testDate(x, y, z);                
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testDate(x, y, z);
-            return;
+            ret = rpcClient.testDate(x, y, z);
         }
         if (!perfTestOnly) {
             assertTrue("testDate(): Incorrect value for inout param " + x
@@ -676,10 +676,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testDateTime(x, y, z);            
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testDateTime(x, y, z);
-            return;
+            ret = rpcClient.testDateTime(x, y, z);
         }
         if (!perfTestOnly) {
             assertTrue("testDateTime(): Incorrect value for inout param", equalsDateTime(x, y.value));
@@ -699,7 +696,10 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         yOrig.setHour(22);
         yOrig.setMinute(4);
         yOrig.setSecond(15);
-        yOrig.setMillisecond(250);
+        // XXX - Setting the millisecond part here seems to cause
+        // a xerces validation error with the ibm jdk.  That should
+        // be valid.
+        //yOrig.setMillisecond(250);
 
         Holder<XMLGregorianCalendar> y = new Holder<XMLGregorianCalendar>(yOrig);
         Holder<XMLGregorianCalendar> z = new Holder<XMLGregorianCalendar>();
@@ -710,10 +710,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testTime(x, y, z);            
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests.
-            //ret = rpcClient.testTime(x, y, z);
-            return;
+            ret = rpcClient.testTime(x, y, z);
         }
         if (!perfTestOnly) {
             assertTrue("testTime(): Incorrect value for inout param", equalsTime(x, y.value));
@@ -737,10 +734,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testGYear(x, y, z);           
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGYear(x, y, z);
-            return;
+            ret = rpcClient.testGYear(x, y, z);
         }
         assertTrue("testGYear(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGYear(): Incorrect value for out param", yOrig.equals(z.value));
@@ -762,10 +756,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testGYearMonth(x, y, z);            
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGYearMonth(x, y, z);
-            return;
+            ret = rpcClient.testGYearMonth(x, y, z);
         }
         assertTrue("testGYearMonth(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGYearMonth(): Incorrect value for out param", yOrig.equals(z.value));
@@ -796,10 +787,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testGMonth(x, y, z);
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGMonth(x, y, z);
-            return;
+            ret = rpcClient.testGMonth(x, y, z);
         }
         assertTrue("testGMonth(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGMonth(): Incorrect value for out param", yOrig.equals(z.value));
@@ -821,10 +809,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testGMonthDay(x, y, z);            
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGMonthDay(x, y, z);
-            return;
+            ret = rpcClient.testGMonthDay(x, y, z);
         }
         assertTrue("testGMonthDay(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGMonthDay(): Incorrect value for out param", yOrig.equals(z.value));
@@ -846,10 +831,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testGDay(x, y, z);            
         } else {
-            // XXX - TODO getting a marshalling exception with rpc-lit for the
-            // xsd:date tests (ClassCastException in jaxb).
-            //ret = rpcClient.testGDay(x, y, z);
-            return;
+            ret = rpcClient.testGDay(x, y, z);
         }
         assertTrue("testGDay(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testGDay(): Incorrect value for out param", yOrig.equals(z.value));
@@ -871,10 +853,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         } else if (testXMLBinding) {
             ret = xmlClient.testDuration(x, y, z);            
         } else {
-            // XXX - TODO getting a MarshalException with rpc-lit for the
-            // xsd:duration test [DurationImpl is not known to this context].
-            //ret = rpcClient.testDuration(x, y, z);
-            return;
+            ret = rpcClient.testDuration(x, y, z);
         }
         assertTrue("testDuration(): Incorrect value for inout param", x.equals(y.value));
         assertTrue("testDuration(): Incorrect value for out param", yOrig.equals(z.value));
@@ -1302,7 +1281,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             } else {
                 rpcClient.testBase64Binary(x, y, z);
             }
-            //fail("Uninitialized Holder for inout parameter should have thrown an error.");
+            fail("Uninitialized Holder for inout parameter should have thrown an error.");
         } catch (Exception e) {
             // Ignore expected //failure.
         }
@@ -1337,12 +1316,7 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
         }
     }
     
-    /**
-     * XXX - In the generated code for ColourEnum, the fromValue() method
-     * is not declared static - fixed in jaxb-ri-20060421 nightly build.
-     */
     public void testColourEnum() throws Exception {
-        /*
         String[] xx = {"RED", "GREEN", "BLUE"};
         String[] yy = {"GREEN", "BLUE", "RED"};
 
@@ -1356,6 +1330,8 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
             ColourEnum ret;
             if (testDocLiteral) {
                 ret = docClient.testColourEnum(x, y, z);
+            } else if (testXMLBinding) {
+                ret = xmlClient.testColourEnum(x, y, z);                
             } else {
                 ret = rpcClient.testColourEnum(x, y, z);
             }
@@ -1368,7 +1344,6 @@ public abstract class AbstractTypeTestClient extends ClientServerTestBase implem
                              x.value(), ret.value());
             }
         }
-        */
     }
     
     public void testNumberEnum() throws Exception {

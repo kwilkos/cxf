@@ -1770,7 +1770,12 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     public void testUnionWithAnonList() throws Exception {
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
-            List<String> yOrig = Arrays.asList("0.5f", "1.5f", "2.5f");
+            // Need to specify valid floats according to schema lexical
+            // representation, not java floats... to avoid validation error
+            // with xerces and ibm jdk.
+            //List<String> yOrig = Arrays.asList("0.5f", "1.5f", "2.5f");
+            List<String> yOrig = Arrays.asList("-1E4", "1267.43233E12",
+                "12.78e-2", "12", "-0", "INF");
 
             // Invoke testUnionWithAnonList
             Holder<List<String>> y = new Holder<List<String>>(yOrig);
@@ -1784,7 +1789,9 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             }
         } else {
             String[] x = {"5"};
-            String[] yOrig = {"0.5f", "1.5f", "2.5f"};
+            // Use consistent values as above...
+            //String[] yOrig = {"0.5f", "1.5f", "2.5f"};
+            String[] yOrig = {"-1E4", "1267.43233E12", "12.78e-2", "12", "-0", "INF"};
 
             Holder<String[]> y = new Holder<String[]>(yOrig);
             Holder<String[]> z = new Holder<String[]>();
@@ -1928,35 +1935,20 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         Holder<SimpleStruct> z = new Holder<SimpleStruct>();
 
         SimpleStruct ret;
-        if (testDocLiteral || testXMLBinding) {
-            ret = testDocLiteral ? docClient.testSimpleStruct(x, y, z) 
-                    : xmlClient.testSimpleStruct(x, y, z);
-            // XXX - rpc-literal returns an object of type SimpleStruct,
-            //       doc-literal returns an object of type
-            //       DerivedStructBaseStruct
-            //System.out.println("ret: " + ret.getClass().getName());
-            if (!perfTestOnly) {
-                assertTrue("testSimpleStruct(): Incorrect value for inout param",
-                           equals(x, (DerivedStructBaseStruct)y.value));
-                assertTrue("testSimpleStruct(): Incorrect value for out param",
-                           equals(yOrig, (DerivedStructBaseStruct)z.value));
-                assertTrue("testSimpleStruct(): Incorrect return value",
-                           equals(x, (DerivedStructBaseStruct)ret));
-            }
+        if (testDocLiteral) {
+            ret = docClient.testSimpleStruct(x, y, z); 
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleStruct(x, y, z);
         } else {
             ret = rpcClient.testSimpleStruct(x, y, z);
-            // XXX - rpc-literal returns an object of type SimpleStruct,
-            //       doc-literal returns an object of type
-            //       DerivedStructBaseStruct
-            //System.out.println("ret: " + ret.getClass().getName());
-            if (!perfTestOnly) {
-                assertTrue("testSimpleStruct(): Incorrect value for inout param",
-                           equals(x, y.value));
-                assertTrue("testSimpleStruct(): Incorrect value for out param",
-                           equals(yOrig, z.value));
-                assertTrue("testSimpleStruct(): Incorrect return value",
-                           equals(x, ret));
-            }
+        }
+        if (!perfTestOnly) {
+            assertTrue("testInheritanceSimpleDerived(): Incorrect value for inout param",
+                       equals(x, (DerivedStructBaseStruct)y.value));
+            assertTrue("testInheritanceSimpleDerived(): Incorrect value for out param",
+                       equals(yOrig, (DerivedStructBaseStruct)z.value));
+            assertTrue("testInheritanceSimpleDerived(): Incorrect return value",
+                       equals(x, (DerivedStructBaseStruct)ret));
         }
     }
 
@@ -1981,31 +1973,20 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         Holder<SimpleChoice> z = new Holder<SimpleChoice>();
 
         SimpleChoice ret;
-        if (testDocLiteral || testXMLBinding) {
-            ret = testDocLiteral ? docClient.testSimpleChoice(x, y, z) 
-                    : xmlClient.testSimpleChoice(x, y, z);
-            // XXX - rpc-literal returns an object of type SimpleChoice,
-            //       doc-literal returns an object of type
-            //       DerivedStructBaseChoice
-            //System.out.println("ret: " + ret.getClass().getName());
-            if (!perfTestOnly) {
-                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for inout param",
-                           equals(x, (DerivedStructBaseChoice)y.value));
-                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for out param",
-                           equals(yOrig, (DerivedStructBaseChoice)z.value));
-                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect return value",
-                           equals(x, (DerivedStructBaseChoice)ret));
-            }
+        if (testDocLiteral) {
+            ret = docClient.testSimpleChoice(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testSimpleChoice(x, y, z);
         } else {
             ret = rpcClient.testSimpleChoice(x, y, z);
-            if (!perfTestOnly) {
-                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for inout param",
-                           equals(x, y.value));
-                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for out param",
-                           equals(yOrig, z.value));
-                assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect return value", equals(x,
-                                                                                                        ret));
-            }
+        }
+        if (!perfTestOnly) {
+            assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for inout param",
+                       equals(x, (DerivedStructBaseChoice)y.value));
+            assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect value for out param",
+                       equals(yOrig, (DerivedStructBaseChoice)z.value));
+            assertTrue("testInheritanceSimpleChoiceDerivedStruct(): Incorrect return value",
+                       equals(x, (DerivedStructBaseChoice)ret));
         }
     }
 
@@ -2027,27 +2008,20 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         Holder<UnboundedArray> y = new Holder<UnboundedArray>(yOrig);
         Holder<UnboundedArray> z = new Holder<UnboundedArray>();
         UnboundedArray ret;
-        if (testDocLiteral || testXMLBinding) {
-            ret = testDocLiteral ? docClient.testUnboundedArray(x, y, z) 
-                    : xmlClient.testUnboundedArray(x, y, z);
-            if (!perfTestOnly) {
-                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for inout param",
-                           equals(x, (DerivedChoiceBaseArray)y.value));
-                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for out param",
-                           equals(yOrig, (DerivedChoiceBaseArray)z.value));
-                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect return value",
-                           equals(x, (DerivedChoiceBaseArray)ret));
-            }
+        if (testDocLiteral) {
+            ret = docClient.testUnboundedArray(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testUnboundedArray(x, y, z);
         } else {
             ret = rpcClient.testUnboundedArray(x, y, z);
-            if (!perfTestOnly) {
-                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for inout param",
-                           equals(x, y.value));
-                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for out param",
-                           equals(yOrig, z.value));
-                assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect return value",
-                           equals(x, ret));
-            }
+        }
+        if (!perfTestOnly) {
+            assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for inout param",
+                       equals(x, (DerivedChoiceBaseArray)y.value));
+            assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect value for out param",
+                       equals(yOrig, (DerivedChoiceBaseArray)z.value));
+            assertTrue("testInheritanceUnboundedArrayDerivedChoice(): Incorrect return value",
+                       equals(x, (DerivedChoiceBaseArray)ret));
         }
     }
 

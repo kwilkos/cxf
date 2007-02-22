@@ -144,6 +144,6 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
         names = ServiceModelUtil.getOperationInputPartNames(operation.getOperationInfo());
         assertNotNull(names);
         assertEquals(2, names.size());
-        System.err.println(names);
+        //System.err.println(names);
     }
 }

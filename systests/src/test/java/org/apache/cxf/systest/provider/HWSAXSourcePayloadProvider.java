@@ -34,6 +34,7 @@ import javax.xml.ws.Service;
 import javax.xml.ws.ServiceMode;
 import javax.xml.ws.WebServiceProvider;
 
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -101,10 +102,19 @@ public class HWSAXSourcePayloadProvider implements Provider<SAXSource> {
     }
     
     private InputStream getSOAPBodyStream(Document doc) throws Exception {
-        System.setProperty(DOMImplementationRegistry.PROPERTY,
-            "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
-        DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
-        DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        // Try to get the DOMImplementation from the doc before
+        // defaulting to the sun implementation class (which uses
+        // sun internal xerces classes not found in the ibm jdk).
+        DOMImplementationLS impl = null;
+        DOMImplementation docImpl = doc.getImplementation();
+        if (docImpl != null && docImpl.hasFeature("LS", "3.0")) {
+            impl = (DOMImplementationLS)docImpl.getFeature("LS", "3.0");
+        } else {
+            System.setProperty(DOMImplementationRegistry.PROPERTY,
+                "com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+        }
         LSOutput output = impl.createLSOutput();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         output.setByteStream(byteArrayOutputStream);

@@ -34,6 +34,7 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPBodyElement;
+import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
@@ -168,7 +169,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         SOAPBodyElement bodyElementNew = (SOAPBodyElement)itNew.next();
         Iterator outIt = bodyElementNew
             .getChildElements(new QName("http://apache.org/hello_world_rpclit/types", "out"));
-        Element outElement = (SOAPBodyElement)outIt.next();
+        Element outElement = (SOAPElement)outIt.next();
         assertNotNull(outElement);
         NodeList elem3NodeList = outElement
             .getElementsByTagNameNS("http://apache.org/hello_world_rpclit/types", "elem3");
@@ -401,7 +402,7 @@ public class SOAPHandlerInterceptorTest extends TestCase {
         assertEquals("sendReceiveData", qn.getLocalPart());
     }
 
-    public void testgetUnderstoodHeadersReturnsNull() {
+    public void testGetUnderstoodHeadersReturnsNull() {
         List<Handler> list = new ArrayList<Handler>();
         list.add(new SOAPHandler<SOAPMessageContext>() {
             public boolean handleMessage(SOAPMessageContext smc) {

@@ -224,6 +224,24 @@
 
     <profiles>
         <profile>
+            <id>ibmjdk</id>
+            <activation>
+                <property>
+                    <name>java.vendor</name>
+                    <value>IBM Corporation</value>
+                </property>
+            </activation>
+            <!-- ibmjdk also requires this dependency for
+                 the OutBoundConnectionTest -->
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-ejb_2.1_spec</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>test.remoteresources</id>
             <build>
                 <plugins>

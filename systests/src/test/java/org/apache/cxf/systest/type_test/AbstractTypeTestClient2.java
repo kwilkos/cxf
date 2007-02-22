@@ -29,6 +29,7 @@ import javax.xml.ws.Holder;
 import org.apache.type_test.types1.AnonymousStruct;
 import org.apache.type_test.types1.BoundedArray;
 import org.apache.type_test.types1.ChoiceArray;
+import org.apache.type_test.types1.ColourEnum;
 import org.apache.type_test.types1.CompoundArray;
 import org.apache.type_test.types1.DerivedStructBaseEmpty;
 import org.apache.type_test.types1.Document;
@@ -1216,15 +1217,14 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     // org.apache.type_test.types1.ExtColourEnum
-    // XXX - TODO - ColourEnum generated method fromValue() isn't static...
+
     protected boolean equals(ExtColourEnum x, ExtColourEnum y) {
-        return (x.getAttrib1() == y.getAttrib1())
+        return (x.getAttrib1().equals(y.getAttrib1()))
             && (x.getAttrib2().equals(y.getAttrib2()))
             && (x.getValue().equals(y.getValue()));
     }
     
     public void testExtColourEnum() throws Exception {
-        /*
         ExtColourEnum x = new ExtColourEnum();
         x.setAttrib1(new Integer(1));
         x.setAttrib2("Ax");
@@ -1240,6 +1240,8 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         ExtColourEnum ret;
         if (testDocLiteral) {
             ret = docClient.testExtColourEnum(x, y, z);
+        } else if (testXMLBinding) {
+            ret = xmlClient.testExtColourEnum(x, y, z);
         } else {
             ret = rpcClient.testExtColourEnum(x, y, z);
         }
@@ -1250,7 +1252,6 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
                        equals(yOrig, z.value));
             assertTrue("testExtColourEnum(): Incorrect return value", equals(x, ret));
         }
-        */
     }
 
     protected boolean equals(ExtBase64Binary x, ExtBase64Binary y) {

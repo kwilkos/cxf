@@ -245,7 +245,12 @@ public class JaxWsServiceConfiguration extends AbstractServiceConfiguration {
         } else {
             for (int i = 0; i < annotations[parameter].length; i++) {
                 Annotation annotation = annotations[parameter][i];
-                if (annotation.annotationType().equals(WebParam.class)) {
+                // With the ibm jdk, the condition:
+                // if (annotation.annotationType().equals(WebParam.class)) {
+                // SOMETIMES returns false even when the annotation type
+                // is a WebParam.  Doing an instanceof check or using the
+                // == operator seems to give the desired result.
+                if (annotation instanceof WebParam) {
                     return (WebParam)annotation;
                 }
             }
