@@ -19,17 +19,15 @@
 
 package org.apache.cxf.management;
 
-
-/**
- * Basic interface for create a Instrumentation instance.
- * 
- */
-public interface InstrumentationFactory {
-
-    /**
-     * create the Instrumentation instance 
-     * which implement instrumentation interface
-     * @return the instrumentation instance
-     */
-    Instrumentation createInstrumentation();    
+public final class ManagementConstants {
+    
+    public static final String DEFAULT_DOMAIN_NAME = "org.apache.cxf";
+    public static final String BUS_ID_PROP = "bus.id";
+    public static final String NAME_PROP = "name";
+    public static final String TYPE_PROP = "type";
+    public static final String DESCRIPTION_PROP = "description";
+    
+    private ManagementConstants() {
+        
+    }
 }

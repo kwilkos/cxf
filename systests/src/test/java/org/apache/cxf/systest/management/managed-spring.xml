@@ -23,21 +23,10 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <bean id="org.apache.cxf.management.InstrumentationManager" class="org.apache.cxf.management.InstrumentationManagerImpl">
-        <property name="bus" ref="cxf"/>
-        <property name="instrumentation">
-            <value>
-                <im:instrumentation Enabled="true" JMXEnabled="true"/>
-            </value>
-        </property>
-        <property name="JMXConnectorPolicy">
-            <value>
-                <im:JMXConnectorPolicy 
-                    Threaded="true" 
-                    Daemon="false"
-                    JMXServiceURL="service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi/server"/>
-            </value>
-        </property>
+    <bean id="org.apache.cxf.management.InstrumentationManager" class="org.apache.cxf.management.jmx.InstrumentationManagerImpl">
+        <property name="bus" ref="cxf" />
+        <property name="enabled" value="true" />
+        <property name="JMXServiceURL" value="service:jmx:rmi:///jndi/rmi://localhost:9914/jmxrmi" />
     </bean> 
  
 </beans>

@@ -30,7 +30,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
                     <property name="packageName" value="org.apache.cxf.management"/>
                     <property name="propertyClassNames">
                         <list>
-                            <value>InstrumentationType</value>
                             <value>JMXConnectorPolicyType</value>
                         </list>
                     </property>

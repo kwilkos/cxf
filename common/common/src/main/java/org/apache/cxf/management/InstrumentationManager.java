@@ -19,39 +19,72 @@
 
 package org.apache.cxf.management;
 
-import java.util.List;
-
+import javax.management.JMException;
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /** 
  *  InstrumentationManager interface for the instrumentations query, register 
  *  and unregister
  */
 public interface InstrumentationManager {
+    /**
+     * Register a component with management infrastructure. Component will supply registration name.
+     * @param component
+     * @return name used to register the component
+     * @throws JMException
+     */
+    ObjectName register(ManagedComponent component) throws JMException;
     
     /**
-     * register the instrumentation instance to the instrumentation manager      
+     * Register a component with management infrastructure. Component will supply registration name.
+     * @param component
+     * @param forceRegistration if set to true, then component will be registered despite existing component.
+     * @return name used to register the component
+     * @throws JMException
      */
-    void register(Instrumentation instrumentation);
+    ObjectName register(ManagedComponent component, boolean forceRegistration) throws JMException;
 
     /**
-     * unregister the instrumentation instance from the instrumentation manager  
+     * Registers object with management infrastructure with a specific name. Object must be annotated or 
+     * implement standard MBean interface.
+     * @param obj
+     * @param name
+     * @throws JMException
      */
-    void unregister(Object component);
+    void register(Object obj, ObjectName name) throws JMException;
+    
+    /**
+     * Registers object with management infrastructure with a specific name. Object must be annotated or 
+     * implement standard MBean interface.
+     * @param obj
+     * @param name
+     * @param forceRegistration if set to true, then component will be registered despite existing component.
+     * @throws JMException
+     */
+    void register(Object obj, ObjectName name, boolean forceRegistration) throws JMException;
+    
+    /**
+     * Unregisters component with management infrastructure
+     * @param component
+     * @throws JMException
+     */
+    void unregister(ManagedComponent component) throws JMException;
+    
+    /**
+     * Unregisters component based upon registered name
+     * @param name
+     * @throws JMException
+     */
+    void unregister(ObjectName name) throws JMException;
 
     /**
-     * get all instrumentation from the instrumentation manager
-     * @return the instrumentation list 
-     */
-    List<Instrumentation> getAllInstrumentation();
-
-    /**
-     * provide a clean up method for instrumentation manager to stop
+     * Cleans up and shutsdown management infrastructure.
      */
     void shutdown();
     
     /**
-     * get the MBeanServer which will host the cxf runtime component MBeans
+     * Get the MBeanServer which hosts managed components
      * NOTE: if the configuration is not set the JMXEnabled to be true, this method
      * will return null
      * @return the MBeanServer 

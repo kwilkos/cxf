@@ -19,31 +19,14 @@
 
 package org.apache.cxf.management;
 
-
+import javax.management.JMException;
+import javax.management.ObjectName;
 /**
  * Basic interface for representing a Instrumented object.
  * 
  */
-public interface Instrumentation {
-
-    /**
-     * get the Instrumentation Name, this name is base on class 
-     * which implement instrumentation interface
-     * @return the instrumentation name      
-     */
-    String getInstrumentationName();    
+public interface ManagedComponent {
     
-    /**
-     * get the instrumentation managed component  
-     * @return the Component object reference 
-     */
-    Object getComponent();
+    ObjectName getObjectName() throws JMException;
     
-    /**
-     * get the unique Instrumentation Name, this name is base on class instance
-     * which implement instrumentation interface
-     * @return the instrumentation name and instance number  
-     */
-    String getUniqueInstrumentationName();
-       
 }

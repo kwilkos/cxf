@@ -19,8 +19,15 @@
 
 package org.apache.cxf.workqueue;
 
+import java.util.Hashtable;
+import java.util.Map;
 
-import org.apache.cxf.management.Instrumentation;
+import javax.management.JMException;
+import javax.management.ObjectName;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.management.ManagedComponent;
+import org.apache.cxf.management.ManagementConstants;
 import org.apache.cxf.management.annotation.ManagedAttribute;
 import org.apache.cxf.management.annotation.ManagedOperation;
 import org.apache.cxf.management.annotation.ManagedResource;
@@ -30,16 +37,17 @@ import org.apache.cxf.workqueue.WorkQueueManager.ThreadingModel;
                  description = "The CXF internal thread pool for manangement ", 
                  currencyTimeLimit = 15, persistPolicy = "OnUpdate", persistPeriod = 200)
                  
-public class WorkQueueInstrumentation implements Instrumentation {    
-    private static final String INSTRUMENTED_NAME = "Bus.WorkQueue";
+public class WorkQueueManagerImplMBeanWrapper implements ManagedComponent {    
+    private static final String NAME_VALUE = "Bus.WorkQueue";
+    private static final String TYPE_VALUE = "WorkQueueMBean";
     
-    private String objectName;
     private WorkQueueManagerImpl wqManager;
     private AutomaticWorkQueueImpl aWorkQueue;
+    private Bus bus;
     
-    public WorkQueueInstrumentation(WorkQueueManagerImpl wq) {
+    public WorkQueueManagerImplMBeanWrapper(WorkQueueManagerImpl wq) {
         wqManager = wq;        
-        objectName = "WorkQueue";
+        bus = wq.getBus();
         if (wqManager.autoQueue != null 
             && AutomaticWorkQueueImpl.class.isAssignableFrom(wqManager.autoQueue.getClass())) {
             aWorkQueue = (AutomaticWorkQueueImpl)wqManager.autoQueue;
@@ -110,18 +118,17 @@ public class WorkQueueInstrumentation implements Instrumentation {
     public void setLowWaterMark(int lwm) {
         aWorkQueue.setLowWaterMark(lwm);
     }
-    
-    
-    public Object getComponent() {        
-        return wqManager;
+
+    public ObjectName getObjectName() throws JMException {
+        Map<String, String> table = new Hashtable<String, String>();
+        String busId = bus.getId() == null ? Integer.toString(bus.hashCode()) : bus.getId();
+
+        table.put(ManagementConstants.BUS_ID_PROP, busId);
+        table.put(ManagementConstants.NAME_PROP, NAME_VALUE);
+        table.put(ManagementConstants.TYPE_PROP, TYPE_VALUE);
+
+        //Use default domain name of server
+        return new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME, (Hashtable)table);
     }
-
-    public String getInstrumentationName() {        
-        return INSTRUMENTED_NAME;
-    }
-
-    public String getUniqueInstrumentationName() {       
-        return objectName;
-    }   
-
+    
 }

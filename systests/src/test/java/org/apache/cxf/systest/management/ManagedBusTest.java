@@ -19,38 +19,65 @@
 
 package org.apache.cxf.systest.management;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.management.InstrumentationManager;
-import org.apache.cxf.management.InstrumentationManagerImpl;
-import org.apache.cxf.management.InstrumentationType;
+import org.apache.cxf.management.ManagementConstants;
+import org.apache.cxf.management.jmx.InstrumentationManagerImpl;
+import org.apache.cxf.workqueue.WorkQueueManager;
 
 public class ManagedBusTest extends TestCase {
 
-    public void xtestManagedCXFBus() {
-        CXFBusFactory factory = new CXFBusFactory();
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(Configurer.USER_CFG_FILE_PROPERTY_NAME, 
-                       "org/apache/cxf/systest/management/managed-cxf.xml");
-        Bus bus = factory.createBus(null, properties);
+    public void testManagedSpringBus() throws Exception {
+        SpringBusFactory factory = new SpringBusFactory();
+        Bus bus = factory.createBus();        
+        InstrumentationManager im = bus.getExtension(InstrumentationManager.class);
+        assertNotNull(im);
+                
+        InstrumentationManagerImpl imi = (InstrumentationManagerImpl)im;
+        assertEquals("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi", imi.getJMXServiceURL());
+        assertTrue(!imi.isEnabled());
+        assertNull(imi.getMBeanServer());
+        
+        //Test that registering without an MBeanServer is a no-op
+        im.register(imi, new ObjectName("org.apache.cxf:foo=bar"));                        
+        
         bus.shutdown(true);
     }
-
-    public void testManagedSpringBus() {
+    
+    public void testManagedBusWithConfig() throws Exception {
         SpringBusFactory factory = new SpringBusFactory();
         Bus bus = factory.createBus("org/apache/cxf/systest/management/managed-spring.xml", true);
         InstrumentationManager im = bus.getExtension(InstrumentationManager.class);
         assertNotNull(im);
         InstrumentationManagerImpl imi = (InstrumentationManagerImpl)im;
-        InstrumentationType i = imi.getInstrumentation();
-        assertNotNull(i);
+        assertEquals("service:jmx:rmi:///jndi/rmi://localhost:9914/jmxrmi", imi.getJMXServiceURL());
+        assertTrue(imi.isEnabled());
+        assertNotNull(imi.getMBeanServer());
+
+        WorkQueueManager manager = bus.getExtension(WorkQueueManager.class);
+        manager.getAutomaticWorkQueue();
+        
+        MBeanServer mbs = im.getMBeanServer();        
+        ObjectName name = new ObjectName(ManagementConstants.DEFAULT_DOMAIN_NAME 
+                                         + ":type=WorkQueueMBean,*");
+        Set s = mbs.queryNames(name, null);
+        assertTrue(s.size() == 1);
+        Iterator it = s.iterator();
+        while (it.hasNext()) {
+            ObjectName n = (ObjectName)it.next();            
+            Long result = 
+                (Long)mbs.invoke(n, "getWorkQueueMaxSize", new Object[0], new String[0]);            
+            assertEquals(result, Long.valueOf(250));
+        }
 
         bus.shutdown(true);
     }

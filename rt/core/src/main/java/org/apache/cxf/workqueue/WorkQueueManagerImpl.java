@@ -19,21 +19,17 @@
 
 package org.apache.cxf.workqueue;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.xml.namespace.QName;
+import javax.management.JMException;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.event.ComponentEventFilter;
-import org.apache.cxf.event.Event;
-import org.apache.cxf.event.EventProcessor;
-import org.apache.cxf.management.Instrumentation;
-import org.apache.cxf.management.InstrumentationFactory;
+import org.apache.cxf.management.InstrumentationManager;
 
-
-public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFactory {
+public class WorkQueueManagerImpl implements WorkQueueManager {
 
     private static final Logger LOG =
         Logger.getLogger(WorkQueueManagerImpl.class.getName());
@@ -62,13 +58,16 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
     public synchronized AutomaticWorkQueue getAutomaticWorkQueue() {
         if (autoQueue == null) {
             autoQueue = createAutomaticWorkQueue();
-            EventProcessor ep = bus.getExtension(EventProcessor.class);
-            //setup the QName
-            QName eventID = new QName(ComponentEventFilter.COMPONENT_CREATED_EVENT);
-            if (null != ep) {                
-                ep.sendEvent(new Event(this, eventID));
+            InstrumentationManager manager = bus.getExtension(InstrumentationManager.class);
+            if (null != manager) {
+                try {
+                    manager.register(new WorkQueueManagerImplMBeanWrapper(this));
+                } catch (JMException jmex) {
+                    LOG.log(Level.WARNING , jmex.getMessage(), jmex);
+                }
             }
         }
+        
         return autoQueue;
     }
 
@@ -86,12 +85,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
             autoQueue.shutdown(processRemainingTasks);
         }
 
-        //sent out remove event.
-        EventProcessor ep = bus.getExtension(EventProcessor.class);
-        QName eventID = new QName(ComponentEventFilter.COMPONENT_REMOVED_EVENT);
-        if (null != ep) {
-            ep.sendEvent(new Event(this, eventID));        
-        }
         synchronized (this) {
             notifyAll();
         }
@@ -117,9 +110,6 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
         for (java.util.logging.Handler h : LOG.getHandlers())  {
             h.flush();
         }
-
-        //sent out creation event.        
-        
         
     }
 
@@ -146,7 +136,4 @@ public class WorkQueueManagerImpl implements WorkQueueManager, InstrumentationFa
                
     }
     
-    public Instrumentation createInstrumentation() {
-        return  new WorkQueueInstrumentation(this);
-    }
 }

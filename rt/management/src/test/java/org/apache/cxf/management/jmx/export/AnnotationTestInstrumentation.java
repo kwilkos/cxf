@@ -19,8 +19,10 @@
 
 package org.apache.cxf.management.jmx.export;
 
-import org.apache.cxf.management.Instrumentation;
-import org.apache.cxf.management.InstrumentationFactory;
+import javax.management.JMException;
+import javax.management.ObjectName;
+
+import org.apache.cxf.management.ManagedComponent;
 import org.apache.cxf.management.annotation.ManagedAttribute;
 import org.apache.cxf.management.annotation.ManagedNotification;
 import org.apache.cxf.management.annotation.ManagedNotifications;
@@ -36,7 +38,7 @@ import org.apache.cxf.management.annotation.ManagedResource;
                  persistLocation = "/local/work", persistName = "bar.jmx")
 @ManagedNotifications({@ManagedNotification(name = "My Notification",
                                             notificationTypes = {"type.foo", "type.bar" }) })
-public class AnnotationTestInstrumentation implements Instrumentation, InstrumentationFactory {
+public class AnnotationTestInstrumentation implements ManagedComponent {
 
     private String name; 
 
@@ -101,20 +103,8 @@ public class AnnotationTestInstrumentation implements Instrumentation, Instrumen
         return x + y;
     }
 
-    public String getInstrumentationName() {        
-        return "AnnotationTestInstrumentation";
+    public ObjectName getObjectName() throws JMException {
+        return new ObjectName("org.apache.cxf:type=AnnotationTestInstrumentation");
     }
-
-    public Object getComponent() {        
-        return this;
-    }
-
-    public String getUniqueInstrumentationName() {       
-        return "AnnotationTestInstrumentation";
-    }
-
-    public Instrumentation createInstrumentation() {
-        //        return  new AnnotationTestInstrumentation(this);
-        return this;
-    }
+    
 }

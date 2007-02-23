@@ -19,63 +19,88 @@
 
 package org.apache.cxf.management.jmx;
 
+import javax.management.JMException;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
-import org.apache.cxf.BusException;
-import org.apache.cxf.management.JMXConnectorPolicyType;
 import org.apache.cxf.management.jmx.export.AnnotationTestInstrumentation;
-
 
 public class JMXManagedComponentManagerTest extends TestCase {
        
     private static final String NAME_ATTRIBUTE = "Name";    
-    private JMXManagedComponentManager manager;
+    private InstrumentationManagerImpl manager;
     
-    public void setUp() throws BusException {
-        manager = new JMXManagedComponentManager(); 
+    public void setUp() throws Exception {
+        manager = new InstrumentationManagerImpl(); 
+        manager.setDaemon(false);
+        manager.setThreaded(true);
+        manager.setEnabled(true);
+        manager.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
+        manager.init();
+        //Wait for MBeanServer connector to be initialized on separate thread.
+        Thread.sleep(2000);
     }
         
-    public void testJMXManagerInit() {
-        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
-        connector.setDaemon(false);
-        connector.setThreaded(true);
-        connector.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
-        try {
-            manager.init(connector); 
-            Thread.sleep(300);
-            manager.shutdown();
-        } catch (Exception ex) {
-            assertTrue("JMX Manager init with NewMBeanServer error", false);
-            ex.printStackTrace();
-        }
-    }
-    
-    public void testRegisterInstrumentation() {
-        JMXConnectorPolicyType connector = new JMXConnectorPolicyType();        
-        connector.setDaemon(false);
-        connector.setThreaded(false);
-        connector.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
-        manager.init(connector);
-        // setup the fack instrumentation
-        AnnotationTestInstrumentation im = new AnnotationTestInstrumentation();
-        ObjectName name = JMXUtils.getObjectName(im.getUniqueInstrumentationName(), 
-                                                 im.getInstrumentationName());
-       
-        im.setName("John Smith");          
-        manager.registerMBean(im);
-        
-        try {            
-            Object val = manager.getMBeanServer().getAttribute(name, NAME_ATTRIBUTE);
-            assertEquals("Incorrect result", "John Smith", val);
-            Thread.sleep(300);
-        } catch (Exception ex) {            
-            ex.printStackTrace();
-            assertTrue("get instrumentation attribute error", false);
-        }
-        manager.unregisterMBean(im);
+    public void tearDown() throws Exception {
         manager.shutdown();
     }
+    
+    public void testRegisterInstrumentation() throws Exception {
+        manager.setDaemon(false);
+        manager.setThreaded(false);
+        manager.setJMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:9913/jmxrmi");
+        manager.init();
 
+        AnnotationTestInstrumentation im = new AnnotationTestInstrumentation();
+        ObjectName name = new ObjectName("org.apache.cxf:type=foo,name=bar");        
+        im.setName("John Smith");          
+        manager.register(im, name);
+        
+        Object val = manager.getMBeanServer().getAttribute(name, NAME_ATTRIBUTE);
+        assertEquals("Incorrect result", "John Smith", val);
+        
+        try {
+            manager.register(im, name);
+            fail("Registering with existing name should fail.");
+        } catch (JMException jmex) {
+            //Expected
+        }
+        
+        manager.register(im, name, true);                
+        
+        val = manager.getMBeanServer().getAttribute(name, NAME_ATTRIBUTE);
+        assertEquals("Incorrect result", "John Smith", val);
+        manager.unregister(name);
+        
+        im.setName("Foo Bar");  
+        name = manager.register(im);
+
+        val = manager.getMBeanServer().getAttribute(name, NAME_ATTRIBUTE);
+        assertEquals("Incorrect result", "Foo Bar", val);
+        
+        try {
+            manager.register(im);
+            fail("Registering with existing name should fail.");
+        } catch (JMException jmex) {
+            //Expected
+        }        
+        
+        name = manager.register(im, true);
+        
+        val = manager.getMBeanServer().getAttribute(name, NAME_ATTRIBUTE);
+        assertEquals("Incorrect result", "Foo Bar", val);
+        
+        manager.unregister(im);
+    }
+
+    public void testRegisterStandardMBean() throws Exception {
+        HelloWorld hw = new HelloWorld();
+        ObjectName name = new ObjectName("org.apache.cxf:type=foo,name=bar");
+        manager.register(hw, name);
+        String result = 
+            (String)manager.getMBeanServer().invoke(name, "sayHi", new Object[0], new String[0]);    
+        assertEquals("Wazzzuuup!", result);
+    }
+    
 }

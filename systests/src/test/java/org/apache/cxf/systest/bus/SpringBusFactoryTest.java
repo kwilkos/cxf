@@ -27,7 +27,6 @@ import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.endpoint.ServerRegistry;
-import org.apache.cxf.event.EventProcessor;
 import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.phase.PhaseManager;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -53,8 +52,6 @@ public class SpringBusFactoryTest extends TestCase {
         assertNotNull("No lifecycle manager", bus.getExtension(BusLifeCycleManager.class));
         assertNotNull("No service registry", bus.getExtension(ServerRegistry.class));
         assertNotNull("No instrumentation manager", bus.getExtension(InstrumentationManager.class));
-        assertNotNull("No event processor", bus.getExtension(EventProcessor.class));
-        
         
         try {
             bfm.getBindingFactory("http://cxf.apache.org/unknown");
