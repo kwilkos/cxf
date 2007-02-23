@@ -46,9 +46,6 @@ public class HandlerChainBuilderTest extends TestCase {
 
     HandlerChainBuilder builder = new HandlerChainBuilder(EasyMock.createNiceMock(Bus.class));
 
-    public void setUp() {
-        builder.setHandlerInitEnabled(true);
-    }
 
     public void testChainSorting() {
         List<Handler> sortedHandlerChain = builder.sortHandlers(Arrays.asList(allHandlers));

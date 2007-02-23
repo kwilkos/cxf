@@ -41,6 +41,7 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.binding.soap.SoapFault;
@@ -53,6 +54,7 @@ import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.jaxws.handler.AbstractProtocolHandlerInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.staxutils.W3CDOMStreamWriter;
 
 public class SOAPHandlerInterceptor extends
@@ -96,6 +98,8 @@ public class SOAPHandlerInterceptor extends
         }
         
         if (getInvoker(message).isOutbound()) {
+            XMLStreamWriter origWriter = message.getContent(XMLStreamWriter.class);
+            
             try {
                 // Replace stax writer with DomStreamWriter
                 W3CDOMStreamWriter writer = new W3CDOMStreamWriter();
@@ -118,7 +122,11 @@ public class SOAPHandlerInterceptor extends
                     OutputStream os = message.getContent(OutputStream.class);
                     soapMessage.writeTo(os);
                     os.flush();
-                } 
+                } else {
+                    XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
+                    Document doc = ((W3CDOMStreamWriter)xtw).getDocument();
+                    StaxUtils.writeDocument(doc, origWriter, false);
+                }
                 
             } catch (IOException ioe) {
                 throw new SoapFault(new org.apache.cxf.common.i18n.Message(
@@ -127,6 +135,10 @@ public class SOAPHandlerInterceptor extends
             } catch (SOAPException soape) {
                 throw new SoapFault(new org.apache.cxf.common.i18n.Message(
                         "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), soape,
+                        message.getVersion().getSender());
+            } catch (XMLStreamException e) {
+                throw new SoapFault(new org.apache.cxf.common.i18n.Message(
+                        "SOAPHANDLERINTERCEPTOR_EXCEPTION", BUNDLE), e,
                         message.getVersion().getSender());
             }
         } else {

@@ -49,8 +49,6 @@ public class HandlerChainBuilder {
 
     private Bus bus;
 
-    private boolean handlerInitEnabled;
-
     public HandlerChainBuilder(Bus aBus) {
         bus = aBus;
     }
@@ -92,14 +90,6 @@ public class HandlerChainBuilder {
         return sortedHandlers;
     }
 
-    public void setHandlerInitEnabled(boolean b) {
-        handlerInitEnabled = b;
-    }
-
-    public boolean isHandlerInitEnabled() {
-        return handlerInitEnabled;
-    }
-
     protected ClassLoader getHandlerClassLoader() {
         return getClass().getClassLoader();
     }
@@ -138,9 +128,6 @@ public class HandlerChainBuilder {
     } 
     
     private void configureHandler(Handler handler, PortComponentHandlerType h) {
-        if (!handlerInitEnabled) {
-            return;
-        }
 
         if (h.getInitParam().size() == 0) {
             return;
