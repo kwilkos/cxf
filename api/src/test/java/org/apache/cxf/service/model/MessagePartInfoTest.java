@@ -31,8 +31,11 @@ public class MessagePartInfoTest extends TestCase {
         
     public void setUp() throws Exception {
         
+        MessageInfo msg = new MessageInfo(null, 
+                                          new QName("http://apache.org/hello_world_soap_http/types",
+                                                    "testMessage"));
         messagePartInfo = new MessagePartInfo(new QName(
-            "http://apache.org/hello_world_soap_http", "testMessagePart"), null);
+            "http://apache.org/hello_world_soap_http", "testMessagePart"), msg);
         messagePartInfo.setElement(true);
     }
     

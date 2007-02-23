@@ -38,7 +38,6 @@ public class InterfaceInfo extends AbstractDescriptionElement {
     
     Map<QName, OperationInfo> operations = new ConcurrentHashMap<QName, OperationInfo>(4);
     
-    
     public InterfaceInfo(ServiceInfo info, QName q) {
         name = q;
         service = info;

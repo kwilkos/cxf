@@ -34,7 +34,23 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
 
     @Override
     public QName getOperationName(InterfaceInfo service, Method method) {
-        return new QName(service.getName().getNamespaceURI(), method.getName());
+        String ns = service.getName().getNamespaceURI();
+        String local = method.getName();
+
+        QName name = new QName(ns, local);
+        if (service.getOperation(name) == null) {
+            return name;
+        }
+
+        int i = 1;
+        while (true) {
+            name = new QName(ns, local + i);
+            if (service.getOperation(name) == null) {
+                return name;
+            } else {
+                i++;
+            }
+        }
     }
 
     @Override

@@ -78,6 +78,7 @@ public class ClientServerTest extends ClientServerTestBase {
                                                "SoapPort2");
 
     public static Test suite() throws Exception {
+        System.setProperty("streax-xo.output.directory", "target/tmp-jaxb");
         TestSuite suite = new TestSuite(ClientServerTest.class);
         return new ClientServerSetupBase(suite) {
                 public void startServers() throws Exception {                    

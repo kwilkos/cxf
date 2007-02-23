@@ -91,4 +91,8 @@ public class SimpleMethodDispatcher implements MethodDispatcher {
     public Method getMethod(BindingOperationInfo op) {
         return opToMethod.get(op.getOperationInfo());
     }
+    
+    public Method getPrimaryMethod(OperationInfo op) {
+        return opToMethod.get(op);
+    }
 }

@@ -51,6 +51,9 @@ import org.w3c.dom.NodeList;
 
 import org.xml.sax.SAXException;
 
+import com.sun.xml.bind.v2.ContextFactory;
+import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
+
 import org.apache.cxf.common.i18n.BundleUtils;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.i18n.UncheckedException;
@@ -66,6 +69,7 @@ import org.apache.cxf.jaxb.io.NodeDataWriter;
 import org.apache.cxf.jaxb.io.XMLStreamDataReader;
 import org.apache.cxf.jaxb.io.XMLStreamDataWriter;
 import org.apache.cxf.resource.URIResolver;
+import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
@@ -208,7 +212,8 @@ public final class JAXBDataBinding implements DataBinding {
         }
     }
 
-    public void initialize(ServiceInfo serviceInfo) {
+    public void initialize(Service service) {
+        ServiceInfo serviceInfo = service.getServiceInfo();
         Set<Class<?>> classes = new HashSet<Class<?>>();
         JAXBContextInitializer initializer = 
             new JAXBContextInitializer(serviceInfo, classes);
@@ -265,7 +270,20 @@ public final class JAXBDataBinding implements DataBinding {
         }
 
         serviceInfo.setProperty(WSDLServiceBuilder.WSDL_SCHEMA_LIST, col);
-        JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col);
+        JAXBContextImpl riContext;
+        if (context instanceof JAXBContextImpl) {
+            riContext = (JAXBContextImpl) context;
+        } else {
+            // fall back if we're using another jaxb implementation
+            try {
+                riContext = (JAXBContextImpl)
+                    ContextFactory.createContext(classes.toArray(new Class[classes.size()]), null);
+            } catch (JAXBException e) {
+                throw new ServiceConstructionException(e);
+            }
+        }
+        
+        JAXBSchemaInitializer schemaInit = new JAXBSchemaInitializer(serviceInfo, col, riContext);
         schemaInit.walk();
 
     }

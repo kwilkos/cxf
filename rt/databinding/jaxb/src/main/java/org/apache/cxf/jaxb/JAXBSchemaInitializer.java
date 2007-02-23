@@ -19,14 +19,12 @@
 
 package org.apache.cxf.jaxb;
 
-import java.lang.reflect.Type;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
-import com.sun.xml.bind.v2.model.annotation.RuntimeInlineAnnotationReader;
-import com.sun.xml.bind.v2.model.core.Element;
-import com.sun.xml.bind.v2.model.core.NonElement;
-import com.sun.xml.bind.v2.model.impl.RuntimeModelBuilder;
+import com.sun.xml.bind.v2.runtime.JAXBContextImpl;
+import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
@@ -39,10 +37,12 @@ import org.apache.ws.commons.schema.XmlSchemaCollection;
 class JAXBSchemaInitializer extends ServiceModelVisitor {
 
     private XmlSchemaCollection schemas;
-
-    public JAXBSchemaInitializer(ServiceInfo serviceInfo, XmlSchemaCollection col) {
+    private JAXBContextImpl context;
+    
+    public JAXBSchemaInitializer(ServiceInfo serviceInfo, XmlSchemaCollection col, JAXBContextImpl context) {
         super(serviceInfo);
         schemas = col;
+        this.context = context;
     }
 
     @Override
@@ -56,27 +56,24 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         if (clazz == null) {
             return;
         }
-        
-        RuntimeModelBuilder builder = new RuntimeModelBuilder(new RuntimeInlineAnnotationReader(), null);
-        NonElement<Type, Class> typeInfo = builder.getTypeInfo(clazz, null);
 
-        QName typeName = typeInfo.getTypeName();
-        // TODO: this doesn't seem to work with elements yet
-        if (typeName == null) {
-            return;
-        }
+        JaxBeanInfo<?> beanInfo = context.getBeanInfo(clazz);
 
-        boolean isElement = typeInfo instanceof Element;
-        if (isElement) {
-            isElement = ((Element) typeInfo).getElementName() != null;
-        }
-
+        boolean isElement = beanInfo.isElement();
         part.setElement(isElement);
         if (isElement) {
-            QName name = ((Element) typeInfo).getElementName();
+            QName name = new QName(beanInfo.getElementNamespaceURI(null), 
+                                   beanInfo.getElementLocalName(null));
             part.setElementQName(name);
             part.setXmlSchema(schemas.getElementByQName(name));
         } else {
+            Iterator<QName> itr = beanInfo.getTypeNames().iterator();
+            if (!itr.hasNext()) {
+                return;
+            }
+            
+            QName typeName = itr.next();
+
             part.setTypeQName(typeName);
             part.setXmlSchema(schemas.getTypeByQName(typeName));
         }

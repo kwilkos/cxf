@@ -19,7 +19,7 @@
 
 package org.apache.cxf.databinding;
 
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.Service;
 
 public interface DataBinding {
     
@@ -36,6 +36,6 @@ public interface DataBinding {
      * information from the databinding.
      * @param serviceInfo
      */
-    void initialize(ServiceInfo serviceInfo);
+    void initialize(Service service);
 
 }

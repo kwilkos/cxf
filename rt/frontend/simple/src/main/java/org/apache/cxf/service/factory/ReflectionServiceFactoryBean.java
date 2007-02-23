@@ -125,8 +125,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         initializeServiceModel();
 
-        initializeDataBindings();
-        
         initializeDefaultInterceptors();
 
         if (invoker != null) {
@@ -140,7 +138,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         } else {
             getService().setExecutor(SynchronousExecutor.getInstance());
         }
-
+        if (getDataBinding() != null) {
+            getService().setDataBinding(getDataBinding());
+        }   
+        
         getService().put(MethodDispatcher.class.getName(), getMethodDispatcher());
 
         createEndpoints();
@@ -181,7 +182,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         initializeWSDLOperations();
 
         if (getDataBinding() != null) {
-            getDataBinding().initialize(getService().getServiceInfo());
+            getDataBinding().initialize(getService());
         }        
     }
     
@@ -190,17 +191,17 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         ServiceInfo serviceInfo = new ServiceInfo();
         ServiceImpl service = new ServiceImpl(serviceInfo);
         
+        service.put(MethodDispatcher.class.getName(), methodDispatcher);
+        
         serviceInfo.setName(getServiceQName());
         serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
         
         createInterface(serviceInfo);
 
+        getDataBinding().initialize(service);
+        
         if (isWrapped()) {
             initializeWrappedElementNames(serviceInfo);
-        }
-        
-        if (getDataBinding() != null) {
-            getDataBinding().initialize(serviceInfo);
         }
         
         if (isWrapped()) {
@@ -399,6 +400,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             el.setQName(mpi.getName());
             el.setMinOccurs(1);
             el.setMaxOccurs(1);
+            el.setNillable(true);
             
             if (mpi.isElement()) {
                 el.setRefName(mpi.getElementQName());

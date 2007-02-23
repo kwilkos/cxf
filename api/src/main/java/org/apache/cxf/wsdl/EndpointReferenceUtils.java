@@ -26,7 +26,6 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jws.WebService;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.Service;
@@ -572,32 +571,6 @@ public final class EndpointReferenceUtils {
         EndpointReferenceType reference = new EndpointReferenceType();
         setAddress(reference, ANONYMOUS_ADDRESS);
         return reference;
-    }
-
-
-    /**
-     * Get the WebService for the provided class.  If the class
-     * itself does not have a WebService annotation, this method
-     * is called recursively on the class's interfaces and superclass. 
-     * @param cls - the Class .
-     * @return WebService - the web service
-     */
-    public static WebService getWebServiceAnnotation(Class<?> cls) {
-        if (cls == null) {
-            return null;
-        }
-        WebService ws = cls.getAnnotation(WebService.class); 
-        if (null != ws) {
-            return ws;
-        }
-        for (Class<?> inf : cls.getInterfaces()) {
-            ws = getWebServiceAnnotation(inf);
-            if (null != ws) {
-                return ws;
-            }
-        }
-
-        return getWebServiceAnnotation(cls.getSuperclass());
     }
 
     /**

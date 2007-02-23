@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.mail.util.ByteArrayDataSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
 
@@ -142,7 +143,8 @@ public class ContextPropertiesMappingTest extends TestCase {
         
         Collection<Attachment> attachments = new LinkedList<Attachment>();
 
-        DataSource source = EasyMock.createNiceMock(DataSource.class);
+        DataSource source = new ByteArrayDataSource(new byte[0], "text/xml");
+        
         DataHandler handler1 = new DataHandler(source);
         attachments.add(new AttachmentImpl("part1", handler1));
         DataHandler handler2 = new DataHandler(source);

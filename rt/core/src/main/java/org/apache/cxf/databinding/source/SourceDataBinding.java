@@ -27,7 +27,7 @@ import org.w3c.dom.Node;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.databinding.DataReader;
 import org.apache.cxf.databinding.DataWriter;
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.service.Service;
 
 /**
  * A simple databinding implementation which reads and writes Source objects.
@@ -48,7 +48,7 @@ public class SourceDataBinding implements DataBinding {
         this.nodeWriter = new NodeDataWriter();
     }
 
-    public void initialize(ServiceInfo serviceInfo) {
+    public void initialize(Service service) {
         // do nothing
     }
     
