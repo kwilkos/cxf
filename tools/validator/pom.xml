@@ -79,7 +79,7 @@
             <artifactId>saaj-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.ws.commons</groupId>
+            <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
         </dependency>
 

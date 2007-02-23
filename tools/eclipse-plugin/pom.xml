@@ -43,7 +43,7 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.ws.commons</groupId>
+                    <groupId>org.apache.ws.commons.schema</groupId>
                     <artifactId>XmlSchema</artifactId>
                 </exclusion>
                 <exclusion>
@@ -87,7 +87,7 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.ws.commons</groupId>
+                    <groupId>org.apache.ws.commons.schema</groupId>
                     <artifactId>XmlSchema</artifactId>
                 </exclusion>
                 <exclusion>
