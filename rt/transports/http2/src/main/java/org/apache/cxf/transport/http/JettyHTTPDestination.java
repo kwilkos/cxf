@@ -372,7 +372,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
          * 
          * @param message the message to be sent.
          */
-        @SuppressWarnings("unchecked")
         public void send(Message message) throws IOException {
             message.put(HTTP_RESPONSE, response);
             message.setContent(OutputStream.class, new WrappedOutputStream(message, response));

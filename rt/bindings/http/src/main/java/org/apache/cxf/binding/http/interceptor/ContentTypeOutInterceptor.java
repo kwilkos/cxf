@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -36,9 +37,8 @@ public class ContentTypeOutInterceptor extends AbstractPhaseInterceptor<Message>
         setPhase(Phase.PREPARE_SEND);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        Map<String, List<String>> headers = (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
+        Map<String, List<String>> headers = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
         if (headers == null) {
             headers = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, headers);

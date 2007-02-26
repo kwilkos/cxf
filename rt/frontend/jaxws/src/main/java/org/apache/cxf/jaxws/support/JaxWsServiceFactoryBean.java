@@ -38,6 +38,7 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.ProviderInDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.ProviderOutDatabindingInterceptor;
@@ -124,7 +125,6 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         return new JaxWsEndpointImpl(getBus(), getService(), ei);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void initializeWSDLOperation(InterfaceInfo intf, OperationInfo o, Method method) {
         method = ((JaxWsServiceConfiguration)jaxWsConfiguration).getDeclaredMethod(method);
@@ -139,7 +139,9 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
                                                                                  method.getParameterTypes());
 
             // Find the Async method whic has a Future & AsyncResultHandler
-            List<Class<?>> asyncHandlerParams = new ArrayList(Arrays.asList(method.getParameterTypes()));
+            List<Class<?>> asyncHandlerParams = Arrays.asList(method.getParameterTypes());
+            //copy it to may it non-readonly
+            asyncHandlerParams = new ArrayList<Class<?>>(asyncHandlerParams);
             asyncHandlerParams.add(AsyncHandler.class);
             Method futureMethod = method.getDeclaringClass()
                 .getDeclaredMethod(method.getName() + "Async",
@@ -155,7 +157,8 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
 
         // rpc out-message-part-info class mapping
         Operation op = (Operation)o.getProperty(WSDLServiceBuilder.WSDL_OPERATION);
-        initializeClassInfo(o, method, op == null ? null : op.getParameterOrdering());
+        initializeClassInfo(o, method, op == null ? null
+            : CastUtils.cast(op.getParameterOrdering(), String.class));
     }
 
     @Override

@@ -144,7 +144,6 @@ public class ConfiguredEndpointTest extends TestCase {
         doTestConfiguredClientEndpoint();
     }
 
-    @SuppressWarnings("unchecked")
     private void doTestConfiguredClientEndpoint() {
 
         javax.xml.ws.Service service = new SOAPService();
@@ -264,7 +263,6 @@ public class ConfiguredEndpointTest extends TestCase {
         doTestConfiguredServerEndpoint();
     }
     
-    @SuppressWarnings("unchecked")
     private void doTestConfiguredServerEndpoint() {
         
         Object implementor = new GreeterImpl(); 
@@ -348,7 +346,6 @@ public class ConfiguredEndpointTest extends TestCase {
     }
     
     
-    @SuppressWarnings("unchecked")
     static final class TestInterceptor extends AbstractPhaseInterceptor {
     
         public void handleMessage(Message message) throws Fault {

@@ -42,7 +42,6 @@ public class URIParameterOutInterceptor extends AbstractPhaseInterceptor<Message
         setPhase(Phase.PREPARE_SEND);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
         Endpoint ep = message.getExchange().get(Endpoint.class);
         URIMapper mapper = (URIMapper)ep.getService().get(URIMapper.class.getName());

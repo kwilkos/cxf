@@ -55,6 +55,7 @@ import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.resource.XmlSchemaURIResolver;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
@@ -113,7 +114,6 @@ public class WSDLServiceBuilder {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public List<ServiceInfo> buildService(Definition d) {
         DescriptionInfo description = new DescriptionInfo();
         description.setProperty(WSDL_DEFINITION, d);
@@ -122,7 +122,8 @@ public class WSDLServiceBuilder {
         copyExtensors(description, d.getExtensibilityElements());
 
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
-        for (java.util.Iterator<QName> ite = d.getServices().keySet().iterator(); ite.hasNext();) {
+        for (java.util.Iterator<QName> ite =
+                CastUtils.cast(d.getServices().keySet().iterator()); ite.hasNext();) {
             QName qn = ite.next();
             serviceList.add(buildService(d, qn, description));
         }
@@ -268,7 +269,6 @@ public class WSDLServiceBuilder {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void addSchema(Schema schema) {
         if (schemaList.get(schema.getDocumentBaseURI()) == null) {
             schemaList.put(schema.getDocumentBaseURI(), schema.getElement());
@@ -280,12 +280,12 @@ public class WSDLServiceBuilder {
             }
         }
         
-        Map<String, List> imports = schema.getImports();
+        Map<String, List> imports = CastUtils.cast(schema.getImports());
         if (imports != null && imports.size() > 0) {
             Collection<String> importKeys = imports.keySet();
             for (String importNamespace : importKeys) {
                 if (!isSchemaParsed(schema.getDocumentBaseURI(), importNamespace)) {
-                    List<SchemaImport> schemaImports = imports.get(importNamespace);
+                    List<SchemaImport> schemaImports = CastUtils.cast(imports.get(importNamespace));
                     for (SchemaImport schemaImport : schemaImports) {
                         Schema tempImport = schemaImport.getReferencedSchema();
                         if (tempImport != null && !schemaList.containsValue(tempImport.getElement())) {
@@ -436,11 +436,11 @@ public class WSDLServiceBuilder {
 
     }
 
-    @SuppressWarnings("unchecked")
     private void buildInterfaceOperation(InterfaceInfo inf, Operation op) {
         OperationInfo opInfo = inf.addOperation(new QName(inf.getName().getNamespaceURI(), op.getName()));
         opInfo.setProperty(WSDL_OPERATION, op);
-        opInfo.setParameterOrdering(op.getParameterOrdering());
+        List<String> porderList = CastUtils.cast((List)op.getParameterOrdering());
+        opInfo.setParameterOrdering(porderList);
         this.copyExtensors(opInfo, op.getExtensibilityElements());
         Input input = op.getInput();
         List paramOrder = op.getParameterOrdering();

@@ -20,6 +20,7 @@
 package org.apache.cxf.helpers;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +53,14 @@ public final class CastUtils {
         return (List<T>)p;
     }
 
+    public static <T> Iterator<T> cast(Iterator<?> p) {
+        return (Iterator<T>)p;
+    }
+    
+    public static <T> Iterator<T> cast(Iterator<?> p, Class<T> cls) {
+        return (Iterator<T>)p;
+    }
+    
     public static <T> Set<T> cast(Set<?> p) {
         return (Set<T>)p;
     }

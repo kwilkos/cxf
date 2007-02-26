@@ -26,7 +26,6 @@ import org.apache.cxf.message.MessageImpl;
 
 public class SoapBindingTest extends TestCase {
     
-    @SuppressWarnings("unchecked")
     public void testCreateMessage() throws Exception {
         Message message = new MessageImpl();
         SoapBinding sb = new SoapBinding();

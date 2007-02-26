@@ -43,6 +43,7 @@ import javax.xml.ws.handler.MessageContext;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.common.util.Base64Utility;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.message.Message;
@@ -55,7 +56,6 @@ public class AttachmentStreamSourceXMLProvider implements Provider<StreamSource>
     @Resource
     protected WebServiceContext wsContext;
     
-    @SuppressWarnings("unchecked")
     public StreamSource invoke(StreamSource source) {
         
         MessageContext mc = wsContext.getMessageContext();
@@ -75,8 +75,8 @@ public class AttachmentStreamSourceXMLProvider implements Provider<StreamSource>
                 // ignore
             }
             
-            Map<String, DataHandler> dataHandlers = 
-                (Map)mc.get(MessageContext.INBOUND_MESSAGE_ATTACHMENTS);
+            Map<String, DataHandler> dataHandlers = CastUtils.cast(
+                (Map)mc.get(MessageContext.INBOUND_MESSAGE_ATTACHMENTS));
             StringBuilder buf = new StringBuilder();
             buf.append("<response>");
             int i = 0;
@@ -99,7 +99,8 @@ public class AttachmentStreamSourceXMLProvider implements Provider<StreamSource>
             }
             buf.append("</response>");
             
-            Map<Object, List<?>> respHeaders = (Map)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+            Map<Object, List<?>> respHeaders = CastUtils
+                .cast((Map)mc.get(MessageContext.HTTP_RESPONSE_HEADERS));
             List<String> contentTypeValues = new ArrayList<String>();
             contentTypeValues.add("application/xml+custom");
             respHeaders.put(Message.CONTENT_TYPE, contentTypeValues);

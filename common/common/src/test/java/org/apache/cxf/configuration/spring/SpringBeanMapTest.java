@@ -25,15 +25,15 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class SpringBeanMapTest extends TestCase {
-    @SuppressWarnings("unchecked")
     public void testPersons() {
         ClassPathXmlApplicationContext context = 
             new ClassPathXmlApplicationContext("org/apache/cxf/configuration/spring/beanMap.xml");
 
-        Map<String, Person> beans = (Map<String, Person>)context.getBean("mapOfPersons");
+        Map<String, Person> beans = CastUtils.cast((Map)context.getBean("mapOfPersons"));
         assertNotNull(beans);
 
         assertEquals(2, beans.size());

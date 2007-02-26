@@ -44,6 +44,7 @@ import javax.xml.ws.http.HTTPBinding;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 
@@ -85,7 +86,6 @@ public class RestClientServerHttpBindingTest extends ClientServerTestBase {
         assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
     }
     
-    @SuppressWarnings("unchecked")
     public void testHttpGETDispatchHTTPBinding() throws Exception { 
         Service service = Service.create(serviceName); 
         URI endpointURI = new URI(endpointAddress);
@@ -106,7 +106,7 @@ public class RestClientServerHttpBindingTest extends ClientServerTestBase {
         
         // varify the responseContext;
         Map<String, List<String>> responseHeader =
-            (Map<String, List<String>>)responseContext.get(MessageContext.HTTP_RESPONSE_HEADERS);
+            CastUtils.cast((Map)responseContext.get(MessageContext.HTTP_RESPONSE_HEADERS));
         assertNotNull("the response header should not be null", responseHeader);
         
         List<String> values = responseHeader.get("REST");

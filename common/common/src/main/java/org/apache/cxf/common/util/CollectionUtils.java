@@ -28,13 +28,12 @@ public final class CollectionUtils {
         
     }
     
-    @SuppressWarnings("unchecked")
-    public static Collection diff(Collection c1, Collection c2) {
+    public static <T> Collection<T> diff(Collection<T> c1, Collection<T> c2) {
         if (c1 == null || c1.size() == 0 || c2 == null || c2.size() == 0) {
             return c1;
         }
-        Collection difference = new ArrayList();
-        for (Object item : c1) {
+        Collection<T> difference = new ArrayList<T>();
+        for (T item : c1) {
             if (!c2.contains(item)) {
                 difference.add(item);
             }
@@ -42,11 +41,11 @@ public final class CollectionUtils {
         return difference;
     }
     
-    public static boolean isEmpty(Collection c) {
+    public static <T> boolean isEmpty(Collection<T> c) {
         if (c == null || c.size() == 0) {
             return true;
         }
-        for (Iterator iter = c.iterator(); iter.hasNext();) {
+        for (Iterator<T> iter = c.iterator(); iter.hasNext();) {
             if (iter.next() != null) {
                 return false;
             }

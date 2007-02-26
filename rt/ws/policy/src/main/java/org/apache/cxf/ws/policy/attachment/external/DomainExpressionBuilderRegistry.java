@@ -49,7 +49,7 @@ public class DomainExpressionBuilderRegistry extends RegistryImpl<QName, DomainE
         super(builders);
     }
     
-    public Class getRegistrationType() {
+    public Class<?> getRegistrationType() {
         return DomainExpressionBuilderRegistry.class;
     }
     

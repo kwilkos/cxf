@@ -37,6 +37,8 @@ import javax.xml.ws.handler.MessageContext;
 
 import org.w3c.dom.Document;
 
+import org.apache.cxf.helpers.CastUtils;
+
 
 
 @WebServiceProvider()
@@ -50,7 +52,6 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
     public RestSourcePayloadProvider() {
     }
 
-    @SuppressWarnings("unchecked")
     public DOMSource invoke(DOMSource request) {
         MessageContext mc = wsContext.getMessageContext();
         String path = (String)mc.get(MessageContext.PATH_INFO);
@@ -62,7 +63,7 @@ public class RestSourcePayloadProvider implements Provider<DOMSource> {
             (Map<String, List<String>>)mc.get(MessageContext.HTTP_REQUEST_HEADERS);*/
         
         Map<String, List<String>> responseHeader =
-            (Map<String, List<String>>)mc.get(MessageContext.HTTP_RESPONSE_HEADERS);
+            CastUtils.cast((Map)mc.get(MessageContext.HTTP_RESPONSE_HEADERS));
         List<String> values = new ArrayList<String>();
         values.add("hello1");
         values.add("hello2");

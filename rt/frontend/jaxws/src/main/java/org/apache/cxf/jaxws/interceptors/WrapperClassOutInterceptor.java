@@ -22,6 +22,7 @@ package org.apache.cxf.jaxws.interceptors;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxb.WrapperHelper;
 import org.apache.cxf.message.Message;
@@ -39,7 +40,6 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
         setPhase(Phase.PRE_LOGICAL);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
         BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
 
@@ -63,7 +63,7 @@ public class WrapperClassOutInterceptor extends AbstractPhaseInterceptor<Message
         }
 
         if (wrapped != null) {
-            List<Object> objs = message.getContent(List.class);
+            List<Object> objs = CastUtils.cast(message.getContent(List.class));
             
             try {
                 Object wrapperType = wrapped.newInstance();

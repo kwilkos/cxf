@@ -140,7 +140,6 @@ public class VersionTransformer
      * @param marshaller the JAXB marshaller to use
      * @return the decoded value
      */
-    @SuppressWarnings("unchecked")
     public <T> T decodeAsNative(String encodedAs,
                                 Class<T> clz,
                                 Element headerElement,
@@ -154,17 +153,17 @@ public class VersionTransformer
             ret = codec.decodeMAP(clz, headerElement, unmarshaller);
         } else if (Names200408.WSA_NAMESPACE_NAME.equals(encodedAs)) {
             if (AttributedURIType.class.equals(clz)) {
-                return (T)convert(codec.decodeMAP(AttributedURI.class, 
+                return clz.cast(convert(codec.decodeMAP(AttributedURI.class, 
                                                   headerElement, 
-                                                  unmarshaller));
+                                                  unmarshaller)));
             } else if (EndpointReferenceType.class.equals(clz)) {
-                return (T)convert(codec.decodeMAP(Names200408.EPR_TYPE, 
+                return clz.cast(convert(codec.decodeMAP(Names200408.EPR_TYPE, 
                                                   headerElement, 
-                                                  unmarshaller));
+                                                  unmarshaller)));
             }  else if (RelatesToType.class.equals(clz)) {
-                return (T)convert(codec.decodeMAP(Relationship.class, 
+                return clz.cast(convert(codec.decodeMAP(Relationship.class, 
                                                   headerElement, 
-                                                  unmarshaller));
+                                                  unmarshaller)));
             }           
         }
         return ret;

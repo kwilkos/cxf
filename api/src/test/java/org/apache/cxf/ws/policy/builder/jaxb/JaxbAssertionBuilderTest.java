@@ -59,7 +59,6 @@ public class JaxbAssertionBuilderTest extends TestCase {
         assertSame(qn, ab.getKnownElements().iterator().next());
     }
     
-    @SuppressWarnings("unchecked")
     public void testBuild() throws Exception {
         QName qn = new QName("http://cxf.apache.org/test/assertions/foo", "FooType");
         JaxbAssertionBuilder<FooType> ab = new JaxbAssertionBuilder<FooType>(FooType.class, qn);

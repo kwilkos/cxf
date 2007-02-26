@@ -30,7 +30,6 @@ import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 public class EndpointPublisherImpl implements EndpointPublisher {
     private EndpointImpl ep;
 
-    @SuppressWarnings("unchecked")
     public void buildEndpoint(Bus bus,
                               String implName,
                               String serviceName,

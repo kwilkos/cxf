@@ -62,7 +62,6 @@ public class DispatchInInterceptor extends AbstractInDatabindingInterceptor {
         this.mode = mode;
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
         
         if (isGET(message)) {

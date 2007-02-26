@@ -34,6 +34,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.AbstractBasicInterceptorProvider;
 import org.apache.cxf.interceptor.ClientOutFaultObserver;
 import org.apache.cxf.interceptor.Fault;
@@ -105,7 +106,6 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         return invoke(op, params);
     }
 
-    @SuppressWarnings("unchecked")
     public Object[] invoke(BindingOperationInfo oi, Object[] params, 
                            Map<String, Object> context) throws Exception {
         Map<String, Object> requestContext = null;
@@ -115,8 +115,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         }
         Message message = endpoint.getBinding().createMessage();
         if (null != context) {
-            requestContext = (Map<String, Object>) context.get(REQUEST_CONTEXT);
-            responseContext = (Map<String, Object>) context.get(RESPONSE_CONTEXT);
+            requestContext = CastUtils.cast((Map)context.get(REQUEST_CONTEXT));
+            responseContext = CastUtils.cast((Map)context.get(RESPONSE_CONTEXT));
         }    
         //setup the message context
         setContext(requestContext, message);

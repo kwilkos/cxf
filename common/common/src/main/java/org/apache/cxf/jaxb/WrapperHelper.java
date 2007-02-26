@@ -87,7 +87,7 @@ public final class WrapperHelper {
             }
         }
     }
-    @SuppressWarnings("unchecked")
+
     private static boolean setJAXBElementValueIntoWrapType(Method method, Object wrapType, Object value) {
         String typeClassName = wrapType.getClass().getCanonicalName();
         String objectFactoryClassName = typeClassName.substring(0, typeClassName.lastIndexOf('.'))

@@ -44,7 +44,6 @@ public class SoapBinding extends AbstractBasicInterceptorProvider implements Bin
         return createMessage(new MessageImpl());
     }
 
-    @SuppressWarnings("unchecked")
     public Message createMessage(Message m) {
         SoapMessage soapMessage = new SoapMessage(m);
         soapMessage.setVersion(version);

@@ -57,7 +57,6 @@ public class SpringBeanMap<V> implements ApplicationContextAware, InitializingBe
         processBeans(context);
     }
 
-    @SuppressWarnings("unchecked")
     private void processBeans(ApplicationContext beanFactory) {
         if (beanFactory == null) {
             return;

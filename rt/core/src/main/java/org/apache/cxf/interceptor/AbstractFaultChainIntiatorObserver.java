@@ -43,7 +43,6 @@ public abstract class AbstractFaultChainIntiatorObserver implements MessageObser
         this.bus = bus;
     }
 
-    @SuppressWarnings("unchecked")
     public void onMessage(Message m) {
         Message faultMessage = getFaultMessage(m);
         if (faultMessage == null) {

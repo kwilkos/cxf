@@ -28,9 +28,9 @@ import junit.framework.TestCase;
 public class CollectionUtilsTest extends TestCase {
     
     public void testDiff() throws Exception {
-        List l1 = Arrays.asList(new String[]{"1", "2", "3"});
-        List l2 = Arrays.asList(new String[]{"2", "4", "5"});
-        Collection l3 = CollectionUtils.diff(l1, l2);
+        List<String> l1 = Arrays.asList(new String[]{"1", "2", "3"});
+        List<String> l2 = Arrays.asList(new String[]{"2", "4", "5"});
+        Collection<String> l3 = CollectionUtils.diff(l1, l2);
         assertTrue(l3.size() == 2);
         assertTrue(l3.contains("1"));
         assertTrue(l3.contains("3"));
@@ -46,7 +46,7 @@ public class CollectionUtilsTest extends TestCase {
     }
     
     public void testIsEmpty() throws Exception {
-        List l = Arrays.asList(new String[]{null, null});
+        List<String> l = Arrays.asList(new String[]{null, null});
         assertNotNull(l);
         assertTrue(CollectionUtils.isEmpty(l));
     }

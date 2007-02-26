@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -43,7 +44,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        List<Object> inObjects = message.getContent(List.class);
+        List<Object> inObjects = CastUtils.cast(message.getContent(List.class));
 
         Exchange exchange = message.getExchange();
         
@@ -65,7 +66,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
                 }
             }
             
-            List<Holder> holders = (List<Holder>) exchange.get(CLIENT_HOLDERS);
+            List<Holder> holders = CastUtils.cast((List)exchange.get(CLIENT_HOLDERS));
             for (MessagePartInfo part : parts) {
                 int idx = part.getIndex();
                 if (idx >= 0) {
@@ -81,7 +82,7 @@ public class HolderInInterceptor extends AbstractPhaseInterceptor<Message> {
                 if (idx >= 0) {
                     if (part.getProperty(ReflectionServiceFactoryBean.MODE_INOUT) != null) {
                         Object object = inObjects.get(idx);
-                        inObjects.set(idx, new Holder(object));
+                        inObjects.set(idx, new Holder<Object>(object));
                     } else {
                         inObjects.add(idx, new Holder());
                     } 

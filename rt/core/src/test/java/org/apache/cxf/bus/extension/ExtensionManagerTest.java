@@ -73,7 +73,6 @@ public class ExtensionManagerTest extends TestCase {
          
     }
     
-    @SuppressWarnings("unchecked")
     public void testActivateViaNS() {        
         
         Extension e = new Extension();

@@ -27,6 +27,8 @@ import javax.jws.HandlerChain;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.handler_test.HandlerTest;
 import org.apache.handler_test.PingException;
 import org.apache.handler_test.types.PingFaultDetails;
@@ -80,9 +82,8 @@ public class HandlerTestImpl implements HandlerTest {
         context = ctx;
     }
 
-    @SuppressWarnings("unchecked")
     private List<String> getHandlersInfo(MessageContext ctx) {
-        List<String> ret = (List<String>)ctx.get("handler.info");
+        List<String> ret = CastUtils.cast((List)ctx.get("handler.info"));
         if (ret == null) {
             ret = new ArrayList<String>();
         }

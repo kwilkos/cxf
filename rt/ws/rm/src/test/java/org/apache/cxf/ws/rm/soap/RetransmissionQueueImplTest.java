@@ -692,7 +692,6 @@ public class RetransmissionQueueImplTest extends TestCase {
         return sequence;
     }
     
-    @SuppressWarnings("unchecked")
     private SourceSequence setUpSequence(String sid, 
                                    BigInteger[] messageNumbers,
                                    boolean[] isAcked) {

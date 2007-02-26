@@ -224,7 +224,6 @@ public class CXFServlet extends HttpServlet {
         buildEndpoint(publisherName, implName, serviceName, wsdlName, portName, urlPat);
     }
 
-    @SuppressWarnings("unchecked")
     public void buildEndpoint(String publisherName,
                               String implName, 
                               String serviceName, 

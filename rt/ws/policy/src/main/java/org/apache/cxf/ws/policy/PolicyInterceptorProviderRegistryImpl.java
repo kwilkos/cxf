@@ -41,7 +41,7 @@ public class PolicyInterceptorProviderRegistryImpl
         super(interceptors);
     }    
 
-    public Class getRegistrationType() {
+    public Class<?> getRegistrationType() {
         return PolicyInterceptorProviderRegistry.class;
     }
 }

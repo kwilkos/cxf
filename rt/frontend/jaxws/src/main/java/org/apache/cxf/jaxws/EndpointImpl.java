@@ -74,7 +74,6 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         doInit = true;
     }
     
-    @SuppressWarnings("unchecked")
     public EndpointImpl(Bus b, Object i, String uri, URL wsdl) {
         bus = b;
         implementor = i;

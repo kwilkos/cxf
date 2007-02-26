@@ -280,7 +280,6 @@ public class DispatchImpl<T> extends BindingProviderImpl implements Dispatch<T>,
         return callback;
     }
 
-    @SuppressWarnings("unchecked")
     public Response<T> invokeAsync(T obj) {
         FutureTask<T> f = new FutureTask<T>(new DispatchAsyncCallable<T>(this, obj));
 

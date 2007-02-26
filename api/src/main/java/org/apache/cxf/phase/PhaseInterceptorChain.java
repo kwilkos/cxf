@@ -232,7 +232,6 @@ public class PhaseInterceptorChain implements InterceptorChain {
      * @param message the message
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     public boolean doInterceptInSubChain(Message message) {
         subChainState.push(State.SUBCHAIN_EXECUTING);
         boolean result = doIntercept(message);

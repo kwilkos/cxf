@@ -102,7 +102,6 @@ public class PhaseInterceptorChainTest extends TestCase {
         assertTrue(!it.hasNext()); 
     }
 
-    @SuppressWarnings("unchecked")
     public void testAddTwoInterceptorsSamePhase() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         Set<String> after = new HashSet<String>();
@@ -181,7 +180,6 @@ public class PhaseInterceptorChainTest extends TestCase {
         chain.doIntercept(message);
     }
 
-    @SuppressWarnings("unchecked")
     public void testThreeInterceptorsInSamePhaseSecondFail() {
         AbstractPhaseInterceptor p1 = setUpPhaseInterceptor("phase1", "p1");
         setUpPhaseInterceptorInvocations(p1, false, true);
@@ -352,7 +350,6 @@ public class PhaseInterceptorChainTest extends TestCase {
         return setUpPhaseInterceptor(phase, id, null);
     }
 
-    @SuppressWarnings("unchecked")
     AbstractPhaseInterceptor setUpPhaseInterceptor(String phase, String id,
             Set<String> a) {
         AbstractPhaseInterceptor p = control
@@ -373,8 +370,8 @@ public class PhaseInterceptorChainTest extends TestCase {
         p.handleMessage(message);
         if (fail) {
             EasyMock.expectLastCall().andThrow(new RuntimeException());
-            message.setContent(EasyMock.isA(Class.class), EasyMock
-                    .isA(Exception.class));
+            message.setContent(EasyMock.isA(Class.class),
+                               EasyMock.isA(Exception.class));
             EasyMock.expectLastCall();
         } else {
             EasyMock.expectLastCall();

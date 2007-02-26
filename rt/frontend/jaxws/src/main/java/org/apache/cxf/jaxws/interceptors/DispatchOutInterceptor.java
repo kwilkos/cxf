@@ -53,7 +53,6 @@ public class DispatchOutInterceptor extends AbstractOutDatabindingInterceptor {
         setPhase(Phase.WRITE);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
         Service.Mode m = message.getExchange().get(Service.Mode.class);
 

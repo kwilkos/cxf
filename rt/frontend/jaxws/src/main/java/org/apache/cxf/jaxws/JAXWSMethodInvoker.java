@@ -25,6 +25,7 @@ import java.util.List;
 import javax.xml.ws.handler.MessageContext;
 
 import org.apache.cxf.common.util.factory.Factory;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxws.context.WebServiceContextImpl;
 import org.apache.cxf.jaxws.support.ContextPropertiesMapping;
 import org.apache.cxf.message.Exchange;
@@ -53,14 +54,13 @@ public class JAXWSMethodInvoker extends FactoryInvoker {
         super(factory, scope);
     }
 
-    @SuppressWarnings("unchecked")
     protected Object invoke(Exchange exchange, final Object serviceObject, Method m, List<Object> params) {
         // set up the webservice request context 
         MessageContext ctx = 
             ContextPropertiesMapping.createWebServiceContext(exchange);
         WebServiceContextImpl.setMessageContext(ctx);
         
-        List<Object> res = (List<Object>) super.invoke(exchange, serviceObject, m, params);
+        List<Object> res = CastUtils.cast((List)super.invoke(exchange, serviceObject, m, params));
         
         //update the webservice response context
         ContextPropertiesMapping.updateWebServiceContext(exchange, ctx);

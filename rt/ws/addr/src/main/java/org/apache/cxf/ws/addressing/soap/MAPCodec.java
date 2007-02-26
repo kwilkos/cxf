@@ -323,16 +323,15 @@ public class MAPCodec extends AbstractSoapInterceptor {
      * @param marshaller the JAXB marshaller to use
      * @return the decoded value
      */
-    @SuppressWarnings("unchecked")
     public <T> T decodeAsNative(String encodedAs,
                                 Class<T> clz,
                                 Element headerElement,
                                 Unmarshaller unmarshaller) 
         throws JAXBException {
-        T value = transformer.decodeAsNative(encodedAs,
+        T value = clz.cast(transformer.decodeAsNative(encodedAs,
                                               clz,
                                               headerElement,
-                                              unmarshaller);
+                                              unmarshaller));
         LOG.log(Level.INFO,
                 "{0} : {1}",
                 new Object[] {headerElement.getLocalName(), getLogText(value)});

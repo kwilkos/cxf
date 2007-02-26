@@ -183,10 +183,9 @@ public class JaxWsImplementorInfo {
         }
     }
         
-    @SuppressWarnings("unchecked")
     private String getWSInterfaceName(Class implClz) {
-        Class[] clzs = implClz.getInterfaces();
-        for (Class clz : clzs) {
+        Class<?>[] clzs = implClz.getInterfaces();
+        for (Class<?> clz : clzs) {
             if (null != clz.getAnnotation(WebService.class)) {
                 return clz.getName();
             }

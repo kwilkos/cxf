@@ -48,7 +48,7 @@ public class AssertionBuilderRegistryImpl extends RegistryImpl<QName, AssertionB
         super(builders);
     }
 
-    public Class getRegistrationType() {
+    public Class<?> getRegistrationType() {
         return AssertionBuilderRegistry.class;
     }
     

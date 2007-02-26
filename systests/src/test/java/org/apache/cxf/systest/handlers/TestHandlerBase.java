@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.handler_test.PingException;
 
 /**
@@ -140,11 +141,10 @@ public abstract class TestHandlerBase {
     } 
 
 
-    @SuppressWarnings("unchecked")
     protected List<String> getHandlerInfoList(MessageContext ctx) { 
         List<String> handlerInfoList = null; 
         if (ctx.containsKey("handler.info")) { 
-            handlerInfoList = (List<String>)ctx.get("handler.info"); 
+            handlerInfoList = CastUtils.cast((List)ctx.get("handler.info")); 
         } else {
             handlerInfoList = new ArrayList<String>();
             ctx.put("handler.info", handlerInfoList);

@@ -28,6 +28,7 @@ import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
@@ -40,7 +41,6 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
         setPhase(Phase.POST_LOGICAL);
     }
     
-    @SuppressWarnings("unchecked")
     public void handleMessage(SoapMessage message) throws Fault {
         // TODO Auto-generated method stub
         if (!(message == message.getExchange().getInMessage())) {
@@ -48,7 +48,6 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void setSoapAction(SoapMessage message) {
         List<String> value = new ArrayList<String>();
         
@@ -59,8 +58,7 @@ public class SoapActionInterceptor extends AbstractSoapInterceptor {
             SoapOperationInfo soi = (SoapOperationInfo) boi.getExtensor(SoapOperationInfo.class);            
             value.add(soi == null ? "\"\"" : soi.getAction() == null ? "\"\"" : soi.getAction());
         }
-        Map<String, List<String>> reqHeaders = (Map<String, List<String>>)
-            message.get(Message.PROTOCOL_HEADERS);
+        Map<String, List<String>> reqHeaders = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
         if (reqHeaders == null) {
             reqHeaders = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, reqHeaders);

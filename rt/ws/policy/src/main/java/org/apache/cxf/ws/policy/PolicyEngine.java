@@ -74,7 +74,7 @@ public class PolicyEngine implements BusExtension {
         registry = new PolicyRegistryImpl();
     }
     
-    public Class getRegistrationType() {
+    public Class<?> getRegistrationType() {
         return PolicyEngine.class;
     }
     

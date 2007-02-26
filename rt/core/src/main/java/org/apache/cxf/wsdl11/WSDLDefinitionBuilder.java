@@ -40,6 +40,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLBuilder;
 import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
@@ -98,13 +99,13 @@ public class WSDLDefinitionBuilder implements WSDLBuilder<Definition> {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private void parseImports(Definition def) {
         List<Import> importList = new ArrayList<Import>();
         Map imports = def.getImports();
         for (Iterator iter = imports.keySet().iterator(); iter.hasNext();) {
             String uri = (String)iter.next();
-            importList.addAll((List<Import>)imports.get(uri));
+            List<Import> lst = CastUtils.cast((List)imports.get(uri));
+            importList.addAll(lst);
         }
         for (Import impt : importList) {
             parseImports(impt.getDefinition());

@@ -48,6 +48,7 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.SoapInterceptor;
 import org.apache.cxf.common.i18n.BundleUtils;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.io.AbstractCachedOutputStream;
@@ -76,12 +77,11 @@ public class SOAPHandlerInterceptor extends
         return roles;
     }
 
-    @SuppressWarnings("unchecked")
     public Set<QName> getUnderstoodHeaders() {
         Set<QName> understood = new HashSet<QName>();
         for (Handler h : getBinding().getHandlerChain()) {
             if (h instanceof SOAPHandler) {
-                Set<QName> headers = ((SOAPHandler) h).getHeaders();
+                Set<QName> headers = CastUtils.cast(((SOAPHandler) h).getHeaders());
                 if (headers != null) {
                     understood.addAll(headers);
                 }

@@ -25,13 +25,13 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.cxf.binding.soap.interceptor.SoapActionInterceptor;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 
 public class SoapActionInterceptorTest extends TestCase {
 
-    @SuppressWarnings("unchecked")
     public void testSoapAction() throws Exception {
         Message message = new MessageImpl();
         message.setExchange(new ExchangeImpl());
@@ -43,15 +43,14 @@ public class SoapActionInterceptorTest extends TestCase {
         SoapMessage soapMessage = (SoapMessage) message;
         assertEquals(Soap11.getInstance(), soapMessage.getVersion());
         (new SoapActionInterceptor()).handleMessage(soapMessage);
-        Map<String, List<String>> reqHeaders = (Map<String, List<String>>) soapMessage
-                .get(Message.PROTOCOL_HEADERS);
+        Map<String, List<String>> reqHeaders = CastUtils.cast((Map)soapMessage.get(Message.PROTOCOL_HEADERS));
         assertNotNull(reqHeaders);
         assertEquals("\"\"", reqHeaders.get("SOAPAction").get(0));
 
         sb.setSoapVersion(Soap12.getInstance());
         soapMessage = (SoapMessage) sb.createMessage(soapMessage);
         (new SoapActionInterceptor()).handleMessage(soapMessage);
-        reqHeaders = (Map<String, List<String>>) message.get(Message.PROTOCOL_HEADERS);
+        reqHeaders = CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
         assertNotNull(reqHeaders);
         assertEquals("\"\"", reqHeaders.get("action").get(0));
     }

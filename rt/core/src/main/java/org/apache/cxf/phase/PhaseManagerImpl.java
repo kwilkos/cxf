@@ -39,7 +39,7 @@ public class PhaseManagerImpl implements PhaseManager, BusExtension {
         outPhases = out;
     }
 
-    public Class getRegistrationType() {
+    public Class<?> getRegistrationType() {
         return PhaseManager.class;
     }
 

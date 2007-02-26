@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Holder;
 
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -45,9 +46,8 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
         setPhase(Phase.PRE_LOGICAL);
     }
 
-    @SuppressWarnings("unchecked")
     public void handleMessage(Message message) throws Fault {
-        List<Object> outObjects = message.getContent(List.class);
+        List<Object> outObjects = CastUtils.cast(message.getContent(List.class));
         Exchange exchange = message.getExchange();
         OperationInfo op = exchange.get(OperationInfo.class);
         
@@ -118,7 +118,8 @@ public class HolderOutInterceptor extends AbstractPhaseInterceptor<Message> {
             message.getExchange().put(HolderInInterceptor.CLIENT_HOLDERS, holders);
         } else {
             // Add necessary holders so we match the method signature of the service class
-            List<Object> reqObjects = message.getExchange().getInMessage().getContent(List.class);
+            List<Object> reqObjects =
+                CastUtils.cast(message.getExchange().getInMessage().getContent(List.class));
     
             int outIdx = 0;
             for (MessagePartInfo part : parts) {

@@ -33,6 +33,7 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.configuration.security.SSLServerPolicy;
+import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
@@ -116,10 +117,9 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
            
     }
     
-    @SuppressWarnings("unchecked")
     protected void updateResponseHeaders(Message message) {
         Map<String, List<String>> responseHeaders =
-            (Map<String, List<String>>)message.get(Message.PROTOCOL_HEADERS);
+            CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
         if (responseHeaders == null) {
             responseHeaders = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, responseHeaders);         

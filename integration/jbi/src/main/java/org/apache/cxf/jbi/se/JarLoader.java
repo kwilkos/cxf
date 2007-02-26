@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.cxf.helpers.CastUtils;
+
 
 /**
  * load jars to memory from an archive
@@ -60,7 +62,6 @@ public final class JarLoader {
         return (Map)archives.get(path);
     }
 
-    @SuppressWarnings("unchecked")
     private static void loadArchive(String path) throws MalformedURLException, IOException {
         List<String> nameComponents = tokenizePathComponents(path);
 
@@ -74,8 +75,8 @@ public final class JarLoader {
                     // This byte array has now been exploded into a Map so the raw bytes are
                     // no longer needed, replace the entry with the exploded Map
                     //
-                    Map parentMap = 
-                        (Map)archives.get(buildPartialName(nameComponents, i));
+                    Map<String, Object> parentMap = 
+                        CastUtils.cast((Map)archives.get(buildPartialName(nameComponents, i)));
                     Map archiveMap = 
                         (Map)archives.get(buildPartialName(nameComponents, i + 1));
 

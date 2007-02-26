@@ -40,7 +40,6 @@ public class  ProxyInvocationHandlerTest extends AbstractInvocationHandlerTest {
     }
 
 
-    @SuppressWarnings("unchecked")
     public void setUp() { 
         super.setUp(); 
         data = new CXFInvocationHandlerDataImpl();
