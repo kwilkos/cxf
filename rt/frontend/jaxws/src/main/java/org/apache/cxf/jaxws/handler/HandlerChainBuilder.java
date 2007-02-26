@@ -48,6 +48,7 @@ public class HandlerChainBuilder {
     private static final ResourceBundle BUNDLE = LOG.getResourceBundle();
 
     private Bus bus;
+    private boolean handlerInitEnabled = true;
 
     public HandlerChainBuilder(Bus aBus) {
         bus = aBus;
@@ -64,6 +65,15 @@ public class HandlerChainBuilder {
         return sortHandlers(buildHandlerChain(hc, getHandlerClassLoader()));
     }
 
+    // methods used by Geronimo to allow configuring things themselves
+    public void setHandlerInitEnabled(boolean b) {
+        handlerInitEnabled = b;
+    }
+
+    public boolean isHandlerInitEnabled() {
+        return handlerInitEnabled;
+    }
+    
     /**
      * sorts the handlers into correct order. All of the logical handlers first
      * followed by the protocol handlers
@@ -128,6 +138,9 @@ public class HandlerChainBuilder {
     } 
     
     private void configureHandler(Handler handler, PortComponentHandlerType h) {
+        if (!handlerInitEnabled) {
+            return;
+        }
 
         if (h.getInitParam().size() == 0) {
             return;
