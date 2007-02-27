@@ -7,9 +7,9 @@
   to you under the Apache License, Version 2.0 (the
   "License"); you may not use this file except in compliance
   with the License. You may obtain a copy of the License at
- 
+  
   http://www.apache.org/licenses/LICENSE-2.0
- 
+  
   Unless required by applicable law or agreed to in writing,
   software distributed under the License is distributed on an
   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -18,32 +18,32 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:sec="http://cxf.apache.org/configuration/security"
-       xsi:schemaLocation="
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:sec="http://cxf.apache.org/configuration/security"
+  xmlns:http="http://cxf.apache.org/transports/http/configuration"
+  xsi:schemaLocation="
+http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean name="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit" abstract="true">
-      <property name="sslClient">
-          <value>
-              <sec:sslClient>
-                  <sec:Keystore>src/demo/hw_https/resources/celtix.p12</sec:Keystore> 
-                  <sec:KeystorePassword>celtixpass</sec:KeystorePassword>
-                  <sec:KeyPassword>celtixpass</sec:KeyPassword>
-                  <sec:TrustStore>src/demo/hw_https/resources/abigcompany_ca.pem</sec:TrustStore>
-                  <sec:CiphersuiteFilters>
-                      <!-- these filters ensure that a ciphersuite with
-                      export-suitable but non-null encryption is used,
-                      and prefers the stronger SHA over MD5 message digests -->
-                      <sec:include>.*_EXPORT_.*</sec:include>
-                      <sec:include>.*_EXPORT1024_.*</sec:include>
-                      <sec:include>.*_WITH_DES_.*</sec:include>
-                      <sec:exclude>.*_WITH_NULL_.*</sec:exclude>
-                      <sec:exclude>.*_MD5</sec:exclude>
-                  </sec:CiphersuiteFilters>
-              </sec:sslClient>
-          </value>
-      </property> 
-    </bean>
+  <http:conduit id="{http://apache.org/hello_world_soap_http}SoapPort.http-conduit">
+
+    <http:sslClient>
+      <sec:Keystore>src/demo/hw_https/resources/celtix.p12</sec:Keystore>
+      <sec:KeystorePassword>celtixpass</sec:KeystorePassword>
+      <sec:KeyPassword>celtixpass</sec:KeyPassword>
+      <sec:TrustStore>src/demo/hw_https/resources/abigcompany_ca.pem</sec:TrustStore>
+      <sec:CiphersuiteFilters>
+        <!-- these filters ensure that a ciphersuite with
+          export-suitable but non-null encryption is used,
+          and prefers the stronger SHA over MD5 message digests -->
+        <sec:include>.*_EXPORT_.*</sec:include>
+        <sec:include>.*_EXPORT1024_.*</sec:include>
+        <sec:include>.*_WITH_DES_.*</sec:include>
+        <sec:exclude>.*_WITH_NULL_.*</sec:exclude>
+        <sec:exclude>.*_MD5</sec:exclude>
+      </sec:CiphersuiteFilters>
+    </http:sslClient>
+  </http:conduit>
+
 
 </beans>
