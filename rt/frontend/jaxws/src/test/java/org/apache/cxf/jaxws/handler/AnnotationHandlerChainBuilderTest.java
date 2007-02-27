@@ -40,9 +40,10 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
         AnnotationHandlerChainBuilder chainBuilder = new AnnotationHandlerChainBuilder();
         List<Handler> handlers = chainBuilder.buildHandlerChainFromClass(handlerTestImpl.getClass());
         assertNotNull(handlers);
-        assertEquals(2, handlers.size());
+        assertEquals(3, handlers.size());
         assertEquals(TestLogicalHandler.class, handlers.get(0).getClass());
         assertEquals(TestLogicalHandler.class, handlers.get(1).getClass());
+        assertEquals(TestProtocolHandler.class, handlers.get(2).getClass());
     }
 
     public static class TestLogicalHandler implements LogicalHandler {
@@ -63,6 +64,20 @@ public class AnnotationHandlerChainBuilderTest extends TestCase {
         public final void init(final Map map) {
             config = map;
             initCalled = true;
+        }
+    }
+
+    public static class TestProtocolHandler implements Handler {
+
+        public void close(MessageContext arg0) {
+        }
+
+        public boolean handleFault(MessageContext arg0) {
+            return false;
+        }
+
+        public boolean handleMessage(MessageContext arg0) {
+            return false;
         }
     }
 

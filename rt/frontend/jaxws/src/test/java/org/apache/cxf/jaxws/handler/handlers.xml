@@ -24,6 +24,16 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee">
     <handler-chain>
 	<handler>
+		<handler-name>lh3</handler-name>
+		<handler-class>org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestProtocolHandler</handler-class>
+		<init-param>
+			<param-name>token</param-name>
+			<param-value>String</param-value>
+		</init-param>
+	</handler>
+    </handler-chain>
+    <handler-chain>
+	<handler>
 		<handler-name>lh1</handler-name>
 		<handler-class>org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilderTest$TestLogicalHandler</handler-class>
 		<init-param>

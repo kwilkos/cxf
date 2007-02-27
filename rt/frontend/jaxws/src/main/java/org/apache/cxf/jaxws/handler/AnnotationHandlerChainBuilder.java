@@ -65,7 +65,6 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
         } else {
             hcAnn.validate();
 
-            HandlerChainType hc = null;
             try {
                 JAXBContext jc = JAXBContext
                         .newInstance(org.apache.cxf.jaxws.javaee.ObjectFactory.class);
@@ -79,20 +78,25 @@ public class AnnotationHandlerChainBuilder extends HandlerChainBuilder {
                     throw new WebServiceException(BUNDLE
                             .getString("CHAIN_NOT_SPECIFIED_EXC"));
                 }
-                //We expect only one HandlerChainType here
-                hc = (HandlerChainType) handlerChainsType.getHandlerChain().iterator().next();
+                
+                chain = new ArrayList<Handler>();
+                for (HandlerChainType hc : handlerChainsType.getHandlerChain()) {
+                    chain.addAll(buildHandlerChain(hc, clz.getClassLoader()));
+                }
+
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new WebServiceException(BUNDLE.getString("CHAIN_NOT_SPECIFIED_EXC"), e);
             }
-
-            chain = buildHandlerChain(hc, clz.getClassLoader());
         }
         assert chain != null;
         if (existingHandlers != null) {
             chain.addAll(existingHandlers);
         }
         return sortHandlers(chain);
+    }
+
+    protected URL resolveHandlerChainAnnotationFile(Class clazz, String name) {
+        return clazz.getResource(name);
     }
 
     public List<Handler> buildHandlerChainFromClass(Class<?> clz) {

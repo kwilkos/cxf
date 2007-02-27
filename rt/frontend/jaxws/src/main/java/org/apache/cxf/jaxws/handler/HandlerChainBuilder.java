@@ -162,11 +162,13 @@ public class HandlerChainBuilder {
     }
 
     private void initializeViaInjection(Handler handler, final Map<String, String> params) {
-        ResourceManager resMgr = bus.getExtension(ResourceManager.class);
-        List<ResourceResolver> resolvers = resMgr.getResourceResolvers();
-        resolvers.add(new InitParamResourceResolver(params));
-        ResourceInjector resInj = new ResourceInjector(resMgr, resolvers);
-        resInj.inject(handler);
+        if (bus != null) {
+            ResourceManager resMgr = bus.getExtension(ResourceManager.class);
+            List<ResourceResolver> resolvers = resMgr.getResourceResolvers();
+            resolvers.add(new InitParamResourceResolver(params));
+            ResourceInjector resInj = new ResourceInjector(resMgr, resolvers);
+            resInj.inject(handler);
+        }
     }
 
     private void initializeViaInitMethod(Handler handler, Map<String, String> params, Method init) {
