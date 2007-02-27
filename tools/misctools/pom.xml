@@ -93,4 +93,10 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/misctools</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/misctools</developerConnection>
+    </scm>
+
 </project>

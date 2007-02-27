@@ -40,4 +40,10 @@
         <module>dv</module>
         <module>dv-test</module>
     </modules>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/xjc</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/xjc</developerConnection>
+    </scm>
+
 </project>

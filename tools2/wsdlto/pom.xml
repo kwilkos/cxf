@@ -42,4 +42,10 @@
         <module>test</module>
         <module>misc</module>
     </modules>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/wsdlto</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/wsdlto</developerConnection>
+    </scm>
+
 </project>

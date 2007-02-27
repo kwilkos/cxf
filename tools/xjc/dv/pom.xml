@@ -52,4 +52,10 @@
         </dependency>
     </dependencies>
 
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/xjc/dv</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/xjc/dv</developerConnection>
+    </scm>
+
 </project>

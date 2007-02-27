@@ -39,4 +39,10 @@
         <module>jbi</module>
 	<module>jca</module>
     </modules>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/integration</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/integration</developerConnection>
+    </scm>
+
 </project>

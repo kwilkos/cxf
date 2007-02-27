@@ -173,4 +173,10 @@
         </plugins>
     </build>
 
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse3.1-plugin</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/eclipse3.1-plugin</developerConnection>
+    </scm>
+
 </project>

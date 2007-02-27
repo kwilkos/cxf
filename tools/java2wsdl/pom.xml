@@ -111,4 +111,10 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/java2wsdl</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/java2wsdl</developerConnection>
+    </scm>
+
 </project>

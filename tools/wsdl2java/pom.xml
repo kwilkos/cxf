@@ -111,4 +111,10 @@
         </dependency>
     </dependencies>
 
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/wsdl2java</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools/wsdl2java</developerConnection>
+    </scm>
+
 </project>

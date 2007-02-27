@@ -150,4 +150,10 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/wsdlto/core</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/tools2/wsdlto/core</developerConnection>
+    </scm>
+
 </project>

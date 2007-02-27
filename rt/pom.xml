@@ -51,4 +51,10 @@
         <module>ws/addr</module>
         <module>ws/rm</module>
     </modules>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt</developerConnection>
+    </scm>
+
 </project>

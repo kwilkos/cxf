@@ -84,4 +84,10 @@
             <artifactId>geronimo-activation_1.1_spec</artifactId>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/ws/addr</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/rt/ws/addr</developerConnection>
+    </scm>
+
 </project>

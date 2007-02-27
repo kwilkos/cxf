@@ -353,4 +353,10 @@
         </plugins>
     </build>
 
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/incubator/cxf/trunk/testutils</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/incubator/cxf/trunk/testutils</developerConnection>
+    </scm>
+
 </project>
