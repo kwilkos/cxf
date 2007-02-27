@@ -27,8 +27,11 @@ import java.util.logging.Logger;
 
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
+
+import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.injection.ResourceInjector;
@@ -264,5 +267,16 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             chain = builder.buildHandlerChainFromClass(implementor.getClass());
         }
         getBinding().setHandlerChain(chain);
+    }
+
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
     }
 }

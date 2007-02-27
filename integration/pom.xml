@@ -31,13 +31,10 @@
         <version>2.0-incubator-RC-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <topDirectoryLocation>..</topDirectoryLocation>
-    </properties>
 
     <modules>
         <module>jbi</module>
-	<module>jca</module>
+        <module>jca</module>
     </modules>
 
     <scm>

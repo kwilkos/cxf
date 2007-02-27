@@ -33,7 +33,6 @@
     </parent>
 
     <properties>
-        <topDirectoryLocation>..</topDirectoryLocation>
         <surefire.fork.mode>pertest</surefire.fork.mode>
     </properties>
 

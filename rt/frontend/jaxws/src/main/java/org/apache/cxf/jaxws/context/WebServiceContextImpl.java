@@ -21,8 +21,11 @@ package org.apache.cxf.jaxws.context;
 
 import java.security.Principal;
 
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+
+import org.w3c.dom.Element;
 
 
 public class WebServiceContextImpl implements WebServiceContext {
@@ -49,6 +52,19 @@ public class WebServiceContextImpl implements WebServiceContext {
     public final boolean isUserInRole(final String string) {
         return false;
     }
+    
+    public EndpointReference getEndpointReference(Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz,
+                                                                Element... referenceParameters) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+    
+    
 
     public static void setMessageContext(MessageContext ctx) {
         //ContextPropertiesMapping.mapCxf2Jaxws(ctx);
@@ -58,4 +74,5 @@ public class WebServiceContextImpl implements WebServiceContext {
     public static void clear() {
         context.set(null);
     }
+
 }

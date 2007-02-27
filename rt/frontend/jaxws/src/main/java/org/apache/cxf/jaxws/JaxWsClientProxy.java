@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.Response;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
@@ -168,5 +169,15 @@ public class JaxWsClientProxy extends org.apache.cxf.frontend.ClientProxy implem
                 respCtx.put(obj, ctx.get(obj));
             }
         }
+    }
+
+    public EndpointReference getEndpointReference() {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T extends EndpointReference> T getEndpointReference(Class<T> clazz) {
+        // TODO
+        throw new UnsupportedOperationException();
     }
 }

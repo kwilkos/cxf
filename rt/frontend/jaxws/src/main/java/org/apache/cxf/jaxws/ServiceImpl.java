@@ -38,8 +38,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
+import javax.xml.ws.EndpointReference;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.http.HTTPBinding;
@@ -367,5 +369,59 @@ public class ServiceImpl extends ServiceDelegate {
     private PortInfoImpl getPortInfo(QName portName) {
         // TODO if the portName null ?
         return portInfos.get(portName);
+    }
+
+    
+    
+    public <T> Dispatch<T> createDispatch(QName portName,
+                                          Class<T> type,
+                                          Mode mode,
+                                          WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> Dispatch<T> createDispatch(EndpointReference endpointReference,
+                                          Class<T> type,
+                                          Mode mode,
+                                          WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public Dispatch<Object> createDispatch(QName portName,
+                                           JAXBContext context,
+                                           Mode mode,
+                                           WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public Dispatch<Object> createDispatch(EndpointReference endpointReference,
+                                           JAXBContext context,
+                                           Mode mode,
+                                           WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> T getPort(Class<T> serviceEndpointInterface,
+                         WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> T getPort(QName portName,
+                         Class<T> serviceEndpointInterface,
+                         WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> T getPort(EndpointReference endpointReference,
+                         Class<T> serviceEndpointInterface,
+                         WebServiceFeature... features) {
+        // TODO
+        throw new UnsupportedOperationException();
     }
 }

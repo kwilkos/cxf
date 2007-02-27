@@ -32,10 +32,6 @@
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <topDirectoryLocation>../..</topDirectoryLocation>
-    </properties>
-
     <modules>
         <module>dv</module>
         <module>dv-test</module>
