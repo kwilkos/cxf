@@ -25,7 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -35,10 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.common.util.Base64Exception;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.configuration.security.AuthorizationPolicy;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
@@ -48,10 +43,10 @@ import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 
 
-public class ServletDestination extends AbstractDestination {
+public class ServletDestination extends AbstractHTTPDestination {
 
     public static final String HTTP_REQUEST =
         "HTTP_SERVLET_REQUEST";
@@ -61,9 +56,7 @@ public class ServletDestination extends AbstractDestination {
     static final Logger LOG = Logger.getLogger(ServletDestination.class.getName());
         
     private static final long serialVersionUID = 1L;        
-
-    protected final Bus bus;
-    protected final ConduitInitiator conduitInitiator;
+    
     protected String name;
     protected URL nurl;
     
@@ -81,53 +74,8 @@ public class ServletDestination extends AbstractDestination {
                               ConduitInitiator ci,
                               EndpointInfo ei)
         throws IOException {
-        super(getTargetReference(ei.getAddress()), ei);  
-        bus = b;
-        conduitInitiator = ci;
-    }
-
-    /**
-     * Cache HTTP headers in message.
-     * 
-     * @param message the current message
-     */
-    protected void setHeaders(Message message) {
-        Map<String, List<String>> requestHeaders = new HashMap<String, List<String>>();
-        copyRequestHeaders(message, requestHeaders);
-        message.put(Message.PROTOCOL_HEADERS, requestHeaders);
-
-        if (requestHeaders.containsKey("Authorization")) {
-            List<String> authorizationLines = requestHeaders.get("Authorization"); 
-            String credentials = authorizationLines.get(0);
-            String authType = credentials.split(" ")[0];
-            if ("Basic".equals(authType)) {
-                String authEncoded = credentials.split(" ")[1];
-                try {
-                    String authDecoded = new String(Base64Utility.decode(authEncoded));
-                    String authInfo[] = authDecoded.split(":");
-                    String username = authInfo[0];
-                    String password = authInfo[1];
-                    
-                    AuthorizationPolicy policy = new AuthorizationPolicy();
-                    policy.setUserName(username);
-                    policy.setPassword(password);
-                    
-                    message.put(AuthorizationPolicy.class, policy);
-                } catch (Base64Exception ex) {
-                    //ignore, we'll leave things alone.  They can try decoding it themselves
-                }
-            }
-        }
-           
-    }
-    
-    protected void updateResponseHeaders(Message message) {
-        Map<String, List<String>> responseHeaders =
-            CastUtils.cast((Map)message.get(Message.PROTOCOL_HEADERS));
-        if (responseHeaders == null) {
-            responseHeaders = new HashMap<String, List<String>>();
-            message.put(Message.PROTOCOL_HEADERS, responseHeaders);         
-        }
+        // would add the default port to the address
+        super(b, ci, ei, false);
     }
     
     protected Logger getLogger() {
@@ -143,20 +91,7 @@ public class ServletDestination extends AbstractDestination {
         return new BackChannelConduit(response);
     }
    
-    /**
-     * Mark message as a partial message.
-     * 
-     * @param partialResponse the partial response message
-     * @param the decoupled target
-     * @return true iff partial responses are supported
-     */
-    protected boolean markPartialResponse(Message partialResponse,
-                                          EndpointReferenceType decoupledTarget) {
-        partialResponse.put(Message.RESPONSE_CODE,
-                            HttpURLConnection.HTTP_ACCEPTED);
-        partialResponse.getExchange().put(EndpointReferenceType.class, decoupledTarget);
-        return true;
-    }
+   
         
     /**
      * Copy the request headers into the message.

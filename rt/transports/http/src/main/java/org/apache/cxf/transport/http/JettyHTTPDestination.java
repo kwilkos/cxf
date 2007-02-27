@@ -45,7 +45,6 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 import org.mortbay.http.handler.AbstractHttpHandler;
@@ -83,7 +82,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      */
     public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
-        super(b, ci, endpointInfo);
+        //Add the defualt port if the address is missing it
+        super(b, ci, endpointInfo, true);
         alternateEngine = eng;
     }
 
@@ -150,21 +150,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         HttpResponse response = (HttpResponse)inMessage.get(HTTP_RESPONSE);
         return new BackChannelConduit(response);
     }
-
-    /**
-     * Mark message as a partial message.
-     * 
-     * @param partialResponse the partial response message
-     * @param the decoupled target
-     * @return true iff partial responses are supported
-     */
-    protected boolean markPartialResponse(Message partialResponse,
-                                       EndpointReferenceType decoupledTarget) {
-        // setup the outbound message to for 202 Accepted
-        partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
-        partialResponse.getExchange().put(EndpointReferenceType.class, decoupledTarget);
-        return true;
-    }
+   
 
     /**
      * @return the associated conduit initiator

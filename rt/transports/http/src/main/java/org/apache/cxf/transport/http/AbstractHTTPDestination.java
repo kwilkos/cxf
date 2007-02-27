@@ -20,6 +20,7 @@
 package org.apache.cxf.transport.http;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transports.http.configuration.HTTPServerPolicy;
+import org.apache.cxf.ws.addressing.EndpointReferenceType;
 
 /**
  * Common base for HTTP Destination implementations.
@@ -66,21 +68,25 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
      * @param b the associated Bus
      * @param ci the associated conduit initiator
      * @param ei the endpoint info of the destination 
+     * @param dp ture for adding the default port if it is missing
      * @throws IOException
      */    
     public AbstractHTTPDestination(Bus b,
                                    ConduitInitiator ci,
-                                   EndpointInfo ei)
+                                   EndpointInfo ei,
+                                   boolean dp)
         throws IOException {
-        super(getTargetReference(getAddressValue(ei)), ei);  
+        super(getTargetReference(getAddressValue(ei, dp)), ei);  
         bus = b;
         conduitInitiator = ci;
         
         initConfig();
  
-        nurl = new URL(getAddressValue(ei));
+        nurl = new URL(getAddressValue(ei, dp));
         name = nurl.getPath();
     }
+    
+    
 
     /**
      * Cache HTTP headers in message.
@@ -145,8 +151,31 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
                                                Map<String, List<String>> headers);
 
     protected static String getAddressValue(EndpointInfo ei) {       
-        return StringUtils.addDefaultPortIfMissing(ei.getAddress());
-    }        
+        return getAddressValue(ei, false);
+    } 
+    
+    protected static String getAddressValue(EndpointInfo ei, boolean dp) {       
+        if (dp) {
+            return StringUtils.addDefaultPortIfMissing(ei.getAddress());
+        } else {
+            return ei.getAddress();
+        }
+    }  
+    
+    /**
+     * Mark message as a partial message.
+     * 
+     * @param partialResponse the partial response message
+     * @param the decoupled target
+     * @return true iff partial responses are supported
+     */
+    protected boolean markPartialResponse(Message partialResponse,
+                                       EndpointReferenceType decoupledTarget) {
+        // setup the outbound message to for 202 Accepted
+        partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
+        partialResponse.getExchange().put(EndpointReferenceType.class, decoupledTarget);
+        return true;
+    }
 
     private void initConfig() {
         this.server = endpointInfo.getTraversedExtensor(new HTTPServerPolicy(), HTTPServerPolicy.class);
