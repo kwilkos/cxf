@@ -59,11 +59,12 @@ public class ParameterProcessor extends AbstractProcessor {
     
     private Map<String, Element> wsdlElementMap = new HashMap<String, Element>();
     private Map<String, String>  wsdlLoc = new HashMap<String, String>();
+    private Definition definition;
     
     @SuppressWarnings("unchecked")
     public ParameterProcessor(ToolContext penv) {
         super(penv);
-        Definition definition = (Definition)penv.get(ToolConstants.WSDL_DEFINITION);
+        definition = (Definition)penv.get(ToolConstants.WSDL_DEFINITION);
         wsdlLoc.put(definition.getTargetNamespace(), definition.getDocumentBaseURI());
         List<Definition> defs = (List<Definition>)penv.get(ToolConstants.IMPORTED_DEFINITION);
         for (Definition def : defs) {
@@ -104,7 +105,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private JavaParameter getParameterFromPart(JavaMethod method, Part part, JavaType.Style style) {
         String name = ProcessorUtil.resolvePartName(part);
-        String namespace = ProcessorUtil.resolvePartNamespace(part);
+        String namespace = ProcessorUtil.resolvePartNamespace(part, definition);
         String type = ProcessorUtil.resolvePartType(part, this.env);
 
         JavaParameter parameter = new JavaParameter(name, type, namespace);
@@ -120,6 +121,7 @@ public class ParameterProcessor extends AbstractProcessor {
             parameter.setHolderClass(ProcessorUtil.getFullClzName(part, env, this.collector, true));
         }
         parameter.setStyle(style);
+        
         return parameter;
     }
 
@@ -155,6 +157,9 @@ public class ParameterProcessor extends AbstractProcessor {
         webParamAnnotation.addArgument("name", name);
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             || parameter.isHeader()) {
+            if (parameter.getTypeReference() != null) {
+                targetNamespace = parameter.getTypeReference().tagName.getNamespaceURI();
+            }
             webParamAnnotation.addArgument("targetNamespace", targetNamespace);
         }
 
@@ -169,7 +174,7 @@ public class ParameterProcessor extends AbstractProcessor {
         String name = part == null ? "return" : part.getName();
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part, this.env);
  
-        String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
+        String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part, definition);
               
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setQName(ProcessorUtil.getElementName(part));
@@ -434,7 +439,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private JavaParameter getParameterFromProperty(Property property, JavaType.Style style, Part part) {
         JType t = property.type();
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
+        String targetNamespace = ProcessorUtil.resolvePartNamespace(part, definition);
         if (targetNamespace == null) {
             targetNamespace = property.elementName().getNamespaceURI();
         }
@@ -451,7 +456,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private JavaReturn getReturnFromProperty(Property property, Part part) {
         JType t = property.type();
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
+        String targetNamespace = ProcessorUtil.resolvePartNamespace(part, definition);
         if (targetNamespace == null) {
             targetNamespace = property.elementName().getNamespaceURI();
         }

@@ -1144,7 +1144,36 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         assertNotNull("Server should be generated", greeterServer);
     }
     
-    
+    public void testRefTNS() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/locator.wsdl"));
+        processor.setEnvironment(env);
+        processor.process();
+
+        assertNotNull(output);
+
+        File org = new File(output, "org");
+        assertTrue(org.exists());
+        File apache = new File(org, "apache");
+        assertTrue(apache.exists());
+        File locator = new File(apache, "locator");
+        assertTrue(locator.exists());
+        File locatorService = new File(locator, "LocatorService.java");
+        assertTrue(locatorService.exists());
+        
+
+        Class<?> clz = classLoader.loadClass("org.apache.locator.LocatorService");
+
+        javax.jws.WebService ws = AnnotationUtil.getPrivClassAnnotation(clz, javax.jws.WebService.class);
+        assertTrue("Webservice annotation wsdlLocation should begin with file", ws.wsdlLocation()
+            .startsWith("file"));
+        
+        Class<?> paraClass = classLoader.loadClass("org.apache.locator.query.QuerySelectType");
+        Method method = clz.getMethod("queryEndpoints", new Class[] {paraClass});
+        WebParam webParamAnn = AnnotationUtil.getWebParam(method, "select");
+        assertEquals("http://apache.org/locator/query", webParamAnn.targetNamespace());
+        
+        
+    }
     
     private String getLocation(String wsdlFile) {
         return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
