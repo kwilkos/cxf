@@ -203,11 +203,9 @@ public class RMManager extends RMManagerConfigBean {
             }
         }
         
-        // TODO: cancel outstanding timer tasks (acknowledgment requests) for all source sequences
-        
         // remove references to timer tasks cancelled above to make them eligible for garbage collection
         timer.purge();
-        
+        timer.cancel();
     }
 
     @PostConstruct

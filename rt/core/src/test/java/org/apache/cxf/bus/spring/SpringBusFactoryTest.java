@@ -22,6 +22,9 @@ package org.apache.cxf.bus.spring;
 import java.net.URL;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
@@ -145,6 +148,17 @@ public class SpringBusFactoryTest extends TestCase {
             assertEquals(0, cxfPhases.get(i).compareTo(defaultPhases.get(i)));
         }
     }
+
+    public void testJsr250() {
+        Bus bus = new SpringBusFactory().createBus("org/apache/cxf/bus/spring/testjsr250.xml");
+        TestExtension te = bus.getExtension(TestExtension.class);
+        assertTrue("@PostConstruct annotated method has not been called.", te.postConstructMethodCalled);
+        assertTrue("@PreDestroy annoated method has been called already.", !te.preDestroyMethodCalled);
+        bus.shutdown(true);
+        assertTrue("@PreDestroy annoated method has not been called.", te.preDestroyMethodCalled);
+        
+    }
+
     
     static class TestInterceptor implements Interceptor {
 
@@ -171,6 +185,26 @@ public class SpringBusFactoryTest extends TestCase {
         public void postHandleMessage(Message message) throws Fault {            
         }
         
+    }
+
+    static class TestExtension {
+
+        boolean postConstructMethodCalled;
+        boolean preDestroyMethodCalled;
+
+        public TestExtension(Bus bus) {
+            bus.setExtension(this, TestExtension.class);
+        }
+ 
+        @PostConstruct
+        void postConstructMethod() {
+            postConstructMethodCalled = true;
+        }
+
+        @PreDestroy
+        void preDestroyMethod() {
+            preDestroyMethodCalled = true;
+        }
     }
      
     

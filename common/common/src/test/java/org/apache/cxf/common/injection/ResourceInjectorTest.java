@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
 import junit.framework.TestCase;
@@ -84,6 +85,12 @@ public class ResourceInjectorTest extends TestCase {
         assertTrue(target.injectionCompleteCalled()); 
     }
 
+    public void testPreDestroy() { 
+        injector = new ResourceInjector(null, null);
+        SetterTarget target = new SetterTarget(); 
+        injector.destroy(target); 
+        assertTrue(target.preDestroyCalled()); 
+    }
 
     protected void doInjectTest(Target target) { 
 
@@ -132,6 +139,8 @@ class SetterTarget implements Target {
     private String resource2;
     private boolean injectionCompletePublic; 
     private boolean injectionCompletePrivate; 
+    private boolean preDestroy; 
+    private boolean preDestroyPrivate; 
 
     public final String getResource1() {
         return this.resource1;
@@ -164,8 +173,22 @@ class SetterTarget implements Target {
         injectionCompletePrivate = true;
     } 
     
+    @PreDestroy
+    public void preDestroyMethod() { 
+        preDestroy = true;
+    } 
+    
+    @PreDestroy
+    private void preDestroyMethodPrivate() { 
+        preDestroyPrivate = true;
+    } 
+    
     public boolean injectionCompleteCalled() { 
         return injectionCompletePrivate && injectionCompletePublic;
+    }
+
+    public boolean preDestroyCalled() { 
+        return preDestroy && preDestroyPrivate;
     }
 }
 

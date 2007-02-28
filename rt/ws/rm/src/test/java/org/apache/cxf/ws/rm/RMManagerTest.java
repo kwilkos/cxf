@@ -23,10 +23,12 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.TimerTask;
 
 import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -223,4 +225,23 @@ public class RMManagerTest extends TestCase {
         assertSame(sseq, manager.getSequence(inSid, message, maps));
         control.verify();
     }
-}
+
+    public void testShutdown() {
+
+        Bus bus = new SpringBusFactory().createBus("org/apache/cxf/ws/rm/rmmanager.xml", false);
+        RMManager manager = bus.getExtension(RMManager.class);
+        assertNotNull(manager);
+        class TestTask extends TimerTask {
+            public void run() {
+            }
+        }
+        bus.shutdown(true);
+        try {
+            manager.getTimer().schedule(new TestTask(), 5000); 
+            fail("Timer has not been cancelled.");
+        } catch (IllegalStateException ex) {
+            // expected
+        }
+    }
+     
+} 

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
 
@@ -83,6 +84,11 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
         invokePostConstruct();
     }
 
+
+    public void destroy(Object o) {
+        setTarget(o);
+        invokePreDestroy();
+    }
 
 
     // Implementation of org.apache.cxf.common.annotation.AnnotationVisitor
@@ -291,19 +297,49 @@ public class ResourceInjector extends AbstractAnnotationVisitor {
         }
     }
 
+    public void invokePreDestroy() {
+        
+        boolean accessible = false; 
+        for (Method method : getPreDestroyMethods()) {
+            PreDestroy pd = method.getAnnotation(PreDestroy.class);
+            if (pd != null) {
+                try {
+                    method.setAccessible(true);
+                    method.invoke(target);
+                } catch (IllegalAccessException e) {
+                    LOG.log(Level.WARNING, "PRE_DESTROY_NOT_VISIBLE", method);
+                } catch (InvocationTargetException e) {
+                    LOG.log(Level.WARNING, "PRE_DESTROY_THREW_EXCEPTION", e);
+                } finally {
+                    method.setAccessible(accessible); 
+                }
+            }
+        }
+    }
+
+
     private Collection<Method> getPostConstructMethods() { 
+        return getAnnotatedMethods(PostConstruct.class);
+    }
+
+    private Collection<Method> getPreDestroyMethods() { 
+        return getAnnotatedMethods(PreDestroy.class);
+    }
+
+    private Collection<Method> getAnnotatedMethods(Class<? extends Annotation> acls) { 
 
         Collection<Method> methods = new LinkedList<Method>(); 
-        addPostConstructMethods(getTarget().getClass().getMethods(), methods); 
-        addPostConstructMethods(getTarget().getClass().getDeclaredMethods(), methods);
+        addAnnotatedMethods(acls, getTarget().getClass().getMethods(), methods); 
+        addAnnotatedMethods(acls, getTarget().getClass().getDeclaredMethods(), methods);
         return methods;
     } 
 
-    private void addPostConstructMethods(Method[] methods, Collection<Method> postConstructMethods) {
+    private void addAnnotatedMethods(Class<? extends Annotation> acls, Method[] methods,
+        Collection<Method> annotatedMethods) {
         for (Method method : methods) { 
-            if (method.getAnnotation(PostConstruct.class) != null 
-                && !postConstructMethods.contains(method)) {
-                postConstructMethods.add(method); 
+            if (method.getAnnotation(acls) != null 
+                && !annotatedMethods.contains(method)) {
+                annotatedMethods.add(method); 
             }
         }
     } 

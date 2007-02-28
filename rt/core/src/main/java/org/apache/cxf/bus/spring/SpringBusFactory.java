@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.buslifecycle.BusLifeCycleListener;
+import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
@@ -75,6 +77,7 @@ public class SpringBusFactory extends BusFactory {
         bus.setExtension(configurer, Configurer.class);
 
         possiblySetDefaultBus(bus);
+        registerApplicationContextLifeCycleListener(bus, bac);
         return bus;
     }
     
@@ -101,7 +104,34 @@ public class SpringBusFactory extends BusFactory {
         bus.setExtension(configurer, Configurer.class);
 
         possiblySetDefaultBus(bus);
+        registerApplicationContextLifeCycleListener(bus, bac);
         return bus;
     }
+
     
+    void registerApplicationContextLifeCycleListener(Bus bus, BusApplicationContext bac) {
+        BusLifeCycleManager lm = bus.getExtension(BusLifeCycleManager.class);
+        if (null != lm) {
+            lm.registerLifeCycleListener(new BusApplicationContextLifeCycleListener(bac));
+        }
+    } 
+
+    static class BusApplicationContextLifeCycleListener implements BusLifeCycleListener {
+        private BusApplicationContext bac;
+
+        BusApplicationContextLifeCycleListener(BusApplicationContext b) {
+            bac = b;
+        }
+
+        public void initComplete() {
+        }
+
+        public void preShutdown() {
+        }
+
+        public void postShutdown() {
+            bac.close();
+        }
+        
+    }
 }
