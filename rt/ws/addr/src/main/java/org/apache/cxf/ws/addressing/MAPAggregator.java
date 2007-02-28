@@ -197,7 +197,6 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
         
         for (AssertionInfo ai : ais) {
             ai.setAsserted(true);
-            System.out.println("Asserted Addressing assertion: " + ai.getAssertion());
         }
     }
 

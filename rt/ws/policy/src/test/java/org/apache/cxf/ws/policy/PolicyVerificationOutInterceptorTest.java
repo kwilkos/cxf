@@ -46,6 +46,13 @@ public class PolicyVerificationOutInterceptorTest extends TestCase {
         PolicyVerificationOutInterceptor interceptor = new PolicyVerificationOutInterceptor();
         
         Message message = control.createMock(Message.class);
+        EasyMock.expect(message.get(Message.PARTIAL_RESPONSE_MESSAGE)).andReturn(Boolean.TRUE);
+        control.replay();
+        interceptor.handleMessage(message);
+        control.verify();
+        
+        control.reset();
+        EasyMock.expect(message.get(Message.PARTIAL_RESPONSE_MESSAGE)).andReturn(null);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(null);
         control.replay();
         interceptor.handleMessage(message);
@@ -73,6 +80,7 @@ public class PolicyVerificationOutInterceptorTest extends TestCase {
         c.add(ai3);
         aim.put(n2, c);
         
+        EasyMock.expect(message.get(Message.PARTIAL_RESPONSE_MESSAGE)).andReturn(null);
         EasyMock.expect(message.get(AssertionInfoMap.class)).andReturn(aim);
         
         control.replay();

@@ -80,6 +80,7 @@ public class PolicyVerificationInFaultInterceptor extends AbstractPolicyIntercep
         
         OutPolicyInfo opi = pe.getClientFaultPolicyInfo(e, bfi);
         opi.checkEffectivePolicy(aim);
+        LOG.fine("Verified policies for inbound message.");
     }
 
 }

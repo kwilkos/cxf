@@ -51,6 +51,12 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
      * @param message
      */
     public void handleMessage(Message message) throws Fault {
+        
+        if (PolicyUtils.isPartialResponse(message)) {
+            LOG.fine("Not verifying policies on outbound partial response.");
+            return;
+        } 
+        
         AssertionInfoMap aim = message.get(AssertionInfoMap.class);
         if (null == aim) {
             return;
@@ -63,7 +69,7 @@ public class PolicyVerificationOutInterceptor extends AbstractPolicyInterceptor 
                 }
             }
         }
-        LOG.fine("At least one alternative of the policy for the output message is supported.");
+        LOG.fine("Verified policies for outbound message.");
     }
 
 }

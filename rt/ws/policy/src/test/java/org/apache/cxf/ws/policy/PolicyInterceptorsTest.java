@@ -295,14 +295,6 @@ public class PolicyInterceptorsTest extends TestCase {
                       Boolean setupEndpoint, 
                       Boolean setupEngine) {
 
-        /*
-        System.out.println("setupMessage, setupRequestor: " + setupRequestor
-                           + ", isClient: " + isClient
-                           + ", usesOperationInfo: " + usesOperationInfo
-                           + ", setupOperation: " + setupOperation
-                           + ", setupEndpoint: " + setupEndpoint
-                           + ", setupEngine: " + setupEngine);
-        */                  
         message = control.createMock(Message.class);
         EasyMock.expect(message.get(Message.REQUESTOR_ROLE))
             .andReturn(setupRequestor ? Boolean.TRUE : Boolean.FALSE);

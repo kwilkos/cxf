@@ -73,7 +73,7 @@ public class PolicyVerificationInInterceptor extends AbstractPolicyInterceptor {
         }
         
         if (PolicyUtils.isPartialResponse(message)) {
-            LOG.fine("This is a partial response - policies are not verified.");
+            LOG.fine("Not verifying policies on inbound partial response.");
             return;
         }
         
@@ -85,6 +85,7 @@ public class PolicyVerificationInInterceptor extends AbstractPolicyInterceptor {
         }
                 
         opi.checkEffectivePolicy(aim);
+        LOG.fine("Verified policies for inbound message.");
     }
 
 }
