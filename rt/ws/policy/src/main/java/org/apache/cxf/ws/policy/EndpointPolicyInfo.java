@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.policy;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -46,23 +47,34 @@ public class EndpointPolicyInfo {
     private static final ResourceBundle BUNDLE = BundleUtils.getBundle(EndpointPolicyInfo.class);
     
     private Policy policy;
-    private List<Assertion> chosenAlternative;
+    private Collection<Assertion> chosenAlternative;
+    private Collection<Assertion> vocabulary;
+    private Collection<Assertion> faultVocabulary;
     private List<Interceptor> inInterceptors;
     private List<Interceptor> inFaultInterceptors;
     
     void initialise(EndpointInfo ei, boolean isServer, PolicyEngine engine, Assertor assertor) {
         initialisePolicy(ei, engine);
         chooseAlternative(engine, assertor);
-        initialiseInterceptors(ei, isServer, engine);  
+        initialiseVocabulary(ei, isServer, engine);
+        initialiseInterceptors(ei, isServer, engine); 
     }
    
     public Policy getPolicy() {
         return policy;        
     }
     
-    public List<Assertion> getChosenAlternative() {
+    public Collection<Assertion> getChosenAlternative() {
         return chosenAlternative;
     }
+    
+    public Collection<Assertion> getVocabulary() {
+        return vocabulary;
+    }
+    
+    public Collection<Assertion> getFaultVocabulary() {
+        return faultVocabulary;
+    }    
     
     public List<Interceptor> getInInterceptors() {
         return inInterceptors;
@@ -89,81 +101,86 @@ public class EndpointPolicyInfo {
         }
         throw new PolicyException(new Message("NO_ALTERNATIVE_EXC", BUNDLE));
     }
-
-    void initialiseInterceptors(EndpointInfo ei, boolean isServer, PolicyEngine engine) {
-        PolicyInterceptorProviderRegistry reg 
-            = engine.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
-        inInterceptors = new ArrayList<Interceptor>();
-        inFaultInterceptors = new ArrayList<Interceptor>();
+    
+    void initialiseVocabulary(EndpointInfo ei, boolean requestor, PolicyEngine engine) {
+        vocabulary = new ArrayList<Assertion>();
+        if (requestor) {
+            faultVocabulary = new ArrayList<Assertion>();
+        }
+       
+        // vocabulary of alternative chosen for endpoint
         
-        // the minimal set of interceptors required to satisfy the effective policy for
-        // any inbound message 
         for (Assertion a : getChosenAlternative()) {
             if (a.isOptional()) {
                 continue;
             }
-            QName qn = a.getName();
+            vocabulary.add(a);            
+            if (null != faultVocabulary) {
+                faultVocabulary.add(a);
+            }
+        }
+   
+        // add assertions for specific inbound (in case of a server endpoint) or outbound 
+        // (in case of a client endpoint) messages
+        
+        for (BindingOperationInfo boi : ei.getBinding().getOperations()) {
+            Policy p = engine.getAggregatedOperationPolicy(boi);
+            Collection<Assertion> c = engine.getAssertions(p, false);
+            vocabulary.addAll(c);
+            if (null != faultVocabulary) {
+                faultVocabulary.addAll(c);
+            }
+ 
+            if (!requestor) {
+                p = engine.getAggregatedMessagePolicy(boi.getInput());
+                vocabulary.addAll(engine.getAssertions(p, false));
+            } else if (null != boi.getOutput()) {
+                p = engine.getAggregatedMessagePolicy(boi.getOutput());
+                vocabulary.addAll(engine.getAssertions(p, false));
+                
+                for (BindingFaultInfo bfi : boi.getFaults()) { 
+                    p = engine.getAggregatedFaultPolicy(bfi);
+                    faultVocabulary.addAll(engine.getAssertions(p, false));
+                }
+            }
+        }
+    }
+
+    void initialiseInterceptors(EndpointInfo ei, boolean requestor, PolicyEngine engine) {
+        PolicyInterceptorProviderRegistry reg 
+            = engine.getBus().getExtension(PolicyInterceptorProviderRegistry.class);
+        inInterceptors = new ArrayList<Interceptor>();
+        if (requestor) {
+            inFaultInterceptors = new ArrayList<Interceptor>();
+        }
+        
+        Set<QName> v = new HashSet<QName>();
+        for (Assertion a : vocabulary) {
+            v.add(a.getName());
+        }
+        
+        for (QName qn : v) {
             PolicyInterceptorProvider pp = reg.get(qn);
             if (null != pp) {
                 inInterceptors.addAll(pp.getInInterceptors());
-                inFaultInterceptors.addAll(pp.getInInterceptors());
             }
         }
         
-        // add the interceptors that may be needed to support the additional assertions
-        // for specific inbound (in case of a server endpoint) or outbound (in case of a client endpoint)
-        // messages
-        
-        Set<QName> vocabulary = null;
-  
-        for (BindingOperationInfo boi : ei.getBinding().getOperations()) {
-            Policy p = engine.getAggregatedOperationPolicy(boi);
-            Set<QName> v = engine.getVocabulary(p, false);
-            if (null == vocabulary) {
-                vocabulary = v;
-            } else {
-                vocabulary.addAll(v); 
-            }
-            if (isServer) {
-                p = engine.getAggregatedMessagePolicy(boi.getInput());
-                vocabulary.addAll(engine.getVocabulary(p, false));
-            } else if (null != boi.getOutput()) {
-                for (BindingFaultInfo bfi : boi.getFaults()) {
-                    p = engine.getAggregatedFaultPolicy(bfi);
-                    vocabulary.addAll(engine.getVocabulary(p, false)); 
-                }
-            }
+        if (!requestor) {
+            return;
         }
         
-        Set<QName> clientVocabulary = isServer ? null : new HashSet<QName>();
-        if (!isServer) {
-            clientVocabulary.addAll(vocabulary);
-            for (BindingOperationInfo boi : ei.getBinding().getOperations()) {
-                if (null != boi.getOutput()) {
-                    Policy p = engine.getAggregatedMessagePolicy(boi.getOutput());
-                    clientVocabulary.addAll(engine.getVocabulary(p, false)); 
-                }
-            }
+        Set<QName> faultV = new HashSet<QName>();
+        for (Assertion a : faultVocabulary) {
+            faultV.add(a.getName());
         }
-
-        for (QName qn : vocabulary) {
+        
+        for (QName qn : faultV) {
             PolicyInterceptorProvider pp = reg.get(qn);
             if (null != pp) {
-                if (isServer) {
-                    inInterceptors.addAll(pp.getInInterceptors());
-                } else {
-                    inFaultInterceptors.addAll(pp.getInFaultInterceptors());
-                }
+                inFaultInterceptors.addAll(pp.getInFaultInterceptors());
             }
-        }
-        if (!isServer) {
-            for (QName qn : clientVocabulary) {
-                PolicyInterceptorProvider pp = reg.get(qn);
-                if (null != pp) {
-                    inInterceptors.addAll(pp.getInInterceptors());
-                }
-            }
-        }
+        }        
     }
     
     // for test
@@ -172,8 +189,16 @@ public class EndpointPolicyInfo {
         policy = ep;
     }
     
-    void setChosenAlternative(List<Assertion> c) {
+    void setChosenAlternative(Collection<Assertion> c) {
         chosenAlternative = c;
+    }
+    
+    void setVocabulary(Collection<Assertion> v) {
+        vocabulary = v;
+    }
+    
+    void setFaultVocabulary(Collection<Assertion> v) {
+        faultVocabulary = v;
     }
     
     void setInInterceptors(List<Interceptor> in) {

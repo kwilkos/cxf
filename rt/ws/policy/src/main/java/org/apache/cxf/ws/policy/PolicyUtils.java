@@ -52,6 +52,16 @@ public final class PolicyUtils {
     }
     
     /**
+     * Determine if the current message is a partial response.
+     * 
+     * @param message the current message
+     * @return true iff the current messags is a partial response
+     */
+    public static boolean isPartialResponse(Message message) {
+        return Boolean.TRUE.equals(message.get(Message.PARTIAL_RESPONSE_MESSAGE));
+    }
+    
+    /**
      * Determine if a collection of assertions contains a given assertion, using
      * the equal method from the Assertion interface.
      * 

@@ -19,39 +19,30 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.Conduit;
+import org.apache.neethi.Assertion;
 
 /**
  * 
  */
-public class ClientPolicyInFaultInterceptor extends AbstractPhaseInterceptor<Message> {
+public class ClientPolicyInFaultInterceptor extends AbstractPolicyInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ClientPolicyInFaultInterceptor.class);
-    private Bus bus;
     
     public ClientPolicyInFaultInterceptor() {
         setId(PolicyConstants.CLIENT_POLICY_IN_FAULT_INTERCEPTOR_ID);
         setPhase(Phase.RECEIVE);
-    }
-        
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
-    public Bus getBus() {
-        return bus;
     }
     
     public void handleMessage(Message msg) {        
@@ -79,12 +70,19 @@ public class ClientPolicyInFaultInterceptor extends AbstractPhaseInterceptor<Mes
         // We do not know the underlying message type yet - so we pre-emptively add interceptors 
         // that can deal with the response and all of the operation's possible fault messages.
         
-        List<Interceptor> policyInFaultInterceptors = pe.getClientInFaultInterceptors(e, conduit);
+        EndpointPolicyInfo epi = pe.getEndpointPolicyInfo(e, conduit);
+        
+        List<Interceptor> policyInFaultInterceptors = epi.getInFaultInterceptors();
         for (Interceptor poi : policyInFaultInterceptors) {
             msg.getInterceptorChain().add(poi);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Added interceptor of type " + poi.getClass().getSimpleName());
-            }
+            LOG.log(Level.INFO, "Added interceptor of type {0}", poi.getClass().getSimpleName());
+        }
+        
+        // insert assertions of endpoint's fault vocabulary into message
+        
+        Collection<Assertion> assertions = epi.getFaultVocabulary();
+        if (null != assertions) {
+            msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
         }
     }
 }

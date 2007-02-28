@@ -21,7 +21,6 @@ package org.apache.cxf.ws.policy;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,6 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.extension.BusExtension;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -61,14 +59,26 @@ public class PolicyEngine implements BusExtension {
     private Collection<PolicyProvider> policyProviders;
     private boolean registerInterceptors;
 
-    private Map<BindingOperation, ClientRequestPolicyInfo> clientRequestInfo 
-        = new ConcurrentHashMap<BindingOperation, ClientRequestPolicyInfo>();
+    private Map<BindingOperation, OutPolicyInfo> clientRequestInfo 
+        = new ConcurrentHashMap<BindingOperation, OutPolicyInfo>();
+    
+    private Map<BindingOperation, OutPolicyInfo> clientResponseInfo 
+        = new ConcurrentHashMap<BindingOperation, OutPolicyInfo>();
+    
+    private Map<BindingFault, OutPolicyInfo> clientFaultInfo 
+        = new ConcurrentHashMap<BindingFault, OutPolicyInfo>();
     
     private Map<Endpoint, EndpointPolicyInfo> endpointInfo 
         = new ConcurrentHashMap<Endpoint, EndpointPolicyInfo>();
     
-    private Map<BindingOperation, ServerResponsePolicyInfo> serverResponseInfo 
-        = new ConcurrentHashMap<BindingOperation, ServerResponsePolicyInfo>();
+    private Map<BindingOperation, OutPolicyInfo> serverRequestInfo 
+        = new ConcurrentHashMap<BindingOperation, OutPolicyInfo>();
+    
+    private Map<BindingOperation, OutPolicyInfo> serverResponseInfo 
+        = new ConcurrentHashMap<BindingOperation, OutPolicyInfo>();
+    
+    private Map<BindingFault, OutPolicyInfo> serverFaultInfo 
+        = new ConcurrentHashMap<BindingFault, OutPolicyInfo>();
 
     public PolicyEngine() {
         registry = new PolicyRegistryImpl();
@@ -136,15 +146,24 @@ public class PolicyEngine implements BusExtension {
         serverOutFault.setBus(bus);
         bus.getOutFaultInterceptors().add(serverOutFault);
         
-        // TODO: policy verification interceptors
+        PolicyVerificationOutInterceptor verifyOut = new PolicyVerificationOutInterceptor();
+        verifyOut.setBus(bus);
+        bus.getOutInterceptors().add(verifyOut);
+        PolicyVerificationInInterceptor verifyIn = new PolicyVerificationInInterceptor();
+        verifyIn.setBus(bus);
+        bus.getInInterceptors().add(verifyIn);
+        PolicyVerificationInFaultInterceptor verifyInFault = new PolicyVerificationInFaultInterceptor();
+        verifyInFault.setBus(bus);
+        bus.getInFaultInterceptors().add(verifyInFault);
     }  
     
+    /*
     public Collection<Assertion> getClientOutAssertions(Endpoint e, BindingOperationInfo boi, Conduit c) {
         return getClientRequestPolicyInfo(e, boi, c).getChosenAlternative();
     }
 
     public List<Interceptor> getClientOutInterceptors(Endpoint e, BindingOperationInfo boi, Conduit c) {
-        return getClientRequestPolicyInfo(e, boi, c).getOutInterceptors();
+        return getClientRequestPolicyInfo(e, boi, c).getInterceptors();
     }
     
     public List<Interceptor> getClientInInterceptors(Endpoint e, Conduit c) {        
@@ -166,13 +185,19 @@ public class PolicyEngine implements BusExtension {
                                                        
     public List<Interceptor> getServerOutInterceptors(Endpoint e, BindingOperationInfo boi, 
                                                       Destination d) {
-        return getServerResponsePolicyInfo(e, boi, d).getOutInterceptors();
+        return getServerResponsePolicyInfo(e, boi, d).getInterceptors();
     }
     
-    public List<Interceptor> getServerOutFaultInterceptors(Endpoint e, BindingOperationInfo boi, 
-                                                      Destination d) {
-        return getServerResponsePolicyInfo(e, boi, d).getOutFaultInterceptors();
+    public Collection<Assertion> getServerOutFaultAssertions(Endpoint e, BindingFaultInfo bfi,
+                                                             Destination d) {
+        return getServerFaultPolicyInfo(e, bfi, d).getChosenAlternative();
     }
+    
+    public List<Interceptor> getServerOutFaultInterceptors(Endpoint e, BindingFaultInfo bfi, 
+                                                      Destination d) {
+        return getServerFaultPolicyInfo(e, bfi, d).getInterceptors();
+    }
+    */
 
     public Policy getAggregatedServicePolicy(ServiceInfo si) {
         Policy aggregated = null;
@@ -249,34 +274,34 @@ public class PolicyEngine implements BusExtension {
      */
     public Collection<Assertion> getAssertions(PolicyComponent pc, boolean includeOptional) {
         
-        if (Constants.TYPE_ASSERTION == pc.getType()) {
-            return Collections.singletonList((Assertion)pc);
-        } 
-        
         Collection<Assertion> assertions = new ArrayList<Assertion>();
-        addAssertions(pc, includeOptional, assertions);
-        return assertions;
-    }
-    
-    private void addAssertions(PolicyComponent pc, boolean includeOptional, 
-                               Collection<Assertion> assertions) {
-
+        
         if (Constants.TYPE_ASSERTION == pc.getType()) {
             Assertion a = (Assertion)pc;
             if (includeOptional || !a.isOptional()) {
-                assertions.add((Assertion)pc);
-                return;
+                assertions.add(a);
             }
+        } else {       
+            addAssertions(pc, includeOptional, assertions);
+        }
+        return assertions;
+    }
+    
+    void addAssertions(PolicyComponent pc, boolean includeOptional, 
+                               Collection<Assertion> assertions) {
+       
+        if (Constants.TYPE_ASSERTION == pc.getType()) {
+            Assertion a = (Assertion)pc;
+            if (includeOptional || !a.isOptional()) {
+                assertions.add((Assertion)pc);                
+            }
+            return;
         } 
         
         if (Constants.TYPE_POLICY_REF == pc.getType()) {
             PolicyReference pr = (PolicyReference)pc;
             pc = pr.normalize(registry, false);
         }
-
-        assert Constants.TYPE_POLICY == pc.getType() 
-                || Constants.TYPE_POLICY == pc.getType() 
-                || Constants.TYPE_EXACTLYONE == pc.getType();
 
         PolicyOperator po = (PolicyOperator)pc;
 
@@ -324,19 +349,52 @@ public class PolicyEngine implements BusExtension {
         return true;
     }
     
-    ClientRequestPolicyInfo getClientRequestPolicyInfo(Endpoint e, BindingOperationInfo boi, Conduit c) {
+    OutPolicyInfo getClientRequestPolicyInfo(Endpoint e, BindingOperationInfo boi, Conduit c) {
         BindingOperation bo = new BindingOperation(e, boi);
-        ClientRequestPolicyInfo crpi = clientRequestInfo.get(bo);
-        if (null == crpi) {
-            crpi = new ClientRequestPolicyInfo();
+        OutPolicyInfo opi = clientRequestInfo.get(bo);
+        if (null == opi) {
+            opi = new OutPolicyInfo();
             Assertor assertor = null;
             if (c instanceof Assertor) {
                 assertor = (Assertor)c;
             }
-            crpi.initialise(boi, e.getEndpointInfo(), this, assertor);
-            clientRequestInfo.put(bo, crpi);
+            opi.initialise(e, boi, this, assertor, true);
+            clientRequestInfo.put(bo, opi);
         }
-        return crpi;
+        return opi;
+    }
+    
+    OutPolicyInfo getServerRequestPolicyInfo(Endpoint e, BindingOperationInfo boi) {
+        BindingOperation bo = new BindingOperation(e, boi);
+        OutPolicyInfo opi = serverRequestInfo.get(bo);
+        if (null == opi) {
+            opi = new OutPolicyInfo();
+            opi.initialisePolicy(e, boi, this, false);
+            serverRequestInfo.put(bo, opi);
+        }
+        return opi;
+    }
+    
+    OutPolicyInfo getClientResponsePolicyInfo(Endpoint e, BindingOperationInfo boi) {
+        BindingOperation bo = new BindingOperation(e, boi);
+        OutPolicyInfo opi = clientResponseInfo.get(bo);
+        if (null == opi) {
+            opi = new OutPolicyInfo();
+            opi.initialisePolicy(e, boi, this, true);
+            clientResponseInfo.put(bo, opi);
+        }
+        return opi;
+    }
+    
+    OutPolicyInfo getClientFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi) {
+        BindingFault bf = new BindingFault(e, bfi);
+        OutPolicyInfo opi = clientFaultInfo.get(bf);
+        if (null == opi) {
+            opi = new OutPolicyInfo();
+            opi.initialisePolicy(e, bfi, this);
+            clientFaultInfo.put(bf, opi);
+        }
+        return opi;
     }
     
     EndpointPolicyInfo getEndpointPolicyInfo(Endpoint e, Conduit conduit) {
@@ -365,31 +423,60 @@ public class PolicyEngine implements BusExtension {
         return epi;
     }
     
-    ServerResponsePolicyInfo getServerResponsePolicyInfo(Endpoint e, BindingOperationInfo boi, 
+    OutPolicyInfo getServerResponsePolicyInfo(Endpoint e, BindingOperationInfo boi, 
                                                          Destination d) {
         BindingOperation bo = new BindingOperation(e, boi);
-        ServerResponsePolicyInfo srpi = serverResponseInfo.get(bo);
-        if (null == srpi) {
-            srpi = new ServerResponsePolicyInfo();
+        OutPolicyInfo opi = serverResponseInfo.get(bo);
+        if (null == opi) {
+            opi = new OutPolicyInfo();
             Assertor assertor = null;
             if (d instanceof Assertor) {
                 assertor = (Assertor)d;
             }
-            srpi.initialise(e, boi, this, assertor);
-            serverResponseInfo.put(bo, srpi);
+            opi.initialise(e, boi, this, assertor, false);
+            serverResponseInfo.put(bo, opi);
         }
-        return srpi;
+        return opi;
+    }
+    
+    OutPolicyInfo getServerFaultPolicyInfo(Endpoint e, BindingFaultInfo bfi, 
+                                                         Destination d) {
+        BindingFault bf = new BindingFault(e, bfi);
+        OutPolicyInfo opi = serverFaultInfo.get(bf);
+        if (null == opi) {
+            opi = new OutPolicyInfo();
+            Assertor assertor = null;
+            if (d instanceof Assertor) {
+                assertor = (Assertor)d;
+            }
+            opi.initialise(e, bfi, this, assertor);
+            serverFaultInfo.put(bf, opi);
+        }
+        return opi;
     }
     
     
     /**
-     * Class used as key in the client request policy map.
+     * Class used as key in the client request policy and server response policy maps.
      */
     class BindingOperation {
         Endpoint endpoint;
         BindingOperationInfo boi;
         
         BindingOperation(Endpoint e, BindingOperationInfo b) {
+            endpoint = e;
+            boi = b;
+        }
+    }
+    
+    /**
+     * Class used as key in the server fault policy map.
+     */
+    class BindingFault {
+        Endpoint endpoint;
+        BindingFaultInfo boi;
+        
+        BindingFault(Endpoint e, BindingFaultInfo b) {
             endpoint = e;
             boi = b;
         }

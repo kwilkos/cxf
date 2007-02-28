@@ -19,42 +19,34 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.transport.Destination;
+import org.apache.neethi.Assertion;
 
 /**
  * 
  */
-public class ServerPolicyOutFaultInterceptor extends AbstractPhaseInterceptor<Message> {
+public class ServerPolicyOutFaultInterceptor extends AbstractPolicyInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ServerPolicyOutFaultInterceptor.class);
-    private Bus bus;
     
     public ServerPolicyOutFaultInterceptor() {
         setId(PolicyConstants.SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID);
         setPhase(Phase.SETUP);
     }
-        
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
-    public Bus getBus() {
-        return bus;
-    }
-    
+       
     public void handleMessage(Message msg) {        
         if (PolicyUtils.isRequestor(msg)) {
             LOG.fine("Is a requestor.");
@@ -83,12 +75,43 @@ public class ServerPolicyOutFaultInterceptor extends AbstractPhaseInterceptor<Me
         
         Destination destination = msg.getDestination();
         
-        List<Interceptor> outInterceptors = pe.getServerOutFaultInterceptors(e, boi, destination);
+        Exception ex = exchange.get(Exception.class);
+        assert null != ex;
+        
+        BindingFaultInfo bfi = getBindingFaultInfo(msg, ex, boi);
+        if (null == bfi) {
+            LOG.fine("No binding fault info.");
+            return;
+        }  
+        
+        OutPolicyInfo opi = pe.getServerFaultPolicyInfo(e, bfi, destination);
+        
+        List<Interceptor> outInterceptors = opi.getInterceptors();
         for (Interceptor oi : outInterceptors) {
             msg.getInterceptorChain().add(oi);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Added interceptor of type " + oi.getClass().getSimpleName());
-            }
+            LOG.log(Level.INFO, "Added interceptor of type {0}", oi.getClass().getSimpleName());
         }
+        
+        // insert assertions of the chosen alternative into the message
+        
+        Collection<Assertion> assertions = opi.getChosenAlternative();
+        if (null != assertions) {
+            msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
+        }
+    }
+    
+    BindingFaultInfo getBindingFaultInfo(Message msg, Exception ex, BindingOperationInfo boi) {
+        BindingFaultInfo bfi = msg.get(BindingFaultInfo.class);
+        if (null == bfi) {
+            for (BindingFaultInfo b : boi.getFaults()) {
+                Class<?> faultClass = b.getFaultInfo().getProperty(Class.class.getName(), Class.class);
+                if (faultClass.isAssignableFrom(ex.getClass())) {
+                    bfi = b;
+                    msg.put(BindingFaultInfo.class, bfi);
+                    break;
+                }
+            }            
+        }
+        return bfi;
     }
 }

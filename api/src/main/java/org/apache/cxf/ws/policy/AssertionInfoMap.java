@@ -19,20 +19,28 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+
 import javax.xml.namespace.QName;
 
-public class Names {
+import org.apache.neethi.Assertion;
 
-    public static final String WSP_NAMESPACE_NAME = 
-        "http://schemas.xmlsoap.org/ws/2004/09/policy";
-    
-    public static final String WSU_NAMESPACE_NAME = 
-        "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
-    
-    public static final QName WSP_POLICY_QNAME = 
-        new QName(WSP_NAMESPACE_NAME, "Policy");
-    
-    public static final QName WSP_POLICY_REFERENCE_QNAME = 
-        new QName(WSP_NAMESPACE_NAME, "PolicyReference");
-    
+/**
+ * 
+ */
+public class AssertionInfoMap extends HashMap<QName, Collection<AssertionInfo>> {
+    public AssertionInfoMap(Collection<Assertion> assertions) {
+        super(assertions.size());
+        for (Assertion a : assertions) {
+            AssertionInfo ai = new AssertionInfo(a);
+            Collection<AssertionInfo> ais = get(a.getName());
+            if (null == ais) {
+                ais = new ArrayList<AssertionInfo>();
+                put(a.getName(), ais);
+            }
+            ais.add(ai);
+        }
+    }
 }

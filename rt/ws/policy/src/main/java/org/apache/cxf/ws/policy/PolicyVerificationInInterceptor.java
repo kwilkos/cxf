@@ -19,40 +19,35 @@
 
 package org.apache.cxf.ws.policy;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
-import org.apache.cxf.transport.Destination;
-import org.apache.neethi.Assertion;
 
 /**
  * 
  */
-public class ServerPolicyOutInterceptor extends AbstractPolicyInterceptor {
+public class PolicyVerificationInInterceptor extends AbstractPolicyInterceptor {
 
-    private static final Logger LOG = LogUtils.getL7dLogger(ServerPolicyOutInterceptor.class);
-    
-    public ServerPolicyOutInterceptor() {
-        setId(PolicyConstants.SERVER_POLICY_OUT_INTERCEPTOR_ID);
-        setPhase(Phase.SETUP);
+    private static final Logger LOG = LogUtils.getL7dLogger(PolicyVerificationInInterceptor.class);
+
+    public PolicyVerificationInInterceptor() {
+        setPhase(Phase.PRE_INVOKE);
     }
-    
-    public void handleMessage(Message msg) {        
-        if (PolicyUtils.isRequestor(msg)) {
-            LOG.fine("Is a requestor.");
-            return;
-        }
-        
-        Exchange exchange = msg.getExchange();
+
+    /** 
+     * Determines the effective policy, and checks if one of its alternatives  
+     * is supported.
+     *  
+     * @param message
+     */
+    public void handleMessage(Message message) throws Fault {
+        Exchange exchange = message.getExchange();
         assert null != exchange;
         
         BindingOperationInfo boi = exchange.get(BindingOperationInfo.class);
@@ -65,27 +60,31 @@ public class ServerPolicyOutInterceptor extends AbstractPolicyInterceptor {
         if (null == e) {
             LOG.fine("No endpoint.");
             return;
-        }
+        }        
         
         PolicyEngine pe = bus.getExtension(PolicyEngine.class);
         if (null == pe) {
             return;
         }
         
-        Destination destination = msg.getDestination();
-        OutPolicyInfo opi = pe.getServerResponsePolicyInfo(e, boi, destination);
-        
-        List<Interceptor> outInterceptors = opi.getInterceptors();
-        for (Interceptor oi : outInterceptors) {
-            msg.getInterceptorChain().add(oi);
-            LOG.log(Level.INFO, "Added interceptor of type {0}", oi.getClass().getSimpleName());           
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return;
         }
         
-        // insert assertions of the chosen alternative into the message
-             
-        Collection<Assertion> assertions = opi.getChosenAlternative();
-        if (null != assertions) {
-            msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
+        if (PolicyUtils.isPartialResponse(message)) {
+            LOG.fine("This is a partial response - policies are not verified.");
+            return;
         }
+        
+        OutPolicyInfo opi = null;
+        if (PolicyUtils.isRequestor(message)) {
+            opi = pe.getClientResponsePolicyInfo(e, boi);
+        } else {
+            opi = pe.getServerRequestPolicyInfo(e, boi);
+        }
+                
+        opi.checkEffectivePolicy(aim);
     }
+
 }

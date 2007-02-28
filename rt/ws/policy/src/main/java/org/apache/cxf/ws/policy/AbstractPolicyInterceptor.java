@@ -17,22 +17,24 @@
  * under the License.
  */
 
-package org.apache.cxf.service.model;
+package org.apache.cxf.ws.policy;
 
-import javax.xml.namespace.QName;
+import org.apache.cxf.Bus;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
 
-public class FaultInfo extends AbstractMessageContainer {
-    private QName faultName;
+/**
+ * 
+ */
+public abstract class AbstractPolicyInterceptor extends AbstractPhaseInterceptor<Message> {
     
-    public FaultInfo(QName fname, QName mname, OperationInfo info) {
-        super(info, mname);
-        faultName = fname;
+    protected Bus bus;
+    
+    public void setBus(Bus b) {
+        bus = b;
     }
     
-    public QName getFaultName() {
-        return faultName;
-    }
-    public void setFaultName(QName fname) {
-        faultName = fname;
+    public Bus getBus() {
+        return bus;
     }
 }

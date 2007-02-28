@@ -19,40 +19,31 @@
 
 package org.apache.cxf.ws.policy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.transport.Conduit;
+import org.apache.neethi.Assertion;
 
 /**
  * 
  */
-public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message> {
+public class ClientPolicyOutInterceptor extends AbstractPolicyInterceptor {
 
     private static final Logger LOG = LogUtils.getL7dLogger(ClientPolicyOutInterceptor.class);
-    private Bus bus;
     
     public ClientPolicyOutInterceptor() {
         setId(PolicyConstants.CLIENT_POLICY_OUT_INTERCEPTOR_ID);
         setPhase(Phase.SETUP);
-    }
-    
-    public void setBus(Bus b) {
-        bus = b;
-    }
-    
-    public Bus getBus() {
-        return bus;
     }
     
     public void handleMessage(Message msg) {
@@ -85,16 +76,19 @@ public class ClientPolicyOutInterceptor extends AbstractPhaseInterceptor<Message
         
         // add the required interceptors
         
-        List<Interceptor> policyOutInterceptors = pe.getClientOutInterceptors(e, boi, conduit);
+        OutPolicyInfo opi = pe.getClientRequestPolicyInfo(e, boi, conduit);
+        
+        List<Interceptor> policyOutInterceptors = opi.getInterceptors();
         for (Interceptor poi : policyOutInterceptors) {            
             msg.getInterceptorChain().add(poi);
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine("Added interceptor of type " + poi.getClass().getSimpleName());
-            }
+            LOG.log(Level.INFO, "Added interceptor of type {0}", poi.getClass().getSimpleName());
         }
         
         // insert assertions of the chosen alternative into the message
         
-        msg.put(PolicyConstants.CLIENT_OUT_ASSERTIONS, pe.getClientOutAssertions(e, boi, conduit));
+        Collection<Assertion> assertions = opi.getChosenAlternative();
+        if (null != assertions) {
+            msg.put(AssertionInfoMap.class, new AssertionInfoMap(assertions));
+        }
     }
 }

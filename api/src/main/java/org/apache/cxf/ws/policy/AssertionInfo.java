@@ -17,22 +17,28 @@
  * under the License.
  */
 
-package org.apache.cxf.service.model;
+package org.apache.cxf.ws.policy;
 
-import javax.xml.namespace.QName;
+import org.apache.neethi.Assertion;
 
-public class FaultInfo extends AbstractMessageContainer {
-    private QName faultName;
+/**
+ * 
+ */
+public class AssertionInfo {
     
-    public FaultInfo(QName fname, QName mname, OperationInfo info) {
-        super(info, mname);
-        faultName = fname;
-    }
+    private boolean asserted;
+    private final Assertion assertion;
     
-    public QName getFaultName() {
-        return faultName;
+    public AssertionInfo(Assertion a) {
+        assertion = a;
     }
-    public void setFaultName(QName fname) {
-        faultName = fname;
+    public boolean isAsserted() {
+        return asserted;
+    }
+    public void setAsserted(boolean a) {
+        asserted = a;
+    }
+    public Assertion getAssertion() {
+        return assertion;
     }
 }

@@ -21,10 +21,13 @@ package org.apache.cxf.ws.policy;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
@@ -38,9 +41,12 @@ import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.transport.Conduit;
-import org.apache.cxf.transport.Destination;
+import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
+import org.apache.neethi.Assertion;
+import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyComponent;
+import org.apache.neethi.PolicyReference;
 import org.apache.neethi.PolicyRegistry;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
@@ -95,9 +101,9 @@ public class PolicyEngineTest extends TestCase {
         List<Interceptor> inFault = new ArrayList<Interceptor>();
         List<Interceptor> outFault = new ArrayList<Interceptor>();
         if (add) {
-            EasyMock.expect(bus.getOutInterceptors()).andReturn(out).times(2);
-            EasyMock.expect(bus.getInInterceptors()).andReturn(in).times(2);
-            EasyMock.expect(bus.getInFaultInterceptors()).andReturn(inFault);
+            EasyMock.expect(bus.getOutInterceptors()).andReturn(out).times(3);
+            EasyMock.expect(bus.getInInterceptors()).andReturn(in).times(3);
+            EasyMock.expect(bus.getInFaultInterceptors()).andReturn(inFault).times(2);
             EasyMock.expect(bus.getOutFaultInterceptors()).andReturn(outFault);
             control.replay();
         }
@@ -109,14 +115,17 @@ public class PolicyEngineTest extends TestCase {
             Set<String> idsIn = getInterceptorIds(in);
             Set<String> idsInFault = getInterceptorIds(inFault);
             Set<String> idsOutFault = getInterceptorIds(outFault);
-            assertEquals(2, out.size());
+            assertEquals(3, out.size());
             assertTrue(idsOut.contains(PolicyConstants.CLIENT_POLICY_OUT_INTERCEPTOR_ID));
             assertTrue(idsOut.contains(PolicyConstants.SERVER_POLICY_OUT_INTERCEPTOR_ID));
-            assertEquals(2, in.size());
+            assertTrue(idsOut.contains(PolicyVerificationOutInterceptor.class.getName()));
+            assertEquals(3, in.size());
             assertTrue(idsIn.contains(PolicyConstants.CLIENT_POLICY_IN_INTERCEPTOR_ID));
             assertTrue(idsIn.contains(PolicyConstants.SERVER_POLICY_IN_INTERCEPTOR_ID));
-            assertEquals(1, inFault.size());
+            assertTrue(idsIn.contains(PolicyVerificationInInterceptor.class.getName()));
+            assertEquals(2, inFault.size());
             assertTrue(idsInFault.contains(PolicyConstants.CLIENT_POLICY_IN_FAULT_INTERCEPTOR_ID));
+            assertTrue(idsInFault.contains(PolicyVerificationInFaultInterceptor.class.getName()));
             assertEquals(1, outFault.size());
             assertTrue(idsOutFault.contains(PolicyConstants.SERVER_POLICY_OUT_FAULT_INTERCEPTOR_ID));
         } else {
@@ -305,6 +314,7 @@ public class PolicyEngineTest extends TestCase {
         control.verify();      
     }
     
+    /*
     public void testGetClientOutInterceptors() throws NoSuchMethodException {
         Method m = PolicyEngine.class.getDeclaredMethod("getClientRequestPolicyInfo",
                                                         new Class[] {Endpoint.class,
@@ -314,11 +324,11 @@ public class PolicyEngineTest extends TestCase {
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
         Endpoint e = control.createMock(Endpoint.class);
         Conduit conduit = control.createMock(Conduit.class);
-        ClientRequestPolicyInfo cpi = control.createMock(ClientRequestPolicyInfo.class);
+        OutPolicyInfo cpi = control.createMock(OutPolicyInfo.class);
         EasyMock.expect(engine.getClientRequestPolicyInfo(e, boi, conduit)).andReturn(cpi);
         Interceptor i = control.createMock(Interceptor.class);
         List<Interceptor> li = Collections.singletonList(i);
-        EasyMock.expect(cpi.getOutInterceptors()).andReturn(li);        
+        EasyMock.expect(cpi.getInterceptors()).andReturn(li);        
 
         control.replay();
         List<Interceptor> clientInterceptors = engine.getClientOutInterceptors(e, boi, conduit); 
@@ -326,6 +336,29 @@ public class PolicyEngineTest extends TestCase {
         control.verify();
     }
     
+    public void testGetClientOutAssertions() throws NoSuchMethodException {
+        Method m = PolicyEngine.class.getDeclaredMethod("getClientRequestPolicyInfo",
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingOperationInfo.class,
+                                                                     Conduit.class});
+        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
+        Conduit conduit = control.createMock(Conduit.class);
+        OutPolicyInfo cpi = control.createMock(OutPolicyInfo.class);
+        EasyMock.expect(engine.getClientRequestPolicyInfo(e, boi, conduit)).andReturn(cpi);
+        Assertion a = control.createMock(Assertion.class);
+        List<Assertion> la = Collections.singletonList(a);
+        EasyMock.expect(cpi.getChosenAlternative()).andReturn(la);        
+
+        control.replay();
+        Collection<Assertion> assertions = engine.getClientOutAssertions(e, boi, conduit); 
+        assertSame(la, assertions);
+        control.verify();
+    }
+    */
+    
+    /*
     public void testGetClientInInterceptors() throws NoSuchMethodException { 
         doTestGetInterceptors(false, false);
     }
@@ -339,13 +372,171 @@ public class PolicyEngineTest extends TestCase {
     }
     
     public void testServerOutInterceptors() throws NoSuchMethodException {
-        doTestGetServerOutInterceptors(false);
+        Method m = PolicyEngine.class.getDeclaredMethod("getServerResponsePolicyInfo",
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingOperationInfo.class,
+                                                                     Destination.class});
+        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
+        Destination destination = control.createMock(Destination.class);
+        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
+        EasyMock.expect(engine.getServerResponsePolicyInfo(e, boi, destination)).andReturn(opi);
+        Interceptor i = control.createMock(Interceptor.class);
+        List<Interceptor> li = Collections.singletonList(i);        
+        EasyMock.expect(opi.getInterceptors()).andReturn(li);
+
+        control.replay();
+        List<Interceptor> interceptors = engine.getServerOutInterceptors(e, boi, destination);
+        assertSame(li, interceptors);
+        control.verify();
+    }
+    
+    public void testServerOutAssertions() throws NoSuchMethodException {
+        Method m = PolicyEngine.class.getDeclaredMethod("getServerResponsePolicyInfo",
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingOperationInfo.class,
+                                                                     Destination.class});
+        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
+        Destination destination = control.createMock(Destination.class);
+        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
+        EasyMock.expect(engine.getServerResponsePolicyInfo(e, boi, destination)).andReturn(opi);
+        Assertion a = control.createMock(Assertion.class);
+        List<Assertion> la = Collections.singletonList(a);        
+        EasyMock.expect(opi.getChosenAlternative()).andReturn(la);
+
+        control.replay();
+        Collection<Assertion> assertions = engine.getServerOutAssertions(e, boi, destination);
+        assertSame(la, assertions);
+        control.verify();
     }
     
     public void testServerOutFaultInterceptors() throws NoSuchMethodException {
-        doTestGetServerOutInterceptors(true);
+        Method m = PolicyEngine.class.getDeclaredMethod("getServerFaultPolicyInfo",
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingFaultInfo.class,
+                                                                     Destination.class});
+        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
+        Destination destination = control.createMock(Destination.class);
+        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
+        EasyMock.expect(engine.getServerFaultPolicyInfo(e, bfi, destination)).andReturn(opi);
+        Interceptor i = control.createMock(Interceptor.class);
+        List<Interceptor> li = Collections.singletonList(i);  
+        EasyMock.expect(opi.getInterceptors()).andReturn(li);
+
+        control.replay();
+        List<Interceptor> interceptors = engine.getServerOutFaultInterceptors(e, bfi, destination);
+        assertSame(li, interceptors);
+        control.verify();
+    }
+    
+    public void testServerOutFaultAssertions() throws NoSuchMethodException {
+        Method m = PolicyEngine.class.getDeclaredMethod("getServerFaultPolicyInfo",
+                                                        new Class[] {Endpoint.class,
+                                                                     BindingFaultInfo.class,
+                                                                     Destination.class});
+        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
+        Endpoint e = control.createMock(Endpoint.class);
+        Destination destination = control.createMock(Destination.class);
+        OutPolicyInfo opi = control.createMock(OutPolicyInfo.class);
+        EasyMock.expect(engine.getServerFaultPolicyInfo(e, bfi, destination)).andReturn(opi);
+        Assertion a = control.createMock(Assertion.class);
+        List<Assertion> la = Collections.singletonList(a);  
+        EasyMock.expect(opi.getChosenAlternative()).andReturn(la);
+
+        control.replay();
+        Collection<Assertion> assertions = engine.getServerOutFaultAssertions(e, bfi, destination);
+        assertSame(la, assertions);
+        control.verify();
+    }
+    */
+    
+    public void testGetAssertions() throws NoSuchMethodException {
+        Method m = PolicyEngine.class.getDeclaredMethod("addAssertions",
+            new Class[] {PolicyComponent.class, boolean.class, Collection.class});
+        engine = control.createMock(PolicyEngine.class, new Method[] {m});
+        Assertion a = control.createMock(Assertion.class);
+        EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
+        EasyMock.expect(a.isOptional()).andReturn(true);
+        
+        control.replay();
+        assertTrue(engine.getAssertions(a, false).isEmpty());
+        control.verify();
+        
+        control.reset();
+        EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
+        // EasyMock.expect(a.isOptional()).andReturn(false);
+        
+        control.replay();
+        Collection<Assertion> ca = engine.getAssertions(a, true);
+        assertEquals(1, ca.size());
+        assertSame(a, ca.iterator().next());
+        control.verify();
+        
+        control.reset();
+        Policy p = control.createMock(Policy.class);
+        EasyMock.expect(p.getType()).andReturn(Constants.TYPE_POLICY);
+        engine.addAssertions(EasyMock.eq(p), EasyMock.eq(false), 
+                             CastUtils.cast(EasyMock.isA(Collection.class), Assertion.class));
+        EasyMock.expectLastCall();
+        
+        control.replay();
+        assertTrue(engine.getAssertions(p, false).isEmpty());
+        control.verify();
+    }
+    
+    public void testAddAssertions() {
+        engine = new PolicyEngine();
+        Collection<Assertion> assertions = new ArrayList<Assertion>();
+        
+        Assertion a = control.createMock(Assertion.class);
+        EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
+        EasyMock.expect(a.isOptional()).andReturn(true);
+        
+        control.replay();
+        engine.addAssertions(a, false, assertions);
+        assertTrue(assertions.isEmpty());
+        control.verify();
+        
+        control.reset();
+        EasyMock.expect(a.getType()).andReturn(Constants.TYPE_ASSERTION);
+        control.replay();
+        engine.addAssertions(a, true, assertions);
+        assertEquals(1, assertions.size());
+        assertSame(a, assertions.iterator().next());        
+        control.verify();
+        
+        assertions.clear();
+        Policy p = new Policy();
+        a = new PrimitiveAssertion(new QName("http://x.y.z", "a"));
+        p.addAssertion(a);
+        PolicyReference pr = new PolicyReference();
+        pr.setURI("a#b");
+        engine.getRegistry().register("a#b", p);
+        
+        engine.addAssertions(pr, false, assertions);
+        assertEquals(1, assertions.size());
+        assertSame(a, assertions.iterator().next());       
+    }
+    
+    public void testKeys() {
+        engine = new PolicyEngine();
+        Endpoint endpoint = control.createMock(Endpoint.class);
+        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
+        PolicyEngine.BindingOperation bo = engine.new BindingOperation(endpoint, boi);
+        assertNotNull(bo);
+        
+        BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
+        PolicyEngine.BindingFault bf = engine.new BindingFault(endpoint, bfi);
+        assertNotNull(bf);      
     }
      
+    /*
     private void doTestGetInterceptors(boolean isServer, boolean fault) throws NoSuchMethodException {
         Method m = PolicyEngine.class.getDeclaredMethod("getEndpointPolicyInfo",
             new Class[] {Endpoint.class, isServer ? Destination.class : Conduit.class});
@@ -380,33 +571,7 @@ public class PolicyEngineTest extends TestCase {
         assertSame(li, interceptors);
         control.verify(); 
     }
-    
-    private void doTestGetServerOutInterceptors(boolean fault) throws NoSuchMethodException {
-
-        Method m = PolicyEngine.class.getDeclaredMethod("getServerResponsePolicyInfo",
-                                                        new Class[] {Endpoint.class,
-                                                                     BindingOperationInfo.class,
-                                                                     Destination.class});
-        engine = control.createMock(PolicyEngine.class, new Method[] {m});
-        BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
-        Endpoint e = control.createMock(Endpoint.class);
-        Destination destination = control.createMock(Destination.class);
-        ServerResponsePolicyInfo srpi = control.createMock(ServerResponsePolicyInfo.class);
-        EasyMock.expect(engine.getServerResponsePolicyInfo(e, boi, destination)).andReturn(srpi);
-        Interceptor i = control.createMock(Interceptor.class);
-        List<Interceptor> li = Collections.singletonList(i);
-        if (fault) {
-            EasyMock.expect(srpi.getOutFaultInterceptors()).andReturn(li);
-        } else {
-            EasyMock.expect(srpi.getOutInterceptors()).andReturn(li);
-        }
-
-        control.replay();
-        List<Interceptor> interceptors = fault ? engine.getServerOutFaultInterceptors(e, boi, destination)
-            : engine.getServerOutInterceptors(e, boi, destination);
-        assertSame(li, interceptors);
-        control.verify();
-    }
+    */
     
     private Set<String> getInterceptorIds(List<Interceptor> interceptors) {
         Set<String> ids = new HashSet<String>();

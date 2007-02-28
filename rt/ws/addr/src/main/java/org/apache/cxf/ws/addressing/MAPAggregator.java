@@ -35,7 +35,6 @@ import javax.wsdl.extensions.ExtensibilityElement;
 
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.OutgoingChainSetupInterceptor;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
@@ -45,8 +44,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.ws.addressing.policy.MetadataConstants;
-import org.apache.cxf.ws.policy.PolicyConstants;
-import org.apache.neethi.Assertion;
+import org.apache.cxf.ws.policy.AssertionInfo;
+import org.apache.cxf.ws.policy.AssertionInfoMap;
 
 
 /**
@@ -166,18 +165,42 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
      * @pre requestor role
      */
     private boolean hasAddressingAssertion(Message message) {
-        Collection<Assertion> assertions = 
-            CastUtils.cast((Collection)message.get(PolicyConstants.CLIENT_OUT_ASSERTIONS), Assertion.class);
-        if (null == assertions) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return false;
+            
+        }
+        Collection<AssertionInfo> ais = aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
+        if (null == ais || ais.size() == 0) {
             return false;
         }
-        for (Assertion a : assertions) {
-            if (MetadataConstants.ADDRESSING_ASSERTION_QNAME.equals(a.getName())) {
-                return true;
-            }
-        }
-        return false;
+        // no need to analyse the content of the Addressing assertion here
+        
+        return true;
     }
+    
+    /**
+     * Asserts all Addressing assertions for the current message, regardless their nested 
+     * Policies.
+     * @param message the current message
+     */
+    private void assertAddressing(Message message) {
+        AssertionInfoMap aim = message.get(AssertionInfoMap.class);
+        if (null == aim) {
+            return;
+            
+        }
+        Collection<AssertionInfo> ais = aim.get(MetadataConstants.ADDRESSING_ASSERTION_QNAME);
+        if (null == ais || ais.size() == 0) {
+            return;
+        }
+        
+        for (AssertionInfo ai : ais) {
+            ai.setAsserted(true);
+            System.out.println("Asserted Addressing assertion: " + ai.getAssertion());
+        }
+    }
+
 
     /**
      * @param exts list of extension elements
@@ -233,6 +256,9 @@ public class MAPAggregator extends AbstractPhaseInterceptor<Message> {
                 // must be aggregated
                 aggregate(message, isFault);
             }
+        }
+        if (null != ContextUtils.retrieveMAPs(message, false, ContextUtils.isOutbound(message))) {            
+            assertAddressing(message);
         }
         return continueProcessing;
     }
