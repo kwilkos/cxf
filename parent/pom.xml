@@ -670,6 +670,13 @@
                 <artifactId>xbean</artifactId>
                 <version>${xmlbeans.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>xml-resolver</groupId>
+                <artifactId>xml-resolver</artifactId>
+                <version>1.2</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

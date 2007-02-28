@@ -190,6 +190,11 @@ class SetterTarget implements Target {
     public boolean preDestroyCalled() { 
         return preDestroy && preDestroyPrivate;
     }
+    
+    // dummy method to access the private methods to avoid compile warnings
+    public void dummyMethod() {
+        preDestroyMethodPrivate();
+    }
 }
 
 @Resource(name = "resource1")

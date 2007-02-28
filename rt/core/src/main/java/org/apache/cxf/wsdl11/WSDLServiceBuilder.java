@@ -55,8 +55,9 @@ import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactory;
+import org.apache.cxf.catalog.CatalogXmlSchemaURIResolver;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.helpers.CastUtils;
-import org.apache.cxf.resource.XmlSchemaURIResolver;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
 import org.apache.cxf.service.model.BindingInfo;
@@ -242,7 +243,9 @@ public class WSDLServiceBuilder {
                         }
                     }
                     schemaCol.setBaseUri(def.getDocumentBaseURI());
-                    schemaCol.setSchemaResolver(new XmlSchemaURIResolver());
+                    CatalogXmlSchemaURIResolver schemaResolver = 
+                        new CatalogXmlSchemaURIResolver(OASISCatalogManager.getCatalog(bus));
+                    schemaCol.setSchemaResolver(schemaResolver);
                     XmlSchema xmlSchema = schemaCol.read(schemaElem);
 
                     SchemaInfo schemaInfo = new SchemaInfo(serviceInfo, xmlSchema.getTargetNamespace());

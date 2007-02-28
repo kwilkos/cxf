@@ -43,11 +43,12 @@ import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.catalog.CatalogWSDLLocator;
+import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.PropertiesLoaderUtils;
 import org.apache.cxf.wsdl.JAXBExtensionHelper;
 import org.apache.cxf.wsdl.WSDLManager;
-import org.apache.cxf.wsdl4jutils.WSDLLocatorImpl;
 
 /**
  * WSDLManagerImpl
@@ -167,7 +168,8 @@ public class WSDLManagerImpl implements WSDLManager {
         WSDLReader reader = factory.newWSDLReader();
         reader.setFeature("javax.wsdl.verbose", false);
         reader.setExtensionRegistry(registry);
-        WSDLLocatorImpl wsdlLocator = new WSDLLocatorImpl(url); 
+        CatalogWSDLLocator wsdlLocator = 
+            new CatalogWSDLLocator(url, OASISCatalogManager.getCatalog(bus));
         Definition def = reader.readWSDL(wsdlLocator);
         synchronized (definitionsMap) {
             definitionsMap.put(url, def);

@@ -102,6 +102,11 @@
         </dependency>
 
         <dependency>
+            <groupId>xml-resolver</groupId>
+            <artifactId>xml-resolver</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
         </dependency>

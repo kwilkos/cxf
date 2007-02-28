@@ -75,6 +75,9 @@ public class URIResolver {
     
     public void resolve(String baseUriStr, String uriStr, Class callingCls) throws IOException {
         this.calling = (callingCls != null) ? callingCls : getClass();
+        this.file = null;
+        this.uri = null;
+        this.is = null;
 
         if (uriStr.startsWith("classpath:")) {
             tryClasspath(uriStr);
