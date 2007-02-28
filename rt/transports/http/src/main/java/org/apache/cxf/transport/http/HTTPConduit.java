@@ -80,7 +80,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
     private int decoupledDestinationRefCount;
     private EndpointInfo endpointInfo;
     
-    // COnfiguration values
+    // Configuration values
     private HTTPClientPolicy client;
     private AuthorizationPolicy authorization;
     private AuthorizationPolicy proxyAuthorization;

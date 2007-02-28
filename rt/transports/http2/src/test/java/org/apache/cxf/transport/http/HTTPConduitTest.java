@@ -48,7 +48,6 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.http.conduit.HTTPConduitConfigBean;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 import org.easymock.classextension.EasyMock;
@@ -234,20 +233,20 @@ public class HTTPConduitTest extends TestCase {
                                               connectionFactory);
         conduit.retrieveConnectionFactory();
 
-        HTTPConduitConfigBean config = conduit.getConfig();
+        //HTTPConduitConfigBean config = conduit.getConfig();
         if (send) {
-            config.getClient().setConnectionTimeout(303030);
-            config.getClient().setReceiveTimeout(404040);
+            conduit.getClient().setConnectionTimeout(303030);
+            conduit.getClient().setReceiveTimeout(404040);
             if (httpConnection) {
-                conduit.getConfig().getClient().setAutoRedirect(autoRedirect);
+                conduit.getClient().setAutoRedirect(autoRedirect);
                 if (!autoRedirect) {
-                    config.getClient().setAllowChunking(true);
+                    conduit.getClient().setAllowChunking(true);
                 } 
             }
         }
         
         if (decoupled) {
-            config.getClient().setDecoupledEndpoint(decoupledURL.toString());
+            conduit.getClient().setDecoupledEndpoint(decoupledURL.toString());
             assertNotNull("expected back channel", conduit.getBackChannel());
         } else {
             assertNull("unexpected back channel", conduit.getBackChannel());

@@ -252,7 +252,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                                                              conduitInitiator,
                                                              endpointInfo,
                                                              engine);
-        assertEquals(policy, dest.getConfig().getServer());
+        assertEquals(policy, dest.getServer());
     }
     
     private JettyHTTPDestination setUpDestination()

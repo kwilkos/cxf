@@ -40,6 +40,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.Configurable;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.SSLClientPolicy;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.io.AbstractWrappedOutputStream;
@@ -53,7 +54,6 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
-import org.apache.cxf.transport.http.conduit.HTTPConduitConfigBean;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -65,14 +65,13 @@ import static org.apache.cxf.message.Message.DECOUPLED_CHANNEL_MESSAGE;
 /**
  * HTTP Conduit implementation.
  */
-public class HTTPConduit extends AbstractConduit {
+public class HTTPConduit extends AbstractConduit implements Configurable {
     public static final String HTTP_REQUEST = "org.apache.cxf.transport.http.JettyHTTPDestination.REQUEST";
     public static final String HTTP_RESPONSE = "org.apache.cxf.transport.http.JettyHTTPDestination.RESPONSE";
     public static final String HTTP_CONNECTION = "http.connection";
     private static final Logger LOG = LogUtils.getL7dLogger(HTTPConduit.class);
     
-    private final Bus bus;
-    private HTTPConduitConfigBean config;
+    private final Bus bus;    
     private final URLConnectionFactory alternateConnectionFactory;
     private URLConnectionFactory connectionFactory;
     private URL url;
@@ -81,6 +80,12 @@ public class HTTPConduit extends AbstractConduit {
     private MessageObserver decoupledObserver;
     private int decoupledDestinationRefCount;
     private EndpointInfo endpointInfo;
+    
+    // Configuration values
+    private HTTPClientPolicy client;
+    private AuthorizationPolicy authorization;
+    private AuthorizationPolicy proxyAuthorization;
+    private SSLClientPolicy sslClient;
     
 
     /**
@@ -146,16 +151,9 @@ public class HTTPConduit extends AbstractConduit {
         connectionFactory = alternateConnectionFactory != null
                             ? alternateConnectionFactory
                             : HTTPTransportFactory.getConnectionFactory(
-                                  config.getSslClient());
+                                getSslClient());
     }
-
-    /**
-     * @return the encapsulated config bean
-     */
-    protected HTTPConduitConfigBean getConfig() {
-        return config;
-    }
-
+   
     /**
      * Send an outbound message.
      * 
@@ -168,8 +166,8 @@ public class HTTPConduit extends AbstractConduit {
             connectionFactory.createConnection(getProxy(), currentURL);
         connection.setDoOutput(true);        
         //TODO using Message context to deceided HTTP send properties        
-        connection.setConnectTimeout((int)config.getClient().getConnectionTimeout());
-        connection.setReadTimeout((int)config.getClient().getReceiveTimeout());
+        connection.setConnectTimeout((int)getClient().getConnectionTimeout());
+        connection.setReadTimeout((int)getClient().getReceiveTimeout());
         connection.setUseCaches(false);
         
         if (connection instanceof HttpURLConnection) {
@@ -180,14 +178,14 @@ public class HTTPConduit extends AbstractConduit {
             } else {
                 hc.setRequestMethod("POST");
             }
-            if (config.getClient().isAutoRedirect()) {
+            if (getClient().isAutoRedirect()) {
                 //cannot use chunking if autoredirect as the request will need to be
                 //completely cached locally and resent to the redirect target
                 hc.setInstanceFollowRedirects(true);
             } else {
                 hc.setInstanceFollowRedirects(false);
                 if (!hc.getRequestMethod().equals("GET")
-                    && config.getClient().isAllowChunking()) {
+                    && getClient().isAllowChunking()) {
                     hc.setChunkedStreamingMode(2048);
                 }
             }
@@ -223,7 +221,7 @@ public class HTTPConduit extends AbstractConduit {
      */
     public synchronized Destination getBackChannel() {
         if (decoupledDestination == null
-            &&  config.getClient().getDecoupledEndpoint() != null) {
+            &&  getClient().getDecoupledEndpoint() != null) {
             setUpDecoupledDestination(); 
         }
         return decoupledDestination;
@@ -351,7 +349,7 @@ public class HTTPConduit extends AbstractConduit {
     private void setUpDecoupledDestination() {        
         EndpointReferenceType reference =
             EndpointReferenceUtils.getEndpointReference(
-                config.getClient().getDecoupledEndpoint());
+                getClient().getDecoupledEndpoint());
         if (reference != null) {
             String decoupledAddress = reference.getAddress().getValue();
             LOG.info("creating decoupled endpoint: " + decoupledAddress);
@@ -423,18 +421,17 @@ public class HTTPConduit extends AbstractConduit {
     }
 
     private void initConfig() {
-        config = new ConfigBean();
-        // Initialize some default values for the configuration
-        config.setClient(endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class));
-        config.setAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
-                                                                  AuthorizationPolicy.class));
-        config.setProxyAuthorization(endpointInfo.getTraversedExtensor(new AuthorizationPolicy(), 
-                                                                       AuthorizationPolicy.class));
+        //Initialize some default values for the configuration
+        client = endpointInfo.getTraversedExtensor(new HTTPClientPolicy(), HTTPClientPolicy.class);
+        authorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
+                                                          AuthorizationPolicy.class);
+        proxyAuthorization = endpointInfo.getTraversedExtensor(new AuthorizationPolicy(),
+                                                               AuthorizationPolicy.class);
     }
 
     private Proxy getProxy() {
         Proxy proxy = null;
-        HTTPClientPolicy policy = config.getClient(); 
+        HTTPClientPolicy policy = getClient(); 
         if (policy.isSetProxyServer()) {
             proxy = new Proxy(Proxy.Type.valueOf(policy.getProxyServerType().toString()),
                               new InetSocketAddress(policy.getProxyServer(),
@@ -444,7 +441,7 @@ public class HTTPConduit extends AbstractConduit {
     }
 
     private void setPolicies(Message message, Map<String, List<String>> headers) {
-        AuthorizationPolicy authPolicy = config.getAuthorization();
+        AuthorizationPolicy authPolicy = getAuthorization();
         AuthorizationPolicy newPolicy = message.get(AuthorizationPolicy.class);
         String userName = null;
         String passwd = null;
@@ -473,7 +470,7 @@ public class HTTPConduit extends AbstractConduit {
             headers.put("Authorization",
                         Arrays.asList(new String[] {type}));
         }
-        AuthorizationPolicy proxyAuthPolicy = config.getProxyAuthorization();
+        AuthorizationPolicy proxyAuthPolicy = getProxyAuthorization();
         if (proxyAuthPolicy.isSetUserName()) {
             userName = proxyAuthPolicy.getUserName();
             if (userName != null) {
@@ -496,7 +493,7 @@ public class HTTPConduit extends AbstractConduit {
                             Arrays.asList(new String[] {type}));
             }
         }
-        HTTPClientPolicy policy = config.getClient();
+        HTTPClientPolicy policy = getClient();
         if (policy.isSetCacheControl()) {
             headers.put("Cache-Control",
                         Arrays.asList(new String[] {policy.getCacheControl().value()}));
@@ -539,14 +536,44 @@ public class HTTPConduit extends AbstractConduit {
         }
     }
 
-    private class ConfigBean extends HTTPConduitConfigBean implements Configurable {
-        public String getBeanName() {
-            if (endpointInfo.getName() != null) {
-                return endpointInfo.getName().toString() + ".http-conduit";
-            }
-            return null;
-        }        
+    public String getBeanName() {
+        if (endpointInfo.getName() != null) {
+            return endpointInfo.getName().toString() + ".http-conduit";
+        }
+        return null;
     }
+
+    public AuthorizationPolicy getAuthorization() {
+        return authorization;
+    }
+
+    public void setAuthorization(AuthorizationPolicy authorization) {
+        this.authorization = authorization;
+    }
+
+    public HTTPClientPolicy getClient() {
+        return client;
+    }
+
+    public void setClient(HTTPClientPolicy client) {
+        this.client = client;
+    }
+
+    public AuthorizationPolicy getProxyAuthorization() {
+        return proxyAuthorization;
+    }
+
+    public void setProxyAuthorization(AuthorizationPolicy proxyAuthorization) {
+        this.proxyAuthorization = proxyAuthorization;
+    }
+
+    public SSLClientPolicy getSslClient() {
+        return sslClient;
+    }
+
+    public void setSslClient(SSLClientPolicy sslClient) {
+        this.sslClient = sslClient;
+    }  
     
     /**
      * Wrapper output stream responsible for flushing headers and handling
@@ -654,4 +681,5 @@ public class HTTPConduit extends AbstractConduit {
             incomingObserver.onMessage(inMessage);
         }
     }
+    
 }

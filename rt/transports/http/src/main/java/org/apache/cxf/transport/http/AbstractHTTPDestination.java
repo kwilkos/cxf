@@ -151,7 +151,7 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
                                                Map<String, List<String>> headers);
 
     protected static String getAddressValue(EndpointInfo ei) {       
-        return getAddressValue(ei, false);
+        return getAddressValue(ei, true);
     } 
     
     protected static String getAddressValue(EndpointInfo ei, boolean dp) {       

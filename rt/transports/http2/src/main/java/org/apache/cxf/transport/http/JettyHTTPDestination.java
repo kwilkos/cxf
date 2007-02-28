@@ -34,9 +34,6 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.wsdl.Definition;
-import javax.wsdl.factory.WSDLFactory;
-import javax.wsdl.xml.WSDLWriter;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
@@ -49,9 +46,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
-import org.apache.cxf.transport.http.destination.HTTPDestinationConfigBean;
-import org.apache.cxf.ws.addressing.EndpointReferenceType;
-import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.apache.cxf.transports.http.QueryHandler;
+import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.mortbay.jetty.HttpConnection;
 import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.AbstractHandler;
@@ -90,7 +86,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
      */
     public JettyHTTPDestination(Bus b, ConduitInitiator ci, EndpointInfo endpointInfo, ServerEngine eng)
         throws IOException {
-        super(b, ci, endpointInfo);
+        super(b, ci, endpointInfo, true);
         alternateEngine = eng;
     }
 
@@ -107,25 +103,19 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                  : JettyHTTPServerEngine.getForPort(bus,
                                                     nurl.getProtocol(),
                                                     nurl.getPort(),
-                                                    config.getSslServer());
+                                                    getSslServer());
     }
 
-    /**
-     * @return the encapsulated config bean
-     */
-    protected HTTPDestinationConfigBean getConfig() {
-        return config;
-    }
-    
+      
     /**
      * Activate receipt of incoming messages.
      */
     protected void activate() {
-        LOG.log(Level.INFO, "Activating receipt of incoming messages");
+        LOG.log(Level.FINE, "Activating receipt of incoming messages");
         try {
             URL url = new URL(getAddressValue(endpointInfo));
             //The handler is bind with the context, 
-            //we need to set the things on on context
+            //TODO we need to set the things on on context
             if (contextMatchOnExact()) {
                 engine.addServant(url, new AbstractHandler() {
                     public void handle(String target, HttpServletRequest req,
@@ -168,22 +158,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         return new BackChannelConduit(response);
     }
 
-    /**
-     * Mark message as a partial message.
-     * 
-     * @param partialResponse the partial response message
-     * @param the decoupled target
-     * @return true iff partial responses are supported
-     */
-    protected boolean markPartialResponse(Message partialResponse,
-                                       EndpointReferenceType decoupledTarget) {
-        // setup the outbound message to for 202 Accepted
-        partialResponse.put(Message.RESPONSE_CODE, HttpURLConnection.HTTP_ACCEPTED);
-        partialResponse.getExchange().put(EndpointReferenceType.class,
-                                          decoupledTarget);
-        return true;
-    }
-
+    
     /**
      * @return the associated conduit initiator
      */
@@ -246,30 +221,24 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
         
-        if (config.getServer().isSetRedirectURL()) {
-            resp.sendRedirect(config.getServer().getRedirectURL());
+        if (getServer().isSetRedirectURL()) {
+            resp.sendRedirect(getServer().getRedirectURL());
             resp.flushBuffer();
             baseRequest.setHandled(true);
             return;
         }
-
-        if ("GET".equals(req.getMethod()) && "wsdl".equalsIgnoreCase(req.getQueryString())) {
-            try {
-
-                resp.addHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
-
-                OutputStream os = resp.getOutputStream();
-
-                WSDLWriter wsdlWriter = WSDLFactory.newInstance().newWSDLWriter();
-                Definition def = new ServiceWSDLBuilder(endpointInfo.getService()).build();
-                wsdlWriter.writeWSDL(def, os);
-                resp.getOutputStream().flush();
-                resp.flushBuffer();
-                baseRequest.setHandled(true);
-                return;
-            } catch (Exception ex) {
-
-                ex.printStackTrace();
+        
+        QueryHandlerRegistry queryHandlerRegistry = bus.getExtension(QueryHandlerRegistry.class);
+        if (queryHandlerRegistry != null) { 
+            for (QueryHandler qh : queryHandlerRegistry.getHandlers()) {
+                String requestURL = req.getPathInfo() + "?" + req.getQueryString();
+                if (qh.isRecognizedQuery(requestURL, endpointInfo)) {
+                    resp.setContentType(qh.getResponseContentType(requestURL));
+                    qh.writeResponse(requestURL, endpointInfo, resp.getOutputStream());
+                    resp.getOutputStream().flush();                     
+                    baseRequest.setHandled(true);
+                    return;
+                }
             }
         }
 
@@ -297,7 +266,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             if (!StringUtils.isEmpty(getAddressValue(endpointInfo))) {
                 inMessage.put(Message.BASE_PATH, new URL(getAddressValue(endpointInfo)).getPath());
             }
-            inMessage.put(Message.FIXED_PARAMETER_ORDER, config.isFixedParameterOrder());
+            inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
             
             setHeaders(inMessage);
