@@ -248,7 +248,7 @@ public class JettyHTTPDestinationTest extends TestCase {
         engine = EasyMock.createMock(ServerEngine.class);
         EasyMock.replay();
 
-        JettyHTTPDestination dest = new JettyHTTPDestination(bus,
+        AbstractHTTPDestination dest = new JettyHTTPDestination(bus,
                                                              conduitInitiator,
                                                              endpointInfo,
                                                              engine);

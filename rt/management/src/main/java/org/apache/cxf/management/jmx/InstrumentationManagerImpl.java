@@ -84,7 +84,9 @@ public class InstrumentationManagerImpl extends JMXConnectorPolicyType
         if (null != bus) {
             bus.setExtension(this, InstrumentationManager.class);
             BusLifeCycleManager blcm = bus.getExtension(BusLifeCycleManager.class);
-            blcm.registerLifeCycleListener(this);
+            if (null != blcm) {
+                blcm.registerLifeCycleListener(this);
+            }    
         }
     }
     

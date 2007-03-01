@@ -18,25 +18,18 @@
   under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:beans="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:im="http://cxf.apache.org/management"
+       xmlns:h="http://cxf.apache.org/transports/http/configuration"
        xsi:schemaLocation="
+http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-   
-    <bean id="org.apache.cxf.transports.http.customEditorConfigurer" class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-        <property name="propertyEditorRegistrars">
-            <list>
-                <bean class="org.apache.cxf.configuration.spring.JaxbPropertyEditorRegistrar">
-                    <property name="packageName" value="org.apache.cxf.transports.http.configuration"/>
-                    <property name="propertyClassNames">
-                        <list>
-                            <value>HTTPClientPolicy</value>
-                            <value>HTTPServerPolicy</value>
-                            <value>HTTPListenerPolicy</value>
-                        </list>
-                    </property>
-                </bean>
-           </list>
-        </property>
-    </bean>
+  
+    <h:destination id="{urn:test:ns}Foo.http-destination">
+      <h:server ContentEncoding="foobar"/>
+    </h:destination>
+    
+    <h:conduit id="{urn:test:ns}Foo.http-conduit">
+      <h:client ConnectionTimeout="97"/>
+    </h:conduit>
 </beans>

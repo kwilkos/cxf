@@ -585,7 +585,7 @@ public class JettyHTTPDestinationTest extends TestCase {
                      response.getStatus());
         if (status == 500) {
             assertEquals("unexpected status message",
-                         "Fault+Occurred",
+                         "Internal Server Error",
                          response.getReason());
         }
         verifyResponseHeaders(outMsg);

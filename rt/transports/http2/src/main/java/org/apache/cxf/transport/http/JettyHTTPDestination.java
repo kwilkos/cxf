@@ -21,14 +21,8 @@ package org.apache.cxf.transport.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,13 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.helpers.HttpHeaderHelper;
-import org.apache.cxf.io.AbstractWrappedOutputStream;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.transport.AbstractDestination;
-import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
@@ -53,10 +43,8 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.AbstractHandler;
 
 
-public class JettyHTTPDestination extends AbstractHTTPDestination {
+public class JettyHTTPDestination extends AbstractHTTPDestination {    
     
-    public static final String HTTP_REQUEST = JettyHTTPDestination.class.getName() + ".REQUEST";
-    public static final String HTTP_RESPONSE = JettyHTTPDestination.class.getName() + ".RESPONSE";
 
     private static final Logger LOG = LogUtils.getL7dLogger(JettyHTTPDestination.class);
     
@@ -148,15 +136,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         LOG.log(Level.INFO, "Deactivating receipt of incoming messages");
         engine.removeServant(nurl);        
     }
-
-    /**
-     * @param inMessage the incoming message
-     * @return the inbuilt backchannel
-     */
-    protected Conduit getInbuiltBackChannel(Message inMessage) {
-        HttpServletResponse response = (HttpServletResponse)inMessage.get(HTTP_RESPONSE);
-        return new BackChannelConduit(response);
-    }
+ 
 
     
     /**
@@ -166,57 +146,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
         return conduitInitiator;
     }
 
-    /**
-     * Copy the request headers into the message.
-     * 
-     * @param message the current message
-     * @param headers the current set of headers
-     */
-    protected void copyRequestHeaders(Message message, Map<String, List<String>> headers) {
-        HttpServletRequest req = (HttpServletRequest)message.get(HTTP_REQUEST);
-        //TODO how to deal with the fields        
-        for (Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
-            String fname = (String)e.nextElement();
-            List<String> values;
-            if (headers.containsKey(fname)) {
-                values = headers.get(fname);
-            } else {
-                values = new ArrayList<String>();
-                headers.put(HttpHeaderHelper.getHeaderKey(fname), values);
-            }
-            for (Enumeration e2 = req.getHeaders(fname); e2.hasMoreElements();) {
-                String val = (String)e2.nextElement();
-                values.add(val);
-            }
-        }
-    }
-
-    /**
-     * Copy the response headers into the response.
-     * 
-     * @param message the current message
-     * @param headers the current set of headers
-     */
-    protected void copyResponseHeaders(Message message, HttpServletResponse response) {
-        Map<?, ?> headers = (Map<?, ?>)message.get(Message.PROTOCOL_HEADERS);
-        if (null != headers) {
-            
-            if (!headers.containsKey(Message.CONTENT_TYPE)) {
-                response.setContentType((String) message.get(Message.CONTENT_TYPE));
-            }
-            
-            for (Iterator<?> iter = headers.keySet().iterator(); iter.hasNext();) {
-                String header = (String)iter.next();
-                List<?> headerList = (List<?>)headers.get(header);
-                for (Object value : headerList) {
-                    response.addHeader(header, (String)value);
-                }
-            }
-        } else {
-            response.setContentType((String) message.get(Message.CONTENT_TYPE));
-        }
-    }
-
+    
     protected void doService(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Request baseRequest = (req instanceof Request) 
             ? (Request)req : HttpConnection.getCurrentConnection().getRequest();
@@ -282,111 +212,6 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
-    }
-
-    protected OutputStream flushHeaders(Message outMessage) throws IOException {
-        updateResponseHeaders(outMessage);
-        Object responseObj = outMessage.get(HTTP_RESPONSE);
-        OutputStream responseStream = null;
-        if (responseObj instanceof HttpServletResponse) {
-            HttpServletResponse response = (HttpServletResponse)responseObj;
-
-            Integer i = (Integer)outMessage.get(Message.RESPONSE_CODE);
-            if (i != null) { 
-                //removed the error handler things
-                int status = i.intValue();
-                response.setStatus(status);                
-            } else {
-                response.setStatus(HttpURLConnection.HTTP_OK);
-            }
-
-            copyResponseHeaders(outMessage, response);
-            responseStream = response.getOutputStream();
-
-            if (isOneWay(outMessage)) {
-                response.flushBuffer();
-            }
-        } else if (null != responseObj) {
-            String m = (new org.apache.cxf.common.i18n.Message("UNEXPECTED_RESPONSE_TYPE_MSG",
-                LOG, responseObj.getClass())).toString();
-            LOG.log(Level.WARNING, m);
-            throw new IOException(m);   
-        } else {
-            String m = (new org.apache.cxf.common.i18n.Message("NULL_RESPONSE_MSG", LOG)).toString();
-            LOG.log(Level.WARNING, m);
-            throw new IOException(m);
-        }
-
-        if (isOneWay(outMessage)) {
-            outMessage.remove(HTTP_RESPONSE);
-        }
-        return responseStream;
-    }
-
-    /**
-     * Backchannel conduit.
-     */
-    protected class BackChannelConduit
-        extends AbstractDestination.AbstractBackChannelConduit {
-
-        protected HttpServletResponse response;
-
-        BackChannelConduit(HttpServletResponse resp) {
-            response = resp;
-        }
-
-        /**
-         * Send an outbound message, assumed to contain all the name-value
-         * mappings of the corresponding input message (if any). 
-         * 
-         * @param message the message to be sent.
-         */
-        public void send(Message message) throws IOException {
-            message.put(HTTP_RESPONSE, response);
-            message.setContent(OutputStream.class, new WrappedOutputStream(message, response));
-        }
-    }
-
-    /**
-     * Wrapper stream responsible for flushing headers and committing outgoing
-     * HTTP-level response.
-     */
-    private class WrappedOutputStream extends AbstractWrappedOutputStream {
-
-        protected HttpServletResponse response;
-
-        WrappedOutputStream(Message m, HttpServletResponse resp) {
-            super(m);
-            response = resp;
-        }
-
-        /**
-         * Perform any actions required on stream flush (freeze headers,
-         * reset output stream ... etc.)
-         */
-        protected void doFlush() throws IOException {
-            OutputStream responseStream = flushHeaders(outMessage);
-            if (null != responseStream && !alreadyFlushed()) {
-                resetOut(responseStream, true);
-            }
-        }
-
-        /**
-         * Perform any actions required on stream closure (handle response etc.)
-         */
-        protected void doClose() {
-            commitResponse();
-        }
-
-        protected void onWrite() throws IOException {
-        }
-
-        private void commitResponse() {
-            try {
-                response.flushBuffer();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    }   
+    
 }

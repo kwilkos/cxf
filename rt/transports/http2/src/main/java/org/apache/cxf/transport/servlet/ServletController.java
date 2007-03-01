@@ -46,15 +46,13 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.xmlsoap.schemas.wsdl.http.AddressType;
 
-public class ServletController {
-
-    static final String HTTP_REQUEST = "HTTP_SERVLET_REQUEST";
-    static final String HTTP_RESPONSE = "HTTP_SERVLET_RESPONSE";
+public class ServletController {   
 
     private static final Logger LOG = Logger.getLogger(ServletController.class.getName());
 
@@ -161,8 +159,8 @@ public class ServletController {
         try {
             MessageImpl inMessage = new MessageImpl();
             inMessage.setContent(InputStream.class, request.getInputStream());
-            inMessage.put(HTTP_REQUEST, request);
-            inMessage.put(HTTP_RESPONSE, response);
+            inMessage.put(AbstractHTTPDestination.HTTP_REQUEST, request);
+            inMessage.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
             inMessage.put(Message.HTTP_REQUEST_METHOD, request.getMethod());
             inMessage.put(Message.PATH_INFO, request.getPathInfo());
             inMessage.put(Message.QUERY_STRING, request.getQueryString());

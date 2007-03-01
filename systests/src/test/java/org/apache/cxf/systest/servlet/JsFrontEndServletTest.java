@@ -41,7 +41,7 @@ public class JsFrontEndServletTest extends AbstractServletTest {
         WebResponse response = newClient().getResponse(req);
 
         assertEquals("text/xml", response.getContentType());
-        //assertEquals("UTF-8", response.getCharacterSet());
+        assertEquals("UTF-8", response.getCharacterSet());
 
         Document doc = DOMUtils.readXml(response.getInputStream());
         assertNotNull(doc);

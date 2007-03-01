@@ -283,13 +283,14 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             Integer i = (Integer)outMessage.get(Message.RESPONSE_CODE);
             if (i != null) {
                 int status = i.intValue();
-                if (status == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+                /*if (status == HttpURLConnection.HTTP_INTERNAL_ERROR) {
                     response.setStatus(status, "Fault Occurred");
                 } else if (status == HttpURLConnection.HTTP_ACCEPTED) {
                     response.setStatus(status, "Accepted");
                 } else {
                     response.setStatus(status);
-                }
+                }*/
+                response.setStatus(status);
             } else {
                 response.setStatus(HttpURLConnection.HTTP_OK);
             }

@@ -135,6 +135,7 @@ public class ServletDestination extends AbstractHTTPDestination {
         } else if (enc != null) {
             response.setContentType("text/xml; charset=" + enc);
         }
+        
     }
     
     

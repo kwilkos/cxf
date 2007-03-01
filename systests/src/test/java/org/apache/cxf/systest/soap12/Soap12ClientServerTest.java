@@ -113,7 +113,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
         
         assertEquals(500, httpConnection.getResponseCode());
         
-        assertEquals("Fault+Occurred", httpConnection.getResponseMessage());
+        assertEquals("Internal Server Error", httpConnection.getResponseMessage());
 
         InputStream in = httpConnection.getErrorStream();
         assertNotNull(in);     
@@ -155,7 +155,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
 
         assertEquals("application/soap+xml", httpConnection.getContentType());
         
-        assertEquals("Fault+Occurred", httpConnection.getResponseMessage());
+        assertEquals("Internal Server Error", httpConnection.getResponseMessage());
 
         InputStream in = httpConnection.getErrorStream();                  
         assertNotNull(in);        
