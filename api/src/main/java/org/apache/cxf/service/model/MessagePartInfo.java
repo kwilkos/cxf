@@ -31,6 +31,7 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     private boolean isElement;
     private QName typeName;
     private QName elementName;
+    private QName concreteName;
     private XmlSchemaAnnotated xmlSchema;
     private Class<?> typeClass;
     private int index;
@@ -54,10 +55,13 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     }
     
     public QName getConcreteName() {
-        //if !isElement, we store the non-qualified part name in element name anyway
-        return elementName;
+        return concreteName;
     }
     
+    public void setConcreteName(QName concreteName) {
+        this.concreteName = concreteName;
+    }
+
     public boolean isElement() { 
         return isElement;
     }
@@ -79,12 +83,15 @@ public final class MessagePartInfo extends AbstractPropertiesHolder {
     }
     public void setTypeQName(QName qn) {
         isElement = false;
-        elementName = new QName(null, pname.getLocalPart());
+        if (concreteName == null) {
+            concreteName = new QName(null, pname.getLocalPart());
+        }
         typeName = qn;
     }
     public void setElementQName(QName qn) {
         isElement = true;
         elementName = qn;
+        concreteName = qn;
     }
     
     public AbstractMessageContainer getMessageInfo() {

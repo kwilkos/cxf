@@ -179,6 +179,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         setService(factory.create());
 
+        if (properties != null) {
+            getService().putAll(properties);
+        }
+        
         initializeWSDLOperations();
 
         if (getDataBinding() != null) {
@@ -190,6 +194,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         LOG.info("Creating Service " + getServiceQName() + " from class " + getServiceClass().getName());
         ServiceInfo serviceInfo = new ServiceInfo();
         ServiceImpl service = new ServiceImpl(serviceInfo);
+
+        setService(service);  
+        
+        if (properties != null) {
+            service.putAll(properties);
+        }
         
         service.put(MethodDispatcher.class.getName(), methodDispatcher);
         
@@ -206,9 +216,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         
         if (isWrapped()) {
             initializeWrappedSchema(serviceInfo);
-        }
-        
-        setService(service);        
+        }      
     }
 
     protected void initializeServiceModel() {
@@ -218,10 +226,6 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             buildServiceFromWSDL(url);
         } else {
             buildServiceFromClass();
-        }
-        
-        if (properties != null) {
-            getService().putAll(properties);
         }
     }
 
@@ -307,6 +311,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 MessageInfo msg = new MessageInfo(op, op.getName());
                 op.setInput(uOp.getInputName(), msg);
                 msg.addMessagePart(op.getName());
+                
+                for (MessagePartInfo p : uOp.getInput().getMessageParts()) {
+                    p.setConcreteName(new QName(getServiceNamespace(), 
+                                                p.getName().getLocalPart()));
+                }
             } 
             
             if (uOp.hasOutput()) {
@@ -316,6 +325,11 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
                 op.setOutput(uOp.getOutputName(), msg);
                 MessagePartInfo part = msg.addMessagePart(name);
                 part.setIndex(-1);
+                
+                for (MessagePartInfo p : uOp.getOutput().getMessageParts()) {
+                    p.setConcreteName(new QName(getServiceNamespace(), 
+                                                p.getName().getLocalPart()));
+                }
             }
         } else {
             createMessageParts(intf, op, m);
@@ -522,6 +536,10 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
     }
 
     protected String getServiceNamespace() {
+        if (serviceName != null) {
+            return serviceName.getNamespaceURI();
+        }
+        
         for (AbstractServiceConfiguration c : serviceConfigurations) {
             String name = c.getServiceNamespace();
             if (name != null) {

@@ -536,7 +536,8 @@ public class WSDLServiceBuilder {
 
         // Now lets see if we have any attributes...
         // This should probably look at the restricted and substitute types too.
-        MessageInfo unwrappedInput = new MessageInfo(opInfo, inputMessage.getName());
+        OperationInfo unwrapped = new UnwrappedOperationInfo(opInfo);
+        MessageInfo unwrappedInput = new MessageInfo(unwrapped, inputMessage.getName());
         MessageInfo unwrappedOutput = null;
 
         XmlSchemaComplexType xsct = null;
@@ -555,7 +556,7 @@ public class WSDLServiceBuilder {
         }
 
         if (outputMessage != null) {
-            unwrappedOutput = new MessageInfo(opInfo, outputMessage.getName());
+            unwrappedOutput = new MessageInfo(unwrapped, outputMessage.getName());
 
             if (outputEl != null && outputEl.getSchemaType() instanceof XmlSchemaComplexType) {
                 xsct = (XmlSchemaComplexType)outputEl.getSchemaType();
@@ -573,7 +574,6 @@ public class WSDLServiceBuilder {
         }
 
         // we are wrappable!!
-        OperationInfo unwrapped = new UnwrappedOperationInfo(opInfo);
         opInfo.setUnwrappedOperation(unwrapped);
         unwrapped.setInput(opInfo.getInputName(), unwrappedInput);
         if (outputMessage != null) {

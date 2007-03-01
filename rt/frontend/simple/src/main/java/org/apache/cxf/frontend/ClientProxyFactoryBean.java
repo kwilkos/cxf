@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 
 /**
  * This class will create a client for you which implements the specified
@@ -120,6 +121,22 @@ public class ClientProxyFactoryBean {
         clientFactoryBean.getServiceFactory().setWsdlURL(wsdlURL);
     }
 
+    public String getAddress() {
+        return clientFactoryBean.getAddress();
+    }
+
+    public void setAddress(String add) {
+        clientFactoryBean.setAddress(add);
+    }
+
+    public ReflectionServiceFactoryBean getServiceFactory() {
+        return clientFactoryBean.getServiceFactory();
+    }
+    
+    public void setServiceFactory(ReflectionServiceFactoryBean sf) {
+        clientFactoryBean.setServiceFactory(sf);
+    }
+    
     public Bus getBus() {
         return bus;
     }

@@ -103,6 +103,11 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             throw new UncheckedException(
                 new org.apache.cxf.common.i18n.Message("NO_OPERATION", LOG, operationName));
         }
+        
+        if (op.isUnwrappedCapable()) {
+            op = op.getUnwrappedOperation();
+        }
+        
         return invoke(op, params);
     }
 

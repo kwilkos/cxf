@@ -70,10 +70,7 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
             xmlOut.addAfter(wrappedOut.getId());
             chain.add(xmlOut);
             
-            chain.doInterceptInSubChain(message);
-            
-            chain.add(new URIParameterOutInterceptor());
-            
+
             Endpoint ep = message.getExchange().get(Endpoint.class);
             URIMapper mapper = (URIMapper) ep.getService().get(URIMapper.class.getName());
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
@@ -82,10 +79,16 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
             message.put(Message.HTTP_REQUEST_METHOD, verb);
             boolean putOrPost = verb.equals(HttpConstants.POST) || verb.equals(HttpConstants.PUT);
             
-            if (putOrPost) {
+            if (putOrPost) { 
+                chain.doInterceptInSubChain(message);
+                chain.add(new URIParameterOutInterceptor());
                 chain.add(new DocumentWriterInterceptor());
                 chain.add(STAX_OUT);
+            } else {
+                chain.add(new URIParameterOutInterceptor());
+                
             }
+           
         } else {
             chain.add(STAX_OUT);
             chain.add(WRAPPED_OUT);

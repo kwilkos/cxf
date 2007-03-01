@@ -21,17 +21,14 @@ package org.apache.cxf.jaxws;
 import java.net.URL;
 import java.util.Collection;
 
-
 import javax.wsdl.Definition;
 import javax.wsdl.factory.WSDLFactory;
 import javax.xml.namespace.QName;
-
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import org.apache.cxf.Bus;
-
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.cxf.jaxws.service.HelloInterface;
@@ -131,7 +128,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertNotNull(res);
         
         addNamespace("h", "http://service.jaxws.cxf.apache.org/");
-        assertValid("//s:Body/h:getGreetingsResponse/h:return/h:item", res);
+        assertValid("//s:Body/h:getGreetingsResponse/h:return/item", res);
     }
     
     public void testClient() throws Exception {

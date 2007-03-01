@@ -31,6 +31,7 @@ import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.MessagePartInfo;
+import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 
 public class TypeClassInitializer extends ServiceModelVisitor {
@@ -45,13 +46,17 @@ public class TypeClassInitializer extends ServiceModelVisitor {
 
     @Override
     public void begin(MessagePartInfo part) {
+        OperationInfo op = part.getMessageInfo().getOperation();
+        if (op.isUnwrappedCapable() && !op.isUnwrapped()) {
+            return;
+        }
+        
         QName name;
         if (part.isElement()) {
             name = part.getElementQName();
         } else {
             name = part.getTypeQName();
         }
-        
         Mapping mapping = model.get(name);
         
         String clsName = null;
