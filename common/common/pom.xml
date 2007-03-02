@@ -32,10 +32,6 @@
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
-    <properties>
-      <maven.test.skip.exec>true</maven.test.skip.exec>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
