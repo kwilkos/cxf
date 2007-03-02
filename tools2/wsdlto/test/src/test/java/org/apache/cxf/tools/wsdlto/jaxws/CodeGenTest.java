@@ -51,8 +51,6 @@ public class CodeGenTest extends ProcessorTestBase {
                                               + File.separatorChar);
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
-        env.put(ToolConstants.CFG_IMPL, "impl");
-        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
         
         processor = new JAXWSContainer(null); 

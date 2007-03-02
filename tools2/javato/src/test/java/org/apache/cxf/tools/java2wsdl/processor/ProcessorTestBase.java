@@ -28,6 +28,9 @@ import junit.framework.TestCase;
 
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
 public class ProcessorTestBase extends TestCase {
 
@@ -40,6 +43,8 @@ public class ProcessorTestBase extends TestCase {
         output = new File(url.getFile());
         output = new File(output, "/resources");
         mkDir(output);
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));        
     }
 
     public void tearDown() {

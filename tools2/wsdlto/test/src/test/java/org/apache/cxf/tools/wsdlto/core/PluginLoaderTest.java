@@ -22,7 +22,6 @@ package org.apache.cxf.tools.wsdlto.core;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.plugin.DataBinding;
 import org.apache.cxf.tools.plugin.FrontEnd;
@@ -34,7 +33,7 @@ public class PluginLoaderTest extends TestCase {
     
     public void testLoadPlugins() throws Exception {
         PluginLoader loader = PluginLoader.getInstance();
-        assertEquals(1, loader.getPlugins().size());
+        assertEquals(2, loader.getPlugins().size());
         assertEquals("default", getPlugin(loader, 0).getName());
 
         Plugin plugin = getPlugin(loader, 0);

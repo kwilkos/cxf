@@ -28,7 +28,6 @@ public class ValidatorTest extends ProcessorTestBase {
 
     public void setUp() throws Exception {
         super.setUp();
-        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
         //env.put(ToolConstants.CFG_VALIDATE_WSDL, ToolConstants.CFG_VALIDATE_WSDL);
     }

@@ -18,11 +18,11 @@
  */
 package org.apache.cxf.tools.wsdlto.jaxws;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-
 import javax.jws.WebService;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
@@ -44,11 +44,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
                                               + File.separatorChar);
         classLoader = AnnotationUtil.getClassLoader(Thread.currentThread().getContextClassLoader());
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
-        
-        env.put(ToolConstants.CFG_IMPL, "impl");
-        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-        
+
         processor = new JAXWSContainer(null); 
 
     }
@@ -181,7 +178,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.execute();
         File file = new File(output.getCanonicalPath(), "build.xml");
         FileInputStream fileinput = new FileInputStream(file);
-        java.io.BufferedInputStream filebuffer = new java.io.BufferedInputStream(fileinput);
+        BufferedInputStream filebuffer = new BufferedInputStream(fileinput);
         byte[] buffer = new byte[(int)file.length()];
         filebuffer.read(buffer);
         String content = new String(buffer);

@@ -61,7 +61,7 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         classFile.mkdir();
         System.setProperty("java.class.path", getClassPath() + classFile.getCanonicalPath()
                                               + File.separatorChar);
-        wj2Processor = new JAXWSContainer(toolspec);
+        wj2Processor = new JAXWSContainer(null);
     }
 
     public void tearDown() {

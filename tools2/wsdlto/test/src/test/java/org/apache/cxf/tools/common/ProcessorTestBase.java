@@ -25,6 +25,9 @@ import java.net.URLClassLoader;
 import java.util.Locale;
 
 import junit.framework.TestCase;
+import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
+import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
+import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 
 /*import org.apache.cxf.tools.common.ProcessorEnvironment;
 import org.apache.cxf.tools.common.ToolException;*/
@@ -40,6 +43,11 @@ public class ProcessorTestBase extends TestCase {
         output = new File(url.getFile());
         output = new File(output, "/resources");
         mkDir(output);
+
+        env.put(FrontEndProfile.class, PluginLoader.getInstance().getFrontEndProfile("jaxws"));
+        env.put(DataBindingProfile.class, PluginLoader.getInstance().getDataBindingProfile("jaxb"));
+        env.put(ToolConstants.CFG_IMPL, "impl");
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
     }
 
     public void tearDown() {

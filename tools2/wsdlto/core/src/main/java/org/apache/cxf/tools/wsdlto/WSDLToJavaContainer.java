@@ -58,7 +58,6 @@ import org.apache.cxf.tools.validator.internal.ServiceValidator;
 import org.apache.cxf.tools.wsdlto.core.AbstractWSDLBuilder;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.tools.wsdlto.core.FrontEndProfile;
-import org.apache.cxf.tools.wsdlto.core.PluginLoader;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
     
@@ -97,22 +96,14 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             FrontEndProfile frontend = context.get(FrontEndProfile.class);
             
             if (frontend == null) {
-                String name = WSDLToJava.DEFAULT_FRONTEND_NAME;
-                if (context.get(ToolConstants.CFG_FRONTEND) != null) {
-                    name = (String)context.get(ToolConstants.CFG_FRONTEND);
-                }
-                frontend = PluginLoader.getInstance().getFrontEndProfile(name);
-                context.put(FrontEndProfile.class, frontend);
+                Message msg = new Message("FOUND_NO_FRONTEND", LOG);
+                throw new ToolException(msg);
             }
             
             DataBindingProfile dataBindingProfile = context.get(DataBindingProfile.class);
             if (dataBindingProfile == null) {
-                String name = WSDLToJava.DEFAULT_DATABINDING_NAME;
-                if (context.get(ToolConstants.CFG_DATABINDING) != null) {
-                    name = (String)context.get(ToolConstants.CFG_DATABINDING);
-                }
-                dataBindingProfile = PluginLoader.getInstance().getDataBindingProfile(name);
-                context.put(DataBindingProfile.class, dataBindingProfile);
+                Message msg = new Message("FOUND_NO_DATABINDING", LOG);
+                throw new ToolException(msg);
             }
             
             WSDLConstants.WSDLVersion version = getWSDLVersion();
