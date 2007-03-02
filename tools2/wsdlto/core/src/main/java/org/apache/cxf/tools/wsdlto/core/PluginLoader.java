@@ -52,7 +52,6 @@ import org.apache.cxf.tools.plugin.Plugin;
 public final class PluginLoader {
     public static final Logger LOG = LogUtils.getL7dLogger(PluginLoader.class);
     private static PluginLoader pluginLoader;
-    //private static final String DEFAULT_PLUGIN = "/org/apache/cxf/tools/wsdlto/core/cxf-tools-plugin.xml";
     private static final String PLUGIN_FILE_NAME = "META-INF/tools-plugin.xml";
     
     private Map<String, Plugin> plugins = new LinkedHashMap<String, Plugin>();
@@ -72,17 +71,14 @@ public final class PluginLoader {
             unmarshaller = jc.createUnmarshaller();
             loadPlugins(getClass().getClassLoader().getResources(PLUGIN_FILE_NAME));
         } catch (JAXBException e) {
-            LOG.log(Level.SEVERE, "JAXB_CONTEXT_INIT_FAIL");
             Message msg = new Message("JAXB_CONTEXT_INIT_FAIL", LOG);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg);            
         } catch (IOException ioe) {
             Message msg = new Message("LOAD_PLUGIN_EXCEPTION", LOG);
             LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg);            
         }
-
-
-        //loadPlugin(DEFAULT_PLUGIN);
     }
 
     private void loadPlugins(Enumeration<URL> pluginFiles) throws IOException {
@@ -119,8 +115,8 @@ public final class PluginLoader {
             LOG.log(Level.INFO, "PLUGIN_LOADING", resource);
             loadPlugin(getPlugin(resource));
         } catch (JAXBException e) {
-            LOG.log(Level.SEVERE, "PLUGIN_LOAD_FAIL", resource);
             Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, resource);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         } catch (FileNotFoundException fe) {
             Message msg = new Message("PLUGIN_FILE_NOT_FOUND", LOG, resource);
@@ -183,14 +179,14 @@ public final class PluginLoader {
             }
 
             if (is == null) {
-                LOG.log(Level.SEVERE, "PLUGIN_MISSING", resource);
                 Message msg = new Message("PLUGIN_MISSING", LOG, resource);
+                LOG.log(Level.SEVERE, msg.toString());
                 throw new ToolException(msg);
             }
             plugin = getPlugin(is);
             if (plugin == null || StringUtils.isEmpty(plugin.getName())) {
-                LOG.log(Level.SEVERE, "PLUGIN_LOAD_FAIL", resource);
                 Message msg = new Message("PLUGIN_LOAD_FAIL", LOG, resource);
+                LOG.log(Level.SEVERE, msg.toString());
                 throw new ToolException(msg);
             }
             plugins.put(resource, plugin);
@@ -199,7 +195,6 @@ public final class PluginLoader {
     }
 
     private Plugin getPlugin(InputStream is) throws JAXBException {
-        // TODO: schema validation
         return (Plugin) ((JAXBElement<?>)unmarshaller.unmarshal(is)).getValue();
     }
 
@@ -207,8 +202,6 @@ public final class PluginLoader {
         FrontEnd frontend = frontends.get(name);
         
         if (frontend == null) {
-            // TODO: If null, we should search the whole classpath, to load all the plugins,
-            //       otherwise throws Exception
             Message msg = new Message("FRONTEND_MISSING", LOG, name);
             throw new ToolException(msg);
         }
@@ -237,8 +230,8 @@ public final class PluginLoader {
                 generators.add((FrontEndGenerator)clz.newInstance());
             }
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "FRONTEND_PROFILE_LOAD_FAIL", fullClzName);
             Message msg = new Message("FRONTEND_PROFILE_LOAD_FAIL", LOG, fullClzName);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
         
@@ -251,8 +244,8 @@ public final class PluginLoader {
             Class clz = getClass().getClassLoader().loadClass(fullClzName);
             profile = (FrontEndProfile)clz.newInstance();
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "FRONTEND_PROFILE_LOAD_FAIL", fullClzName);
             Message msg = new Message("FRONTEND_PROFILE_LOAD_FAIL", LOG, fullClzName);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
         return profile;
@@ -263,8 +256,8 @@ public final class PluginLoader {
         try {
             processor = (Processor) Class.forName(fullClzName).newInstance();
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "LOAD_PROCESSOR_FAILED", fullClzName);
             Message msg = new Message("LOAD_PROCESSOR_FAILED", LOG, fullClzName);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
         return processor;
@@ -275,8 +268,8 @@ public final class PluginLoader {
         try {
             clz = Class.forName(fullClzName);
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "LOAD_CONTAINER_CLASS_FAILED", fullClzName);
             Message msg = new Message("LOAD_CONTAINER_CLASS_FAILED", LOG, fullClzName);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
         return clz;
@@ -320,8 +313,8 @@ public final class PluginLoader {
             builder = (AbstractWSDLBuilder<? extends Object>) Class.forName(fullClzName).newInstance();
             
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "LOAD_PROCESSOR_FAILED", fullClzName);
             Message msg = new Message("LOAD_PROCESSOR_FAILED", LOG, fullClzName);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg, e);
         }
         return builder;
@@ -367,8 +360,6 @@ public final class PluginLoader {
     public DataBinding getDataBinding(String name) {
         DataBinding databinding = databindings.get(name);
         if (databinding == null) {
-            // TODO: If null, we should search the whole classpath, to load all the plugins,
-            //       otherwise throws Exception
             Message msg = new Message("DATABINDING_MISSING", LOG, name);
             throw new ToolException(msg);            
         }
@@ -380,8 +371,8 @@ public final class PluginLoader {
         try {
             profile = (DataBindingProfile) Class.forName(fullClzName).newInstance();
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "DATABINDING_PROFILE_LOAD_FAIL", fullClzName);
             Message msg = new Message("DATABINDING_PROFILE_LOAD_FAIL", LOG, fullClzName);
+            LOG.log(Level.SEVERE, msg.toString());
             throw new ToolException(msg);                
         }
         return profile;
@@ -395,11 +386,6 @@ public final class PluginLoader {
             databindingProfiles.put(name, profile);
         }
         return profile;
-    }
-
-    public Plugin findPlugin() {
-        // TODO: find and load the plugin from the classpath
-        return null;
     }
 
     public Map<String, FrontEnd> getFrontEnds() {
