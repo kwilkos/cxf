@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.jws.soap.SOAPBinding;
-import javax.wsdl.Definition;
+//import javax.wsdl.Definition;
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
@@ -53,10 +53,10 @@ public class OperationProcessor  extends AbstractProcessor {
     private JavaParameter wrapperRequest;
     private JavaParameter wrapperResponse;
 
-    private Definition definition;
+    //private Definition definition;
     public OperationProcessor(ToolContext penv) {
         super(penv);
-        definition = (Definition)penv.get(ToolConstants.WSDL_DEFINITION);
+        //definition = (Definition)penv.get(ToolConstants.WSDL_DEFINITION);
     }
 
     @SuppressWarnings("unchecked")
@@ -276,7 +276,7 @@ public class OperationProcessor  extends AbstractProcessor {
             wrapperRequest = new JavaParameter();
             wrapperRequest.setName(ProcessorUtil.resolvePartName(inputPart));
             wrapperRequest.setType(ProcessorUtil.getPartType(inputPart));
-            wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart, definition));
+            wrapperRequest.setTargetNamespace(ProcessorUtil.resolvePartNamespace(inputPart));
 
             wrapperRequest.setClassName(ProcessorUtil.getFullClzName(inputPart, 
                                                                      this.env, this.collector, false));
@@ -286,7 +286,7 @@ public class OperationProcessor  extends AbstractProcessor {
             wrapperResponse = new JavaParameter();
             wrapperResponse.setName(ProcessorUtil.resolvePartName(outputPart));
             wrapperResponse.setType(ProcessorUtil.getPartType(outputPart));
-            wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart, definition));
+            wrapperResponse.setTargetNamespace(ProcessorUtil.resolvePartNamespace(outputPart));
 
             wrapperResponse.setClassName(ProcessorUtil.getFullClzName(outputPart, 
                                                                       this.env, this.collector, false));

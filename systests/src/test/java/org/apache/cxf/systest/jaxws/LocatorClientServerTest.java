@@ -36,10 +36,11 @@ import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.cxf.systest.common.TestServerBase;
 
-import org.apache.cxf.testutils.locator.LocatorService;
-import org.apache.cxf.testutils.locator.LocatorService_Service;
-import org.apache.cxf.testutils.locator.QuerySelectType;
 
+
+import org.apache.locator.LocatorService;
+import org.apache.locator.LocatorService_Service;
+import org.apache.locator.query.QuerySelectType;
 import org.apache.locator_test.LocatorServiceImpl;
 
 public class LocatorClientServerTest extends ClientServerTestBase {

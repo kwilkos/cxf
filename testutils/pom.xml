@@ -244,10 +244,10 @@
                                 </wsdlOption>
                                 <wsdlOption>
                                     <wsdl>${basedir}/src/main/resources/wsdl/locator.wsdl</wsdl>
-                                    <extraargs>
+                                    <!--extraargs>
                                         <extraarg>-p</extraarg>
                                         <extraarg>org.apache.cxf.testutils.locator</extraarg>
-                                    </extraargs>
+                                    </extraargs-->
                                 </wsdlOption>
 
                                 <wsdlOption>

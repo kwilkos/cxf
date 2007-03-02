@@ -54,6 +54,9 @@ public final class PackageUtils {
     
     public static String getPackageName(Class<?> clazz) {
         String className = clazz.getName();
+        if (className.startsWith("[L")) {
+            className = className.substring(2);
+        }
         return getPackageName(className);
     }
     

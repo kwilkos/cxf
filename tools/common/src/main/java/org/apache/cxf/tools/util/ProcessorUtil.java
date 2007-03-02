@@ -159,6 +159,18 @@ public final class ProcessorUtil {
        
     }
 
+    public static String resolvePartNamespace(Part part) {
+        QName qname = part.getElementName();
+        if (qname == null) {
+            qname = part.getTypeName();
+        }
+        if (qname != null) {
+            return qname.getNamespaceURI();
+        } else {
+            return null;
+        }
+    }
+    
     public static String resolvePartNamespace(Part part, Definition definition) {
         QName qname = part.getElementName();
         

@@ -30,6 +30,7 @@ import org.apache.cxf.service.ServiceModelVisitor;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.ws.commons.schema.XmlSchemaCollection;
+import org.apache.ws.commons.schema.XmlSchemaElement;
 
 /**
  * Walks the service model and sets up the element/type names.
@@ -64,8 +65,18 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
         if (isElement) {
             QName name = new QName(beanInfo.getElementNamespaceURI(null), 
                                    beanInfo.getElementLocalName(null));
-            part.setElementQName(name);
-            part.setXmlSchema(schemas.getElementByQName(name));
+            XmlSchemaElement el = schemas.getElementByQName(name);
+            if (el != null && el.getRefName() != null) {
+                part.setTypeQName(el.getRefName());
+            } else {
+                part.setElementQName(name);
+            }
+            part.setXmlSchema(el);
+            
+            /*else if (el.getRefName() != null) {
+                MessagePartInfo mpi = wrapper.addMessagePart(el.getRefName());
+                mpi.setTypeQName(el.getRefName());
+                mpi.setXmlSchema(el);*/
         } else {
             Iterator<QName> itr = beanInfo.getTypeNames().iterator();
             if (!itr.hasNext()) {
@@ -73,7 +84,6 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
             }
             
             QName typeName = itr.next();
-
             part.setTypeQName(typeName);
             part.setXmlSchema(schemas.getTypeByQName(typeName));
         }
