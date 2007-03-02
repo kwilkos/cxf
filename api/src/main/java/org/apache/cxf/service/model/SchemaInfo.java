@@ -40,6 +40,17 @@ public final class SchemaInfo extends AbstractPropertiesHolder {
         this.isAttributeQualified = false;
     }
     
+    public String toString() {
+        StringBuffer buffer = new StringBuffer(this.getClass().getName());
+        buffer.append(" [namespaceURI: ");
+        buffer.append(namespaceUri);
+        buffer.append("] [systemId: ");
+        buffer.append(systemId);
+        buffer.append("]");
+        
+        return buffer.toString();
+    }
+    
     public ServiceInfo getServiceInfo() {
         return serviceInfo;
     }

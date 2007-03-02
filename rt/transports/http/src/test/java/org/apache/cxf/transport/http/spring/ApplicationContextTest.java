@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.spring.ConfigurerImpl;
+import org.apache.cxf.configuration.spring.JaxbClassPathXmlApplicationContext;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
@@ -36,9 +37,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class ApplicationContextTest extends TestCase {
     public void testContext() throws Exception {
-        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
-            new String[] {"META-INF/cxf/cxf.xml", "META-INF/cxf/cxf-extension-http.xml",
-                          "/org/apache/cxf/transport/http/spring/beans.xml", });
+        String s1 = getClass().getResource("/META-INF/cxf/cxf.xml").toString();
+        String s2 = getClass().getResource("/META-INF/cxf/cxf-extension-http.xml").toString();
+        String s3 = getClass().getResource("/org/apache/cxf/transport/http/spring/beans.xml").toString();
+        
+        ClassPathXmlApplicationContext ctx = new JaxbClassPathXmlApplicationContext(
+            new String[] {s1, s2, s3});
         
         ConfigurerImpl cfg = new ConfigurerImpl(ctx);
         

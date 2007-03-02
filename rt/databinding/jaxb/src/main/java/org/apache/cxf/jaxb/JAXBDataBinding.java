@@ -185,6 +185,29 @@ public final class JAXBDataBinding implements DataBinding {
 
     private void loadSchemaFromClassPath(String schema, Map<String, SchemaInfo> schemas) {
         // we can reuse code in javatowsdl tool after tool refactor
+        
+        try {
+            //TODO - until tools  refactor, just use basic URIResolver
+            XmlSchemaCollection schemaCol = new XmlSchemaCollection();
+            URIResolver resolver = new URIResolver(schema);
+
+            Document schemaDoc = DOMUtils.readXml(resolver.getInputStream());
+
+            XmlSchema xmlSchema = schemaCol.read(schemaDoc.getDocumentElement());
+            SchemaInfo schemaInfo = new SchemaInfo(null, xmlSchema.getTargetNamespace());
+
+            schemaInfo.setElement(schemaDoc.getDocumentElement());
+            schemas.put(schemaInfo.getNamespaceURI(), schemaInfo);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, e.getMessage());
+            throw new UncheckedException(e);
+        } catch (SAXException e) {
+            LOG.log(Level.SEVERE, e.getMessage());
+            throw new UncheckedException(e);
+        } catch (ParserConfigurationException e) {
+            LOG.log(Level.SEVERE, e.getMessage());
+            throw new UncheckedException(e);
+        }
     }
 
     private void loadSchemaFromFile(String schema, Map<String, SchemaInfo> schemas) {

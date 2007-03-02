@@ -100,7 +100,4 @@ public class FireWallClassLoaderTest extends TestCase {
         return new TestSuite(FireWallClassLoaderTest.class);
     }
 
-    public static void main(String[] args) throws Exception {
-        junit.awtui.TestRunner.main(new String[] {FireWallClassLoaderTest.class.getName()});
-    }
 }
