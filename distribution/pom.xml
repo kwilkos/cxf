@@ -33,6 +33,7 @@
     </parent>
 
     <properties>
+        <maven.test.skip>true</maven.test.skip>
         <cxf.version>${pom.version}</cxf.version>
     </properties>
 

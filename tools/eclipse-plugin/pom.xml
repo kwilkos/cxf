@@ -32,6 +32,10 @@
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${pom.groupId}</groupId>
