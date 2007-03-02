@@ -183,7 +183,6 @@ public class URIResolver {
     }
     
     private void tryJar(String uriStr) throws IOException {
-        System.out.println("tryjar");
         int i = uriStr.indexOf('!');
         if (i == -1) {
             return;
