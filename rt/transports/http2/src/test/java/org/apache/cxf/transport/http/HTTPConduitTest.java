@@ -233,7 +233,7 @@ public class HTTPConduitTest extends TestCase {
                                               connectionFactory);
         conduit.retrieveConnectionFactory();
 
-        //HTTPConduitConfigBean config = conduit.getConfig();
+        
         if (send) {
             conduit.getClient().setConnectionTimeout(303030);
             conduit.getClient().setReceiveTimeout(404040);
@@ -395,10 +395,10 @@ public class HTTPConduitTest extends TestCase {
                      inMessage.get(DECOUPLED_CHANNEL_MESSAGE));
         assertEquals("unexpected HTTP_REQUEST set",
                      false,
-                     inMessage.containsKey(HTTPConduit.HTTP_REQUEST));
+                     inMessage.containsKey(AbstractHTTPDestination.HTTP_REQUEST));
         assertEquals("unexpected HTTP_RESPONSE set",
                      false,
-                     inMessage.containsKey(HTTPConduit.HTTP_RESPONSE));
+                     inMessage.containsKey(AbstractHTTPDestination.HTTP_RESPONSE));
         assertEquals("unexpected Message.ASYNC_POST_RESPONSE_DISPATCH set",
                      false,
                      inMessage.containsKey(Message.ASYNC_POST_RESPONSE_DISPATCH));
