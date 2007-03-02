@@ -28,7 +28,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-
 import org.apache.cxf.common.classloader.ClassLoaderUtils;
 
 /**
@@ -60,7 +59,6 @@ public class URIResolver {
     
     public URIResolver(String baseUriStr, String uriStr, Class calling) throws IOException {
         this.calling = (calling != null) ? calling : getClass();
-
         if (uriStr.startsWith("classpath:")) {
             tryClasspath(uriStr);
         } else if (baseUriStr != null && baseUriStr.startsWith("jar:")) {
@@ -185,12 +183,24 @@ public class URIResolver {
     }
     
     private void tryJar(String uriStr) throws IOException {
+        System.out.println("tryjar");
         int i = uriStr.indexOf('!');
         if (i == -1) {
             return;
         }
-        uriStr = uriStr.substring(i + 1);
-        tryClasspath(uriStr);
+
+        URL url = new URL(uriStr);
+        is = url.openStream();
+        if (is != null) {
+            try {
+                uri = url.toURI();
+            } catch (URISyntaxException ex) {
+                // ignore
+            }
+        } else {
+            uriStr = uriStr.substring(i + 1);
+            tryClasspath(uriStr);
+        }
     }
     
     private void tryClasspath(String uriStr) throws IOException {
