@@ -116,12 +116,12 @@ public abstract class AbstractDestination implements Destination {
             MessageObserver old = incomingObserver;
             incomingObserver = observer;
             if (observer != null) {
-                getLogger().info("registering incoming observer: " + observer);
+                getLogger().fine("registering incoming observer: " + observer);
                 if (old == null) {
                     activate();
                 }
             } else {
-                getLogger().info("unregistering incoming observer: " + incomingObserver);
+                getLogger().fine("unregistering incoming observer: " + incomingObserver);
                 if (old != null) {
                     deactivate();
                 }

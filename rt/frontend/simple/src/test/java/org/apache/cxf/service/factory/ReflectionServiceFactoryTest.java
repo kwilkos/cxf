@@ -150,7 +150,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         Endpoint ep = eps.values().iterator().next();
         EndpointInfo endpointInfo = ep.getEndpointInfo();
         
-        assertEquals("test", endpointInfo.getProperty("test"));
+        assertEquals("test", ep.get("test"));
         
         SOAPAddress soapAddress = endpointInfo.getExtensor(SOAPAddress.class);
         assertNotNull(soapAddress);

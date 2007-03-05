@@ -18,6 +18,8 @@
  */
 package org.apache.cxf.binding.http.bare;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,4 +115,29 @@ public class BareServiceTest extends AbstractRestTest {
         svr.stop();
     }
 
+    public void testSetContentType() throws Exception {
+        BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
+        bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
+        
+        JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
+        sf.setBus(getBus());
+        sf.setServiceClass(CustomerService.class);
+        sf.getServiceFactory().setWrapped(false);
+        sf.setBindingFactory(new HttpBindingInfoFactoryBean());
+        sf.setAddress("http://localhost:9001/foo/");
+
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put("Content-Type", "text/plain");
+        sf.setProperties(props);
+        
+        ServerImpl svr = (ServerImpl) sf.create();
+        
+        URL url = new URL("http://localhost:9001/foo/customers/123");
+        HttpURLConnection c = (HttpURLConnection)url.openConnection();
+        c.setRequestMethod("GET");
+        
+        assertEquals("text/plain", c.getContentType());
+
+        svr.stop();
+    }
 }

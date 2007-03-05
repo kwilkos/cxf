@@ -72,25 +72,18 @@ public abstract class AbstractEndpointFactory {
         } else if (getAddress() != null) {
             ei.setAddress(getAddress()); 
         }                        
-        
-        setProps(ei);
-        
+
         ep = service.getEndpoints().get(ei.getName());
         if (ep == null) {
             ep = serviceFactory.createEndpoint(ei);
         }
-        service.getEndpoints().put(ep.getEndpointInfo().getName(), ep);
-        return ep;
-    }
-
-    private void setProps(EndpointInfo ei) {
-        if (properties == null) {
-            return;
+        
+        if (properties != null) {
+            ep.putAll(properties);
         }
         
-        for (Map.Entry<String, Object> e : properties.entrySet()) {
-            ei.setProperty(e.getKey(), e.getValue());
-        }
+        service.getEndpoints().put(ep.getEndpointInfo().getName(), ep);
+        return ep;
     }
 
     protected EndpointInfo createEndpointInfo() throws BusException {

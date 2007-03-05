@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.interceptor.Fault;
@@ -43,14 +44,14 @@ public class ContentTypeOutInterceptor extends AbstractPhaseInterceptor<Message>
             headers = new HashMap<String, List<String>>();
             message.put(Message.PROTOCOL_HEADERS, headers);
         }
-        String ct = (String)message.getContextualProperty(HttpHeaderHelper
-            .getHeaderKey(HttpHeaderHelper.CONTENT_TYPE));
-        if (ct == null) {
-            ct = "text/xml";
+        String ct = (String)message.getExchange().get(Endpoint.class).get(HttpHeaderHelper.CONTENT_TYPE);
+        if (ct != null) {
+            List<String> contentType = new ArrayList<String>();
+            contentType.add(ct);
+            headers.put(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE), contentType);
+            message.put(HttpHeaderHelper.CONTENT_TYPE, ct);
         }
-        List<String> contentType = new ArrayList<String>();
-        contentType.add(ct);
-        headers.put(HttpHeaderHelper.getHeaderKey(HttpHeaderHelper.CONTENT_TYPE), contentType);
+        
     }
 
 }

@@ -88,6 +88,7 @@ public class SoapOutInterceptor extends AbstractSoapInterceptor {
             xtw.writeEndElement();            
             // Write Envelope end element
             xtw.writeEndElement();
+            xtw.writeEndDocument();
             
             xtw.flush();
             

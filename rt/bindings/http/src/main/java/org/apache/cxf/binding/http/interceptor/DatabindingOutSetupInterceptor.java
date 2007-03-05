@@ -86,7 +86,6 @@ public class DatabindingOutSetupInterceptor extends AbstractPhaseInterceptor<Mes
                 chain.add(STAX_OUT);
             } else {
                 chain.add(new URIParameterOutInterceptor());
-                
             }
            
         } else {

@@ -81,6 +81,7 @@ public class StaxOutInterceptor extends AbstractPhaseInterceptor<Message> {
         try {
             XMLStreamWriter xtw = message.getContent(XMLStreamWriter.class);
             if (xtw != null) {
+                xtw.writeEndDocument();
                 xtw.close();
             }
             
