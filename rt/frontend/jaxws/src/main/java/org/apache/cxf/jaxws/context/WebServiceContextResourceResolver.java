@@ -26,7 +26,7 @@ import javax.xml.ws.WebServiceContext;
 import org.apache.cxf.resource.ResourceResolver;
 
 
-public class WebContextResourceResolver implements ResourceResolver {
+public class WebServiceContextResourceResolver implements ResourceResolver {
 
     public final InputStream getAsStream(final String string) {
         return null;

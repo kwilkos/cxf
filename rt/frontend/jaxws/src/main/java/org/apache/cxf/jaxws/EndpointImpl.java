@@ -39,7 +39,7 @@ import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerImpl;
-import org.apache.cxf.jaxws.context.WebContextResourceResolver;
+import org.apache.cxf.jaxws.context.WebServiceContextResourceResolver;
 import org.apache.cxf.jaxws.handler.AnnotationHandlerChainBuilder;
 import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsImplementorInfo;
@@ -192,7 +192,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
             ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
             List<ResourceResolver> resolvers = resourceManager.getResourceResolvers();
             resourceManager = new DefaultResourceManager(resolvers); 
-            resourceManager.addResourceResolver(new WebContextResourceResolver());
+            resourceManager.addResourceResolver(new WebServiceContextResourceResolver());
             ResourceInjector injector = new ResourceInjector(resourceManager);
             injector.inject(instance);
         }
@@ -242,7 +242,7 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         if (doInit) {
             try {
                 injectResources(implementor);
-                configureHandlers();
+                buildHandlerChain();
             } catch (Exception ex) {
                 if (ex instanceof WebServiceException) { 
                     throw (WebServiceException)ex; 
@@ -257,18 +257,18 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
      * Obtain handler chain from annotations.
      *
      */
-    private void configureHandlers() {
+    private void buildHandlerChain() {
         LOG.fine("loading handler chain for endpoint");
         AnnotationHandlerChainBuilder builder = new AnnotationHandlerChainBuilder();
 
-        List<Handler> chain = null;
-
-        if (null == chain || chain.size() == 0) {
-            chain = builder.buildHandlerChainFromClass(implementor.getClass());
+        List<Handler> chain = builder.buildHandlerChainFromClass(implementor.getClass());
+        for (Handler h : chain) {
+            injectResources(h);
         }
+        
         getBinding().setHandlerChain(chain);
     }
-
+    
     public EndpointReference getEndpointReference(Element... referenceParameters) {
         // TODO
         throw new UnsupportedOperationException();

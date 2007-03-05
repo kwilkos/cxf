@@ -102,6 +102,10 @@ public abstract class TestHandlerBase {
         return methodCallCount.containsKey("init");
     }
     
+    public boolean isPostConstructInvoked() {
+        return methodCallCount.containsKey("doPostConstruct");
+    }    
+    
     public void setHandleMessageRet(boolean ret) { 
         handleMessageRet = ret; 
     }

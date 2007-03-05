@@ -108,6 +108,18 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         assertEquals(200, value.getReturn());
     }
     
+    public void testHandlerPostConstruct() throws Exception {
+        URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
+
+        AddNumbersServiceWithAnnotation service = new AddNumbersServiceWithAnnotation(wsdl, serviceName);
+        AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
+
+        List<Handler> handlerChain = ((BindingProvider)port).getBinding().getHandlerChain();
+        SmallNumberHandler h = (SmallNumberHandler)handlerChain.get(0);
+        
+        assertTrue(h.isPostConstructInvoked());      
+    }  
+    
     private void addHandlersProgrammatically(BindingProvider bp, Handler...handlers) {
         List<Handler> handlerChain = bp.getBinding().getHandlerChain();
         assertNotNull(handlerChain);
