@@ -188,7 +188,7 @@
                 </not>
             </condition>
             <property name="package.arg.@{file}" value=""/>
-            <condition property="binding.arg" value="-b @{bindingfile}">
+	    <condition property="binding.arg" value='-b "@{bindingfile}"'> 
                 <not>
                     <equals arg1="@{bindingfile}" arg2=""/>
                 </not>
