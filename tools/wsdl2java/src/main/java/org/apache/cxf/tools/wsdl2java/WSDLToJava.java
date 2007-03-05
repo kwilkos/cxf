@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.cxf.common.i18n.Message;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.AbstractCXFToolContainer;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -93,12 +94,21 @@ public class WSDLToJava extends AbstractCXFToolContainer {
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
+            if (exitOnFinish) {
+                System.exit(1);
+            }
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
+            if (exitOnFinish) {
+                System.exit(1);
+            }
+        }
+        if (exitOnFinish) {
+            System.exit(0);
         }
     }
 
@@ -211,14 +221,23 @@ public class WSDLToJava extends AbstractCXFToolContainer {
         env.put(ToolConstants.CFG_ANT_PROP, props);
     }
 
+    private static boolean isExitOnFinish() {
+        String exit = System.getProperty("exitOnFinish");
+        if (StringUtils.isEmpty(exit)) {
+            return false;
+        }
+        return "YES".equalsIgnoreCase(exit) || "TRUE".equalsIgnoreCase(exit);
+    }
+    
     public static void main(String[] pargs) {
         args = pargs;
-
         try {
             ToolRunner.runTool(WSDLToJava.class,
                                getResourceAsStream("wsdl2java.xml"),
                                false,
-                               args);
+                               args,
+                               isExitOnFinish(),
+                               null);
         } catch (BadUsageException ex) {
             getInstance().printUsageException(TOOL_NAME, ex);
         } catch (Exception ex) {
