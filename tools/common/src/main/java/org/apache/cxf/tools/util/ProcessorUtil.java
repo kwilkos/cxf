@@ -24,23 +24,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.wsdl.Definition;
-import javax.wsdl.Import;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;
 import javax.wsdl.Part;
-import javax.wsdl.Types;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
-import javax.wsdl.extensions.schema.Schema;
-import javax.wsdl.extensions.schema.SchemaImport;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.DOMException;
@@ -53,24 +43,13 @@ import com.sun.xml.bind.api.JAXBRIContext;
 
 import org.apache.cxf.helpers.JavaUtils;
 import org.apache.cxf.jaxb.JAXBUtils;
-import org.apache.cxf.resource.XmlSchemaURIResolver;
 import org.apache.cxf.tools.common.DataBindingGenerator;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
 import org.apache.cxf.tools.common.ToolException;
-import org.apache.ws.commons.schema.XmlSchemaCollection;
-import org.apache.ws.commons.schema.XmlSchemaComplexType;
-import org.apache.ws.commons.schema.XmlSchemaElement;
-import org.apache.ws.commons.schema.XmlSchemaObject;
-import org.apache.ws.commons.schema.XmlSchemaObjectCollection;
-import org.apache.ws.commons.schema.XmlSchemaSequence;
-
-import static org.apache.cxf.helpers.CastUtils.cast;
 
 public final class ProcessorUtil {
-    //private static final Logger LOG = LogUtils.getL7dLogger(ProcessorUtil.class);
     private static final String KEYWORDS_PREFIX = "_";
-    private static Map<String, Element> schemaList = new HashMap<String, Element>();
     private ProcessorUtil() {
     }
 
@@ -171,46 +150,6 @@ public final class ProcessorUtil {
         }
     }
     
-    public static String resolvePartNamespace(Part part, Definition definition) {
-        QName qname = part.getElementName();
-        
-        
-
-        if (qname == null) {
-            qname = part.getTypeName();
-        }
-        if (qname != null) {
-            XmlSchemaElement schemaElement = getSchemas(definition).getElementByQName(qname);
-            if (schemaElement != null 
-                && schemaElement.getSchemaType() instanceof XmlSchemaComplexType) {
-                XmlSchemaComplexType xsct = null;
-                
-                xsct = (XmlSchemaComplexType)schemaElement.getSchemaType();
-                if (xsct.getParticle() instanceof XmlSchemaSequence) {
-                    XmlSchemaSequence seq = (XmlSchemaSequence)xsct.getParticle();
-                    XmlSchemaObjectCollection items = seq.getItems();
-
-                    for (int x = 0; x < items.getCount(); x++) {
-                        XmlSchemaObject o = items.getItem(x);
-                        XmlSchemaElement el = null;
-                        if (o instanceof XmlSchemaElement) {   
-                            el = (XmlSchemaElement)o;
-                        }
-                        
-                        if (el != null && el.getRefName() != null) {
-                            return el.getRefName().getNamespaceURI();
-                        }
-                    }
-                }
-                
-                
-            }
-            return qname.getNamespaceURI();
-        } else {
-            return null;
-        }
-    }
-
     public static String mangleNameToClassName(String clzName) {
         return JAXBRIContext.mangleNameToClassName(clzName);
     }
@@ -522,127 +461,4 @@ public final class ProcessorUtil {
         return clone;
     }
     
-    public static XmlSchemaCollection getSchemas(Definition def) {
-        XmlSchemaCollection schemaCol = new XmlSchemaCollection();
-        
-        List<Definition> defList = new ArrayList<Definition>();
-        parseImports(def, defList);
-        extractSchema(def, schemaCol);
-        // added
-        getSchemaList(def);
-        for (Definition def2 : defList) {
-            extractSchema(def2, schemaCol);
-            // added
-            getSchemaList(def2);
-        }
-
-        return schemaCol;
-    }
-
-    private static void parseImports(Definition def, List<Definition> defList) {
-        List<Import> importList = new ArrayList<Import>();
-
-        Collection<List<Import>> ilist = cast(def.getImports().values());
-        for (List<Import> list : ilist) {
-            importList.addAll(list);
-        }
-        for (Import impt : importList) {
-            parseImports(impt.getDefinition(), defList);
-            defList.add(impt.getDefinition());
-        }
-    }
-
-    private static void extractSchema(Definition def, XmlSchemaCollection schemaCol) {
-        Types typesElement = def.getTypes();
-        if (typesElement != null) {
-            for (Object obj : typesElement.getExtensibilityElements()) {
-                org.w3c.dom.Element schemaElem = null;
-                if (obj instanceof Schema) {
-                    Schema schema = (Schema)obj;
-                    schemaElem = schema.getElement();
-                } else if (obj instanceof UnknownExtensibilityElement) {
-                    org.w3c.dom.Element elem = ((UnknownExtensibilityElement)obj).getElement();
-                    if (elem.getLocalName().equals("schema")) {
-                        schemaElem = elem;
-                    }
-                }
-                if (schemaElem != null) { // && schemaElem.getNodeValue() != null) {
-                    for (Object prefix : def.getNamespaces().keySet()) {
-                        String ns = (String)def.getNamespaces().get(prefix);
-                        if (!"".equals(prefix) && !schemaElem.hasAttribute("xmlns:" + prefix)) {
-                            schemaElem.setAttributeNS(javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI,
-                                                      "xmlns:" + prefix, ns);
-                        }
-                    }
-                    try {
-                        schemaCol.setBaseUri(def.getDocumentBaseURI());
-                        schemaCol.setSchemaResolver(new XmlSchemaURIResolver());
-                   
-                        schemaCol.read(schemaElem);
-                    } catch (Exception e) {
-                        //e.printStackTrace();
-                    }
-                    
-                }
-            }
-        }
-    }
-
-    private static void getSchemaList(Definition def) {
-        Types typesElement = def.getTypes();
-        if (typesElement != null) {
-            Iterator ite = typesElement.getExtensibilityElements().iterator();
-            while (ite.hasNext()) {
-                Object obj = ite.next();
-                if (obj instanceof Schema) {
-                    Schema schema = (Schema)obj;
-                    addSchema(schema);
-                }
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static void addSchema(Schema schema) {
-        if (schemaList.get(schema.getDocumentBaseURI()) == null) {
-            schemaList.put(schema.getDocumentBaseURI(), schema.getElement());
-        } else {
-            String tns = schema.getDocumentBaseURI() + "#"
-                         + schema.getElement().getAttribute("targetNamespace");
-            if (schemaList.get(tns) == null) {
-                schemaList.put(tns, schema.getElement());
-            }
-        }
-        
-        Map<String, List> imports = schema.getImports();
-        if (imports != null && imports.size() > 0) {
-            Collection<String> importKeys = imports.keySet();
-            for (String importNamespace : importKeys) {
-                if (importNamespace != null 
-                    && !isSchemaParsed(schema.getDocumentBaseURI(), importNamespace)) {
-                    List<SchemaImport> schemaImports = imports.get(importNamespace);
-                    for (SchemaImport schemaImport : schemaImports) {
-                        Schema tempImport = schemaImport.getReferencedSchema();
-                        if (tempImport != null && !schemaList.containsValue(tempImport.getElement())) {
-                            addSchema(tempImport);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static boolean isSchemaParsed(String baseUri, String ns) {
-        if (schemaList.get(baseUri) != null) {
-            Element ele = schemaList.get(baseUri);
-            String tns = ele.getAttribute("targetNamespace");
-            if (ns.equals(tns)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    
-
 }

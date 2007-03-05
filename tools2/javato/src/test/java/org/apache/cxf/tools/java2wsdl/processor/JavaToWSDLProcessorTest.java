@@ -37,7 +37,6 @@ import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
-import org.apache.cxf.tools.common.toolspec.ToolSpec;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
 
@@ -49,9 +48,6 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
     private String serviceName = "cxfService";
     private WSDLHelper wsdlHelper = new WSDLHelper();
     private File classFile;
-    private String toolspecFile = "/org/apache/cxf/tools/wsdlto/frontend/jaxws/jaxws-toolspec.xml";
-    private InputStream ins = getClass().getResourceAsStream(toolspecFile);
-    private ToolSpec toolspec = new ToolSpec(ins, true);
     
     public void setUp() throws Exception {
 

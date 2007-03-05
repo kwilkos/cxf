@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import javax.jws.soap.SOAPBinding;
-//import javax.wsdl.Definition;
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Operation;

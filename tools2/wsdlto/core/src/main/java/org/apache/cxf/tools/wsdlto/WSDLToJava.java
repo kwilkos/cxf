@@ -19,8 +19,9 @@
 
 package org.apache.cxf.tools.wsdlto;
 
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -61,6 +62,14 @@ public class WSDLToJava {
         return pluginLoader.getDataBindingProfile(name);
     }
     
+    private boolean isExitOnFinish() {
+        String exit = System.getProperty("exitOnFinish");
+        if (StringUtils.isEmpty(exit)) {
+            return false;
+        }
+        return "YES".equalsIgnoreCase(exit) || "TRUE".equalsIgnoreCase(exit);
+    }
+
     public void run(ToolContext context) throws Exception {
         FrontEndProfile frontend = null;
         if (args != null) {
@@ -87,6 +96,7 @@ public class WSDLToJava {
                            toolspecStream,
                            false,
                            args,
+                           isExitOnFinish(),
                            context);
     }
         

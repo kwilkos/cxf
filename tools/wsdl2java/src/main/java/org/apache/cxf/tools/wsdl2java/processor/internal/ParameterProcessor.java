@@ -105,7 +105,7 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private JavaParameter getParameterFromPart(JavaMethod method, Part part, JavaType.Style style) {
         String name = ProcessorUtil.resolvePartName(part);
-        String namespace = ProcessorUtil.resolvePartNamespace(part, definition);
+        String namespace = ProcessorUtil.resolvePartNamespace(part);
         String type = ProcessorUtil.resolvePartType(part, this.env);
 
         JavaParameter parameter = new JavaParameter(name, type, namespace);
@@ -174,7 +174,7 @@ public class ParameterProcessor extends AbstractProcessor {
         String name = part == null ? "return" : part.getName();
         String type = part == null ? "void" : ProcessorUtil.resolvePartType(part, this.env);
  
-        String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part, definition);
+        String namespace = part == null ? null : ProcessorUtil.resolvePartNamespace(part);
               
         JavaReturn returnType = new JavaReturn(name, type, namespace);
         returnType.setQName(ProcessorUtil.getElementName(part));
@@ -439,9 +439,9 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private JavaParameter getParameterFromProperty(Property property, JavaType.Style style, Part part) {
         JType t = property.type();
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part, definition);
+        String targetNamespace = property.elementName().getNamespaceURI();
         if (targetNamespace == null) {
-            targetNamespace = property.elementName().getNamespaceURI();
+            targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
         JavaParameter parameter = new JavaParameter(property.name(), t.fullName(), targetNamespace);
         parameter.setStyle(style);
@@ -456,9 +456,9 @@ public class ParameterProcessor extends AbstractProcessor {
 
     private JavaReturn getReturnFromProperty(Property property, Part part) {
         JType t = property.type();
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part, definition);
+        String targetNamespace = property.elementName().getNamespaceURI();
         if (targetNamespace == null) {
-            targetNamespace = property.elementName().getNamespaceURI();
+            targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
         JavaReturn returnType = new JavaReturn(property.name(), t.fullName(), targetNamespace);
         returnType.setQName(property.elementName());

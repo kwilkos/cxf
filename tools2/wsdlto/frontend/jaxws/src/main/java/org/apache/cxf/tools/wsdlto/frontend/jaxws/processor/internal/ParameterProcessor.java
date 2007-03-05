@@ -98,7 +98,6 @@ public class ParameterProcessor extends AbstractProcessor {
     private JavaParameter addParameter(JavaMethod method, JavaParameter parameter) throws ToolException {
         parameter.setMethod(method);
         parameter.annotate(new WebParamAnnotator());
-        //new WebParamAnnotator().annotate(method, parameter);
         method.addParameter(parameter);
         return parameter;
     }
@@ -145,27 +144,6 @@ public class ParameterProcessor extends AbstractProcessor {
             addParameter(method, getParameterFromQName(part.getElementQName(), 
                                                        item, JavaType.Style.IN, part));
         }
-        
-        /*Map<String, Part> inputPartsMap = inputMessage.getParts();
-        Collection<Part> inputParts = inputPartsMap.values();
-        if (inputParts.size() > 1) {
-            processInput(method, inputMessage);
-            return;
-        } else if (inputParts.isEmpty()) {
-            return;
-        }
-        Part part = inputParts.iterator().next();
-        
-        List<? extends Property> block = dataBinder.getBlock(part);
-        if (block != null) {
-            if (block.size() == 0) {
-                // complete
-            }
-            for (Property item : block) {
-                addParameter(method, getParameterFromProperty(item, JavaType.Style.IN, part));
-            }
-        }*/
-        
     }
 
     @SuppressWarnings("unchecked")
@@ -190,7 +168,6 @@ public class ParameterProcessor extends AbstractProcessor {
                     outParts.add(outpart);
                     continue;
                 }
-                // outParts.add(outpart);
             }
         }
 
@@ -318,10 +295,11 @@ public class ParameterProcessor extends AbstractProcessor {
         fullJavaName = this.dataBinding.getWrappedElementType(wrapperElement, item);
         
         
-        String targetNamespace = ProcessorUtil.resolvePartNamespace(part);
+        String targetNamespace = item.getNamespaceURI();
         if (targetNamespace == null) {
-            targetNamespace = wrapperElement.getNamespaceURI();
+            targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
+
         
         String jpname = ProcessorUtil.mangleNameToVariableName(item.getLocalPart());
         JavaParameter parameter = new JavaParameter(jpname, fullJavaName, targetNamespace);

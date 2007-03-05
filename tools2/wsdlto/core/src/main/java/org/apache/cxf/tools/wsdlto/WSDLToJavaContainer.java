@@ -182,13 +182,22 @@ public class WSDLToJavaContainer extends AbstractCXFToolContainer {
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
+            if (exitOnFinish) {
+                System.exit(1);
+            }            
         } catch (Exception ex) {
             System.err.println("Error : " + ex.getMessage());
             System.err.println();
             if (isVerboseOn()) {
                 ex.printStackTrace();
             }
+            if (exitOnFinish) {
+                System.exit(1);
+            }      
         }
+        if (exitOnFinish) {
+            System.exit(0);
+        }        
     }
 
     @SuppressWarnings("unchecked")
