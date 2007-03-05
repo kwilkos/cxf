@@ -27,6 +27,7 @@ import java.util.Map;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.http.HTTPBinding;
+import javax.wsdl.extensions.mime.MIMEMultipartRelated;
 import javax.xml.namespace.QName;
 
 import org.apache.cxf.service.model.BindingInfo;
@@ -56,6 +57,7 @@ import org.apache.cxf.tools.common.model.JavaType;
 import org.apache.cxf.tools.util.ClassCollector;
 import org.apache.cxf.tools.util.NameUtil;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.customiztion.JAXWSBinding;
 
 public class ServiceProcessor extends AbstractProcessor {
@@ -218,7 +220,7 @@ public class ServiceProcessor extends AbstractProcessor {
         
         JAXWSBinding bopBinding = bop.getExtensor(JAXWSBinding.class);
         
-        if (bopBinding != null && bopBinding.isEnableMime()) {
+        if (bopBinding != null && !bopBinding.isEnableMime()) {
             jaxwsBinding.setEnableMime(false);
             if (bopBinding.getJaxwsPara() != null) {
                 jaxwsBinding.setJaxwsPara(bopBinding.getJaxwsPara());
@@ -315,6 +317,8 @@ public class ServiceProcessor extends AbstractProcessor {
     private void setParameterAsHeader(JavaParameter parameter) {
         parameter.setHeader(true);
         parameter.getAnnotation().addArgument("header", "true", "");
+        parameter.getAnnotation().addArgument("name", parameter.getQName().getLocalPart());
+        parameter.getAnnotation().addArgument("targetNamespace", parameter.getTargetNamespace());
     }
 
     private void processParameter(JavaMethod jm, BindingOperationInfo operation) throws ToolException {
@@ -365,8 +369,12 @@ public class ServiceProcessor extends AbstractProcessor {
                     setParameterAsHeader(jp);
                 }
             }
+            if (ext instanceof MIMEMultipartRelated && jm.enableMime()) {
+                MIMEProcessor mimeProcessor = new MIMEProcessor(context);
+                mimeProcessor.process(jm, (MIMEMultipartRelated)ext, JavaType.Style.IN);
+            }            
         }
-
+        
         // process output
         if (operation.getOutput() != null) {
             List<ExtensibilityElement> outbindings =
@@ -400,7 +408,11 @@ public class ServiceProcessor extends AbstractProcessor {
                         setParameterAsHeader(jp);
                     }
                 }
-            }
+                if (ext instanceof MIMEMultipartRelated && jm.enableMime()) {
+                    MIMEProcessor mimeProcessor = new MIMEProcessor(context);
+                    mimeProcessor.process(jm, (MIMEMultipartRelated)ext, JavaType.Style.OUT);
+                }
+            }           
         }
 
         jm.setSoapUse(SOAPBindingUtil.getSoapUse(use));

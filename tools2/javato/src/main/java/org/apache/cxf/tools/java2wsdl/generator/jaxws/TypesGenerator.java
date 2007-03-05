@@ -115,7 +115,9 @@ public class TypesGenerator {
         definition.addNamespace(WSDLConstants.TNS_PREFIX, wmodel.getTargetNameSpace());
         int i = 0;
         for (String s : wmodel.getJaxbContext().getKnownNamespaceURIs()) {
-            definition.addNamespace("ns" + (++i), s);
+            if (!"".equals(s)) {
+                definition.addNamespace("ns" + (++i), s);
+            }
         }
 
     }

@@ -110,6 +110,12 @@ public class OperationProcessor  extends AbstractProcessor {
             addAsyncMethod(method);
         }
         
+        if (globalBinding != null && globalBinding.isEnableMime() 
+            || opBinding != null && opBinding.isEnableMime()) {
+            method.setMimeEnable(true);
+        }
+        
+        
        
     }
 

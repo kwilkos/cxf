@@ -45,6 +45,7 @@ public class JavaMethod implements JavaAnnotatable {
     private WSDLParameter requestParameter;
     private WSDLParameter responseParameter;
     private boolean wrapperStyle;
+    private boolean enableMime = true;
     private JavaInterface javaInterface;
     private final List<JavaParameter> parameters = new ArrayList<JavaParameter>();
     private final List<JavaException> exceptions = new ArrayList<JavaException>();
@@ -193,6 +194,15 @@ public class JavaMethod implements JavaAnnotatable {
 
     public void setWrapperStyle(boolean w) {
         this.wrapperStyle = w;
+    }
+    
+    
+    public boolean enableMime() {
+        return this.enableMime;
+    }
+    
+    public void setMimeEnable(boolean arg) {
+        enableMime = arg;
     }
 
     public void setSoapStyle(SOAPBinding.Style sty) {

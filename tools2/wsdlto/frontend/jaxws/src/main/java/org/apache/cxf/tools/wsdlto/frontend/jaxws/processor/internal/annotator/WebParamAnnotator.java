@@ -29,7 +29,6 @@ import org.apache.cxf.tools.common.model.JavaParameter;
 import org.apache.cxf.tools.common.model.JavaType;
 
 public class WebParamAnnotator implements Annotator {
-
     public void annotate(JavaAnnotatable ja) {
         JavaParameter parameter = null;
         if (ja instanceof JavaParameter) {
@@ -43,7 +42,8 @@ public class WebParamAnnotator implements Annotator {
         String targetNamespace = method.getInterface().getNamespace();
         String partName = null;
 
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
+            || parameter.isHeader()) {
             targetNamespace = parameter.getTargetNamespace();
             if (parameter.getQName() != null) {
                 name = parameter.getQName().getLocalPart();
@@ -65,7 +65,7 @@ public class WebParamAnnotator implements Annotator {
             webParamAnnotation.addArgument("mode", "Mode." + parameter.getStyle().toString(), "");
         }
         webParamAnnotation.addArgument("name", name);
-        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT) {
+        if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT || parameter.isHeader()) {
             webParamAnnotation.addArgument("targetNamespace", targetNamespace);
         }
 

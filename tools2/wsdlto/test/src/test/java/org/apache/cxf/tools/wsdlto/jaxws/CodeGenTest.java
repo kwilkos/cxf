@@ -19,8 +19,11 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import javax.jws.HandlerChain;
 import javax.jws.Oneway;
@@ -64,70 +67,7 @@ public class CodeGenTest extends ProcessorTestBase {
         env = null;
     }
     
-/*   
-    public void testRPCLit1() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/type_test/type_test_rpclit_soap.wsdl"));
-        processor.setContext(env);
-        processor.execute();      
 
-    }
-    
-    
-    
-   
-    public void testLocator() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_xml_bare.wsdl"));
-        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-        processor.setContext(env);
-        processor.execute();      
-
-    }
-    
-   
-    public void testLocator2() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/basic_callback_test.wsdl"));
-        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-        env.put(ToolConstants.CFG_SERVICENAME, "SOAPService");
-        processor.setContext(env);
-        processor.execute();      
-
-    }
-    
-    public void testLocator3() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/basic_callback_test.wsdl"));
-        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-        env.put(ToolConstants.CFG_SERVICENAME, "CallbackService");
-        processor.setContext(env);
-        processor.execute();      
-
-    }
-    
-
-    
-    
- 
-    public void testLocator_4() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_multi_service.wsdl"));
-        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-        env.put(ToolConstants.CFG_SERVICENAME, "SOAPProviderService");
-        
-        
-        processor.setContext(env);
-        processor.execute();      
-
-    }
-
-    public void testLocator_3() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/ordered_param_holder.wsdl"));
-        env.put(ToolConstants.CFG_VERBOSE, ToolConstants.CFG_VERBOSE);
-        processor.setContext(env);
-        processor.execute();      
-
-    }
-
-    */
-    
-    
     public void testRPCLit() throws Exception {
 
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world_rpc_lit.wsdl"));
@@ -762,6 +702,60 @@ public class CodeGenTest extends ProcessorTestBase {
         processor.execute();
         Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.types.ActionType");
         assertNotNull("Enum class could not be found", clz);
+    }
+    
+    public void testSWAMime() throws Exception {
+
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/swa-mime.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class clz = classLoader.loadClass("org.apache.cxf.swa.SwAServiceInterface");
+
+        Method method1 = clz.getMethod("echoData", new Class[] {javax.xml.ws.Holder.class,
+                                                                javax.xml.ws.Holder.class});
+
+        assertNotNull("method echoData can not be found", method1);
+
+        Type[] types = method1.getGenericParameterTypes();
+        ParameterizedType paraType = (ParameterizedType)types[1];
+        Class typeClass = (Class)paraType.getActualTypeArguments()[0];
+        assertEquals("javax.activation.DataHandler", typeClass.getName());
+    }
+
+    public void testRPCHeader() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/soapheader_rpc.wsdl"));
+        processor.setContext(env);
+        processor.execute();
+        Class cls = classLoader.loadClass("org.apache.header_test.rpc.TestRPCHeader");
+
+        Method meths[] = cls.getMethods();
+        for (Method m : meths) {
+            if ("testHeader1".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(2, annotations.length);
+                assertEquals(1, annotations[1].length);
+                assertTrue(annotations[1][0] instanceof WebParam);
+                WebParam parm = (WebParam)annotations[1][0];
+                assertEquals("http://apache.org/header_test/rpc/types", parm.targetNamespace());
+                assertEquals("inHeader", parm.partName());
+                assertEquals("headerMessage", parm.name());
+                assertTrue(parm.header());
+            }
+        }
+
+        for (Method m : meths) {
+            if ("testInOutHeader".equals(m.getName())) {
+                Annotation annotations[][] = m.getParameterAnnotations();
+                assertEquals(2, annotations.length);
+                assertEquals(1, annotations[1].length);
+                assertTrue(annotations[1][0] instanceof WebParam);
+                WebParam parm = (WebParam)annotations[1][0];
+                assertEquals("http://apache.org/header_test/rpc/types", parm.targetNamespace());
+                assertEquals("inOutHeader", parm.partName());
+                assertEquals("headerMessage", parm.name());
+                assertTrue(parm.header());
+            }
+        }
     }
 
     private String getLocation(String wsdlFile) {
