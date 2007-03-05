@@ -252,10 +252,7 @@ public class ClassProcessor {
         }
         model.setServiceName(serviceName);
 
-        /*String packageName = "";
-        if (clazz.getPackage() != null) {
-            packageName = clazz.getPackage().getName();
-        }*/
+
         String packageName = PackageUtils.getPackageName(clazz);
         model.setPackageName(packageName);
 
