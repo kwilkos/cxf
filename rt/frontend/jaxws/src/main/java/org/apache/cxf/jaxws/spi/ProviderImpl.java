@@ -20,19 +20,19 @@
 package org.apache.cxf.jaxws.spi;
 
 import java.net.URL;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
 import javax.xml.ws.Endpoint;
-import javax.xml.ws.EndpointReference;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceFeature;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.spi.ServiceDelegate;
-import javax.xml.ws.wsaddressing.W3CEndpointReference;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
-import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -75,6 +75,8 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
         return ep;
     }
 
+    // TODO JAX-WS 2.1
+    /*
     public W3CEndpointReference createW3CEndpointReference(String address,
                                                            QName serviceName,
                                                            QName portName,
@@ -96,5 +98,6 @@ public class ProviderImpl extends javax.xml.ws.spi.Provider {
         // TODO
         throw new UnsupportedOperationException();
     }
+    */
 
 }

@@ -27,11 +27,12 @@ import java.util.logging.Logger;
 
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
-import javax.xml.ws.EndpointReference;
+
+//TODO JAX-WS 2.1
+//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.Handler;
 
-import org.w3c.dom.Element;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.common.injection.ResourceInjector;
@@ -269,6 +270,8 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         getBinding().setHandlerChain(chain);
     }
     
+    /*
+    //TODO JAX-WS 2.1
     public EndpointReference getEndpointReference(Element... referenceParameters) {
         // TODO
         throw new UnsupportedOperationException();
@@ -279,4 +282,5 @@ public class EndpointImpl extends javax.xml.ws.Endpoint {
         // TODO
         throw new UnsupportedOperationException();
     }
+    */
 }

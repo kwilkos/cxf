@@ -38,10 +38,12 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.EndpointReference;
+//  TODO JAX-WS 2.1
+//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceFeature;
+//  TODO JAX-WS 2.1
+//import javax.xml.ws.WebServiceFeature;
 import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.http.HTTPBinding;
@@ -373,6 +375,8 @@ public class ServiceImpl extends ServiceDelegate {
 
     
     
+    //  TODO JAX-WS 2.1
+    /*
     public <T> Dispatch<T> createDispatch(QName portName,
                                           Class<T> type,
                                           Mode mode,
@@ -424,4 +428,5 @@ public class ServiceImpl extends ServiceDelegate {
         // TODO
         throw new UnsupportedOperationException();
     }
+    */
 }

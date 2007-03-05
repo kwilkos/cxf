@@ -27,7 +27,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.xml.ws.Binding;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.EndpointReference;
+//TODO JAX-WS 2.1
+//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.handler.MessageContext;
 
 public class BindingProviderImpl implements BindingProvider {
@@ -75,6 +76,8 @@ public class BindingProviderImpl implements BindingProvider {
         }
     }
 
+    /*
+    //TODO JAX-WS 2.1
     public EndpointReference getEndpointReference() {
         // TODO
         throw new UnsupportedOperationException();
@@ -84,5 +87,6 @@ public class BindingProviderImpl implements BindingProvider {
         // TODO
         throw new UnsupportedOperationException();
     }
+    */
 
 }

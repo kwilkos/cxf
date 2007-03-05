@@ -21,11 +21,10 @@ package org.apache.cxf.jaxws.context;
 
 import java.security.Principal;
 
-import javax.xml.ws.EndpointReference;
+//  TODO JAX-WS 2.1
+//import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
-
-import org.w3c.dom.Element;
 
 
 public class WebServiceContextImpl implements WebServiceContext {
@@ -53,6 +52,8 @@ public class WebServiceContextImpl implements WebServiceContext {
         return false;
     }
     
+    //  TODO JAX-WS 2.1
+    /*
     public EndpointReference getEndpointReference(Element... referenceParameters) {
         // TODO
         throw new UnsupportedOperationException();
@@ -63,6 +64,7 @@ public class WebServiceContextImpl implements WebServiceContext {
         // TODO
         throw new UnsupportedOperationException();
     }
+    */
     
     
 
