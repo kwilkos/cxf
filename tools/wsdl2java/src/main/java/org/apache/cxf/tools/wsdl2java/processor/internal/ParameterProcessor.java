@@ -43,6 +43,7 @@ import org.xml.sax.SAXException;
 import com.sun.codemodel.JType;
 import com.sun.tools.xjc.api.Property;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolContext;
@@ -157,9 +158,6 @@ public class ParameterProcessor extends AbstractProcessor {
         webParamAnnotation.addArgument("name", name);
         if (method.getSoapStyle() == SOAPBinding.Style.DOCUMENT
             || parameter.isHeader()) {
-            if (parameter.getTypeReference() != null) {
-                targetNamespace = parameter.getTypeReference().tagName.getNamespaceURI();
-            }
             webParamAnnotation.addArgument("targetNamespace", targetNamespace);
         }
 
@@ -440,7 +438,7 @@ public class ParameterProcessor extends AbstractProcessor {
     private JavaParameter getParameterFromProperty(Property property, JavaType.Style style, Part part) {
         JType t = property.type();
         String targetNamespace = property.elementName().getNamespaceURI();
-        if (targetNamespace == null) {
+        if (StringUtils.isEmpty(targetNamespace)) {
             targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
         JavaParameter parameter = new JavaParameter(property.name(), t.fullName(), targetNamespace);
@@ -457,7 +455,7 @@ public class ParameterProcessor extends AbstractProcessor {
     private JavaReturn getReturnFromProperty(Property property, Part part) {
         JType t = property.type();
         String targetNamespace = property.elementName().getNamespaceURI();
-        if (targetNamespace == null) {
+        if (StringUtils.isEmpty(targetNamespace)) {
             targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
         JavaReturn returnType = new JavaReturn(property.name(), t.fullName(), targetNamespace);
