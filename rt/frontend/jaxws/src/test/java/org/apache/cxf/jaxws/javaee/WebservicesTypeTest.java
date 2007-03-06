@@ -26,9 +26,6 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-/**
- * @version $Rev:$ $Date:$
- */
 public class WebservicesTypeTest extends TestCase {
 
     public void testReadWebservicesXml() throws Exception {

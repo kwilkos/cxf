@@ -21,9 +21,6 @@ package org.apache.cxf.binding.soap;
 
 import javax.xml.namespace.QName;
 
-/**
- * @version $Revision$
- */
 public interface SoapVersion {
 
     double getVersion();

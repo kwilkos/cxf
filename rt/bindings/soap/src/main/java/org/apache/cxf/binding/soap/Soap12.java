@@ -24,7 +24,6 @@ import javax.xml.namespace.QName;
 /**
  * Represents the SOAP 1.2 version
  * 
- * @version $Revision$
  */
 public final class Soap12 implements SoapVersion {
     public static final String SOAP_NAMESPACE = "http://www.w3.org/2003/05/soap-envelope";
