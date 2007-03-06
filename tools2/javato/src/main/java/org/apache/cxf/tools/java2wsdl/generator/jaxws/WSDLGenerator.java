@@ -104,8 +104,4 @@ public class WSDLGenerator {
         }
         return true;
     }
-
-    
- 
-
 }

@@ -49,8 +49,6 @@ public class WSDLToJavaProcessor extends WSDLToProcessor {
         JavaModel javaModel = new JavaModel();
         context.put(JavaModel.class, javaModel);
 
-        //TODO : refactroing the internal processors to use the service model
-
         PortTypeProcessor portTypeProcessor = new PortTypeProcessor(context);
         portTypeProcessor.process(serviceInfo);
 

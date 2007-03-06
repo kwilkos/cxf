@@ -80,8 +80,6 @@ public class DocWrapperMethodProcessor {
         String reqNS = model.getTargetNameSpace();
         if (reqWrapper != null && !StringUtils.isEmpty(reqWrapper.className())) {
             reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
-            reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
-            reqNS = reqWrapper.targetNamespace().length() > 0 ? reqWrapper.targetNamespace() : reqNS;
         } else {      
             reqClassName = model.getPackageName() + ".jaxws." + AnnotationUtil.capitalize(method.getName());
         }
@@ -109,8 +107,6 @@ public class DocWrapperMethodProcessor {
             String resNS = model.getTargetNameSpace();
             if (resWrapper != null && !StringUtils.isEmpty(resWrapper.className())) {
                 resClassName = resWrapper.className();
-                resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
-                resNS = resWrapper.targetNamespace().length() > 0 ? resWrapper.targetNamespace() : resNS;
             } else {
                 resClassName = model.getPackageName() + ".jaxws." 
                     + AnnotationUtil.capitalize(method.getName())

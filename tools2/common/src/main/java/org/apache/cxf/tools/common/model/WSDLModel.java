@@ -142,6 +142,7 @@ public class WSDLModel {
         return this.methods;
     }
 
+    @SuppressWarnings(value = "deprecation")
     public void createJAXBContext() throws ToolException {
         List<TypeReference> types = this.getAllTypeReference();
         Class[] clzzs = new Class[types.size()];

@@ -19,9 +19,12 @@
 
 package org.apache.cxf.tools.java2wsdl.processor;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.HashMap;
 import java.util.Iterator;
-
+import java.util.Map;
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Port;
@@ -31,14 +34,20 @@ import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.xml.namespace.QName;
+import javax.xml.xpath.XPathConstants;
+
+import org.w3c.dom.Document;
 
 import org.apache.cxf.helpers.WSDLHelper;
+import org.apache.cxf.helpers.XMLUtils;
+import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
 import org.apache.cxf.tools.common.WSDLConstants;
 import org.apache.cxf.tools.common.extensions.soap.SoapBinding;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
 import org.apache.cxf.tools.wsdlto.frontend.jaxws.JAXWSContainer;
+
 
 public class JavaToWSDLProcessorTest extends ProcessorTestBase {
 
@@ -309,6 +318,31 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
             String expected = "Method [sayHi] processing error : SOAPBinding annotation " 
                 + "can not be placed on method with RPC style";
             assertTrue(e.getMessage().contains(expected));
+        } catch (Exception e) {
+            fail("Should not happen other exception " + e.getMessage());
+        }
+    }
+
+    public void testDocWrappedWithLocalName() {
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("xsd", "http://www.w3.org/2001/XMLSchema");
+        
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_localName.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME, "org.apache.cxf.tools.fortest.withannotation.doc.Stock");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        j2wProcessor.setEnvironment(env);
+        try {        
+            j2wProcessor.process();
+            File file = new File(output, "schema1.xsd");
+            assertTrue(file.exists());
+            Document root = XMLUtils.parse(new BufferedInputStream(new FileInputStream(file)));
+            XPathUtils xpather = new XPathUtils(ns);
+            assertNull(xpather.getValue("/xsd:schema/xsd:element[@name='xXx']",
+                                        root,
+                                        XPathConstants.NODE));
+            assertNotNull(xpather.getValue("/xsd:schema/xsd:element[@name='getPrice']",
+                                           root,
+                                           XPathConstants.NODE));
         } catch (Exception e) {
             fail("Should not happen other exception " + e.getMessage());
         }

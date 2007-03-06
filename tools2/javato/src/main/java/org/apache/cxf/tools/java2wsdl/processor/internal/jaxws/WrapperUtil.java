@@ -40,8 +40,6 @@ public final class WrapperUtil {
         String reqNS = null;
         if (reqWrapper != null && !StringUtils.isEmpty(reqWrapper.className())) {
             reqClassName = reqWrapper.className().length() > 0 ? reqWrapper.className() : reqClassName;
-            reqName = reqWrapper.localName().length() > 0 ? reqWrapper.localName() : reqName;
-            reqNS = reqWrapper.targetNamespace();
         } else {
             reqClassName = getPackageName(method) + ".jaxws." + AnnotationUtil.capitalize(method.getName());
         }
@@ -57,8 +55,6 @@ public final class WrapperUtil {
         String resNS = null;
         if (resWrapper != null && !StringUtils.isEmpty(resWrapper.className())) {
             resClassName = resWrapper.className();
-            resName = resWrapper.localName().length() > 0 ? resWrapper.localName() : resName;
-            resNS = resWrapper.targetNamespace();
         } else {
             resClassName = getPackageName(method) + ".jaxws." 
                 + AnnotationUtil.capitalize(method.getName())
