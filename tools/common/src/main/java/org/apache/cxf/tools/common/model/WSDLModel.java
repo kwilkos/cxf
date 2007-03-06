@@ -150,9 +150,7 @@ public class WSDLModel {
             clzzs[i++] = (Class)typeref.type;
         }
         try {
-            jaxbContext = JAXBRIContext.newInstance(clzzs, types, null,
-                                                    this.getTargetNameSpace(), false, null);
-
+            jaxbContext = JAXBRIContext.newInstance(clzzs, types, this.getTargetNameSpace(), false);
         } catch (Exception e) {
             Message message = new Message("CREATE_JAXBRICONTEXT_EXCEPTION", LOG);
             throw new ToolException(message, e);

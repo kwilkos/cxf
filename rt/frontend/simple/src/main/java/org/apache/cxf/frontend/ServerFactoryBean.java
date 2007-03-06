@@ -84,7 +84,10 @@ public class ServerFactoryBean extends AbstractEndpointFactory {
             }
             
             Endpoint ep = createEndpoint();
-            server = new ServerImpl(getBus(), ep, new ChainInitiationObserver(ep, getBus()));
+            server = new ServerImpl(getBus(), 
+                                    ep, 
+                                    getDestinationFactory(), 
+                                    new ChainInitiationObserver(ep, getBus()));
             
             if (serviceBean != null && ep.getService().getInvoker() == null) {
                 ep.getService().setInvoker(createInvoker());

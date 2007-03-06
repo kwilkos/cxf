@@ -42,8 +42,8 @@
 
 
         <jsr181.version>1.0-MR1</jsr181.version>
-        <jaxb.version>2.1</jaxb.version>
-        <jaxb.impl.version>2.1.2</jaxb.impl.version>
+        <jaxb.version>2.0</jaxb.version>
+        <jaxb.impl.version>2.0.3</jaxb.impl.version>
         <jaxws.version>2.0</jaxws.version>
         <jetty.version>5.1.11</jetty.version>
         <saaj.version>1.3</saaj.version>

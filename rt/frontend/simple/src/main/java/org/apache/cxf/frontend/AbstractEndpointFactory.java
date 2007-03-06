@@ -89,8 +89,12 @@ public abstract class AbstractEndpointFactory {
     protected EndpointInfo createEndpointInfo() throws BusException {
         if (transportId == null) {
             if (getAddress() != null) {
-                DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
-                DestinationFactory df = dfm.getDestinationFactoryForUri(getAddress());
+                DestinationFactory df = getDestinationFactory();
+                if (df == null) {
+                    DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
+                    df = dfm.getDestinationFactoryForUri(getAddress());
+                }
+                
                 if (df != null) {
                     transportId = df.getTransportIds().get(0);
                 }
@@ -117,8 +121,10 @@ public abstract class AbstractEndpointFactory {
         
         setTransportId(transportId);
         
-        DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
-        destinationFactory = dfm.getDestinationFactory(transportId);
+        if (destinationFactory == null) {
+            DestinationFactoryManager dfm = getBus().getExtension(DestinationFactoryManager.class);
+            destinationFactory = dfm.getDestinationFactory(transportId);
+        }
         
         EndpointInfo ei = new EndpointInfo(service.getServiceInfo(), transportId);
         ei.setName(endpointName);

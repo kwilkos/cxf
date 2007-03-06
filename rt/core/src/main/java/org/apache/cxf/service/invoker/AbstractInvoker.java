@@ -63,7 +63,7 @@ public abstract class AbstractInvoker implements Invoker {
                 paramArray = params.toArray();
             }
             
-            insertExchange(m, paramArray, exchange);
+            paramArray = insertExchange(m, paramArray, exchange);
             
             res = m.invoke(serviceObject, paramArray);
             if (exchange.isOneWay()) {

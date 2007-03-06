@@ -72,11 +72,6 @@ class JAXBSchemaInitializer extends ServiceModelVisitor {
                 part.setElementQName(name);
             }
             part.setXmlSchema(el);
-            
-            /*else if (el.getRefName() != null) {
-                MessagePartInfo mpi = wrapper.addMessagePart(el.getRefName());
-                mpi.setTypeQName(el.getRefName());
-                mpi.setXmlSchema(el);*/
         } else {
             Iterator<QName> itr = beanInfo.getTypeNames().iterator();
             if (!itr.hasNext()) {

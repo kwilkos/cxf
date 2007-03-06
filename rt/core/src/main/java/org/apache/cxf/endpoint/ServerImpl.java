@@ -42,18 +42,27 @@ public class ServerImpl implements Server {
     
     public ServerImpl(Bus bus, Endpoint endpoint, MessageObserver observer) 
         throws BusException, IOException {
-        
+        this(bus, endpoint, null, observer);
+    }
+    
+    public ServerImpl(Bus bus, 
+                      Endpoint endpoint, 
+                      DestinationFactory destinationFactory, 
+                      MessageObserver observer) throws BusException, IOException {
         this.endpoint = endpoint;
         this.messageObserver = observer;  
         this.bus = bus;
 
         EndpointInfo ei = endpoint.getEndpointInfo();
-        DestinationFactory destinationFactory = bus.getExtension(DestinationFactoryManager.class)
-            .getDestinationFactory(ei.getTransportId());
+        if (destinationFactory == null) {
+            destinationFactory = bus.getExtension(DestinationFactoryManager.class)
+                .getDestinationFactory(ei.getTransportId());
+        }
+            
         destination = destinationFactory.getDestination(ei);
         serverRegistry = bus.getExtension(ServerRegistry.class);
     }
-    
+
     public Destination getDestination() {
         return destination;
     }
