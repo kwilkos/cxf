@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 import java.net.URLClassLoader;
 
 import javax.jws.HandlerChain;
@@ -943,7 +944,7 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
 
     }
 
-    public void testBug305729() {
+    public void testBug305729() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305729/hello_world.wsdl"));
         processor.setEnvironment(env);
         processor.process();
@@ -1175,8 +1176,8 @@ public class WSDLToJavaProcessorTest extends ProcessorTestBase {
         
     }
     
-    private String getLocation(String wsdlFile) {
-        return WSDLToJavaProcessorTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return WSDLToJavaProcessorTest.class.getResource(wsdlFile).toURI().getPath();
     }
 
 }

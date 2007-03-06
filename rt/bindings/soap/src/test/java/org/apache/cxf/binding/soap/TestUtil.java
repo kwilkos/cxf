@@ -22,6 +22,7 @@ package org.apache.cxf.binding.soap;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,13 +45,13 @@ public final class TestUtil {
     }
 
     public static XopType createXopObject(Class<?> clazz)
-        throws IOException {
+        throws IOException, URISyntaxException {
         
         XopType xopObj = new XopType();
         xopObj.setName("hello world");        
                 
         URL url1 = clazz.getResource("my.wav");
-        File file = new File(url1.getFile());
+        File file = new File(url1.toURI().getPath());
         FileInputStream fi = new FileInputStream(file);
         byte[] buffer = new byte[(int) file.length()];
         fi.read(buffer);

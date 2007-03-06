@@ -175,7 +175,7 @@ public class WSDLToJavaMIMETest
     }
 
     private String getLocation(String wsdlFile) throws URISyntaxException {
-        return WSDLToJavaMIMETest.class.getResource(wsdlFile).getFile();
+        return WSDLToJavaMIMETest.class.getResource(wsdlFile).toURI().getPath();
     }
     
 }

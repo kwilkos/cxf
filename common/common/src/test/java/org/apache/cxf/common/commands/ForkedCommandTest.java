@@ -118,7 +118,7 @@ public class ForkedCommandTest extends TestCase {
     
     public void testTimeout() throws Exception {
         URL url = TestCommand.class.getResource("TestCommand.class");
-        File file = new File(url.getFile());
+        File file = new File(url.toURI());
         file = file.getParentFile();
         file = new File(file, "../../../../..");
         String[] cmd = new String[] {

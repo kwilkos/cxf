@@ -19,6 +19,7 @@
  
 package org.apache.cxf.transport.https;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -572,9 +573,9 @@ public class HttpsURLConnectionFactoryTest extends TestCase {
         return factory;
     }
 
-    protected static String getPath(String fileName) {
+    protected static String getPath(String fileName) throws URISyntaxException {
         URL keystoreURL = HttpsURLConnectionFactoryTest.class.getResource(".");
-        String str = keystoreURL.getFile();
+        String str = keystoreURL.toURI().getPath();
         str += DROP_BACK_SRC_DIR + fileName;
         return str;
     }

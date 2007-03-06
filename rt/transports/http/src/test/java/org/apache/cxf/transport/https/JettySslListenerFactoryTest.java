@@ -20,6 +20,7 @@
 package org.apache.cxf.transport.https;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -130,7 +131,7 @@ public class JettySslListenerFactoryTest extends TestCase {
     }
     */
     
-    public void testSetAllData() {       
+    public void testSetAllData() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -190,7 +191,7 @@ public class JettySslListenerFactoryTest extends TestCase {
                                                   + "CertValidator"));
     }
     
-    public void testSetAllDataExceptKeystoreAndTrustStore() {        
+    public void testSetAllDataExceptKeystoreAndTrustStore() throws Exception {        
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(null);
         sslServerPolicy.setKeystoreType("JKS");
@@ -254,7 +255,7 @@ public class JettySslListenerFactoryTest extends TestCase {
                                                   + "CertValidator"));
     }
     
-    public void testConfiguredCipherSuites() {       
+    public void testConfiguredCipherSuites() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -295,7 +296,7 @@ public class JettySslListenerFactoryTest extends TestCase {
     }
 
 
-    public void testDefaultedCipherSuiteFilters() {       
+    public void testDefaultedCipherSuiteFilters() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -338,7 +339,7 @@ public class JettySslListenerFactoryTest extends TestCase {
                    handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
     }
 
-    public void testNonDefaultedCipherSuiteFilters() {       
+    public void testNonDefaultedCipherSuiteFilters() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -391,7 +392,7 @@ public class JettySslListenerFactoryTest extends TestCase {
                    handler.checkLogContainsString("The enabled cipher suites have been filtered down to")); 
     }
 
-    public void testAllValidDataJKS() {        
+    public void testAllValidDataJKS() throws Exception {        
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -409,7 +410,7 @@ public class JettySslListenerFactoryTest extends TestCase {
         factory.decorate(sslListener);
     }
     
-    public void testAllValidDataPKCS12() {
+    public void testAllValidDataPKCS12() throws Exception {
         String keyStoreStr = getPath("resources/celtix.p12");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -427,7 +428,7 @@ public class JettySslListenerFactoryTest extends TestCase {
         factory.decorate(sslListener);
     }
 
-    public void testAllElementsHaveSetupMethod() {
+    public void testAllElementsHaveSetupMethod() throws Exception {
         SSLServerPolicy policy = new SSLServerPolicy();
         TestLogHandler handler = new TestLogHandler(); 
         JettySslListenerFactory factory = createFactory(policy, 
@@ -465,9 +466,9 @@ public class JettySslListenerFactoryTest extends TestCase {
         System.setProperty("user.home", oldHome);
     }
 
-    protected static String getPath(String fileName) {
+    protected static String getPath(String fileName) throws URISyntaxException {
         URL keystoreURL = JettySslListenerFactoryTest.class.getResource(".");
-        String str = keystoreURL.getFile(); 
+        String str = keystoreURL.toURI().getPath(); 
         str += HttpsURLConnectionFactoryTest.DROP_BACK_SRC_DIR  + fileName;
         return str;
     }

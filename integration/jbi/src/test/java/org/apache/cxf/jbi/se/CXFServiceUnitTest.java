@@ -57,7 +57,7 @@ public class CXFServiceUnitTest extends TestCase {
      
     public void setUp() throws Exception {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-        absCsuPath = getClass().getResource(ROOT_PATH).getFile();
+        absCsuPath = getClass().getResource(ROOT_PATH).toURI().getPath();
         
         System.setProperty(Configurer.USER_CFG_FILE_PROPERTY_NAME,
             getClass().getResource(CXF_CONFIG).toString());

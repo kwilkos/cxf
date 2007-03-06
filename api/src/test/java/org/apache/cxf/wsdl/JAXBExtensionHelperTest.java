@@ -82,7 +82,7 @@ public class JAXBExtensionHelperTest extends TestCase {
                         "org.apache.cxf.abc.test.NewServiceType", Thread.currentThread()
                                         .getContextClassLoader());
 
-        String file = this.getClass().getResource("/wsdl/test_ext.wsdl").getFile();
+        String file = this.getClass().getResource("/wsdl/test_ext.wsdl").toURI().toString();
 
         wsdlReader.setExtensionRegistry(registry);
 
@@ -116,7 +116,7 @@ public class JAXBExtensionHelperTest extends TestCase {
                         "org.apache.cxf.abc.test.NewServiceType", Thread.currentThread()
                                         .getContextClassLoader());
 
-        String file = this.getClass().getResource("/wsdl/test_ext.wsdl").getFile();
+        String file = this.getClass().getResource("/wsdl/test_ext.wsdl").toURI().toString();
 
         wsdlReader.setExtensionRegistry(registry);
 

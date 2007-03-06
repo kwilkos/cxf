@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -176,7 +177,14 @@ public class ServerLauncher {
                 serverLaunchFailed = true;
             }
         } else {
-            List<String> cmd = getCommand();
+            List<String> cmd;
+            try {
+                cmd = getCommand();
+            } catch (URISyntaxException e1) {
+                IOException ex = new IOException();
+                ex.initCause(e1);
+                throw ex;
+            }
 
             if (debug) {
                 System.err.print("CMD: ");
@@ -302,7 +310,7 @@ public class ServerLauncher {
         }
     }
 
-    private List<String> getCommand() {
+    private List<String> getCommand() throws URISyntaxException {
 
         List<String> cmd = new ArrayList<String>();
         cmd.add(javaExe);
@@ -322,7 +330,7 @@ public class ServerLauncher {
             URLClassLoader urlloader = (URLClassLoader)loader; 
             for (URL url : urlloader.getURLs()) {
                 classpath.append(File.pathSeparatorChar);
-                classpath.append(url.getFile());
+                classpath.append(url.toURI().getPath());
             }
         }
         cmd.add(classpath.toString());

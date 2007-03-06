@@ -22,6 +22,7 @@ package org.apache.cxf.tools.common;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,7 +58,12 @@ public class ClassUtils {
 
         if (!classpathSetted) {
             argList.add("-extdirs");
-            argList.add(getClass().getClassLoader().getResource(".").getFile() + "../lib/");
+            try {
+                argList.add(getClass().getClassLoader().getResource(".").toURI().getPath()
+                            + "../lib/");
+            } catch (URISyntaxException e) {
+                throw new ToolException(e);
+            }
         } else {
             argList.add("-classpath");
             argList.add(javaClasspath);

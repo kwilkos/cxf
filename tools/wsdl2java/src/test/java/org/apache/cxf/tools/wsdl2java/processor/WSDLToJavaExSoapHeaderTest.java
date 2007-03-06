@@ -21,6 +21,7 @@ package org.apache.cxf.tools.wsdl2java.processor;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URLClassLoader;
 
 import javax.jws.WebParam;
@@ -93,7 +94,7 @@ public class WSDLToJavaExSoapHeaderTest
         assertEquals("testHeader5", webResultAnno.name());
     }
 
-    private String getLocation(String wsdlFile) {
-        return WSDLToJavaExSoapHeaderTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return WSDLToJavaExSoapHeaderTest.class.getResource(wsdlFile).toURI().getPath();
     }
 }

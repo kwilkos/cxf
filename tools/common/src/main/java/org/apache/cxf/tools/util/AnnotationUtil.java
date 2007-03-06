@@ -22,6 +22,7 @@ package org.apache.cxf.tools.util;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -92,7 +93,11 @@ public final class AnnotationUtil {
             URLClassLoader urlloader = (URLClassLoader)loader;
             for (URL url : urlloader.getURLs()) {
                 classpath.append(File.pathSeparatorChar);
-                classpath.append(url.getFile());
+                try {
+                    classpath.append(new File(url.toURI()).getAbsolutePath());
+                } catch (URISyntaxException e) {
+                    classpath.append(url.getPath());
+                }
             }
         }
         return classpath.toString();

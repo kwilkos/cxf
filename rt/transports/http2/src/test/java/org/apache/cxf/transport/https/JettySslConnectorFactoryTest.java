@@ -20,6 +20,7 @@
 package org.apache.cxf.transport.https;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -123,7 +124,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
     }
     */
     
-    public void testSetAllData() {       
+    public void testSetAllData() throws Exception {       
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -188,7 +189,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
                                                   + "CertValidator"));
     }
     
-    public void testSetAllDataExceptKeystoreAndTrustStore() {        
+    public void testSetAllDataExceptKeystoreAndTrustStore() throws Exception {        
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(null);
         sslServerPolicy.setKeystoreType("JKS");
@@ -245,7 +246,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
                                                   + "CertValidator"));
     }
 
-    public void testAllValidDataJKS() {        
+    public void testAllValidDataJKS() throws Exception {        
         String keyStoreStr = getPath("resources/defaultkeystore");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -263,7 +264,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
         factory.decorate(sslConnector);
     }
     
-    public void testAllValidDataPKCS12() {
+    public void testAllValidDataPKCS12() throws Exception {
         String keyStoreStr = getPath("resources/celtix.p12");
         SSLServerPolicy sslServerPolicy = new SSLServerPolicy();
         sslServerPolicy.setKeystore(keyStoreStr);
@@ -281,7 +282,7 @@ public class JettySslConnectorFactoryTest extends TestCase {
         factory.decorate(sslConnector);
     }
 
-    public void testAllElementsHaveSetupMethod() {
+    public void testAllElementsHaveSetupMethod() throws Exception {
         SSLServerPolicy policy = new SSLServerPolicy();
         TestLogHandler handler = new TestLogHandler(); 
         JettySslConnectorFactory factory = createFactory(policy, 
@@ -319,9 +320,9 @@ public class JettySslConnectorFactoryTest extends TestCase {
         System.setProperty("user.home", oldHome);
     }
     
-    protected static String getPath(String fileName) {
+    protected static String getPath(String fileName) throws URISyntaxException {
         URL keystoreURL = JettySslConnectorFactoryTest.class.getResource(".");
-        String str = keystoreURL.getFile(); 
+        String str = keystoreURL.toURI().getPath(); 
         str += HttpsURLConnectionFactoryTest.DROP_BACK_SRC_DIR  + fileName;
         return str;
     }

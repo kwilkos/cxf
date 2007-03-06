@@ -31,10 +31,10 @@ public class Server extends TestServerBase {
         
         try {            
             ProviderFactory pf = new ProviderFactory();            
-            String f = getClass().getResource("resources/hello_world.js").getFile();
+            String f = getClass().getResource("resources/hello_world.js").toURI().getPath();
             f = URLDecoder.decode(f, "UTF-8");
             pf.createAndPublish(new File(f), "http://localhost:9000/SoapContext/SoapPort", false);
-            f = getClass().getResource("resources/hello_world.jsx").getFile();
+            f = getClass().getResource("resources/hello_world.jsx").toURI().getPath();
             f = URLDecoder.decode(f, "UTF-8");
             pf.createAndPublish(new File(f), "http://localhost:9100", false);
         } catch (Exception ex) {

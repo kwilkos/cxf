@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.wsdl2java.processor;
 
+import java.net.URISyntaxException;
+
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
 import org.apache.cxf.tools.common.ToolException;
@@ -55,8 +57,8 @@ public class WSDLToJavaXMLFormatTest
         processor.process();
     }
 
-    private String getLocation(String wsdlFile) {
-        return WSDLToJavaXMLFormatTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return WSDLToJavaXMLFormatTest.class.getResource(wsdlFile).toURI().getPath();
     }
     
     

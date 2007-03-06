@@ -21,6 +21,7 @@ package org.apache.cxf.testutil.common;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -49,14 +50,14 @@ public final class TestUtil {
         return dir.delete();
     }
     
-    public static String getClassPath(ClassLoader loader) {
+    public static String getClassPath(ClassLoader loader) throws URISyntaxException {
         StringBuffer classPath = new StringBuffer();
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlLoader = (URLClassLoader)loader;
             for (URL url : urlLoader.getURLs()) {
                 String file = url.getFile();
                 if (file.indexOf("junit") == -1) {
-                    classPath.append(url.getFile());
+                    classPath.append(url.toURI().getPort());
                     classPath.append(System.getProperty("path.separator"));
                 }
             }

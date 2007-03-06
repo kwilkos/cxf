@@ -21,7 +21,6 @@ package org.apache.cxf.common.commands;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -33,9 +32,9 @@ public class ResultBufferedCommandTest extends TestCase {
     private static final String ERR = "Please contact your administrator.";
     
 
-    public void testStreamsEmpty() throws IOException {
+    public void testStreamsEmpty() throws Exception {
         URL url = TestCommand.class.getResource("TestCommand.class");
-        File file = new File(url.getFile());
+        File file = new File(url.toURI());
         file = file.getParentFile();
         file = new File(file, "../../../../..");
         String[] cmd = new String[] {
@@ -62,9 +61,9 @@ public class ResultBufferedCommandTest extends TestCase {
         is.close();
     }
     
-    public void testStreamsNotEmpty() throws IOException {
+    public void testStreamsNotEmpty() throws Exception {
         URL url = TestCommand.class.getResource("TestCommand.class");
-        File file = new File(url.getFile());
+        File file = new File(url.toURI());
         file = file.getParentFile();
         file = new File(file, "../../../../..");
         String[] cmd = new String[] {

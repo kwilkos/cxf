@@ -80,7 +80,8 @@ public class WSDLToJavaTest extends ToolTestBase {
     }
 
     public void testWSDLToJava() throws Exception {
-        String[] args = new String[]{"-ant", "-V", "-d", output.getCanonicalPath(), wsdlLocation.getFile()};
+        String[] args = new String[]{"-ant", "-V", "-d", output.getCanonicalPath(),
+                                     wsdlLocation.toURI().getPath()};
         WSDLToJava.main(args);
         assertNotNull(getStdOut());
     }

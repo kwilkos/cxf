@@ -37,7 +37,7 @@ public class ServerAppTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         phMock = EasyMock.createMock(ProviderFactory.class);
-        emptyFile = getClass().getResource("empty/empty.js").getFile();
+        emptyFile = getClass().getResource("empty/empty.js").toURI().getPath();
     }
 
     private ServerApp createServerApp() {
@@ -206,11 +206,11 @@ public class ServerAppTest extends TestCase {
         assertTrue(dir != null);
         EasyMock.checkOrder(phMock, false);
         phMock.createAndPublish(new File(emptyFile), epAddr, true);
-        String file = getClass().getResource("empty/empty2.jsx").getFile();
+        String file = getClass().getResource("empty/empty2.jsx").toURI().getPath();
         phMock.createAndPublish(new File(file), epAddr, true);
-        file = getClass().getResource("empty/empty3.js").getFile();
+        file = getClass().getResource("empty/empty3.js").toURI().getPath();
         phMock.createAndPublish(new File(file), epAddr, true);
-        file = getClass().getResource("empty/empty4.jsx").getFile();
+        file = getClass().getResource("empty/empty4.jsx").toURI().getPath();
         phMock.createAndPublish(new File(file), epAddr, true);
         EasyMock.replay(phMock);
         ServerApp app = createServerApp();

@@ -21,6 +21,7 @@ package org.apache.cxf.tools.wsdl2java.processor;
 
 import java.io.File;
 import java.io.FileReader;
+import java.net.URISyntaxException;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -65,7 +66,7 @@ public class WSDLTOJavaEOLStyleTest extends ProcessorTestBase {
 
     }
 
-    private String getLocation(String wsdlFile) {
-        return WSDLTOJavaEOLStyleTest.class.getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return WSDLTOJavaEOLStyleTest.class.getResource(wsdlFile).toURI().getPath();
     }
 }

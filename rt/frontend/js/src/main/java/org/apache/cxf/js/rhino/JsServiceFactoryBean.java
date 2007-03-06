@@ -73,7 +73,7 @@ public class JsServiceFactoryBean {
     
     public void create() throws Exception {
         BusFactory.setDefaultBus(bus);
-        String jsFileString = getClass().getResource(js).getFile();
+        String jsFileString = getClass().getResource(js).toURI().getPath();
         jsFileString = URLDecoder.decode(jsFileString, "UTF-8");
         File file = new File(jsFileString);
         providerFactory.createAndPublish(file, address, isBaseAddr);
