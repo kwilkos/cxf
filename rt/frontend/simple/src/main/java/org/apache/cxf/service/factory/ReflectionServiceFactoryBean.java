@@ -201,7 +201,7 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             service.putAll(properties);
         }
         
-        service.put(MethodDispatcher.class.getName(), methodDispatcher);
+        service.put(MethodDispatcher.class.getName(), getMethodDispatcher());
         
         serviceInfo.setName(getServiceQName());
         serviceInfo.setTargetNamespace(serviceInfo.getName().getNamespaceURI());
@@ -335,7 +335,8 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             createMessageParts(intf, op, m);
         }
 
-        methodDispatcher.bind(op, m);
+        getMethodDispatcher().bind(op, m);
+
 
         return op;
     }

@@ -40,7 +40,7 @@ public class SimpleMethodDispatcher implements MethodDispatcher {
     public void bind(OperationInfo o, Method... methods) {
         Method primary = methods[0];
         for (Method m : methods) {
-            methodToOp.put(m, o);
+            methodToOp.put(m, o);            
             
             Map<BindingInfo, BindingOperationInfo> biToBop = new HashMap<BindingInfo, BindingOperationInfo>();
             infoMap.put(m, biToBop);

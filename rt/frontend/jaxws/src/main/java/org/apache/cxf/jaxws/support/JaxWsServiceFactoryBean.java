@@ -38,7 +38,9 @@ import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.databinding.source.SourceDataBinding;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.frontend.SimpleMethodDispatcher;
 import org.apache.cxf.helpers.CastUtils;
+import org.apache.cxf.jaxws.JAXWSMethodDispatcher;
 import org.apache.cxf.jaxws.handler.soap.SOAPHandlerInterceptor;
 import org.apache.cxf.jaxws.interceptors.ProviderInDatabindingInterceptor;
 import org.apache.cxf.jaxws.interceptors.ProviderOutDatabindingInterceptor;
@@ -63,10 +65,12 @@ import org.apache.cxf.wsdl11.WSDLServiceBuilder;
  * @see org.apache.cxf.jaxws.JaxWsServerFactoryBean
  */
 public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
-
+    
     private AbstractServiceConfiguration jaxWsConfiguration;
 
     private JaxWsImplementorInfo implInfo;
+
+    private JAXWSMethodDispatcher methodDispatcher;
 
     public JaxWsServiceFactoryBean() {
         getIgnoredClasses().add(Service.class.getName());
@@ -77,6 +81,10 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         this.implInfo = implInfo;
         initConfiguration(implInfo);
         this.serviceClass = implInfo.getEndpointClass();
+    }
+
+    protected SimpleMethodDispatcher getMethodDispatcher() {
+        return methodDispatcher;
     }
 
     @Override
@@ -169,7 +177,8 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             super.initializeWSDLOperations();
         }
     }
-
+    
+ 
     protected void initializeWSDLOperationsForProvider() {
         Type[] genericInterfaces = getServiceClass().getGenericInterfaces();
         ParameterizedType pt = (ParameterizedType)genericInterfaces[0];
@@ -291,13 +300,13 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
         if (isWrapped(method)) {
             if (o.hasInput()) {
                 MessageInfo input = o.getInput();
-                MessagePartInfo part = input.getMessageParts().get(0);
+                MessagePartInfo part = input.getMessageParts().get(0);                
                 part.setTypeClass(getRequestWrapper(method));
             }
 
             if (o.hasOutput()) {
                 MessageInfo input = o.getOutput();
-                MessagePartInfo part = input.getMessageParts().get(0);
+                MessagePartInfo part = input.getMessageParts().get(0);                
                 part.setTypeClass(getResponseWrapper(method));
                 part.setIndex(-1);
             }
@@ -386,5 +395,6 @@ public class JaxWsServiceFactoryBean extends AbstractJaxWsServiceFactoryBean {
             jaxWsConfiguration = new JaxWsServiceConfiguration();
             getServiceConfigurations().add(0, jaxWsConfiguration);
         }
+        methodDispatcher = new JAXWSMethodDispatcher(implInfo);
     }
 }
