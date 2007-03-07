@@ -191,7 +191,7 @@
                             <exclude>**/*$*</exclude>
                             <exclude>**/AbstractServletTest.java</exclude>
                             <exclude>**/ClientServerGreeterBaseNoWsdlTest.java</exclude>
-                            <exclude>**/ClientServerGreeterBaseNoWsdlTest.java</exclude> 
+                            <exclude>**/ClientServerGreeterNoWsdlTest.java</exclude> 
                         </excludes>
                         <reportFormat>${surefire.format}</reportFormat>
                         <useFile>${surefire.usefile}</useFile>
