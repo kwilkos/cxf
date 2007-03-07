@@ -48,6 +48,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.endpoint.EndpointPublisher;
+import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
@@ -132,6 +133,9 @@ public class CXFServlet extends HttpServlet {
 
         // build endpoints from the web.xml or a config file
         buildEndpoints(servletConfig);
+        
+        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+        resourceManager.addResourceResolver(new ServletContextResourceResolver());
     }
     
     // Need to get to know all frontend's endpoint information

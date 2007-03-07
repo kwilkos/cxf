@@ -34,6 +34,9 @@ import javax.xml.ws.handler.Handler;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.common.ClientServerTestBase;
 import org.apache.handlers.AddNumbers;
@@ -119,6 +122,24 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         
         assertTrue(h.isPostConstructInvoked());      
     }  
+    
+    public void testHandlerInjectingResource() throws Exception {
+        //When CXF is deployed in a servlet container, ServletContextResourceResolver is used to resolve 
+        //Servlet context resources.
+        Bus bus = BusFactory.getDefaultBus();
+        ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
+        resourceManager.addResourceResolver(new TestResourceResolver());
+       
+        URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
+
+        AddNumbersServiceWithAnnotation service = new AddNumbersServiceWithAnnotation(wsdl, serviceName);
+        AddNumbers port = (AddNumbers)service.getPort(portName, AddNumbers.class);
+
+        List<Handler> handlerChain = ((BindingProvider)port).getBinding().getHandlerChain();
+        SmallNumberHandler h = (SmallNumberHandler)handlerChain.get(0);
+        
+        assertEquals("injectedValue", h.getInjectedString());      
+    } 
     
     private void addHandlersProgrammatically(BindingProvider bp, Handler...handlers) {
         List<Handler> handlerChain = bp.getBinding().getHandlerChain();

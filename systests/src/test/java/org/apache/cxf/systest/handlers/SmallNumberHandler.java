@@ -21,6 +21,7 @@ package org.apache.cxf.systest.handlers;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.ws.LogicalMessage;
@@ -37,7 +38,10 @@ import org.apache.handlers.types.AddNumbersResponse;
  * handles addition of small numbers.
  */
 public class SmallNumberHandler extends TestHandlerBase implements LogicalHandler<LogicalMessageContext> {
-
+    @Resource(name = "handlerResource")
+    String injectedString; 
+    
+    
     public SmallNumberHandler() {
         this(true); 
     } 
@@ -120,9 +124,12 @@ public class SmallNumberHandler extends TestHandlerBase implements LogicalHandle
     @PostConstruct
     public void doPostConstruct() {
         methodCalled("doPostConstruct");
-        //System.out.println("-----------doPost-------------");
     }
     
+    public String getInjectedString() {
+        return injectedString;        
+    }
+        
     private boolean isSmall(int i) {
         return i > 0 && i <= 10;
     }
