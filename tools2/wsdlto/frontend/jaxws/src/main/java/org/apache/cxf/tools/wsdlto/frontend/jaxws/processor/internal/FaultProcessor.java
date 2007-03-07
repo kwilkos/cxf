@@ -22,6 +22,7 @@ package org.apache.cxf.tools.wsdlto.frontend.jaxws.processor.internal;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.service.model.FaultInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -37,7 +38,7 @@ import org.apache.cxf.tools.util.NameUtil;
 
 public class FaultProcessor extends AbstractProcessor {
     private ClassCollector  collector;
-   
+
     public FaultProcessor(ToolContext penv) {
         super(penv);
         collector = penv.get(ClassCollector.class);
@@ -53,7 +54,7 @@ public class FaultProcessor extends AbstractProcessor {
         }
     }
 
-    private boolean isNameCollision(String packageName, String className) {  
+    private boolean isNameCollision(String packageName, String className) {
         if (context.optionSet(ToolConstants.CFG_GEN_OVERWRITE)) {
             return false;
         }
@@ -67,45 +68,53 @@ public class FaultProcessor extends AbstractProcessor {
         JavaModel model = method.getInterface().getJavaModel();
         String name = NameUtil.mangleNameToClassName(faultMessage.getName().getLocalPart());
         //Fix issue 305770
-        
+
         String namespace = faultMessage.getName().getNamespaceURI();
         String packageName = ProcessorUtil.parsePackageName(namespace, context.mapPackageName(namespace));
 
         while (isNameCollision(packageName, name)) {
             name = name + "_Exception";
         }
-                
+
         String fullClassName = packageName + "." + name;
-        collector.addExceptionClassName(packageName, name, fullClassName);        
+        collector.addExceptionClassName(packageName, name, fullClassName);
 
         boolean samePackage = method.getInterface().getPackageName().equals(packageName);
         method.addException(new JavaException(name, samePackage ? name : fullClassName, namespace));
-        
+
         List<MessagePartInfo> faultParts = faultMessage.getMessageParts();
-        
+
         JavaExceptionClass expClass = new JavaExceptionClass(model);
         expClass.setName(name);
         expClass.setNamespace(namespace);
         expClass.setPackageName(packageName);
-      
+
         for (MessagePartInfo part : faultParts) {
             String fName = null;
             String fNamespace = null;
 
-            if (part.getConcreteName() != null) {
-                fNamespace = part.getConcreteName().getNamespaceURI();
+            if (part.getElementQName() != null) {
+                fNamespace = part.getElementQName().getNamespaceURI();
+                //fNamespace = part.getConcreteName().getNamespaceURI();
+                fName = part.getConcreteName().getLocalPart();
+            } else {
+                fNamespace = part.getTypeQName().getNamespaceURI();
                 fName = part.getConcreteName().getLocalPart();
             }
-            
+
+            if (StringUtils.isEmpty(fNamespace)) {
+                fNamespace = namespace;
+            }
+
             String fType = ProcessorUtil.getType(part, context, false);
             String fPackageName = ProcessorUtil.parsePackageName(fNamespace,
                                                                  context.mapPackageName(fNamespace));
-            
-            
+
+
 
             JavaField fField = new JavaField(fName, fType, fNamespace);
             fField.setQName(ProcessorUtil.getElementName(part));
-            
+
             if (!method.getInterface().getPackageName().equals(fPackageName)) {
                 fField.setClassName(ProcessorUtil.getFullClzName(part, context, false));
             }

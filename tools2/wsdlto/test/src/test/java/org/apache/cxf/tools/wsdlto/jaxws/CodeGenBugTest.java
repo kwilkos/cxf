@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
+
 import javax.jws.WebService;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
@@ -46,7 +48,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         env.put(ToolConstants.CFG_COMPILE, ToolConstants.CFG_COMPILE);
         env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
 
-        processor = new JAXWSContainer(null); 
+        processor = new JAXWSContainer(null);
 
     }
 
@@ -55,9 +57,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor = null;
         env = null;
     }
-    
 
-    public void testBug305729() {
+    public void testBug305729() throws Exception {
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305729/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
@@ -65,36 +66,32 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertNotNull("Process message with no part wsdl error", output);
     }
 
+    public void testBug305773() throws Exception {
 
-    public void testBug305773() {
-        try {
-            env.put(ToolConstants.CFG_COMPILE, "compile");
-            env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
-            env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
-            env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
-            env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305773/hello_world.wsdl"));
-            processor.setContext(env);
-            processor.execute();
-            Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
-
-            WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
-            assertEquals("Greeter", webServiceAnn.name());
-            assertFalse("Impl class should generate portName property value in webService annotation",
-                        webServiceAnn.portName().equals(""));
-            assertFalse("Impl class should generate serviceName property value in webService annotation",
-                        webServiceAnn.serviceName().equals(""));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-   /*
-    public void testHangingBug() throws Exception {
-        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bughanging/wsdl/wsrf.wsdl"));
+        env.put(ToolConstants.CFG_COMPILE, "compile");
+        env.put(ToolConstants.CFG_IMPL, ToolConstants.CFG_IMPL);
+        env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
+        env.put(ToolConstants.CFG_CLASSDIR, output.getCanonicalPath() + "/classes");
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/bug305773/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
+        Class clz = classLoader.loadClass("org.apache.hello_world_soap_http.GreeterImpl");
+
+        WebService webServiceAnn = AnnotationUtil.getPrivClassAnnotation(clz, WebService.class);
+        assertEquals("Greeter", webServiceAnn.name());
+        assertFalse("Impl class should generate portName property value in webService annotation",
+                    webServiceAnn.portName().equals(""));
+        assertFalse("Impl class should generate serviceName property value in webService annotation",
+                    webServiceAnn.serviceName().equals(""));
+
     }
-    */
+
+    /*
+     * public void testHangingBug() throws Exception {
+     * env.put(ToolConstants.CFG_WSDLURL,
+     * getLocation("/wsdl2java_wsdl/bughanging/wsdl/wsrf.wsdl"));
+     * processor.setContext(env); processor.execute(); }
+     */
     public void testBug305700() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_OUTPUTDIR, output.getCanonicalPath());
@@ -104,7 +101,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         processor.setContext(env);
         processor.execute();
     }
-    
+
     public void testNamespacePackageMapping1() throws Exception {
         env.put(ToolConstants.CFG_PACKAGENAME, "org.cxf");
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
@@ -129,8 +126,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
         clz = classLoader.loadClass("org.apache.types.GreetMe");
     }
 
-   
-
     public void testNamespacePackageMapping2() throws Exception {
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http", "org.apache");
         env.addNamespacePackageMap("http://apache.org/hello_world_soap_http/types", "org.apache.types");
@@ -149,13 +144,13 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertTrue("Generate " + clz.getName() + "error", Modifier.isPublic(clz.getModifiers()));
         clz = classLoader.loadClass("org.apache.Greeter");
     }
-      
+
     public void testNamespacePackageMapping3() throws Exception {
         env.put(ToolConstants.CFG_PACKAGENAME, "org.cxf");
         env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/hello_world.wsdl"));
         processor.setContext(env);
         processor.execute();
-      
+
         File org = new File(output, "org");
         assertTrue(org.exists());
 
@@ -166,7 +161,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         Class clz = classLoader.loadClass("org.cxf.Greeter");
         assertTrue("Generate " + clz.getName() + "error", clz.isInterface());
     }
-    
+
     public void testBug305772() throws Exception {
         env.put(ToolConstants.CFG_COMPILE, "compile");
         env.put(ToolConstants.CFG_ANT, ToolConstants.CFG_ANT);
@@ -186,12 +181,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
 
     }
 
-    
     public void testBug305728HelloWorld() {
         try {
             String[] args = new String[] {"-compile", "-classdir", 
                                           output.getCanonicalPath() + "/classes",
-                                          "-d", output.getCanonicalPath(),
+                                          "-d",
+                                          output.getCanonicalPath(),
                                           "-nexclude",
                                           "http://www.w3.org/2005/08/addressing"
                                               + "=org.apache.cxf.ws.addressing",
@@ -224,8 +219,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-    
-    
+
     public void testBug305728HelloWorld2() {
         try {
             String[] args = new String[] {"-compile", "-classdir", output.getCanonicalPath() + "/classes",
@@ -255,8 +249,8 @@ public class CodeGenBugTest extends ProcessorTestBase {
     public void testExcludeNSWithPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
-                                      "http://apache.org/test/types=com.iona", 
-                                      "-nexclude", "http://apache.org/Invoice",
+                                      "http://apache.org/test/types=com.iona", "-nexclude",
+                                      "http://apache.org/Invoice",
                                       getLocation("/wsdl2java_wsdl/hello_world_exclude.wsdl")};
         WSDLToJava.main(args);
 
@@ -272,8 +266,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", invoice.exists());
 
     }
-   
-    
+
     public void testExcludeNSWithoutPackageName() throws Exception {
 
         String[] args = new String[] {"-d", output.getCanonicalPath(), "-nexclude",
@@ -286,14 +279,12 @@ public class CodeGenBugTest extends ProcessorTestBase {
         assertFalse("Generated file has been excluded", com.exists());
 
     }
-   
-   
+
     public void testCommandLine() throws Exception {
         String[] args = new String[] {"-compile", "-d", output.getCanonicalPath(), "-classdir",
                                       output.getCanonicalPath() + "/classes", "-p", "org.cxf", "-p",
                                       "http://apache.org/hello_world_soap_http/types=org.apache.types",
-                                      "-server", "-impl",
-                                      getLocation("/wsdl2java_wsdl/hello_world.wsdl")};
+                                      "-server", "-impl", getLocation("/wsdl2java_wsdl/hello_world.wsdl")};
         WSDLToJava.main(args);
 
         Class clz = classLoader.loadClass("org.cxf.Greeter");
@@ -301,7 +292,6 @@ public class CodeGenBugTest extends ProcessorTestBase {
         clz = classLoader.loadClass("org.apache.types.GreetMe");
     }
 
-  
     public void testDefaultLoadNSMappingOFF() throws Exception {
         String[] args = new String[] {"-dns", "false", "-d", output.getCanonicalPath(),
                                       getLocation("/wsdl2java_wsdl/basic_callback.wsdl")};
@@ -345,10 +335,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         File[] files = address.listFiles();
         assertEquals(11, files.length);
     }
-    
 
-    
-   
     public void testBug305924ForNestedBinding() {
         try {
             String[] args = new String[] {"-all", "-compile", "-classdir",
@@ -368,7 +355,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
             e.printStackTrace();
         }
     }
-   
+
     public void testBug305924ForExternalBinding() {
         try {
             String[] args = new String[] {"-all", "-compile", "-classdir",
@@ -389,8 +376,7 @@ public class CodeGenBugTest extends ProcessorTestBase {
         }
     }
 
-   
-    private String getLocation(String wsdlFile) {
-        return this.getClass().getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return this.getClass().getResource(wsdlFile).toURI().getPath();
     }
 }

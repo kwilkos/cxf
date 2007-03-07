@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 
 import javax.jws.HandlerChain;
 import javax.jws.Oneway;
@@ -786,8 +787,20 @@ public class CodeGenTest extends ProcessorTestBase {
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "select");
         assertEquals("http://apache.org/locator/query", webParamAnn.targetNamespace());
     }
+    
+    public void testWebFaultAnnotaion() throws Exception {
+        env.put(ToolConstants.CFG_WSDLURL, getLocation("/wsdl2java_wsdl/jms_test_rpc_fault.wsdl"));
+        env.put(ToolConstants.CFG_SERVICENAME, "HelloWorldService");
+        processor.setContext(env);
+        processor.execute();
+        Class cls = classLoader.loadClass("org.apache.cxf.hello_world_jms.BadRecordLitFault");
+        WebFault webFault = AnnotationUtil.getPrivClassAnnotation(cls, WebFault.class);
+        assertEquals("http://www.w3.org/2001/XMLSchema", webFault.targetNamespace());
+        
+    }
+    
 
-    private String getLocation(String wsdlFile) {
-        return this.getClass().getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return this.getClass().getResource(wsdlFile).toURI().getPath();
     }
 }

@@ -68,18 +68,15 @@ public class XMLFormatValidator extends AbstractValidator {
     @SuppressWarnings("unchecked")
     private boolean checkXMLFormat(BindingInfo binding) {
         Collection<BindingOperationInfo> bos = binding.getOperations();
-        System.err.println("operation size: " + bos.size());
         boolean result = true;
         boolean needRootNode = false;
         for (BindingOperationInfo bo : bos) {
             OperationInfo op = binding.getInterface().getOperation(bo.getName());
-            System.err.println("operation: " + op.getName());
             needRootNode = false;
             if (op.getInput().getMessageParts().size() == 0
                 || op.getInput().getMessageParts().size() > 1) {
                 needRootNode = true;
             }
-            System.err.println("needRootNode " + needRootNode);
             if (needRootNode) {
                 String path = "Binding(" + binding.getName().getLocalPart()
                     + "):BindingOperation(" + bo.getName() + ")";

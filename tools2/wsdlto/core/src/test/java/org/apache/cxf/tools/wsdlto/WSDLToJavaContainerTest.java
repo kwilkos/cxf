@@ -19,6 +19,8 @@
 
 package org.apache.cxf.tools.wsdlto;
 
+import java.net.URISyntaxException;
+
 import junit.framework.TestCase;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -42,8 +44,8 @@ public class WSDLToJavaContainerTest extends TestCase {
         }
     }
 
-    private String getLocation(String wsdlFile) {
-        return this.getClass().getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return this.getClass().getResource(wsdlFile).toURI().getPath();
     }
 
     protected String getLogMessage(String key, Object...params) {

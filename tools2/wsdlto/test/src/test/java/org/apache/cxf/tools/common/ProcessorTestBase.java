@@ -20,6 +20,7 @@
 package org.apache.cxf.tools.common;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
@@ -131,13 +132,13 @@ public class ProcessorTestBase extends TestCase {
         return osName.indexOf("windows") > -1;
     }
 
-    protected String getClassPath() {
+    protected String getClassPath() throws URISyntaxException {
         ClassLoader loader = getClass().getClassLoader();
         StringBuffer classPath = new StringBuffer();
         if (loader instanceof URLClassLoader) {
             URLClassLoader urlLoader = (URLClassLoader)loader;
             for (URL url : urlLoader.getURLs()) {               
-                File file = new File(url.getFile());
+                File file = new File(url.toURI());
                 String filename = file.getAbsolutePath();                
                 if (filename.indexOf("junit") == -1) {
                     classPath.append(filename);

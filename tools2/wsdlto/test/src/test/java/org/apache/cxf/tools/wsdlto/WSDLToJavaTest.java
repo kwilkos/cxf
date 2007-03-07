@@ -19,9 +19,6 @@
 
 package org.apache.cxf.tools.wsdlto;
 
-import java.io.*;
-import java.util.*;
-
 import junit.framework.TestCase;
 
 public class WSDLToJavaTest extends TestCase {

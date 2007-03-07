@@ -19,6 +19,7 @@
 package org.apache.cxf.tools.wsdlto.jaxws;
 
 import java.io.File;
+import java.net.URISyntaxException;
 
 import org.apache.cxf.tools.common.ProcessorTestBase;
 import org.apache.cxf.tools.common.ToolConstants;
@@ -98,8 +99,8 @@ public class CodeGenOptionTest extends ProcessorTestBase {
 
     }
     
-    private String getLocation(String wsdlFile) {
-        return this.getClass().getResource(wsdlFile).getFile();
+    private String getLocation(String wsdlFile) throws URISyntaxException {
+        return this.getClass().getResource(wsdlFile).toURI().getPath();
     }
     
     
