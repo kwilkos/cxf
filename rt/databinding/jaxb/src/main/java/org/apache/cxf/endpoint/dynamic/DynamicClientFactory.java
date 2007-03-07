@@ -39,7 +39,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.writer.FileCodeWriter;
@@ -53,17 +52,12 @@ import org.apache.cxf.bus.CXFBusFactory;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
-import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.resource.URIResolver;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ServiceConstructionException;
-import org.apache.cxf.service.model.BindingInfo;
-import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.types.DirSet;
@@ -76,7 +70,7 @@ import org.apache.tools.ant.types.Path;
 public final class DynamicClientFactory {
 
     private static final Logger LOG = Logger.getLogger(DynamicClientFactory.class.getName());
-    
+
     private Bus bus;
 
     private String tmpdir = System.getProperty("java.io.tmpdir");
@@ -145,13 +139,10 @@ public final class DynamicClientFactory {
 
     public Client createClient(String wsdlUrl, QName wsdlEndpoint, ClassLoader classLoader, QName port) {
         URL u = composeUrl(wsdlUrl);
-        // <<null>> could be passed, but that exploits knowledge of the way that
-        // constructors
-        // on WSDLServiceFactory are implemented, which we don't really know.
-        // Wink wink.
-        WSDLServiceFactory sf = (wsdlEndpoint == null)
-            ? (new WSDLServiceFactory(bus, u)) : (new WSDLServiceFactory(bus, u, wsdlEndpoint));
-        Service svc = sf.create();
+
+        ClientImpl client = new ClientImpl(bus, u, port);
+
+        Service svc = client.getEndpoint().getService();
         Collection<SchemaInfo> schemas = svc.getServiceInfo().getSchemas();
 
         SchemaCompiler compiler = XJC.createSchemaCompiler();
@@ -162,12 +153,12 @@ public final class DynamicClientFactory {
             Element el = schema.getElement();
             compiler.parseSchema(wsdlUrl, el);
         }
-        
+
         S2JJAXBModel intermediateModel = compiler.bind();
         JCodeModel codeModel = intermediateModel.generateCode(null, elForRun);
         StringBuilder sb = new StringBuilder();
         boolean firstnt = false;
-        
+
         for (Iterator<JPackage> packages = codeModel.packages(); packages.hasNext();) {
             JPackage packadge = packages.next();
             String name = packadge.name();
@@ -181,7 +172,7 @@ public final class DynamicClientFactory {
             }
             sb.append(packadge.name());
         }
-        
+
         String packageList = sb.toString();
 
         // our hashcode + timestamp ought to be enough.
@@ -249,57 +240,13 @@ public final class DynamicClientFactory {
         TypeClassInitializer visitor = new TypeClassInitializer(svcfo, intermediateModel);
         visitor.walk();
 
-        EndpointInfo epfo = findEndpoint(svcfo, port);
-
-        EndpointImpl ep;
-        try {
-            ep = new EndpointImpl(bus, svc, epfo);
-        } catch (EndpointException epex) {
-            throw new IllegalStateException("Unable to create endpoint: " + epex.getMessage(), epex);
-        }
-
-        return new ClientImpl(bus, ep);
-    }
-
-    private EndpointInfo findEndpoint(ServiceInfo svcfo, QName port) {
-        EndpointInfo epfo;
-        if (port != null) {
-            epfo = svcfo.getEndpoint(port);
-            if (epfo == null) {
-                throw new IllegalArgumentException("The service " + svcfo.getName()
-                                                   + " does not have an endpoint " + port + ".");
-            }
-        } else {
-            epfo = null;
-            for (EndpointInfo e : svcfo.getEndpoints()) {
-                BindingInfo bfo = e.getBinding();
-
-                if (bfo.getBindingId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
-                    for (Object o : bfo.getExtensors().get()) {
-                        if (o instanceof SOAPBindingImpl) {
-                            SOAPBindingImpl soapB = (SOAPBindingImpl)o;
-                            if (soapB.getTransportURI().equals("http://schemas.xmlsoap.org/soap/http")) {
-                                epfo = e;
-                                break;
-                            }
-                        }
-                    }
-
-                }
-            }
-            if (epfo == null) {
-                throw new UnsupportedOperationException(
-                     "Only document-style SOAP 1.1 http are supported "
-                     + "for auto-selection of endpoint; none were found.");
-            }
-        }
-        return epfo;
+        return client;
     }
 
     private URL composeUrl(String s) {
         try {
             URIResolver resolver = new URIResolver(null, s, getClass());
-            
+
             if (resolver.isResolved()) {
                 return resolver.getURI().toURL();
             } else {

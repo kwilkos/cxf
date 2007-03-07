@@ -20,6 +20,7 @@
 package org.apache.cxf.endpoint;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +30,11 @@ import java.util.logging.Logger;
 
 import javax.xml.namespace.QName;
 
+import com.ibm.wsdl.extensions.soap.SOAPBindingImpl;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.Binding;
 import org.apache.cxf.common.i18n.UncheckedException;
 import org.apache.cxf.common.logging.LogUtils;
@@ -58,6 +62,7 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.apache.cxf.wsdl11.WSDLServiceFactory;
 
 public class ClientImpl extends AbstractBasicInterceptorProvider implements Client, MessageObserver {
     public static final String FINISHED = "exchange.finished";
@@ -81,6 +86,66 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
         if (null != c) {
             initedConduit = c;
         }
+    }
+
+    public ClientImpl(URL wsdlUrl) {
+        this(BusFactory.getDefaultBus(), wsdlUrl, null);
+    }
+    
+    public ClientImpl(URL wsdlUrl, QName port) {
+        this(BusFactory.getDefaultBus(), wsdlUrl, port);
+    }
+    
+    public ClientImpl(Bus bus, URL wsdlUrl, QName port) {
+        this.bus = bus;
+        
+        WSDLServiceFactory sf = (port == null)
+            ? (new WSDLServiceFactory(bus, wsdlUrl)) : (new WSDLServiceFactory(bus, wsdlUrl, port));
+        Service svc = sf.create();
+    
+        EndpointInfo epfo = findEndpoint(svc.getServiceInfo(), port);
+
+        try {
+            endpoint = new EndpointImpl(bus, svc, epfo);
+        } catch (EndpointException epex) {
+            throw new IllegalStateException("Unable to create endpoint: " + epex.getMessage(), epex);
+        }
+    }
+    
+
+    private EndpointInfo findEndpoint(ServiceInfo svcfo, QName port) {
+        EndpointInfo epfo;
+        if (port != null) {
+            epfo = svcfo.getEndpoint(port);
+            if (epfo == null) {
+                throw new IllegalArgumentException("The service " + svcfo.getName()
+                                                   + " does not have an endpoint " + port + ".");
+            }
+        } else {
+            epfo = null;
+            for (EndpointInfo e : svcfo.getEndpoints()) {
+                BindingInfo bfo = e.getBinding();
+
+                if (bfo.getBindingId().equals("http://schemas.xmlsoap.org/wsdl/soap/")) {
+                    for (Object o : bfo.getExtensors().get()) {
+                        if (o instanceof SOAPBindingImpl) {
+                            SOAPBindingImpl soapB = (SOAPBindingImpl)o;
+                            if (soapB.getTransportURI().equals("http://schemas.xmlsoap.org/soap/http")) {
+                                epfo = e;
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            }
+            if (epfo == null) {
+                throw new UnsupportedOperationException(
+                     "Only document-style SOAP 1.1 http are supported "
+                     + "for auto-selection of endpoint; none were found.");
+            }
+        }
+        return epfo;
     }
 
     public Endpoint getEndpoint() {

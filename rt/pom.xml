@@ -36,6 +36,7 @@
         <module>management</module>
         <module>transports/local</module>
         <module>databinding/jaxb</module>
+        <module>databinding/aegis</module>
         <module>bindings</module>
         <module>frontend/simple</module>
         <module>frontend/jaxws</module>
