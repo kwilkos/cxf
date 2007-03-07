@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Service;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
@@ -51,6 +52,9 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.service.model.FaultInfo;
+import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.service.model.MessageInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.SchemaInfo;
@@ -66,12 +70,14 @@ import org.easymock.classextension.IMocksControl;
 public class WSDLServiceBuilderTest extends TestCase {
     // TODO: reuse the wsdl in testutils and add the parameter order into one of the wsdl
     private static final Logger LOG = Logger.getLogger(WSDLServiceBuilderTest.class.getName());
-
     private static final String WSDL_PATH = "hello_world.wsdl";
-
     private static final String BARE_WSDL_PATH = "hello_world_bare.wsdl";
-
     private static final String IMPORT_WSDL_PATH = "hello_world_schema_import.wsdl";
+    
+    private static final String EXTENSION_NAMESPACE = "http://cxf.apache.org/extension/ns";
+    private static final QName EXTENSION_ATTR_BOOLEAN = new QName(EXTENSION_NAMESPACE, "booleanAttr");
+    private static final QName EXTENSION_ATTR_STRING = new QName(EXTENSION_NAMESPACE, "stringAttr");
+    private static final QName EXTENSION_ELEM = new QName(EXTENSION_NAMESPACE, "stringElem");
 
     private Definition def;
 
@@ -121,7 +127,8 @@ public class WSDLServiceBuilderTest extends TestCase {
         destinationFactoryManager = control.createMock(DestinationFactoryManager.class);
         wsdlServiceBuilder = new WSDLServiceBuilder(bus);
 
-        EasyMock.expect(bus.getExtension(BindingFactoryManager.class)).andReturn(bindingFactoryManager);
+        EasyMock.expect(bus.getExtension(BindingFactoryManager.class))
+            .andReturn(bindingFactoryManager).anyTimes();
         EasyMock.expect(bus.getExtension(DestinationFactoryManager.class)).andReturn(
                 destinationFactoryManager);
 
@@ -475,4 +482,202 @@ public class WSDLServiceBuilderTest extends TestCase {
         assertEquals("header_info", parts.get(0).getName().getLocalPart());
         assertEquals("the_request", parts.get(1).getName().getLocalPart());
     }
+
+    public void testExtensions() throws Exception {
+        setUpWSDL("hello_world_ext.wsdl", 0);
+
+        String ns = "http://apache.org/hello_world_soap_http";
+        QName pingMeOpName = new QName(ns, "pingMe");
+        QName greetMeOpName = new QName(ns, "greetMe");
+        QName faultName = new QName(ns, "pingMeFault");
+
+        // portType extensions
+
+        InterfaceInfo ii = serviceInfo.getInterface();
+        assertEquals(2, ii.getExtensionAttributes().size());
+        assertNotNull(ii.getExtensionAttribute(EXTENSION_ATTR_BOOLEAN));
+        assertNotNull(ii.getExtensionAttribute(EXTENSION_ATTR_STRING));
+        assertEquals(1, ii.getExtensors(UnknownExtensibilityElement.class).size());
+        assertEquals(EXTENSION_ELEM, ii.getExtensor(UnknownExtensibilityElement.class).getElementType());
+
+        // portType/operation extensions
+  
+        OperationInfo oi = ii.getOperation(pingMeOpName);
+        assertPortTypeOperationExtensions(oi, true);
+        assertPortTypeOperationExtensions(ii.getOperation(greetMeOpName), false);
+                
+        // portType/operation/[input|output|fault] extensions
+  
+        assertPortTypeOperationMessageExtensions(oi, true, true, faultName);
+        assertPortTypeOperationMessageExtensions(ii.getOperation(greetMeOpName), false, true, null);
+
+        // service extensions
+
+        assertEquals(1, serviceInfo.getExtensionAttributes().size());
+        assertNotNull(serviceInfo.getExtensionAttribute(EXTENSION_ATTR_STRING));
+        assertEquals(1, serviceInfo.getExtensors(UnknownExtensibilityElement.class).size());
+        assertEquals(EXTENSION_ELEM,
+            serviceInfo.getExtensor(UnknownExtensibilityElement.class).getElementType());
+       
+        // service/port extensions
+
+        EndpointInfo ei = serviceInfo.getEndpoints().iterator().next();
+        assertEquals(1, ei.getExtensionAttributes().size());
+        assertNotNull(ei.getExtensionAttribute(EXTENSION_ATTR_STRING));
+        assertEquals(1, ei.getExtensors(UnknownExtensibilityElement.class).size());
+        assertEquals(EXTENSION_ELEM, ei.getExtensor(UnknownExtensibilityElement.class).getElementType());
+
+        // binding extensions
+
+        BindingInfo bi = ei.getBinding();
+        // REVISIT: bug in wsdl4j?
+        // getExtensionAttributes on binding element returns an empty map
+        // assertEquals(1, bi.getExtensionAttributes().size());
+        // assertNotNull(bi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+        assertEquals(1, bi.getExtensors(UnknownExtensibilityElement.class).size());
+        assertEquals(EXTENSION_ELEM, bi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+
+        // binding/operation extensions
+       
+        BindingOperationInfo boi = bi.getOperation(pingMeOpName);
+        assertBindingOperationExtensions(boi, true);
+        assertBindingOperationExtensions(bi.getOperation(greetMeOpName), false);
+
+        // binding/operation/[input|output|fault] extensions
+  
+        assertBindingOperationMessageExtensions(boi, true, true, faultName);
+        assertBindingOperationMessageExtensions(bi.getOperation(greetMeOpName), false, true, null);
+    }
+
+    private void assertPortTypeOperationExtensions(OperationInfo oi, boolean expectExtensions) {
+        if (expectExtensions) {
+            assertEquals(1, oi.getExtensionAttributes().size());
+            assertNotNull(oi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertEquals(1, oi.getExtensors(UnknownExtensibilityElement.class).size());
+            assertEquals(EXTENSION_ELEM, oi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+        } else {
+            assertNull(oi.getExtensionAttributes());
+            assertNull(oi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertNull(oi.getExtensors(UnknownExtensibilityElement.class));
+            assertNull(oi.getExtensor(UnknownExtensibilityElement.class));
+        }
+    }
+
+    private void assertBindingOperationExtensions(BindingOperationInfo boi, boolean expectExtensions) {
+        if (expectExtensions) {
+            assertEquals(1, boi.getExtensionAttributes().size());
+            assertNotNull(boi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertEquals(1, boi.getExtensors(UnknownExtensibilityElement.class).size());
+            assertEquals(EXTENSION_ELEM, boi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+        } else {
+            assertNull(boi.getExtensionAttributes());
+            assertNull(boi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertEquals(0, boi.getExtensors(UnknownExtensibilityElement.class).size());
+            assertNull(boi.getExtensor(UnknownExtensibilityElement.class));
+        }
+    }
+
+    private void assertPortTypeOperationMessageExtensions(OperationInfo oi, boolean expectExtensions,
+        boolean hasOutput, QName fault) {
+
+        MessageInfo mi = oi.getInput();
+        if (expectExtensions) {
+            assertEquals(1, mi.getExtensionAttributes().size());
+            assertNotNull(mi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertEquals(1, mi.getExtensors(UnknownExtensibilityElement.class).size());
+            assertEquals(EXTENSION_ELEM, mi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+        } else {
+            assertNull(mi.getExtensionAttributes());
+            assertNull(mi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertNull(mi.getExtensors(UnknownExtensibilityElement.class));
+            assertNull(mi.getExtensor(UnknownExtensibilityElement.class));
+        }
+       
+        if (hasOutput) {         
+            mi = oi.getOutput();
+            if (expectExtensions) {
+                assertEquals(1, mi.getExtensionAttributes().size());
+                assertNotNull(mi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertEquals(1, mi.getExtensors(UnknownExtensibilityElement.class).size());
+                assertEquals(EXTENSION_ELEM,
+                    mi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+            } else {
+                assertNull(mi.getExtensionAttributes());
+                assertNull(mi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertNull(mi.getExtensors(UnknownExtensibilityElement.class));
+                assertNull(mi.getExtensor(UnknownExtensibilityElement.class));
+            }
+        }
+        
+        if (null != fault) { 
+            FaultInfo fi = oi.getFault(fault);
+            if (expectExtensions) {
+                assertEquals(1, fi.getExtensionAttributes().size());
+                assertNotNull(fi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertEquals(1, fi.getExtensors(UnknownExtensibilityElement.class).size());
+                assertEquals(EXTENSION_ELEM,
+                    fi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+            } else {
+                assertNull(fi.getExtensionAttributes());
+                assertNull(fi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertNull(fi.getExtensors(UnknownExtensibilityElement.class));
+                assertNull(fi.getExtensor(UnknownExtensibilityElement.class));
+            }
+        } 
+    }
+
+    private void assertBindingOperationMessageExtensions(BindingOperationInfo boi, boolean expectExtensions,
+        boolean hasOutput, QName fault) {
+
+        BindingMessageInfo bmi = boi.getInput();
+        if (expectExtensions) {
+            // REVISIT: bug in wsdl4j?
+            // getExtensionAttributes on binding/operation/input element returns an empty map
+            // assertEquals(1, bmi.getExtensionAttributes().size());
+            // assertNotNull(bmi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertEquals(1, bmi.getExtensors(UnknownExtensibilityElement.class).size());
+            assertEquals(EXTENSION_ELEM, bmi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+        } else {
+            assertNull(bmi.getExtensionAttributes());
+            assertNull(bmi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+            assertEquals(0, bmi.getExtensors(UnknownExtensibilityElement.class).size());
+            assertNull(bmi.getExtensor(UnknownExtensibilityElement.class));
+        }
+       
+        if (hasOutput) {         
+            bmi = boi.getOutput();
+            if (expectExtensions) {
+                // REVISIT: bug in wsdl4j?
+                // getExtensionAttributes on binding/operation/output element returns an empty map
+                // assertEquals(1, bmi.getExtensionAttributes().size());
+                // assertNotNull(bmi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertEquals(1, bmi.getExtensors(UnknownExtensibilityElement.class).size());
+                assertEquals(EXTENSION_ELEM,
+                    bmi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+            } else {
+                assertNull(bmi.getExtensionAttributes());
+                assertNull(bmi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertEquals(0, bmi.getExtensors(UnknownExtensibilityElement.class).size());
+                assertNull(bmi.getExtensor(UnknownExtensibilityElement.class));
+            }
+        }
+        
+        if (null != fault) { 
+            BindingFaultInfo bfi = boi.getFault(fault);
+            if (expectExtensions) {
+                assertEquals(1, bfi.getExtensionAttributes().size());
+                assertNotNull(bfi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertEquals(1, bfi.getExtensors(UnknownExtensibilityElement.class).size());
+                assertEquals(EXTENSION_ELEM,
+                    bfi.getExtensor(UnknownExtensibilityElement.class).getElementType());
+            } else {
+                assertNull(bfi.getExtensionAttributes());
+                assertNull(bfi.getExtensionAttribute(EXTENSION_ATTR_STRING));
+                assertNull(bfi.getExtensors(UnknownExtensibilityElement.class));
+                assertNull(bfi.getExtensor(UnknownExtensibilityElement.class));
+            }
+        } 
+    }
+
+
 }

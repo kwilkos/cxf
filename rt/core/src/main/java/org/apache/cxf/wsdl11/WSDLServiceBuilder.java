@@ -60,6 +60,7 @@ import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.AbstractMessageContainer;
 import org.apache.cxf.service.model.AbstractPropertiesHolder;
+import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -115,12 +116,22 @@ public class WSDLServiceBuilder {
         }
     }
 
+    private void copyExtensionAttributes(AbstractPropertiesHolder info,
+        javax.wsdl.extensions.AttributeExtensible ae) {
+        Map<QName, Object> attrs = CastUtils.cast(ae.getExtensionAttributes());
+        if (!attrs.isEmpty()) {
+            info.setExtensionAttributes(attrs);
+        }
+    }
+
+
     public List<ServiceInfo> buildService(Definition d) {
         DescriptionInfo description = new DescriptionInfo();
         description.setProperty(WSDL_DEFINITION, d);
         description.setName(d.getQName());
         description.setBaseURI(d.getDocumentBaseURI());
         copyExtensors(description, d.getExtensibilityElements());
+        copyExtensionAttributes(description, d);
 
         List<ServiceInfo> serviceList = new ArrayList<ServiceInfo>();
         for (java.util.Iterator<QName> ite =
@@ -152,6 +163,7 @@ public class WSDLServiceBuilder {
             description.setName(def.getQName());
             description.setBaseURI(def.getDocumentBaseURI());
             copyExtensors(description, def.getExtensibilityElements());
+            copyExtensionAttributes(description, def);
         }
         ServiceInfo service = new ServiceInfo();
         service.setDescription(description);
@@ -165,6 +177,7 @@ public class WSDLServiceBuilder {
         service.setTargetNamespace(def.getTargetNamespace());
         service.setName(serv.getQName());
         copyExtensors(service, serv.getExtensibilityElements());
+        copyExtensionAttributes(service, serv);
 
         PortType portType = null;
         for (Port port : cast(serv.getPorts().values(), Port.class)) {
@@ -343,6 +356,7 @@ public class WSDLServiceBuilder {
         ei.setName(new QName(service.getName().getNamespaceURI(), port.getName()));
         ei.setBinding(bi);
         copyExtensors(ei, port.getExtensibilityElements());
+        copyExtensionAttributes(ei, port);
 
         service.addEndpoint(ei);
         DescriptionInfo d = service.getDescription();
@@ -365,6 +379,7 @@ public class WSDLServiceBuilder {
             bi = new BindingInfo(service, ns.toString());
             bi.setName(binding.getQName());
             copyExtensors(bi, binding.getExtensibilityElements());
+            copyExtensionAttributes(bi, binding);
 
             for (BindingOperation bop : cast(binding.getBindingOperations(), BindingOperation.class)) {
                 LOG.fine("binding operation name is " + bop.getName());
@@ -381,18 +396,23 @@ public class WSDLServiceBuilder {
                 if (bop2 != null) {
 
                     copyExtensors(bop2, bop.getExtensibilityElements());
+                    copyExtensionAttributes(bop2, bop);
                     bi.addOperation(bop2);
                     if (bop.getBindingInput() != null) {
                         copyExtensors(bop2.getInput(), bop.getBindingInput().getExtensibilityElements());
+                        copyExtensionAttributes(bop2.getInput(), bop.getBindingInput());
                         handleHeader(bop2.getInput());
                     }
                     if (bop.getBindingOutput() != null) {
                         copyExtensors(bop2.getOutput(), bop.getBindingOutput().getExtensibilityElements());
+                        copyExtensionAttributes(bop2.getOutput(), bop.getBindingOutput());
                         handleHeader(bop2.getOutput());
                     }
                     for (BindingFault f : cast(bop.getBindingFaults().values(), BindingFault.class)) {
-                        copyExtensors(bop2.getFault(new QName(service.getTargetNamespace(), f.getName())),
-                                      bop.getBindingFault(f.getName()).getExtensibilityElements());
+                        BindingFaultInfo bif =
+                            bop2.getFault(new QName(service.getTargetNamespace(), f.getName()));
+                        copyExtensors(bif, bop.getBindingFault(f.getName()).getExtensibilityElements());
+                        copyExtensionAttributes(bif, bop.getBindingFault(f.getName()));
                     }
                 }
 
@@ -432,6 +452,7 @@ public class WSDLServiceBuilder {
             d.getDescribed().add(inf);
         }
         this.copyExtensors(inf, p.getExtensibilityElements());
+        this.copyExtensionAttributes(inf, p);
         inf.setProperty(WSDL_PORTTYPE, p);
         for (Operation op : cast(p.getOperations(), Operation.class)) {
             buildInterfaceOperation(inf, op);
@@ -445,6 +466,7 @@ public class WSDLServiceBuilder {
         List<String> porderList = CastUtils.cast((List)op.getParameterOrdering());
         opInfo.setParameterOrdering(porderList);
         this.copyExtensors(opInfo, op.getExtensibilityElements());
+        this.copyExtensionAttributes(opInfo, op);
         Input input = op.getInput();
         List paramOrder = op.getParameterOrdering();
         if (input != null) {
@@ -452,6 +474,7 @@ public class WSDLServiceBuilder {
             opInfo.setInput(input.getName(), minfo);
             buildMessage(minfo, input.getMessage(), paramOrder);
             copyExtensors(minfo, input.getExtensibilityElements());
+            copyExtensionAttributes(minfo, input);
         }
         Output output = op.getOutput();
         if (output != null) {
@@ -459,6 +482,7 @@ public class WSDLServiceBuilder {
             opInfo.setOutput(output.getName(), minfo);
             buildMessage(minfo, output.getMessage(), paramOrder);
             copyExtensors(minfo, output.getExtensibilityElements());
+            copyExtensionAttributes(minfo, output);
         }
         Map<?, ?> m = op.getFaults();
         for (Map.Entry<?, ?> rawentry : m.entrySet()) {
@@ -466,6 +490,8 @@ public class WSDLServiceBuilder {
             FaultInfo finfo = opInfo.addFault(new QName(inf.getName().getNamespaceURI(), entry.getKey()),
                                               entry.getValue().getMessage().getQName());
             buildMessage(finfo, entry.getValue().getMessage(), paramOrder);
+            copyExtensors(finfo, entry.getValue().getExtensibilityElements());
+            copyExtensionAttributes(finfo, entry.getValue());
         }
         checkForWrapped(opInfo);
     }

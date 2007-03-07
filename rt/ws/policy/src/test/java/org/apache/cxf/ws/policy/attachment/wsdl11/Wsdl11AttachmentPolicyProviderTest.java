@@ -103,7 +103,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         EasyMock.expect(bfm.getBindingFactory(EasyMock.isA(String.class))).andReturn(null).anyTimes();
         control.replay();
         
-        int n = 18;
+        int n = 19;
         services = new ServiceInfo[n];
         endpoints = new EndpointInfo[n];
         for (int i = 0; i < n; i++) {
@@ -271,7 +271,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         assertTrue(!ep.isEmpty());
         verifyAssertionsOnly(ep, 1);
         p = app.getElementPolicy(endpoints[7].getInterface());
-        assertTrue(PolicyComparator.compare(p, ep));
+        assertTrue(PolicyComparator.compare(p, ep));        
         
         // port has one extension of type Policy
         // porttype has one extension of type Policy
@@ -281,6 +281,15 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         assertTrue(!ep.isEmpty());
         verifyAssertionsOnly(ep, 3);
         
+        // port has no extensions
+        // binding has no extensions
+        // porttype has no extension elements but one extension attribute of type PolicyURIs
+        // consisting of two references (one local, one external)
+        
+        ep = app.getEffectivePolicy(endpoints[18]);
+        assertNotNull(ep);
+        assertTrue(!ep.isEmpty());
+        verifyAssertionsOnly(ep, 2);       
     }
     
     public void testEffectiveBindingOperationPolicies() {

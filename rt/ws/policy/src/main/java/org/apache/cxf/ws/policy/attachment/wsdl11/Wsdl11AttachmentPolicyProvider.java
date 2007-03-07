@@ -21,6 +21,8 @@ package org.apache.cxf.ws.policy.attachment.wsdl11;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.wsdl.Definition;
 import javax.wsdl.extensions.ExtensibilityElement;
@@ -81,7 +83,7 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
     public Policy getEffectivePolicy(EndpointInfo ei) {
         Policy p = getElementPolicy(ei);
         p = p.merge(getElementPolicy(ei.getBinding()));
-        p = p.merge(getElementPolicy(ei.getInterface()));
+        p = p.merge(getElementPolicy(ei.getInterface(), true));
         
         return p;
     }
@@ -97,8 +99,8 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
      */
     public Policy getEffectivePolicy(BindingOperationInfo bi) {
         DescriptionInfo di = bi.getBinding().getDescription();
-        Policy p = getElementPolicy(bi, di);
-        p = p.merge(getElementPolicy(bi.getOperationInfo(), di));
+        Policy p = getElementPolicy(bi, false, di);
+        p = p.merge(getElementPolicy(bi.getOperationInfo(), false, di));
         return p;
     }
     
@@ -119,11 +121,11 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
         ServiceInfo si = bmi.getBindingOperation().getBinding().getService();
         DescriptionInfo di = si.getDescription();
 
-        Policy p = getElementPolicy(bmi, di);
+        Policy p = getElementPolicy(bmi, false, di);
         MessageInfo mi = bmi.getMessageInfo();
-        p = p.merge(getElementPolicy(mi, di));
+        p = p.merge(getElementPolicy(mi, true, di));
         Extensible ex = getMessageTypeInfo(mi.getName(), di);
-        p = p.merge(getElementPolicy(ex, di));
+        p = p.merge(getElementPolicy(ex, false, di));
 
         return p;
     }
@@ -134,20 +136,24 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
         ServiceInfo si = bfi.getBindingOperation().getBinding().getService();
         DescriptionInfo di = si.getDescription();
 
-        Policy p = getElementPolicy(bfi, di);
+        Policy p = getElementPolicy(bfi, false, di);
         FaultInfo fi = bfi.getFaultInfo();
-        p = p.merge(getElementPolicy(fi, di));
+        p = p.merge(getElementPolicy(fi, true, di));
         Extensible ex = getMessageTypeInfo(fi.getName(), di);
-        p = p.merge(getElementPolicy(ex, di));
+        p = p.merge(getElementPolicy(ex, false, di));
 
         return p;
     }
     
     Policy getElementPolicy(AbstractDescriptionElement adh) {
-        return getElementPolicy(adh, adh.getDescription());
+        return getElementPolicy(adh, false);
     }
-
-    Policy getElementPolicy(Extensible ex, DescriptionInfo di) {
+    
+    Policy getElementPolicy(AbstractDescriptionElement adh, boolean includeAttributes) {
+        return getElementPolicy(adh, includeAttributes, adh.getDescription());
+    }
+  
+    Policy getElementPolicy(Extensible ex, boolean includeAttributes, DescriptionInfo di) {
         
         Policy elementPolicy = new Policy();
         
@@ -157,23 +163,45 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
         
         List<UnknownExtensibilityElement> extensions = 
             ex.getExtensors(UnknownExtensibilityElement.class);
-        if (null == extensions) {
-            return elementPolicy;
-        }
-        
-        for (UnknownExtensibilityElement e : extensions) {
-            Policy p = null;
-            if (PolicyConstants.getPolicyElemQName().equals(e.getElementType())) {
-                p = builder.getPolicy(e.getElement());
+        if (null != extensions) {
 
-            } else if (PolicyConstants.getPolicyReferenceElemQName().equals(e.getElementType())) {
-                PolicyReference ref = builder.getPolicyReference(e.getElement());
-                if (null != ref) {
-                    p = resolveReference(ref, di);
+            for (UnknownExtensibilityElement e : extensions) {
+                Policy p = null;
+                if (PolicyConstants.getPolicyElemQName().equals(e.getElementType())) {
+                    p = builder.getPolicy(e.getElement());
+
+                } else if (PolicyConstants.getPolicyReferenceElemQName().equals(e.getElementType())) {
+                    PolicyReference ref = builder.getPolicyReference(e.getElement());
+                    if (null != ref) {
+                        p = resolveReference(ref, di);
+                    }
+                }
+                if (null != p) {
+                    elementPolicy = elementPolicy.merge(p);
                 }
             }
-            if (null != p) {
-                elementPolicy = elementPolicy.merge(p);
+        }
+        
+        if (includeAttributes) {
+            Object attr = ex.getExtensionAttribute(PolicyConstants.getPolicyURIsAttrQName());
+            // can be of type a String, a QName, a list of Srings or a list of QNames
+            String uris = null;
+            if (attr instanceof QName) {
+                uris = ((QName)attr).getLocalPart();
+            } else if (attr instanceof String) {
+                uris = (String)attr;
+            }
+            if (null != uris) {
+                StringTokenizer st = new StringTokenizer(uris);
+                while (st.hasMoreTokens()) {
+                    String uri = st.nextToken();
+                    PolicyReference ref = new PolicyReference();
+                    ref.setURI(uri);
+                    Policy p = resolveReference(ref, di);
+                    if (null != p) {
+                        elementPolicy = elementPolicy.merge(p);
+                    }
+                }
             }
         }
 
@@ -252,8 +280,27 @@ public class Wsdl11AttachmentPolicyProvider extends AbstractPolicyProvider
             }
             return list;
         }
+
+        public void addExtensionAttribute(QName arg0, Object arg1) {    
+        }
+
+        public void addExtensor(Object arg0) {   
+        }
+
+        public Object getExtensionAttribute(QName arg0) {
+            return null;
+        }
+
+        public Map<QName, Object> getExtensionAttributes() {
+            return null;
+        }
+
+        public void setExtensionAttributes(Map<QName, Object> arg0) {  
+        }
         
-    }
+        
+        
+    } 
    
 
 }
