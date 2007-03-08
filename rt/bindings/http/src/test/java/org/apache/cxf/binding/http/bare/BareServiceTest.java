@@ -33,8 +33,11 @@ import org.apache.cxf.binding.http.URIMapper;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.junit.Test;
 
 public class BareServiceTest extends AbstractRestTest {
+    
+    @Test
     public void testCreation() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());
@@ -115,6 +118,7 @@ public class BareServiceTest extends AbstractRestTest {
         svr.stop();
     }
 
+    @Test
     public void testSetContentType() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());

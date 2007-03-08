@@ -26,18 +26,22 @@ import org.apache.cxf.aegis.AbstractAegisTest;
 import org.apache.cxf.aegis.services.ArrayService;
 import org.apache.cxf.aegis.services.BeanService;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 21, 2004
  */
 public class WrappedTest extends AbstractAegisTest {
+    @Before 
     public void setUp() throws Exception {
         super.setUp();
         createService(BeanService.class, "BeanService", null);
         createService(ArrayService.class, "Array", new QName("urn:Array", "Array"));
     }
 
+    @Test
     public void testBeanService() throws Exception {
         Node response = invoke("BeanService", LocalTransportFactory.TRANSPORT_ID, "bean11.xml");
 
@@ -48,16 +52,17 @@ public class WrappedTest extends AbstractAegisTest {
         assertValid("//sb:getSimpleBeanResponse/sb:return/sb:bleh[text()=\"bleh\"]", response);
     }
 
+    @Test
     public void testBeanServiceWSDL() throws Exception {
         Node doc = getWSDLDocument("BeanService");
 
         assertValid("/wsdl:definitions/wsdl:types", doc);
         assertValid("/wsdl:definitions/wsdl:types/xsd:schema", doc);
-        assertValid("/wsdl:definitions/wsdl:types/" +
-                        "xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']",
+        assertValid("/wsdl:definitions/wsdl:types/" 
+                    + "xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']",
                     doc);
-        assertValid(
-                    "//xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']/xsd:element[@name='getSubmitBean']",
+        assertValid("//xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']/"
+                    + "xsd:element[@name='getSubmitBean']",
                     doc);
         assertValid("//xsd:element[@name='getSubmitBean']/xsd:complexType/xsd:sequence"
                     + "/xsd:element[@name='bleh'][@type='xsd:string'][@nillable='true']", doc);
@@ -72,17 +77,20 @@ public class WrappedTest extends AbstractAegisTest {
         assertValid(
                     "/wsdl:definitions/wsdl:types"
                         + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
-                        + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element[@name=\"bleh\"][@nillable='true']",
+                        + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
+                        + "[@name=\"bleh\"][@nillable='true']",
                     doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"
                         + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
-                        + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element[@name=\"howdy\"][@nillable='true']",
+                        + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
+                        + "[@name=\"howdy\"][@nillable='true']",
                     doc);
         assertValid(
                     "/wsdl:definitions/wsdl:types"
                         + "/xsd:schema[@targetNamespace='http://services.aegis.cxf.apache.org']"
-                        + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element[@type=\"xsd:string\"]",
+                        + "/xsd:complexType[@name=\"SimpleBean\"]/xsd:sequence/xsd:element"
+                        + "[@type=\"xsd:string\"]",
                     doc);
     }
 
@@ -140,10 +148,12 @@ public class WrappedTest extends AbstractAegisTest {
     // assertValid("//xsd:schema[@targetNamespace='urn:Array']/xsd:element[@name='SubmitBeanArray']",
     // doc);
     // assertValid(
-    // "//xsd:element[@name='SubmitStringArray']/xsd:complexType/xsd:sequence/xsd:element[@name='array'][@type='tns:ArrayOfString']",
+    // "//xsd:element[@name='SubmitStringArray']/xsd:complexType/xsd:sequence/xsd:element"
+    //    + "[@name='array'][@type='tns:ArrayOfString']",
     // doc);
     // assertValid(
-    // "//xsd:element[@name='SubmitBeanArray']/xsd:complexType/xsd:sequence/xsd:element[@name='array'][@type='ns1:ArrayOfSimpleBean']",
+    // "//xsd:element[@name='SubmitBeanArray']/xsd:complexType/xsd:sequence/xsd:element"
+    //  + "[@name='array'][@type='ns1:ArrayOfSimpleBean']",
     // doc);
     // }
 }

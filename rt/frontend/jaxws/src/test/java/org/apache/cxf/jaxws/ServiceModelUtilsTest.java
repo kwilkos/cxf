@@ -40,6 +40,8 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceModelUtil;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.RPCLitGreeterImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ServiceModelUtilsTest extends AbstractJaxWsTest {
    
@@ -47,8 +49,9 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
     Exchange exchange;
     ReflectionServiceFactoryBean bean;
     
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpBus();
         
         message = new MessageImpl();        
         exchange = new ExchangeImpl();
@@ -70,6 +73,7 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
         return service;
     }
 
+    @Test
     public void testGetOperationInputPartNamesWrapped() throws Exception {
         getService(getClass().getResource("/wsdl/hello_world.wsdl"),
                    GreeterImpl.class,
@@ -89,6 +93,7 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
         assertEquals(0, names.size());
     }
     
+    @Test
     public void testGetOperationInputPartNamesWrapped2() throws Exception {
         getService(getClass().getResource("/wsdl/calculator.wsdl"),
                    CalculatorImpl.class,
@@ -103,6 +108,7 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
         assertEquals("arg1", names.get(1));
     }
 
+    @Test
     public void testGetOperationInputPartNamesBare() throws Exception {
         getService(getClass().getResource("/wsdl/hello_world_xml_bare.wsdl"),
                    org.apache.hello_world_xml_http.bare.GreeterImpl.class,
@@ -122,6 +128,7 @@ public class ServiceModelUtilsTest extends AbstractJaxWsTest {
     }
     
     
+    @Test
     public void testGetOperationInputPartNamesRpc() throws Exception {
         getService(getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl"),
                    RPCLitGreeterImpl.class,

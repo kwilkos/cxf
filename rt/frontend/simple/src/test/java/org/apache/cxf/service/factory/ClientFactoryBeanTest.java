@@ -32,9 +32,11 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.junit.Test;
 
 public class ClientFactoryBeanTest extends AbstractSimpleFrontendTest {
 
+    @Test
     public void testClientFactoryBean() throws Exception {
         
         ClientFactoryBean cfBean = new ClientFactoryBean();

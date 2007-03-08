@@ -50,6 +50,8 @@ import org.apache.header_test.types.TestHeader5;
 import org.apache.header_test.types.TestHeader5ResponseBody;
 import org.apache.header_test.types.TestHeader6;
 import org.apache.header_test.types.TestHeader6Response;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class HeaderClientServerTest extends AbstractJaxWsTest {
@@ -58,8 +60,8 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
     private final QName portName = new QName("http://apache.org/header_test",
                                              "SoapHeaderPort");
 
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
         BusFactory.setDefaultBus(getBus());
         
         Object implementor = new TestHeaderImpl();
@@ -76,6 +78,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         
     }
 
+    @Test
     public void testInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -95,6 +98,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         }
     } 
 
+    @Test
     public void testOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -121,6 +125,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         } 
     } 
 
+    @Test
     public void testInOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -156,6 +161,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         } 
     }
 
+    @Test
     public void testReturnHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -180,6 +186,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         } 
     } 
     
+    @Test
     public void testHeaderPartBeforeBodyPart() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -211,6 +218,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         }
     }
     
+    @Test
     public void testHeader4() {
         URL wsdl = getClass().getResource("/wsdl/soapheader.wsdl");
         assertNotNull(wsdl);
@@ -226,6 +234,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         }
     }
 
+    @Test
     public void testRPCInHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader_rpc.wsdl");
         assertNotNull(wsdl);
@@ -249,6 +258,7 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
         }
     } 
     
+    @Test
     public void testRPCInOutHeader() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/soapheader_rpc.wsdl");
         assertNotNull(wsdl);
@@ -274,9 +284,4 @@ public class HeaderClientServerTest extends AbstractJaxWsTest {
             throw (Exception)ex.getCause();
         }
     } 
-    
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(HeaderClientServerTest.class);
-    }
 }

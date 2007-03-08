@@ -23,7 +23,6 @@ import java.net.URL;
 
 import org.w3c.dom.Node;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -36,17 +35,16 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SoapFaultTest extends AbstractJaxWsTest {
 
-    private Bus bus;
     private Service service;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        bus = getBus();
+        super.setUpBus();
 
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
@@ -68,6 +66,7 @@ public class SoapFaultTest extends AbstractJaxWsTest {
         svrFactory.create();
     }
 
+    @Test
     public void testInterceptorThrowingSoapFault() throws Exception {
         service.getInInterceptors().add(new FaultThrowingInterceptor());
 
@@ -85,6 +84,7 @@ public class SoapFaultTest extends AbstractJaxWsTest {
      * We need to get the jaxws fault -> soap fault conversion working for this
      * @throws Exception
      */
+    @Test
     public void testWebServiceException() throws Exception {
         Node response = invoke("http://localhost:9000/SoapContext/SoapPort",
                                LocalTransportFactory.TRANSPORT_ID, "GreeterGetFaultMessage.xml");

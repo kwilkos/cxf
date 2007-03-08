@@ -19,14 +19,18 @@
 
 package org.apache.cxf.common.util;
 
-import junit.framework.TestCase;
 
-public class PackageUtilsTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Test;
+
+public class PackageUtilsTest extends Assert {
+    @Test
     public void testgetPackageName() throws Exception {
         String packageName = PackageUtils.getPackageName(this.getClass());       
         assertEquals("Should get same packageName", this.getClass().getPackage().getName(), packageName);
     }
     
+    @Test
     public void testGetPackageName() throws Exception {
         String className = "HelloWorld";
         assertEquals("Should return empty string", "", PackageUtils.getPackageName(className));

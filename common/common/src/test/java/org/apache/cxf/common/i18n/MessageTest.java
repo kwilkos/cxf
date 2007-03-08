@@ -22,14 +22,15 @@ package org.apache.cxf.common.i18n;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.common.logging.LogUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class MessageTest extends TestCase {
+public class MessageTest extends Assert {
     private static final Logger LOG = LogUtils.getL7dLogger(MessageTest.class);
     
+    @Test
     public void testMessageWithLoggerBundle() throws Exception {
         Message msg = new Message("SUB1_EXC", LOG, new Object[] {1});
         assertSame("unexpected resource bundle",
@@ -40,6 +41,7 @@ public class MessageTest extends TestCase {
                      msg.toString()); 
     }
 
+    @Test
     public void testMessageWithExplicitBundle() throws Exception {
         ResourceBundle bundle = BundleUtils.getBundle(getClass());
         Message msg = new Message("SUB2_EXC", bundle, new Object[] {3, 4});

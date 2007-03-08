@@ -32,9 +32,11 @@ import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.person.Person;
 import org.apache.cxf.service.invoker.BeanInvoker;
+import org.junit.Test;
 
 public class MtomTest extends AbstractRestTest {
 
+    @Test
     public void testService() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());

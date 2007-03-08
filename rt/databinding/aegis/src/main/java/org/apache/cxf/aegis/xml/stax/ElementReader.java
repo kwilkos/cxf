@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.cxf.aegis.xml.stax;
 
 import java.io.InputStream;
@@ -21,10 +39,7 @@ import org.apache.cxf.aegis.xml.MessageReader;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class ElementReader
-    extends AbstractMessageReader
-    implements MessageReader
-{
+public class ElementReader extends AbstractMessageReader implements MessageReader {
     private static final Pattern QNAME_PATTERN = Pattern.compile("([^:]+):([^:]+)");
 
     private DepthXMLStreamReader root;
@@ -37,21 +52,20 @@ public class ElementReader
 
     private QName xsiType;
 
-    private boolean hasCheckedChildren = false;
+    private boolean hasCheckedChildren;
 
-    private boolean hasChildren = false;
-    
+    private boolean hasChildren;
+
     private String namespace;
 
     private int depth;
 
-    private int currentAttribute = 0;
+    private int currentAttribute;
 
     /**
      * @param root
      */
-    public ElementReader(DepthXMLStreamReader root)
-    {
+    public ElementReader(DepthXMLStreamReader root) {
         this.root = root;
         this.localName = root.getLocalName();
         this.name = root.getName();
@@ -62,8 +76,7 @@ public class ElementReader
         depth = root.getDepth();
     }
 
-    public ElementReader(XMLStreamReader reader)
-    {
+    public ElementReader(XMLStreamReader reader) {
         this(new DepthXMLStreamReader(reader));
     }
 
@@ -71,8 +84,7 @@ public class ElementReader
      * @param is
      * @throws XMLStreamException
      */
-    public ElementReader(InputStream is) throws XMLStreamException
-    {
+    public ElementReader(InputStream is) throws XMLStreamException {
         // XMLInputFactory factory = XMLInputFactory.newInstance();
         // XMLStreamReader xmlReader = factory.createXMLStreamReader(is);
         XMLStreamReader xmlReader = STAXUtils.createXMLStreamReader(is, null, null);
@@ -89,22 +101,17 @@ public class ElementReader
         depth = root.getDepth();
     }
 
-    private void extractXsiType()
-    {
+    private void extractXsiType() {
         /*
          * We're making a conscious choice here -- garbage in == garbate out.
          */
         String xsiTypeQname = root.getAttributeValue(XmlConstants.XSI_NS, "type");
-        if (xsiTypeQname != null)
-        {
+        if (xsiTypeQname != null) {
             Matcher m = QNAME_PATTERN.matcher(xsiTypeQname);
-            if (m.matches())
-            {
+            if (m.matches()) {
                 NamespaceContext nc = root.getNamespaceContext();
                 this.xsiType = new QName(nc.getNamespaceURI(m.group(1)), m.group(2), m.group(1));
-            }
-            else
-            {
+            } else {
                 this.xsiType = new QName(this.namespace, xsiTypeQname, "");
             }
         }
@@ -113,51 +120,42 @@ public class ElementReader
     /**
      * @see org.codehaus.xfire.aegis.MessageReader#getValue()
      */
-    public String getValue()
-    {
-        if (value == null) 
-        {
-            try
-            {
+    public String getValue() {
+        if (value == null) {
+            try {
                 value = root.getElementText();
 
-                while (checkHasMoreChildReaders()) {}
-            }
-            catch (XMLStreamException e)
-            {
+                while (checkHasMoreChildReaders()) {
+                    //TODO - busy wait
+                }
+            } catch (XMLStreamException e) {
                 throw new DatabindingException("Could not read XML stream.", e);
             }
         }
         return value.trim();
     }
 
-    public String getValue(String ns, String attr)
-    {
+    public String getValue(String ns, String attr) {
         return root.getAttributeValue(ns, attr);
     }
 
-    public boolean hasMoreElementReaders()
-    {
+    public boolean hasMoreElementReaders() {
         // Check to see if we checked before,
         // so we don't mess up the stream position.
-        if (!hasCheckedChildren)
+        if (!hasCheckedChildren) {
             checkHasMoreChildReaders();
+        }
 
         return hasChildren;
     }
 
-    private boolean checkHasMoreChildReaders()
-    {
-        try
-        {
+    private boolean checkHasMoreChildReaders() {
+        try {
             int event = root.getEventType();
-            while (root.hasNext())
-            {
-                switch (event)
-                {
+            while (root.hasNext()) {
+                switch (event) {
                 case XMLStreamReader.START_ELEMENT:
-                    if (root.getDepth() > depth)
-                    {
+                    if (root.getDepth() > depth) {
                         hasCheckedChildren = true;
                         hasChildren = true;
 
@@ -165,13 +163,11 @@ public class ElementReader
                     }
                     break;
                 case XMLStreamReader.END_ELEMENT:
-                    if (root.getDepth() <= depth + 1)
-                    {
+                    if (root.getDepth() <= depth + 1) {
                         hasCheckedChildren = true;
                         hasChildren = false;
 
-                        if (root.hasNext())
-                        {
+                        if (root.hasNext()) {
                             root.next();
                         }
                         return false;
@@ -186,83 +182,75 @@ public class ElementReader
                     break;
                 }
 
-                if (root.hasNext())
+                if (root.hasNext()) {
                     event = root.next();
+                }
             }
 
             hasCheckedChildren = true;
             hasChildren = false;
             return false;
-        }
-        catch (XMLStreamException e)
-        {
+        } catch (XMLStreamException e) {
             throw new DatabindingException("Error parsing document.", e);
         }
     }
 
-    public MessageReader getNextElementReader()
-    {
-        if (!hasCheckedChildren)
+    public MessageReader getNextElementReader() {
+        if (!hasCheckedChildren) {
             checkHasMoreChildReaders();
+        }
 
-        if (!hasChildren)
+        if (!hasChildren) {
             return null;
+        }
 
         hasCheckedChildren = false;
 
         return new ElementReader(root);
     }
 
-    public QName getName()
-    {
+    public QName getName() {
         return name;
     }
 
-    public String getLocalName()
-    {
+    public String getLocalName() {
         return localName;
     }
 
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return namespace;
     }
 
-    public QName getXsiType()
-    {
+    public QName getXsiType() {
         return xsiType;
     }
 
-    public XMLStreamReader getXMLStreamReader()
-    {
+    public XMLStreamReader getXMLStreamReader() {
         return root;
     }
 
-    public boolean hasMoreAttributeReaders()
-    {
-        if (!root.isStartElement())
+    public boolean hasMoreAttributeReaders() {
+        if (!root.isStartElement()) {
             return false;
+        }
 
         return currentAttribute < root.getAttributeCount();
     }
 
-    public MessageReader getAttributeReader(QName qName)
-    {
+    public MessageReader getAttributeReader(QName qName) {
         return new AttributeReader(qName, root.getAttributeValue(qName.getNamespaceURI(), qName
-                .getLocalPart()));
+            .getLocalPart()));
     }
 
-    public MessageReader getNextAttributeReader()
-    {
+    public MessageReader getNextAttributeReader() {
         MessageReader reader = new AttributeReader(root.getAttributeName(currentAttribute), root
-                .getAttributeValue(currentAttribute));
+            .getAttributeValue(currentAttribute));
         currentAttribute++;
 
         return reader;
     }
 
-    public String getNamespaceForPrefix(String prefix)
-    {
+    public String getNamespaceForPrefix(String prefix) {
         return root.getNamespaceURI(prefix);
     }
 }

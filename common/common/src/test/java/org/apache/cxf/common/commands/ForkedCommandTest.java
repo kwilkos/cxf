@@ -25,11 +25,12 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.common.i18n.Message;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ForkedCommandTest extends TestCase {
+public class ForkedCommandTest extends Assert {
 
     private static final String[] ENV_COMMAND;
 
@@ -41,6 +42,7 @@ public class ForkedCommandTest extends TestCase {
         }
     }
 
+    @Test
     public void testBasics() {
         ForkedCommand fc1 = new ForkedCommand();
         String cmdline1 = fc1.toString();
@@ -64,6 +66,7 @@ public class ForkedCommandTest extends TestCase {
         new ForkedCommandException(msg, new NullPointerException());
     }
 
+    @Test
     public void testExecuteInDefaultEnvironment() {
         ByteArrayOutputStream bosOut = new ByteArrayOutputStream();
         ByteArrayOutputStream bosErr = new ByteArrayOutputStream();
@@ -74,6 +77,7 @@ public class ForkedCommandTest extends TestCase {
         assertTrue(output.indexOf("AVAR") < 0 || output.indexOf("BVAR") < 0);      
     }
     
+    @Test
     public void testExecuteInNonDefaultEnvironment() {
         ByteArrayOutputStream bosOut = new ByteArrayOutputStream();
         ByteArrayOutputStream bosErr = new ByteArrayOutputStream();
@@ -116,6 +120,7 @@ public class ForkedCommandTest extends TestCase {
         
     }
     
+    @Test
     public void testTimeout() throws Exception {
         URL url = TestCommand.class.getResource("TestCommand.class");
         File file = new File(url.toURI());

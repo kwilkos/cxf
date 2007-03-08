@@ -19,13 +19,13 @@
 package org.apache.cxf.aegis.client;
 
 import javax.jws.WebParam;
-import javax.jws.WebService;
 import javax.jws.WebParam.Mode;
+import javax.jws.WebService;
 import javax.xml.ws.Holder;
 
 @WebService
-public interface Echo
-{
-    public String echo(String text,
-                       @WebParam(mode=Mode.OUT) Holder<String> textAgain);
+public interface Echo {
+    String echo(String text,
+                @WebParam(mode = Mode.OUT)
+                Holder<String> textAgain);
 }

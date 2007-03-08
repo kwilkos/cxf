@@ -30,7 +30,7 @@
     <xs:element name="Addressing">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="ref:Policy" />
+                <xs:element ref="tns:AnonymousResponses" />
 	    </xs:sequence>
             <xs:anyAttribute namespace="##other" processContents="lax"/>
         </xs:complexType>

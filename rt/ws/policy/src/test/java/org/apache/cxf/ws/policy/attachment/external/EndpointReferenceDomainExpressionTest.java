@@ -19,8 +19,6 @@
 
 package org.apache.cxf.ws.policy.attachment.external;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -30,18 +28,24 @@ import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class EndpointReferenceDomainExpressionTest extends TestCase {
+public class EndpointReferenceDomainExpressionTest extends Assert {
 
     private IMocksControl control;
     
+    
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();        
     } 
     
+    @Test
     public void testEndpointReferenceDomainExpression() {
         EndpointReferenceType epr = control.createMock(EndpointReferenceType.class);
         

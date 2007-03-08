@@ -23,9 +23,6 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -34,21 +31,21 @@ import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.PingMeFault;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 /**
  * Tests the use of the WS-Policy Framework to automatically engage WS-Addressing and
  * WS-RM in response to Policies defined for the endpoint via an external policy attachment.
  */
-public class PolicyClientServerTest extends ClientServerTestBase {
+public class PolicyClientServerTest extends AbstractBusClientServerTestBase {
 
     private static final Logger LOG = Logger.getLogger(PolicyClientServerTest.class.getName());
-    private Bus bus;
 
-    public static class Server extends TestServerBase {
+    public static class Server extends AbstractBusTestServerBase {
     
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
@@ -80,25 +77,13 @@ public class PolicyClientServerTest extends ClientServerTestBase {
             }
         }
     }    
-    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(PolicyClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-            
-            public void setUp() throws Exception {
-                startServers();
-                LOG.fine("Started server.");  
-            }
-        };
+
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
-    
-    public void tearDown() {
-        bus.shutdown(true);
-    }
-    
+         
+    @Test
     public void testUsingAddressing() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("org/apache/cxf/systest/ws/policy/addr-only.xml");
@@ -134,8 +119,8 @@ public class PolicyClientServerTest extends ClientServerTestBase {
             greeter.pingMe();
             fail("Expected PingMeFault not thrown.");
         } catch (PingMeFault ex) {
-            assertEquals(2, ex.getFaultInfo().getMajor());
-            assertEquals(1, ex.getFaultInfo().getMinor());
+            assertEquals(2, (int)ex.getFaultInfo().getMajor());
+            assertEquals(1, (int)ex.getFaultInfo().getMinor());
         } 
     }
 }

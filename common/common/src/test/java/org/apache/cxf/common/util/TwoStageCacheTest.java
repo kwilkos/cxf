@@ -22,14 +22,13 @@ package org.apache.cxf.common.util;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TwoStageCacheTest extends TestCase {
+public class TwoStageCacheTest extends Assert {
 
-    public TwoStageCacheTest(String arg0) {
-        super(arg0);
-    }
 
+    @Test
     public void testToString() {
         TestTwoStageCache cache = new TestTwoStageCache(3, 5, 0);
         assertEquals("AbstractTwoStageCache", cache.toString());
@@ -38,6 +37,7 @@ public class TwoStageCacheTest extends TestCase {
     /*
      * Test method for 'org.apache.cxf.common.util.AbstractTwoStageCache.get()'
      */
+    @Test
     public void testGet() throws Throwable {
         TestTwoStageCache cache = new TestTwoStageCache(3, 5, 0);
         cache.populateCache();
@@ -57,6 +57,7 @@ public class TwoStageCacheTest extends TestCase {
     /*
      * Test method for 'org.apache.cxf.common.util.AbstractTwoStageCache.poll()'
      */
+    @Test
     public void testPoll() throws Throwable {
         TestTwoStageCache cache = new TestTwoStageCache(3, 5, 0);
         cache.populateCache();
@@ -97,6 +98,7 @@ public class TwoStageCacheTest extends TestCase {
     /*
      * Test method for 'org.apache.cxf.common.util.AbstractTwoStageCache.recycle(E)'
      */
+    @Test
     public void testRecycle() throws Throwable {
         TestTwoStageCache cache = new TestTwoStageCache(3, 8, 5, new Object());
         cache.populateCache();

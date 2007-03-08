@@ -49,16 +49,11 @@ public abstract class DOMStreamReader implements XMLStreamReader {
      *     
      */
     public static class ElementFrame {
-        public ElementFrame(Object element, ElementFrame parent) {
-            this.element = element;
-            this.parent = parent;
-        }
-
         Object element;
 
-        boolean started = false;
+        boolean started;
 
-        boolean ended = false;
+        boolean ended;
 
         int currentChild = -1;
 
@@ -73,6 +68,13 @@ public abstract class DOMStreamReader implements XMLStreamReader {
         List<Object> allAttributes;
 
         final ElementFrame parent;
+        
+        public ElementFrame(Object element, ElementFrame parent) {
+            this.element = element;
+            this.parent = parent;
+        }
+
+
     }
 
     /**
@@ -81,7 +83,6 @@ public abstract class DOMStreamReader implements XMLStreamReader {
     public DOMStreamReader(ElementFrame frame) {
         this.frame = frame;
         frames.push(this.frame);
-        newFrame(frame);
     }
 
     protected ElementFrame getCurrentFrame() {

@@ -39,10 +39,12 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.junit.Test;
 
 public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
     private ReflectionServiceFactoryBean serviceFactory;
 
+    @Test
     public void testUnwrappedBuild() throws Exception {
         Service service = createService(false);
         
@@ -74,6 +76,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         assertEquals(1, op.getInput().getMessageParts().size());
     }
     
+    @Test
     public void testWrappedBuild() throws Exception {
         Service service = createService(true);
         
@@ -127,6 +130,7 @@ public class ReflectionServiceFactoryTest extends AbstractSimpleFrontendTest {
         return serviceFactory.create();        
     }
     
+    @Test
     public void testServerFactoryBean() throws Exception {
         Service service = createService(true);
         assertEquals("test", service.get("test"));

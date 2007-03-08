@@ -42,9 +42,6 @@ import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 //import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.Soap11;
 //import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -52,8 +49,7 @@ import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
 //import org.apache.cxf.jaxws.ServiceImpl;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.DocLitBare;
 import org.apache.hello_world_soap_http.Greeter;
@@ -62,8 +58,11 @@ import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.SOAPServiceDocLitBare;
 import org.apache.hello_world_soap_http.types.BareDocumentResponse;
 import org.apache.hello_world_soap_http.types.GreetMeLaterResponse;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class ClientServerTest extends ClientServerTestBase {
+public class ClientServerTest extends AbstractBusClientServerTestBase {
 
     private final QName serviceName = new QName("http://apache.org/hello_world_soap_http",
                                                 "SOAPService");    
@@ -77,22 +76,17 @@ public class ClientServerTest extends ClientServerTestBase {
     private final QName portName1  = new QName("http://apache.org/hello_world_soap_http",
                                                "SoapPort2");
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-                public void startServers() throws Exception {                    
-                    assertTrue("server did not launch correctly", launchServer(Server.class));
-                }
-                public void setUp() throws Exception {
-                    // set up configuration to enable schema validation
-                    URL url = getClass().getResource("fault-stack-trace.xml");
-                    assertNotNull("cannot find test resource", url);
-                    configFileName = url.toString();
-                    super.setUp();
-                }
-            };
+    @BeforeClass
+    public static void startServers() throws Exception {                    
+        // set up configuration to enable schema validation
+        URL url = ClientServerTest.class.getResource("fault-stack-trace.xml");
+        assertNotNull("cannot find test resource", url);
+        defaultConfigFileName = url.toString();
+
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testBasicConnection() throws Exception {
 
         SOAPService service = new SOAPService();
@@ -116,6 +110,7 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals(200, responseCode.intValue());
     }
     
+    @Test
     public void testNillable() throws Exception {
         SOAPService service = new SOAPService();
         assertNotNull(service);
@@ -133,6 +128,7 @@ public class ClientServerTest extends ClientServerTestBase {
 
     }
     
+    @Test
     public void testAddPort() throws Exception {
         Service service = Service.create(serviceName);
         service.addPort(fakePortName, "http://schemas.xmlsoap.org/soap/", 
@@ -150,6 +146,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testGetPortOnePara() throws Exception {
 
         Service service = Service.create(serviceName);
@@ -167,6 +164,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testDocLitBareConnection() throws Exception {
         
         SOAPServiceDocLitBare service = new SOAPServiceDocLitBare();
@@ -184,6 +182,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
         
+    @Test
     public void testBasicConnectionAndOneway() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -217,7 +216,9 @@ public class ClientServerTest extends ClientServerTestBase {
     } 
     
     
-    public void xtestBasicConnection2() throws Exception {
+    @Test
+    @Ignore
+    public void testBasicConnection2() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
         
@@ -250,6 +251,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     } 
 
+    @Test
     public void testAsyncPollingCall() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -292,7 +294,8 @@ public class ClientServerTest extends ClientServerTestBase {
         assertTrue("Response is  not available.", r1.isDone());
         assertTrue("Response is  not available.", r2.isDone());
     }
-    
+
+    @Test
     public void testAsyncSynchronousPolling() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -382,6 +385,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testAsyncCallWithHandler() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -418,6 +422,8 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals(1, MyHandler.invocationCount);       
         
     }
+
+    @Test
     public void testAsyncCallWithHandlerAndMultipleClients() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -484,6 +490,7 @@ public class ClientServerTest extends ClientServerTestBase {
     
     
  
+    @Test
     public void testFaults() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -523,6 +530,8 @@ public class ClientServerTest extends ClientServerTestBase {
         }
 
     }
+
+    @Test
     public void testFaultStackTrace() throws Exception {
         System.setProperty("cxf.config.file.url", 
                 getClass().getResource("fault-stack-trace.xml").toString());
@@ -543,6 +552,7 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testGetSayHi() throws Exception {
         HttpURLConnection httpConnection = 
             getHttpConnection("http://localhost:9000/SoapContext/SoapPort/sayHi");
@@ -573,6 +583,7 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals("Bonjour", response);
     }
 
+    @Test
     public void testGetGreetMe() throws Exception {
         HttpURLConnection httpConnection = 
             getHttpConnection("http://localhost:9000/SoapContext/SoapPort/greetMe/requestType/cxf");    
@@ -601,6 +612,7 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals("Hello cxf", response);
     }
     
+    @Test
     public void testGetWSDL() throws Exception {
         String url = "http://localhost:9000/SoapContext/SoapPort?wsdl";
         HttpURLConnection httpConnection = getHttpConnection(url);    
@@ -620,6 +632,7 @@ public class ClientServerTest extends ClientServerTestBase {
                 
     }
     
+    @Test
     public void testGetGreetMeFromQuery() throws Exception {
         String url = "http://localhost:9000/SoapContext/SoapPort/greetMe?requestType=" 
             + URLEncoder.encode("cxf (was CeltixFire)", "UTF-8"); 
@@ -650,6 +663,7 @@ public class ClientServerTest extends ClientServerTestBase {
         assertEquals("Hello cxf (was CeltixFire)", response);
     }
     
+    @Test
     public void testBasicAuth() throws Exception {
         Service service = Service.create(serviceName);
         service.addPort(fakePortName, "http://schemas.xmlsoap.org/soap/", 
@@ -667,9 +681,4 @@ public class ClientServerTest extends ClientServerTestBase {
         }
     }
     
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ClientServerTest.class);
-    }
-    
-
 }

@@ -33,14 +33,10 @@ import javax.xml.xpath.XPathConstants;
 
 import org.w3c.dom.Document;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.headers.HeaderTester;
 import org.apache.headers.XMLHeaderService;
 import org.apache.headers.types.InHeader;
@@ -57,8 +53,10 @@ import org.apache.hello_world_xml_http.mixed.types.SayHi;
 import org.apache.hello_world_xml_http.mixed.types.SayHiResponse;
 import org.apache.hello_world_xml_http.wrapped.GreeterFaultImpl;
 import org.apache.hello_world_xml_http.wrapped.PingMeFault;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ClientServerXMLTest extends ClientServerTestBase {
+public class ClientServerXMLTest extends AbstractBusClientServerTestBase {
 
     private final QName barePortName = new QName("http://apache.org/hello_world_xml_http/bare", "XMLPort");
 
@@ -75,15 +73,12 @@ public class ClientServerXMLTest extends ClientServerTestBase {
     private final QName wrapFakePortName = new QName("http://apache.org/hello_world_xml_http/wrapped",
             "FakePort");
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerXMLTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(ServerXMLBinding.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(ServerXMLBinding.class));
     }
 
+    @Test
     public void testBareBasicConnection() throws Exception {
 
         XMLService service = new XMLService();
@@ -123,6 +118,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testBareGetGreetMe() throws Exception {
         HttpURLConnection httpConnection =
             getHttpConnection("http://localhost:9031/XMLService/XMLPort/greetMe/requestType/cxf");
@@ -146,6 +142,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         assertEquals("Hello cxf", response);
     }
 
+    @Test
     public void testWrapBasicConnection() throws Exception {
 
         org.apache.hello_world_xml_http.wrapped.XMLService service =
@@ -175,6 +172,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testMixedConnection() throws Exception {
 
         org.apache.hello_world_xml_http.mixed.XMLService service =
@@ -206,6 +204,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testAddPort() throws Exception {
 
         Service service = Service.create(wrapServiceName);
@@ -241,6 +240,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         assertEquals(200, responseCode.intValue());
     }
 
+    @Test
     public void testXMLFault() throws Exception {
         org.apache.hello_world_xml_http.wrapped.XMLService service =
             new org.apache.hello_world_xml_http.wrapped.XMLService(
@@ -252,8 +252,8 @@ public class ClientServerXMLTest extends ClientServerTestBase {
             greeter.pingMe();
             fail("did not catch expected PingMeFault exception");
         } catch (PingMeFault ex) {
-            assertEquals("minor value", 1, ex.getFaultInfo().getMinor());
-            assertEquals("major value", 2, ex.getFaultInfo().getMajor());
+            assertEquals("minor value", 1, (int)ex.getFaultInfo().getMinor());
+            assertEquals("major value", 2, (int)ex.getFaultInfo().getMajor());
 
             BindingProvider bp = (BindingProvider) greeter;
             Map<String, Object> responseContext = bp.getResponseContext();
@@ -273,6 +273,7 @@ public class ClientServerXMLTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testXMLBindingOfSoapHeaderWSDL() throws Exception {
         XMLHeaderService service = new XMLHeaderService();
         HeaderTester port = service.getXMLPort9000();

@@ -26,8 +26,6 @@ import java.util.Collections;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.ws.policy.AssertionBuilderRegistry;
 import org.apache.cxf.ws.policy.AssertionBuilderRegistryImpl;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
@@ -36,12 +34,16 @@ import org.apache.cxf.ws.policy.util.PolicyComparator;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
  * 
  */
-public class NestedPrimitiveAssertionTest extends TestCase {
+public class NestedPrimitiveAssertionTest extends Assert {
 
     private static final String TEST_NAMESPACE = "http://www.w3.org/2007/01/addressing/metadata";
     private static final QName TEST_NAME1 = new QName(TEST_NAMESPACE, "Addressing");
@@ -52,6 +54,7 @@ public class NestedPrimitiveAssertionTest extends TestCase {
 
     private PolicyBuilderImpl builder;
     
+    @Before
     public void setUp() {
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         builder = new PolicyBuilderImpl();
@@ -74,10 +77,12 @@ public class NestedPrimitiveAssertionTest extends TestCase {
         PolicyConstants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
     }
     
+    @After
     public void tearDown() {
         PolicyConstants.setNamespace(originalNamespace);
     }
     
+    @Test
     public void testBuildNonNested() throws Exception {
         String resource = "resources/compact1.xml";
         InputStream is = NestedPrimitiveAssertionTest.class.getResourceAsStream(resource);
@@ -91,6 +96,7 @@ public class NestedPrimitiveAssertionTest extends TestCase {
         assertTrue(nested.isEmpty());
     }
     
+    @Test
     public void testBuildNested() throws Exception {
         String resource = "resources/compact3.xml";
         InputStream is = NestedPrimitiveAssertionTest.class.getResourceAsStream(resource);
@@ -118,6 +124,7 @@ public class NestedPrimitiveAssertionTest extends TestCase {
      * 
      * @throws Exception
      */
+    @Test
     public void testNormalise() throws Exception {    
         
         int n = 6;

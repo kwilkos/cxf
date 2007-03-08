@@ -66,9 +66,9 @@ public class JDOMStreamWriter extends DOMStreamWriter {
             }
         }
 
-        JDOMNamespaceContext context = new JDOMNamespaceContext();
-        context.setElement(element);
-        this.context = context;
+        JDOMNamespaceContext ctx = new JDOMNamespaceContext();
+        ctx.setElement(element);
+        this.context = ctx;
 
         currentNode = element;
     }
@@ -186,8 +186,8 @@ public class JDOMStreamWriter extends DOMStreamWriter {
     public void setDefaultNamespace(String arg0) throws XMLStreamException {
     }
 
-    public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {
-        this.context = context;
+    public void setNamespaceContext(NamespaceContext ctx) throws XMLStreamException {
+        this.context = ctx;
     }
 
     public NamespaceContext getNamespaceContext() {

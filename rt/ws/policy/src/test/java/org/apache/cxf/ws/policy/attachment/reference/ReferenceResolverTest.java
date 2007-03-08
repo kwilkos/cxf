@@ -30,26 +30,29 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.service.model.DescriptionInfo;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class ReferenceResolverTest extends TestCase {
+public class ReferenceResolverTest extends Assert {
 
     private IMocksControl control;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();        
     } 
     
+    @Test
     public void testLocalServiceModelReferenceResolver() {
         DescriptionInfo di = control.createMock(DescriptionInfo.class);
         PolicyBuilder builder = control.createMock(PolicyBuilder.class);
@@ -81,6 +84,7 @@ public class ReferenceResolverTest extends TestCase {
         
     }
     
+    @Test
     public void testLocalDocumentReferenceResolver() {
         Document doc = control.createMock(Document.class);
         PolicyBuilder builder = control.createMock(PolicyBuilder.class);
@@ -111,6 +115,7 @@ public class ReferenceResolverTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testRemoteReferenceResolver() {
         
         URL url = ReferenceResolverTest.class.getResource("referring.wsdl");

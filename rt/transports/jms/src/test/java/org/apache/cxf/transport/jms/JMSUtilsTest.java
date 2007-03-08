@@ -23,30 +23,15 @@ import java.util.Properties;
 
 import javax.naming.Context;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JMSUtilsTest extends TestCase {
+public class JMSUtilsTest extends Assert {
 
-    public JMSUtilsTest(String name) {
-        super(name);
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JMSUtilsTest.class);
-    }
-    
-    public void setUp() throws Exception {
-    }
-    
-    public void tearDown() throws Exception {
-        //
-    }
     
     // This is just a place holder for now it will be chaning in next task 
     // when the new JMS address policies and configurations are introdced.
+    @Test
     public void testpopulateIncomingContextNonNull() throws Exception {
         AddressType addrType =  new AddressType();
         

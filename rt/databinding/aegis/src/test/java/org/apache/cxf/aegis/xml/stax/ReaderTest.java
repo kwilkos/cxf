@@ -26,53 +26,50 @@ import org.apache.cxf.aegis.util.STAXUtils;
 import org.apache.cxf.aegis.util.jdom.StaxBuilder;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
-import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.jdom.Document;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Nov 4, 2004
  */
-public class ReaderTest
-    extends AbstractCXFTest
-{
-    public void testLiteralReader()
-        throws Exception
-    {
+public class ReaderTest extends AbstractCXFTest {
+    @Test
+    public void testLiteralReader() throws Exception {
         ElementReader lr = getStreamReader("bean11.xml");
         testReading(lr);
-        
+
         lr = getStreamReader("read1.xml");
         testReading2(lr);
     }
 
-    private ElementReader getStreamReader(String resource)
-        throws FactoryConfigurationError, XMLStreamException
-    {
-        /*XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLStreamReader reader = factory.createXMLStreamReader( 
-                getResourceAsStream(resource));*/
-        XMLStreamReader reader = STAXUtils.createXMLStreamReader(getResourceAsStream(resource),null,null);
-        
-        while ( reader.getEventType() != XMLStreamReader.START_ELEMENT )
+    private ElementReader getStreamReader(String resource) throws FactoryConfigurationError,
+        XMLStreamException {
+        /*
+         * XMLInputFactory factory = XMLInputFactory.newInstance();
+         * XMLStreamReader reader = factory.createXMLStreamReader(
+         * getResourceAsStream(resource));
+         */
+        XMLStreamReader reader = STAXUtils.createXMLStreamReader(getResourceAsStream(resource), null, null);
+
+        while (reader.getEventType() != XMLStreamReader.START_ELEMENT) {
             reader.next();
-        
+        }
+
         return new ElementReader(reader);
     }
-    
-    public void testJDOMReader()
-        throws Exception
-    {
+
+    @Test
+    public void testJDOMReader() throws Exception {
         StaxBuilder builder = new StaxBuilder();
         Document doc = builder.build(getResourceAsReader("bean11.xml"));
 
         testReading(new JDOMReader(doc.getRootElement()));
     }
-    
-    public void testReading(MessageReader reader)
-    {
+
+    public void testReading(MessageReader reader) {
         assertTrue(reader.getLocalName().equals("Envelope"));
 
         // make sure we can repeat this
@@ -89,10 +86,8 @@ public class ReaderTest
         assertEquals("Body", body.getLocalName());
         assertFalse(body.hasMoreElementReaders());
     }
-    
-    public void testReading2(MessageReader reader)
-        throws Exception
-    {
+
+    public void testReading2(MessageReader reader) throws Exception {
         assertEquals("test", reader.getLocalName());
         assertEquals("urn:test", reader.getNamespace());
 
@@ -103,16 +98,16 @@ public class ReaderTest
 
         MessageReader one = reader.getNextAttributeReader();
         assertEquals("one", one.getValue());
-        
+
         MessageReader two = reader.getNextAttributeReader();
         assertEquals("two", two.getValue());
 
         assertFalse(reader.hasMoreAttributeReaders());
-        
+
         assertTrue(reader.hasMoreElementReaders());
         assertTrue(reader.hasMoreElementReaders());
         assertTrue(reader.hasMoreElementReaders());
-        
+
         MessageReader child = reader.getNextElementReader();
         assertEquals("child", child.getLocalName());
         assertTrue(child.hasMoreElementReaders());

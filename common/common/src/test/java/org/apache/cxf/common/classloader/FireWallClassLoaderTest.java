@@ -26,23 +26,23 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class FireWallClassLoaderTest extends TestCase {
+public class FireWallClassLoaderTest extends Assert {
 
-    public FireWallClassLoaderTest(String name) {
-        super(name);
+    public FireWallClassLoaderTest() {
     }
     
+    @Test
     public void testJavaLangStringAlt() throws Exception {
         ClassLoader c = new FireWallClassLoader(ClassLoader.getSystemClassLoader(), new String[] {"java.*"});
         Class c1 = c.loadClass("java.lang.String");
         assertNotNull("Should have returned a class here", c1);
     }
     
+    @Test
     public void testJavaLangStringBlock() throws Exception {
         ClassLoader c = new FireWallClassLoader(ClassLoader.getSystemClassLoader(), 
                                                 new String[] {}, 
@@ -60,6 +60,7 @@ public class FireWallClassLoaderTest extends TestCase {
     // Check that an internal JDK class can load a class with a prefix that
     // would have
     // been blocked by the firewall
+    @Test
     public void testJDKInternalClass() throws Exception {
         // Just create a temp file we can play with
         File tmpFile = File.createTempFile("FireWall", "Test");
@@ -86,6 +87,7 @@ public class FireWallClassLoaderTest extends TestCase {
         fail("Should not have found the " + urlConn.getClass().getName() + " class");
     }
    
+    @Test
     public void testSecurityException() {
         try {
             new FireWallClassLoader(ClassLoader.getSystemClassLoader(), new String[] {"hi.there"});
@@ -94,10 +96,6 @@ public class FireWallClassLoaderTest extends TestCase {
         }
         fail("Constructing a FireWallClassLoader that does not pass through java." 
              + " should cause a SecurityException.");
-    }
-
-    public static Test suite() {
-        return new TestSuite(FireWallClassLoaderTest.class);
     }
 
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.jaxws;
 
-import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.binding.soap.SoapBindingFactory;
 import org.apache.cxf.binding.soap.SoapTransportFactory;
@@ -28,6 +27,7 @@ import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
+import org.junit.Before;
 
 /**
  * Abstract test which sets up the local transport and soap binding.
@@ -36,13 +36,10 @@ public abstract class AbstractJaxWsTest extends AbstractCXFTest {
 
     protected LocalTransportFactory localTransport;
 
-    private Bus bus;
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        
-        bus = getBus();
+    @Before
+    public void setUpBus() throws Exception {
+        super.setUpBus();
         
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
 

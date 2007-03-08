@@ -79,12 +79,9 @@ import org.apache.type_test.types3.StructWithMultipleSubstitutionGroups;
 import org.apache.type_test.types3.StructWithSubstitutionGroup;
 import org.apache.type_test.types3.StructWithSubstitutionGroupAbstract;
 import org.apache.type_test.types3.StructWithSubstitutionGroupNil;
+import org.junit.Test;
 
 public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
-
-    public AbstractTypeTestClient2(String name) {
-        super(name);
-    }
 
     protected <T> boolean equalsNilable(T x, T y) {
         if (x == null) {
@@ -101,7 +98,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
 
     //org.apache.type_test.types1.EmptyStruct
-    
+    @Test
     public void testEmptyStruct() throws Exception {
         EmptyStruct x = new EmptyStruct();
         EmptyStruct yOrig = new EmptyStruct();
@@ -159,7 +156,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarString().equals(y.getVarString()))
             && (equalsNilable(x.getVarAttrString(), y.getVarAttrString()));
     }
-    
+    @Test
     public void testSimpleStruct() throws Exception {
         SimpleStruct x = new SimpleStruct();
         x.setVarFloat(3.14f);
@@ -198,7 +195,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && equalsNilable(x.getVarString(), y.getVarString())
             && equalsNilable(x.getVarStruct(), y.getVarStruct());
     }
-    
+    @Test
     public void testStructWithNillables() throws Exception {
         StructWithNillables x = new StructWithNillables();
         StructWithNillables yOrig = new StructWithNillables();
@@ -232,7 +229,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarInt() == y.getVarInt())
             && (x.getVarString().equals(y.getVarString()));
     }
-    
+    @Test
     public void testAnonymousStruct() throws Exception {
         AnonymousStruct x = new AnonymousStruct();
         x.setVarInt(100);
@@ -289,7 +286,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return equals(x, y);
         }
     }
-    
+    @Test
     public void testNestedStruct() throws Exception {
         SimpleStruct xs = new SimpleStruct();
         xs.setVarFloat(30.14);
@@ -334,7 +331,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.FixedArray
-    
+    @Test
     public void testFixedArray() throws Exception {
         FixedArray x = new FixedArray();
         x.getItem().addAll(Arrays.asList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE));
@@ -365,7 +362,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.BoundedArray
-    
+    @Test
     public void testBoundedArray() throws Exception {
         BoundedArray x = new BoundedArray();
         x.getItem().addAll(Arrays.asList(-100.00f, 0f, 100.00f));
@@ -417,7 +414,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testUnboundedArray() throws Exception {
         UnboundedArray x = new UnboundedArray();
         x.getItem().addAll(Arrays.asList("AAA", "BBB", "CCC"));
@@ -449,7 +446,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getArray1().equals(y.getArray1())
             && x.getArray2().equals(y.getArray2());
     }
-    
+    @Test
     public void testCompoundArray() throws Exception {
         CompoundArray x = new CompoundArray();
         x.getArray1().addAll(Arrays.asList("AAA", "BBB", "CCC"));
@@ -479,7 +476,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
 
     //org.apache.type_test.types1.NestedArray
-    
+    @Test
     public void testNestedArray() throws Exception {
         String[][] xs = {{"AAA", "BBB", "CCC"}, {"aaa", "bbb", "ccc"}, {"a_a_a", "b_b_b", "c_c_c"}};
         String[][] ys = {{"XXX", "YYY", "ZZZ"}, {"xxx", "yyy", "zzz"}, {"x_x_x", "y_y_y", "z_z_z"}};
@@ -549,7 +546,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             }
         }
     }
-
+    @Test
     public void testStructWithList() throws Exception {
         StructWithList x = new StructWithList();
         x.getVarList().add("I");
@@ -620,7 +617,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getVarUnion(), y.getVarUnion());
         assertEquals(msg, x.getAttribUnion(), y.getAttribUnion());
     }
-
+    @Test
     public void testStructWithUnion() throws Exception {
         StructWithUnion x = new StructWithUnion();
         x.setVarUnion("999");
@@ -675,7 +672,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.EmptyChoice
-
+    @Test
     public void testEmptyChoice() throws Exception {
         EmptyChoice x = new EmptyChoice();
         EmptyChoice yOrig = new EmptyChoice();
@@ -711,7 +708,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return false;
         }
     }
-
+    @Test
     public void testSimpleChoice() throws Exception {
         SimpleChoice x = new SimpleChoice();
         x.setVarFloat(-3.14f);
@@ -739,7 +736,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.EmptyAll
-
+    @Test
     public void testEmptyAll() throws Exception {
         EmptyAll x = new EmptyAll();
         EmptyAll yOrig = new EmptyAll();
@@ -770,7 +767,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarString().equals(y.getVarString()))
             && (x.getVarAttrString().equals(y.getVarAttrString()));
     }
-    
+    @Test
     public void testSimpleAll() throws Exception {
         SimpleAll x = new SimpleAll();
         x.setVarFloat(3.14f);
@@ -812,7 +809,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && equalsNilable(x.getVarString(), y.getVarString())
             && equalsNilable(x.getVarStruct(), y.getVarStruct());
     }
-    
+    @Test
     public void testStructWithOptionals() throws Exception {
         StructWithOptionals x = new StructWithOptionals();
         StructWithOptionals yOrig = new StructWithOptionals();
@@ -848,7 +845,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getVarString().equals(y.getVarString()))
             && equals(x.getVarStructArray(), y.getVarStructArray());
     }
-    
+    @Test
     public void testRecursiveStruct() throws Exception {
         RecursiveStruct xtmp = new RecursiveStruct();
         xtmp.setVarFloat(0.14f);
@@ -915,7 +912,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testRecursiveStructArray() throws Exception {
         RecursiveStruct xtmp = new RecursiveStruct();
         xtmp.setVarFloat(0.14f);
@@ -966,7 +963,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-
+    @Test
     public void testRecursiveUnion() throws Exception {
         RecursiveUnion tmp1 = new RecursiveUnion();
         tmp1.setVarString("RecusiveUnion-1");
@@ -1018,7 +1015,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getVarInt() == y.getVarInt()
             && equals(x.getVarChoiceArray(), y.getVarChoiceArray());
     }
-
+    @Test
     public void testRecursiveUnionData() throws Exception {
         RecursiveUnion tmp1 = new RecursiveUnion();
         tmp1.setVarString("RecusiveUnion-1");
@@ -1076,7 +1073,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testChoiceArray() throws Exception {
         RecursiveUnion tmp1 = new RecursiveUnion();
         tmp1.setVarString("RecusiveUnion-1");
@@ -1111,7 +1108,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
 
     //org.apache.type_test.types2.ExtendsSimpleType
-    
+    @Test
     public void testExtendsSimpleType() throws Exception {
         ExtendsSimpleType x = new ExtendsSimpleType();
         x.setValue("foo");
@@ -1135,7 +1132,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     }
     
     //org.apache.type_test.types1.ExtendsSimpleContent
-
+    @Test
     public void testExtendsSimpleContent() throws Exception {
         ExtendsSimpleContent x = new ExtendsSimpleContent();
         x.setValue("foo");
@@ -1165,7 +1162,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getValue(), y.getValue());
         assertEquals(msg, x.getID(), y.getID());
     }
-    
+    @Test
     public void testDocument() throws Exception {
         Document x = new Document();
         x.setValue("content-x");
@@ -1223,7 +1220,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             && (x.getAttrib2().equals(y.getAttrib2()))
             && (x.getValue().equals(y.getValue()));
     }
-    
+    @Test
     public void testExtColourEnum() throws Exception {
         ExtColourEnum x = new ExtColourEnum();
         x.setAttrib1(new Integer(1));
@@ -1257,7 +1254,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
     protected boolean equals(ExtBase64Binary x, ExtBase64Binary y) {
         return x.getId() == y.getId() && Arrays.equals(x.getValue(), y.getValue());
     }
-
+    @Test
     public void testExtBase64Binary() throws Exception {
         ExtBase64Binary x1 = new ExtBase64Binary();
         x1.setValue("base64a".getBytes());
@@ -1298,7 +1295,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-    
+    @Test
     public void testStructWithSubstitutionGroup() throws Exception {
         SgBaseTypeA baseA = new SgBaseTypeA();
         baseA.setVarInt(new BigInteger("1"));
@@ -1346,7 +1343,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-
+    @Test
     public void testStructWithSubstitutionGroupAbstract() throws Exception {
         SgDerivedTypeB derivedB = new SgDerivedTypeB();
         derivedB.setVarInt(new BigInteger("32"));
@@ -1399,7 +1396,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return equals(xTypeA, yTypeA);
         }
     }
-    
+    @Test
     public void testStructWithSubstitutionGroupNil() throws Exception {
         StructWithSubstitutionGroupNil x = new StructWithSubstitutionGroupNil();
         ObjectFactory objectFactory = new ObjectFactory();
@@ -1466,7 +1463,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return true;
     }
-    
+    @Test
     public void testStructWithMultipleSubstitutionGroups() throws Exception {
         SgBaseTypeA baseA = new SgBaseTypeA();
         baseA.setVarInt(new BigInteger("1"));
@@ -1534,7 +1531,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-    
+    @Test
     public void testChoiceWithSubstitutionGroupAbstract() throws Exception {
         SgDerivedTypeB derivedB = new SgDerivedTypeB();
         derivedB.setVarInt(new BigInteger("32"));
@@ -1610,7 +1607,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
             return y.getSg04NillableBaseElementA() == null;
         }
     }
-    
+    @Test
     public void testChoiceWithSubstitutionGroupNil() throws Exception {
         ObjectFactory objectFactory = new ObjectFactory();
         
@@ -1693,7 +1690,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         }
         return false;
     }
-
+    @Test
     public void testChoiceWithSubstitutionGroup() throws Exception {
         SgBaseTypeA baseA = new SgBaseTypeA();
         baseA.setVarInt(new BigInteger("1"));
@@ -1756,7 +1753,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getVarInt() == y.getVarInt()
             && equals(x.getRecElNext(), y.getRecElNext());
     }
-
+    @Test
     public void testRecElType() throws Exception {
         RecElType x = new RecElType();
         RecElType y = new RecElType();
@@ -1885,7 +1882,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         return x.getVarInt() == y.getVarInt()
             && equals(x.getRecOuterNext(), y.getRecOuterNext());
     }
-
+    @Test
     public void testRecOuterType() throws Exception {
         RecMostInnerType mitx = new RecMostInnerType();
         RecMostInnerType mity = new RecMostInnerType();
@@ -1948,7 +1945,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getAttrib1B(), y.getAttrib1B());
         assertEquals(msg, x.getValue(), y.getValue());
     }
-
+    @Test
     public void testSimpleContent1() throws Exception {
         SimpleContent1 x1 = new SimpleContent1();
         x1.setValue("foo");
@@ -1982,7 +1979,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.getAttrib2B(), y.getAttrib2B());
         equals(msg, (SimpleContent1)x, (SimpleContent1)y);
     }
-
+    @Test
     public void testSimpleContent2() throws Exception {
         SimpleContent2 x2 = new SimpleContent2();
         x2.setValue("foo");
@@ -2020,7 +2017,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertEquals(msg, x.isAttrib3B(), y.isAttrib3B());
         equals(msg, (SimpleContent2)x, (SimpleContent2)y);
     }
-
+    @Test
     public void testSimpleContent3() throws Exception {
         SimpleContent3 x3 = new SimpleContent3();
         x3.setValue("foo");
@@ -2062,7 +2059,7 @@ public abstract class AbstractTypeTestClient2 extends AbstractTypeTestClient {
         assertTrue(msg, y != null);
         assertEquals(msg, x.getValue(), y.getValue());
     }
-
+    @Test
     public void testUnionSimpleContent() throws Exception {
         UnionSimpleContent x = new UnionSimpleContent();
         x.setValue("5");

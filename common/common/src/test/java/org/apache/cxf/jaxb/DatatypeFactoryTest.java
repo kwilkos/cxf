@@ -20,16 +20,14 @@
 package org.apache.cxf.jaxb;
 
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class DatatypeFactoryTest extends TestCase {
+public class DatatypeFactoryTest {
     
+    @Test
     public void testNewFactory() throws Exception {
-        try {
-            Class.forName("org.apache.cxf.jaxb.DatatypeFactory");
-            assertEquals("PT0S", DatatypeFactory.PT0S.toString());
-        } catch (Exception e) {
-            fail("There should have no excpetion during loading of the class DatatypeFactory");
-        }
+        Class.forName("org.apache.cxf.jaxb.DatatypeFactory");
+        Assert.assertEquals("PT0S", DatatypeFactory.PT0S.toString());
     }
 }

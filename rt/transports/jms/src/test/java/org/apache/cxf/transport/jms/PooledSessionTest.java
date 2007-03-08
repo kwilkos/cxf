@@ -24,20 +24,13 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-import junit.framework.TestCase;
-
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class PooledSessionTest extends TestCase {
+public class PooledSessionTest extends Assert {
 
-    public PooledSessionTest(String arg0) {
-        super(arg0);
-    }
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(PooledSessionTest.class);
-    }
-
+    @Test
     public void testPooledSession() throws Exception {
             
         Session sess =  EasyMock.createMock(Session.class);

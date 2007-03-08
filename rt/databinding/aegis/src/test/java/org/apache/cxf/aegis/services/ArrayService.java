@@ -23,29 +23,24 @@ package org.apache.cxf.aegis.services;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class ArrayService
-{
-    public SimpleBean[] getBeanArray()
-    {
+public class ArrayService {
+    public SimpleBean[] getBeanArray() {
         SimpleBean bean = new SimpleBean();
         bean.setBleh("bleh");
         bean.setHowdy("howdy");
-        
-        return new SimpleBean[] { bean };
+
+        return new SimpleBean[] {bean};
     }
 
-    public String[] getStringArray()
-    {
-        return new String[] { "bleh", "bleh" };
+    public String[] getStringArray() {
+        return new String[] {"bleh", "bleh"};
     }
-    
-    public boolean SubmitStringArray( String[] array )
-    {
+
+    public boolean submitStringArray(String[] array) {
         return true;
     }
-    
-    public boolean SubmitBeanArray( SimpleBean[] array )
-    {
+
+    public boolean submitBeanArray(SimpleBean[] array) {
         return true;
     }
 }

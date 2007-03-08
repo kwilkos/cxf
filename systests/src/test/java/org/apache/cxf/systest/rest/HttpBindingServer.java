@@ -22,9 +22,9 @@ package org.apache.cxf.systest.rest;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.http.HTTPBinding;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class HttpBindingServer extends TestServerBase {
+public class HttpBindingServer extends AbstractBusTestServerBase {
 
     protected void run() {
         Endpoint e = Endpoint.create(HTTPBinding.HTTP_BINDING, new RestSourcePayloadProviderHttpBinding());

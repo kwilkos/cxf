@@ -26,11 +26,13 @@ import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.junit.Before;
 
 public abstract class AbstractSimpleFrontendTest extends AbstractCXFTest {
 
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpBus();
         
         Bus bus = getBus();
         

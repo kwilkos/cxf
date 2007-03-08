@@ -21,11 +21,11 @@ package org.apache.cxf.systest.jaxws;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_mixedstyle.GreeterImplMixedStyle;
 
 
-public class ServerMixedStyle extends TestServerBase {
+public class ServerMixedStyle extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new GreeterImplMixedStyle();

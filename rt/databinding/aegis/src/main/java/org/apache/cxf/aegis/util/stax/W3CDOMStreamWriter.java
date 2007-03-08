@@ -40,10 +40,6 @@ public class W3CDOMStreamWriter extends DOMStreamWriter {
     private NamespaceContext context;
     private Map properties = Collections.EMPTY_MAP;
 
-    public void setProperties(Map properties) {
-        this.properties = properties;
-    }
-
     public W3CDOMStreamWriter() throws ParserConfigurationException {
         this(DocumentBuilderFactory.newInstance().newDocumentBuilder());
     }
@@ -52,8 +48,12 @@ public class W3CDOMStreamWriter extends DOMStreamWriter {
         document = builder.newDocument();
     }
 
-    public W3CDOMStreamWriter(Document document) {
-        this.document = document;
+    public W3CDOMStreamWriter(Document doc) {
+        this.document = doc;
+    }
+
+    public void setProperties(Map properties) {
+        this.properties = properties;
     }
 
     public Document getDocument() {
@@ -72,9 +72,9 @@ public class W3CDOMStreamWriter extends DOMStreamWriter {
             document.appendChild(element);
         }
 
-        W3CNamespaceContext context = new W3CNamespaceContext();
-        context.setElement(element);
-        this.context = context;
+        W3CNamespaceContext ctx = new W3CNamespaceContext();
+        ctx.setElement(element);
+        this.context = ctx;
 
         currentNode = element;
     }
@@ -203,8 +203,8 @@ public class W3CDOMStreamWriter extends DOMStreamWriter {
     public void setDefaultNamespace(String arg0) throws XMLStreamException {
     }
 
-    public void setNamespaceContext(NamespaceContext context) throws XMLStreamException {
-        this.context = context;
+    public void setNamespaceContext(NamespaceContext ctx) throws XMLStreamException {
+        this.context = ctx;
     }
 
     public NamespaceContext getNamespaceContext() {

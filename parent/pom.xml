@@ -189,9 +189,6 @@
                         <!-- do not exclude **/Abstract*Test.java **/Abstract*TestCase.java -->
                         <excludes>
                             <exclude>**/*$*</exclude>
-                            <exclude>**/AbstractServletTest.java</exclude>
-                            <exclude>**/ClientServerGreeterBaseNoWsdlTest.java</exclude>
-                            <exclude>**/ClientServerGreeterNoWsdlTest.java</exclude> 
                         </excludes>
                         <reportFormat>${surefire.format}</reportFormat>
                         <useFile>${surefire.usefile}</useFile>
@@ -248,7 +245,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>3.8.2</version>
+                <version>4.2</version>
                 <scope>test</scope>
             </dependency>
 

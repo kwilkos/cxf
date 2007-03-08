@@ -32,9 +32,11 @@ import org.apache.cxf.binding.http.strategy.ConventionStrategy;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.model.BindingOperationInfo;
+import org.junit.Test;
 
 public class WrappedServiceTest extends AbstractRestTest {
     
+    @Test
     public void testConvention() throws Exception {
         HttpBindingInfoFactoryBean hbif = new HttpBindingInfoFactoryBean();
         hbif.getStrategies().clear();
@@ -43,6 +45,7 @@ public class WrappedServiceTest extends AbstractRestTest {
         testService(hbif);
     }
     
+    @Test
     public void testJRA() throws Exception {
         testService(new HttpBindingInfoFactoryBean());
     }

@@ -25,40 +25,26 @@ import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.ws.Holder;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.type_test.AbstractTypeTestClient5;
 import org.apache.type_test.types2.StructWithAnyArrayLax;
 import org.apache.type_test.types2.StructWithAnyStrict;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
     protected static final String WSDL_PATH = "/wsdl/type_test/type_test_doclit_soap.wsdl";
     protected static final QName SERVICE_NAME = new QName("http://apache.org/type_test/doc", "SOAPService");
     protected static final QName PORT_NAME = new QName("http://apache.org/type_test/doc", "SOAPPort");
 
-    public SOAPDocLitClientTypeTest(String name) {
-        super(name);
+
+    @BeforeClass
+    public static void startServers() throws Exception {
+        boolean ok = launchServer(SOAPDocLitServerImpl.class);
+        assertTrue("failed to launch server", ok);
+        initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }
-    
-    
-    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(SOAPDocLitClientTypeTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                boolean ok = launchServer(SOAPDocLitServerImpl.class);
-                assertTrue("failed to launch server", ok);
-            }
 
-            public void setUp() throws Exception {
-                super.setUp();
-                initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
-            }
-        };
-    }  
-
+    @Test
     public void testStructWithAnyStrict() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("StringElementQualified",
@@ -91,6 +77,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
         }
     }
    
+    @Test
     public void testStructWithAnyStrictComplex() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("AnonTypeElementQualified",
@@ -145,6 +132,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
         }
     }
 
+    @Test
     public void testStructWithAnyArrayLax() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("StringElementQualified", 
@@ -177,6 +165,7 @@ public class SOAPDocLitClientTypeTest extends AbstractTypeTestClient5 {
         }
     }
     
+    @Test
     public void testStructWithAnyArrayLaxComplex() throws Exception {
         SOAPFactory factory = SOAPFactory.newInstance();
         SOAPElement elem = factory.createElement("AnonTypeElementQualified", "x1",

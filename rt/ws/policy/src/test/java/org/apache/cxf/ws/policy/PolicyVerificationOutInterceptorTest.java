@@ -24,24 +24,27 @@ import java.util.Collection;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyVerificationOutInterceptorTest extends TestCase {
+public class PolicyVerificationOutInterceptorTest extends Assert {
  
     private IMocksControl control;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();   
     } 
     
+    @Test
     public void testHandleMessage() {
         PolicyVerificationOutInterceptor interceptor = new PolicyVerificationOutInterceptor();
         

@@ -26,23 +26,27 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.ws.policy.PolicyException;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class DomainExpressionBuilderRegistryTest extends TestCase {
+public class DomainExpressionBuilderRegistryTest extends Assert {
 
     private IMocksControl control;
     
+    
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();        
     } 
     
+    @Test
     public void testNoBuilder() {
         DomainExpressionBuilderRegistry reg = new DomainExpressionBuilderRegistry();
         assertEquals(DomainExpressionBuilderRegistry.class, reg.getRegistrationType());
@@ -62,6 +66,7 @@ public class DomainExpressionBuilderRegistryTest extends TestCase {
         
     }
     
+    @Test
     public void testBuild() {
         DomainExpressionBuilder builder = control.createMock(DomainExpressionBuilder.class);
         Map<QName, DomainExpressionBuilder> builders = new HashMap<QName, DomainExpressionBuilder>();

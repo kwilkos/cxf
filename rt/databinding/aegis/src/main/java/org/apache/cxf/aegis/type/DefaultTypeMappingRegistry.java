@@ -77,50 +77,54 @@ import org.jdom.Element;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Feb 22, 2004
  */
-public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
-    private static final Log logger = LogFactory.getLog(DefaultTypeMappingRegistry.class);
-
-    protected static final QName XSD_STRING = new QName(XmlConstants.XSD, "string", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_LONG = new QName(XmlConstants.XSD, "long", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_FLOAT = new QName(XmlConstants.XSD, "float", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_DOUBLE = new QName(XmlConstants.XSD, "double", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_INT = new QName(XmlConstants.XSD, "int", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_SHORT = new QName(XmlConstants.XSD, "short", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_BOOLEAN = new QName(XmlConstants.XSD, "boolean", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_DATETIME = new QName(XmlConstants.XSD, "dateTime",
+public final class DefaultTypeMappingRegistry implements TypeMappingRegistry {
+    static final QName XSD_STRING = new QName(XmlConstants.XSD, "string", XmlConstants.XSD_PREFIX);
+    static final QName XSD_LONG = new QName(XmlConstants.XSD, "long", XmlConstants.XSD_PREFIX);
+    static final QName XSD_FLOAT = new QName(XmlConstants.XSD, "float", XmlConstants.XSD_PREFIX);
+    static final QName XSD_DOUBLE = new QName(XmlConstants.XSD, "double", XmlConstants.XSD_PREFIX);
+    static final QName XSD_INT = new QName(XmlConstants.XSD, "int", XmlConstants.XSD_PREFIX);
+    static final QName XSD_SHORT = new QName(XmlConstants.XSD, "short", XmlConstants.XSD_PREFIX);
+    static final QName XSD_BOOLEAN = new QName(XmlConstants.XSD,
+                                                         "boolean", XmlConstants.XSD_PREFIX);
+    static final QName XSD_DATETIME = new QName(XmlConstants.XSD, "dateTime",
                                                           XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_TIME = new QName(XmlConstants.XSD, "dateTime", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_BASE64 = new QName(XmlConstants.XSD, "base64Binary",
+    static final QName XSD_TIME = new QName(XmlConstants.XSD, "dateTime", XmlConstants.XSD_PREFIX);
+    static final QName XSD_BASE64 = new QName(XmlConstants.XSD, "base64Binary",
                                                         XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_DECIMAL = new QName(XmlConstants.XSD, "decimal", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_INTEGER = new QName(XmlConstants.XSD, "integer", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_URI = new QName(XmlConstants.XSD, "anyURI", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_ANY = new QName(XmlConstants.XSD, "anyType", XmlConstants.XSD_PREFIX);
+    static final QName XSD_DECIMAL = new QName(XmlConstants.XSD,
+                                                         "decimal", XmlConstants.XSD_PREFIX);
+    static final QName XSD_INTEGER = new QName(XmlConstants.XSD,
+                                                         "integer", XmlConstants.XSD_PREFIX);
+    static final QName XSD_URI = new QName(XmlConstants.XSD, "anyURI", XmlConstants.XSD_PREFIX);
+    static final QName XSD_ANY = new QName(XmlConstants.XSD, "anyType", XmlConstants.XSD_PREFIX);
 
-    protected static final QName XSD_DATE = new QName(XmlConstants.XSD, "date", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_DURATION = new QName(XmlConstants.XSD, "duration",
+    static final QName XSD_DATE = new QName(XmlConstants.XSD, "date", XmlConstants.XSD_PREFIX);
+    static final QName XSD_DURATION = new QName(XmlConstants.XSD, "duration",
                                                           XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_G_YEAR_MONTH = new QName(XmlConstants.XSD, "gYearMonth",
+    static final QName XSD_G_YEAR_MONTH = new QName(XmlConstants.XSD, "gYearMonth",
                                                               XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_G_MONTH_DAY = new QName(XmlConstants.XSD, "gMonthDay",
+    static final QName XSD_G_MONTH_DAY = new QName(XmlConstants.XSD, "gMonthDay",
                                                              XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_G_YEAR = new QName(XmlConstants.XSD, "gYear", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_G_MONTH = new QName(XmlConstants.XSD, "gMonth", XmlConstants.XSD_PREFIX);
-    protected static final QName XSD_G_DAY = new QName(XmlConstants.XSD, "gDay", XmlConstants.XSD_PREFIX);
+    static final QName XSD_G_YEAR = new QName(XmlConstants.XSD, "gYear", XmlConstants.XSD_PREFIX);
+    static final QName XSD_G_MONTH = new QName(XmlConstants.XSD, "gMonth", XmlConstants.XSD_PREFIX);
+    static final QName XSD_G_DAY = new QName(XmlConstants.XSD, "gDay", XmlConstants.XSD_PREFIX);
 
-    protected static final String ENCODED_NS = Soap11.getInstance().getSoapEncodingStyle();
-    protected static final QName ENCODED_STRING = new QName(ENCODED_NS, "string");
-    protected static final QName ENCODED_LONG = new QName(ENCODED_NS, "long");
-    protected static final QName ENCODED_FLOAT = new QName(ENCODED_NS, "float");
-    protected static final QName ENCODED_CHAR = new QName(ENCODED_NS, "char");
-    protected static final QName ENCODED_DOUBLE = new QName(ENCODED_NS, "double");
-    protected static final QName ENCODED_INT = new QName(ENCODED_NS, "int");
-    protected static final QName ENCODED_SHORT = new QName(ENCODED_NS, "short");
-    protected static final QName ENCODED_BOOLEAN = new QName(ENCODED_NS, "boolean");
-    protected static final QName ENCODED_DATETIME = new QName(ENCODED_NS, "dateTime");
-    protected static final QName ENCODED_BASE64 = new QName(ENCODED_NS, "base64Binary");
-    protected static final QName ENCODED_DECIMAL = new QName(ENCODED_NS, "decimal");
-    protected static final QName ENCODED_INTEGER = new QName(ENCODED_NS, "integer");
+    static final String ENCODED_NS = Soap11.getInstance().getSoapEncodingStyle();
+    static final QName ENCODED_STRING = new QName(ENCODED_NS, "string");
+    static final QName ENCODED_LONG = new QName(ENCODED_NS, "long");
+    static final QName ENCODED_FLOAT = new QName(ENCODED_NS, "float");
+    static final QName ENCODED_CHAR = new QName(ENCODED_NS, "char");
+    static final QName ENCODED_DOUBLE = new QName(ENCODED_NS, "double");
+    static final QName ENCODED_INT = new QName(ENCODED_NS, "int");
+    static final QName ENCODED_SHORT = new QName(ENCODED_NS, "short");
+    static final QName ENCODED_BOOLEAN = new QName(ENCODED_NS, "boolean");
+    static final QName ENCODED_DATETIME = new QName(ENCODED_NS, "dateTime");
+    static final QName ENCODED_BASE64 = new QName(ENCODED_NS, "base64Binary");
+    static final QName ENCODED_DECIMAL = new QName(ENCODED_NS, "decimal");
+    static final QName ENCODED_INTEGER = new QName(ENCODED_NS, "integer");
+
+    private static final Log LOG = LogFactory.getLog(DefaultTypeMappingRegistry.class);
+
 
     private Map<String, TypeMapping> registry;
 
@@ -236,11 +240,11 @@ public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
                 j5Creator.setConfiguration(getConfiguration());
                 xmlCreator.setNextCreator(j5Creator);
             } catch (Throwable t) {
-                logger
-                    .info("Couldn't find Java 5 module on classpath. Annotation mappings will not be supported.");
+                LOG.info("Couldn't find Java 5 module on classpath. Annotation"
+                         + " mappings will not be supported.");
 
                 if (!(t instanceof ClassNotFoundException)) {
-                    logger.debug("Error loading Java 5 module", t);
+                    LOG.debug("Error loading Java 5 module", t);
                 }
             }
         }
@@ -250,7 +254,7 @@ public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
 
     boolean isJDK5andAbove() {
         String v = System.getProperty("java.class.version", "44.0");
-        return ("49.0".compareTo(v) <= 0);
+        return "49.0".compareTo(v) <= 0;
     }
 
     protected AbstractTypeCreator createRootTypeCreator() {
@@ -284,7 +288,7 @@ public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
             }
         }
 
-        return (n > 0);
+        return n > 0;
     }
 
     /**
@@ -419,7 +423,8 @@ public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
         }
     }
 
-    protected void registerIfAvailable(TypeMapping tm, String className, QName typeName, String typeClassName) {
+    protected void registerIfAvailable(TypeMapping tm, String className,
+                                       QName typeName, String typeClassName) {
         try {
             Class cls = ClassLoaderUtils.loadClass(className, getClass());
             Class typeCls = ClassLoaderUtils.loadClass(typeClassName, getClass());
@@ -433,7 +438,7 @@ public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
                 throw new DatabindingException("Couldn't instantiate Type ", e);
             }
         } catch (ClassNotFoundException e) {
-            logger.debug("Could not find optional Type " + className + ". Skipping.");
+            LOG.debug("Could not find optional Type " + className + ". Skipping.");
         }
 
     }
@@ -450,8 +455,8 @@ public class DefaultTypeMappingRegistry implements TypeMappingRegistry {
         return typeConfiguration;
     }
 
-    public void setConfiguration(Configuration typeConfiguration) {
-        this.typeConfiguration = typeConfiguration;
+    public void setConfiguration(Configuration tpConfiguration) {
+        this.typeConfiguration = tpConfiguration;
     }
 
 }

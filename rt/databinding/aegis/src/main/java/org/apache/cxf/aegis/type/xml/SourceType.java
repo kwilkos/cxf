@@ -68,7 +68,8 @@ public class SourceType extends Type {
     }
 
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object, MessageWriter writer,
+                            Context context) throws DatabindingException {
         try {
             if (object == null) {
                 return;

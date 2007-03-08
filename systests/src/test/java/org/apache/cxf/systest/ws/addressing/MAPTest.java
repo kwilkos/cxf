@@ -19,7 +19,8 @@
 
 package org.apache.cxf.systest.ws.addressing;
 
-import junit.framework.Test;
+import org.junit.Test;
+
 
 /**
  * Tests the addition of WS-Addressing Message Addressing Properties.
@@ -29,12 +30,14 @@ public class MAPTest extends MAPTestBase {
     private static final String CONFIG =
         "org/apache/cxf/systest/ws/addressing/cxf.xml";
     
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(MAPTest.class);
+    public String getConfigFileName() {
+        return CONFIG;
     }
     
-    public static Test suite() throws Exception {
-        return getSuite(MAPTest.class, CONFIG);
+    @Test
+    public void foo() {
+        
     }
+
 }
 

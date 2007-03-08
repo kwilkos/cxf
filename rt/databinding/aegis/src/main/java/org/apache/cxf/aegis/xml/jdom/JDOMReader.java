@@ -33,8 +33,8 @@ import org.jdom.Namespace;
 
 public class JDOMReader extends AbstractMessageReader implements MessageReader {
     private Element element;
-    private int currentChild = 0;
-    private int currentAttribute = 0;
+    private int currentChild;
+    private int currentAttribute;
     private List elements;
     private QName qname;
 
@@ -52,7 +52,7 @@ public class JDOMReader extends AbstractMessageReader implements MessageReader {
     }
 
     public boolean hasMoreElementReaders() {
-        return (currentChild < elements.size());
+        return currentChild < elements.size();
     }
 
     public MessageReader getNextElementReader() {
@@ -81,7 +81,7 @@ public class JDOMReader extends AbstractMessageReader implements MessageReader {
     }
 
     public boolean hasMoreAttributeReaders() {
-        return (currentAttribute < element.getAttributes().size());
+        return currentAttribute < element.getAttributes().size();
     }
 
     public MessageReader getAttributeReader(QName attName) {

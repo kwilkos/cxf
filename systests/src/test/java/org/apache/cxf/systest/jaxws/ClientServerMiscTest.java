@@ -24,9 +24,6 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexType;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeService;
 import org.apache.cxf.anonymous_complex_type.SplitName;
@@ -37,23 +34,21 @@ import org.apache.cxf.jaxb_element_test.JaxbElementTest_Service;
 import org.apache.cxf.ordered_param_holder.ComplexStruct;
 import org.apache.cxf.ordered_param_holder.OrderedParamHolder;
 import org.apache.cxf.ordered_param_holder.OrderedParamHolder_Service;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ClientServerMiscTest extends ClientServerTestBase {
+public class ClientServerMiscTest extends AbstractBusClientServerTestBase {
 
     private final QName portName = new QName("http://cxf.apache.org/anonymous_complex_type/",
             "anonymous_complex_typeSOAP");
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerMiscTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(ServerMisc.class));
     }
 
+    @Test
     public void testAnonymousComplexType() throws Exception {
 
         AnonymousComplexTypeService actService = new AnonymousComplexTypeService();
@@ -70,6 +65,7 @@ public class ClientServerMiscTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testRefAnonymousComplexType() throws Exception {
 
         AnonymousComplexTypeService actService = new AnonymousComplexTypeService();
@@ -88,6 +84,7 @@ public class ClientServerMiscTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testMinOccursAndNillableJAXBElement() throws Exception {
 
         JaxbElementTest_Service service = new JaxbElementTest_Service();
@@ -109,6 +106,7 @@ public class ClientServerMiscTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testOrderedParamHolder() throws Exception {
         OrderedParamHolder_Service service = new OrderedParamHolder_Service();
         OrderedParamHolder port = service.getOrderedParamHolderSOAP();

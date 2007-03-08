@@ -23,11 +23,11 @@ import java.net.URL;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.hello_world_soap_http.DocLitBareGreeterImpl;
 import org.apache.hello_world_soap_http.GreeterImpl;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
         URL url = getClass().getResource("fault-stack-trace.xml");

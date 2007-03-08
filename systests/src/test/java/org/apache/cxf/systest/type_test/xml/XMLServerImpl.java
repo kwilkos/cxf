@@ -23,11 +23,11 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.cxf.systest.type_test.TypeTestImpl;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.type_test.xml.TypeTestPortType;
 
-public class XMLServerImpl extends TestServerBase {
+public class XMLServerImpl extends AbstractBusTestServerBase {
 
     public void run()  {
         SpringBusFactory sf = new SpringBusFactory();

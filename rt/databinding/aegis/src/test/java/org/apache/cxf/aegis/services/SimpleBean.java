@@ -23,29 +23,24 @@ package org.apache.cxf.aegis.services;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class SimpleBean
-{
+public class SimpleBean {
     private String bleh;
-    
+
     private String howdy;
 
-    public String getBleh()
-    {
+    public String getBleh() {
         return bleh;
     }
 
-    public void setBleh(String bleh)
-    {
+    public void setBleh(String bleh) {
         this.bleh = bleh;
     }
-    
-    public String getHowdy()
-    {
+
+    public String getHowdy() {
         return howdy;
     }
 
-    public void setHowdy(String howdy)
-    {
+    public void setHowdy(String howdy) {
         this.howdy = howdy;
     }
 }

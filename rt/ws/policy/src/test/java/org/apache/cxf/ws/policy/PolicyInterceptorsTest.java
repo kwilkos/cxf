@@ -23,8 +23,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
@@ -40,11 +38,14 @@ import org.apache.cxf.transport.Destination;
 import org.apache.neethi.Assertion;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyInterceptorsTest extends TestCase {
+public class PolicyInterceptorsTest extends Assert {
     
     private IMocksControl control;
     private Message message;
@@ -56,12 +57,13 @@ public class PolicyInterceptorsTest extends TestCase {
     private Conduit conduit;
     private Destination destination;
     
-    
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();
         bus = control.createMock(Bus.class);       
     } 
     
+    @Test
     public void testAbstractPolicyInterceptor() {
         ClientPolicyOutInterceptor interceptor = new ClientPolicyOutInterceptor();
         assertNull(interceptor.getBus());
@@ -69,6 +71,7 @@ public class PolicyInterceptorsTest extends TestCase {
         assertSame(bus, interceptor.getBus());
     }
     
+    @Test
     public void testClientPolicyOutInterceptor() {
         ClientPolicyOutInterceptor interceptor = new ClientPolicyOutInterceptor();
         interceptor.setBus(bus);
@@ -95,6 +98,7 @@ public class PolicyInterceptorsTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testClientPolicyInInterceptor() {
         ClientPolicyInInterceptor interceptor = new ClientPolicyInInterceptor();
         interceptor.setBus(bus);
@@ -121,6 +125,7 @@ public class PolicyInterceptorsTest extends TestCase {
         control.verify();        
     }
 
+    @Test
     public void testClientPolicyInFaultInterceptor() {
         ClientPolicyInFaultInterceptor interceptor = new ClientPolicyInFaultInterceptor();
         interceptor.setBus(bus);
@@ -147,6 +152,7 @@ public class PolicyInterceptorsTest extends TestCase {
         control.verify();        
     }
 
+    @Test
     public void testServerPolicyInInterceptor() {
         ServerPolicyInInterceptor interceptor = new ServerPolicyInInterceptor();
         interceptor.setBus(bus);
@@ -173,6 +179,7 @@ public class PolicyInterceptorsTest extends TestCase {
         control.verify();       
     }
     
+    @Test
     public void testServerPolicyOutInterceptor() {
         ServerPolicyOutInterceptor interceptor = new ServerPolicyOutInterceptor();
         interceptor.setBus(bus);
@@ -199,6 +206,7 @@ public class PolicyInterceptorsTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testServerPolicyOutFaultInterceptor() throws NoSuchMethodException {
         Method m = ServerPolicyOutFaultInterceptor.class.getDeclaredMethod("getBindingFaultInfo",
             new Class[] {Message.class, Exception.class, BindingOperationInfo.class});
@@ -242,6 +250,7 @@ public class PolicyInterceptorsTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testServerPolicyOutFaultInterceptorGetBindingFaultInfo() {
         ServerPolicyOutFaultInterceptor interceptor = new ServerPolicyOutFaultInterceptor();
         message = control.createMock(Message.class);

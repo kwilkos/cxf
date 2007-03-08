@@ -21,26 +21,22 @@ package org.apache.cxf.systest.jaxws;
 
 import java.lang.reflect.UndeclaredThrowableException;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ClientServerGreeterBaseTest extends TestCase {
+public class ClientServerGreeterBaseTest extends AbstractBusClientServerTestBase {
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientServerGreeterBaseTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly",
-                           launchServer(ServerGreeterBase.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly",
+                   launchServer(ServerGreeterBase.class));
     }
     
+    @Test
     public void testInvocation() throws Exception {
 
         GreeterService service = new GreeterService();

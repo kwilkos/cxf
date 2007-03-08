@@ -35,8 +35,6 @@ import org.w3c.dom.NodeList;
 
 import org.xml.sax.SAXParseException;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.BusFactory;
@@ -49,11 +47,14 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.MessageObserver;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 
 /**
  * A basic test case meant for helping users unit test their services.
  */
-public class AbstractCXFTest extends TestCase {
+public class AbstractCXFTest extends Assert {
     
     private static String basedirPath;
     
@@ -64,26 +65,30 @@ public class AbstractCXFTest extends TestCase {
     private Map<String, String> namespaces = new HashMap<String, String>();
 
     
-    
-    public void setUp() throws Exception {
-        bus = createBus();
-        
-        addNamespace("s", "http://schemas.xmlsoap.org/soap/envelope/");
-        addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
-        addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
-        addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
-        addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
-        addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");        
-        addNamespace("xml", "http://www.w3.org/XML/1998/namespace");
+    @Before
+    public void setUpBus() throws Exception {
+        if (bus == null) {
+            bus = createBus();
+            
+            addNamespace("s", "http://schemas.xmlsoap.org/soap/envelope/");
+            addNamespace("xsd", "http://www.w3.org/2001/XMLSchema");
+            addNamespace("wsdl", "http://schemas.xmlsoap.org/wsdl/");
+            addNamespace("wsdlsoap", "http://schemas.xmlsoap.org/wsdl/soap/");
+            addNamespace("soap", "http://schemas.xmlsoap.org/soap/");
+            addNamespace("soap12env", "http://www.w3.org/2003/05/soap-envelope");        
+            addNamespace("xml", "http://www.w3.org/XML/1998/namespace");
+        }
     }
     
     public Bus getBus() {
         return bus;
     }
     
-    public void tearDown() {       
+    @After
+    public void shutdownBus() {       
         if (bus != null) {
             bus.shutdown(false);
+            bus = null;
         } 
         BusFactory.setDefaultBus(null);
     }

@@ -25,43 +25,36 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.schema_validation.SchemaValidation;
 import org.apache.schema_validation.SchemaValidationService;
 import org.apache.schema_validation.types.ComplexStruct;
 import org.apache.schema_validation.types.OccuringStruct;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ValidationClientServerTest extends ClientServerTestBase {
+public class ValidationClientServerTest extends AbstractBusClientServerTestBase {
 
     private final QName serviceName = new QName("http://apache.org/schema_validation",
                                                 "SchemaValidationService");
     private final QName portName = new QName("http://apache.org/schema_validation", "SoapPort");
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ValidationClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(ValidationServer.class));
-            }
 
-            public void setUp() throws Exception {
-                // set up configuration to enable schema validation
-                URL url = getClass().getResource("cxf-config.xml");
-                assertNotNull("cannot find test resource", url);
-                configFileName = url.toString();
-                super.setUp();
-            }
-        };
+    @BeforeClass
+    public static void startservers() throws Exception {
+        // set up configuration to enable schema validation
+        URL url = ValidationClientServerTest.class.getResource("cxf-config.xml");
+        assertNotNull("cannot find test resource", url);
+        defaultConfigFileName = url.toString();
+
+        assertTrue("server did not launch correctly", launchServer(ValidationServer.class));
     }
 
     // TODO : Change this test so that we test the combinations of
     // client and server with schema validation enabled/disabled...
     // Only tests client side validation enabled/server side disabled.
+    @Test
     public void testSchemaValidation() throws Exception {
         System.setProperty("cxf.config.file.url", getClass().getResource("cxf-config.xml").toString());
         URL wsdl = getClass().getResource("/wsdl/schema_validation.wsdl");
@@ -130,10 +123,6 @@ public class ValidationClientServerTest extends ClientServerTestBase {
             String expected = "'{\"http://apache.org/schema_validation/types\":varFloat}' is expected.";
             assertTrue(e.getMessage().indexOf(expected) != -1);
         }
-    }
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(ValidationClientServerTest.class);
     }
 
 }

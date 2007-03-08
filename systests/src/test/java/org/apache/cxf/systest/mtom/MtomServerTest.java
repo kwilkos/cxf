@@ -40,8 +40,11 @@ import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.ConduitInitiatorManager;
+import org.junit.Test;
 
 public class MtomServerTest extends AbstractCXFTest {
+    
+    @Test
     public void testMtomRequest() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setServiceClass(EchoService.class);

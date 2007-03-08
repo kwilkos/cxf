@@ -19,8 +19,6 @@
 
 package org.apache.cxf.ws.policy;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Exchange;
@@ -28,11 +26,14 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyVerificationInInterceptorTest extends TestCase {
+public class PolicyVerificationInInterceptorTest extends Assert {
  
     private IMocksControl control;
     private Bus bus;
@@ -43,11 +44,13 @@ public class PolicyVerificationInInterceptorTest extends TestCase {
     private PolicyEngine engine;
     private AssertionInfoMap aim;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl(); 
         bus = control.createMock(Bus.class);  
     } 
     
+    @Test
     public void testHandleMessage() {
         PolicyVerificationInInterceptor interceptor = new PolicyVerificationInInterceptor();
         interceptor.setBus(bus);

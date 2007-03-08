@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.cxf.aegis.type.java5;
 
 import java.beans.PropertyDescriptor;
@@ -31,8 +49,9 @@ public class Java5TypeCreator extends AbstractTypeCreator {
 
             XmlParamType xmlParam = getXmlParamAnnotation(m, index);
             if (xmlParam != null) {
-                if (xmlParam.type() != Type.class)
+                if (xmlParam.type() != Type.class) {
                     info.setType(xmlParam.type());
+                }
 
                 info.setTypeName(createQName(m.getParameterTypes()[index], xmlParam.name(), xmlParam
                     .namespace()));
@@ -49,13 +68,15 @@ public class Java5TypeCreator extends AbstractTypeCreator {
                 info.setGenericType(genericReturnType);
             }
             info.setTypeClass(m.getReturnType());
-            if (m.getParameterAnnotations() != null && m.getAnnotations().length > 0)
+            if (m.getParameterAnnotations() != null && m.getAnnotations().length > 0) {
                 info.setAnnotations(m.getAnnotations());
+            }
 
             XmlReturnType xmlParam = m.getAnnotation(XmlReturnType.class);
             if (xmlParam != null) {
-                if (xmlParam.type() != Type.class)
+                if (xmlParam.type() != Type.class) {
                     info.setType(xmlParam.type());
+                }
 
                 info.setTypeName(createQName(m.getReturnType(), xmlParam.name(), xmlParam.namespace()));
             }
@@ -65,9 +86,11 @@ public class Java5TypeCreator extends AbstractTypeCreator {
     }
 
     public XmlParamType getXmlParamAnnotation(Method m, int index) {
-        if (m.getParameterAnnotations() == null || m.getParameterAnnotations().length <= index
-            || m.getParameterAnnotations()[index] == null)
+        if (m.getParameterAnnotations() == null
+            || m.getParameterAnnotations().length <= index
+            || m.getParameterAnnotations()[index] == null) {
             return null;
+        }
 
         Annotation[] annotations = m.getParameterAnnotations()[index];
 
@@ -162,9 +185,7 @@ public class Java5TypeCreator extends AbstractTypeCreator {
 
             if (type.getActualTypeArguments()[index] instanceof Class) {
                 paramClass = (Class)type.getActualTypeArguments()[index];
-            }
-
-            else if (type.getActualTypeArguments()[index] instanceof WildcardType) {
+            } else if (type.getActualTypeArguments()[index] instanceof WildcardType) {
                 WildcardType wildcardType = (WildcardType)type.getActualTypeArguments()[index];
 
                 if (wildcardType.getUpperBounds()[index] instanceof Class) {
@@ -182,8 +203,9 @@ public class Java5TypeCreator extends AbstractTypeCreator {
     @Override
     public Type createDefaultType(TypeClassInfo info) {
         QName typeName = info.getTypeName();
-        if (typeName == null)
+        if (typeName == null) {
             typeName = createQName(info.getTypeClass());
+        }
 
         AnnotatedTypeInfo typeInfo = new AnnotatedTypeInfo(getTypeMapping(), info.getTypeClass(), typeName
             .getNamespaceURI());
@@ -234,11 +256,13 @@ public class Java5TypeCreator extends AbstractTypeCreator {
 
     private QName createQName(Class typeClass, String name, String ns) {
         String clsName = typeClass.getName();
-        if (name == null || name.length() == 0)
+        if (name == null || name.length() == 0) {
             name = ServiceUtils.makeServiceNameFromClassName(typeClass);
+        }
 
-        if (ns == null || ns.length() == 0)
+        if (ns == null || ns.length() == 0) {
             ns = NamespaceHelper.makeNamespaceFromClassName(clsName, "http");
+        }
 
         return new QName(ns, name);
     }

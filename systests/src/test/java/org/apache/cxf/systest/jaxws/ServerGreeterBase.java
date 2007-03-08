@@ -22,9 +22,9 @@ package org.apache.cxf.systest.jaxws;
 import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.greeter_control.GreeterImplBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class ServerGreeterBase extends TestServerBase {
+public class ServerGreeterBase extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new GreeterImplBase();

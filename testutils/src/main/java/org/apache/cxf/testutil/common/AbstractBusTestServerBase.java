@@ -17,12 +17,11 @@
  * under the License.
  */
 
-package org.apache.cxf.systest.common;
+package org.apache.cxf.testutil.common;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.testutil.common.AbstractTestServerBase;
 
-public abstract class TestServerBase extends AbstractTestServerBase {
+public abstract class AbstractBusTestServerBase extends AbstractTestServerBase {
     
     private Bus bus;
     

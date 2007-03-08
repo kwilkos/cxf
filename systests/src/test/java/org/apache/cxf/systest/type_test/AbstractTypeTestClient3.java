@@ -74,12 +74,11 @@ import org.apache.type_test.types3.OccuringChoice2;
 import org.apache.type_test.types3.OccuringStruct;
 import org.apache.type_test.types3.OccuringStruct1;
 import org.apache.type_test.types3.OccuringStruct2;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
-    public AbstractTypeTestClient3(String name) {
-        super(name);
-    }
  
     protected boolean equals(ChoiceOfChoice x, ChoiceOfChoice y) {
         if (x.getVarInt() != null && y.getVarInt() != null) {
@@ -96,7 +95,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return false;
     }
-    
+
+    @Test
     public void testChoiceOfChoice() throws Exception {
         ChoiceOfChoice x = new ChoiceOfChoice();
         ChoiceOfChoice yOrig = new ChoiceOfChoice();
@@ -137,6 +137,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return false;
     }
 
+    @Test
     public void testChoiceOfSeq() throws Exception {
         ChoiceOfSeq x = new ChoiceOfSeq();
         x.setVarInt(123);
@@ -173,7 +174,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && (x.getAttrString1().equals(y.getAttrString1()))
             && (x.getAttrString2().equals(y.getAttrString2()));
     }
-    
+
+    @Test
     public void testDerivedStructBaseStruct() throws Exception {
         DerivedStructBaseStruct x = new DerivedStructBaseStruct();
         //Base
@@ -224,7 +226,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && (x.getVarStringExt().equals(y.getVarStringExt()))
             && (x.getAttrString().equals(y.getAttrString()));
     }
-    
+
+    @Test
     public void testDerivedStructBaseChoice() throws Exception {
         DerivedStructBaseChoice x = new DerivedStructBaseChoice();
         //Base
@@ -271,7 +274,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return isEquals && equals((SimpleStruct)x, (SimpleStruct)y);
     }
-    
+
+    @Test
     public void testDerivedChoiceBaseStruct() throws Exception {
         DerivedChoiceBaseStruct x = new DerivedChoiceBaseStruct();
         //Base
@@ -324,7 +328,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return isEquals && equals((UnboundedArray)x, (UnboundedArray)y);
     }
-    
+
+    @Test
     public void testDerivedChoiceBaseArray() throws Exception {
         DerivedChoiceBaseArray x = new DerivedChoiceBaseArray();
         //Base
@@ -372,7 +377,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return isEquals && equals((SimpleChoice)x, (SimpleChoice)y);
     }
-    
+
+    @Test
     public void testDerivedChoiceBaseChoice() throws Exception {
         DerivedChoiceBaseChoice x = new DerivedChoiceBaseChoice();
         //Base
@@ -413,7 +419,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return equals((SimpleStruct)x, (SimpleStruct)y)
             && x.getVarAttrString().equals(y.getVarAttrString());
     }
-    
+
+    @Test
     public void testDerivedNoContent() throws Exception {
         DerivedNoContent x = new DerivedNoContent();
         x.setVarFloat(3.14f);
@@ -453,7 +460,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && (x.getVarStringExt().equals(y.getVarStringExt()))
             && (x.getAttrString().equals(y.getAttrString()));
     }
-    
+
+    @Test
     public void testDerivedStructBaseEmpty() throws Exception {
         DerivedStructBaseEmpty x = new DerivedStructBaseEmpty();
         //Derived
@@ -488,6 +496,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     //org.apache.type_test.types1.DerivedEmptyBaseEmptyAll
 
+    @Test
     public void testDerivedEmptyBaseEmptyAll() throws Exception {
         DerivedEmptyBaseEmptyAll x = new DerivedEmptyBaseEmptyAll();
         DerivedEmptyBaseEmptyAll yOrig = new DerivedEmptyBaseEmptyAll();
@@ -509,6 +518,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     //org.apache.type_test.types1.DerivedEmptyBaseEmptyChoice
 
+    @Test
     public void testDerivedEmptyBaseEmptyChoice() throws Exception {
         DerivedEmptyBaseEmptyChoice x = new DerivedEmptyBaseEmptyChoice();
         DerivedEmptyBaseEmptyChoice yOrig = new DerivedEmptyBaseEmptyChoice();
@@ -538,7 +548,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
                 && x.getVarInt().compareTo(y.getVarInt()) == 0;
         }
     }
-    
+
+    @Test
     public void testRestrictedChoiceBaseChoice() throws Exception {
         RestrictedChoiceBaseChoice x = new RestrictedChoiceBaseChoice();
         x.setVarInt(12);
@@ -574,7 +585,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return x.getAttrInt().compareTo(y.getAttrInt()) == 0
             && x.getAttrString().equals(y.getAttrString());
     }
-    
+
+    @Test
     public void testComplexTypeWithAttributeGroup() throws Exception {
         ComplexTypeWithAttributeGroup x = new ComplexTypeWithAttributeGroup();
         x.setAttrInt(new BigInteger("123"));
@@ -610,7 +622,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && x.getAttrFloat().compareTo(y.getAttrFloat()) == 0
             && x.getAttrString().equals(y.getAttrString());
     }
-    
+
+    @Test
     public void testComplexTypeWithAttributeGroup1() throws Exception {
         ComplexTypeWithAttributeGroup1 x = new ComplexTypeWithAttributeGroup1();
         x.setAttrInt(new BigInteger("123"));
@@ -649,7 +662,8 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && Float.compare(x.getVarOtherFloat(), y.getVarOtherFloat()) == 0
             && x.getVarOtherString().equals(y.getVarOtherString());
     }
-    
+
+    @Test
     public void testSequenceWithGroupSeq() throws Exception {
         SequenceWithGroupSeq x = new SequenceWithGroupSeq();
         x.setVarInt(100);         
@@ -719,7 +733,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return true;
     }
-    
+    @Test
     public void testSequenceWithGroupChoice() throws Exception {
         SequenceWithGroupChoice x = new SequenceWithGroupChoice();
         x.setVarFloat(1.1f);
@@ -770,7 +784,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && Float.compare(x.getVarFloat(), y.getVarFloat()) == 0
             && x.getVarString().equals(y.getVarString());
     }
-    
+    @Test
     public void testSequenceWithGroups() throws Exception {
         SequenceWithGroups x = new SequenceWithGroups();
         x.setVarInt(100);
@@ -809,7 +823,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     protected boolean equals(SequenceWithOccuringGroup x, SequenceWithOccuringGroup y) {
         return equalsFloatIntStringList(x.getBatchElementsSeq(), y.getBatchElementsSeq());
     }
-    
+    @Test
     public void testSequenceWithOccuringGroup() throws Exception {
         SequenceWithOccuringGroup x = new SequenceWithOccuringGroup();
         x.getBatchElementsSeq().add(1.1f);
@@ -849,7 +863,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && Float.compare(x.getVarFloat(), y.getVarFloat()) == 0
             && x.getAttr1().equals(y.getAttr1());
     }
-    
+    @Test
     public void testGroupDirectlyInComplexType() throws Exception {
         GroupDirectlyInComplexType x = new GroupDirectlyInComplexType();
         x.setVarInt(100);
@@ -889,6 +903,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             && x.getAttrString().equals(y.getAttrString());
     }
 
+    @Test
     public void testComplexTypeWithAttributes() throws Exception {
         ComplexTypeWithAttributes x = new ComplexTypeWithAttributes();
         x.setAttrInt(new BigInteger("123"));
@@ -952,7 +967,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
             }
         }
     }
-    
+    @Test
     public void testStructWithAny() throws Exception {
         StructWithAny swa = new StructWithAny();
         swa.setName("Name");
@@ -992,6 +1007,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
+    @Test
     public void testStructWithAnyXsi() throws Exception {
         StructWithAny swa = new StructWithAny();
         swa.setName("Name");
@@ -1039,6 +1055,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     // StructWithInvalidAny
     // XXX - no exception thrown
+    @Test
     public void testStructWithInvalidAny() throws Exception {
         StructWithAny swa = new StructWithAny();
         swa.setName("Name");
@@ -1090,6 +1107,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
+    @Test
     public void testStructWithAnyArray() throws Exception {
         StructWithAnyArray swa = new StructWithAnyArray();
         swa.setName("Name");
@@ -1131,6 +1149,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
 
     // StructWithInvalidAnyArray
     // XXX - no exception thrown
+    @Test
     public void testStructWithInvalidAnyArray() throws Exception {
         StructWithAnyArray swa = new StructWithAnyArray();
         swa.setName("Name");
@@ -1168,10 +1187,14 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
+    @Test
+    @Ignore
     public void testStructWithAnyStrict() throws Exception {
         // XXX - only added to the soap typetest
     }
 
+    @Test
+    @Ignore
     public void testStructWithAnyArrayLax() throws Exception {
         // XXX - only added to the soap typetest
     }
@@ -1182,6 +1205,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return equalsNilable(x.getId(), y.getId());
     }
 
+    @Test
     public void testIDTypeAttribute() throws Exception {
         // n.b. to be valid elements with an ID in the response message
         // must have a unique ID, so this test does not return x as the
@@ -1224,6 +1248,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
+    @Test
     public void testMultipleOccursSequenceInSequence() throws Exception {
         MultipleOccursSequenceInSequence x = new MultipleOccursSequenceInSequence();
         x.getValue().add(new BigInteger("32"));
@@ -1259,7 +1284,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return Arrays.equals(x.getBase64(), y.getBase64())
             && Arrays.equals(x.getHex(), y.getHex());
     }
-    
+    @Test
     public void testStructWithBinary() throws Exception {
         StructWithBinary x = new StructWithBinary();
         x.setBase64("base64Binary_x".getBytes());
@@ -1301,6 +1326,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
     }
 
+    @Test
     public void testChoiceWithBinary() throws Exception {
         ChoiceWithBinary x = new ChoiceWithBinary();
         x.setBase64("base64Binary_x".getBytes());
@@ -1354,6 +1380,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     }
 
     // XXX - Generated code flattens nested choice
+    @Test
     public void testChoiceWithGroupChoice() throws Exception {
         ChoiceWithGroupChoice x = new ChoiceWithGroupChoice();
         x.setVarFloat(1.1f);
@@ -1408,6 +1435,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     }
     
     // XXX - Generated code flattens nested structs
+    @Test
     public void testChoiceWithGroupSeq() throws Exception {
         ChoiceWithGroupSeq x = new ChoiceWithGroupSeq();
         x.setVarInt(100);
@@ -1465,6 +1493,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
     }
     
     // XXX - Generated code flattens nested structs
+    @Test
     public void testChoiceWithGroups() throws Exception {
         ChoiceWithGroups x = new ChoiceWithGroups();
         x.setVarInt(100);
@@ -1500,6 +1529,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return x.getId() == y.getId() && Arrays.equals(x.getValue(), y.getValue());
     }
 
+    @Test
     public void testExtBase64Binary() throws Exception {
         ExtBase64Binary x1 = new ExtBase64Binary();
         x1.setValue("base64a".getBytes());
@@ -1570,6 +1600,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
+    @Test
     public void testStructWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
         QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
@@ -1648,6 +1679,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return equalsQNameStringPairs(x.getOtherAttributes(), y.getOtherAttributes());
     }
 
+    @Test
     public void testChoiceWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
         QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
@@ -1735,7 +1767,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return true;
     }
-    
+    @Test
     public void testOccuringStruct() throws Exception {
         OccuringStruct x = new OccuringStruct();
         List<Serializable> theList = x.getVarFloatAndVarIntAndVarString(); 
@@ -1781,7 +1813,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return equalsFloatIntStringList(x.getVarFloatAndVarIntAndVarString(),
                                         y.getVarFloatAndVarIntAndVarString());
     }
-    
+    @Test
     public void testOccuringStruct1() throws Exception {
         OccuringStruct1 x = new OccuringStruct1();
         List<Serializable> theList = x.getVarFloatAndVarIntAndVarString(); 
@@ -1848,6 +1880,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
+    @Test
     public void testOccuringStruct2() throws Exception {
         OccuringStruct2 x = new OccuringStruct2();
         x.setVarFloat(1.14f);
@@ -1897,7 +1930,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return equalsFloatIntStringList(x.getVarFloatOrVarIntOrVarString(),
                                         y.getVarFloatOrVarIntOrVarString());
     }
-    
+    @Test
     public void testOccuringChoice() throws Exception {
         OccuringChoice x = new OccuringChoice();
         List<Serializable> theList = x.getVarFloatOrVarIntOrVarString();
@@ -1985,7 +2018,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         }
         return true;
     }
-    
+    @Test
     public void testOccuringChoice1() throws Exception {
         OccuringChoice1 x = new OccuringChoice1();
         List<Comparable> theList = x.getVarFloatOrVarInt();
@@ -2029,6 +2062,7 @@ public abstract class AbstractTypeTestClient3 extends AbstractTypeTestClient2 {
         return true;
     }
 
+    @Test
     public void testOccuringChoice2() throws Exception {
         OccuringChoice2 x = new OccuringChoice2();
         x.setVarString("x1");

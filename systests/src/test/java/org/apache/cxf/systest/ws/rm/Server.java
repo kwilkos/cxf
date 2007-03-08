@@ -25,9 +25,9 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
    
     private static final String ADDRESS = "http://localhost:9001/SoapContext/ControlPort";
  

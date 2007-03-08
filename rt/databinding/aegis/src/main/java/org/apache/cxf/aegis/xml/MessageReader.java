@@ -28,49 +28,50 @@ import javax.xml.stream.XMLStreamReader;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public interface MessageReader {
-    public String getValue();
+    
+    String getValue();
 
-    public boolean isXsiNil();
+    boolean isXsiNil();
 
-    public int getValueAsInt();
+    int getValueAsInt();
 
-    public long getValueAsLong();
+    long getValueAsLong();
 
-    public double getValueAsDouble();
+    double getValueAsDouble();
 
-    public float getValueAsFloat();
+    float getValueAsFloat();
 
-    public boolean getValueAsBoolean();
+    boolean getValueAsBoolean();
 
-    public char getValueAsCharacter();
+    char getValueAsCharacter();
 
-    public MessageReader getAttributeReader(QName qName);
+    MessageReader getAttributeReader(QName qName);
 
-    public boolean hasMoreAttributeReaders();
+    boolean hasMoreAttributeReaders();
 
-    public MessageReader getNextAttributeReader();
+    MessageReader getNextAttributeReader();
 
-    public boolean hasMoreElementReaders();
+    boolean hasMoreElementReaders();
 
-    public MessageReader getNextElementReader();
+    MessageReader getNextElementReader();
 
-    public QName getName();
+    QName getName();
 
     /**
      * Get the local name of the element this reader represents.
      * 
      * @return Local Name
      */
-    public String getLocalName();
+    String getLocalName();
 
     /**
      * @return Namespace
      */
-    public String getNamespace();
+    String getNamespace();
 
-    public String getNamespaceForPrefix(String prefix);
+    String getNamespaceForPrefix(String prefix);
 
-    public XMLStreamReader getXMLStreamReader();
+    XMLStreamReader getXMLStreamReader();
 
-    public void readToEnd();
+    void readToEnd();
 }

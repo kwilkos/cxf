@@ -22,10 +22,12 @@ package org.apache.cxf.staxutils;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class FragmentStreamReaderTest extends TestCase {
+public class FragmentStreamReaderTest extends Assert {
 
+    @Test
     public void testReader() throws Exception {
         XMLInputFactory ifactory = StaxUtils.getXMLInputFactory();
         XMLStreamReader reader = 

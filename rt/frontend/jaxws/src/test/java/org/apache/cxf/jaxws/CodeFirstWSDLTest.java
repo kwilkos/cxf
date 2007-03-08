@@ -35,6 +35,7 @@ import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.junit.Test;
 
 public class CodeFirstWSDLTest extends AbstractJaxWsTest {
     String address = "local://localhost:9000/Hello";
@@ -66,6 +67,7 @@ public class CodeFirstWSDLTest extends AbstractJaxWsTest {
         return wsdlBuilder.build();
     }
 
+    @Test
     public void testWSDL1() throws Exception {
         Definition d = createService(Hello2.class);
 
@@ -89,6 +91,7 @@ public class CodeFirstWSDLTest extends AbstractJaxWsTest {
         assertEquals(2, portType.getOperations().size());
     }
 
+    @Test
     public void testWSDL2() throws Exception {
         Definition d = createService(Hello3.class);
 

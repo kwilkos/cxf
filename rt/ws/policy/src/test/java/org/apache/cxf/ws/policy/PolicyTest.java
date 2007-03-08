@@ -24,22 +24,22 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.ws.policy.builder.primitive.PrimitiveAssertion;
 import org.apache.neethi.All;
 import org.apache.neethi.Assertion;
 import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyTest extends TestCase {
+public class PolicyTest extends Assert {
  
-    public void testNothing() {
-    }
-    
+    @Test
     public void testContains() {
         List<Assertion> alt1 = new ArrayList<Assertion>();
         Assertion a11 = new PrimitiveAssertion(new QName("http://x.y.z", "a1"));
@@ -55,7 +55,9 @@ public class PolicyTest extends TestCase {
                    PolicyUtils.contains(alt1, alt2));    
     }
     
-    public void xtestMergeIdentical() {
+    @Test
+    @Ignore
+    public void testMergeIdentical() {
         Policy p1 = new Policy();
         Assertion a1 = new TestAssertion(new QName("http://x.y.z", "a"));
         p1.addPolicyComponent(a1);
@@ -88,7 +90,9 @@ public class PolicyTest extends TestCase {
         PolicyUtils.printPolicyComponent(p.normalize(true));    
     }
     
-    public void xtestNormalisePrimitives() {
+    @Test
+    @Ignore
+    public void testNormalisePrimitives() {
         Policy p;
         /*
         p = getOneOptionalAssertion();
@@ -103,7 +107,9 @@ public class PolicyTest extends TestCase {
      
     }  
     
-    public void xtestMergePolciesWithAlternatives() {
+    @Test
+    @Ignore
+    public void testMergePolciesWithAlternatives() {
         String uri1 = "http://x.y.z";
         Policy p1 = new Policy();
         ExactlyOne ea = new ExactlyOne();

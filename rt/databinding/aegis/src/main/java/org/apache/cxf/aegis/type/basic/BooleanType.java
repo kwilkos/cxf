@@ -29,7 +29,7 @@ import org.apache.cxf.aegis.xml.MessageWriter;
 public class BooleanType extends Type {
     @Override
     public Object readObject(MessageReader reader, Context context) {
-        return new Boolean(reader.getValueAsBoolean());
+        return Boolean.valueOf(reader.getValueAsBoolean());
     }
 
     @Override

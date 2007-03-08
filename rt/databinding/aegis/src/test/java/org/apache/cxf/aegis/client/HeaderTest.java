@@ -25,43 +25,37 @@ import javax.xml.ws.Holder;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.aegis.databinding.AegisDatabinding;
 import org.apache.cxf.aegis.util.XmlConstants;
-import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
-import org.apache.cxf.wsdl.WSDLBuilder;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class HeaderTest extends AbstractAegisTest
-{   
-    public void setUp()
-            throws Exception
-    {
+public class HeaderTest extends AbstractAegisTest {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
         ReflectionServiceFactoryBean factory = new ReflectionServiceFactoryBean() {
-            public boolean isHeader(Method method, int j)
-            {
+            public boolean isHeader(Method method, int j) {
                 return true;
             }
 
-            protected boolean isInParam(Method method, int j)
-            {
+            protected boolean isInParam(Method method, int j) {
                 return j == 0;
             }
 
-            protected boolean isOutParam(Method method, int j)
-            {
+            protected boolean isOutParam(Method method, int j) {
                 return j == -1 || j == 1;
             }
-            
+
         };
-        
+
         factory.setInvoker(new BeanInvoker(new EchoImpl()));
-        
+
         ServerFactoryBean svrFac = new ServerFactoryBean();
         svrFac.setAddress("Echo");
         setupAegis(svrFac);
@@ -70,31 +64,27 @@ public class HeaderTest extends AbstractAegisTest
         svrFac.setBus(getBus());
         svrFac.create();
     }
-    
-    public void testHeaders() throws Exception
-    {
-        // not working yet
-    }
-    public void xtestHeaders() throws Exception
-    {
+
+    @Test
+    @Ignore
+    public void testHeaders() throws Exception {
         ClientProxyFactoryBean proxyFac = new ClientProxyFactoryBean();
         proxyFac.setAddress("Echo");
         proxyFac.setServiceClass(Echo.class);
         proxyFac.setBus(getBus());
         setupAegis(proxyFac.getClientFactoryBean());
-        
-        Echo echo = (Echo) proxyFac.create();
-        
-        
+
+        Echo echo = (Echo)proxyFac.create();
+
         Holder<String> h = new Holder<String>();
         assertEquals("hi", echo.echo("hi", h));
         assertEquals("header2", h.value);
-        
+
         Document wsdl = getWSDLDocument("Echo");
 
         addNamespace("wsdlsoap", XmlConstants.WSDL11_NS);
         assertValid("//wsdl:input/wsdlsoap:header[@message='tns:echoRequestHeaders'][@part='in0']", wsdl);
         assertValid("//wsdl:output/wsdlsoap:header[@message='tns:echoResponseHeaders'][@part='out']", wsdl);
         assertValid("//wsdl:output/wsdlsoap:header[@message='tns:echoResponseHeaders'][@part='out0']", wsdl);
-    }   
+    }
 }

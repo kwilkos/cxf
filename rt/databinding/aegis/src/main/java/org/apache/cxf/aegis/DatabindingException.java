@@ -28,8 +28,10 @@ import java.io.PrintWriter;
  * @since Feb 14, 2004
  */
 public class DatabindingException extends RuntimeException {
+    
     private final Throwable cause;
     private String message2;
+    
 
     /**
      * Constructs a new exception with the specified detail

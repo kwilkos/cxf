@@ -38,6 +38,8 @@ import org.apache.cxf.transport.Destination;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.types.SayHi;
 import org.apache.hello_world_soap_http.types.SayHiResponse;
+import org.junit.Before;
+import org.junit.Test;
 
 
 public class DispatchTest extends AbstractJaxWsTest {
@@ -46,16 +48,15 @@ public class DispatchTest extends AbstractJaxWsTest {
     private final String address = "http://localhost:9000/SoapContext/SoapPort";
     private Destination d;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
         ei.setAddress(address);
 
         d = localTransport.getDestination(ei);
     }
     
+    @Test
     public void testJAXB() throws Exception {
         d.setMessageObserver(new MessageReplayObserver("/org/apache/cxf/jaxws/sayHiResponse.xml"));
         
@@ -75,6 +76,7 @@ public class DispatchTest extends AbstractJaxWsTest {
         assertTrue(response instanceof SayHiResponse);
     }
     
+    @Test
     public void testDOMSource() throws Exception {
         ServiceImpl service = 
             new ServiceImpl(getBus(), 

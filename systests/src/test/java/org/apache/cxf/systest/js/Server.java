@@ -23,9 +23,9 @@ import java.io.File;
 import java.net.URLDecoder;
 
 import org.apache.cxf.js.rhino.ProviderFactory;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
     protected void run()  {
         

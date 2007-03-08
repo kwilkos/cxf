@@ -24,9 +24,11 @@ import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.junit.Test;
 
 public class RountripTest extends AbstractSimpleFrontendTest {
 
+    @Test
     public void testServerFactoryBean() throws Exception {
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");

@@ -25,17 +25,18 @@ import java.util.Set;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.management.InstrumentationManager;
 import org.apache.cxf.management.ManagementConstants;
 import org.apache.cxf.management.jmx.InstrumentationManagerImpl;
 import org.apache.cxf.workqueue.WorkQueueManager;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ManagedBusTest extends TestCase {
+public class ManagedBusTest extends Assert {
 
+    @Test
     public void testManagedSpringBus() throws Exception {
         SpringBusFactory factory = new SpringBusFactory();
         Bus bus = factory.createBus();        
@@ -53,6 +54,7 @@ public class ManagedBusTest extends TestCase {
         bus.shutdown(true);
     }
     
+    @Test
     public void testManagedBusWithConfig() throws Exception {
         SpringBusFactory factory = new SpringBusFactory();
         Bus bus = factory.createBus("org/apache/cxf/systest/management/managed-spring.xml", true);

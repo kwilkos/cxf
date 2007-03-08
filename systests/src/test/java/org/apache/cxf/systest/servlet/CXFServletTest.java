@@ -33,6 +33,8 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.junit.Ignore;
+import org.junit.Test;
 
 
 public class CXFServletTest extends AbstractServletTest {
@@ -54,6 +56,7 @@ public class CXFServletTest extends AbstractServletTest {
         
     }
     
+    @Test
     public void testPostInvokeServices() throws Exception {
         setupJaxwsService();
         
@@ -84,6 +87,7 @@ public class CXFServletTest extends AbstractServletTest {
         assertValid("//h:sayHiResponse", doc);        
     }
     
+    @Test
     public void testGetServiceList() throws Exception {
         ServletUnitClient client = newClient();
         setupJaxwsService();
@@ -96,6 +100,7 @@ public class CXFServletTest extends AbstractServletTest {
         assertEquals("text/html", res.getContentType());
     }
     
+    @Test
     public void testGetWSDL() throws Exception {
         ServletUnitClient client = newClient();
         setupJaxwsService();
@@ -110,6 +115,7 @@ public class CXFServletTest extends AbstractServletTest {
                    res.getText().contains("<wsdl:operation name=\"greetMe\">"));
     }
 
+    @Test
     public void testInvalidServiceUrl() throws Exception {
         ServletUnitClient client = newClient();
         client.setExceptionsThrownOnErrorStatus(false);
@@ -119,7 +125,9 @@ public class CXFServletTest extends AbstractServletTest {
         assertEquals("text/html", res.getContentType());
     }
 
-    public void xtestServiceWsdlNotFound() throws Exception {
+    @Test
+    @Ignore
+    public void testServiceWsdlNotFound() throws Exception {
         WebRequest req = new GetMethodWebRequest("http://localhost/services/NoSuchService?wsdl");
 
         expectErrorCode(req, 404, "Response code 404 required for invalid WSDL url.");

@@ -23,9 +23,9 @@ import java.net.URL;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class ValidationServer extends TestServerBase {
+public class ValidationServer extends AbstractBusTestServerBase {
 
     private String oldConfig;
 

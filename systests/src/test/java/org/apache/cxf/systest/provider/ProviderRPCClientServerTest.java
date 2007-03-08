@@ -24,23 +24,17 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_rpclit.GreeterRPCLit;
 import org.apache.hello_world_rpclit.SOAPServiceRPCLit;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ProviderRPCClientServerTest extends ClientServerTestBase {
+public class ProviderRPCClientServerTest extends AbstractBusClientServerTestBase {
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ProviderRPCClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
     private void doGreeterRPCLit(SOAPServiceRPCLit service, QName portName, int count) throws Exception {
@@ -62,6 +56,7 @@ public class ProviderRPCClientServerTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testSOAPMessageModeRPC() throws Exception {
 
         QName serviceName = new QName("http://apache.org/hello_world_rpclit", "SOAPServiceProviderRPCLit");
@@ -76,6 +71,7 @@ public class ProviderRPCClientServerTest extends ClientServerTestBase {
         doGreeterRPCLit(service, portName, 2);
     }
 
+    @Test
     public void testSOAPMessageModeWithDOMSourceData() throws Exception {
         QName serviceName = new QName("http://apache.org/hello_world_rpclit", "SOAPServiceProviderRPCLit");
         QName portName = new QName("http://apache.org/hello_world_rpclit", "SoapPortProviderRPCLit2");
@@ -89,6 +85,7 @@ public class ProviderRPCClientServerTest extends ClientServerTestBase {
         doGreeterRPCLit(service, portName, 2);
     }
 
+    @Test
     public void testPayloadModeWithDOMSourceData() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
@@ -102,6 +99,7 @@ public class ProviderRPCClientServerTest extends ClientServerTestBase {
         doGreeterRPCLit(service, portName, 1);
     }
 
+    @Test
     public void testMessageModeWithSAXSourceData() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
@@ -115,6 +113,7 @@ public class ProviderRPCClientServerTest extends ClientServerTestBase {
         doGreeterRPCLit(service, portName, 1);
     }
 
+    @Test
     public void testMessageModeWithStreamSourceData() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);
@@ -128,6 +127,7 @@ public class ProviderRPCClientServerTest extends ClientServerTestBase {
         doGreeterRPCLit(service, portName, 1);
     }
 
+    @Test
     public void testPayloadModeWithSAXSourceData() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_rpc_lit.wsdl");
         assertNotNull(wsdl);

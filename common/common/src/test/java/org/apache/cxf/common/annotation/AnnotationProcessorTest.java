@@ -30,11 +30,13 @@ import javax.annotation.Resource;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
-import junit.framework.TestCase;
 import org.easymock.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class AnnotationProcessorTest extends TestCase {
+public class AnnotationProcessorTest extends Assert {
 
     AnnotatedGreeterImpl greeterImpl = new AnnotatedGreeterImpl(); 
     AnnotationProcessor processor = new AnnotationProcessor(greeterImpl); 
@@ -42,10 +44,12 @@ public class AnnotationProcessorTest extends TestCase {
 
     AnnotationVisitor visitor = EasyMock.createMock(AnnotationVisitor.class);
     
+    @Before
     public void setUp() { 
         EasyMock.checkOrder(visitor, false); 
     } 
 
+    @Test
     public void testVisitClass() { 
 
         expectedAnnotations.add(WebService.class);
@@ -57,6 +61,7 @@ public class AnnotationProcessorTest extends TestCase {
         runProcessor(visitor);
     } 
 
+    @Test
     public void testVisitField() throws Exception { 
 
         Field expectedField = AnnotatedGreeterImpl.class.getDeclaredField("foo"); 
@@ -71,6 +76,7 @@ public class AnnotationProcessorTest extends TestCase {
         
     } 
 
+    @Test
     public void testVisitMethod() throws Exception {
 
         Field expectedField = AnnotatedGreeterImpl.class.getDeclaredField("foo"); 
@@ -97,15 +103,7 @@ public class AnnotationProcessorTest extends TestCase {
         runProcessor(visitor);
     }
 
-    public void testVisitMemberOverrideIgnoresClass() { 
-    } 
-
-    public void testVisitSuperClassAnnotations() {
-    }
-
-    public void testVisitDerivedClassMemberNoAnnotation() {
-    }
-
+    @Test
     public void testProcessorInvalidConstructorArgs() { 
         
         try {
@@ -117,6 +115,7 @@ public class AnnotationProcessorTest extends TestCase {
 
     }
 
+    @Test
     public void testProcessorInvalidAcceptArg() { 
 
         try {

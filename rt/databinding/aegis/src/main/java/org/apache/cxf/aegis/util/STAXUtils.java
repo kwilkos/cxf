@@ -57,17 +57,21 @@ import org.apache.cxf.common.classloader.ClassLoaderUtils;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Oct 26, 2004
  */
-public class STAXUtils {
+public final class STAXUtils {
     private static final String XML_NS = "http://www.w3.org/2000/xmlns/";
 
-    private final static Log logger = LogFactory.getLog(STAXUtils.class);
+    private static final Log LOG = LogFactory.getLog(STAXUtils.class);
 
-    private final static XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-    private final static XMLOutputFactory xmlOututFactory = XMLOutputFactory.newInstance();
+    private static final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+    private static final XMLOutputFactory xmlOututFactory = XMLOutputFactory.newInstance();
+    
+    private static final Map<String, Object> factories = new HashMap<String, Object>();
     private static boolean inFactoryConfigured;
 
-    private final static Map<String, Object> factories = new HashMap<String, Object>();
 
+    private STAXUtils() {
+        //utility class
+    }
     /**
      * Returns true if currently at the start of an element, otherwise move
      * forwards to the next element start and return true, otherwise false is
@@ -291,7 +295,7 @@ public class STAXUtils {
         }
 
         String decUri = writer.getNamespaceContext().getNamespaceURI(prefix);
-        boolean declareNamespace = (decUri == null || !decUri.equals(ns));
+        boolean declareNamespace = decUri == null || !decUri.equals(ns);
 
         if (ns == null || ns.length() == 0) {
             writer.writeStartElement(localName);
@@ -311,13 +315,13 @@ public class STAXUtils {
                 name = name.substring(prefixIndex + 1);
             }
 
-            if (attrPrefix.equals("xmlns")) {
+            if ("xmlns".equals(attrPrefix)) {
                 writer.writeNamespace(name, attr.getNodeValue());
                 if (name.equals(prefix) && attr.getNodeValue().equals(ns)) {
                     declareNamespace = false;
                 }
             } else {
-                if (name.equals("xmlns") && attrPrefix.equals("")) {
+                if ("xmlns".equals(name) && "".equals(attrPrefix)) {
                     writer.writeNamespace("", attr.getNodeValue());
                     if (attr.getNodeValue().equals(ns)) {
                         declareNamespace = false;
@@ -341,7 +345,9 @@ public class STAXUtils {
         writer.writeEndElement();
     }
 
-    public static void writeNode(Node n, XMLStreamWriter writer, boolean repairing) throws XMLStreamException {
+    public static void writeNode(Node n,
+                                 XMLStreamWriter writer,
+                                 boolean repairing) throws XMLStreamException {
         if (n instanceof Element) {
             writeElement((Element)n, writer, repairing);
         } else if (n instanceof Text) {
@@ -642,7 +648,7 @@ public class STAXUtils {
             factoryClass = ClassLoaderUtils.loadClass(factory, ctx.getClass());
             return factoryClass.newInstance();
         } catch (Exception e) {
-            logger.error("Can't create factory for class : " + factory, e);
+            LOG.error("Can't create factory for class : " + factory, e);
             throw new DatabindingException("Can't create factory for class : " + factory);
         }
     }

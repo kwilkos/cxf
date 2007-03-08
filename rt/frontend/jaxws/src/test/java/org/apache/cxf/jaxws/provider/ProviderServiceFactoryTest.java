@@ -38,8 +38,10 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.HWSoapMessageProvider;
+import org.junit.Test;
 
 public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
+    @Test
     public void testFromWSDL() throws Exception {
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(resource);
@@ -74,6 +76,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
             .getProperty(AbstractBindingFactory.DATABINDING_DISABLED));
     }
 
+    @Test
     public void testXMLBindingFromCode() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(DOMSourcePayloadProvider.class);
@@ -107,6 +110,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         assertValid("/j:sayHi", res);
     }
 
+    @Test
     public void testSOAPBindingFromCode() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(SOAPSourcePayloadProvider.class);
@@ -147,6 +151,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         assertValid("/s:Envelope/s:Body/j:sayHi", res);
     }
     
+    @Test
     public void testSAAJProviderCodeFirst() throws Exception {
         JaxWsServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         bean.setServiceClass(SAAJProvider.class);
@@ -184,6 +189,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
         assertValid("/s:Envelope/s:Body/j:sayHi", res);
     }
     
+    @Test
     public void testStreamSourceProviderCodeFirst() throws Exception {
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
         svrFactory.setServiceClass(StreamSourcePayloadProvider.class);
@@ -200,6 +206,7 @@ public class ProviderServiceFactoryTest extends AbstractJaxWsTest {
     }
     
 
+    @Test
     public void testSourceMessageProviderCodeFirst() throws Exception {
         JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
         svrFactory.setServiceClass(SourceMessageProvider.class);

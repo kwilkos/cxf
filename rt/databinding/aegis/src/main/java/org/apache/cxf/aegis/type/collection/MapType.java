@@ -52,17 +52,17 @@ public class MapType extends Type {
         this.valueType = valueType;
 
         setSchemaType(schemaType);
-        setKeyName(new QName(schemaType.getNamespaceURI(), "key"));
-        setValueName(new QName(schemaType.getNamespaceURI(), "value"));
-        setEntryName(new QName(schemaType.getNamespaceURI(), "entry"));
+        keyName = new QName(schemaType.getNamespaceURI(), "key");
+        valueName = new QName(schemaType.getNamespaceURI(), "value");
+        entryName = new QName(schemaType.getNamespaceURI(), "entry");
     }
 
     @Override
     public Object readObject(MessageReader reader, Context context) throws DatabindingException {
         Map<Object, Object> map = instantiateMap();
         try {
-            Type keyType = getKeyType();
-            Type valueType = getValueType();
+            Type kType = getKeyType();
+            Type vType = getValueType();
 
             Object key = null;
             Object value = null;
@@ -75,9 +75,9 @@ public class MapType extends Type {
                         MessageReader evReader = entryReader.getNextElementReader();
 
                         if (evReader.getName().equals(getKeyName())) {
-                            key = keyType.readObject(evReader, context);
+                            key = kType.readObject(evReader, context);
                         } else if (evReader.getName().equals(getValueName())) {
-                            value = valueType.readObject(evReader, context);
+                            value = vType.readObject(evReader, context);
                         } else {
                             readToEnd(evReader);
                         }
@@ -132,7 +132,9 @@ public class MapType extends Type {
     }
 
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object,
+                            MessageWriter writer,
+                            Context context) throws DatabindingException {
         if (object == null) {
             return;
         }
@@ -140,32 +142,33 @@ public class MapType extends Type {
         try {
             Map map = (Map)object;
 
-            Type keyType = getKeyType();
-            Type valueType = getValueType();
+            Type kType = getKeyType();
+            Type vType = getValueType();
 
             for (Iterator itr = map.entrySet().iterator(); itr.hasNext();) {
                 Map.Entry entry = (Map.Entry)itr.next();
 
-                writeEntry(writer, context, keyType, valueType, entry);
+                writeEntry(writer, context, kType, vType, entry);
             }
         } catch (IllegalArgumentException e) {
             throw new DatabindingException("Illegal argument.", e);
         }
     }
 
-    private void writeEntry(MessageWriter writer, Context context, Type keyType, Type valueType,
+    private void writeEntry(MessageWriter writer, Context context,
+                            Type kType, Type vType,
                             Map.Entry entry) throws DatabindingException {
-        keyType = Aegis.getWriteType(context, entry.getKey(), keyType);
-        valueType = Aegis.getWriteType(context, entry.getValue(), valueType);
+        kType = Aegis.getWriteType(context, entry.getKey(), kType);
+        vType = Aegis.getWriteType(context, entry.getValue(), vType);
 
         MessageWriter entryWriter = writer.getElementWriter(getEntryName());
 
         MessageWriter keyWriter = entryWriter.getElementWriter(getKeyName());
-        keyType.writeObject(entry.getKey(), keyWriter, context);
+        kType.writeObject(entry.getKey(), keyWriter, context);
         keyWriter.close();
 
         MessageWriter valueWriter = entryWriter.getElementWriter(getValueName());
-        valueType.writeObject(entry.getValue(), valueWriter, context);
+        vType.writeObject(entry.getValue(), valueWriter, context);
         valueWriter.close();
 
         entryWriter.close();
@@ -180,8 +183,8 @@ public class MapType extends Type {
         Element seq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
         complex.addContent(seq);
 
-        Type keyType = getKeyType();
-        Type valueType = getValueType();
+        Type kType = getKeyType();
+        Type vType = getValueType();
 
         Element element = new Element("element", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
         seq.addContent(element);
@@ -196,8 +199,8 @@ public class MapType extends Type {
         Element evseq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
         evComplex.addContent(evseq);
 
-        createElement(root, evseq, getKeyName(), keyType);
-        createElement(root, evseq, getValueName(), valueType);
+        createElement(root, evseq, getKeyName(), kType);
+        createElement(root, evseq, getValueName(), vType);
     }
 
     /**
@@ -220,7 +223,7 @@ public class MapType extends Type {
 
     @Override
     public Set<Type> getDependencies() {
-        HashSet<Type> deps = new HashSet<Type>();
+        Set<Type> deps = new HashSet<Type>();
         deps.add(getKeyType());
         deps.add(getValueType());
         return deps;

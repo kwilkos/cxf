@@ -18,15 +18,12 @@
  */
 package org.apache.cxf.aegis.services;
 
-public class EchoOverloadImpl implements EchoOverload
-{
-    public String echo( String echo )
-    {
+public class EchoOverloadImpl implements EchoOverload {
+    public String echo(String echo) {
         return echo;
     }
-    
-    public String echo( String echo, String echo2 )
-    {
+
+    public String echo(String echo, String echo2) {
         return echo + echo2;
     }
 }

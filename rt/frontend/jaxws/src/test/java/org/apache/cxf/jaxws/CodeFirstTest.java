@@ -39,10 +39,12 @@ import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
+import org.junit.Test;
 
 public class CodeFirstTest extends AbstractJaxWsTest {
     String address = "local://localhost:9000/Hello";
     
+    @Test
     public void testDocLitModel() throws Exception {
         Definition d = createService(false);
 
@@ -57,6 +59,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
                     wsdl);
     }
 
+    @Test
     public void testWrappedModel() throws Exception {
         Definition d = createService(true);
         
@@ -106,6 +109,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
     }
 
     
+    @Test
     public void testEndpoint() throws Exception {
         Hello service = new Hello();
 
@@ -131,6 +135,7 @@ public class CodeFirstTest extends AbstractJaxWsTest {
         assertValid("//s:Body/h:getGreetingsResponse/h:return/item", res);
     }
     
+    @Test
     public void testClient() throws Exception {
         Hello serviceImpl = new Hello();
         EndpointImpl ep = new EndpointImpl(getBus(), serviceImpl, (String) null);

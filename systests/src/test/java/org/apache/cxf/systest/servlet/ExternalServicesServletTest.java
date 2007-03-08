@@ -25,6 +25,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.junit.Test;
 
 public class ExternalServicesServletTest extends AbstractServletTest {
     
@@ -33,6 +34,7 @@ public class ExternalServicesServletTest extends AbstractServletTest {
         return "/org/apache/cxf/systest/servlet/web-external.xml";
     }
 
+    @Test
     public void testPostInvokeServices() throws Exception {
         newClient();
         

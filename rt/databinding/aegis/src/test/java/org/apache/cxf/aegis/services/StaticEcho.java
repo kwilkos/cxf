@@ -23,16 +23,13 @@ package org.apache.cxf.aegis.services;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class StaticEcho
-{
-    
-    public static String echoStatic( String echo )
-    {
+public class StaticEcho {
+
+    public static String echoStatic(String echo) {
         return echo;
     }
-    
-    public String echo( String echo )
-    {
+
+    public String echo(String echo) {
         return echo;
     }
 }

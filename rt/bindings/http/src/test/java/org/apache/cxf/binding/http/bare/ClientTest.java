@@ -33,8 +33,10 @@ import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.ServerImpl;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
+import org.junit.Test;
 
 public class ClientTest extends AbstractRestTest {
+    @Test
     public void testCreation() throws Exception {
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory(HttpBindingFactory.HTTP_BINDING_ID, new HttpBindingFactory());

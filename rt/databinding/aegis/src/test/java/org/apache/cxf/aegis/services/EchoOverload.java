@@ -18,9 +18,8 @@
  */
 package org.apache.cxf.aegis.services;
 
-public interface EchoOverload
-{
-    public String echo( String echo );
-    
-    public String echo( String echo, String echo2 );
+public interface EchoOverload {
+    String echo(String echo);
+
+    String echo(String echo, String echo2);
 }

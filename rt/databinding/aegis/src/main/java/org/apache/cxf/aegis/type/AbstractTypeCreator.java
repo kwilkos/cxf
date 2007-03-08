@@ -111,15 +111,12 @@ public abstract class AbstractTypeCreator implements TypeCreator {
     }
 
 
-    protected boolean isHolder(Class javaType)
-    {
+    protected boolean isHolder(Class javaType) {
         return javaType.equals(Holder.class);
     }
 
-    protected Type createHolderType(TypeClassInfo info)
-    {
-        if (info.getGenericType() == null)
-        {
+    protected Type createHolderType(TypeClassInfo info) {
+        if (info.getGenericType() == null) {
             throw new UnsupportedOperationException("To use holder types "
                     + "you must have an XML descriptor declaring the component type.");
         }
@@ -346,8 +343,8 @@ public abstract class AbstractTypeCreator implements TypeCreator {
         return typeConfiguration;
     }
 
-    public void setConfiguration(Configuration typeConfiguration) {
-        this.typeConfiguration = typeConfiguration;
+    public void setConfiguration(Configuration tpConfiguration) {
+        this.typeConfiguration = tpConfiguration;
     }
 
     public static class TypeClassInfo {
@@ -369,7 +366,7 @@ public abstract class AbstractTypeCreator implements TypeCreator {
 
         long minOccurs = -1;
         long maxOccurs = -1;
-        boolean flat = false;
+        boolean flat;
 
         public String getDescription() {
             return description;

@@ -28,8 +28,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.interceptor.Interceptor;
@@ -45,18 +43,23 @@ import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class EndpointPolicyInfoTest extends TestCase {
+public class EndpointPolicyInfoTest extends Assert {
 
     private IMocksControl control;
     
+    @Before
     public void setUp() {
-        control = EasyMock.createNiceControl();        
+        control = EasyMock.createNiceControl();
     } 
     
+    @Test
     public void testAccessors() {
         EndpointPolicyInfo epi = new EndpointPolicyInfo();
         assertNull(epi.getPolicy());
@@ -87,6 +90,7 @@ public class EndpointPolicyInfoTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testInitialise() throws NoSuchMethodException {
         Method m1 = EndpointPolicyInfo.class.getDeclaredMethod("initialisePolicy",
             new Class[] {EndpointInfo.class, PolicyEngine.class});
@@ -115,6 +119,7 @@ public class EndpointPolicyInfoTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testInitialisePolicy() {        
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         PolicyEngine engine = control.createMock(PolicyEngine.class);
@@ -135,6 +140,7 @@ public class EndpointPolicyInfoTest extends TestCase {
         control.verify();
     }
        
+    @Test
     public void testChooseAlternative() {
         EndpointPolicyInfo cpi = new EndpointPolicyInfo();
         cpi.setPolicy(new Policy());
@@ -191,10 +197,12 @@ public class EndpointPolicyInfoTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testInitialiseVocabularyServer() {
         dotestInitialiseVocabulary(false);
     }
     
+    @Test
     public void testInitialiseVocabularyClient() {
         dotestInitialiseVocabulary(true);
     }
@@ -276,10 +284,12 @@ public class EndpointPolicyInfoTest extends TestCase {
         }
     }
     
+    @Test
     public void testInitialiseInterceptorsServer() {
         doTestInitialiseInterceptors(false);
     }
     
+    @Test
     public void testInitialiseInterceptorsClient() {
         doTestInitialiseInterceptors(true);
     }
@@ -334,12 +344,5 @@ public class EndpointPolicyInfoTest extends TestCase {
         EasyMock.expect(bus.getExtension(PolicyInterceptorProviderRegistry.class)).andReturn(reg);
     }
     
-    public void testCheckEffectivePolicy() {
-        
-    }
-    
-    public void testCheckeffectiveFaultPolicy() {
-        
-    }
   
 }

@@ -33,36 +33,27 @@ import org.codehaus.xfire.aegis.inheritance.ws2.common.pack2.ContentBean2;
  * 
  * @author xfournet
  */
-public class WS2Impl
-    implements WS2
-{
-    private Map<String, ParentBean> m_map = new HashMap<String, ParentBean>();
+public class WS2Impl implements WS2 {
+    private Map<String, ParentBean> map = new HashMap<String, ParentBean>();
 
-    public WS2Impl()
-    {
+    public WS2Impl() {
         ParentBean x = new ParentBean("X", new ContentBean1("data1-X"));
         ParentBean y = new ParentBean("Y", new ContentBean2("data1-Y", "content2-Y"));
-        m_map.put(x.getId(), x);
-        m_map.put(y.getId(), y);
+        map.put(x.getId(), x);
+        map.put(y.getId(), y);
     }
 
-    public synchronized void putParentBean(ParentBean parentBean)
-        throws AlreadyExistsException
-    {
+    public synchronized void putParentBean(ParentBean parentBean) throws AlreadyExistsException {
         String id = parentBean.getId();
-        if (m_map.containsKey(id))
-        {
+        if (map.containsKey(id)) {
             throw new AlreadyExistsException(id);
         }
-        m_map.put(id, parentBean);
+        map.put(id, parentBean);
     }
 
-    public synchronized ParentBean getParentBean(String id)
-        throws NotFoundException
-    {
-        ParentBean result = m_map.get(id);
-        if (result == null)
-        {
+    public synchronized ParentBean getParentBean(String id) throws NotFoundException {
+        ParentBean result = map.get(id);
+        if (result == null) {
             throw new NotFoundException(id);
         }
 

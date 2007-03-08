@@ -23,66 +23,53 @@ package org.codehaus.xfire.aegis.inheritance.ws1;
  * 
  * @author xfournet
  */
-public class BeanC
-    extends BeanB
-{
-    private String m_propC;
-    private BeanD[] m_tabC;
+public class BeanC extends BeanB {
+    private String propC;
+    private BeanD[] tabC;
 
-    public String getPropC()
-    {
-        return m_propC;
+    public String getPropC() {
+        return propC;
     }
 
-    public void setPropC(String propC)
-    {
-        m_propC = propC;
+    public void setPropC(String propC) {
+        this.propC = propC;
     }
 
-    public BeanD[] getTabC()
-    {
-        return m_tabC;
+    public BeanD[] getTabC() {
+        return tabC;
     }
 
-    public void setTabC(BeanD[] tabC)
-    {
-        this.m_tabC = tabC;
+    public void setTabC(BeanD[] tabC) {
+        this.tabC = tabC;
     }
 
-    public String toString()
-    {
-        return super.toString() + " ; propC=" + m_propC;
+    public String toString() {
+        return super.toString() + " ; propC=" + propC;
     }
 
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
-        {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o))
-        {
+        if (!super.equals(o)) {
             return false;
         }
 
-        final BeanC beanC = (BeanC) o;
+        final BeanC beanC = (BeanC)o;
 
-        if ((m_propC != null) ? (!m_propC.equals(beanC.m_propC)) : (beanC.m_propC != null))
-        {
+        if ((propC != null) ? (!propC.equals(beanC.propC)) : (beanC.propC != null)) {
             return false;
         }
 
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         int result = super.hashCode();
-        result = 29 * result + (m_propC != null ? m_propC.hashCode() : 0);
+        result = 29 * result + (propC != null ? propC.hashCode() : 0);
         return result;
     }
 }

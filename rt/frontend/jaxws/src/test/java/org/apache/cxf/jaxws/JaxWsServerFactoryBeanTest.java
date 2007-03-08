@@ -21,8 +21,11 @@ package org.apache.cxf.jaxws;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.service.Hello;
 import org.apache.hello_world_doc_lit.GreeterImplDoc;
+import org.junit.Test;
 
 public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
+    
+    @Test
     public void testBean() {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setBus(getBus());
@@ -34,6 +37,7 @@ public class JaxWsServerFactoryBeanTest extends AbstractJaxWsTest {
         assertNotNull(server);
     }
     
+    @Test
     public void testBareGreeter() throws Exception {
         JaxWsServerFactoryBean sf = new JaxWsServerFactoryBean();
         sf.setBus(getBus());

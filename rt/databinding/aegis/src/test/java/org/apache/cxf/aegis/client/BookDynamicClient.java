@@ -32,8 +32,12 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.service.Service;
 
-public class BookDynamicClient {
+public final class BookDynamicClient {
     static final String ENCODED_NS = Soap11.getInstance().getSoapEncodingStyle();
+    
+    private BookDynamicClient() {
+        //utility class
+    }
 
     public static void main(String args[]) {
         // String serviceURL = "http://localhost:8080/BookService";

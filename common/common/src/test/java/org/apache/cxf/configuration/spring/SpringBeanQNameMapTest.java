@@ -25,13 +25,15 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.helpers.CastUtils;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SpringBeanQNameMapTest extends TestCase {
+public class SpringBeanQNameMapTest extends Assert {
 
+    @Test
     public void testPersons() {
         ClassPathXmlApplicationContext context = 
             new ClassPathXmlApplicationContext("org/apache/cxf/configuration/spring/beanQNameMap.xml");

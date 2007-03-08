@@ -19,13 +19,13 @@
 package org.apache.cxf.aegis.type;
 
 public class Configuration {
-    private boolean defaultExtensibleElements = false;
+    private boolean defaultExtensibleElements;
 
-    private boolean defaultExtensibleAttributes = false;
+    private boolean defaultExtensibleAttributes;
 
     private boolean defaultNillable = true;
 
-    private int defaultMinOccurs = 0;
+    private int defaultMinOccurs;
 
     public boolean isDefaultExtensibleAttributes() {
         return defaultExtensibleAttributes;

@@ -18,13 +18,12 @@
  */
 package org.apache.cxf.aegis.client;
 
-public interface BookService
-{
-    public Book[] getBooks();
+public interface BookService {
+    Book[] getBooks();
     
-    public Book findBook(String isbn);
+    Book findBook(String isbn);
     
-    public void addBook(Book book);
+    void addBook(Book book);
     
-    public void addBooks(Book[] books);
- }
+    void addBooks(Book[] books);
+}

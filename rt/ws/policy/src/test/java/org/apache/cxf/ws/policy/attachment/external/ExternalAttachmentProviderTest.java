@@ -29,8 +29,6 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -44,13 +42,16 @@ import org.apache.neethi.Assertion;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 /**
  * 
  */
-public class ExternalAttachmentProviderTest extends TestCase {
+public class ExternalAttachmentProviderTest extends Assert {
 
     private static final QName TEST_ASSERTION_TYPE = new QName("http://a.b.c", "x");
     
@@ -62,12 +63,13 @@ public class ExternalAttachmentProviderTest extends TestCase {
     private PolicyAttachment attachment;
     private Collection<PolicyAttachment> attachments = new ArrayList<PolicyAttachment>();
     
-    
+    @Before
     public void setUp() {
         eap = new ExternalAttachmentProvider();
         control = EasyMock.createNiceControl();  
     } 
     
+    @Test
     public void testBasic() {
         assertNull(eap.getLocation());
         Resource uri = control.createMock(Resource.class);
@@ -76,6 +78,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         
     }
     
+    @Test
     public void testGetEffectiveFaultPolicy() {
         BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
         setUpAttachment(bfi, false);
@@ -90,6 +93,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testGetEffectiveMessagePolicy() {
         BindingMessageInfo bmi = control.createMock(BindingMessageInfo.class);
         setUpAttachment(bmi, false);
@@ -104,6 +108,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testGetEffectiveOperationPolicy() {
         BindingOperationInfo boi = control.createMock(BindingOperationInfo.class);
         setUpAttachment(boi, false);
@@ -118,6 +123,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
 
+    @Test
     public void testGetEffectiveEndpointPolicy() {
         EndpointInfo ei = control.createMock(EndpointInfo.class);
         setUpAttachment(ei, false);
@@ -132,6 +138,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
 
+    @Test
     public void testGetEffectiveServicePolicy() {
         ServiceInfo si = control.createMock(ServiceInfo.class);
         setUpAttachment(si, false);
@@ -146,6 +153,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testReadDocumentNotExisting() throws MalformedURLException {
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments1.xml");
         String uri = url.toExternalForm();
@@ -159,6 +167,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         }
     }
     
+    @Test
     public void testReadDocumentWithoutAttachmentElements() throws MalformedURLException {
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments1.xml");
         String uri = url.toExternalForm();
@@ -167,6 +176,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         assertTrue(eap.getAttachments().isEmpty());
     }
     
+    @Test
     public void testReadDocumentAttachmentElementWithoutAppliesTo() throws MalformedURLException {
         URL url = ExternalAttachmentProviderTest.class.getResource("resources/attachments2.xml");
         String uri = url.toExternalForm();
@@ -175,6 +185,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         assertTrue(eap.getAttachments().isEmpty());
     }
     
+    @Test
     public void testReadDocumentUnknownDomainExpression() throws MalformedURLException {
         Bus bus = control.createMock(Bus.class);
         eap = new ExternalAttachmentProvider(bus);
@@ -196,6 +207,7 @@ public class ExternalAttachmentProviderTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testReadDocumentEPRDomainExpression() throws MalformedURLException {
         Bus bus = control.createMock(Bus.class);
         eap = new ExternalAttachmentProvider(bus);

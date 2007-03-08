@@ -22,7 +22,7 @@ import java.io.Writer;
 /**
  * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
  */
-public class Base64 {
+public final class Base64 {
     private static final char[] S_BASE64CHAR = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
                                                 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
                                                 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
@@ -41,6 +41,10 @@ public class Base64 {
         }
     }
 
+    private Base64() {
+        //utility
+    }
+    
     private static int decode0(char[] ibuf, byte[] obuf, int wp) {
         int outlen = 3;
         if (ibuf[3] == S_BASE64PAD) {

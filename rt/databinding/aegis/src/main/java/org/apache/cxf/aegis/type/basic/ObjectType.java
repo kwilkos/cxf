@@ -59,7 +59,7 @@ public class ObjectType extends Type {
 
     private Set<Type> dependencies;
     private boolean serializedWhenUnknown;
-    private boolean readToDocument = false;
+    private boolean readToDocument;
 
     @SuppressWarnings("unchecked")
     public ObjectType() {
@@ -164,7 +164,9 @@ public class ObjectType extends Type {
     }
 
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object,
+                            MessageWriter writer,
+                            Context context) throws DatabindingException {
         if (null == object) {
             MessageWriter nilWriter = writer.getAttributeWriter(XSI_NIL);
 

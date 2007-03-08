@@ -24,19 +24,20 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.common.i18n.BundleUtils;
 
 import org.easymock.IArgumentMatcher;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 
-public class LogUtilsTest extends TestCase {
+public class LogUtilsTest extends Assert {
     private static final Logger LOG = LogUtils.getL7dLogger(LogUtilsTest.class);
 
 
+    @Test
     public void testGetL7dLog() throws Exception {
         assertNotNull("expected non-null logger", LOG);
         assertEquals("unexpected resource bundle name",
@@ -48,6 +49,7 @@ public class LogUtilsTest extends TestCase {
                      otherLogger.getResourceBundleName());
     }
 
+    @Test
     public void testHandleL7dMessage() throws Exception {
         Handler handler = EasyMock.createNiceMock(Handler.class);
         LOG.addHandler(handler);
@@ -61,6 +63,7 @@ public class LogUtilsTest extends TestCase {
         LOG.removeHandler(handler);
     }
 
+    @Test
     public void testLogParamSubstitutionWithThrowable() throws Exception {
         Handler handler = EasyMock.createNiceMock(Handler.class);
         LOG.addHandler(handler);
@@ -76,6 +79,7 @@ public class LogUtilsTest extends TestCase {
         LOG.removeHandler(handler);
     }
 
+    @Test
     public void testLogParamsSubstitutionWithThrowable() throws Exception {
         Handler handler = EasyMock.createNiceMock(Handler.class);
         LOG.addHandler(handler);
@@ -90,7 +94,8 @@ public class LogUtilsTest extends TestCase {
         EasyMock.verify(handler);
         LOG.removeHandler(handler);
     }
-
+    
+    @Test
     public void testClassMethodNames() throws Exception {
         TestLogHandler handler = new TestLogHandler();
         LOG.addHandler(handler);

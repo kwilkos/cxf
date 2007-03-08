@@ -68,9 +68,10 @@ public class ByteArrayType extends AbstractXOPType {
         try {
             final byte[] buffer = new byte[8096];
 
-            int n = 0;
-            while (-1 != (n = input.read(buffer))) {
+            int n = input.read(buffer);
+            while (-1 != n) {
                 output.write(buffer, 0, n);
+                n = input.read(buffer);
             }
         } finally {
             output.close();

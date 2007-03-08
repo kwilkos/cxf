@@ -25,11 +25,6 @@ import java.util.List;
 import javax.wsdl.WSDLException;
 import javax.xml.namespace.QName;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.helpers.CastUtils;
@@ -55,11 +50,17 @@ import org.apache.neethi.PolicyComponent;
 import org.apache.neethi.util.PolicyComparator;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * 
  */
-public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
+public class Wsdl11AttachmentPolicyProviderTest extends Assert {
 
     private static final String NAMESPACE_URI = "http://apache.org/cxf/calculator";
     private static final QName OPERATION_NAME = new QName(NAMESPACE_URI, "add");
@@ -68,27 +69,9 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
     private Wsdl11AttachmentPolicyProvider app;
     private String originalNamespace;
     
+   
     
-    public static Test suite() {
-        TestSuite suite = new TestSuite(Wsdl11AttachmentPolicyProviderTest.class);
-        TestSetup wrapper = new TestSetup(suite) {
-
-            protected void setUp() {
-                try {
-                    oneTimeSetUp();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            protected void tearDown() {
-                oneTimeTearDown();
-            }
-        };
-
-        return wrapper;
-    }
-    
+    @BeforeClass
     public static void oneTimeSetUp() throws Exception {
         
         IMocksControl control = EasyMock.createNiceControl();
@@ -124,12 +107,14 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
 
     }
     
+    @AfterClass
     public static void oneTimeTearDown() {
         endpoints = null;
         services = null;
         
     }
     
+    @Before
     public void setUp() {
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
         AssertionBuilder ab = new XMLPrimitiveAssertionBuilder();
@@ -148,10 +133,13 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         PolicyConstants.setNamespace(PolicyConstants.NAMESPACE_XMLSOAP_200409);
     }
     
+    
+    @After
     public void tearDown() {
         PolicyConstants.setNamespace(originalNamespace);
     }
     
+    @Test
     public void testElementPolicies() throws WSDLException {
     
         Policy p;
@@ -190,6 +178,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         assertTrue(app.getElementPolicy(ei).isEmpty());
     }
     
+    @Test
     public void testEffectiveServicePolicies() throws WSDLException {
         
         Policy p;
@@ -232,6 +221,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         assertTrue(PolicyComparator.compare(p, ep));
     }
 
+    @Test
     public void testEffectiveEndpointPolicies() {
         Policy ep;
         Policy p;
@@ -292,6 +282,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         verifyAssertionsOnly(ep, 2);       
     }
     
+    @Test
     public void testEffectiveBindingOperationPolicies() {
         Policy ep;
         
@@ -323,6 +314,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         verifyAssertionsOnly(ep, 3);
     }
     
+    @Test
     public void testEffectiveMessagePolicies() {
         Policy ep;
         
@@ -362,6 +354,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         verifyAssertionsOnly(ep, 3);      
     }
     
+    @Test
     public void testResolveLocal() {
         
         Policy ep;
@@ -380,6 +373,7 @@ public class Wsdl11AttachmentPolicyProviderTest extends TestCase {
         }        
     }
     
+    @Test
     public void testResolveExternal() {
         // service has one extension of type PolicyReference, reference is external
         Policy p = app.getElementPolicy(services[17]);

@@ -27,18 +27,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class ClassLoaderResolverTest extends TestCase {
+public class ClassLoaderResolverTest extends Assert {
     private static final String RESOURCE_DATA = "this is the resource data"; 
 
     private String resourceName;
     private ClassLoaderResolver clr; 
-    
+
+    @Before
     public void setUp() throws IOException { 
         File resource = File.createTempFile("test", "resource");
         resource.deleteOnExit(); 
@@ -56,16 +58,19 @@ public class ClassLoaderResolverTest extends TestCase {
         clr = new ClassLoaderResolver(loader);
     } 
     
+    @After
     public void tearDown() {
         clr = null;
         resourceName = null;
     }
  
+    @Test
     public void testResolve() { 
         assertNull(clr.resolve(resourceName, null));
         assertNotNull(clr.resolve(resourceName, URL.class));
     } 
 
+    @Test
     public void testGetAsStream() throws IOException { 
         InputStream in = clr.getAsStream(resourceName);
         assertNotNull(in); 
@@ -76,11 +81,4 @@ public class ClassLoaderResolverTest extends TestCase {
         assertEquals("resource content incorrect", RESOURCE_DATA, content);
     } 
 
-    public static Test suite() {
-        return new TestSuite(ClassLoaderResolverTest.class);
-    }
-    
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {ClassLoaderResolverTest.class.getName()});
-    }
 }

@@ -32,7 +32,7 @@ import org.apache.cxf.aegis.util.XmlConstants;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class Aegis {
+public final class Aegis {
     public static final Log LOG = LogFactory.getLog(Aegis.class);
 
     public static final String CURRENT_MESSAGE_PART = "currentMessagePart";
@@ -45,6 +45,10 @@ public class Aegis {
 
     public static final String OVERRIDE_TYPES_KEY = "overrideTypesList";
 
+    private Aegis() {
+        //utility class
+    }
+    
     public static Type getReadType(XMLStreamReader xsr, Context context, Type type) {
         String overrideType = xsr.getAttributeValue(XmlConstants.XSI_NS, "type");
         if (overrideType != null) {

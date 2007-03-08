@@ -20,16 +20,20 @@
 package org.apache.cxf.jaxb;
 
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JAXBUtilsTest extends TestCase {
+
+public class JAXBUtilsTest extends Assert {
     
+    @Test
     public void testBuiltInTypeToJavaType() {
         assertEquals("boolean", JAXBUtils.builtInTypeToJavaType("boolean"));
         assertEquals("javax.xml.datatype.XMLGregorianCalendar", JAXBUtils.builtInTypeToJavaType("gYear"));
         assertNull(JAXBUtils.builtInTypeToJavaType("other"));
     }
 
+    @Test
     public void testPackageNames() {
         assertEquals("org.apache.cxf.configuration.types",
                      JAXBUtils.namespaceURIToPackage("http://cxf.apache.org/configuration/types"));
@@ -48,6 +52,7 @@ public class JAXBUtilsTest extends TestCase {
         assertEquals("types", JAXBUtils.namespaceURIToPackage("types"));
     } 
     
+    @Test
     public void testNameToIdentifier() {
         assertEquals("_return", 
                      JAXBUtils.nameToIdentifier("return", JAXBUtils.IdentifierType.VARIABLE));

@@ -18,21 +18,16 @@
  */
 package org.codehaus.xfire.aegis.inheritance.intf;
 
-public class InterfaceService
-    implements IInterfaceService
-{
-    public IChild getChild()
-    {
+public class InterfaceService implements IInterfaceService {
+    public IChild getChild() {
         return new ChildImpl();
     }
 
-    public IParent getChildViaParent()
-    {
+    public IParent getChildViaParent() {
         return getChild();
     }
 
-    public IGrandChild getGrandChild()
-    {
+    public IGrandChild getGrandChild() {
         return new GrandChildImpl();
     }
 }

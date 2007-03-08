@@ -23,12 +23,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.CastUtils;
+import org.junit.Assert;
+import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class SpringBeanMapTest extends TestCase {
+public class SpringBeanMapTest extends Assert {
+    @Test
     public void testPersons() {
         ClassPathXmlApplicationContext context = 
             new ClassPathXmlApplicationContext("org/apache/cxf/configuration/spring/beanMap.xml");

@@ -28,14 +28,15 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.Resources;
-import junit.framework.TestCase;
 
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.resource.ResourceResolver;
 
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ResourceInjectorTest extends TestCase {
+public class ResourceInjectorTest extends Assert {
     private static final String RESOURCE_ONE = "resource one";
     private static final String RESOURCE_TWO = "resource one";
 
@@ -57,26 +58,31 @@ public class ResourceInjectorTest extends TestCase {
         injector = new ResourceInjector(resMgr); 
     } 
 
+    @Test
     public void testFieldInjection() { 
         setUpResourceManager(FieldTarget.class.getCanonicalName() + "/");
         doInjectTest(new FieldTarget()); 
     }
 
+    @Test
     public void testSetterInjection() {
         setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
         doInjectTest(new SetterTarget()); 
     }
 
+    @Test
     public void testClassLevelInjection() {
         setUpResourceManager("");
         doInjectTest(new ClassTarget());
     }
 
+    @Test
     public void testResourcesContainer() {
         setUpResourceManager("");
         doInjectTest(new ResourcesContainerTarget()); 
     }
 
+    @Test
     public void testPostConstruct() { 
         setUpResourceManager(SetterTarget.class.getCanonicalName() + "/");
 
@@ -85,6 +91,7 @@ public class ResourceInjectorTest extends TestCase {
         assertTrue(target.injectionCompleteCalled()); 
     }
 
+    @Test
     public void testPreDestroy() { 
         injector = new ResourceInjector(null, null);
         SetterTarget target = new SetterTarget(); 

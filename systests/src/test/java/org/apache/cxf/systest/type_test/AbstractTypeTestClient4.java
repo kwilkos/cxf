@@ -65,12 +65,9 @@ import org.apache.type_test.types3.StructWithNillableChoice;
 import org.apache.type_test.types3.StructWithNillableStruct;
 import org.apache.type_test.types3.StructWithOccuringChoice;
 import org.apache.type_test.types3.StructWithOccuringStruct;
+import org.junit.Test;
 
 public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
-
-    public AbstractTypeTestClient4(String name) {
-        super(name);
-    }
 
     //org.apache.type_test.types2.SimpleContentExtWithAnyAttribute;
 
@@ -85,6 +82,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return equalsQNameStringPairs(x.getOtherAttributes(), y.getOtherAttributes());
     }
 
+    @Test
     public void testSimpleContentExtWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://apache.org/type_test", "at_one");
         QName xAt2Name = new QName("http://apache.org/type_test", "at_two");
@@ -139,6 +137,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return x.getVarInt().compareTo(y.getVarInt()) == 0;
     }
 
+    @Test
     public void testOccuringAll() throws Exception {
         OccuringAll x = new OccuringAll();
         x.setVarInt(new Integer(42));
@@ -200,6 +199,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return true;
     }
 
+    @Test
     public void testOccuringStructWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://apache.org/type_test", "at_one");
         QName xAt2Name = new QName("http://apache.org/type_test", "at_two");
@@ -267,6 +267,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return equalsQNameStringPairs(x.getOtherAttributes(), y.getOtherAttributes());
     }
 
+    @Test
     public void testOccuringChoiceWithAnyAttribute() throws Exception {
         QName xAt1Name = new QName("http://schemas.iona.com/type_test", "at_one");
         QName xAt2Name = new QName("http://schemas.iona.com/type_test", "at_two");
@@ -338,6 +339,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             && equals(x.getSeqA(), y.getSeqA());
     }
 
+    @Test
     public void testMRecSeqA() throws Exception {
         MRecSeqA xA = new MRecSeqA();
         MRecSeqA yA = new MRecSeqA();
@@ -400,6 +402,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             && equals(x.getSeqC(), y.getSeqC());
     }
 
+    @Test
     public void testMRecSeqC() throws Exception {
         MRecSeqC xC = new MRecSeqC();
         MRecSeqC yC = new MRecSeqC();
@@ -460,6 +463,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return x == null || x.getVarInt() == null && x.getVarString() == null;
     }
 
+    @Test
     public void testStructWithNillableChoice() throws Exception {
         // Test 1
         //
@@ -565,6 +569,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return x == null || x.getVarIntOrVarString().size() == 0;
     }
 
+    @Test
     public void testStructWithOccuringChoice() throws Exception {
         // Test 1
         //
@@ -710,6 +715,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return x.getVarInt() == null && x.getVarFloat() == null;
     }
 
+    @Test
     public void testStructWithNillableStruct() throws Exception {
         // Test 1
         //
@@ -841,6 +847,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
 
     
+    @Test
     public void testStructWithOccuringStruct() throws Exception {
         // Test 1
         //
@@ -907,6 +914,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
     }
 
+    @Test
     public void testStructWithOccuringStruct2() throws Exception {
         StructWithOccuringStruct x = new StructWithOccuringStruct();
         x.setVarInteger(100);
@@ -986,6 +994,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             && x.getFoo().getBar().equals(y.getFoo().getBar());
     }
 
+    @Test
     public void testAnonymousType() throws Exception {
         AnonymousType x = new AnonymousType();
         AnonymousType.Foo fx = new AnonymousType.Foo();
@@ -1050,6 +1059,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return true;
     }
 
+    @Test
     public void testRecSeqB6918() throws Exception {
         RecSeqB6918 x = new RecSeqB6918();
         List<Object> theList = x.getNextSeqAndVarInt();
@@ -1085,6 +1095,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
      *  cos-all-limited.1.2: An 'all' model group must appear in a particle with
      *  {min occurs} = {max occurs} = 1, and that particle must be part of a
      *  pair which constitutes the {content type} of a complex type definition.
+     *
      
     //org.apache.type_test.types1.ComplexArray
      
@@ -1102,8 +1113,10 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         return true;
     }
 
+    @Test
+    @Ignore
     public void testComplexArray() throws Exception {
-        DerivedAllBaseStruct xx = new DerivedAllBaseStruct();
+        DerivedChoiceBaseStruct xx = new DerivedChoiceBaseStruct();
         //Base
         xx.setVarFloat(3.14f);
         xx.setVarInt(new BigInteger("42"));
@@ -1621,6 +1634,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             && (x.getVarAttrString().equals(y.getVarAttrString()));
     }
 
+    @Test
     public void testRestrictedStructBaseStruct() throws Exception {
         RestrictedStructBaseStruct x = new RestrictedStructBaseStruct();
         x.setVarFloat(3.14f);
@@ -1659,6 +1673,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
             && (x.getVarAttrString().equals(y.getVarAttrString()));
     }
 
+    @Test
     public void testRestrictedAllBaseAll() throws Exception {
         RestrictedAllBaseAll x = new RestrictedAllBaseAll();
         x.setVarFloat(3.14f);
@@ -1691,6 +1706,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
     //org.apache.type_test.types1.UnionWithStringList;
 
+    @Test
     public void testUnionWithStringList() throws Exception {
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
@@ -1729,6 +1745,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
     //org.apache.type_test.types1.UnionWithStringListRestriction;
 
+    @Test
     public void testUnionWithStringListRestriction() throws Exception {
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
@@ -1767,6 +1784,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
 
     //org.apache.type_test.types1.UnionWithAnonList;
 
+    @Test
     public void testUnionWithAnonList() throws Exception {
         if (testDocLiteral || testXMLBinding) {
             List<String> x = Arrays.asList("5");
@@ -1808,6 +1826,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
+    @Test
     public void testAnyURIRestriction() throws Exception {
         // normal case, maxLength = 50 for anyURI
         String x = new String("http://cxf.apache.org/");
@@ -1847,6 +1866,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     // Test Inheritance
 
     // test internal inheritance
+    @Test
     public void testInheritanceNestedStruct() throws Exception {
         DerivedStructBaseStruct xs = new DerivedStructBaseStruct();
         //Base
@@ -1906,6 +1926,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
     }
 
     // test first level inheritance (parameters)
+    @Test
     public void testInheritanceSimpleStructDerivedStruct() throws Exception {
         DerivedStructBaseStruct x = new DerivedStructBaseStruct();
         //Base
@@ -1952,6 +1973,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
+    @Test
     public void testInheritanceSimpleChoiceDerivedStruct() throws Exception {
         DerivedStructBaseChoice x = new DerivedStructBaseChoice();
         //Base
@@ -1990,6 +2012,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
+    @Test
     public void testInheritanceUnboundedArrayDerivedChoice() throws Exception {
         DerivedChoiceBaseArray x = new DerivedChoiceBaseArray();
         //Base
@@ -2025,6 +2048,7 @@ public abstract class AbstractTypeTestClient4 extends AbstractTypeTestClient3 {
         }
     }
 
+    @Test
     public void testInheritanceEmptyAllDerivedEmpty() throws Exception {
         DerivedEmptyBaseEmptyAll x = new DerivedEmptyBaseEmptyAll();
         DerivedEmptyBaseEmptyAll yOrig = new DerivedEmptyBaseEmptyAll();

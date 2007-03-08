@@ -89,51 +89,43 @@ public class StaxBuilder {
      * Map that contains conversion from textual attribute types StAX uses, to
      * int values JDOM uses.
      */
-    final static HashMap<String, Integer> attrTypes = new HashMap<String, Integer>(32);
+    private static final Map<String, Integer> ATTR_TYPES = new HashMap<String, Integer>(32);
     static {
-        attrTypes.put("CDATA", new Integer(Attribute.CDATA_TYPE));
-        attrTypes.put("cdata", new Integer(Attribute.CDATA_TYPE));
-        attrTypes.put("ID", new Integer(Attribute.ID_TYPE));
-        attrTypes.put("id", new Integer(Attribute.ID_TYPE));
-        attrTypes.put("IDREF", new Integer(Attribute.IDREF_TYPE));
-        attrTypes.put("idref", new Integer(Attribute.IDREF_TYPE));
-        attrTypes.put("IDREFS", new Integer(Attribute.IDREFS_TYPE));
-        attrTypes.put("idrefs", new Integer(Attribute.IDREFS_TYPE));
-        attrTypes.put("ENTITY", new Integer(Attribute.ENTITY_TYPE));
-        attrTypes.put("entity", new Integer(Attribute.ENTITY_TYPE));
-        attrTypes.put("ENTITIES", new Integer(Attribute.ENTITIES_TYPE));
-        attrTypes.put("entities", new Integer(Attribute.ENTITIES_TYPE));
-        attrTypes.put("NMTOKEN", new Integer(Attribute.NMTOKEN_TYPE));
-        attrTypes.put("nmtoken", new Integer(Attribute.NMTOKEN_TYPE));
-        attrTypes.put("NMTOKENS", new Integer(Attribute.NMTOKENS_TYPE));
-        attrTypes.put("nmtokens", new Integer(Attribute.NMTOKENS_TYPE));
-        attrTypes.put("NOTATION", new Integer(Attribute.NOTATION_TYPE));
-        attrTypes.put("notation", new Integer(Attribute.NOTATION_TYPE));
-        attrTypes.put("ENUMERATED", new Integer(Attribute.ENUMERATED_TYPE));
-        attrTypes.put("enumerated", new Integer(Attribute.ENUMERATED_TYPE));
+        ATTR_TYPES.put("CDATA", new Integer(Attribute.CDATA_TYPE));
+        ATTR_TYPES.put("cdata", new Integer(Attribute.CDATA_TYPE));
+        ATTR_TYPES.put("ID", new Integer(Attribute.ID_TYPE));
+        ATTR_TYPES.put("id", new Integer(Attribute.ID_TYPE));
+        ATTR_TYPES.put("IDREF", new Integer(Attribute.IDREF_TYPE));
+        ATTR_TYPES.put("idref", new Integer(Attribute.IDREF_TYPE));
+        ATTR_TYPES.put("IDREFS", new Integer(Attribute.IDREFS_TYPE));
+        ATTR_TYPES.put("idrefs", new Integer(Attribute.IDREFS_TYPE));
+        ATTR_TYPES.put("ENTITY", new Integer(Attribute.ENTITY_TYPE));
+        ATTR_TYPES.put("entity", new Integer(Attribute.ENTITY_TYPE));
+        ATTR_TYPES.put("ENTITIES", new Integer(Attribute.ENTITIES_TYPE));
+        ATTR_TYPES.put("entities", new Integer(Attribute.ENTITIES_TYPE));
+        ATTR_TYPES.put("NMTOKEN", new Integer(Attribute.NMTOKEN_TYPE));
+        ATTR_TYPES.put("nmtoken", new Integer(Attribute.NMTOKEN_TYPE));
+        ATTR_TYPES.put("NMTOKENS", new Integer(Attribute.NMTOKENS_TYPE));
+        ATTR_TYPES.put("nmtokens", new Integer(Attribute.NMTOKENS_TYPE));
+        ATTR_TYPES.put("NOTATION", new Integer(Attribute.NOTATION_TYPE));
+        ATTR_TYPES.put("notation", new Integer(Attribute.NOTATION_TYPE));
+        ATTR_TYPES.put("ENUMERATED", new Integer(Attribute.ENUMERATED_TYPE));
+        ATTR_TYPES.put("enumerated", new Integer(Attribute.ENUMERATED_TYPE));
     }
-
-    /** The factory for creating new JDOM objects */
-    private JDOMFactory factory = null;
-
-    private XMLInputFactory xifactory;
 
     /**
      * Whether ignorable white space should be ignored, ie not added in the
      * resulting JDOM tree. If true, it will be ignored; if false, it will be
      * added in the tree. Default value if false.
      */
-    protected boolean cfgIgnoreWS = false;
+    protected boolean cfgIgnoreWS;
 
-    private Map additionalNamespaces = null;
+    /** The factory for creating new JDOM objects */
+    private JDOMFactory factory;
 
-    public Map getAdditionalNamespaces() {
-        return additionalNamespaces;
-    }
+    private XMLInputFactory xifactory;
 
-    public void setAdditionalNamespaces(Map additionalNamespaces) {
-        this.additionalNamespaces = additionalNamespaces;
-    }
+    private Map additionalNamespaces;
 
     /**
      * Default constructor.
@@ -149,6 +141,14 @@ public class StaxBuilder {
 
     public StaxBuilder(XMLInputFactory xifactory) {
         this.xifactory = xifactory;
+    }
+
+    public Map getAdditionalNamespaces() {
+        return additionalNamespaces;
+    }
+
+    public void setAdditionalNamespaces(Map additionalNamespaces) {
+        this.additionalNamespaces = additionalNamespaces;
     }
 
     /*
@@ -290,9 +290,9 @@ public class StaxBuilder {
                 child = f.processingInstruction(r.getPITarget(), r.getPIData());
                 break;
 
-            case XMLStreamConstants.START_ELEMENT:
-                // Ok, need to add a new element and simulate recursion
+            case XMLStreamConstants.START_ELEMENT: 
             {
+                // Ok, need to add a new element and simulate recursion
                 Element newElem = null;
                 String nsURI = r.getNamespaceURI();
                 String elemPrefix = r.getPrefix(); // needed for special
@@ -333,19 +333,21 @@ public class StaxBuilder {
                 }
 
                 // Any declared namespaces?
-                for (int i = 0, len = r.getNamespaceCount(); i < len; ++i) {
+                int i;
+                int len;
+                for (i = 0, len = r.getNamespaceCount(); i < len; ++i) {
                     String prefix = r.getNamespacePrefix(i);
                     Namespace ns = Namespace.getNamespace(prefix, r.getNamespaceURI(i));
                     // JDOM has special handling for element's "own" ns:
                     if (prefix != null && prefix.equals(elemPrefix)) {
-                        ; // already set by when it was constructed...
+                        // already set by when it was constructed...
                     } else {
                         f.addNamespaceDeclaration(newElem, ns);
                     }
                 }
 
                 // And then the attributes:
-                for (int i = 0, len = r.getAttributeCount(); i < len; ++i) {
+                for (i = 0, len = r.getAttributeCount(); i < len; ++i) {
                     String prefix = r.getAttributePrefix(i);
                     Namespace ns;
 
@@ -421,9 +423,9 @@ public class StaxBuilder {
 
     private static int resolveAttrType(String typeStr) {
         if (typeStr != null && typeStr.length() > 0) {
-            Integer I = attrTypes.get(typeStr);
-            if (I != null) {
-                return I.intValue();
+            Integer i = ATTR_TYPES.get(typeStr);
+            if (i != null) {
+                return i.intValue();
             }
         }
         return Attribute.UNDECLARED_TYPE;

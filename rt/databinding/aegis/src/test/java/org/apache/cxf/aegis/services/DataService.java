@@ -18,10 +18,8 @@
  */
 package org.apache.cxf.aegis.services;
 
-public class DataService
-{
-    public DataBean getData()
-    {
+public class DataService {
+    public DataBean getData() {
         return new DataBean();
     }
 }

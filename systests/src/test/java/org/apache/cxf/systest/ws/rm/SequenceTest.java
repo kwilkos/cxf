@@ -24,9 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -35,20 +32,23 @@ import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMInInterceptor;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMOutInterceptor;
 import org.apache.cxf.ws.rm.soap.RMSoapInterceptor;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 
 /**
  * Tests the addition of WS-RM properties to application messages and the
  * exchange of WS-RM protocol messages.
  */
-public class SequenceTest extends ClientServerTestBase {
+public class SequenceTest extends AbstractBusClientServerTestBase {
 
     private static final Logger LOG = Logger.getLogger(SequenceTest.class.getName());
     // private static final String APP_NAMESPACE ="http://celtix.objectweb.org/greeter_control";
@@ -84,31 +84,20 @@ public class SequenceTest extends ClientServerTestBase {
     private boolean doTestTwowayNonAnonymousNoOffer = testAll;
     private boolean doTestConcurrency = testAll;
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(SequenceTest.class);
+    @BeforeClass
+    public static void startServers() throws Exception {
+        /*
+        // special case handling for WS-Addressing system test to avoid
+        // UUID related issue when server is run as separate process
+        // via maven on Win2k
+        boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
+        assertTrue("server did not launch correctly", launchServer(Server.class, inProcess));
+        */
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
-    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(SequenceTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                /*
-                // special case handling for WS-Addressing system test to avoid
-                // UUID related issue when server is run as separate process
-                // via maven on Win2k
-                boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
-                assertTrue("server did not launch correctly", launchServer(Server.class, inProcess));
-                */
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
             
-            public void setUp() throws Exception {
-                startServers();
-                LOG.fine("Started server.");  
-            }
-        };
-    }
     
+    @After
     public void tearDown() {
         if (null != greeter) {
             assertTrue("Failed to stop greeter.", control.stopGreeter());                        
@@ -129,7 +118,9 @@ public class SequenceTest extends ClientServerTestBase {
       * The (oneway) application request should be dispatched straight to the
       * implementor.
       */
-    public void xtestRMServerPlainClient() throws Exception {
+    @Test
+    @Ignore
+    public void testRMServerPlainClient() throws Exception {
 
         SpringBusFactory bf = new SpringBusFactory();
         
@@ -165,6 +156,7 @@ public class SequenceTest extends ClientServerTestBase {
 
     // --- tests ---
     
+    @Test
     public void testOnewayAnonymousAcks() throws Exception {
         if (!doTestOnewayAnonymousAcks) {
             return;
@@ -196,6 +188,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
     
+    @Test
     public void testOnewayDeferredAnonymousAcks() throws Exception {
         if (!doTestOnewayDeferredAnonymousAcks) {
             return;
@@ -234,6 +227,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, false, false, true}, false);
     }
     
+    @Test
     public void testOnewayDeferredNonAnonymousAcks() throws Exception {
         if (!doTestOnewayDeferredNonAnonymousAcks) {
             return;
@@ -287,6 +281,7 @@ public class SequenceTest extends ClientServerTestBase {
 
     }
     
+    @Test
     public void testOnewayAnonymousAcksSequenceLength1() throws Exception {
         if (!doTestOnewayAnonymousAcksSequenceLength1) {
             return;
@@ -329,6 +324,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, true, false, false, true, false}, false);
     }
     
+    @Test
     public void testOnewayAnonymousAcksSupressed() throws Exception {
 
         if (!doTestOnewayAnonymousAcksSupressed) {
@@ -376,6 +372,7 @@ public class SequenceTest extends ClientServerTestBase {
         
     }
     
+    @Test
     public void testTwowayNonAnonymous() throws Exception {
         if (!doTestTwowayNonAnonymous) {
             return;
@@ -425,6 +422,7 @@ public class SequenceTest extends ClientServerTestBase {
 
     // the same as above but using endpoint specific interceptor configuration
 
+    @Test
     public void testTwowayNonAnonymousEndpointSpecific() throws Exception {
         if (!doTestTwowayNonAnonymousEndpointSpecific) {
             return;
@@ -473,6 +471,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, true, true, true}, false);
     }
 
+    @Test
     public void testTwowayNonAnonymousDeferred() throws Exception {
         if (!doTestTwowayNonAnonymousDeferred) {
             return;
@@ -537,7 +536,7 @@ public class SequenceTest extends ClientServerTestBase {
      * standalone sequence acknowledgment needs to be sent regardless of whether
      * or nor acknowledgments are delivered steadily with every response.
      */
-
+    @Test
     public void testTwowayNonAnonymousMaximumSequenceLength2() throws Exception {
 
         if (!doTestTwowayNonAnonymousMaximumSequenceLength2) {
@@ -596,7 +595,7 @@ public class SequenceTest extends ClientServerTestBase {
         expected[5] = true;
         mf.verifyAcknowledgements(expected, false);
     }
-    
+    @Test    
     public void testOnewayMessageLoss() throws Exception {
         if (!doTestOnewayMessageLoss) {
             return;
@@ -646,6 +645,7 @@ public class SequenceTest extends ClientServerTestBase {
   
     }
     
+    @Test
     public void testTwowayMessageLoss() throws Exception {
         if (!doTestTwowayMessageLoss) {
             return;
@@ -702,6 +702,7 @@ public class SequenceTest extends ClientServerTestBase {
   
     }
     
+    @Test
     public void testTwowayNonAnonymousNoOffer() throws Exception {
         if (!doTestTwowayNonAnonymousNoOffer) {
             return;
@@ -737,6 +738,7 @@ public class SequenceTest extends ClientServerTestBase {
         mf.verifyAcknowledgements(new boolean[] {false, false, false}, false);
     }
 
+    @Test
     public void testConcurrency() throws Exception {
         if (!doTestConcurrency) {
             return;

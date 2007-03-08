@@ -25,14 +25,16 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class StaxStreamFilterTest extends TestCase {
+public class StaxStreamFilterTest extends Assert {
     public static final QName  SOAP_ENV = 
         new QName("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
     public static final QName  SOAP_BODY = 
         new QName("http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
+    @Test
     public void testFilter() throws Exception {
         StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
         String soapMessage = "./resources/sayHiRpcLiteralReq.xml";
@@ -47,6 +49,7 @@ public class StaxStreamFilterTest extends TestCase {
         assertEquals(sayHi, dr.getName());
     }
 
+    @Test
     public void testFilterRPC() throws Exception {
         StaxStreamFilter filter = new StaxStreamFilter(new QName[]{SOAP_ENV, SOAP_BODY});
         String soapMessage = "./resources/greetMeRpcLitReq.xml";

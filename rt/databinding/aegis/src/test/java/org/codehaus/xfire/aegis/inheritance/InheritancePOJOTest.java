@@ -33,39 +33,35 @@ import org.apache.cxf.aegis.Aegis;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class InheritancePOJOTest
-    extends AbstractAegisTest
-{
+public class InheritancePOJOTest extends AbstractAegisTest {
 
-    public void setUp()
-        throws Exception
-    {
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
 
-        ServerFactoryBean sf = createServiceFactory(InheritanceService.class,
-                                                    "InheritanceService", 
-                                                    new QName("urn:xfire:inheritance", 
-                                                              "InheritanceService"));
-        
+        ServerFactoryBean sf = createServiceFactory(InheritanceService.class, "InheritanceService",
+                                                    new QName("urn:xfire:inheritance", "InheritanceService"));
+
         Map<String, Object> props = new HashMap<String, Object>();
         props.put(Aegis.WRITE_XSI_TYPE_KEY, "true");
-        
+
         List<String> l = new ArrayList<String>();
         l.add(Employee.class.getName());
 
         props.put(Aegis.OVERRIDE_TYPES_KEY, l);
-        
+
         sf.getServiceFactory().setProperties(props);
         sf.create();
     }
 
-    public void testGenerateWsdl()
-        throws Exception
-    {
+    @Test
+    public void testGenerateWsdl() throws Exception {
         Document d = getWSDLDocument("InheritanceService");
 
         String types = "//wsdl:types/xsd:schema/";
@@ -76,7 +72,8 @@ public class InheritancePOJOTest
         String extension = "/xsd:complexContent/xsd:extension[@base='ns1:BaseUser']";
         assertValid(employeeType + extension, d);
         assertValid(employeeType + extension + "/xsd:sequence/xsd:element[@name='division']", d);
-        //assertValid("count(" + employeeType + extension + "/xsd:sequence/*)=1", d);
+        // assertValid("count(" + employeeType + extension +
+        // "/xsd:sequence/*)=1", d);
 
         // check for BaseUser as abstract
         String baseUserType = types + "xsd:complexType[(@name='BaseUser') and (@abstract='true')]";
@@ -85,22 +82,17 @@ public class InheritancePOJOTest
         // assertValid("count(" + baseUserType + "/xsd:sequence/*)=1", d);
     }
 
-    public void testLocalReceiveEmployee()
-        throws Exception
-    {
-        Node response = invoke("InheritanceService", 
-                                   LocalTransportFactory.TRANSPORT_ID,
-                                   "ReceiveEmployee.xml");
+    @Test
+    public void testLocalReceiveEmployee() throws Exception {
+        Node response = invoke("InheritanceService", LocalTransportFactory.TRANSPORT_ID,
+                               "ReceiveEmployee.xml");
         addNamespace("w", "urn:xfire:inheritance");
         assertValid("//s:Body/w:receiveUserResponse", response);
     }
 
-    public void testLocalGetEmployee()
-        throws Exception
-    {
-        Node response = invoke("InheritanceService", 
-                               LocalTransportFactory.TRANSPORT_ID,
-                               "GetEmployee.xml");
+    @Test
+    public void testLocalGetEmployee() throws Exception {
+        Node response = invoke("InheritanceService", LocalTransportFactory.TRANSPORT_ID, "GetEmployee.xml");
         addNamespace("xsi", XmlConstants.XSI_NS);
         addNamespace("w", "urn:xfire:inheritance");
         addNamespace("p", "http://inheritance.aegis.xfire.codehaus.org");

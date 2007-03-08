@@ -33,11 +33,14 @@ import com.meterware.servletunit.ServletUnitClient;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.junit.After;
+import org.junit.Before;
 
 public abstract class AbstractServletTest extends AbstractCXFTest {
 
     protected ServletRunner sr;
 
+    @Before
     public void setUp() throws Exception {
         sr = new ServletRunner(getResourceAsStream(getConfiguration()));
         
@@ -46,11 +49,12 @@ public abstract class AbstractServletTest extends AbstractCXFTest {
         } catch (HttpNotFoundException e) {
             // ignore, we just want to boot up the servlet
         }        
-        super.setUp();
+        super.setUpBus();
         
         HttpUnitOptions.setExceptionsThrownOnErrorStatus(true);        
     } 
     
+    @After
     public void tearDown() {
         BusFactory.getDefaultBus().shutdown(false);
         BusFactory.setDefaultBus(null);                

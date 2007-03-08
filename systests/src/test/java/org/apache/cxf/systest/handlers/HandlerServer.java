@@ -20,9 +20,9 @@ package org.apache.cxf.systest.handlers;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class HandlerServer extends TestServerBase {
+public class HandlerServer extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new AddNumbersImpl();

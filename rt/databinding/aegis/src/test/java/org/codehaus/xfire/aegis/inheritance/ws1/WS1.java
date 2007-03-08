@@ -25,24 +25,22 @@ import java.util.Map;
  * 
  * @author xfournet
  */
-public interface WS1
-{
-    public BeanA getBeanA();
+public interface WS1 {
+    BeanA getBeanA();
 
-    public BeanB getBeanB();
+    BeanB getBeanB();
 
-    public BeanA getBean(String id);
+    BeanA getBean(String id);
 
-    public BeanA[] listBeans();
+    BeanA[] listBeans();
 
-    public RootBean getRootBean(String id);
+    RootBean getRootBean(String id);
 
-    public RootBean[] listRootBeans();
+    RootBean[] listRootBeans();
 
-    public ResultBean getResultBean();
+    ResultBean getResultBean();
 
-    public Map echoMap(Map beans);
-    
-    public void throwException(boolean extendedOne)
-        throws WS1Exception;
+    Map echoMap(Map beans);
+
+    void throwException(boolean extendedOne) throws WS1Exception;
 }

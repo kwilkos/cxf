@@ -24,19 +24,17 @@ import java.net.URL;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.callback.SOAPService;
 import org.apache.callback.ServerPortType;
 
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class CallbackClientServerTest extends ClientServerTestBase {
+public class CallbackClientServerTest extends AbstractBusClientServerTestBase {
     private static final QName SERVICE_NAME 
         = new QName("http://apache.org/callback", "SOAPService");
     private static final QName SERVICE_NAME_CALLBACK 
@@ -51,17 +49,13 @@ public class CallbackClientServerTest extends ClientServerTestBase {
     private static final QName PORT_TYPE_CALLBACK
         = new QName("http://apache.org/callback", "CallbackPortType");
     
-    public static Test suite() throws Exception {        
-        TestSuite suite = new TestSuite(CallbackClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
-        
-                
+    
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testCallback() throws Exception {
 
                     

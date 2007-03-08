@@ -32,9 +32,11 @@ import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
+import org.junit.Test;
 
 public class ServerFactoryTest extends AbstractSimpleFrontendTest {
 
+    @Test
     public void testSetDF() throws Exception {
         ServerFactoryBean svrBean = new ServerFactoryBean();
         svrBean.setAddress("http://localhost/Hello");

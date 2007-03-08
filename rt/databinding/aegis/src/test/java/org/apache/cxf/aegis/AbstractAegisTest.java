@@ -48,17 +48,15 @@ import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
+import org.junit.Before;
 
 public abstract class AbstractAegisTest extends AbstractCXFTest {
     protected LocalTransportFactory localTransport;
 
-    private Bus bus;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-        
-        bus = getBus();
+        super.setUpBus();
         
         SoapBindingFactory bindingFactory = new SoapBindingFactory();
 

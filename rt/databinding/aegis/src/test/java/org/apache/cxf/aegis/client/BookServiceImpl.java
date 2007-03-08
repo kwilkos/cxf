@@ -44,8 +44,9 @@ public class BookServiceImpl implements BookService {
     public Book findBook(String isbn) {
         for (int i = 0; i < allBooks.size(); i++) {
             Book book = allBooks.get(i);
-            if (isbn.equals(book.getIsbn()))
+            if (isbn.equals(book.getIsbn())) {
                 return book;
+            }
         }
 
         return null;

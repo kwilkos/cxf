@@ -18,9 +18,7 @@
  */
 package org.apache.cxf.aegis.services;
 
-public class VoidService
-{
-    public void doNothing()
-    {
+public class VoidService {
+    public void doNothing() {
     }
 }

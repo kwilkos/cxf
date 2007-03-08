@@ -33,7 +33,11 @@ import org.apache.cxf.aegis.util.UID;
 import org.apache.cxf.attachment.AttachmentImpl;
 import org.apache.cxf.message.Attachment;
 
-public class AttachmentUtil {
+public final class AttachmentUtil {
+    private AttachmentUtil() {
+        //utility class
+    }
+    
     public static String createContentID(String ns) {
         String uid = UID.generate();
         try {

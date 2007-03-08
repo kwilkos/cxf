@@ -31,34 +31,30 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
 import javax.xml.ws.handler.Handler;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.resource.ResourceManager;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.handlers.AddNumbers;
 import org.apache.handlers.AddNumbersService;
 import org.apache.handlers.types.AddNumbersResponse;
 import org.apache.handlers.types.ObjectFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
-public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
+public class HandlerInvocationUsingAddNumbersTest extends AbstractBusClientServerTestBase {
 
     static QName serviceName = new QName("http://apache.org/handlers", "AddNumbersService");
     static QName portName = new QName("http://apache.org/handlers", "AddNumbersPort");
    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(HandlerInvocationUsingAddNumbersTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(HandlerServer.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(HandlerServer.class));
     }
 
+    @Test
     public void testAddHandlerProgrammaticallyClientSide() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
 
@@ -74,6 +70,7 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         assertEquals(11, result1);
     }
     
+    @Test
     public void testAddHandlerByAnnotationClientSide() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
 
@@ -86,6 +83,7 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         assertEquals(11, result1);
     }
     
+    @Test
     public void testInvokeFromDispatchWithJAXBPayload() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
         assertNotNull(wsdl);
@@ -111,6 +109,7 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         assertEquals(200, value.getReturn());
     }
     
+    @Test
     public void testHandlerPostConstruct() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
 
@@ -123,6 +122,7 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         assertTrue(h.isPostConstructInvoked());      
     }  
 
+    @Test
     public void testHandlerInjectingResource() throws Exception {
         //When CXF is deployed in a servlet container, ServletContextResourceResolver is used to resolve 
         //Servlet context resources.

@@ -27,10 +27,10 @@ import javax.xml.stream.XMLStreamReader;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public class FragmentStreamReader extends DepthXMLStreamReader {
-    private boolean startDoc = false;
-    private boolean startElement = false;
+    private boolean startDoc;
+    private boolean startElement;
     private boolean middle = true;
-    private boolean endDoc = false;
+    private boolean endDoc;
 
     private int depth;
     private int current = -1;

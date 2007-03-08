@@ -18,10 +18,8 @@
  */
 package org.apache.cxf.aegis.services;
 
-public class AddNumbers
-{
-    public int add(int one, int two)
-    {
-        return one+two;
+public class AddNumbers {
+    public int add(int one, int two) {
+        return one + two;
     }
 }

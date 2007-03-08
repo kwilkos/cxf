@@ -28,9 +28,6 @@ import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import javax.xml.ws.soap.SOAPBinding;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Client;
@@ -44,23 +41,24 @@ import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.ReflectionServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.service.model.ServiceInfo;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class ClientMtomXopTest extends ClientServerTestBase {
+public class ClientMtomXopTest extends AbstractBusClientServerTestBase {
 
     public static final QName MTOM_PORT = new QName("http://cxf.apache.org/mime", "TestMtomPort");
     public static final QName MTOM_SERVICE = new QName("http://cxf.apache.org/mime", "TestMtomService");
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(ClientMtomXopTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
+
     /*
+    @Test
+    @Ignore
     public void testMtomSWA() throws Exception {
         TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class);
         try {
@@ -87,6 +85,8 @@ public class ClientMtomXopTest extends ClientServerTestBase {
         }
     }
     */
+    
+    @Test
     public void testMtomXop() throws Exception {
         TestMtom mtomPort = createPort(MTOM_SERVICE, MTOM_PORT, TestMtom.class);
         try {

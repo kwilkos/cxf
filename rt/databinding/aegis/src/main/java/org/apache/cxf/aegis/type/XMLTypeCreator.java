@@ -80,16 +80,9 @@ import org.jdom.xpath.XPath;
  * apply to both method 1 and method 2, since the parameter at index 0 is not
  * specified.
  * 
- * @author Hani Suleiman Date: Jun 14, 2005 Time: 7:47:56 PM
- * @author <a href="mailto:mikagoeckel@codehaus.org">Mika Göckel</a>
- * @author Øyvind Matheson Wergeland
  */
 public class XMLTypeCreator extends AbstractTypeCreator {
-    private static final Log log = LogFactory.getLog(XMLTypeCreator.class);
-
-    // cache of classes to documents
-    private Map<String, Document> documents = new HashMap<String, Document>();
-
+    private static final Log LOG = LogFactory.getLog(XMLTypeCreator.class);
     private static List<Class> stopClasses = new ArrayList<Class>();
     static {
         stopClasses.add(Object.class);
@@ -97,6 +90,10 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         stopClasses.add(RuntimeException.class);
         stopClasses.add(Throwable.class);
     }
+
+    // cache of classes to documents
+    private Map<String, Document> documents = new HashMap<String, Document>();
+
 
     protected Document getDocument(Class clazz) {
         if (clazz == null) {
@@ -109,16 +106,16 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         String path = '/' + clazz.getName().replace('.', '/') + ".aegis.xml";
         InputStream is = clazz.getResourceAsStream(path);
         if (is == null) {
-            log.debug("Mapping file : " + path + " not found.");
+            LOG.debug("Mapping file : " + path + " not found.");
             return null;
         }
-        log.debug("Found mapping file : " + path);
+        LOG.debug("Found mapping file : " + path);
         try {
             doc = new StaxBuilder().build(is);
             documents.put(clazz.getName(), doc);
             return doc;
         } catch (XMLStreamException e) {
-            log.error("Error loading file " + path, e);
+            LOG.error("Error loading file " + path, e);
         }
         return null;
     }
@@ -298,7 +295,9 @@ public class XMLTypeCreator extends AbstractTypeCreator {
         TypeClassInfo info = new TypeClassInfo();
         if (index >= 0) {
             if (index >= m.getParameterTypes().length) {
-                throw new DatabindingException("Method " + m + " does not have a parameter at index " + index);
+                throw new DatabindingException("Method " + m 
+                                               + " does not have a parameter at index " 
+                                               + index);
             }
             // we don't want nodes for which the specified index is not
             // specified
@@ -497,15 +496,14 @@ public class XMLTypeCreator extends AbstractTypeCreator {
                 Element element = (Element)iterator.next();
                 // first we check if the parameter index is specified
                 Element match = getMatch(element, "parameter[@index='" + i + "']");
-                if (match != null) {
+                if (match != null
                     // we check if the type is specified and matches
-                    if (match.getAttributeValue("class") != null) {
-                        // if it doesn't match, then we can definitely rule out
-                        // this result
-                        if (!match.getAttributeValue("class").equals(parameterType.getName())) {
-                            iterator.remove();
-                        }
-                    }
+                    && match.getAttributeValue("class") != null
+                    // if it doesn't match, then we can definitely rule out
+                    // this result
+                    && !match.getAttributeValue("class").equals(parameterType.getName())) {
+                    
+                    iterator.remove();                    
                 }
             }
         }
@@ -542,8 +540,7 @@ public class XMLTypeCreator extends AbstractTypeCreator {
     private List<Element> getMatches(Object doc, String xpath) {
         try {
             XPath path = XPath.newInstance(xpath);
-            List<Element> result = path.selectNodes(doc);
-            return result;
+            return path.selectNodes(doc);
         } catch (JDOMException e) {
             throw new DatabindingException("Error evaluating xpath " + xpath, e);
         }

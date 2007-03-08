@@ -20,11 +20,13 @@
 
 package org.apache.cxf.helpers;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ServiceUtilsTest extends TestCase {
+public class ServiceUtilsTest {
+    @Test
     public void testmakeNamespaceFromClassName() throws Exception {
         String tns = ServiceUtils.makeNamespaceFromClassName("com.example.ws.Test", "http");
-        assertEquals("http://ws.example.com/", tns);
+        Assert.assertEquals("http://ws.example.com/", tns);
     }
 }

@@ -20,41 +20,19 @@ package org.apache.cxf.systest.type_test.xml;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
 import org.apache.cxf.systest.type_test.AbstractTypeTestClient5;
+import org.junit.BeforeClass;
 
 public class XMLClientTypeTest extends AbstractTypeTestClient5 {
     static final String WSDL_PATH = "/wsdl/type_test/type_test_xml.wsdl";
     static final QName SERVICE_NAME = new QName("http://apache.org/type_test/xml", "XMLService");
     static final QName PORT_NAME = new QName("http://apache.org/type_test/xml", "XMLPort");
 
-    public XMLClientTypeTest(String name) {
-        super(name);
-    }
-    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(XMLClientTypeTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                boolean ok = launchServer(XMLServerImpl.class); 
-                assertTrue("failed to launch server", ok);
-            }
-            
-//            public void setUp() throws Exception {
-//                // set up configuration to enable schema validation
-//                URL url = getClass().getResource("../celtix-config.xml"); 
-//                assertNotNull("cannot find test resource", url);
-//                configFileName = url.toString(); 
-//                super.setUp();
-//            }
-            public void setUp() throws Exception {
-                super.setUp();
-                initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
-            }
 
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        boolean ok = launchServer(XMLServerImpl.class); 
+        assertTrue("failed to launch server", ok);
+        initClient(AbstractTypeTestClient5.class, SERVICE_NAME, PORT_NAME, WSDL_PATH);
     }  
 }

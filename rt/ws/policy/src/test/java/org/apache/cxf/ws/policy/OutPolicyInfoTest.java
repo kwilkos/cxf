@@ -27,8 +27,6 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.helpers.CastUtils;
@@ -45,18 +43,23 @@ import org.apache.neethi.ExactlyOne;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class OutPolicyInfoTest extends TestCase {
+public class OutPolicyInfoTest extends Assert {
 
     private IMocksControl control;
     
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();        
     } 
     
+    @Test
     public void testAccessors() {
         OutPolicyInfo opi = new OutPolicyInfo();
         assertNull(opi.getPolicy());
@@ -78,6 +81,7 @@ public class OutPolicyInfoTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testInitialise() throws NoSuchMethodException {
         Method m1 = OutPolicyInfo.class.getDeclaredMethod("initialisePolicy",
             new Class[] {Endpoint.class, BindingOperationInfo.class, PolicyEngine.class, boolean.class});
@@ -105,6 +109,7 @@ public class OutPolicyInfoTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testInitialiseFault() throws NoSuchMethodException {
         Method m1 = OutPolicyInfo.class.getDeclaredMethod("initialisePolicy",
             new Class[] {Endpoint.class, BindingFaultInfo.class, PolicyEngine.class});
@@ -131,10 +136,12 @@ public class OutPolicyInfoTest extends TestCase {
         control.verify();        
     }
     
+    @Test
     public void testInitialiseClientPolicy() {  
         doTestInitialisePolicy(true);
     }
     
+    @Test
     public void testInitialiseServerPolicy() {  
         doTestInitialisePolicy(false);
     }
@@ -174,6 +181,7 @@ public class OutPolicyInfoTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testInitialiseServerFaultPolicy() {        
         Endpoint e = control.createMock(Endpoint.class);
         BindingFaultInfo bfi = control.createMock(BindingFaultInfo.class);
@@ -201,6 +209,7 @@ public class OutPolicyInfoTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testChooseAlternative() {
         OutPolicyInfo cpi = new OutPolicyInfo();
         cpi.setPolicy(new Policy());
@@ -257,6 +266,7 @@ public class OutPolicyInfoTest extends TestCase {
         control.verify();
     }
     
+    @Test
     public void testInitialiseOutInterceptors() {
         OutPolicyInfo cpi = new OutPolicyInfo();        
         List<Assertion> alternative = new ArrayList<Assertion>();
@@ -314,6 +324,7 @@ public class OutPolicyInfoTest extends TestCase {
         EasyMock.expect(bus.getExtension(PolicyInterceptorProviderRegistry.class)).andReturn(reg);
     }
     
+    @Test
     public void testCheckEffectivePolicy() {
         OutPolicyInfo opi = new OutPolicyInfo();  
         Policy p = new Policy();
@@ -354,6 +365,7 @@ public class OutPolicyInfoTest extends TestCase {
         opi.checkEffectivePolicy(aim);
     }
     
+    @Test
     public void testAlternativeSupported() {
         Assertion a1 = control.createMock(Assertion.class);
         QName aqn = new QName("http://x.y.z", "a");

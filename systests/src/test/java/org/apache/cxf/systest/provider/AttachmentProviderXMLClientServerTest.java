@@ -31,18 +31,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class AttachmentProviderXMLClientServerTest extends ClientServerTestBase {
+public class AttachmentProviderXMLClientServerTest extends AbstractBusClientServerTestBase {
 
-    public static class Server extends TestServerBase {
+    public static class Server extends AbstractBusTestServerBase {
 
         protected void run() {
             Object implementor = new AttachmentStreamSourceXMLProvider();
@@ -63,16 +61,13 @@ public class AttachmentProviderXMLClientServerTest extends ClientServerTestBase 
         }
     }
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(AttachmentProviderXMLClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly",
-                        launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly",
+                launchServer(Server.class));
     }
 
+    @Test
     public void testRequestWithAttachment() throws Exception {
         
         HttpURLConnection connection =  

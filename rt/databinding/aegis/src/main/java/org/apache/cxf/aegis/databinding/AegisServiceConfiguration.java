@@ -18,8 +18,6 @@
  */
 package org.apache.cxf.aegis.databinding;
 
-import java.lang.reflect.Method;
-
 import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.apache.cxf.service.factory.AbstractServiceConfiguration;
 

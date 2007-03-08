@@ -135,12 +135,12 @@ public class ElementWriter extends AbstractMessageWriter implements MessageWrite
     /**
      * @see org.apache.cxf.aegis.xml.MessageWriter#getWriter(java.lang.String)
      */
-    public MessageWriter getElementWriter(String name) {
-        return new ElementWriter(writer, name, namespace);
+    public MessageWriter getElementWriter(String nm) {
+        return new ElementWriter(writer, nm, namespace);
     }
 
-    public MessageWriter getElementWriter(String name, String ns) {
-        return new ElementWriter(writer, name, ns);
+    public MessageWriter getElementWriter(String nm, String ns) {
+        return new ElementWriter(writer, nm, ns);
     }
 
     public MessageWriter getElementWriter(QName qname) {
@@ -167,27 +167,27 @@ public class ElementWriter extends AbstractMessageWriter implements MessageWrite
         return writer;
     }
 
-    public MessageWriter getAttributeWriter(String name) {
-        return new AttributeWriter(writer, name, namespace);
+    public MessageWriter getAttributeWriter(String nm) {
+        return new AttributeWriter(writer, nm, namespace);
     }
 
-    public MessageWriter getAttributeWriter(String name, String namespace) {
-        return new AttributeWriter(writer, name, namespace);
+    public MessageWriter getAttributeWriter(String nm, String ns) {
+        return new AttributeWriter(writer, nm, ns);
     }
 
     public MessageWriter getAttributeWriter(QName qname) {
         return new AttributeWriter(writer, qname.getLocalPart(), qname.getNamespaceURI());
     }
 
-    public String getPrefixForNamespace(String namespace) {
+    public String getPrefixForNamespace(String ns) {
         try {
-            String prefix = writer.getPrefix(namespace);
+            String pfx = writer.getPrefix(ns);
 
-            if (prefix == null) {
-                prefix = NamespaceHelper.getUniquePrefix(writer);
+            if (pfx == null) {
+                pfx = NamespaceHelper.getUniquePrefix(writer);
 
-                writer.setPrefix(prefix, namespace);
-                writer.writeNamespace(prefix, namespace);
+                writer.setPrefix(pfx, ns);
+                writer.writeNamespace(pfx, ns);
             }
 
             return prefix;
@@ -196,25 +196,25 @@ public class ElementWriter extends AbstractMessageWriter implements MessageWrite
         }
     }
 
-    public String getPrefixForNamespace(String namespace, String hint) {
+    public String getPrefixForNamespace(String ns, String hint) {
         try {
-            String prefix = writer.getPrefix(namespace);
+            String pfx = writer.getPrefix(ns);
 
-            if (prefix == null) {
-                String ns = writer.getNamespaceContext().getNamespaceURI(hint);
-                if (ns == null) {
-                    prefix = hint;
-                } else if (ns.equals(namespace)) {
-                    return prefix;
+            if (pfx == null) {
+                String ns2 = writer.getNamespaceContext().getNamespaceURI(hint);
+                if (ns2 == null) {
+                    pfx = hint;
+                } else if (ns2.equals(ns)) {
+                    return pfx;
                 } else {
-                    prefix = NamespaceHelper.getUniquePrefix(writer);
+                    pfx = NamespaceHelper.getUniquePrefix(writer);
                 }
 
-                writer.setPrefix(prefix, namespace);
-                writer.writeNamespace(prefix, namespace);
+                writer.setPrefix(pfx, ns);
+                writer.writeNamespace(pfx, ns);
             }
 
-            return prefix;
+            return pfx;
         } catch (XMLStreamException e) {
             throw new DatabindingException("Error writing document.", e);
         }

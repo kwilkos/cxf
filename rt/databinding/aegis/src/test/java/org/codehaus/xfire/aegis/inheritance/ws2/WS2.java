@@ -27,11 +27,10 @@ import org.codehaus.xfire.aegis.inheritance.ws2.common.exception.NotFoundExcepti
  * 
  * @author xfournet
  */
-public interface WS2
-{
-    public void putParentBean(ParentBean parentBean)
+public interface WS2 {
+    void putParentBean(ParentBean parentBean)
         throws AlreadyExistsException;
 
-    public ParentBean getParentBean(String id)
+    ParentBean getParentBean(String id)
         throws NotFoundException;
 }

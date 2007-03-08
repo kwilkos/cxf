@@ -24,31 +24,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.AfterClass;
+import org.junit.Assert;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
 
-public abstract class AbstractClientServerSetupBase extends TestSetup {
-    private final List<ServerLauncher> launchers = new ArrayList<ServerLauncher>();  
+public abstract class AbstractClientServerTestBase extends Assert {
+    private static List<ServerLauncher> launchers = new ArrayList<ServerLauncher>();  
 
-    public AbstractClientServerSetupBase(Test arg0) {
-        super(arg0);
-    }
 
-    public void setUp() throws Exception {
-        startServers();
-    }
-    
-    public abstract void startServers() throws Exception;
-    
-    public void tearDown() throws Exception {
-        boolean serverPassed = stopAllServers();
-        launchers.clear();
-        System.gc();
-        assertTrue("server failed", serverPassed);
-    } 
-    
-    protected boolean stopAllServers() {
+    @AfterClass
+    public static void stopAllServers() throws Exception {
         boolean passed = true;
         for (ServerLauncher sl : launchers) {
             try { 
@@ -65,10 +50,11 @@ public abstract class AbstractClientServerSetupBase extends TestSetup {
             }
         }
         launchers.clear();
-        return passed;
+        System.gc();
+        assertTrue("server failed", passed);
     }
     
-    public boolean launchServer(Class<?> clz) {
+    public static boolean launchServer(Class<?> clz) {
         boolean ok = false;
         try { 
             ServerLauncher sl = new ServerLauncher(clz.getName());
@@ -82,7 +68,7 @@ public abstract class AbstractClientServerSetupBase extends TestSetup {
         
         return ok;
     }
-    public boolean launchServer(Class<?> clz, boolean inProcess) {
+    public static boolean launchServer(Class<?> clz, boolean inProcess) {
         boolean ok = false;
         try { 
             ServerLauncher sl = new ServerLauncher(clz.getName(), inProcess);
@@ -96,10 +82,10 @@ public abstract class AbstractClientServerSetupBase extends TestSetup {
         
         return ok;
     }
-    public boolean launchServer(Class<?> clz, Map<String, String> props, String[] args) {
+    public static boolean launchServer(Class<?> clz, Map<String, String> props, String[] args) {
         return launchServer(clz, props, args, false);
     }
-    public boolean launchServer(Class<?> clz, Map<String, String> props, String[] args,
+    public static boolean launchServer(Class<?> clz, Map<String, String> props, String[] args,
                                 boolean inProcess) {
         boolean ok = false;
         try { 

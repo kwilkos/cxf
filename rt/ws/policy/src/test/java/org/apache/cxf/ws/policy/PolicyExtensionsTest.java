@@ -26,8 +26,6 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -37,11 +35,13 @@ import org.apache.cxf.ws.policy.attachment.external.DomainExpressionBuilderRegis
 import org.apache.cxf.ws.policy.attachment.external.ExternalAttachmentProvider;
 import org.apache.cxf.ws.policy.attachment.wsdl11.Wsdl11AttachmentPolicyProvider;
 import org.apache.neethi.Assertion;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyExtensionsTest extends TestCase {
+public class PolicyExtensionsTest extends Assert {
 
     private static final QName KNOWN = new QName("http://cxf.apache.org/test/policy", "known");
     private static final QName KNOWN_DOMAIN_EXPR_TYPE
@@ -49,6 +49,7 @@ public class PolicyExtensionsTest extends TestCase {
     
     private static final QName UNKNOWN = new QName("http://cxf.apache.org/test/policy", "unknown");
     
+    @Test
     public void testExtensions() {
         Bus bus = null;
         try {

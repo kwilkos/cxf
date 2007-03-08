@@ -37,8 +37,11 @@ import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.junit.Test;
 
 public class SoapFaultSerializerTest extends AbstractCXFTest {
+    
+    @Test
     public void testSoap11Out() throws Exception {
         String faultString = "Hadrian caused this Fault!";
         SoapFault fault = new SoapFault(faultString, Soap11.getInstance().getSender());
@@ -79,6 +82,7 @@ public class SoapFaultSerializerTest extends AbstractCXFTest {
         assertEquals(Soap11.getInstance().getSender(), fault2.getFaultCode());
     }
     
+    @Test
     public void testSoap12Out() throws Exception {
         String faultString = "Hadrian caused this Fault!";
         SoapFault fault = new SoapFault(faultString, Soap12.getInstance().getSender());

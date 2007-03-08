@@ -101,7 +101,9 @@ public class Base64Type extends Type {
     }
 
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object,
+                            MessageWriter writer,
+                            Context context) throws DatabindingException {
         boolean mtomEnabled = Boolean.valueOf((String)context.get(XmlConstants.MTOM_ENABLED)).booleanValue();
         if (mtomEnabled) {
             optimizedType.writeObject(object, writer, context);

@@ -33,7 +33,7 @@ import org.apache.cxf.aegis.util.NamespaceHelper;
 import org.jdom.Element;
 
 public class XMLBeanTypeInfo extends BeanTypeInfo {
-    private static final Log logger = LogFactory.getLog(XMLBeanTypeInfo.class);
+    private static final Log LOG = LogFactory.getLog(XMLBeanTypeInfo.class);
     private List mappings;
 
     /**
@@ -69,7 +69,7 @@ public class XMLBeanTypeInfo extends BeanTypeInfo {
                 return;
             }
 
-            logger.debug("Found mapping for property " + pd.getName());
+            LOG.debug("Found mapping for property " + pd.getName());
 
             style = e.getAttributeValue("style");
             mappedName = NamespaceHelper.createQName(e, e.getAttributeValue("mappedName"),
@@ -104,9 +104,9 @@ public class XMLBeanTypeInfo extends BeanTypeInfo {
         try {
             // logger.debug("Mapped " + pd.getName() + " as " + style + " with
             // name " + mappedName);
-            if (style.equals("element")) {
+            if ("element".equals(style)) {
                 mapElement(pd.getName(), mappedName);
-            } else if (style.equals("attribute")) {
+            } else if ("attribute".equals(style)) {
                 mapAttribute(pd.getName(), mappedName);
             } else {
                 throw new DatabindingException("Invalid style: " + style);

@@ -49,7 +49,7 @@ import org.jdom.Element;
  * @author <a href="mailto:jack.xu.hong@gmail.com">Jack Hong</a>
  */
 public class BeanType extends Type {
-    private BeanTypeInfo _info;
+    private BeanTypeInfo info;
 
     private boolean isInterface;
 
@@ -60,7 +60,7 @@ public class BeanType extends Type {
     }
 
     public BeanType(BeanTypeInfo info) {
-        this._info = info;
+        this.info = info;
         this.typeClass = info.getTypeClass();
         this.isInterface = typeClass.isInterface();
     }
@@ -83,7 +83,7 @@ public class BeanType extends Type {
      */
     @Override
     public Object readObject(MessageReader reader, Context context) throws DatabindingException {
-        BeanTypeInfo info = getTypeInfo();
+        BeanTypeInfo inf = getTypeInfo();
 
         try {
             Class clazz = getTypeClass();
@@ -108,12 +108,10 @@ public class BeanType extends Type {
                                                        + " for class " + clazz.getName());
                     }
                 }
-            }
-            // else if (isException)
-            // {
+            //} else if (isException) {
             // object = createFromFault(context);
             // }
-            else {
+            } else {
                 object = clazz.newInstance();
             }
 
@@ -122,14 +120,14 @@ public class BeanType extends Type {
                 MessageReader childReader = reader.getNextAttributeReader();
                 QName name = childReader.getName();
 
-                Type type = info.getType(name);
+                Type type = inf.getType(name);
 
                 if (type != null) {
                     Object writeObj = type.readObject(childReader, context);
                     if (isProxy) {
                         delegate.writeProperty(name.getLocalPart(), writeObj);
                     } else {
-                        writeProperty(name, object, writeObj, clazz, info);
+                        writeProperty(name, object, writeObj, clazz, inf);
                     }
                 }
             }
@@ -153,8 +151,8 @@ public class BeanType extends Type {
                 if (type == null) {
                     parent = getBeanTypeWithProperty(name);
                     if (parent != null) {
-                        info = parent.getTypeInfo();
-                        type = info.getType(name);
+                        inf = parent.getTypeInfo();
+                        type = inf.getType(name);
                     } else {
                         type = null;
                     }
@@ -167,11 +165,12 @@ public class BeanType extends Type {
                         if (isProxy) {
                             delegate.writeProperty(name.getLocalPart(), writeObj);
                         } else {
-                            writeProperty(name, object, writeObj, clazz, info);
+                            writeProperty(name, object, writeObj, clazz, inf);
                         }
                     } else {
-                        if (!info.isNillable(name)) {
-                            throw new DatabindingException(name.getLocalPart() + " is nil, but not nillable.");
+                        if (!inf.isNillable(name)) {
+                            throw new DatabindingException(name.getLocalPart()
+                                                           + " is nil, but not nillable.");
 
                         }
                         childReader.readToEnd();
@@ -196,10 +195,11 @@ public class BeanType extends Type {
     /**
      * Write the specified property to a field.
      */
-    protected void writeProperty(QName name, Object object, Object property, Class impl, BeanTypeInfo info)
+    protected void writeProperty(QName name, Object object,
+                                 Object property, Class impl, BeanTypeInfo inf)
         throws DatabindingException {
         try {
-            PropertyDescriptor desc = info.getPropertyDescriptorFromMappedName(name);
+            PropertyDescriptor desc = inf.getPropertyDescriptorFromMappedName(name);
 
             Method m = desc.getWriteMethod();
 
@@ -245,12 +245,13 @@ public class BeanType extends Type {
      *      org.apache.cxf.aegis.Context)
      */
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object, MessageWriter writer,
+                            Context context) throws DatabindingException {
         if (object == null) {
             return;
         }
 
-        BeanTypeInfo info = getTypeInfo();
+        BeanTypeInfo inf = getTypeInfo();
 
         if (getSuperType() != null) {
             writer.writeXsiType(getSchemaType());
@@ -261,12 +262,12 @@ public class BeanType extends Type {
          * can front-load the attributes and traverse down the list of super
          * classes.
          */
-        for (Iterator itr = info.getAttributes(); itr.hasNext();) {
+        for (Iterator itr = inf.getAttributes(); itr.hasNext();) {
             QName name = (QName)itr.next();
 
             Object value = readProperty(object, name);
             if (value != null) {
-                Type type = getType(info, name);
+                Type type = getType(inf, name);
 
                 if (type == null) {
                     throw new DatabindingException("Couldn't find type for " + value.getClass()
@@ -281,17 +282,17 @@ public class BeanType extends Type {
             }
         }
 
-        for (Iterator itr = info.getElements(); itr.hasNext();) {
+        for (Iterator itr = inf.getElements(); itr.hasNext();) {
             QName name = (QName)itr.next();
 
-            if (info.isExtension()
-                && info.getPropertyDescriptorFromMappedName(name).getReadMethod().getDeclaringClass() != info
+            if (inf.isExtension()
+                && inf.getPropertyDescriptorFromMappedName(name).getReadMethod().getDeclaringClass() != inf
                     .getTypeClass()) {
                 continue;
             }
             Object value = readProperty(object, name);
 
-            Type type = getType(info, name);
+            Type type = getType(inf, name);
             type = Aegis.getWriteType(context, value, type);
             MessageWriter cwriter;
 
@@ -307,7 +308,7 @@ public class BeanType extends Type {
                 type.writeObject(value, cwriter, context);
 
                 cwriter.close();
-            } else if (info.isNillable(name)) {
+            } else if (inf.isNillable(name)) {
                 cwriter = getWriter(writer, name, type);
 
                 // Write the xsi:nil if it is null.
@@ -316,7 +317,7 @@ public class BeanType extends Type {
                 cwriter.close();
             }
         }
-        if (info.isExtension()) {
+        if (inf.isExtension()) {
             Type t = getSuperType();
             if (t != null) {
                 t.writeObject(object, writer, context);
@@ -356,14 +357,14 @@ public class BeanType extends Type {
      */
     @Override
     public void writeSchema(Element root) {
-        BeanTypeInfo info = getTypeInfo();
+        BeanTypeInfo inf = getTypeInfo();
         Element complex = new Element("complexType", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
         complex.setAttribute(new Attribute("name", getSchemaType().getLocalPart()));
         root.addContent(complex);
 
         Type sooperType = getSuperType();
 
-        if (info.isExtension() && sooperType != null) {
+        if (inf.isExtension() && sooperType != null) {
             Element complexContent = new Element("complexContent", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
             complex.addContent(complexContent);
             complex = complexContent;
@@ -373,8 +374,8 @@ public class BeanType extends Type {
          * See Java Virtual Machine specification:
          * http://java.sun.com/docs/books/vmspec/2nd-edition/html/ClassFile.doc.html#75734
          */
-        if (((info.getTypeClass().getModifiers() & Modifier.ABSTRACT) != 0)
-            && !info.getTypeClass().isInterface()) {
+        if (((inf.getTypeClass().getModifiers() & Modifier.ABSTRACT) != 0)
+            && !inf.getTypeClass().isInterface()) {
             complex.setAttribute(new Attribute("abstract", "true"));
         }
 
@@ -382,7 +383,7 @@ public class BeanType extends Type {
          * Decide if we're going to extend another type. If we are going to
          * defer, then make sure that we extend the type for our superclass.
          */
-        boolean isExtension = info.isExtension();
+        boolean isExtension = inf.isExtension();
 
         Element dummy = complex;
 
@@ -400,15 +401,15 @@ public class BeanType extends Type {
         Element seq = null;
 
         // Write out schema for elements
-        for (Iterator itr = info.getElements(); itr.hasNext();) {
+        for (Iterator itr = inf.getElements(); itr.hasNext();) {
 
             QName name = (QName)itr.next();
 
             if (isExtension) {
-                PropertyDescriptor pd = info.getPropertyDescriptorFromMappedName(name);
+                PropertyDescriptor pd = inf.getPropertyDescriptorFromMappedName(name);
 
                 assert pd.getReadMethod() != null && pd.getWriteMethod() != null;
-                if (pd.getReadMethod().getDeclaringClass() != info.getTypeClass()) {
+                if (pd.getReadMethod().getDeclaringClass() != inf.getTypeClass()) {
                     continue;
                 }
             }
@@ -421,7 +422,7 @@ public class BeanType extends Type {
             Element element = new Element("element", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
             seq.addContent(element);
 
-            Type type = getType(info, name);
+            Type type = getType(inf, name);
 
             String nameNS = name.getNamespaceURI();
             String nameWithPrefix = getNameWithPrefix(root, nameNS, name.getLocalPart());
@@ -434,7 +435,7 @@ public class BeanType extends Type {
         /**
          * if future proof then add <xsd:any/> element
          */
-        if (info.isExtensibleElements()) {
+        if (inf.isExtensibleElements()) {
             if (seq == null) {
                 seq = new Element("sequence", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
                 dummy.addContent(seq);
@@ -443,13 +444,13 @@ public class BeanType extends Type {
         }
 
         // Write out schema for attributes
-        for (Iterator itr = info.getAttributes(); itr.hasNext();) {
+        for (Iterator itr = inf.getAttributes(); itr.hasNext();) {
             QName name = (QName)itr.next();
 
             Element element = new Element("attribute", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
             dummy.addContent(element);
 
-            Type type = getType(info, name);
+            Type type = getType(inf, name);
 
             String nameNS = name.getNamespaceURI();
             String nameWithPrefix = getNameWithPrefix(root, nameNS, name.getLocalPart());
@@ -463,7 +464,7 @@ public class BeanType extends Type {
         /**
          * If extensible attributes then add <xsd:anyAttribute/>
          */
-        if (info.isExtensibleAttributes()) {
+        if (inf.isExtensibleAttributes()) {
             dummy.addContent(createAnyAttribute());
         }
     }
@@ -491,8 +492,8 @@ public class BeanType extends Type {
         return prefix + ":" + localName;
     }
 
-    private Type getType(BeanTypeInfo info, QName name) {
-        Type type = info.getType(name);
+    private Type getType(BeanTypeInfo inf, QName name) {
+        Type type = inf.getType(name);
 
         if (type == null) {
             throw new NullPointerException("Couldn't find type for" + name + " in class "
@@ -510,7 +511,7 @@ public class BeanType extends Type {
 
             int minOccurs = getTypeInfo().getMinOccurs(name);
             if (minOccurs != 1) {
-                element.setAttribute(new Attribute("minOccurs", new Integer(minOccurs).toString()));
+                element.setAttribute(new Attribute("minOccurs", Integer.valueOf(minOccurs).toString()));
             }
 
             if (getTypeInfo().isNillable(name)) {
@@ -543,27 +544,27 @@ public class BeanType extends Type {
     public Set<Type> getDependencies() {
         Set<Type> deps = new HashSet<Type>();
 
-        BeanTypeInfo info = getTypeInfo();
+        BeanTypeInfo inf = getTypeInfo();
 
-        for (Iterator itr = info.getAttributes(); itr.hasNext();) {
+        for (Iterator itr = inf.getAttributes(); itr.hasNext();) {
             QName name = (QName)itr.next();
-            deps.add(info.getType(name));
+            deps.add(inf.getType(name));
         }
 
-        for (Iterator itr = info.getElements(); itr.hasNext();) {
+        for (Iterator itr = inf.getElements(); itr.hasNext();) {
             QName name = (QName)itr.next();
-            if (info.isExtension()
-                && info.getPropertyDescriptorFromMappedName(name).getReadMethod().getDeclaringClass() != info
+            if (inf.isExtension()
+                && inf.getPropertyDescriptorFromMappedName(name).getReadMethod().getDeclaringClass() != inf
                     .getTypeClass()) {
                 continue;
             }
-            deps.add(info.getType(name));
+            deps.add(inf.getType(name));
         }
 
         /*
          * Automagically add chain of superclasses *if* this is an an extension.
          */
-        if (info.isExtension()) {
+        if (inf.isExtension()) {
             Type sooperType = getSuperType();
             if (sooperType != null) {
                 deps.add(sooperType);
@@ -589,13 +590,13 @@ public class BeanType extends Type {
     }
 
     private BeanType getSuperType() {
-        BeanTypeInfo info = getTypeInfo();
-        Class c = info.getTypeClass().getSuperclass();
+        BeanTypeInfo inf = getTypeInfo();
+        Class c = inf.getTypeClass().getSuperclass();
         /*
          * Don't dig any deeper than Object or Exception
          */
         if (c != null && c != Object.class && c != Exception.class && c != RuntimeException.class) {
-            TypeMapping tm = info.getTypeMapping();
+            TypeMapping tm = inf.getTypeMapping();
             BeanType superType = (BeanType)tm.getType(c);
             if (superType == null) {
                 superType = (BeanType)getTypeMapping().getTypeCreator().createType(c);
@@ -612,25 +613,25 @@ public class BeanType extends Type {
     }
 
     public BeanTypeInfo getTypeInfo() {
-        if (_info == null) {
-            _info = createTypeInfo();
+        if (info == null) {
+            info = createTypeInfo();
         }
 
         // Delay initialization so things work in recursive scenarios
         // (XFIRE-117)
-        if (!_info.isInitialized()) {
-            _info.initialize();
+        if (!info.isInitialized()) {
+            info.initialize();
         }
 
-        return _info;
+        return info;
     }
 
     public BeanTypeInfo createTypeInfo() {
-        BeanTypeInfo info = new BeanTypeInfo(getTypeClass(), getSchemaType().getNamespaceURI());
+        BeanTypeInfo inf = new BeanTypeInfo(getTypeClass(), getSchemaType().getNamespaceURI());
 
-        info.setTypeMapping(getTypeMapping());
+        inf.setTypeMapping(getTypeMapping());
 
-        return info;
+        return inf;
     }
 
     /**
@@ -652,10 +653,10 @@ public class BeanType extends Type {
         sb.append(getClass().getName());
         sb.append(": [class=");
         Class c = getTypeClass();
-        sb.append((c == null) ? ("<null>") : (c.getName()));
+        sb.append((c == null) ? "<null>" : c.getName());
         sb.append(",\nQName=");
         QName q = getSchemaType();
-        sb.append((q == null) ? ("<null>") : (q.toString()));
+        sb.append((q == null) ? "<null>" : q.toString());
         sb.append(",\ninfo=");
         sb.append(getTypeInfo().toString());
         sb.append("]");
@@ -669,8 +670,7 @@ public class BeanType extends Type {
      * @return
      */
     private Element createAnyAttribute() {
-        Element result = new Element("anyAttribute", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
-        return result;
+        return new Element("anyAttribute", XmlConstants.XSD_PREFIX, XmlConstants.XSD);
     }
 
 }

@@ -21,9 +21,9 @@ package org.apache.cxf.systest.provider;
 
 import javax.xml.ws.Endpoint;
 
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new HWSoapMessageProvider();

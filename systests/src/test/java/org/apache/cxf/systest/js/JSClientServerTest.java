@@ -24,30 +24,25 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.SOAPService;
 import org.apache.hello_world_soap_http.SOAPServiceTest1;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 
-public class JSClientServerTest extends ClientServerTestBase {
+public class JSClientServerTest extends AbstractBusClientServerTestBase {
 
     private static final String NS = "http://apache.org/hello_world_soap_http";
     
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(JSClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testJSMessageMode() throws Exception {
         QName serviceName = new QName(NS, "SOAPService");
         QName portName = new QName(NS, "SoapPort");
@@ -75,6 +70,7 @@ public class JSClientServerTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testJSPayloadMode() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         assertNotNull(wsdl);
@@ -102,7 +98,4 @@ public class JSClientServerTest extends ClientServerTestBase {
         }
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JSClientServerTest.class);
-    }
 }

@@ -25,11 +25,11 @@ import javax.xml.ws.Endpoint;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
-import org.apache.cxf.systest.common.TestServerBase;
 import org.apache.cxf.systest.type_test.TypeTestImpl;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.type_test.doc.TypeTestPortType;
 
-public class SOAPDocLitServerImpl extends TestServerBase {
+public class SOAPDocLitServerImpl extends AbstractBusTestServerBase {
     
 
     public void run()  {

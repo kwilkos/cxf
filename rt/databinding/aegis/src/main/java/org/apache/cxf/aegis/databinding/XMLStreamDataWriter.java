@@ -19,7 +19,6 @@
 package org.apache.cxf.aegis.databinding;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;

@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
  * 
  * @author Arjen Poutsma
  */
-public class ServiceUtils {
+public final class ServiceUtils {
     private ServiceUtils() {
 
     }

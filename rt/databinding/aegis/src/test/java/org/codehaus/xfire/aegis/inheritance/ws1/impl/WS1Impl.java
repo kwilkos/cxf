@@ -35,18 +35,14 @@ import org.codehaus.xfire.aegis.inheritance.ws1.WS1ExtendedException;
  * 
  * @author xfournet
  */
-public class WS1Impl
-    implements WS1
-{
-    public BeanA getBeanA()
-    {
+public class WS1Impl implements WS1 {
+    public BeanA getBeanA() {
         BeanA a = new BeanA();
         a.setPropA("valueA");
         return a;
     }
 
-    public BeanB getBeanB()
-    {
+    public BeanB getBeanB() {
         BeanB b = new BeanB();
         b.setPropA("valueA");
         b.setPropB("valueB");
@@ -54,8 +50,7 @@ public class WS1Impl
     }
 
     // not exported to interface to "hide" BeanC from interface introspection
-    public BeanC getBeanC()
-    {
+    public BeanC getBeanC() {
         BeanC c = new BeanC();
         c.setPropA("valueA");
         c.setPropB("valueB");
@@ -63,28 +58,19 @@ public class WS1Impl
         return c;
     }
 
-    public BeanA getBean(String id)
-    {
-        if ("b".equalsIgnoreCase(id))
-        {
+    public BeanA getBean(String id) {
+        if ("b".equalsIgnoreCase(id)) {
             return getBeanB();
-        }
-        else if ("c".equalsIgnoreCase(id))
-        {
+        } else if ("c".equalsIgnoreCase(id)) {
             return getBeanC();
-        }
-        else if ("a".equalsIgnoreCase(id))
-        {
+        } else if ("a".equalsIgnoreCase(id)) {
             return getBeanA();
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
-    public BeanA[] listBeans()
-    {
+    public BeanA[] listBeans() {
         BeanA[] result = new BeanA[4];
 
         result[0] = getBean("b");
@@ -95,8 +81,7 @@ public class WS1Impl
         return result;
     }
 
-    public RootBean getRootBean(String id)
-    {
+    public RootBean getRootBean(String id) {
         RootBean rootBean = new RootBean();
         rootBean.setId(id);
         rootBean.setChild(getBean(id));
@@ -104,8 +89,7 @@ public class WS1Impl
         return rootBean;
     }
 
-    public RootBean[] listRootBeans()
-    {
+    public RootBean[] listRootBeans() {
         RootBean[] result = new RootBean[4];
 
         result[0] = getRootBean("b");
@@ -116,8 +100,7 @@ public class WS1Impl
         return result;
     }
 
-    public ResultBean getResultBean()
-    {
+    public ResultBean getResultBean() {
         ResultBean resultBean = new ResultBean();
         resultBean.setResult1(listBeans());
         resultBean.setResult2(listRootBeans());
@@ -125,22 +108,16 @@ public class WS1Impl
         return resultBean;
     }
 
-    public Map echoMap(Map beans)
-    {
+    public Map echoMap(Map beans) {
         return beans;
     }
 
-    public void throwException(boolean extendedOne)
-        throws WS1Exception
-    {
-        if (extendedOne)
-        {
+    public void throwException(boolean extendedOne) throws WS1Exception {
+        if (extendedOne) {
             WS1Exception ex = new WS1ExtendedException("WS1 extended exception", 20, 30);
             ex.setSimpleBean(new SimpleBean());
             throw ex;
-        }
-        else
-        {
+        } else {
             throw new WS1Exception("WS1 base exception", 10);
         }
     }

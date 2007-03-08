@@ -20,7 +20,6 @@ package org.apache.cxf.aegis;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.message.Attachment;

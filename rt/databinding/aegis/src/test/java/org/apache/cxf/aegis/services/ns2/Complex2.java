@@ -18,17 +18,14 @@
  */
 package org.apache.cxf.aegis.services.ns2;
 
-public class Complex2
-{
+public class Complex2 {
     private String property;
 
-    public String getProperty()
-    {
+    public String getProperty() {
         return property;
     }
 
-    public void setProperty(String property)
-    {
+    public void setProperty(String property) {
         this.property = property;
     }
 }

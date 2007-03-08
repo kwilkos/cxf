@@ -42,14 +42,17 @@ import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.apache.hello_world_soap_http.RPCLitGreeterImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
     
     Message message;
     String ns = "http://apache.org/hello_world_rpclit";
     
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpBus();
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", 
                                    new SoapBindingFactory());
@@ -79,6 +82,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         exchange.put(Endpoint.class, endpoint);
     }
     
+    @Test
     public void testGetSayHiFromPath() throws Exception {
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/sayHi");       
         
@@ -95,6 +99,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertEquals(new QName(ns, "sayHi"), boi.getName());
     }
     
+    @Test
     public void testGetGreetMeFromPath() throws Exception {
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe/in/king+author");
         
@@ -110,6 +115,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertEquals("king author", value);
     }
     
+    @Test
     public void testGetSayHiFromQueryFixedOrder() throws Exception {
         message.put(Message.FIXED_PARAMETER_ORDER, Boolean.TRUE);
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
@@ -123,6 +129,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertion();
     }
     
+    @Test
     public void testGetSayHiFromQueryRandomOrder() throws Exception {
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
         message.put(Message.QUERY_STRING, "in=king");
@@ -134,6 +141,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertion();
     }
     
+    @Test
     public void testGetSayHiFromQueryRandomOrderFault() throws Exception {
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
         message.put(Message.QUERY_STRING, "me=king");
@@ -157,6 +165,7 @@ public class URIMappingInterceptorRPCTest extends AbstractCXFTest {
         assertEquals("king", value);        
     }
     
+    @Test
     public void testGetSayHiFromQueryEncoded() throws Exception {
         message.put(Message.PATH_INFO, "/SOAPServiceRPCLit/SoapPort/greetMe");
         message.put(Message.QUERY_STRING, "in=king+author");

@@ -29,10 +29,12 @@ import org.apache.cxf.jaxws.MessageReplayObserver;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.junit.Test;
 
 public class HolderTest extends AbstractJaxWsTest {
     private final String address = "http://localhost:9000/HolderService";
 
+    @Test
     public void testClient() throws Exception {
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
         ei.setAddress(address);
@@ -51,6 +53,7 @@ public class HolderTest extends AbstractJaxWsTest {
         assertEquals("two", holder.value);
     }
     
+    @Test
     public void testServer() throws Exception {
         JaxWsServerFactoryBean svr = new JaxWsServerFactoryBean();
         svr.setBus(getBus());

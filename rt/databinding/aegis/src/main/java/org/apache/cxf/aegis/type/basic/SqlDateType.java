@@ -34,7 +34,7 @@ import org.apache.cxf.aegis.xml.MessageWriter;
 public class SqlDateType extends DateType {
     @Override
     public Object readObject(MessageReader reader, Context context) throws DatabindingException {
-        Date date = ((Date)super.readObject(reader, context));
+        Date date = (Date)super.readObject(reader, context);
         if (date == null) {
             return null;
         }

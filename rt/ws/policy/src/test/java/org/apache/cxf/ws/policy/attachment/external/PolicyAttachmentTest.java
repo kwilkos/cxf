@@ -22,8 +22,6 @@ package org.apache.cxf.ws.policy.attachment.external;
 import java.util.Collection;
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.service.model.BindingFaultInfo;
 import org.apache.cxf.service.model.BindingMessageInfo;
@@ -33,18 +31,24 @@ import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.neethi.Policy;
 import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
  */
-public class PolicyAttachmentTest extends TestCase {
+public class PolicyAttachmentTest extends Assert {
 
     private IMocksControl control;
     
+    
+    @Before
     public void setUp() {
         control = EasyMock.createNiceControl();        
     } 
     
+    @Test
     public void testBasic() {
         PolicyAttachment pa = new PolicyAttachment();
         assertNull(pa.getDomainExpressions());
@@ -59,6 +63,7 @@ public class PolicyAttachmentTest extends TestCase {
         assertSame(des, pa.getDomainExpressions());
     }
     
+    @Test
     public void testAppliesToService() {
         ServiceInfo si1 = control.createMock(ServiceInfo.class);
         ServiceInfo si2 = control.createMock(ServiceInfo.class);
@@ -75,6 +80,7 @@ public class PolicyAttachmentTest extends TestCase {
         control.verify();  
     }
     
+    @Test
     public void testAppliesToEndpoint() {
         EndpointInfo ei1 = control.createMock(EndpointInfo.class);
         EndpointInfo ei2 = control.createMock(EndpointInfo.class);
@@ -91,6 +97,7 @@ public class PolicyAttachmentTest extends TestCase {
         control.verify();  
     }
     
+    @Test
     public void testAppliesToOperation() {
         BindingOperationInfo boi1 = control.createMock(BindingOperationInfo.class);
         BindingOperationInfo boi2 = control.createMock(BindingOperationInfo.class);
@@ -107,6 +114,7 @@ public class PolicyAttachmentTest extends TestCase {
         control.verify();  
     }
     
+    @Test
     public void testAppliesToMessage() {
         BindingMessageInfo bmi1 = control.createMock(BindingMessageInfo.class);
         BindingMessageInfo bmi2 = control.createMock(BindingMessageInfo.class);
@@ -123,6 +131,7 @@ public class PolicyAttachmentTest extends TestCase {
         control.verify();  
     }
     
+    @Test
     public void testAppliesToFault() {
         BindingFaultInfo bfi1 = control.createMock(BindingFaultInfo.class);
         BindingFaultInfo bfi2 = control.createMock(BindingFaultInfo.class);

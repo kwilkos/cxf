@@ -33,10 +33,6 @@
     <relativePath>../../../parent/pom.xml</relativePath>
   </parent>
 
-  <properties>
-    <topDirectoryLocation>../../..</topDirectoryLocation>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.cxf</groupId>
@@ -94,7 +90,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
 
@@ -152,31 +147,6 @@
             </configuration>
             <goals>
               <goal>checkstyle</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-buildtools</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <excludes>
-            <exclude>**/*.java</exclude>
-          </excludes>
-        </configuration>
-        <executions>
-          <execution>
-            <id>process-sources</id>
-            <phase>process-sources</phase>
-            <goals>
-              <goal>check</goal>
             </goals>
           </execution>
         </executions>

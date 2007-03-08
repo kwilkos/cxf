@@ -45,9 +45,10 @@ import org.jdom.Element;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public class ArrayType extends Type {
+    private static final Log LOG = LogFactory.getLog(ArrayType.class);
+    
     private QName componentName;
-    private static final Log logger = LogFactory.getLog(ArrayType.class);
-    private long minOccurs = 0;
+    private long minOccurs;
     private long maxOccurs = Long.MAX_VALUE;
     private boolean flat;
 
@@ -103,59 +104,61 @@ public class ArrayType extends Type {
 
     @SuppressWarnings("unchecked")
     protected Object makeArray(Class arrayType, Collection values) {
+        int i;
+        int n;
         if (Integer.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Integer.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Long.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Long.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Short.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Short.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Double.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Double.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Float.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Float.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Byte.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Byte.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Boolean.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Boolean.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
         } else if (Character.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
             Object array = Array.newInstance(Character.TYPE, objects.length);
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
             return array;
@@ -164,7 +167,9 @@ public class ArrayType extends Type {
     }
 
     @Override
-    public void writeObject(Object values, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object values,
+                            MessageWriter writer,
+                            Context context) throws DatabindingException {
         if (values == null) {
             return;
         }
@@ -186,49 +191,51 @@ public class ArrayType extends Type {
 
         Class arrayType = type.getTypeClass();
 
+        int i;
+        int n;
         if (Object.class.isAssignableFrom(arrayType)) {
             Object[] objects = (Object[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(objects[i], writer, context, type, name, ns);
             }
         } else if (Integer.TYPE.equals(arrayType)) {
             int[] objects = (int[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Integer(objects[i]), writer, context, type, name, ns);
             }
         } else if (Long.TYPE.equals(arrayType)) {
             long[] objects = (long[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Long(objects[i]), writer, context, type, name, ns);
             }
         } else if (Short.TYPE.equals(arrayType)) {
             short[] objects = (short[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Short(objects[i]), writer, context, type, name, ns);
             }
         } else if (Double.TYPE.equals(arrayType)) {
             double[] objects = (double[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Double(objects[i]), writer, context, type, name, ns);
             }
         } else if (Float.TYPE.equals(arrayType)) {
             float[] objects = (float[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Float(objects[i]), writer, context, type, name, ns);
             }
         } else if (Byte.TYPE.equals(arrayType)) {
             byte[] objects = (byte[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Byte(objects[i]), writer, context, type, name, ns);
             }
         } else if (Boolean.TYPE.equals(arrayType)) {
             boolean[] objects = (boolean[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
-                writeValue(new Boolean(objects[i]), writer, context, type, name, ns);
+            for (i = 0, n = objects.length; i < n; i++) {
+                writeValue(Boolean.valueOf(objects[i]), writer, context, type, name, ns);
             }
         } else if (Character.TYPE.equals(arrayType)) {
             char[] objects = (char[])values;
-            for (int i = 0, n = objects.length; i < n; i++) {
+            for (i = 0, n = objects.length; i < n; i++) {
                 writeValue(new Character(objects[i]), writer, context, type, name, ns);
             }
         }
@@ -274,12 +281,12 @@ public class ArrayType extends Type {
                 element.setAttribute(new Attribute("nillable", "true"));
             }
 
-            element.setAttribute(new Attribute("minOccurs", new Long(getMinOccurs()).toString()));
+            element.setAttribute(new Attribute("minOccurs", Long.valueOf(getMinOccurs()).toString()));
 
             if (maxOccurs == Long.MAX_VALUE) {
                 element.setAttribute(new Attribute("maxOccurs", "unbounded"));
             } else {
-                element.setAttribute(new Attribute("maxOccurs", new Long(getMaxOccurs()).toString()));
+                element.setAttribute(new Attribute("maxOccurs", Long.valueOf(getMaxOccurs()).toString()));
             }
 
         } catch (IllegalArgumentException e) {
@@ -335,7 +342,7 @@ public class ArrayType extends Type {
             // We couldn't find the type the user specified. One is created
             // below instead.
             if (type == null) {
-                logger.debug("Couldn't find array component type " + componentName
+                LOG.debug("Couldn't find array component type " + componentName
                              + ". Creating one instead.");
             }
         }

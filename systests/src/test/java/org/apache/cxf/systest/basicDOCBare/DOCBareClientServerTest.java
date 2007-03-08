@@ -30,34 +30,32 @@ import javax.jws.WebParam;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_doc_lit_bare.PutLastTradedPricePortType;
 import org.apache.hello_world_doc_lit_bare.SOAPService;
 import org.apache.hello_world_doc_lit_bare.types.TradePriceData;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class DOCBareClientServerTest extends ClientServerTestBase {    
+public class DOCBareClientServerTest extends AbstractBusClientServerTestBase {    
 
     private final QName serviceName = new QName("http://apache.org/hello_world_doc_lit_bare",
                                                 "SOAPService");
     private final QName portName = new QName("http://apache.org/hello_world_doc_lit_bare", "SoapPort");
 
+    @Before
     public void setUp() {
         System.setProperty("org.apache.cxf.bus.factory", "org.apache.cxf.bus.CXFBusFactory");
     }
     
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(DOCBareClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
-        
+    
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testBasicConnection() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/doc_lit_bare.wsdl");
         assertNotNull("WSDL is null", wsdl);
@@ -85,6 +83,7 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
 
     }
 
+    @Test
     public void testAnnotation() throws Exception {
         Class<PutLastTradedPricePortType> claz = PutLastTradedPricePortType.class;
         TradePriceData priceData = new TradePriceData();
@@ -105,19 +104,6 @@ public class DOCBareClientServerTest extends ClientServerTestBase {
         }
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(DOCBareClientServerTest.class);
-    }
-
-    /*
-     * public static void main(String[] args) { ClientServerTest cst = new
-     * ClientServerTest(); if ("client".equals(args[0])) { try {
-     * cst.testAsyncPollingCall(); } catch (Exception ex) {
-     * ex.printStackTrace(); } System.err.println("Exiting...........");
-     * System.exit(0); } else if ("server".equals(args[0])) { try { //
-     * cst.setUp(); cst.onetimeSetUp(); } catch (Exception ex) {
-     * ex.printStackTrace(); } } else { System.out.println("Invaid arg"); } }
-     */
 
 }
 

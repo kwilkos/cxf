@@ -19,46 +19,48 @@
 package org.codehaus.xfire.aegis.inheritance;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
+import org.junit.Test;
 
-public class ExceptionInheritanceTest extends AbstractAegisTest
-{
-//    private Service service;
-//
-//    public void setUp() throws Exception 
-//    {
-//        super.setUp();
-//
-//        HashMap props = new HashMap();
-//        props.put(AegisBindingProvider.WRITE_XSI_TYPE_KEY, Boolean.TRUE);
-//        ArrayList l = new ArrayList();
-//        l.add(SimpleBean.class.getName());
-//        l.add(WS1ExtendedException.class.getName());
-//
-//        props.put(AegisBindingProvider.OVERRIDE_TYPES_KEY, l);
-//        
-//        createService(WS1.class, null);
-//        
-//        service = getServiceFactory().create(WS1.class, props);
-//        service.setInvoker(new BeanInvoker(new WS1Impl()));
-//        getServiceRegistry().register(service);
-//    }
-//    
-//    public void testClient() throws Exception 
-//    {
-//        WS1 client = (WS1) new XFireProxyFactory(getXFire()).create(service, "xfire.local://WS1");
-//        
-//        try 
-//        {
-//            client.throwException(true);
-//        }
-//        catch (WS1ExtendedException ex)
-//        {
-//            Object sb = ex.getSimpleBean();
-//            assertTrue(sb instanceof SimpleBean);
-//        }
-//    }
-    
+public class ExceptionInheritanceTest extends AbstractAegisTest {
+    // private Service service;
+    //
+    // public void setUp() throws Exception
+    // {
+    // super.setUp();
+    //
+    // HashMap props = new HashMap();
+    // props.put(AegisBindingProvider.WRITE_XSI_TYPE_KEY, Boolean.TRUE);
+    // ArrayList l = new ArrayList();
+    // l.add(SimpleBean.class.getName());
+    // l.add(WS1ExtendedException.class.getName());
+    //
+    // props.put(AegisBindingProvider.OVERRIDE_TYPES_KEY, l);
+    //        
+    // createService(WS1.class, null);
+    //        
+    // service = getServiceFactory().create(WS1.class, props);
+    // service.setInvoker(new BeanInvoker(new WS1Impl()));
+    // getServiceRegistry().register(service);
+    // }
+    //    
+    // public void testClient() throws Exception
+    // {
+    // WS1 client = (WS1) new XFireProxyFactory(getXFire()).create(service,
+    // "xfire.local://WS1");
+    //        
+    // try
+    // {
+    // client.throwException(true);
+    // }
+    // catch (WS1ExtendedException ex)
+    // {
+    // Object sb = ex.getSimpleBean();
+    // assertTrue(sb instanceof SimpleBean);
+    // }
+    // }
+
+    @Test
     public void testNothing() {
-        
+
     }
 }

@@ -57,11 +57,11 @@ public class AttributeWriter extends AbstractMessageWriter {
         }
     }
 
-    public MessageWriter getAttributeWriter(String name) {
+    public MessageWriter getAttributeWriter(String nm) {
         throw new IllegalStateException();
     }
 
-    public MessageWriter getAttributeWriter(String name, String namespace) {
+    public MessageWriter getAttributeWriter(String nm, String ns) {
         throw new IllegalStateException();
     }
 
@@ -69,11 +69,11 @@ public class AttributeWriter extends AbstractMessageWriter {
         throw new IllegalStateException();
     }
 
-    public MessageWriter getElementWriter(String name) {
+    public MessageWriter getElementWriter(String nm) {
         throw new IllegalStateException();
     }
 
-    public MessageWriter getElementWriter(String name, String namespace) {
+    public MessageWriter getElementWriter(String nm, String ns) {
         throw new IllegalStateException();
     }
 
@@ -81,11 +81,11 @@ public class AttributeWriter extends AbstractMessageWriter {
         throw new IllegalStateException();
     }
 
-    public String getPrefixForNamespace(String namespace) {
+    public String getPrefixForNamespace(String ns) {
         throw new IllegalStateException();
     }
 
-    public String getPrefixForNamespace(String namespace, String hint) {
+    public String getPrefixForNamespace(String ns, String hint) {
         throw new IllegalStateException();
     }
 

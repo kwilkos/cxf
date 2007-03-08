@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.cxf.aegis.type.java5;
 
 import java.beans.Introspector;
@@ -19,11 +37,14 @@ import org.apache.cxf.aegis.type.java5.dto.CollectionDTO;
 import org.apache.cxf.aegis.type.java5.dto.DTOService;
 import org.apache.cxf.aegis.type.java5.dto.ObjectDTO;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 public class CollectionTest extends AbstractAegisTest {
     private CustomTypeMapping tm;
     private Java5TypeCreator creator;
 
+    @Before
     public void setUp() throws Exception {
         super.setUp();
 
@@ -34,6 +55,7 @@ public class CollectionTest extends AbstractAegisTest {
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testType() throws Exception {
         Method m = CollectionService.class.getMethod("getStrings", new Class[0]);
 
@@ -53,6 +75,7 @@ public class CollectionTest extends AbstractAegisTest {
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testRecursiveCollections() throws Exception {
         Method m = CollectionService.class.getMethod("getStringCollections", new Class[0]);
 
@@ -79,6 +102,7 @@ public class CollectionTest extends AbstractAegisTest {
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testPDType() throws Exception {
         PropertyDescriptor pd = Introspector.getBeanInfo(CollectionDTO.class, Object.class)
             .getPropertyDescriptors()[0];
@@ -93,9 +117,10 @@ public class CollectionTest extends AbstractAegisTest {
         assertTrue(type.getTypeClass().isAssignableFrom(String.class));
     }
 
+    @Test
     public void testCollectionDTO() {
-        CustomTypeMapping tm = new CustomTypeMapping();
-        Java5TypeCreator creator = new Java5TypeCreator();
+        tm = new CustomTypeMapping();
+        creator = new Java5TypeCreator();
         creator.setConfiguration(new Configuration());
         tm.setTypeCreator(creator);
 
@@ -115,9 +140,10 @@ public class CollectionTest extends AbstractAegisTest {
         assertEquals(String.class, comType.getTypeClass());
     }
 
+    @Test
     public void testObjectDTO() {
-        CustomTypeMapping tm = new CustomTypeMapping();
-        Java5TypeCreator creator = new Java5TypeCreator();
+        tm = new CustomTypeMapping();
+        creator = new Java5TypeCreator();
         creator.setConfiguration(new Configuration());
         tm.setTypeCreator(creator);
 
@@ -139,13 +165,14 @@ public class CollectionTest extends AbstractAegisTest {
         assertEquals(Object.class, comType.getTypeClass());
     }
 
+    @Test
     public void testCollectionDTOService() throws Exception {
         createService(DTOService.class, null);
-        invoke("DTOService", 
-               LocalTransportFactory.TRANSPORT_ID,
+        invoke("DTOService", LocalTransportFactory.TRANSPORT_ID,
                "/org/apache/cxf/aegis/type/java5/dto/GetDTO.xml");
     }
 
+    @Test
     public void testCollectionServiceWSDL() throws Exception {
         createService(CollectionService.class, null);
 
@@ -153,12 +180,15 @@ public class CollectionTest extends AbstractAegisTest {
         assertValid("//xsd:element[@name='return'][@type='ArrayOfString']", wsdl);
     }
 
+    @Test
     public void testUnannotatedStrings() throws Exception {
         createService(CollectionService.class, null);
-        
+
         Document doc = getWSDLDocument("CollectionService");
         // printNode(doc);
-        assertValid("//xsd:element[@name='getUnannotatedStringsResponse']/xsd:complexType/xsd:sequence/xsd:element[@type='ArrayOfString']",
+        assertValid(
+                    "//xsd:element[@name='getUnannotatedStringsResponse']"
+                    + "/xsd:complexType/xsd:sequence/xsd:element[@type='ArrayOfString']",
                     doc);
     }
 

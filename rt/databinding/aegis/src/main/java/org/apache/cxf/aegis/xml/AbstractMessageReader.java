@@ -85,7 +85,7 @@ public abstract class AbstractMessageReader implements MessageReader {
      */
     public long getValueAsLong() {
         if (getValue() == null) {
-            return 0l;
+            return 0L;
         }
 
         return Long.parseLong(getValue());

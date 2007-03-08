@@ -117,8 +117,8 @@ public abstract class Type {
         return abstrct;
     }
 
-    public void setAbstract(boolean abstrct) {
-        this.abstrct = abstrct;
+    public void setAbstract(boolean ab) {
+        this.abstrct = ab;
     }
 
     public boolean isNillable() {
@@ -201,10 +201,10 @@ public abstract class Type {
         StringBuffer sb = new StringBuffer(getClass().getName());
         sb.append("[class=");
         Class c = getTypeClass();
-        sb.append((c == null) ? ("<null>") : (c.getName()));
+        sb.append((c == null) ? "<null>" : c.getName());
         sb.append(",\nQName=");
         QName q = getSchemaType();
-        sb.append((q == null) ? ("<null>") : (q.toString()));
+        sb.append((q == null) ? "<null>" : q.toString());
         sb.append("]");
         return sb.toString();
     }

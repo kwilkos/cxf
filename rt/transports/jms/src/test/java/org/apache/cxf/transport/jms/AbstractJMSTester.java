@@ -24,8 +24,6 @@ import java.net.URL;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.message.Exchange;
@@ -38,24 +36,40 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl11.WSDLServiceFactory;
 import org.easymock.classextension.EasyMock;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
 
-public class AbstractJMSTester extends TestCase {
+public abstract class AbstractJMSTester extends Assert {
+    private static JMSBrokerSetup broker;
+    
     protected Bus bus;
     protected EndpointInfo endpointInfo;
     protected EndpointReferenceType target;
     protected MessageObserver observer;
     protected Message inMessage;
     
-    public AbstractJMSTester(String name) {
-        super(name);
+    public static void startBroker(JMSBrokerSetup b) throws Exception {
+        assertNotNull(b);
+        broker = b;
+        broker.start();
     }
     
+    @AfterClass 
+    public static void stopBroker() throws Exception {
+        broker.stop();
+        broker = null;
+    }
+    
+    @Before
     public void setUp() {
         BusFactory bf = BusFactory.newInstance();
         bus = bf.createBus();
         BusFactory.setDefaultBus(bus);
     }
     
+    @After
     public void tearDown() {
         bus.shutdown(true);
         if (System.getProperty("cxf.config.file") != null) {

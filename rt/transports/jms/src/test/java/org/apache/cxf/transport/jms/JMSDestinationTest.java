@@ -23,9 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Exchange;
@@ -36,17 +33,15 @@ import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
 import org.apache.cxf.transport.MessageObserver;
 import org.easymock.classextension.EasyMock;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class JMSDestinationTest extends AbstractJMSTester {
     private Message destMessage;
     
-    public JMSDestinationTest(String name) {
-        super(name);        
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite(JMSDestinationTest.class);
-        return  new JMSBrokerSetup(suite, "tcp://localhost:61500");        
+    @BeforeClass
+    public static void createAndStartBroker() throws Exception {
+        startBroker(new JMSBrokerSetup("tcp://localhost:61500"));
     }
     
     private void waitForReceiveInMessage() {       
@@ -95,6 +90,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         return jmsDestination;
     }
     
+    @Test    
     public void testGetConfiguration() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         BusFactory.setDefaultBus(null);
@@ -106,7 +102,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
                          "HelloWorldQueueBinMsgPort");
         JMSDestination destination = setupJMSDestination(false);
         assertEquals("Can't get the right ServerConfig's MessageTimeToLive ",
-                     500,
+                     500L,
                      destination.getServerConfig().getMessageTimeToLive());
         assertEquals("Can't get the right Server's MessageSelector",
                      "cxf_message_selector",
@@ -121,6 +117,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         
     }
     
+    @Test    
     public void testOneWayDestination() throws Exception {
         destMessage = null;
         inMessage = null;
@@ -204,6 +201,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
         
     }
     
+    @Test    
     public void testRoundTripDestination() throws Exception {
        
         inMessage = null;
@@ -252,6 +250,7 @@ public class JMSDestinationTest extends AbstractJMSTester {
     }
     
 
+    @Test    
     public void testPropertyExclusion() throws Exception {
         
         final String customPropertyName = 

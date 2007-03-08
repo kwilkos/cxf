@@ -26,7 +26,7 @@ public class FastStack<T> extends ArrayList<T> {
         add(o);
     }
 
-    public Object pop() {
+    public T pop() {
         if (empty()) {
             throw new EmptyStackException();
         }
@@ -38,7 +38,7 @@ public class FastStack<T> extends ArrayList<T> {
         return size() == 0;
     }
 
-    public Object peek() {
+    public T peek() {
         if (empty()) {
             throw new EmptyStackException();
         }

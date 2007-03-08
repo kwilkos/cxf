@@ -23,10 +23,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
 
-public class CollectionUtilsTest extends TestCase {
+import org.junit.Assert;
+import org.junit.Test;
+
+public class CollectionUtilsTest extends Assert {
     
+    @Test
     public void testDiff() throws Exception {
         List<String> l1 = Arrays.asList(new String[]{"1", "2", "3"});
         List<String> l2 = Arrays.asList(new String[]{"2", "4", "5"});
@@ -45,6 +48,7 @@ public class CollectionUtilsTest extends TestCase {
         assertNull(l3);     
     }
     
+    @Test
     public void testIsEmpty() throws Exception {
         List<String> l = Arrays.asList(new String[]{null, null});
         assertNotNull(l);

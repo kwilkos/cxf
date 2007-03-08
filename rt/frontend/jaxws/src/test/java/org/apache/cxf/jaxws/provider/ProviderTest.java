@@ -23,8 +23,10 @@ import org.w3c.dom.Node;
 import org.apache.cxf.jaxws.AbstractJaxWsTest;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.transport.local.LocalTransportFactory;
+import org.junit.Test;
 
 public class ProviderTest extends AbstractJaxWsTest {
+    @Test
     public void testInvocation() throws Exception {
         EndpointImpl ep = new EndpointImpl(getBus(), new PayloadProvider(), (String) null);
         ep.publish("http://localhost:9000/Provider");

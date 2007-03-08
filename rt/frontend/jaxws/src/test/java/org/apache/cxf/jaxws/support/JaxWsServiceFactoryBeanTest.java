@@ -37,8 +37,11 @@ import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.junit.Test;
 
 public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
+
+    @Test
     public void testEndpoint() throws Exception {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 
@@ -84,6 +87,7 @@ public class JaxWsServiceFactoryBeanTest extends AbstractJaxWsTest {
         assertNotNull(mpi.getTypeClass());
     }
     
+    @Test
     public void testHolder() throws Exception {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
 

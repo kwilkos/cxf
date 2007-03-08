@@ -28,9 +28,6 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.hello_world_jms.BadRecordLitFault;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayPort;
 import org.apache.cxf.hello_world_jms.HelloWorldOneWayQueueService;
@@ -39,40 +36,38 @@ import org.apache.cxf.hello_world_jms.HelloWorldPubSubPort;
 import org.apache.cxf.hello_world_jms.HelloWorldPubSubService;
 import org.apache.cxf.hello_world_jms.HelloWorldService;
 import org.apache.cxf.hello_world_jms.NoSuchCodeLitFault;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.cxf.transport.jms.JMSConstants;
 import org.apache.cxf.transport.jms.JMSMessageHeadersType;
 import org.apache.cxf.transport.jms.JMSPropertyType;
 import org.apache.hello_world_doc_lit.Greeter;
 import org.apache.hello_world_doc_lit.PingMeFault;
 import org.apache.hello_world_doc_lit.SOAPService2;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class JMSClientServerTest extends ClientServerTestBase {
+public class JMSClientServerTest extends AbstractBusClientServerTestBase {
 
     private QName serviceName; 
     private QName portName;
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(JMSClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                Map<String, String> props = new HashMap<String, String>();                
-                if (System.getProperty("activemq.store.dir") != null) {
-                    props.put("activemq.store.dir", System.getProperty("activemq.store.dir"));
-                }
-                props.put("java.util.logging.config.file", 
-                          System.getProperty("java.util.logging.config.file"));
-                
-                assertTrue("server did not launch correctly", 
-                           launchServer(EmbeddedJMSBrokerLauncher.class, props, null));
+    @BeforeClass
+    public static void startServers() throws Exception {
+        Map<String, String> props = new HashMap<String, String>();                
+        if (System.getProperty("activemq.store.dir") != null) {
+            props.put("activemq.store.dir", System.getProperty("activemq.store.dir"));
+        }
+        props.put("java.util.logging.config.file", 
+                  System.getProperty("java.util.logging.config.file"));
+        
+        assertTrue("server did not launch correctly", 
+                   launchServer(EmbeddedJMSBrokerLauncher.class, props, null));
 
-                assertTrue("server did not launch correctly", 
-                           launchServer(Server.class, false));
-            }
-        };
-    }  
+        assertTrue("server did not launch correctly", 
+                   launchServer(Server.class, false));
+    }
     
+    @Test
     public void testDocBasicConnection() throws Exception {
         serviceName =  new QName("http://apache.org/hello_world_doc_lit", 
                                  "SOAPService2");
@@ -110,6 +105,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
         }
     }
 
+    @Test
     public void testBasicConnection() throws Exception {
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
                                  "HelloWorldService");
@@ -154,6 +150,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testOneWayTopicConnection() throws Exception {
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
                                  "HelloWorldPubSubService");
@@ -177,6 +174,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testOneWayQueueConnection() throws Exception {
         serviceName =  new QName("http://cxf.apache.org/hello_world_jms", 
                                  "HelloWorldOneWayQueueService");
@@ -200,6 +198,7 @@ public class JMSClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testContextPropogation() throws Exception {
         final String testReturnPropertyName = "Test_Prop";
         final String testIgnoredPropertyName = "Test_Prop_No_Return";
@@ -259,8 +258,4 @@ public class JMSClientServerTest extends ClientServerTestBase {
         }
     }
     
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(JMSClientServerTest.class);
-    }
 }

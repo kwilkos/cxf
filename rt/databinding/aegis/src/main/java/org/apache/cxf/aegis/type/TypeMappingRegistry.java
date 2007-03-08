@@ -29,11 +29,11 @@ public interface TypeMappingRegistry {
 
     /**
      */
-    public TypeMapping register(String encodingStyleURI, TypeMapping mapping);
+    TypeMapping register(String encodingStyleURI, TypeMapping mapping);
 
     /**
      */
-    public void registerDefault(TypeMapping mapping);
+    void registerDefault(TypeMapping mapping);
 
     /**
      * Gets the registered default <code>TypeMapping</code> instance. This
@@ -43,7 +43,7 @@ public interface TypeMappingRegistry {
      * @return The registered default <code>TypeMapping</code> instance or
      *         <code>null</code>.
      */
-    public TypeMapping getDefaultTypeMapping();
+    TypeMapping getDefaultTypeMapping();
 
     /**
      * Returns a list of registered encodingStyle URIs in this
@@ -51,7 +51,7 @@ public interface TypeMappingRegistry {
      * 
      * @return Array of the registered encodingStyle URIs
      */
-    public String[] getRegisteredEncodingStyleURIs();
+    String[] getRegisteredEncodingStyleURIs();
 
     /**
      * Returns the registered <code>TypeMapping</code> for the specified
@@ -63,14 +63,14 @@ public interface TypeMappingRegistry {
      * @return TypeMapping for the specified encodingStyleURI or
      *         <code>null</code>
      */
-    public TypeMapping getTypeMapping(String encodingStyleURI);
+    TypeMapping getTypeMapping(String encodingStyleURI);
 
     /**
      * Creates a new empty <code>TypeMapping</code> object.
      * 
      * @return TypeMapping instance.
      */
-    public TypeMapping createTypeMapping(boolean autoTypes);
+    TypeMapping createTypeMapping(boolean autoTypes);
 
     /**
      * Create a type mapping with the specified encodying style.
@@ -80,7 +80,7 @@ public interface TypeMappingRegistry {
      * @param autoTypes Should this mapping auto-generate types where possible
      * @return TypeMapping instance
      */
-    public TypeMapping createTypeMapping(String parentEncodingStyleURI, boolean autoTypes);
+    TypeMapping createTypeMapping(String parentEncodingStyleURI, boolean autoTypes);
 
     /**
      * Unregisters a TypeMapping instance, if present, from the specified
@@ -91,7 +91,7 @@ public interface TypeMappingRegistry {
      *         <code>null</code> if there was no TypeMapping registered for
      *         the specified <code>encodingStyleURI</code>
      */
-    public TypeMapping unregisterTypeMapping(String encodingStyleURI);
+    TypeMapping unregisterTypeMapping(String encodingStyleURI);
 
     /**
      * Removes a <code>TypeMapping</code> from the TypeMappingRegistry. A
@@ -107,11 +107,11 @@ public interface TypeMappingRegistry {
      *         specified <code>TypeMapping</code> was not in the
      *         <code>TypeMappingRegistry</code>
      */
-    public boolean removeTypeMapping(TypeMapping mapping);
+    boolean removeTypeMapping(TypeMapping mapping);
 
     /**
      * Removes all registered TypeMappings and encodingStyleURIs from this
      * TypeMappingRegistry.
      */
-    public void clear();
+    void clear();
 }

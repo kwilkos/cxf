@@ -33,34 +33,29 @@ import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.helpers.XMLUtils;
 import org.apache.cxf.helpers.XPathUtils;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_soap12_http.Greeter;
 import org.apache.hello_world_soap12_http.PingMeFault;
 import org.apache.hello_world_soap12_http.SOAPService;
 import org.apache.hello_world_soap12_http.types.FaultDetail;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class Soap12ClientServerTest extends ClientServerTestBase {    
+public class Soap12ClientServerTest extends AbstractBusClientServerTestBase {    
 
     private final QName serviceName = new QName("http://apache.org/hello_world_soap12_http",
                                                 "SOAPService");
     private final QName portName = new QName("http://apache.org/hello_world_soap12_http", "SoapPort");
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(Soap12ClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
     }
 
+    @Test
     public void testBasicConnection() throws Exception {
         Greeter greeter = getGreeter();
         for (int i = 0; i < 5; i++) {
@@ -70,6 +65,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
 
     }
 
+    @Test
     public void testPingMeFault() throws Exception {
         Greeter greeter = getGreeter();
         try {
@@ -83,6 +79,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
         }
     }
     
+    @Test
     public void testGetSayHi() throws Exception {
         HttpURLConnection httpConnection = 
             getHttpConnection("http://localhost:9012/SoapContext/SoapPort/sayHi");    
@@ -106,6 +103,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
         assertEquals("Bonjour", response);
     }
 
+    @Test
     public void testGetPingMe() throws Exception  {
         HttpURLConnection httpConnection = 
             getHttpConnection("http://localhost:9012/SoapContext/SoapPort/pingMe");    
@@ -146,6 +144,7 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
         assertEquals("2", major);
     }
     
+    @Test
     public void testGetMethodNotExist() throws Exception  {
         HttpURLConnection httpConnection = 
             getHttpConnection("http://localhost:9012/SoapContext/SoapPort/greetMe");
@@ -188,8 +187,5 @@ public class Soap12ClientServerTest extends ClientServerTestBase {
         return service.getPort(portName, Greeter.class);
     }
 
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(Soap12ClientServerTest.class);
-    }
 }
 

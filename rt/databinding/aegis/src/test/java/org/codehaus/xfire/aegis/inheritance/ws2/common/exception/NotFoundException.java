@@ -23,64 +23,50 @@ package org.codehaus.xfire.aegis.inheritance.ws2.common.exception;
  * 
  * @author xfournet
  */
-public class NotFoundException
-    extends Exception
-{
+public class NotFoundException extends Exception {
     private String m_id;
 
-    public NotFoundException()
-    {
+    public NotFoundException() {
     }
 
-    public NotFoundException(String id)
-    {
+    public NotFoundException(String id) {
         m_id = id;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return m_id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(String id) {
         m_id = id;
     }
 
-    public String toString()
-    {
+    public String toString() {
         return "[" + getClass().getName() + "] id=" + m_id;
     }
 
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass())
-        {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        final NotFoundException that = (NotFoundException) o;
+        final NotFoundException that = (NotFoundException)o;
 
-        if (getMessage() != null ? !getMessage().equals(that.getMessage())
-                : that.getMessage() != null)
-        {
+        if (getMessage() != null ? !getMessage().equals(that.getMessage()) : that.getMessage() != null) {
             return false;
         }
 
-        if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null)
-        {
+        if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null) {
             return false;
         }
 
         return true;
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return (m_id != null ? m_id.hashCode() : 0);
     }
 }

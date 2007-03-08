@@ -24,10 +24,12 @@ import java.io.*;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class StaxUtilsTest extends TestCase {
+public class StaxUtilsTest extends Assert {
 
+    @Test
     public void testFactoryCreation() {
         XMLStreamReader reader = StaxUtils.createXMLStreamReader(getTestStream("./resources/amazon.xml"));
         assertTrue(reader != null);
@@ -37,6 +39,7 @@ public class StaxUtilsTest extends TestCase {
         return getClass().getResourceAsStream(resource);
     }
 
+    @Test
     public void testToNextElement() {
         String soapMessage = "./resources/sayHiRpcLiteralReq.xml";
         XMLStreamReader r = StaxUtils.createXMLStreamReader(getTestStream(soapMessage));
@@ -50,6 +53,7 @@ public class StaxUtilsTest extends TestCase {
         assertEquals("Body", reader.getLocalName());
     }
     
+    @Test
     public void testCopy() throws Exception {
         
         // do the stream copying

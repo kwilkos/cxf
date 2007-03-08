@@ -25,6 +25,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 import org.apache.cxf.helpers.DOMUtils;
+import org.junit.Test;
 
 public class SpringServletTest extends AbstractServletTest {
     @Override
@@ -32,6 +33,7 @@ public class SpringServletTest extends AbstractServletTest {
         return "/org/apache/cxf/systest/servlet/web-spring.xml";
     }
 
+    @Test
     public void testInvokingSpringBeans() throws Exception {
 
         WebRequest req = new PostMethodWebRequest("http://localhost/services/Greeter",

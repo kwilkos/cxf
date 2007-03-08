@@ -26,29 +26,22 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Endpoint;
 import javax.xml.ws.Holder;
 
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-
-
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
-
-
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 import org.apache.locator.LocatorService;
 import org.apache.locator.LocatorService_Service;
 import org.apache.locator.query.QuerySelectType;
 import org.apache.locator_test.LocatorServiceImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class LocatorClientServerTest extends ClientServerTestBase {
+public class LocatorClientServerTest extends AbstractBusClientServerTestBase {
 
     static final Logger LOG = Logger.getLogger(LocatorClientServerTest.class.getName());
     private final QName serviceName = new QName("http://apache.org/locator", "LocatorService");
 
-    public static class MyServer extends TestServerBase {
+    public static class MyServer extends AbstractBusTestServerBase {
 
         protected void run() {
             Object implementor = new LocatorServiceImpl();
@@ -70,16 +63,12 @@ public class LocatorClientServerTest extends ClientServerTestBase {
         }
     }
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(LocatorClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(MyServer.class));
-            }
-        };
-
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(MyServer.class));
     }
 
+    @Test
     public void testLocatorService() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/locator.wsdl");
         assertNotNull(wsdl);

@@ -31,11 +31,6 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
-import junit.framework.Test;
-//import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
 import org.apache.cxf.Bus;
 // import org.apache.cxf.BusException;
 // import org.apache.cxf.common.i18n.Message;
@@ -58,21 +53,12 @@ import org.apache.cxf.wsdl.WSDLManager;
 import org.apache.cxf.wsdl11.WSDLManagerImpl;
 // import org.apache.cxf.jca.cxf.test.DummyBus;
 import org.easymock.classextension.EasyMock;
+import org.junit.Test;
 
 public class JCABusFactoryTest extends AbstractCXFTest {
    
-    private Bus bus;
     
-//    public JCABusFactoryTest(String name) {
-//        super(name);
-//    }
-
-    public void setUp() throws Exception {
-        super.setUp();
-        
-        bus = getBus();
-    }
-    
+    @Test
     public void testSetAppserverClassLoader() {
         ClassLoader loader = new DummyClassLoader();
         JCABusFactory bf = new JCABusFactory(new ManagedConnectionFactoryImpl());
@@ -81,6 +67,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
     } 
 
      
+    @Test
     public void testModifiedBusArguments() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         mcf.setConfigurationScope("a.b.c");
@@ -175,6 +162,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
     // service strings to qname localparts
    
 
+    @Test
     public void testValidQNameFromString() throws Exception {
         final Object[][] ejbServantServicePorpsTestStrings =
             new Object[][] {{"serviceName", new QName("serviceName")},
@@ -199,6 +187,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         }
     }
 
+    @Test
     public void testInvalidQNameFromString() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
@@ -212,6 +201,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
 
     
 
+    @Test
     public void testWsdlLocFromString() throws Exception {
         //service strings to wsdl urls
         final String[][] ejbServantServicePropsTestStringsWsdlLoc = 
@@ -234,6 +224,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
     }
 
     
+    @Test
     public void testPortNameFromString() throws Exception {
         //service strings to portName
         final String[][] ejbServantServicePropsTestStringsPortName = 
@@ -256,6 +247,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         }
     }
 
+    @Test
     public void testInvalidPortNameFromString() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
@@ -283,6 +275,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         }
     }
 
+    @Test
     public void testLoadNonexistentProperties() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
@@ -311,6 +304,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
     }
     
     
+    @Test
     public void testInitServants() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         //get resource 
@@ -324,6 +318,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         
     }
     
+    @Test
     public void testCreateService() throws Exception {
         Bus springBus = new SpringBusFactory().createBus();
         
@@ -336,6 +331,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
         assertEquals("test", service.get("test"));
     }
 
+    @Test
     public void testCreateServer() throws Exception {
         //Bus springBus = new SpringBusFactory().createBus();
         
@@ -454,6 +450,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
 //         }
 //     }
      
+    @Test
     public void testInitServantsFromPropertiesWithNoServiceQName() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
@@ -515,6 +512,7 @@ public class JCABusFactoryTest extends AbstractCXFTest {
     }
 */
     
+    @Test
     public void testInitFromPropsDoesNotThrowExceptionWhenSomethingGoesWrong() throws Exception {
         ManagedConnectionFactoryImpl mcf = new ManagedConnectionFactoryImpl();
         JCABusFactory jcaBusFactory = new JCABusFactory(mcf);
@@ -595,13 +593,6 @@ public class JCABusFactoryTest extends AbstractCXFTest {
     }
 */
    
-    public static Test suite() {
-        return new TestSuite(JCABusFactoryTest.class);
-    }
-
-    public static void main(String[] args) {
-        TestRunner.main(new String[] {JCABusFactoryTest.class.getName()});
-    }
 }
 
 

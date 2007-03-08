@@ -23,25 +23,31 @@ import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.ws.policy.builder.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.neethi.Policy;
 import org.apache.neethi.util.PolicyComparator;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class NormalizeTest extends TestCase {
+public class NormalizeTest extends Assert {
     
     private String originalNamespace;
     
+    
+    @Before
     public void setUp() {
         originalNamespace = PolicyConstants.getNamespace();
         PolicyConstants.setNamespace("http://schemas.xmlsoap.org/ws/2004/09/policy");
     }
     
+    @After
     public void tearDown() {
         PolicyConstants.setNamespace(originalNamespace);
     }
     
+    @Test
     public void testNormalise() throws Exception {
         
         PolicyBuilderImpl builder = new PolicyBuilderImpl();

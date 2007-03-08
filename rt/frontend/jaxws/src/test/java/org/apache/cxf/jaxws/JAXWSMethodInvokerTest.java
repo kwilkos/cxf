@@ -18,7 +18,6 @@
  */
 package org.apache.cxf.jaxws;
 
-import junit.framework.TestCase;
 
 import org.apache.cxf.common.util.factory.Factory;
 import org.apache.cxf.jaxws.service.Hello;
@@ -26,12 +25,15 @@ import org.apache.cxf.message.Exchange;
 
 import org.apache.cxf.service.invoker.ScopePolicy;
 import org.easymock.classextension.EasyMock;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class JAXWSMethodInvokerTest extends TestCase {
+public class JAXWSMethodInvokerTest {
     Factory factory = EasyMock.createMock(Factory.class);
     Object target = EasyMock.createMock(Hello.class);
     ScopePolicy scope = EasyMock.createMock(ScopePolicy.class);
-           
+        
+    @Test
     public void testFactoryBeans() throws Throwable {
         EasyMock.reset(factory);
         factory.create();
@@ -40,7 +42,7 @@ public class JAXWSMethodInvokerTest extends TestCase {
         JAXWSMethodInvoker jaxwsMethodInvoker = new JAXWSMethodInvoker(factory);
         Exchange ex = EasyMock.createMock(Exchange.class);               
         Object object = jaxwsMethodInvoker.getServiceObject(ex);
-        assertEquals("the target object and service object should be equal ", object, target);
+        Assert.assertEquals("the target object and service object should be equal ", object, target);
         EasyMock.verify(factory);
     }
         

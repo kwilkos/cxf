@@ -45,36 +45,11 @@ import org.jdom.Text;
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
 public class JDOMStreamReader extends DOMStreamReader {
-    public static String toStaxType(int jdom) {
-        switch (jdom) {
-        case Attribute.CDATA_TYPE:
-            return "CDATA";
-        case Attribute.ID_TYPE:
-            return "ID";
-        case Attribute.IDREF_TYPE:
-            return "IDREF";
-        case Attribute.IDREFS_TYPE:
-            return "IDREFS";
-        case Attribute.ENTITY_TYPE:
-            return "ENTITY";
-        case Attribute.ENTITIES_TYPE:
-            return "ENTITIES";
-        case Attribute.ENUMERATED_TYPE:
-            return "ENUMERATED";
-        case Attribute.NMTOKEN_TYPE:
-            return "NMTOKEN";
-        case Attribute.NMTOKENS_TYPE:
-            return "NMTOKENS";
-        case Attribute.NOTATION_TYPE:
-            return "NOTATION";
-        default:
-            return null;
-        }
-    }
 
     private Content content;
 
-    private FastStack<Map> namespaceStack = new FastStack<Map>();
+    private FastStack<Map<String, Namespace>> namespaceStack
+        = new FastStack<Map<String, Namespace>>();
 
     private List<Namespace> namespaces = new ArrayList<Namespace>();
 
@@ -90,6 +65,52 @@ public class JDOMStreamReader extends DOMStreamReader {
 
         namespaceContext = new JDOMNamespaceContext();
         setupNamespaces(element);
+    }
+
+    /**
+     * @param document
+     */
+    public JDOMStreamReader(Document document) {
+        this(document.getRootElement());
+    }
+
+    public static String toStaxType(int jdom) {
+        String val;
+        switch (jdom) {
+        case Attribute.CDATA_TYPE:
+            val = "CDATA";
+            break;
+        case Attribute.ID_TYPE:
+            val = "ID";
+            break;
+        case Attribute.IDREF_TYPE:
+            val = "IDREF";
+            break;
+        case Attribute.IDREFS_TYPE:
+            val = "IDREFS";
+            break;
+        case Attribute.ENTITY_TYPE:
+            val = "ENTITY";
+            break;
+        case Attribute.ENTITIES_TYPE:
+            val = "ENTITIES";
+            break;
+        case Attribute.ENUMERATED_TYPE:
+            val = "ENUMERATED";
+            break;
+        case Attribute.NMTOKEN_TYPE:
+            val = "NMTOKEN";
+            break;
+        case Attribute.NMTOKENS_TYPE:
+            val = "NMTOKENS";
+            break;
+        case Attribute.NOTATION_TYPE:
+            val = "NOTATION";
+            break;
+        default:
+            val = null;
+        }
+        return val;
     }
 
     private void setupNamespaces(Element element) {
@@ -141,9 +162,9 @@ public class JDOMStreamReader extends DOMStreamReader {
 
     private String getDeclaredURI(String string) {
         for (int i = namespaceStack.size() - 1; i == 0; i--) {
-            Map namespaces = namespaceStack.get(i);
+            Map<String, Namespace> nmspaces = namespaceStack.get(i);
 
-            Namespace dec = (Namespace)namespaces.get(string);
+            Namespace dec = nmspaces.get(string);
 
             if (dec != null) {
                 return dec.getURI();
@@ -158,13 +179,6 @@ public class JDOMStreamReader extends DOMStreamReader {
         if (namespaceStack.size() > 0) {
             prefix2decNs = (Map<String, Namespace>)namespaceStack.pop();
         }
-    }
-
-    /**
-     * @param document
-     */
-    public JDOMStreamReader(Document document) {
-        this(document.getRootElement());
     }
 
     public Element getCurrentElement() {
@@ -274,7 +288,7 @@ public class JDOMStreamReader extends DOMStreamReader {
     }
 
     public String getText() {
-        return (content).getValue();
+        return content.getValue();
     }
 
     public char[] getTextCharacters() {

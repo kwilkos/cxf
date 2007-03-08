@@ -42,14 +42,17 @@ import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.test.AbstractCXFTest;
+import org.junit.Before;
+import org.junit.Test;
 
 public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
     
     Message message;
     String ns = "http://apache.org/cxf/calculator";
     
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpBus();
         BindingFactoryManager bfm = getBus().getExtension(BindingFactoryManager.class);
         bfm.registerBindingFactory("http://schemas.xmlsoap.org/wsdl/soap/", 
                                    new SoapBindingFactory());
@@ -80,6 +83,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         exchange.put(Endpoint.class, endpoint);        
     }
     
+    @Test
     public void testGetAddFromPath() throws Exception {
         message.put(Message.FIXED_PARAMETER_ORDER, Boolean.TRUE);
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add/arg0/1/arg1/0");
@@ -92,6 +96,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         assertion();        
     }
     
+    @Test
     public void testGetAddFromQuery() throws Exception {
         message.put(Message.FIXED_PARAMETER_ORDER, Boolean.TRUE);
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
@@ -104,6 +109,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         assertion();
     }
     
+    @Test
     public void testGetAddFromQueryOrdered() throws Exception {
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
         message.put(Message.QUERY_STRING, "arg1=0&arg0=1");
@@ -115,6 +121,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         assertion();
     }
     
+    @Test
     public void testGetAddFromPathOrdered() throws Exception {
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add/arg1/0/arg0/1");
         
@@ -125,6 +132,7 @@ public class URIMappingInterceptorDocLitTest extends AbstractCXFTest {
         assertion();
     }    
     
+    @Test
     public void testGetAddFromQueryOrderedFault() throws Exception {        
         message.put(Message.PATH_INFO, "/CalculatorService/SoapPort/add");
         message.put(Message.QUERY_STRING, "one=1&two=2");

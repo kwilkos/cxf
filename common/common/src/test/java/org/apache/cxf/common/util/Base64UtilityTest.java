@@ -22,12 +22,13 @@ package org.apache.cxf.common.util;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Base64UtilityTest extends TestCase {
+public class Base64UtilityTest extends Assert {
 
-    public Base64UtilityTest(String arg0) {
-        super(arg0);
+    public Base64UtilityTest() {
+        super();
     }
 
     void assertEquals(byte b1[], byte b2[]) {
@@ -37,6 +38,7 @@ public class Base64UtilityTest extends TestCase {
         }
     }
     
+    @Test
     public void testEncodeDecodeChunk() throws Exception {
         byte bytes[] = new byte[100];
         for (int x = 0; x < bytes.length; x++) {
@@ -87,6 +89,7 @@ public class Base64UtilityTest extends TestCase {
         assertNull(bytesDecoded);
     }
 
+    @Test
     public void testEncodeDecodeString() throws Exception {
         String in = "QWxhZGRpbjpvcGVuIHNlc2FtZQ==";
         byte bytes[] = Base64Utility.decode(in);
@@ -95,6 +98,7 @@ public class Base64UtilityTest extends TestCase {
         assertEquals(in, encoded);
     }
 
+    @Test
     public void testEncodeDecodeStreams() throws Exception {
         byte bytes[] = new byte[100];
         for (int x = 0; x < bytes.length; x++) {

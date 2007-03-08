@@ -35,25 +35,25 @@ public interface TypeMapping {
      *         specified XML type and Java type is registered; otherwise
      *         <code>false</code>
      */
-    public boolean isRegistered(Class javaType);
+    boolean isRegistered(Class javaType);
 
-    public boolean isRegistered(QName xmlType);
+    boolean isRegistered(QName xmlType);
 
-    public void register(Class javaType, QName xmlType, Type type);
+    void register(Class javaType, QName xmlType, Type type);
 
-    public void register(Type type);
+    void register(Type type);
 
-    public void removeType(Type type);
+    void removeType(Type type);
 
-    public Type getType(Class javaType);
+    Type getType(Class javaType);
 
-    public Type getType(QName xmlType);
+    Type getType(QName xmlType);
 
-    public QName getTypeQName(Class clazz);
+    QName getTypeQName(Class clazz);
 
-    public String getEncodingStyleURI();
+    String getEncodingStyleURI();
 
-    public void setEncodingStyleURI(String encodingStyleURI);
+    void setEncodingStyleURI(String encodingStyleURI);
 
-    public TypeCreator getTypeCreator();
+    TypeCreator getTypeCreator();
 }

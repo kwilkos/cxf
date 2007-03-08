@@ -23,10 +23,8 @@ package org.apache.cxf.aegis.services;
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
-public class Echo
-{
-    public String echo( String echo )
-    {
+public class Echo {
+    public String echo(String echo) {
         return echo;
     }
 }

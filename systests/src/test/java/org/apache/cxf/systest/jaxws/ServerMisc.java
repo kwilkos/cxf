@@ -24,10 +24,10 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.anonymous_complex_type.AnonymousComplexTypeImpl;
 import org.apache.cxf.jaxb_element_test.JaxbElementTestImpl;
 import org.apache.cxf.ordered_param_holder.OrderedParamHolderImpl;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 
-public class ServerMisc extends TestServerBase {
+public class ServerMisc extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor1 = new AnonymousComplexTypeImpl();

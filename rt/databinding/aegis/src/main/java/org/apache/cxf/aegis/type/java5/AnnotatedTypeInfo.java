@@ -38,8 +38,9 @@ public class AnnotatedTypeInfo extends BeanTypeInfo {
      * Override from parent in order to check for IgnoreProperty annotation.
      */
     protected void mapProperty(PropertyDescriptor pd) {
-        if (isIgnored(pd))
+        if (isIgnored(pd)) {
             return; // do not map ignored properties
+        }
 
         String name = pd.getName();
         if (isAttribute(pd)) {
@@ -52,12 +53,14 @@ public class AnnotatedTypeInfo extends BeanTypeInfo {
     @Override
     protected boolean registerType(PropertyDescriptor desc) {
         XmlAttribute att = desc.getReadMethod().getAnnotation(XmlAttribute.class);
-        if (att != null && att.type() != Type.class)
+        if (att != null && att.type() != Type.class) {
             return false;
+        }
 
         XmlElement el = desc.getReadMethod().getAnnotation(XmlElement.class);
-        if (el != null && el.type() != Type.class)
-            return false;
+        if (el != null && el.type() != Type.class) {
+            return false;            
+        }
 
         return super.registerType(desc);
     }
@@ -95,20 +98,24 @@ public class AnnotatedTypeInfo extends BeanTypeInfo {
         if (isAttribute(desc)) {
             XmlAttribute att = desc.getReadMethod().getAnnotation(XmlAttribute.class);
             name = att.name();
-            if (att.namespace().length() > 0)
-                ns = att.namespace();
+            if (att.namespace().length() > 0) {
+                ns = att.namespace();                
+            }
         } else if (isAnnotatedElement(desc)) {
             XmlElement att = desc.getReadMethod().getAnnotation(XmlElement.class);
             name = att.name();
-            if (att.namespace().length() > 0)
+            if (att.namespace().length() > 0) {
                 ns = att.namespace();
+            }
         }
 
-        if (name == null || name.length() == 0)
+        if (name == null || name.length() == 0) {
             name = desc.getName();
+        }
 
-        if (ns == null || ns.length() == 0)
+        if (ns == null || ns.length() == 0) {
             ns = NamespaceHelper.makeNamespaceFromClassName(getTypeClass().getName(), "http");
+        }
 
         return new QName(ns, name);
     }
@@ -117,8 +124,7 @@ public class AnnotatedTypeInfo extends BeanTypeInfo {
         PropertyDescriptor desc = getPropertyDescriptorFromMappedName(name);
 
         if (isAnnotatedElement(desc)) {
-            XmlElement att = desc.getReadMethod().getAnnotation(XmlElement.class);
-            return att.nillable();
+            return desc.getReadMethod().getAnnotation(XmlElement.class).nillable();
         } else {
             return super.isNillable(name);
         }

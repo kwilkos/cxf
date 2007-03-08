@@ -21,57 +21,52 @@ package org.codehaus.xfire.aegis.inheritance.intf;
 import org.w3c.dom.Document;
 
 import org.apache.cxf.aegis.AbstractAegisTest;
-import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.invoker.BeanInvoker;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
- * This test ensures that we're handling inheritance of itnerfaces
- * correctly. Since we can't do multiple parent inheritance in XML
- * schema, which interfaces require, we just don't allow interface
- * inheritance period.
+ * This test ensures that we're handling inheritance of itnerfaces correctly.
+ * Since we can't do multiple parent inheritance in XML schema, which interfaces
+ * require, we just don't allow interface inheritance period.
  * 
  * @author Dan Diephouse
  */
-public class InterfaceInheritanceTest
-    extends AbstractAegisTest
-{
-    
-    public void setUp()
-        throws Exception
-    {
+public class InterfaceInheritanceTest extends AbstractAegisTest {
+
+    @Before
+    public void setUp() throws Exception {
         super.setUp();
         Server server = createService(IInterfaceService.class, null);
         Service service = server.getEndpoint().getService();
         service.setInvoker(new BeanInvoker(new InterfaceService()));
     }
 
-    public void testClient() throws Exception
-    {
+    @Test
+    public void testClient() throws Exception {
         ClientProxyFactoryBean proxyFac = new ClientProxyFactoryBean();
         proxyFac.setAddress("IInterfaceService");
         proxyFac.setServiceClass(IInterfaceService.class);
         proxyFac.setBus(getBus());
         setupAegis(proxyFac.getClientFactoryBean());
-        
-        IInterfaceService client = (IInterfaceService) proxyFac.create();
-        
+
+        IInterfaceService client = (IInterfaceService)proxyFac.create();
+
         IChild child = client.getChild();
         assertNotNull(child);
         assertEquals("child", child.getChildName());
         assertEquals("parent", child.getParentName());
-        
+
         IParent parent = client.getChildViaParent();
         assertEquals("parent", parent.getParentName());
         assertFalse(parent instanceof IChild);
 
         IGrandChild grandChild = client.getGrandChild();
         assertEquals("parent", grandChild.getParentName());
-        
+
         Document wsdl = getWSDLDocument("IInterfaceService");
         assertValid("//xsd:complexType[@name='IGrandChild']", wsdl);
         assertValid("//xsd:complexType[@name='IGrandChild']//xsd:element[@name='grandChildName']", wsdl);

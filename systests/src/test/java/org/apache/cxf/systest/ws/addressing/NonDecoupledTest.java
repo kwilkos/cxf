@@ -19,8 +19,6 @@
 
 package org.apache.cxf.systest.ws.addressing;
 
-import junit.framework.Test;
-
 
 /**
  * Tests the addition of WS-Addressing Message Addressing Properties
@@ -30,13 +28,9 @@ public class NonDecoupledTest extends MAPTestBase {
 
     private static final String CONFIG =
         "org/apache/cxf/systest/ws/addressing/wsa_interceptors.xml";
-    
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(NonDecoupledTest.class);
-    }
-    
-    public static Test suite() throws Exception {
-        return getSuite(NonDecoupledTest.class, CONFIG);
+
+    public String getConfigFileName() {
+        return CONFIG;
     }
 }
 

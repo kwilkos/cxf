@@ -25,27 +25,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class JMSConduitTest extends AbstractJMSTester {
      
     
-    public JMSConduitTest(String name) {
-        super(name);
-    }   
-    
-    public static Test suite() {
-        TestSuite suite = new TestSuite(JMSConduitTest.class);
-        return  new JMSBrokerSetup(suite, "tcp://localhost:61500");        
+    @BeforeClass
+    public static void createAndStartBroker() throws Exception {
+        startBroker(new JMSBrokerSetup("tcp://localhost:61500"));
     }
     
+    @Test
     public void testGetConfiguration() throws Exception {
         // setup the new bus to get the configuration file
         SpringBusFactory bf = new SpringBusFactory();
@@ -58,7 +54,7 @@ public class JMSConduitTest extends AbstractJMSTester {
                          "HelloWorldQueueBinMsgPort");
         JMSConduit conduit = setupJMSConduit(false, false);
         assertEquals("Can't get the right ClientReceiveTimeout",
-                     500,
+                     500L,
                      conduit.getClientConfig().getClientReceiveTimeout());
         assertEquals("Can't get the right SessionPoolConfig's LowWaterMark",
                      10,
@@ -71,6 +67,7 @@ public class JMSConduitTest extends AbstractJMSTester {
         
     }
     
+    @Test
     public void testPrepareSend() throws Exception {
         setupServiceInfo("http://cxf.apache.org/hello_world_jms", 
                          "/wsdl/jms_test.wsdl", 
@@ -95,6 +92,7 @@ public class JMSConduitTest extends AbstractJMSTester {
         
     }
     
+    @Test
     public void testSendOut() throws Exception {
         setupServiceInfo("http://cxf.apache.org/hello_world_jms", 
                          "/wsdl/jms_test.wsdl", 

@@ -24,7 +24,6 @@ import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
-import org.apache.cxf.binding.soap.SoapConstants;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.Namespace;

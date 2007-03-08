@@ -20,11 +20,11 @@ package org.apache.cxf.systest.jms;
 
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.store.memory.MemoryPersistenceAdapter;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 
 
 
-public class EmbeddedJMSBrokerLauncher extends TestServerBase {
+public class EmbeddedJMSBrokerLauncher extends AbstractBusTestServerBase {
     
     BrokerService broker;
     final String brokerUrl1 = "tcp://localhost:61500";            

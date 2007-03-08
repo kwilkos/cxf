@@ -35,12 +35,12 @@ import org.apache.cxf.message.Attachment;
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  */
 public abstract class AbstractXOPType extends Type {
-    public final static String XOP_NS = "http://www.w3.org/2004/08/xop/include";
-    public final static String XML_MIME_NS = "http://www.w3.org/2004/11/xmlmime";
+    public static final String XOP_NS = "http://www.w3.org/2004/08/xop/include";
+    public static final String XML_MIME_NS = "http://www.w3.org/2004/11/xmlmime";
 
-    public final static QName XOP_INCLUDE = new QName(XOP_NS, "Include");
-    public final static QName XOP_HREF = new QName("href");
-    public final static QName XML_MIME_TYPE = new QName(XML_MIME_NS, "mimeType");
+    public static final QName XOP_INCLUDE = new QName(XOP_NS, "Include");
+    public static final QName XOP_HREF = new QName("href");
+    public static final QName XML_MIME_TYPE = new QName(XML_MIME_NS, "mimeType");
 
     public AbstractXOPType() {
     }
@@ -61,7 +61,8 @@ public abstract class AbstractXOPType extends Type {
         return o;
     }
 
-    public Object readInclude(String type, MessageReader reader, Context context) throws DatabindingException {
+    public Object readInclude(String type, MessageReader reader,
+                              Context context) throws DatabindingException {
         String href = reader.getAttributeReader(XOP_HREF).getValue();
 
         Attachment att = AttachmentUtil.getAttachment(href, context.getAttachments());
@@ -80,7 +81,8 @@ public abstract class AbstractXOPType extends Type {
     protected abstract Object readAttachment(Attachment att, Context context) throws IOException;
 
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object, MessageWriter writer,
+                            Context context) throws DatabindingException {
         Collection<Attachment> attachments = context.getAttachments();
         if (attachments == null) {
             attachments = new ArrayList<Attachment>();

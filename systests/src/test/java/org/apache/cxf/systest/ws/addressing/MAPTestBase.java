@@ -30,15 +30,11 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.ProtocolException;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractClientServerTestBase;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.AddressingPropertiesImpl;
 import org.apache.cxf.ws.addressing.AttributedURIType;
@@ -50,6 +46,12 @@ import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.NoSuchCodeLitFault;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES;
 
@@ -57,7 +59,7 @@ import static org.apache.cxf.ws.addressing.JAXWSAConstants.CLIENT_ADDRESSING_PRO
 /**
  * Tests the addition of WS-Addressing Message Addressing Properties.
  */
-public abstract class MAPTestBase extends ClientServerTestBase implements VerificationCache {
+public abstract class MAPTestBase extends AbstractClientServerTestBase implements VerificationCache {
 
     static final String INBOUND_KEY = "inbound";
     static final String OUTBOUND_KEY = "outbound";
@@ -71,51 +73,65 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
         new QName("http://apache.org/hello_world_soap_http", "SoapPort");
     private static final String NOWHERE = "http://nowhere.nada.nothing.nought:5555";
     private static final String DECOUPLED = "http://localhost:9999/decoupled_endpoint";
+    
     private static Map<Object, Map<String, String>> messageIDs =
         new HashMap<Object, Map<String, String>>();
+    private static Bus staticBus;
+    
     private Greeter greeter;
     private String verified;
+    
+    
 
-    public static Test getSuite(Class clz, final String config) throws Exception {
-        TestSuite suite = new TestSuite(clz);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                // special case handling for WS-Addressing system test to avoid
-                // UUID related issue when server is run as separate process
-                // via maven on Win2k
-                boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
-                assertTrue("server did not launch correctly", 
-                           launchServer(Server.class, inProcess));
-            }
-            
-            public void setUp() throws Exception {
-                startServers();
-
-                SpringBusFactory bf = new SpringBusFactory();
-                Bus bus = bf.createBus(config);
-                BusFactory.setDefaultBus(bus);
-                setBus(bus);
-
-                mapVerifier = new MAPVerifier();
-                headerVerifier = new HeaderVerifier();
-                Interceptor[] interceptors = {mapVerifier, headerVerifier };
-                addInterceptors(getBus().getInInterceptors(), interceptors);
-                addInterceptors(getBus().getOutInterceptors(), interceptors);
-                addInterceptors(getBus().getOutFaultInterceptors(), interceptors);
-                addInterceptors(getBus().getInFaultInterceptors(), interceptors);
-            }
-            
-            private void addInterceptors(List<Interceptor> chain,
-                                         Interceptor[] interceptors) {
-                for (int i = 0; i < interceptors.length; i++) {
-                    chain.add(interceptors[i]);
-                }
-            }
-        };
+    @BeforeClass
+    public static void startServers() throws Exception {
+        // special case handling for WS-Addressing system test to avoid
+        // UUID related issue when server is run as separate process
+        // via maven on Win2k
+        boolean inProcess = "Windows 2000".equals(System.getProperty("os.name"));
+        assertTrue("server did not launch correctly", 
+                   launchServer(Server.class, inProcess));
     }
-
+    
+    @AfterClass
+    public static void shutdownBus() throws Exception {
+        staticBus.shutdown(true);
+    }
+    
+    private void addInterceptors(List<Interceptor> chain,
+                                     Interceptor[] interceptors) {
+        for (int i = 0; i < interceptors.length; i++) {
+            chain.add(interceptors[i]);
+        }
+    }
+    private void removeInterceptors(List<Interceptor> chain,
+                                 Interceptor[] interceptors) {
+        for (int i = 0; i < interceptors.length; i++) {
+            chain.add(interceptors[i]);
+        }
+    }
+    
+    public abstract String getConfigFileName();
+    
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
+        //super.setUp();
+        
+        if (staticBus == null) {
+            SpringBusFactory bf = new SpringBusFactory();
+            staticBus = bf.createBus(getConfigFileName());
+            BusFactory.setDefaultBus(staticBus);
+        }
+                
+        messageIDs.clear();
+        mapVerifier = new MAPVerifier();
+        headerVerifier = new HeaderVerifier();
+        Interceptor[] interceptors = {mapVerifier, headerVerifier };
+        addInterceptors(staticBus.getInInterceptors(), interceptors);
+        addInterceptors(staticBus.getOutInterceptors(), interceptors);
+        addInterceptors(staticBus.getOutFaultInterceptors(), interceptors);
+        addInterceptors(staticBus.getInFaultInterceptors(), interceptors);
+        
         URL wsdl = getClass().getResource("/wsdl/hello_world.wsdl");
         SOAPService service = new SOAPService(wsdl, SERVICE_NAME);
         greeter = (Greeter)service.getPort(PORT_NAME, Greeter.class);
@@ -123,12 +139,22 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
         headerVerifier.verificationCache = this;
     }
     
-    public void tearDown() {
+    @After
+    public void tearDown() throws Exception {
+        Interceptor[] interceptors = {mapVerifier, headerVerifier };
+        removeInterceptors(staticBus.getInInterceptors(), interceptors);
+        removeInterceptors(staticBus.getOutInterceptors(), interceptors);
+        removeInterceptors(staticBus.getOutFaultInterceptors(), interceptors);
+        removeInterceptors(staticBus.getInFaultInterceptors(), interceptors);
+        
+        mapVerifier = null;
+        headerVerifier = null;
         verified = null;
+        messageIDs.clear();
     }
         
     //--Tests
-     
+    @Test
     public void testImplicitMAPs() throws Exception {
         try {
             String greeting = greeter.greetMe("implicit1");
@@ -146,7 +172,9 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
         }
     }
 
-    public void xtestExplicitMAPs() throws Exception {
+    @Test
+    @Ignore
+    public void testExplicitMAPs() throws Exception {
         try {
             Map<String, Object> requestContext = 
                 ((BindingProvider)greeter).getRequestContext();
@@ -185,7 +213,9 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
         }
     }
     
-    public void xtestFaultTo() throws Exception {
+    @Test
+    @Ignore
+    public void testFaultTo() throws Exception {
         try {
             String greeting = greeter.greetMe("warmup");
             assertEquals("unexpected response received from service", 
@@ -212,6 +242,7 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
         }
     }
     
+    @Test
     public void testOneway() throws Exception {
         try {
             greeter.greetMeOneWay("implicit_oneway1");
@@ -221,6 +252,8 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
         }
     }
     
+    
+    @Test
     public void testApplicationFault() throws Exception {
         try {
             greeter.testDocLitFault("BadRecordLitFault");
@@ -243,7 +276,9 @@ public abstract class MAPTestBase extends ClientServerTestBase implements Verifi
             throw (Exception)ex.getCause();
         }
     }
+    
 
+    @Test
     public void testVersioning() throws Exception {
         try {
             // expect two MAPs instances versioned with 200408, i.e. for both 

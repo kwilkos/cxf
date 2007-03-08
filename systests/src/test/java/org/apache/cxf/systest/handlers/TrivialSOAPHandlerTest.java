@@ -23,22 +23,21 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 import javax.xml.ws.Endpoint;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.apache.cxf.testutil.common.AbstractClientServerTestBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Tests the use of a SOAPHandler which does not use the underlying SOAP message but simply
  * returns true instead.
  */
-public class TrivialSOAPHandlerTest extends TestCase {
+public class TrivialSOAPHandlerTest extends AbstractClientServerTestBase {
 
-    public static class Server extends TestServerBase {
+    public static class Server extends AbstractBusTestServerBase {
         
         protected void run()  {            
             Object implementor = new TrivialSOAPHandlerAnnotatedGreeterImpl();
@@ -60,16 +59,14 @@ public class TrivialSOAPHandlerTest extends TestCase {
         }
     }    
 
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(TrivialSOAPHandlerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly",
-                           launchServer(Server.class));
-            }
-        };
+
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly",
+                   launchServer(Server.class));
     }
     
+    @Test
     public void testInvocation() throws Exception {
 
         GreeterService service = new GreeterService();

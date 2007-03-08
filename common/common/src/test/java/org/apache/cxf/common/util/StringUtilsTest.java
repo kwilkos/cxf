@@ -21,14 +21,16 @@ package org.apache.cxf.common.util;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class StringUtilsTest extends TestCase {
+public class StringUtilsTest extends Assert {
     public void testTrim() throws Exception {
         String target = "////soapport///";
         assertEquals("soapport", StringUtils.trim(target, "/"));
     }
     
+    @Test
     public void testDiff() throws Exception {
         String str1 = "http://local/SoapContext/SoapPort/greetMe/me/CXF";
         String str2 = "http://local/SoapContext/SoapPort";
@@ -38,11 +40,13 @@ public class StringUtilsTest extends TestCase {
         assertEquals("http://local/SoapContext/SoapPort/", StringUtils.diff(str3, str1));
     }
     
+    @Test
     public void testGetFirstNotEmpty() throws Exception {        
         assertEquals("greetMe", StringUtils.getFirstNotEmpty("/greetMe/me/CXF", "/"));
         assertEquals("greetMe", StringUtils.getFirstNotEmpty("greetMe/me/CXF", "/"));
     }
     
+    @Test
     public void testGetParts() throws Exception {
         String str = "/greetMe/me/CXF";
         List<String> parts = StringUtils.getParts(str, "/");
@@ -52,6 +56,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("CXF", parts.get(2));
     }
     
+    @Test
     public void testGetFound() throws Exception {
         String regex = "velocity-\\d+\\.\\d+\\.jar";
         
@@ -60,11 +65,13 @@ public class StringUtilsTest extends TestCase {
         assertTrue(StringUtils.isEmpty(StringUtils.getFound(null, regex)));
     }
     
+    @Test
     public void testFormatVersionNumber() throws Exception {
         assertEquals("2.0", StringUtils.formatVersionNumber("2.0-incubator-M1-SNAPSHOT"));
         assertEquals("2.0.12", StringUtils.formatVersionNumber("2.0.12-incubator-M1-SNAPSHOT"));
     }
     
+    @Test
     public void testAddPortIfMissing() throws Exception {
         assertEquals("http://localhost:80", StringUtils.addDefaultPortIfMissing("http://localhost"));
         assertEquals("http://localhost:80/", StringUtils.addDefaultPortIfMissing("http://localhost/"));

@@ -23,9 +23,6 @@ import java.util.logging.Logger;
 
 import javax.xml.ws.Endpoint;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -33,21 +30,22 @@ import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 /**
  * Tests the addition of WS-RM properties to application messages and the
  * exchange of WS-RM protocol messages.
  */
-public class DecoupledClientServerTest extends ClientServerTestBase {
+public class DecoupledClientServerTest extends AbstractBusClientServerTestBase {
 
     private static final Logger LOG = Logger.getLogger(DecoupledClientServerTest.class.getName());
     private Bus bus;
 
-    public static class Server extends TestServerBase {
+    public static class Server extends AbstractBusTestServerBase {
         
         protected void run()  {            
             SpringBusFactory bf = new SpringBusFactory();
@@ -81,24 +79,12 @@ public class DecoupledClientServerTest extends ClientServerTestBase {
         }
     }    
     
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(DecoupledClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
+    }
             
-            public void setUp() throws Exception {
-                startServers();
-                LOG.fine("Started server.");  
-            }
-        };
-    }
-    
-    public void tearDown() {
-        bus.shutdown(true);
-    }
-    
+    @Test
     public void testDecoupled() throws Exception {
         SpringBusFactory bf = new SpringBusFactory();
         bus = bf.createBus("/org/apache/cxf/systest/ws/rm/decoupled.xml");

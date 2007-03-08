@@ -104,7 +104,8 @@ public class CustomTypeMapping implements TypeMapping {
             LOG
                 .warn("The type "
                       + type.getClass().getName()
-                      + " supports neither serialization (non-null TypeClass) nor deserialization (non-null SchemaType).");
+                      + " supports neither serialization (non-null TypeClass)"
+                      + " nor deserialization (non-null SchemaType).");
         }
     }
 

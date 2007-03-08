@@ -34,9 +34,9 @@ import org.apache.cxf.aegis.DatabindingException;
 public class CachedOutputStream extends OutputStream {
     private OutputStream currentStream;
     private int threshold;
-    private int totalLength = 0;
-    private boolean inmem = false;
-    private File tempFile = null;
+    private int totalLength;
+    private boolean inmem;
+    private File tempFile;
     private File outputDir;
 
     public CachedOutputStream(int threshold, File outputDir) throws IOException {

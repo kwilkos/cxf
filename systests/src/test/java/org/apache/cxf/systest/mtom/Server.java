@@ -34,11 +34,11 @@ import org.apache.cxf.mtom_xop.TestMtomImpl;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.factory.AbstractServiceFactoryBean;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.systest.common.TestServerBase;
+import org.apache.cxf.testutil.common.AbstractBusTestServerBase;
 import org.apache.cxf.transport.ChainInitiationObserver;
 import org.apache.cxf.transport.MessageObserver;
 
-public class Server extends TestServerBase {
+public class Server extends AbstractBusTestServerBase {
 
     protected void run() {
         Object implementor = new TestMtomImpl();

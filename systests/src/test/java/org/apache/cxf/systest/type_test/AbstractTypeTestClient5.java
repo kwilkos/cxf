@@ -25,15 +25,13 @@ import org.apache.type_test.types1.ComplexRestriction2;
 import org.apache.type_test.types1.ComplexRestriction3;
 import org.apache.type_test.types1.ComplexRestriction4;
 import org.apache.type_test.types1.ComplexRestriction5;
+import org.junit.Test;
 
 public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
-    public AbstractTypeTestClient5(String name) {
-        super(name);
-    }
-
     //org.apache.type_test.types1.ComplexRestriction
 
+    @Test
     public void testComplexRestriction() throws Exception {
         // normal case, maxLength=10
         ComplexRestriction x = new ComplexRestriction();
@@ -81,6 +79,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     //org.apache.type_test.types1.ComplexRestriction2
 
+    @Test
     public void testComplexRestriction2() throws Exception {
         // normal case, length=10
         ComplexRestriction2 x = new ComplexRestriction2();
@@ -128,6 +127,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     //org.apache.type_test.types1.ComplexRestriction3
 
+    @Test
     public void testComplexRestriction3() throws Exception {
         // normal case, maxLength=10 for ComplexRestriction
         // && minLength=5 for ComplexRestriction3
@@ -186,6 +186,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
 
     //org.apache.type_test.types1.ComplexRestriction4
 
+    @Test
     public void testComplexRestriction4() throws Exception {
         // normal case, maxLength=10 for ComplexRestriction
         // && maxLength=5 for ComplexRestriction4
@@ -230,7 +231,7 @@ public abstract class AbstractTypeTestClient5 extends AbstractTypeTestClient4 {
     }
 
     //org.apache.type_test.types1.ComplexRestriction5
-
+    @Test
     public void testComplexRestriction5() throws Exception {
         // normal case, maxLength=50 && minLength=5 for ComplexRestriction5
         ComplexRestriction5 x = new ComplexRestriction5();

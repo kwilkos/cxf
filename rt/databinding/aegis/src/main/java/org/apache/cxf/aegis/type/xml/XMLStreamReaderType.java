@@ -46,7 +46,9 @@ public class XMLStreamReaderType extends Type {
     }
 
     @Override
-    public void writeObject(Object object, MessageWriter writer, Context context) throws DatabindingException {
+    public void writeObject(Object object,
+                            MessageWriter writer,
+                            Context context) throws DatabindingException {
         XMLStreamReader reader = (XMLStreamReader)object;
 
         try {

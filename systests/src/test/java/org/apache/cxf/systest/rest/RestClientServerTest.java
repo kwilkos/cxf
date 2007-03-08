@@ -45,16 +45,14 @@ import javax.xml.ws.http.HTTPBinding;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.helpers.XMLUtils;
-import org.apache.cxf.systest.common.ClientServerSetupBase;
-import org.apache.cxf.systest.common.ClientServerTestBase;
+import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.apache.hello_world_xml_http.wrapped.XMLService;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-public class RestClientServerTest extends ClientServerTestBase {
+public class RestClientServerTest extends AbstractBusClientServerTestBase {
     private final QName serviceName = new QName("http://apache.org/hello_world_xml_http/wrapped",
                                                 "XMLService");
 
@@ -64,15 +62,12 @@ public class RestClientServerTest extends ClientServerTestBase {
     private final String endpointAddress =
         "http://localhost:9023/XMLService/RestProviderPort/Customer"; 
    
-    public static Test suite() throws Exception {
-        TestSuite suite = new TestSuite(RestClientServerTest.class);
-        return new ClientServerSetupBase(suite) {
-            public void startServers() throws Exception {
-                assertTrue("server did not launch correctly", launchServer(Server.class));
-            }
-        };
-    }    
+    @BeforeClass
+    public static void startServers() throws Exception {
+        assertTrue("server did not launch correctly", launchServer(Server.class));
+    }
    
+    @Test
     public void testHttpPOSTDispatchXMLBinding() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/hello_world_xml_wrapped.wsdl");
         assertNotNull(wsdl);
@@ -93,12 +88,14 @@ public class RestClientServerTest extends ClientServerTestBase {
         assertEquals("Customer", respDoc.getFirstChild().getLocalName());
     }
 
+    @Test
     public void testHttpGET() throws Exception {
         URL url = new URL(endpointAddress + "?name=john&address=20");
         InputStream in = url.openStream();
         assertNotNull(in);       
     }
 
+    @Test
     public void testHttpPOSTDispatchHTTPBinding() throws Exception {
         Service service = Service.create(serviceName);
         service.addPort(portName, HTTPBinding.HTTP_BINDING, endpointAddress);
@@ -112,6 +109,7 @@ public class RestClientServerTest extends ClientServerTestBase {
         assertTrue("Result should have CustomerID", tempstring.lastIndexOf("CustomerID>123456<") > 0);
     }
     
+    @Test
     public void testHttpGETDispatchHTTPBinding() throws Exception { 
         Service service = Service.create(serviceName); 
         URI endpointURI = new URI(endpointAddress);

@@ -20,8 +20,7 @@ package org.apache.cxf.aegis.client;
 
 import javax.xml.ws.Holder;
 
-public class EchoImpl implements Echo
-{
+public class EchoImpl implements Echo {
     public String echo(String text, Holder<String> textAgain) {
         textAgain.value = "header2";
         return text;

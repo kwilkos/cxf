@@ -25,7 +25,6 @@ import javax.wsdl.WSDLException;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import junit.framework.TestCase;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -35,11 +34,11 @@ import org.apache.cxf.catalog.OASISCatalogManager;
 import org.apache.hello_world.Greeter;
 import org.apache.hello_world.services.SOAPService;
 
-import org.apache.ws.commons.schema.XmlSchemaException;
-
 import org.apache.xml.resolver.Catalog;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class OASISCatalogTest extends TestCase {
+public class OASISCatalogTest extends Assert {
         
     private final QName serviceName = 
         new QName("http://apache.org/hello_world/services",
@@ -49,6 +48,7 @@ public class OASISCatalogTest extends TestCase {
         new QName("http://apache.org/hello_world/services",
                   "SoapPort");
 
+    @Test
     public void testClientWithDefaultCatalog() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/catalog/hello_world_services.wsdl");
         assertNotNull(wsdl);
@@ -60,6 +60,7 @@ public class OASISCatalogTest extends TestCase {
         assertNotNull(greeter);
     }
 
+    @Test
     public void testClientWithoutCatalog() throws Exception {
         URL wsdl = getClass().getResource("/wsdl/catalog/hello_world_services.wsdl");
         assertNotNull(wsdl);
@@ -75,7 +76,7 @@ public class OASISCatalogTest extends TestCase {
         try {
             service.getPort(portName, Greeter.class);
             fail("Test did not fail as expected");
-        } catch (XmlSchemaException e) {
+        } catch (Exception e) {
             // ignore
         }
 
@@ -90,6 +91,7 @@ public class OASISCatalogTest extends TestCase {
         assertNotNull(greeter);
     }
 
+    @Test
     public void testWSDLLocatorWithDefaultCatalog() throws Exception {
         URL wsdl = 
             getClass().getResource("/wsdl/catalog/hello_world_services.wsdl");
@@ -105,6 +107,7 @@ public class OASISCatalogTest extends TestCase {
         wsdlReader.readWSDL(wsdlLocator);
     }
 
+    @Test
     public void testWSDLLocatorWithoutCatalog() throws Exception {
         URL wsdl = 
             getClass().getResource("/wsdl/catalog/hello_world_services.wsdl");

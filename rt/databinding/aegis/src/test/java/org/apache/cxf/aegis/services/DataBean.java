@@ -18,17 +18,14 @@
  */
 package org.apache.cxf.aegis.services;
 
-public class DataBean
-{
+public class DataBean {
     private byte[] data = new byte[0];
 
-    public byte[] getData()
-    {
+    public byte[] getData() {
         return data;
     }
 
-    public void setData(byte[] data)
-    {
+    public void setData(byte[] data) {
         this.data = data;
     }
 }

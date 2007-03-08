@@ -27,10 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 class InterfaceInvocationHandler implements InvocationHandler {
+    private Map<Object, Object> attributes = new HashMap<Object, Object>();
+
     InterfaceInvocationHandler() {
     }
 
-    private Map<Object, Object> attributes = new HashMap<Object, Object>();
 
     public void writeProperty(Object key, Object value) {
         attributes.put(key, value);
@@ -67,16 +68,14 @@ class InterfaceInvocationHandler implements InvocationHandler {
 
         if (methodName.startsWith("get") && methodName.length() > 3) {
             return true;
-        } else if (methodName.startsWith("is") && methodName.length() > 2) {
-            return true;
+        } 
+            
+        return methodName.length() > 2 && methodName.startsWith("is");
         /*
          * // should "hasXXX()" be considered a getter method? else if
          * (methodName.startsWith("has") && methodName.length() > 3) { return
          * true; }
          */
-        } else {
-            return false;
-        }
     }
 
     protected boolean isSetterMethod(Method method, Object[] args) {
@@ -90,11 +89,7 @@ class InterfaceInvocationHandler implements InvocationHandler {
 
         String methodName = method.getName();
 
-        if (methodName.startsWith("set") && methodName.length() > 3) {
-            return true;
-        } else {
-            return false;
-        }
+        return methodName.startsWith("set") && methodName.length() > 3;
     }
 
     protected Object doGetter(Method method, Object[] args) throws Throwable {

@@ -19,8 +19,6 @@
 
 package org.apache.cxf.systest.bus;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -33,9 +31,12 @@ import org.apache.cxf.transport.ConduitInitiatorManager;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.workqueue.WorkQueueManager;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class SpringBusFactoryTest extends TestCase {
+public class SpringBusFactoryTest extends Assert {
     
+    @Test
     public void testKnownExtensions() throws BusException {
         Bus bus = new SpringBusFactory().createBus();
         assertNotNull(bus);

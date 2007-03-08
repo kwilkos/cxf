@@ -36,6 +36,7 @@ import org.apache.cxf.transport.MessageObserver;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.HelloImpl;
 import org.apache.hello_world_soap_http.HelloWrongAnnotation;
+import org.junit.Test;
 
 public class EndpointImplTest extends AbstractJaxWsTest {
 
@@ -46,6 +47,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
     }
 
 
+    @Test
     public void testEndpoint() throws Exception {   
         GreeterImpl greeter = new GreeterImpl();
         EndpointImpl endpoint = new EndpointImpl(getBus(), greeter, "anyuri");
@@ -66,6 +68,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
     }
     
 
+    @Test
     public void testEndpointServiceConstructor() throws Exception {   
         GreeterImpl greeter = new GreeterImpl();
         JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
@@ -89,6 +92,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         assertNotNull(ctx);
     }
     
+    @Test
     public void testWSAnnoWithoutWSDLLocationInSEI() throws Exception {
         HelloImpl hello = new HelloImpl();
         JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();
@@ -107,6 +111,7 @@ public class EndpointImplTest extends AbstractJaxWsTest {
         }
     }
     
+    @Test
     public void testSOAPBindingOnMethodWithRPC() {
         HelloWrongAnnotation hello = new HelloWrongAnnotation();
         JaxWsServiceFactoryBean serviceFactory = new JaxWsServiceFactoryBean();

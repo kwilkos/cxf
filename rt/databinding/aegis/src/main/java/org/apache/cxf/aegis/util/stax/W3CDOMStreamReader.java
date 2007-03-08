@@ -48,8 +48,10 @@ public class W3CDOMStreamReader extends DOMStreamReader {
      */
     public W3CDOMStreamReader(Element element) {
         super(new ElementFrame(element, null));
+        newFrame(getCurrentFrame());
 
         this.document = element.getOwnerDocument();
+        
     }
 
     /**
@@ -66,7 +68,7 @@ public class W3CDOMStreamReader extends DOMStreamReader {
      * collection.
      */
     @Override
-    protected void newFrame(ElementFrame frame) {
+    protected final void newFrame(ElementFrame frame) {
         Element element = getCurrentElement();
         frame.uris = new ArrayList<String>();
         frame.prefixes = new ArrayList<String>();
@@ -97,10 +99,10 @@ public class W3CDOMStreamReader extends DOMStreamReader {
                     prefix = "";
                 }
 
-                if (name != null && name.equals("xmlns")) {
+                if (name != null && "xmlns".equals(name)) {
                     frame.uris.add(value);
                     frame.prefixes.add("");
-                } else if (prefix.length() > 0 && prefix.equals("xmlns")) {
+                } else if (prefix.length() > 0 && "xmlns".equals(prefix)) {
                     frame.uris.add(value);
                     frame.prefixes.add(localName);
                 } else if (name.startsWith("xmlns:")) {
@@ -119,7 +121,7 @@ public class W3CDOMStreamReader extends DOMStreamReader {
         super.endElement();
     }
 
-    Element getCurrentElement() {
+    final Element getCurrentElement() {
         return (Element)getCurrentFrame().element;
     }
 
@@ -226,8 +228,7 @@ public class W3CDOMStreamReader extends DOMStreamReader {
 
     public String getAttributeLocalName(int i) {
         Attr attr = getAttribute(i);
-        String name = getLocalName(attr);
-        return name;
+        return getLocalName(attr);
     }
 
     public String getAttributePrefix(int i) {

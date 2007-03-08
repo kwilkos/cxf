@@ -18,7 +18,12 @@
  */
 package org.apache.cxf.jaxws;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 public class ServiceImplTest extends AbstractJaxWsTest {
+    @Test
+    @Ignore
     public void testServiceImpl() throws Exception {
         // new ServiceImpl(getBus(), )
     }

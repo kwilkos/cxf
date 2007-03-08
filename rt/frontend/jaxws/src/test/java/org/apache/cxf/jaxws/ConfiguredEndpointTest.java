@@ -26,8 +26,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -47,8 +45,12 @@ import org.apache.cxf.transport.local.LocalTransportFactory;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
 import org.apache.hello_world_soap_http.SOAPService;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class ConfiguredEndpointTest extends TestCase {
+public class ConfiguredEndpointTest extends Assert {
     private static final QName SERVICE_NAME = 
         new QName("http://apache.org/hello_world_soap_http", "SOAPService");    
     private static final QName PORT_NAME = 
@@ -56,6 +58,7 @@ public class ConfiguredEndpointTest extends TestCase {
 
     private BusFactory factory;
     
+    @After
     public void tearDown() {
         Bus bus = BusFactory.getDefaultBus();
         if (null != bus) {
@@ -65,6 +68,7 @@ public class ConfiguredEndpointTest extends TestCase {
         System.clearProperty(BusFactory.BUS_FACTORY_PROPERTY_NAME);
     }
    
+    @Test
     public void testCXFDefaultClientEndpoint() {
         factory = new CXFBusFactory();
         BusFactory.setDefaultBus(null);
@@ -73,6 +77,7 @@ public class ConfiguredEndpointTest extends TestCase {
         doTestDefaultClientEndpoint();
     }
      
+    @Test
     public void testSpringDefaultClientEndpoint() {
         factory = new SpringBusFactory();
         BusFactory.setDefaultBus(null);
@@ -123,7 +128,9 @@ public class ConfiguredEndpointTest extends TestCase {
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
     }
 
-    public void xtestCXFConfiguredClientEndpoint() {
+    @Test
+    @Ignore
+    public void testCXFConfiguredClientEndpoint() {
         CXFBusFactory cf = new CXFBusFactory();
         factory = cf;
         BusFactory.setDefaultBus(null);
@@ -135,6 +142,7 @@ public class ConfiguredEndpointTest extends TestCase {
         doTestConfiguredClientEndpoint();
     }
     
+    @Test
     public void testSpringConfiguredClientEndpoint() {
         SpringBusFactory sf = new SpringBusFactory();
         factory = sf;
@@ -191,6 +199,7 @@ public class ConfiguredEndpointTest extends TestCase {
                      findTestInterceptor(interceptors).getId());
     }
     
+    @Test
     public void testCXFDefaultServerEndpoint() {
         factory = new CXFBusFactory();
         BusFactory.setDefaultBus(null);
@@ -200,6 +209,7 @@ public class ConfiguredEndpointTest extends TestCase {
         doTestDefaultServerEndpoint();
     }
      
+    @Test
     public void testSpringDefaultServerEndpoint() {
         factory = new SpringBusFactory();
         BusFactory.setDefaultBus(null);
@@ -240,6 +250,8 @@ public class ConfiguredEndpointTest extends TestCase {
         assertNull("Unexpected test interceptor", findTestInterceptor(interceptors));
     }
 
+    @Test
+    @Ignore
     public void xtestCXFConfiguredServerEndpoint() {
         CXFBusFactory cf = new CXFBusFactory();
         factory = cf;
@@ -253,6 +265,7 @@ public class ConfiguredEndpointTest extends TestCase {
         doTestConfiguredServerEndpoint();
     }
     
+    @Test
     public void testSpringConfiguredServerEndpoint() {
         SpringBusFactory sf = new SpringBusFactory();
         factory = sf;

@@ -24,19 +24,21 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import junit.framework.TestCase;
-
 import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.ws.policy.builder.xml.XMLPrimitiveAssertionBuilder;
 import org.apache.neethi.Constants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
 import org.apache.neethi.PolicyReference;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class PolicyBuilderTest extends TestCase {
+public class PolicyBuilderTest extends Assert {
     
     private PolicyBuilderImpl builder;
     
+    @Before
     public void setUp() {
         builder = new PolicyBuilderImpl();
         AssertionBuilderRegistry abr = new AssertionBuilderRegistryImpl();
@@ -46,6 +48,8 @@ public class PolicyBuilderTest extends TestCase {
         abr.register(new QName("http://sample.org/Assertions", "B"), ab);
         abr.register(new QName("http://sample.org/Assertions", "C"), ab);
     }
+    
+    @Test
     public void testGetPolicy() throws Exception {
         String name = "/samples/test25.xml";
         InputStream is = PolicyBuilderTest.class.getResourceAsStream(name);        
@@ -59,6 +63,7 @@ public class PolicyBuilderTest extends TestCase {
         }
     }
     
+    @Test
     public void testGetPolicyReference() throws Exception {
         String name = "/samples/test26.xml";
         InputStream is = PolicyBuilderTest.class.getResourceAsStream(name);        

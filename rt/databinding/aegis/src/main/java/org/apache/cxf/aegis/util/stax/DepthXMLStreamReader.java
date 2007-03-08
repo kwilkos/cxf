@@ -34,7 +34,7 @@ import javax.xml.stream.XMLStreamReader;
 public class DepthXMLStreamReader implements XMLStreamReader {
     XMLStreamReader reader;
 
-    private int depth = 0;
+    private int depth;
 
     public DepthXMLStreamReader(XMLStreamReader reader) {
         this.reader = reader;

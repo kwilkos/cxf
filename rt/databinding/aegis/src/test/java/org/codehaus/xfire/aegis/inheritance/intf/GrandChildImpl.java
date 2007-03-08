@@ -18,22 +18,17 @@
  */
 package org.codehaus.xfire.aegis.inheritance.intf;
 
-public class GrandChildImpl
-    implements IGrandChild
-{
+public class GrandChildImpl implements IGrandChild {
 
-    public String getChildName()
-    {
+    public String getChildName() {
         return "child";
     }
 
-    public String getParentName()
-    {
+    public String getParentName() {
         return "parent";
     }
 
-    public String getGrandChildName()
-    {
+    public String getGrandChildName() {
         return "grandchild";
     }
 

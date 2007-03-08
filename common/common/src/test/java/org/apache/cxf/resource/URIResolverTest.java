@@ -22,23 +22,19 @@ package org.apache.cxf.resource;
 import java.io.InputStream;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class URIResolverTest extends TestCase {
+public class URIResolverTest extends Assert {
     
     private URIResolver uriResolver;
     
     private URL resourceURL = getClass().getResource("resources/helloworld.bpr");
     
-    public void setUp() throws Exception {
-        uriResolver = new URIResolver();
-    }
     
-    public void tearDown() throws Exception {
-        
-    }
-    
+    @Test
     public void testJARProtocol() throws Exception {
+        uriResolver = new URIResolver();
         
         byte[] barray = new byte[]{0};
         byte[] barray2 = new byte[]{1}; 

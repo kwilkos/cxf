@@ -25,40 +25,37 @@ import java.io.StringReader;
 import org.apache.cxf.aegis.util.jdom.StaxBuilder;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.jdom.JDOMWriter;
-import org.apache.cxf.aegis.xml.stax.ElementWriter;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.DOMOutputter;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Nov 4, 2004
  */
-public class WriterTest
-    extends AbstractCXFTest
-{
+public class WriterTest extends AbstractCXFTest {
     File output;
-    
-    public void setUp()
-        throws Exception
-    {
-        super.setUp();
-        
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUpBus();
+
         output = File.createTempFile("writetest", ".xml");
     }
 
-    public void tearDown()
-    {
-        if (output.exists())
+    @After
+    public void tearDown() {
+        if (output.exists()) {
             output.delete();
-        
-        super.tearDown();
+        }
     }
 
-    public void testLiteral()
-        throws Exception
-    {
+    @Test
+    public void testLiteral() throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ElementWriter writer = new ElementWriter(bos, "root", "urn:test");
 
@@ -66,30 +63,28 @@ public class WriterTest
 
         writer.flush();
         bos.close();
-        
-        System.out.println(bos.toString());
+
+        // System.out.println(bos.toString());
         StaxBuilder builder = new StaxBuilder();
         Document doc = builder.build(new StringReader(bos.toString()));
-        
+
         testWrite(doc);
     }
-    
-    public void testJDOM()
-        throws Exception
-    {
+
+    @Test
+    public void testJDOM() throws Exception {
         Document doc = new Document(new Element("root", "urn:test"));
-        
+
         write(new JDOMWriter(doc.getRootElement()));
-        
+
         testWrite(doc);
     }
-    
-    public void write(MessageWriter writer)
-    {
+
+    public void write(MessageWriter writer) {
         MessageWriter nons = writer.getElementWriter("nons");
         nons.writeValue("nons");
         nons.close();
-        
+
         MessageWriter intval = writer.getElementWriter("int");
         intval.writeValueAsInt(new Integer(10000));
         intval.close();
@@ -107,19 +102,18 @@ public class WriterTest
         MessageWriter att4 = child1.getAttributeWriter("att4", null);
         att4.writeValue("att4");
         att4.close();
-        
+
         child1.close();
-        
+
         writer.close();
     }
-    
-    public void testWrite(Document jdoc) throws Exception
-    {
+
+    public void testWrite(Document jdoc) throws Exception {
         org.w3c.dom.Document doc = new DOMOutputter().output(jdoc);
         addNamespace("t", "urn:test");
         addNamespace("c", "urn:child1");
         addNamespace("a", "urn:att3");
-        
+
         assertValid("/t:root/t:nons[text()='nons']", doc);
         assertValid("/t:root/t:int[text()='10000']", doc);
         assertValid("/t:root/c:child1", doc);

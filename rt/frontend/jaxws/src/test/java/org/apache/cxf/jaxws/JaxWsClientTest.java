@@ -46,6 +46,8 @@ import org.apache.cxf.transport.Destination;
 import org.apache.hello_world_soap_http.BadRecordLitFault;
 import org.apache.hello_world_soap_http.Greeter;
 import org.apache.hello_world_soap_http.GreeterImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JaxWsClientTest extends AbstractJaxWsTest {
 
@@ -55,9 +57,10 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
                     "SoapPort");
     private final String address = "http://localhost:9000/SoapContext/SoapPort";
     private Destination d;
-    @Override
+    
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
+        super.setUpBus();
 
         EndpointInfo ei = new EndpointInfo(null, "http://schemas.xmlsoap.org/soap/http");
         ei.setAddress(address);
@@ -65,6 +68,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         d = localTransport.getDestination(ei);
     }
 
+    @Test
     public void testCreate() throws Exception {
         javax.xml.ws.Service s = javax.xml.ws.Service
             .create(new QName("http://apache.org/hello_world_soap_http", "SoapPort"));
@@ -78,6 +82,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         }
     }
     
+    @Test
     public void testRequestContext() throws Exception {
         javax.xml.ws.Service s = javax.xml.ws.Service
         .create(serviceName);
@@ -98,6 +103,7 @@ public class JaxWsClientTest extends AbstractJaxWsTest {
         }
     }
 
+    @Test
     public void testEndpoint() throws Exception {
         ReflectionServiceFactoryBean bean = new JaxWsServiceFactoryBean();
         URL resource = getClass().getResource("/wsdl/hello_world.wsdl");
