@@ -35,6 +35,7 @@ public class JavaToProcessorTest extends ProcessorTestBase {
     private WSDLHelper wsdlHelper = new WSDLHelper();
     
     public void tearDown() {
+        super.tearDown();
     }
     
     public void testGetWSDLVersion() {

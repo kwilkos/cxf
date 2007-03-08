@@ -348,6 +348,29 @@ public class JavaToWSDLProcessorTest extends ProcessorTestBase {
         }
     }
 
+    public void testDocWrappedNoWebParam() {
+        Map<String, String> ns = new HashMap<String, String>();
+        ns.put("xsd", "http://www.w3.org/2001/XMLSchema");
+        
+        env.put(ToolConstants.CFG_OUTPUTFILE, output.getPath() + "/doc_lit_wrapped_webparam.wsdl");
+        env.put(ToolConstants.CFG_CLASSNAME,
+                "org.apache.cxf.tools.fortest.withannotation.doc.HelloWithNoWebParam");
+        env.put(ToolConstants.CFG_SERVICENAME, serviceName);
+        j2wProcessor.setEnvironment(env);
+        try {        
+            j2wProcessor.process();
+            File file = new File(output, "schema1.xsd");
+            assertTrue(file.exists());
+            Document root = XMLUtils.parse(new BufferedInputStream(new FileInputStream(file)));
+            XPathUtils xpather = new XPathUtils(ns);
+            assertNotNull(xpather.getValue("//xsd:complexType[@name='sayHi']//xsd:element[@name='arg0']",
+                                        root,
+                                        XPathConstants.NODE));
+        } catch (Exception e) {
+            fail("Should not happen other exception " + e.getMessage());
+        }
+    }
+
     private String getLocation(String wsdlFile) {
         return JavaToWSDLProcessorTest.class.getResource(wsdlFile).getFile();
     }
