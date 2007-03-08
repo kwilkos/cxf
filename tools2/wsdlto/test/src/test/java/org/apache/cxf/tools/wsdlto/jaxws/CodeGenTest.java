@@ -786,6 +786,13 @@ public class CodeGenTest extends ProcessorTestBase {
         Method method = clz.getMethod("queryEndpoints", new Class[] {paraClass});
         WebParam webParamAnn = AnnotationUtil.getWebParam(method, "select");
         assertEquals("http://apache.org/locator/query", webParamAnn.targetNamespace());
+        
+        method = clz.getMethod("deregisterPeerManager", new Class[] {String.class});
+        webParamAnn = AnnotationUtil.getWebParam(method, "node_id");
+        assertEquals("http://apache.org/locator/types", webParamAnn.targetNamespace());
+        
+        
+        
     }
     
     public void testWebFaultAnnotaion() throws Exception {

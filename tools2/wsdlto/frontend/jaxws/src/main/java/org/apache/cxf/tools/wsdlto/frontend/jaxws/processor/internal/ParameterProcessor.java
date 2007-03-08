@@ -296,7 +296,7 @@ public class ParameterProcessor extends AbstractProcessor {
         
         
         String targetNamespace = item.getNamespaceURI();
-        if (targetNamespace == null) {
+        if ("".equals(targetNamespace)) {
             targetNamespace = ProcessorUtil.resolvePartNamespace(part);
         }
 
@@ -320,9 +320,9 @@ public class ParameterProcessor extends AbstractProcessor {
     }
 
     private JavaReturn getReturnFromQName(QName element, MessagePartInfo part) {
+       
         String fullJavaName = "";
         String simpleJavaName = "";
-         
         fullJavaName = this.dataBinding.getWrappedElementType(part.getElementQName(), element);
         simpleJavaName = fullJavaName;
         
