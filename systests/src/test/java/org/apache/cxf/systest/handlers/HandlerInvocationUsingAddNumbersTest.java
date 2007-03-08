@@ -123,13 +123,13 @@ public class HandlerInvocationUsingAddNumbersTest extends ClientServerTestBase {
         assertTrue(h.isPostConstructInvoked());      
     }  
 
-    public void xtestHandlerInjectingResource() throws Exception {
+    public void testHandlerInjectingResource() throws Exception {
         //When CXF is deployed in a servlet container, ServletContextResourceResolver is used to resolve 
         //Servlet context resources.
         Bus bus = BusFactory.getDefaultBus();
         ResourceManager resourceManager = bus.getExtension(ResourceManager.class);
         assertNotNull(resourceManager);
-        //resourceManager.addResourceResolver(new TestResourceResolver());
+        resourceManager.addResourceResolver(new TestResourceResolver());
        
         URL wsdl = getClass().getResource("/wsdl/addNumbers.wsdl");
 
