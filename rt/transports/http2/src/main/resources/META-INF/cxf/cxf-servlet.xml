@@ -35,14 +35,4 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
             </set>
         </property>
     </bean>
-    
-    <!-- bean id="org.apache.cxf.transports.http.QueryHandlerRegistry" class="org.apache.cxf.transport.http.QueryHandlerRegistryImpl">
-        <property name="bus" ref="cxf"/>
-        <property name="queryHandlerNames">
-        	<list>
-                <value>org.apache.cxf.transport.http.WSDLQueryHandler</value>                
-            </list>    
-        </property>
-    </bean-->
-     
 </beans>

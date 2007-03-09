@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
@@ -35,11 +34,11 @@ import org.apache.cxf.wsdl.EndpointReferenceUtils;
  * allowing non-decoupled transports to be written without any
  * regard for the decoupled back-channel or partial response logic.
  */
-public abstract class AbstractDestination implements Destination {
+public abstract class AbstractDestination
+    extends AbstractObservable implements Destination {
 
     protected final EndpointReferenceType reference;
     protected final EndpointInfo endpointInfo;
-    protected MessageObserver incomingObserver;
     
     public AbstractDestination(EndpointReferenceType ref,
                                EndpointInfo ei) {
@@ -105,37 +104,7 @@ public abstract class AbstractDestination implements Destination {
         }
         return backChannel;
     }
-
-    /**
-     * Register a message observer for incoming messages.
-     * 
-     * @param observer the observer to notify on receipt of incoming
-     */
-    public synchronized void setMessageObserver(MessageObserver observer) {
-        if (observer != incomingObserver) {
-            MessageObserver old = incomingObserver;
-            incomingObserver = observer;
-            if (observer != null) {
-                getLogger().fine("registering incoming observer: " + observer);
-                if (old == null) {
-                    activate();
-                }
-            } else {
-                getLogger().fine("unregistering incoming observer: " + incomingObserver);
-                if (old != null) {
-                    deactivate();
-                }
-            }
-        }
-    }
-    
-    /**
-     * @return the observer to notify on receipt of incoming message
-     */
-    public MessageObserver getMessageObserver() {
-        return incomingObserver;
-    }
-    
+        
     /**
      * Shutdown the Destination, i.e. stop accepting incoming messages.
      */
@@ -163,40 +132,7 @@ public abstract class AbstractDestination implements Destination {
     protected ConduitInitiator getConduitInitiator() {
         return null;
     }
-
-    /**
-     * Activate receipt of incoming messages.
-     */
-    protected void activate() {
-        // nothing to do by default
-    }
-
-    /**
-     * Deactivate receipt of incoming messages.
-     */
-    protected void deactivate() {
-        // nothing to do by default        
-    }
     
-    /**
-     * Get the exposed reference.
-     * 
-     * @param address the corresponding EndpointInfo
-     * @return the actual reference
-     */
-    protected static EndpointReferenceType getTargetReference(String addr) {
-        EndpointReferenceType ref = new EndpointReferenceType();
-        AttributedURIType address = new AttributedURIType();
-        address.setValue(addr);
-        ref.setAddress(address);        
-        return ref;
-    }
-    
-    /**
-     * @return the logger to use
-     */
-    protected abstract Logger getLogger();
-
     /**
      * @param inMessage the incoming message
      * @return the inbuilt backchannel

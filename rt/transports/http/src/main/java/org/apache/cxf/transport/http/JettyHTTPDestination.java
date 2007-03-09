@@ -109,7 +109,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected void activate() {
         LOG.log(Level.FINE, "Activating receipt of incoming messages");
         try {
-            URL url = new URL(getAddressValue(endpointInfo));
+            URL url = new URL(endpointInfo.getAddress());
             if (contextMatchOnExact()) {
                 engine.addServant(url, new AbstractHttpHandler() {
                     public void handle(String pathInContext, String pathParams, HttpRequest req,
@@ -252,8 +252,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.PATH_INFO, req.getPath());
             inMessage.put(Message.QUERY_STRING, req.getQuery());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
-            if (!StringUtils.isEmpty(getAddressValue(endpointInfo))) {
-                inMessage.put(Message.BASE_PATH, new URL(getAddressValue(endpointInfo)).getPath());
+            if (!StringUtils.isEmpty(endpointInfo.getAddress())) {
+                inMessage.put(Message.BASE_PATH, new URL(endpointInfo.getAddress()).getPath());
             }
             inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 

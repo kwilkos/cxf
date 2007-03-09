@@ -21,8 +21,6 @@ package org.apache.cxf.transport;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
@@ -32,10 +30,10 @@ import org.apache.cxf.ws.addressing.EndpointReferenceType;
  * allowing non-decoupled transports to be written without any
  * regard for the decoupled back-channel or partial response logic.
  */
-public abstract class AbstractConduit implements Conduit {
+public abstract class AbstractConduit 
+    extends AbstractObservable implements Conduit {
 
     protected final EndpointReferenceType target;
-    protected MessageObserver incomingObserver;
 
     public AbstractConduit(EndpointReferenceType t) {
         target = t;
@@ -71,30 +69,4 @@ public abstract class AbstractConduit implements Conduit {
     public void close() {
         // nothing to do by default
     }
-
-    /**
-     * Register a message observer for incoming messages.
-     * 
-     * @param observer the observer to notify on receipt of incoming
-     * message
-     */
-    public void setMessageObserver(MessageObserver observer) {
-        incomingObserver = observer;
-        if (getLogger().isLoggable(Level.FINE)) {
-            getLogger().fine("registering incoming observer: " + incomingObserver);
-        }
-    }
-    
-    /**
-     * @return the observer to notify on receipt of incoming message
-     */
-    public MessageObserver getMessageObserver() {
-        return incomingObserver;
-    }
-
-    /**
-     * @return the logger to use
-     */
-    protected abstract Logger getLogger();
-
 }

@@ -50,9 +50,11 @@ import org.w3c.dom.Node;
 
 import org.xml.sax.SAXException;
 
+import org.apache.cxf.Bus;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.endpoint.EndpointResolverRegistry;
 import org.apache.cxf.service.model.SchemaInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.ws.addressing.AttributedURIType;
@@ -585,6 +587,24 @@ public final class EndpointReferenceUtils {
         return getEndpointReference(manager, implementor.getClass());
     }
     
+    /**
+     * Resolve logical endpoint reference via the Bus EndpointResolverRegistry.
+     * 
+     * @param logical the abstract EPR to resolve
+     * @return the resolved concrete EPR if appropriate, null otherwise
+     */
+    public static EndpointReferenceType resolve(EndpointReferenceType logical, Bus bus) {
+        EndpointReferenceType physical = null;
+        if (bus != null) {
+            EndpointResolverRegistry registry =
+                bus.getExtension(EndpointResolverRegistry.class);
+            if (registry != null) {
+                physical = registry.resolve(logical);
+            }
+        }
+        return physical != null ? physical : logical;
+    }
+                                             
     private static String getNameSpaceUri(Node node, String content, String namespaceURI) {
         if (namespaceURI == null) {
             namespaceURI =  node.lookupNamespaceURI(content.substring(0, 

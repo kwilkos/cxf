@@ -79,7 +79,7 @@ public class JMSDestination extends AbstractDestination implements Configurable,
     public JMSDestination(Bus b,
                           ConduitInitiator ci,
                           EndpointInfo info) throws IOException {
-        super(getTargetReference(info.getAddress()), info);    
+        super(getTargetReference(info, b), info);    
         
         base = new JMSTransportBase(b, endpointInfo, true, BASE_BEAN_NAME_SUFFIX, this);
 

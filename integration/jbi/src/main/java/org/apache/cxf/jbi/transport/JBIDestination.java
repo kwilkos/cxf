@@ -59,7 +59,7 @@ public class JBIDestination extends AbstractDestination {
                           EndpointInfo info,
                           DeliveryChannel dc,
                           CXFServiceUnitManager sum) {
-        super(getTargetReference(info.getAddress()), info);
+        super(getTargetReference(info, null), info);
         this.conduitInitiator = ci;
         this.channel = dc;
         this.suManager = sum;

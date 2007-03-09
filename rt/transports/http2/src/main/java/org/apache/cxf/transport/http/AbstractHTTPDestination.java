@@ -93,13 +93,13 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
                                    EndpointInfo ei,
                                    boolean dp)
         throws IOException {
-        super(getTargetReference(getAddressValue(ei, dp)), ei);  
+        super(getTargetReference(getAddressValue(ei, dp), b), ei);  
         bus = b;
         conduitInitiator = ci;
         
         initConfig();
  
-        nurl = new URL(getAddressValue(ei, dp));
+        nurl = new URL(ei.getAddress());
         name = nurl.getPath();
     }
     
@@ -209,16 +209,15 @@ public abstract class AbstractHTTPDestination extends AbstractDestination implem
         }
     }
     
-    protected static String getAddressValue(EndpointInfo ei) {       
+    protected static EndpointInfo getAddressValue(EndpointInfo ei) {       
         return getAddressValue(ei, true);
     } 
     
-    protected static String getAddressValue(EndpointInfo ei, boolean dp) {       
+    protected static EndpointInfo getAddressValue(EndpointInfo ei, boolean dp) {       
         if (dp) {
-            return StringUtils.addDefaultPortIfMissing(ei.getAddress());
-        } else {
-            return ei.getAddress();
-        }
+            ei.setAddress(StringUtils.addDefaultPortIfMissing(ei.getAddress()));
+        } 
+        return ei;
     }
     
     /**

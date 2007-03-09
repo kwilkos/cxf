@@ -55,7 +55,6 @@ import org.apache.cxf.transport.DestinationFactory;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.MessageObserver;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.apache.cxf.ws.addressing.AttributedURIType;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.apache.cxf.wsdl.EndpointReferenceUtils;
 
@@ -128,7 +127,7 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
                        EndpointInfo ei,
                        EndpointReferenceType t,
                        URLConnectionFactory factory) throws IOException {
-        super(getTargetReference(ei, t));
+        super(getTargetReference(ei, t, b));
         bus = b;
         endpointInfo = ei;
         alternateConnectionFactory = factory;
@@ -254,27 +253,6 @@ public class HTTPConduit extends AbstractConduit implements Configurable {
      */
     protected URL getURL() {
         return url;
-    }
-    
-    /**
-     * Get the target reference.
-     * 
-     * @param ei the corresponding EndpointInfo
-     * @param t the constructor-provider target
-     * @return the actual target
-     */
-    private static EndpointReferenceType getTargetReference(EndpointInfo ei,
-                                                            EndpointReferenceType t) {
-        EndpointReferenceType ref = null;
-        if (null == t) {
-            ref = new EndpointReferenceType();
-            AttributedURIType address = new AttributedURIType();
-            address.setValue(ei.getAddress());
-            ref.setAddress(address);
-        } else {
-            ref = t;
-        }
-        return ref;
     }
 
     /**

@@ -101,7 +101,7 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
     protected void activate() {
         LOG.log(Level.FINE, "Activating receipt of incoming messages");
         try {
-            URL url = new URL(getAddressValue(endpointInfo));
+            URL url = new URL(endpointInfo.getAddress());
             //The handler is bind with the context, 
             //TODO we need to set the things on on context
             if (contextMatchOnExact()) {
@@ -193,8 +193,8 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.QUERY_STRING, req.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, req.getContentType());
             inMessage.setContent(InputStream.class, req.getInputStream());
-            if (!StringUtils.isEmpty(getAddressValue(endpointInfo))) {
-                inMessage.put(Message.BASE_PATH, new URL(getAddressValue(endpointInfo)).getPath());
+            if (!StringUtils.isEmpty(endpointInfo.getAddress())) {
+                inMessage.put(Message.BASE_PATH, new URL(endpointInfo.getAddress()).getPath());
             }
             inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
