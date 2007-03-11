@@ -26,7 +26,6 @@ import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientServerGreeterBaseNoWsdlTest extends AbstractBusClientServerTestBase {
@@ -37,8 +36,7 @@ public class ClientServerGreeterBaseNoWsdlTest extends AbstractBusClientServerTe
                    launchServer(ServerGreeterBaseNoWsdl.class));
     }
     
-    @Test
-    @Ignore
+    @Test    
     public void testInvocation() throws Exception {
 
         GreeterService service = new GreeterService();

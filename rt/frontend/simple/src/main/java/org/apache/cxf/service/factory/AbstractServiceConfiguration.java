@@ -70,11 +70,11 @@ public abstract class AbstractServiceConfiguration {
         return null;
     }
 
-    public QName getInputMessageName(final OperationInfo op) {
+    public QName getInputMessageName(final OperationInfo op, Method method) {
         return null;
     }
 
-    public QName getOutputMessageName(final OperationInfo op) {
+    public QName getOutputMessageName(final OperationInfo op, Method method) {
         return null;
     }
 

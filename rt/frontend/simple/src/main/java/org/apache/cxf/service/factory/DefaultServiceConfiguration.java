@@ -76,7 +76,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getInputMessageName(OperationInfo op) {
+    public QName getInputMessageName(OperationInfo op, Method method) {
         return new QName(op.getName().getNamespaceURI(), op.getName().getLocalPart());
     }
 
@@ -125,7 +125,7 @@ public class DefaultServiceConfiguration extends AbstractServiceConfiguration {
     }
 
     @Override
-    public QName getOutputMessageName(OperationInfo op) {
+    public QName getOutputMessageName(OperationInfo op, Method method) {
         return new QName(op.getName().getNamespaceURI(), op.getName().getLocalPart() + "Response");
     }
 

@@ -308,27 +308,26 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
             createMessageParts(intf, uOp, m);
             
             if (uOp.hasInput()) {
-                MessageInfo msg = new MessageInfo(op, op.getName());
+                MessageInfo msg = new MessageInfo(op, uOp.getInput().getName());                
                 op.setInput(uOp.getInputName(), msg);
-                msg.addMessagePart(op.getName());
+                msg.addMessagePart(uOp.getInput().getName());
                 
-                for (MessagePartInfo p : uOp.getInput().getMessageParts()) {
-                    p.setConcreteName(new QName(getServiceNamespace(), 
-                                                p.getName().getLocalPart()));
+                for (MessagePartInfo p : uOp.getInput().getMessageParts()) {                    
+                    p.setConcreteName(p.getName());
                 }
             } 
             
             if (uOp.hasOutput()) {
-                QName name = new QName(op.getName().getNamespaceURI(), 
-                                       op.getName().getLocalPart() + "Response");
+                
+                QName name = uOp.getOutput().getName();
                 MessageInfo msg = new MessageInfo(op, name);
                 op.setOutput(uOp.getOutputName(), msg);
+                
                 MessagePartInfo part = msg.addMessagePart(name);
                 part.setIndex(-1);
                 
                 for (MessagePartInfo p : uOp.getOutput().getMessageParts()) {
-                    p.setConcreteName(new QName(getServiceNamespace(), 
-                                                p.getName().getLocalPart()));
+                    p.setConcreteName(p.getName());
                 }
             }
         } else {
@@ -430,12 +429,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         final Class[] paramClasses = method.getParameterTypes();
 
         // Setup the input message
-        MessageInfo inMsg = op.createMessage(getInputMessageName(op));
+        MessageInfo inMsg = op.createMessage(getInputMessageName(op, method));        
         op.setInput(inMsg.getName().getLocalPart(), inMsg);
 
         for (int j = 0; j < paramClasses.length; j++) {
             if (isInParam(method, j)) {
-                final QName q = getInParameterName(op, method, j);
+                final QName q = getInParameterName(op, method, j);                
                 MessagePartInfo part = inMsg.addMessagePart(q);
                 initializeParameter(part, paramClasses[j], method.getGenericParameterTypes()[j]);
                 //TODO - RPC vs DOC (type vs element)
@@ -448,12 +447,12 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
 
         if (hasOutMessage(method)) {
             // Setup the output message
-            MessageInfo outMsg = op.createMessage(createOutputMessageName(op));
+            MessageInfo outMsg = op.createMessage(createOutputMessageName(op, method));
             op.setOutput(outMsg.getName().getLocalPart(), outMsg);
 
             final Class<?> returnType = method.getReturnType();
             if (!returnType.isAssignableFrom(void.class)) {
-                final QName q = getOutParameterName(op, method, -1);
+                final QName q = getOutParameterName(op, method, -1);                
                 MessagePartInfo part = outMsg.addMessagePart(q);
                 initializeParameter(part, method.getReturnType(), method.getGenericReturnType());
                 part.setIndex(-1);
@@ -615,22 +614,22 @@ public class ReflectionServiceFactoryBean extends AbstractServiceFactoryBean {
         return true;
     }
 
-    protected QName getInputMessageName(final OperationInfo op) {
+    protected QName getInputMessageName(final OperationInfo op, final Method method) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            QName q = c.getInputMessageName(op);
-            if (q != null) {
+            QName q = c.getInputMessageName(op, method);
+            if (q != null) {                
                 return q;
             }
         }
         throw new IllegalStateException("ServiceConfiguration must provide a value!");
     }
 
-    protected QName createOutputMessageName(final OperationInfo op) {
+    protected QName createOutputMessageName(final OperationInfo op, final Method method) {
         for (Iterator itr = serviceConfigurations.iterator(); itr.hasNext();) {
             AbstractServiceConfiguration c = (AbstractServiceConfiguration)itr.next();
-            QName q = c.getOutputMessageName(op);
-            if (q != null) {
+            QName q = c.getOutputMessageName(op, method);
+            if (q != null) {                
                 return q;
             }
         }
