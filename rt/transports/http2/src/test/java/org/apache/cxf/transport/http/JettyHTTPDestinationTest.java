@@ -44,6 +44,7 @@ import org.apache.cxf.io.AbstractCachedOutputStream;
 import org.apache.cxf.message.ExchangeImpl;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.security.transport.TLSSessionInfo;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
@@ -399,6 +400,8 @@ public class JettyHTTPDestinationTest extends TestCase {
                 response.flushBuffer();
                 EasyMock.expectLastCall();                
             }
+            request.getAttribute("javax.net.ssl.session");
+            EasyMock.expectLastCall().andReturn(null);
         }
         
         if (decoupled) {
@@ -458,6 +461,8 @@ public class JettyHTTPDestinationTest extends TestCase {
         assertEquals("unexpected query",
                      inMessage.get(Message.QUERY_STRING),
                      "?name");
+        assertNull("unexpected query",
+                   inMessage.get(TLSSessionInfo.class));
         verifyRequestHeaders();      
         
        

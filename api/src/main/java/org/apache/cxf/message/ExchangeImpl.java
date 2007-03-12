@@ -19,13 +19,11 @@
 
 package org.apache.cxf.message;
 
-import java.util.HashMap;
-
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.Session;
 
-public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
+public class ExchangeImpl extends StringMapImpl implements Exchange {
 
     private Destination destination;
     private Conduit conduit;
@@ -90,14 +88,6 @@ public class ExchangeImpl extends HashMap<String, Object> implements Exchange {
         if (null != m) {
             m.setExchange(this);
         }
-    }
-    
-    public <T> T get(Class<T> key) {
-        return key.cast(get(key.getName()));
-    }
-
-    public <T> void put(Class<T> key, T value) {
-        put(key.getName(), value);
     }
 
     public boolean isOneWay() {

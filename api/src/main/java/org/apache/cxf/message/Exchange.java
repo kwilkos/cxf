@@ -19,13 +19,11 @@
 
 package org.apache.cxf.message;
 
-import java.util.Map;
-
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 import org.apache.cxf.transport.Session;
 
-public interface Exchange extends Map<String, Object> {
+public interface Exchange extends StringMap {
     Message getInMessage();
     void setInMessage(Message m);
     
@@ -70,19 +68,4 @@ public interface Exchange extends Map<String, Object> {
      * @param b true if the exchange is known to be a one-way exchange
      */
     void setOneWay(boolean b);
-    
-    /**
-     * Convenience method for storing/retrieving typed objects from the map.
-     * equivalent to:  (T)get(key.getName());
-     * @param key the key
-     * @return the value
-     */
-    <T> T get(Class<T> key);
-    /**
-     * Convenience method for storing/retrieving typed objects from the map.
-     * equivalent to:  put(key.getName(), value);
-     * @param key the key
-     * @param value the value
-     */
-    <T> void put(Class<T> key, T value);
 }

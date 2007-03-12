@@ -20,14 +20,13 @@
 package org.apache.cxf.message;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.cxf.interceptor.InterceptorChain;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
-public interface Message extends Map<String, Object> {
+public interface Message extends StringMap {
     
     String TRANSPORT = "org.apache.cxf.transport";    
     String REQUESTOR_ROLE = "org.apache.cxf.client";
@@ -110,21 +109,6 @@ public interface Message extends Map<String, Object> {
      * @return the set of currently encapsulated content formats
      */
     Set<Class<?>> getContentFormats();
-    
-    /**
-     * Convenience method for storing/retrieving typed objects from the map.
-     * equivalent to:  (T)get(key.getName());
-     * @param key the key
-     * @return the value
-     */
-    <T> T get(Class<T> key);
-    /**
-     * Convenience method for storing/retrieving typed objects from the map.
-     * equivalent to:  put(key.getName(), value);
-     * @param key the key
-     * @param value the value
-     */
-    <T> void put(Class<T> key, T value);
     
     Object getContextualProperty(String key);   
 }

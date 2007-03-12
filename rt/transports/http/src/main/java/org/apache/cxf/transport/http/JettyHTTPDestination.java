@@ -43,6 +43,7 @@ import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.AbstractDestination;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.mortbay.http.HttpRequest;
@@ -256,11 +257,11 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 inMessage.put(Message.BASE_PATH, new URL(endpointInfo.getAddress()).getPath());
             }
             inMessage.put(Message.FIXED_PARAMETER_ORDER, isFixedParameterOrder());
-            inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
-            
+            inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE);
             setHeaders(inMessage);
-
             inMessage.setDestination(this);
+            
+            SSLUtils.propogateSecureSession(req, inMessage);
 
             incomingObserver.onMessage(inMessage);
 

@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.security.KeyStore;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -34,10 +35,15 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.security.transport.TLSSessionInfo;
 
 /**
  * Holder for utility methods related to manipulating SSL settings, common
@@ -51,10 +57,11 @@ public final class SSLUtils {
     private static final String DEFAULT_TRUST_STORE_TYPE = "JKS";
     private static final String DEFAULT_SECURE_SOCKET_PROTOCOL = "TLSv1";
     private static final String CERTIFICATE_FACTORY_TYPE = "X.509";
-    
+    private static final String SERVLET_SSL_SESSION_ATTRIBUTE = "javax.net.ssl.session";
+
     private static final boolean DEFAULT_REQUIRE_CLIENT_AUTHENTICATION = false;
     private static final boolean DEFAULT_WANT_CLIENT_AUTHENTICATION = true;
-
+    
 
     private SSLUtils() {
     }    
@@ -423,6 +430,55 @@ public final class SSLUtils {
         return wantClientAuthentication;
     }    
    
+    /**
+     * Propogate in the message a TLSSessionInfo instance representative  
+     * of the TLS-specific information in the HTTP request.
+     * 
+     * @param req the Jetty request
+     * @param message the Message
+     */
+    public static void propogateSecureSession(HttpServletRequest request,
+                                              Message message) {    
+        SSLSession session = 
+            (SSLSession) request.getAttribute("javax.net.ssl.session");
+        if (session != null) {
+            Certificate[] certs = null;
+            try {
+                certs = session.getPeerCertificates();
+            } catch (final SSLPeerUnverifiedException e) {
+                // peer has not been verified
+            }
+            message.put(TLSSessionInfo.class,
+                        new TLSSessionInfo(session.getCipherSuite(),
+                                           session,
+                                           certs));
+        }
+    }
+    
+    /**
+     * Propogate in the message a TLSSessionInfo instance representative  
+     * of the TLS-specific information in the HTTP request.
+     * 
+     * @param req the servlet request
+     * @param message the Message
+     */
+    public static void propogateSecureServletSession(HttpServletRequest request,
+                                                     Message message) {
+        SSLSession session = 
+            (SSLSession) request.getAttribute(SERVLET_SSL_SESSION_ATTRIBUTE);
+        if (session != null) {
+            Certificate[] certs = null;
+            try {
+                certs = session.getPeerCertificates();
+            } catch (final SSLPeerUnverifiedException e) {
+                // peer has not been verified
+            }
+            message.put(TLSSessionInfo.class,
+                        new TLSSessionInfo(session.getCipherSuite(),
+                                           session,
+                                           certs));
+        }
+    }
     
     protected static void logUnSupportedPolicies(Object policy,
                                                  boolean client,

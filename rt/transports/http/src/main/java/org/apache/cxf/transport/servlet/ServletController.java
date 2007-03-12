@@ -46,6 +46,7 @@ import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
+import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.apache.cxf.wsdl11.ServiceWSDLBuilder;
@@ -168,7 +169,7 @@ public class ServletController {
             inMessage.put(Message.QUERY_STRING, request.getQueryString());
             inMessage.put(Message.CONTENT_TYPE, request.getContentType());
             inMessage.put(Message.ENCODING, request.getCharacterEncoding());
-            
+            SSLUtils.propogateSecureServletSession(request, inMessage);
             d.doMessage(inMessage);
         } catch (IOException e) {
             throw new ServletException(e);

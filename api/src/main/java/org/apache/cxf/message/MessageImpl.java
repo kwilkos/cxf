@@ -31,7 +31,7 @@ import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.transport.Destination;
 
-public class MessageImpl extends HashMap<String, Object> implements Message {
+public class MessageImpl extends StringMapImpl implements Message {
     private Collection<Attachment> attachments;
     private Conduit conduit;
     private Destination destination;
@@ -103,14 +103,6 @@ public class MessageImpl extends HashMap<String, Object> implements Message {
 
     public void setInterceptorChain(InterceptorChain ic) {
         this.interceptorChain = ic;
-    }
-    
-    public <T> T get(Class<T> key) {
-        return key.cast(get(key.getName()));
-    }
-
-    public <T> void put(Class<T> key, T value) {
-        put(key.getName(), value);
     }
 
     public Object getContextualProperty(String key) {

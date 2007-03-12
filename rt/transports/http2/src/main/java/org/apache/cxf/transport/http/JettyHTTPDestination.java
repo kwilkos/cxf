@@ -36,6 +36,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.ConduitInitiator;
+import org.apache.cxf.transport.https.SSLUtils;
 import org.apache.cxf.transports.http.QueryHandler;
 import org.apache.cxf.transports.http.QueryHandlerRegistry;
 import org.mortbay.jetty.HttpConnection;
@@ -200,8 +201,9 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
             inMessage.put(Message.ASYNC_POST_RESPONSE_DISPATCH, Boolean.TRUE); 
             
             setHeaders(inMessage);
-
             inMessage.setDestination(this);
+            
+            SSLUtils.propogateSecureSession(req, inMessage);
 
             incomingObserver.onMessage(inMessage);
 
@@ -212,6 +214,5 @@ public class JettyHTTPDestination extends AbstractHTTPDestination {
                 LOG.fine("Finished servicing http request on thread: " + Thread.currentThread());
             }
         }
-    }   
-    
+    } 
 }
