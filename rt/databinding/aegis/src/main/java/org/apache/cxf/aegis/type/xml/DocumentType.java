@@ -29,12 +29,12 @@ import org.w3c.dom.Document;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
-import org.apache.cxf.aegis.util.STAXUtils;
 import org.apache.cxf.aegis.util.stax.FragmentStreamReader;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
+import org.apache.cxf.staxutils.StaxUtils;
 
 /**
  * Reads and writes <code>org.w3c.dom.Document</code> types.
@@ -63,7 +63,7 @@ public class DocumentType extends Type {
     public Object readObject(MessageReader mreader, Context context) throws DatabindingException {
         try {
             XMLStreamReader reader = ((ElementReader)mreader).getXMLStreamReader();
-            return STAXUtils.read(builder, new FragmentStreamReader(reader), true);
+            return StaxUtils.read(builder, new FragmentStreamReader(reader), true);
         } catch (XMLStreamException e) {
             throw new DatabindingException("Could not parse xml.", e);
         }
@@ -75,7 +75,7 @@ public class DocumentType extends Type {
         Document doc = (Document)object;
 
         try {
-            STAXUtils.writeElement(doc.getDocumentElement(), ((ElementWriter)writer).getXMLStreamWriter(),
+            StaxUtils.writeElement(doc.getDocumentElement(), ((ElementWriter)writer).getXMLStreamWriter(),
                                    false);
         } catch (XMLStreamException e) {
             throw new DatabindingException("Could not write xml.", e);

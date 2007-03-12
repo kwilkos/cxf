@@ -24,13 +24,13 @@ import java.io.Serializable;
  * @author jdavias
  */
 public class BeanD implements Serializable {
-    private String m_propD;
+    private String propD;
 
-    public String getM_propD() {
-        return m_propD;
+    public String getMpropD() {
+        return propD;
     }
 
-    public void setM_propD(String m_propD) {
-        this.m_propD = m_propD;
+    public void setMpropD(String prop) {
+        this.propD = prop;
     }
 }

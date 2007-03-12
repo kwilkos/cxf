@@ -28,11 +28,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.cxf.aegis.DatabindingException;
-import org.apache.cxf.aegis.util.STAXUtils;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.util.stax.DepthXMLStreamReader;
 import org.apache.cxf.aegis.xml.AbstractMessageReader;
 import org.apache.cxf.aegis.xml.MessageReader;
+import org.apache.cxf.staxutils.StaxUtils;
 
 /**
  * Reads literal encoded messages.
@@ -87,7 +87,7 @@ public class ElementReader extends AbstractMessageReader implements MessageReade
     public ElementReader(InputStream is) throws XMLStreamException {
         // XMLInputFactory factory = XMLInputFactory.newInstance();
         // XMLStreamReader xmlReader = factory.createXMLStreamReader(is);
-        XMLStreamReader xmlReader = STAXUtils.createXMLStreamReader(is, null, null);
+        XMLStreamReader xmlReader = StaxUtils.createXMLStreamReader(is, null);
 
         xmlReader.nextTag();
 

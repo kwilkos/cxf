@@ -19,7 +19,6 @@
 package org.apache.cxf.aegis.type.basic;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -30,10 +29,11 @@ import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.mtom.AbstractXOPType;
 import org.apache.cxf.aegis.type.mtom.ByteArrayType;
-import org.apache.cxf.aegis.util.Base64;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.Base64Exception;
+import org.apache.cxf.common.util.Base64Utility;
 
 /**
  * Converts back and forth to byte[] objects.
@@ -78,7 +78,9 @@ public class Base64Type extends Type {
             for (int sourceStart = 0;; sourceStart += length) {
                 int nCopied = reader.getTextCharacters(sourceStart, myBuffer, 0, length);
 
-                Base64.decode(myBuffer, 0, nCopied, bos);
+                if (nCopied > 0) {
+                    Base64Utility.decode(myBuffer, 0, nCopied, bos);
+                }
 
                 if (nCopied < length) {
                     break;
@@ -93,7 +95,7 @@ public class Base64Type extends Type {
             reader.next();
 
             return bos.toByteArray();
-        } catch (IOException e) {
+        } catch (Base64Exception e) {
             throw new DatabindingException("Could not parse base64Binary data.", e);
         } catch (XMLStreamException e) {
             throw new DatabindingException("Could not parse base64Binary data.", e);
@@ -112,6 +114,6 @@ public class Base64Type extends Type {
 
         byte[] data = (byte[])object;
 
-        writer.writeValue(Base64.encode(data));
+        writer.writeValue(Base64Utility.encode(data));
     }
 }

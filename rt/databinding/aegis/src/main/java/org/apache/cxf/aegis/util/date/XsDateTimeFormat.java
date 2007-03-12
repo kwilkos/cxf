@@ -64,7 +64,6 @@ public class XsDateTimeFormat extends Format {
         return pOffset;
     }
 
-    @Override
     public Object parseObject(String pString, ParsePosition pParsePosition) {
         if (pString == null) {
             throw new NullPointerException("The String argument must not be null.");
@@ -77,7 +76,9 @@ public class XsDateTimeFormat extends Format {
 
         boolean isMinus = false;
         StringBuffer digits = new StringBuffer();
-        int year, month, mday;
+        int year;
+        int month;
+        int mday;
         if (parseDate) {
             // Sign
             if (offset < length) {
@@ -134,10 +135,15 @@ public class XsDateTimeFormat extends Format {
                 }
             }
         } else {
-            year = month = mday = 0;
+            year = 0;
+            month = 0;
+            mday = 0;
         }
 
-        int hour, minute, second, millis;
+        int hour;
+        int minute;
+        int second;
+        int millis;
         if (parseTime) {
             offset = parseInt(pString, offset, digits);
             if (digits.length() != 2) {
@@ -187,7 +193,10 @@ public class XsDateTimeFormat extends Format {
                 millis = 0;
             }
         } else {
-            hour = minute = second = millis = 0;
+            hour = 0;
+            minute = 0;
+            second = 0;
+            millis = 0;
         }
 
         digits.setLength(0);

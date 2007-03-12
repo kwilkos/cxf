@@ -24,11 +24,11 @@ import javax.xml.stream.XMLStreamReader;
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
-import org.apache.cxf.aegis.util.STAXUtils;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.stax.ElementReader;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
+import org.apache.cxf.staxutils.StaxUtils;
 
 /**
  * Reads and writes <code>org.w3c.dom.Document</code> types.
@@ -52,7 +52,7 @@ public class XMLStreamReaderType extends Type {
         XMLStreamReader reader = (XMLStreamReader)object;
 
         try {
-            STAXUtils.copy(reader, ((ElementWriter)writer).getXMLStreamWriter());
+            StaxUtils.copy(reader, ((ElementWriter)writer).getXMLStreamWriter());
             reader.close();
         } catch (XMLStreamException e) {
             throw new DatabindingException("Could not write xml.", e);

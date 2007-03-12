@@ -26,24 +26,23 @@ import java.util.Arrays;
  * @author xfournet
  */
 public class ResultBean {
-    private BeanA[] m_result1;
-
-    private RootBean[] m_result2;
+    private BeanA[] result1;
+    private RootBean[] result2;
 
     public BeanA[] getResult1() {
-        return m_result1;
+        return result1;
     }
 
     public void setResult1(BeanA[] result1) {
-        m_result1 = result1;
+        this.result1 = result1;
     }
 
     public RootBean[] getResult2() {
-        return m_result2;
+        return result2;
     }
 
     public void setResult2(RootBean[] result2) {
-        m_result2 = result2;
+        this.result2 = result2;
     }
 
     public boolean equals(Object o) {
@@ -56,10 +55,10 @@ public class ResultBean {
 
         final ResultBean that = (ResultBean)o;
 
-        if (!Arrays.equals(m_result1, that.m_result1)) {
+        if (!Arrays.equals(result1, that.result1)) {
             return false;
         }
-        if (!Arrays.equals(m_result2, that.m_result2)) {
+        if (!Arrays.equals(result2, that.result2)) {
             return false;
         }
 

@@ -114,9 +114,9 @@ public class WS1Impl implements WS1 {
 
     public void throwException(boolean extendedOne) throws WS1Exception {
         if (extendedOne) {
-            WS1Exception ex = new WS1ExtendedException("WS1 extended exception", 20, 30);
-            ex.setSimpleBean(new SimpleBean());
-            throw ex;
+            throw new WS1ExtendedException("WS1 extended exception",
+                                             20, 30,
+                                             new SimpleBean());
         } else {
             throw new WS1Exception("WS1 base exception", 10);
         }

@@ -22,11 +22,11 @@ import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.aegis.util.STAXUtils;
 import org.apache.cxf.aegis.util.jdom.StaxBuilder;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.jdom.JDOMReader;
 import org.apache.cxf.binding.soap.Soap11;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.test.AbstractCXFTest;
 import org.jdom.Document;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class ReaderTest extends AbstractCXFTest {
          * XMLStreamReader reader = factory.createXMLStreamReader(
          * getResourceAsStream(resource));
          */
-        XMLStreamReader reader = STAXUtils.createXMLStreamReader(getResourceAsStream(resource), null, null);
+        XMLStreamReader reader = StaxUtils.createXMLStreamReader(getResourceAsStream(resource), null);
 
         while (reader.getEventType() != XMLStreamReader.START_ELEMENT) {
             reader.next();

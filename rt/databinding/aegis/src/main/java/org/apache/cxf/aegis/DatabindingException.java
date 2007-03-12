@@ -20,6 +20,8 @@ package org.apache.cxf.aegis;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 
@@ -29,8 +31,7 @@ import java.io.PrintWriter;
  */
 public class DatabindingException extends RuntimeException {
     
-    private final Throwable cause;
-    private String message2;
+    private final List<String> extraMessages = new LinkedList<String>();
     
 
     /**
@@ -40,9 +41,7 @@ public class DatabindingException extends RuntimeException {
      * @param message the detail message.
      */
     public DatabindingException(String message) {
-        super();
-        this.message2 = message;
-        this.cause = null;
+        super(message);
     }
 
     /**
@@ -53,21 +52,9 @@ public class DatabindingException extends RuntimeException {
      * @param cause the cause.
      */
     public DatabindingException(String message, Throwable cause) {
-        super(message);
-        this.message2 = message;
-        this.cause = cause;
+        super(message, cause);
     }
 
-    /**
-     * Returns the cause of this throwable or <code>null</code> if the cause
-     * is nonexistent or unknown.
-     * 
-     * @return the nested cause.
-     */
-    @Override
-    public Throwable getCause() {
-        return this.cause == this ? null : this.cause;
-    }
 
     /**
      * Return the detail message, including the message from the
@@ -75,18 +62,25 @@ public class DatabindingException extends RuntimeException {
      * 
      * @return the detail message.
      */
-    @Override
     public String getMessage() {
-        if (this.cause == null || this.cause == this) {
-            return message2;
+        if (getCause() == null || getCause() == this) {
+            return getActualMessage();
         } else {
-            return message2 + ". Nested exception is " + this.cause.getClass().getName() + ": "
-                   + this.cause.getMessage();
+            return getActualMessage() + ". Nested exception is "
+                   + getCause().getClass().getName() + ": "
+                   + getCause().getMessage();
         }
     }
 
     public String getActualMessage() {
-        return message2;
+        if (extraMessages.isEmpty()) {
+            return super.getMessage();
+        }
+        StringBuffer buf = new StringBuffer();
+        for (String s : extraMessages) {
+            buf.append(s);
+        }
+        return buf.toString();
     }
 
     /**
@@ -96,11 +90,11 @@ public class DatabindingException extends RuntimeException {
      */
     @Override
     public void printStackTrace(PrintStream s) {
-        if (this.cause == null || this.cause == this) {
+        if (getCause() == null || getCause() == this) {
             super.printStackTrace(s);
         } else {
             s.println(this);
-            this.cause.printStackTrace(s);
+            getCause().printStackTrace(s);
         }
     }
 
@@ -111,23 +105,20 @@ public class DatabindingException extends RuntimeException {
      */
     @Override
     public void printStackTrace(PrintWriter w) {
-        if (this.cause == null || this.cause == this) {
+        if (getCause() == null || getCause() == this) {
             super.printStackTrace(w);
         } else {
             w.println(this);
-            this.cause.printStackTrace(w);
+            getCause().printStackTrace(w);
         }
     }
 
-    public void prepend(String m) {
-        if (this.message2 != null) {
-            this.message2 = m + ": " + this.message2;
-        } else {
-            this.message2 = m;
-        }
+    public final void prepend(String m) {
+        extraMessages.add(0, m + ": ");
     }
 
     public void setMessage(String s) {
-        message2 = s;
+        extraMessages.clear();
+        extraMessages.add(s);
     }
 }

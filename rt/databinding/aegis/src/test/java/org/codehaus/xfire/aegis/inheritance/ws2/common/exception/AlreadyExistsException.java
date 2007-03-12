@@ -24,25 +24,19 @@ package org.codehaus.xfire.aegis.inheritance.ws2.common.exception;
  * @author xfournet
  */
 public class AlreadyExistsException extends Exception {
-    private String m_id;
-
-    public AlreadyExistsException() {
-    }
+    private final String id;
 
     public AlreadyExistsException(String id) {
-        m_id = id;
+        this.id = id;
     }
 
     public String getId() {
-        return m_id;
+        return id;
     }
 
-    public void setId(String id) {
-        m_id = id;
-    }
 
     public String toString() {
-        return "[" + getClass().getName() + "] id=" + m_id;
+        return "[" + getClass().getName() + "] id=" + id;
     }
 
     public boolean equals(Object o) {
@@ -59,7 +53,7 @@ public class AlreadyExistsException extends Exception {
             return false;
         }
 
-        if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null) {
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
 
@@ -67,6 +61,6 @@ public class AlreadyExistsException extends Exception {
     }
 
     public int hashCode() {
-        return (m_id != null ? m_id.hashCode() : 0);
+        return id != null ? id.hashCode() : 0;
     }
 }

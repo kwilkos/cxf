@@ -37,7 +37,7 @@ import org.apache.cxf.aegis.util.FastStack;
  * @author <a href="mailto:tsztelak@gmail.com">Tomasz Sztelak</a>
  */
 public abstract class DOMStreamReader implements XMLStreamReader {
-    public Map properties = new HashMap();
+    private Map properties = new HashMap();
 
     private FastStack<ElementFrame> frames = new FastStack<ElementFrame>();
 
@@ -220,7 +220,7 @@ public abstract class DOMStreamReader implements XMLStreamReader {
      * @see javax.xml.stream.XMLStreamReader#isStartElement()
      */
     public boolean isStartElement() {
-        return (currentEvent == START_ELEMENT);
+        return currentEvent == START_ELEMENT;
     }
 
     /*
@@ -229,7 +229,7 @@ public abstract class DOMStreamReader implements XMLStreamReader {
      * @see javax.xml.stream.XMLStreamReader#isEndElement()
      */
     public boolean isEndElement() {
-        return (currentEvent == END_ELEMENT);
+        return currentEvent == END_ELEMENT;
     }
 
     /*
@@ -238,7 +238,7 @@ public abstract class DOMStreamReader implements XMLStreamReader {
      * @see javax.xml.stream.XMLStreamReader#isCharacters()
      */
     public boolean isCharacters() {
-        return (currentEvent == CHARACTERS);
+        return currentEvent == CHARACTERS;
     }
 
     /*
@@ -247,7 +247,7 @@ public abstract class DOMStreamReader implements XMLStreamReader {
      * @see javax.xml.stream.XMLStreamReader#isWhiteSpace()
      */
     public boolean isWhiteSpace() {
-        return (currentEvent == SPACE);
+        return currentEvent == SPACE;
     }
 
     public int getEventType() {
@@ -270,8 +270,8 @@ public abstract class DOMStreamReader implements XMLStreamReader {
     }
 
     public boolean hasText() {
-        return (currentEvent == CHARACTERS || currentEvent == DTD || currentEvent == ENTITY_REFERENCE
-                || currentEvent == COMMENT || currentEvent == SPACE);
+        return currentEvent == CHARACTERS || currentEvent == DTD || currentEvent == ENTITY_REFERENCE
+                || currentEvent == COMMENT || currentEvent == SPACE;
     }
 
     public Location getLocation() {
@@ -301,7 +301,7 @@ public abstract class DOMStreamReader implements XMLStreamReader {
     }
 
     public boolean hasName() {
-        return (currentEvent == START_ELEMENT || currentEvent == END_ELEMENT);
+        return currentEvent == START_ELEMENT || currentEvent == END_ELEMENT;
     }
 
     public String getVersion() {

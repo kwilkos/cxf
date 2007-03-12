@@ -18,8 +18,6 @@
  */
 package org.apache.cxf.aegis.type.xml;
 
-import javanet.staxutils.ContentHandlerToXMLStreamWriter;
-
 import javax.xml.stream.FactoryConfigurationError;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -36,13 +34,15 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import javanet.staxutils.ContentHandlerToXMLStreamWriter;
+
 import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
-import org.apache.cxf.aegis.util.STAXUtils;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
 import org.apache.cxf.aegis.xml.stax.ElementWriter;
+import org.apache.cxf.staxutils.StaxUtils;
 
 /**
  * Reads and writes <code>javax.xml.transform.Source</code> types.
@@ -100,7 +100,7 @@ public class SourceType extends Type {
                                                + " was not understood.");
             }
 
-            STAXUtils.writeElement(element, writer, false);
+            StaxUtils.writeElement(element, writer, false);
         } else if (object instanceof SAXSource) {
             SAXSource source = (SAXSource)object;
 
@@ -118,8 +118,8 @@ public class SourceType extends Type {
             }
         } else if (object instanceof StreamSource) {
             StreamSource ss = (StreamSource)object;
-            XMLStreamReader reader = STAXUtils.createXMLStreamReader(ss.getInputStream(), null, null);
-            STAXUtils.copy(reader, writer);
+            XMLStreamReader reader = StaxUtils.createXMLStreamReader(ss.getInputStream(), null);
+            StaxUtils.copy(reader, writer);
         }
     }
 

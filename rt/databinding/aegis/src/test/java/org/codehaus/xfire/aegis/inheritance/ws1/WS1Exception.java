@@ -24,35 +24,37 @@ package org.codehaus.xfire.aegis.inheritance.ws1;
  * @author xfournet
  */
 public class WS1Exception extends Exception {
-    private int errorCode;
-    private Object simpleBean;
+    private final int errorCode;
+    private final Object simpleBean;
 
     public WS1Exception() {
+        simpleBean = null;
+        errorCode = 0;
     }
 
     public WS1Exception(String message) {
         super(message);
+        simpleBean = null;
+        errorCode = 0;
     }
 
     public WS1Exception(String message, int errorCode1) {
         super(message);
         errorCode = errorCode1;
+        simpleBean = null;
+    }
+    public WS1Exception(String message, int errorCode1, Object bean) {
+        super(message);
+        errorCode = errorCode1;
+        simpleBean = bean;
     }
 
     public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
-
     public Object getSimpleBean() {
         return simpleBean;
-    }
-
-    public void setSimpleBean(Object simpleBean) {
-        this.simpleBean = simpleBean;
     }
 
     public String toString() {

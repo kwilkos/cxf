@@ -106,64 +106,59 @@ public class ArrayType extends Type {
     protected Object makeArray(Class arrayType, Collection values) {
         int i;
         int n;
+        Object array = null;
         if (Integer.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Integer.TYPE, objects.length);
+            array = Array.newInstance(Integer.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Long.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Long.TYPE, objects.length);
+            array = Array.newInstance(Long.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Short.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Short.TYPE, objects.length);
+            array = Array.newInstance(Short.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Double.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Double.TYPE, objects.length);
+            array = Array.newInstance(Double.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Float.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Float.TYPE, objects.length);
+            array = Array.newInstance(Float.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Byte.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Byte.TYPE, objects.length);
+            array = Array.newInstance(Byte.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Boolean.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Boolean.TYPE, objects.length);
+            array = Array.newInstance(Boolean.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         } else if (Character.TYPE.equals(arrayType)) {
             Object[] objects = values.toArray();
-            Object array = Array.newInstance(Character.TYPE, objects.length);
+            array = Array.newInstance(Character.TYPE, objects.length);
             for (i = 0, n = objects.length; i < n; i++) {
                 Array.set(array, i, objects[i]);
             }
-            return array;
         }
-        return values.toArray((Object[])Array.newInstance(getComponentType().getTypeClass(), values.size()));
+        return array == null
+            ? values.toArray((Object[])Array.newInstance(getComponentType().getTypeClass(), values.size()))
+            : array;
     }
 
     @Override

@@ -35,10 +35,10 @@ import org.apache.cxf.aegis.Context;
 import org.apache.cxf.aegis.DatabindingException;
 import org.apache.cxf.aegis.type.Type;
 import org.apache.cxf.aegis.type.TypeMapping;
-import org.apache.cxf.aegis.util.Base64;
 import org.apache.cxf.aegis.util.XmlConstants;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.apache.cxf.aegis.xml.MessageWriter;
+import org.apache.cxf.common.util.Base64Utility;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -150,9 +150,9 @@ public class ObjectType extends Type {
     }
 
     private Object reconstituteJavaObject(MessageReader reader) throws DatabindingException {
-        ByteArrayInputStream in = new ByteArrayInputStream(Base64.decode(reader.getValue()));
 
         try {
+            ByteArrayInputStream in = new ByteArrayInputStream(Base64Utility.decode(reader.getValue()));
             return new ObjectInputStream(in).readObject();
         } catch (Exception e) {
             throw new DatabindingException("Unable to reconstitute serialized object", e);
@@ -255,7 +255,7 @@ public class ObjectType extends Type {
                                            + object.getClass().getName() + "]", e);
         }
 
-        writer.writeValue(Base64.encode(out.toByteArray()));
+        writer.writeValue(Base64Utility.encode(out.toByteArray()));
     }
 
     public boolean isReadToDocument() {

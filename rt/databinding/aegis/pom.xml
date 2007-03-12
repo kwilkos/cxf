@@ -139,8 +139,8 @@
         </dependencies>
         <executions>
           <execution>
-            <id>process-sources</id>
-            <phase>process-sources</phase>
+            <id>validate</id>
+            <phase>validate</phase>
             <configuration>
               <failsOnError>false</failsOnError>
               <consoleOutput>false</consoleOutput>

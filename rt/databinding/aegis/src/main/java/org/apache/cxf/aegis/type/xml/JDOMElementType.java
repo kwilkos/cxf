@@ -40,7 +40,7 @@ import org.jdom.Element;
  */
 public class JDOMElementType extends Type {
     // private static final StaxBuilder builder = new StaxBuilder();
-    private static final StaxSerializer serializer = new StaxSerializer();
+    private static final StaxSerializer SERIALIZER = new StaxSerializer();
 
     public JDOMElementType() {
         setWriteOuter(false);
@@ -68,7 +68,7 @@ public class JDOMElementType extends Type {
         Element el = (Element)object;
 
         try {
-            serializer.writeElement(el, ((ElementWriter)writer).getXMLStreamWriter());
+            SERIALIZER.writeElement(el, ((ElementWriter)writer).getXMLStreamWriter());
         } catch (XMLStreamException e) {
             throw new DatabindingException("Could not write xml.", e);
         }

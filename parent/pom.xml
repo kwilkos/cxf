@@ -134,8 +134,8 @@
                     </dependencies>
                     <executions>
                         <execution>
-                            <id>process-sources</id>
-                            <phase>process-sources</phase>
+                            <id>validate</id>
+                            <phase>validate</phase>
                             <configuration>
                                 <configLocation>cxf-checkstyle.xml</configLocation>
                                 <consoleOutput>true</consoleOutput>
@@ -166,11 +166,16 @@
                         </rulesets>
                         <targetJdk>1.5</targetJdk>
                         <linkXRef>false</linkXRef>
+                        <includeTests>true</includeTests>
+                        <verbose>true</verbose>
+                        <excludeRoots>
+                            <excludeRoot>${basedir}/src/main/generated</excludeRoot>
+                        </excludeRoots>
                     </configuration>
                     <executions>
                         <execution>
-                            <id>process-sources</id>
-                            <phase>process-sources</phase>
+                            <id>validate</id>
+                            <phase>validate</phase>
                             <goals>
                                 <goal>check</goal>
                             </goals>
@@ -216,7 +221,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-remote-resources-plugin</artifactId>
-                <version>1.0-alpha-2</version>
+                <version>1.0-alpha-3</version>
                 <executions>
                     <execution>
                         <goals>
@@ -224,8 +229,8 @@
                         </goals>
                         <configuration>
                             <resourceBundles>
-                                <resourceBundle>org.apache:apache-incubator-disclaimer-resource-bundle:1.0</resourceBundle>
-                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.1</resourceBundle>
+                                <resourceBundle>org.apache:apache-incubator-disclaimer-resource-bundle:1.1</resourceBundle>
+                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.2</resourceBundle>
                             </resourceBundles>
                             <properties>
                                 <addLicense>true</addLicense>

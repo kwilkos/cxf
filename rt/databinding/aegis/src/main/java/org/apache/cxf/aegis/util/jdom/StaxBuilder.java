@@ -65,7 +65,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.cxf.aegis.util.STAXUtils;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.jdom.Attribute;
 import org.jdom.Content;
 import org.jdom.Document;
@@ -131,11 +131,11 @@ public class StaxBuilder {
      * Default constructor.
      */
     public StaxBuilder() {
-        xifactory = STAXUtils.getXMLInputFactory(null);
+        xifactory = StaxUtils.getXMLInputFactory();
     }
 
     public StaxBuilder(Map namespaces) {
-        xifactory = STAXUtils.getXMLInputFactory(null);
+        xifactory = StaxUtils.getXMLInputFactory();
         this.additionalNamespaces = namespaces;
     }
 
@@ -364,12 +364,11 @@ public class StaxBuilder {
                 }
                 // And then 'push' new element...
                 current = newElem;
-            }
-
+                
                 // Already added the element, can continue
                 noadd = true;
                 break;
-
+            }
             case XMLStreamConstants.START_DOCUMENT:
                 /*
                  * This should only be received at the beginning of document...

@@ -24,26 +24,27 @@ package org.codehaus.xfire.aegis.inheritance.ws1;
  * @author xfournet
  */
 public class WS1ExtendedException extends WS1Exception {
-    private int extendedCode;
+    private final int extendedCode;
 
     public WS1ExtendedException() {
+        extendedCode = 0;
     }
 
     public WS1ExtendedException(String message) {
         super(message);
+        extendedCode = 0;
     }
 
-    public WS1ExtendedException(String message, int errorCode1, int extendedCode) {
-        super(message, errorCode1);
+    public WS1ExtendedException(String message,
+                                int errorCode1,
+                                int extendedCode,
+                                Object object) {
+        super(message, errorCode1, object);
         this.extendedCode = extendedCode;
     }
 
     public int getExtendedCode() {
         return extendedCode;
-    }
-
-    public void setExtendedCode(int extendedCode) {
-        this.extendedCode = extendedCode;
     }
 
     public String toString() {

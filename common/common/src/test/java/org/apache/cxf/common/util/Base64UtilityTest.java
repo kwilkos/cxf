@@ -85,8 +85,6 @@ public class Base64UtilityTest extends Assert {
         
         bytesDecoded = Base64Utility.decodeChunk(new char[3], 0, 3);
         assertNull(bytesDecoded);
-        bytesDecoded = Base64Utility.decodeChunk(new char[9], 0, 9);
-        assertNull(bytesDecoded);
     }
 
     @Test

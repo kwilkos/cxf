@@ -123,10 +123,10 @@ public final class Base64Utility {
                                      int l) 
         throws Base64Exception {
         
-        // Keep it simple - must be >= 4 and a multiple of 4. Unpadded
+        // Keep it simple - must be >= 4. Unpadded
         // base64 data contain < 3 octets is invalid.
         //
-        if (((l - o) % 4 != 0) || (l - o) < 4) {
+        if ((l - o) < 4) {
             return null;
         }
 
@@ -164,6 +164,12 @@ public final class Base64Utility {
                     obcount += processEncodeme(ib, ob, obcount);
                 }
             }
+        }
+        
+        if (obcount != ob.length) {
+            byte []tmp = new byte[obcount];
+            System.arraycopy(ob, 0, tmp, 0, obcount);
+            ob = tmp;
         }
 
         return ob;
