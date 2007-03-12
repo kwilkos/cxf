@@ -33,7 +33,6 @@ import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ClientImpl;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.InterfaceInfo;
@@ -220,7 +219,7 @@ public class Proxy {
         Endpoint endpoint = reliableEndpoint.getEndpoint();
         BindingInfo bi = reliableEndpoint.getBindingInfo();
         
-        Client client = new RMClient(bus, endpoint);
+        Client client = new RMClient(bus, endpoint, reliableEndpoint.getConduit());
         
         BindingOperationInfo boi = bi.getOperation(oi);
         try {
@@ -239,36 +238,8 @@ public class Proxy {
     
     class RMClient extends ClientImpl {
         
-        RMClient(Bus bus, Endpoint endpoint) {
-            super(bus, endpoint);    
-        }
-        
-        @Override
-        protected PhaseInterceptorChain setupInterceptorChain() {
-            Endpoint originalEndpoint = getEndpoint();
-            setEndpoint(Proxy.this.reliableEndpoint.getApplicationEndpoint());
-            PhaseInterceptorChain chain = super.setupInterceptorChain();
-            setEndpoint(originalEndpoint);
-            return chain;
-        }
-        
-        @Override
-        public synchronized Conduit getConduit() {
-            Conduit c = null;
-            
-            if (null != Proxy.this.reliableEndpoint.getApplicationReplyTo()) {
-                String address = Proxy.this.reliableEndpoint.getApplicationReplyTo()
-                    .getAddress().getValue();
-                getEndpoint().getEndpointInfo().setAddress(address);
-                c = super.getConduit();
-            } else {
-                Endpoint oe = getEndpoint();
-                setEndpoint(Proxy.this.reliableEndpoint.getApplicationEndpoint());
-                c = super.getConduit();
-                setEndpoint(oe);
-            }
-           
-            return c;
+        RMClient(Bus bus, Endpoint endpoint, Conduit conduit) {
+            super(bus, endpoint, conduit);  
         }
 
         @Override
@@ -276,9 +247,7 @@ public class Proxy {
             // TODO Auto-generated method stub
             m.getExchange().put(Endpoint.class, Proxy.this.reliableEndpoint.getApplicationEndpoint());
             super.onMessage(m);
-        }
-        
-        
+        }    
     }
     
 

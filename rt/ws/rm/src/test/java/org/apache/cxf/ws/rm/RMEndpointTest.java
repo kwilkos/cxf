@@ -23,15 +23,33 @@ import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.service.Service;
 import org.apache.cxf.service.model.InterfaceInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class RMEndpointTest extends TestCase {
     
+    private IMocksControl control;
+    
+    public void setUp() {
+        control = EasyMock.createNiceControl();
+    }
+    
+    public void tearDown() {
+        control.verify();
+    }
+      
     public void testCreateService() throws NoSuchMethodException {
-        RMEndpoint rme = new RMEndpoint(null, null);
+        Service appService = control.createMock(Service.class);
+        Endpoint appEndpoint = control.createMock(Endpoint.class);
+        EasyMock.expect(appEndpoint.getService()).andReturn(appService);
+        control.replay();
+        
+        RMEndpoint rme = new RMEndpoint(null, appEndpoint);
         rme.createService();
         
         Service service = rme.getService();

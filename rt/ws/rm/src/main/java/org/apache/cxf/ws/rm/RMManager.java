@@ -24,12 +24,16 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.xml.namespace.QName;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.ws.addressing.AddressingProperties;
@@ -51,6 +55,8 @@ import org.apache.cxf.ws.rm.soap.RetransmissionQueueImpl;
  */
 public class RMManager extends RMManagerConfigBean {
 
+    private static final Logger LOG = LogUtils.getL7dLogger(RMManager.class);
+    
     private Bus bus;
     private RMStore store;
     private RetransmissionQueue retransmissionQueue;
@@ -96,6 +102,14 @@ public class RMManager extends RMManagerConfigBean {
     
     public synchronized RMEndpoint getReliableEndpoint(Message message) {
         Endpoint endpoint = RMContextUtils.getEndpoint(message);
+        if (LOG.isLoggable(Level.FINE)) {
+            LOG.fine("Getting RMEndpoint for endpoint with info: " + endpoint.getEndpointInfo().getName());
+        }
+        if (endpoint.getEndpointInfo().getName().equals(
+            new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractSoapPort"))) {
+            WrappedEndpoint wrappedEndpoint = (WrappedEndpoint)endpoint;
+            endpoint = wrappedEndpoint.getWrappedEndpoint();
+        }
         RMEndpoint rme = reliableEndpoints.get(endpoint);
         if (null == rme) {
             rme = new RMEndpoint(this, endpoint);
@@ -104,11 +118,10 @@ public class RMManager extends RMManagerConfigBean {
             if (null != destination) {
                 AddressingPropertiesImpl maps = RMContextUtils.retrieveMAPs(message, false, false);
                 replyTo = maps.getReplyTo();
-            }
-            
-            rme.initialise(replyTo);
-            
-            reliableEndpoints.put(endpoint, rme);
+            } 
+            rme.initialise(message.getExchange().getConduit(), replyTo);
+            reliableEndpoints.put(endpoint, rme); 
+            LOG.fine("Created new RMEndpoint.");
         }
         return rme;
     }

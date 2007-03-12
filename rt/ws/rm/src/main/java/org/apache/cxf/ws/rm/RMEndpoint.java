@@ -20,6 +20,7 @@
 package org.apache.cxf.ws.rm;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.bind.JAXBException;
@@ -27,14 +28,11 @@ import javax.xml.namespace.QName;
 
 import org.apache.cxf.binding.soap.model.SoapBindingInfo;
 import org.apache.cxf.binding.soap.model.SoapOperationInfo;
+import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.databinding.DataBinding;
 import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.endpoint.EndpointImpl;
 import org.apache.cxf.jaxb.JAXBDataBinding;
-import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
 import org.apache.cxf.service.Service;
-import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.cxf.service.model.BindingInfo;
 import org.apache.cxf.service.model.BindingOperationInfo;
@@ -45,9 +43,12 @@ import org.apache.cxf.service.model.MessagePartInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.apache.cxf.service.model.ServiceInfo;
 import org.apache.cxf.service.model.UnwrappedOperationInfo;
+import org.apache.cxf.transport.Conduit;
 import org.apache.cxf.ws.addressing.Names;
 
 public class RMEndpoint {
+    
+    private static final Logger LOG = LogUtils.getL7dLogger(RMEndpoint.class);
     
     private static final QName SERVICE_NAME = 
         new QName(RMConstants.getWsdlNamespace(), "SequenceAbstractService");
@@ -66,10 +67,10 @@ public class RMEndpoint {
         
     private final RMManager manager;
     private final Endpoint applicationEndpoint;
-    private org.apache.cxf.ws.addressing.EndpointReferenceType applicationReplyTo;
+    private Conduit conduit;
     private Source source;
     private Destination destination;
-    private Service service;
+    private WrappedService service;
     private Endpoint endpoint;
     private Proxy proxy;
     private Servant servant;
@@ -166,30 +167,25 @@ public class RMEndpoint {
         this.source = source;
     } 
     
-    /**
-     * Returns the adress to which to send CreateSequenceResponse, TerminateSequence
-     * and LastMessage requests (i.e. the replyTo address for twaoway application
-     * messages).
-     * 
-     * @return the replyToAddress
+    /** 
+     * @return Returns the conduit.
      */
-    org.apache.cxf.ws.addressing.EndpointReferenceType getApplicationReplyTo() {
-        return applicationReplyTo;
-    }
-  
-    void initialise(org.apache.cxf.ws.addressing.EndpointReferenceType replyTo) {  
-        applicationReplyTo = replyTo;
-        createService();
-        createEndpoint();
+    public Conduit getConduit() {
+        return conduit;
     }
     
+    void initialise(Conduit c, org.apache.cxf.ws.addressing.EndpointReferenceType replyTo) {  
+        conduit = c;
+        createService();
+        createEndpoint(replyTo);
+    }
     
     void createService() {
         ServiceInfo si = new ServiceInfo();
         si.setName(SERVICE_NAME);
         buildInterfaceInfo(si);
-        buildBindingInfo(si);
-        service = new ServiceImpl(si);
+        
+        service = new WrappedService(applicationEndpoint.getService(), SERVICE_NAME, si);
         
         DataBinding dataBinding = null;
         try {
@@ -204,12 +200,19 @@ public class RMEndpoint {
         service.setInvoker(servant);
     }
 
-    void createEndpoint() {
+    void createEndpoint(org.apache.cxf.ws.addressing.EndpointReferenceType replyTo) {
         ServiceInfo si = service.getServiceInfo();
         buildBindingInfo(si);
         String transportId = applicationEndpoint.getEndpointInfo().getTransportId();
         EndpointInfo ei = new EndpointInfo(si, transportId);
-        ei.setAddress(applicationEndpoint.getEndpointInfo().getAddress());
+        
+        if (null == replyTo) {
+            ei.setAddress(applicationEndpoint.getEndpointInfo().getAddress());
+        } else {
+            ei.setAddress(replyTo.getAddress().getValue());
+        }
+        LOG.fine("Created endpoint info with address: " + ei.getAddress());
+        
         ei.setName(PORT_NAME);
         ei.setBinding(si.getBinding(BINDING_NAME));
 
@@ -219,34 +222,10 @@ public class RMEndpoint {
         if (null != ua) {
             ei.addExtensor(ua);
         } 
-        
         si.addEndpoint(ei);
-    
-        try {
-            // REVISIT: asmyth
-            // Using a JAX-WS endpoint here because the presence of the JAX-WS interceptors
-            // on the outbound chain of the partial response to a oneway RM protocol message
-            // seems to requires this (in their absence the output stream is flushed twice, 
-            // with predictably devastating effect).
-            // What we really should do here is on use the same interceptors on the outbound
-            // path that would be used by the application endpoint without presuming any knowledge
-            // of the applications endpoint's frontend.
-            EndpointImpl e = new JaxWsEndpointImpl(manager.getBus(), service, ei);
-            
-
-            // use same endpoint specific interceptor as for the application endpoint
-            e.setOutInterceptors(applicationEndpoint.getOutInterceptors());
-            e.setOutFaultInterceptors(applicationEndpoint.getOutFaultInterceptors());
-            e.setInInterceptors(applicationEndpoint.getInInterceptors());
-            e.setInFaultInterceptors(applicationEndpoint.getInFaultInterceptors());
-
-            endpoint = e;
-
-
-        } catch (EndpointException ex) {
-            throw new RuntimeException(ex);
-        }
-        service.setExecutor(applicationEndpoint.getService().getExecutor());
+        
+        endpoint = new WrappedEndpoint(applicationEndpoint, ei, service);
+        service.setEndpoint(endpoint);
     }
 
     void buildInterfaceInfo(ServiceInfo si) {
