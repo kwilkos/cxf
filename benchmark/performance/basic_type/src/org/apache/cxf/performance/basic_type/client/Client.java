@@ -122,7 +122,12 @@ public final class Client extends TestCaseBase {
             }
         }
         try {
-            URL wsdl = new URL(wsdlPath);
+            URL wsdl = null;
+            if ((wsdlPath.startsWith("file://")) || (wsdlPath.startsWith("http://"))) {
+                 wsdl = new URL(wsdlPath);
+            } else {
+                 wsdl = new URL("file://" + wsdlPath);
+            }
             ss = new BasicService(wsdl, SERVICE_NAME);
         } catch (MalformedURLException e) {
             e.printStackTrace();

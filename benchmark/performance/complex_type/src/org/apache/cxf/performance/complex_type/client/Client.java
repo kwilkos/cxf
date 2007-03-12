@@ -136,7 +136,12 @@ public final class Client extends TestCaseBase {
             System.out.println("not using pipe");
         }
         try{ 
-            URL wsdl = new URL(wsdlPath);
+            URL wsdl = null;
+            if ((wsdlPath.startsWith("file://")) || (wsdlPath.startsWith("http://"))) {
+                 wsdl = new URL(wsdlPath);
+            } else {
+                 wsdl = new URL("file://" + wsdlPath);
+            }
             cs = new ComplexService(wsdl, SERVICE_NAME);
         } catch (MalformedURLException e) {
             e.printStackTrace();
