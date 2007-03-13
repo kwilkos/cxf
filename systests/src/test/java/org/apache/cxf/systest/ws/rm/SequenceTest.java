@@ -22,22 +22,28 @@ package org.apache.cxf.systest.ws.rm;
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.greeter_control.Control;
 import org.apache.cxf.greeter_control.ControlService;
 import org.apache.cxf.greeter_control.Greeter;
 import org.apache.cxf.greeter_control.GreeterService;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.testutil.common.AbstractBusClientServerTestBase;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.rm.RMConstants;
 import org.apache.cxf.ws.rm.RMInInterceptor;
 import org.apache.cxf.ws.rm.RMManager;
 import org.apache.cxf.ws.rm.RMOutInterceptor;
 import org.apache.cxf.ws.rm.soap.RMSoapInterceptor;
+
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -61,6 +67,9 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     private static final String GREETMEONEWAY_ACTION = null;
     private static final String GREETME_ACTION = null;
     private static final String GREETME_RESPONSE_ACTION = null;
+
+    private static int decoupledEndpointPort = 10000;
+    private static String decoupledEndpoint;
 
     private Bus controlBus;
     private Control control;
@@ -131,9 +140,9 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         control = cs.getControlPort();
 
         assertTrue("Failed to start greeter",
-            control.startGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml"));
+            control.startGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml"));
 
-        greeterBus = bf.createBus("org/apache/cxf/systest/ws/rm/anonymous.xml");
+        greeterBus = bf.createBus("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
         BusFactory.setDefaultBus(greeterBus);
         removeRMInterceptors(greeterBus.getOutInterceptors());
         removeRMInterceptors(greeterBus.getOutFaultInterceptors());
@@ -161,7 +170,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayAnonymousAcks) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -193,7 +202,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayDeferredAnonymousAcks) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-deferred.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/deferred.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -232,7 +241,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayDeferredNonAnonymousAcks) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/nonanonymous-deferred.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/deferred.xml", true);
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -286,7 +295,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayAnonymousAcksSequenceLength1) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-seqlength1.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/seqlength1.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -330,7 +339,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayAnonymousAcksSupressed) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/anonymous-suppressed.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/suppressed.xml");
 
         greeter.greetMeOneWay("once");
         greeter.greetMeOneWay("twice");
@@ -377,7 +386,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymous) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml", true);
 
         greeter.greetMe("one");
         greeter.greetMe("two");
@@ -427,7 +436,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousEndpointSpecific) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-endpoint-specific.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-endpoint-specific.xml", true);
 
 
         greeter.greetMe("one");
@@ -476,7 +485,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousDeferred) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-deferred.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/deferred.xml", true);
 
         greeter.greetMe("one");
         greeter.greetMe("two");
@@ -542,7 +551,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousMaximumSequenceLength2) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-seqlength2.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/seqlength10.xml", true);
         
         RMManager manager = greeterBus.getExtension(RMManager.class);
         assertEquals("Unexpected maximum sequence length.", BigInteger.TEN, 
@@ -600,7 +609,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestOnewayMessageLoss) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/oneway-message-loss.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml");
         
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
@@ -650,7 +659,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayMessageLoss) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-message-loss.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/message-loss.xml", true);
         
         greeterBus.getOutInterceptors().add(new MessageLossSimulator());
         RMManager manager = greeterBus.getExtension(RMManager.class);
@@ -707,7 +716,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestTwowayNonAnonymousNoOffer) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/twoway-no-offer.xml");        
+        setupGreeter("org/apache/cxf/systest/ws/rm/no-offer.xml", true);        
         
         greeter.greetMe("one");
         // greeter.greetMe("two");
@@ -743,7 +752,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         if (!doTestConcurrency) {
             return;
         }
-        setupGreeter("org/apache/cxf/systest/ws/rm/concurrent.xml");
+        setupGreeter("org/apache/cxf/systest/ws/rm/rminterceptors.xml", true);
 
         for (int i = 0; i < 5; i++) {
             greeter.greetMeAsync(Integer.toString(i));
@@ -767,6 +776,14 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     // --- test utilities ---
 
     private void setupGreeter(String cfgResource) {
+        setupGreeter(cfgResource, false);
+    }
+
+    private void setupGreeter(String cfgResource, boolean useDecoupledEndpoint) {
+        setupGreeter(cfgResource, useDecoupledEndpoint, null);
+    }
+    
+    private void setupGreeter(String cfgResource, boolean useDecoupledEndpoint, Executor executor) {
         
         SpringBusFactory bf = new SpringBusFactory();
         
@@ -788,8 +805,30 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
         assertTrue("Failed to start greeter", control.startGreeter(cfgResource));
         
         GreeterService gs = new GreeterService();
+
+        if (null != executor) {
+            gs.setExecutor(executor);
+        }
+
         greeter = gs.getGreeterPort();
         LOG.fine("Created greeter client.");
+
+        if (!useDecoupledEndpoint) {
+            return;
+        }
+
+        // programatically configure decoupled endpoint that is guaranteed to
+        // be unique across all test cases
+        
+        decoupledEndpointPort--;
+        decoupledEndpoint = "http://localhost:" + decoupledEndpointPort + "/decoupled_endpoint";
+
+        Client c = ClientProxy.getClient(greeter);
+        HTTPConduit hc = (HTTPConduit)(c.getConduit());
+        HTTPClientPolicy cp = hc.getClient();
+        cp.setDecoupledEndpoint(decoupledEndpoint);
+
+        LOG.fine("Using decoupled endpoint: " + cp.getDecoupledEndpoint());
     }
     
     private void awaitMessages(int nExpectedOut, int nExpectedIn) {

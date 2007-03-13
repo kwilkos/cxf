@@ -26,9 +26,30 @@
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <http:conduit id="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
-      <http:client DecoupledEndpoint="http://localhost:9998/decoupled_endpoint"/>
-    </http:conduit>
+    <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
+        <property name="bus" ref="cxf"/>  
+        <property name="destinationPolicy">
+            <value>
+                <wsrm-mgmt:destinationPolicy>
+                    <wsrm-mgmt:acksPolicy intraMessageThreshold="0"/>                    
+                </wsrm-mgmt:destinationPolicy>
+            </value>
+        </property>
+        <property name="sourcePolicy">
+            <value>
+                <wsrm-mgmt:sourcePolicy includeOffer="false"/>
+            </value>
+        </property>
+        
+        <property name="RMAssertion">
+            <value>
+                <wsrm-policy:RMAssertion>         
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="60000"/>           
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="60000"/>                                                        
+                </wsrm-policy:RMAssertion>
+            </value>
+        </property>   
+    </bean> 
     
     <import resource="rminterceptors.xml"/>  
 

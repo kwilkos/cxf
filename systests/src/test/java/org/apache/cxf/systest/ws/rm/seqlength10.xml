@@ -26,10 +26,6 @@
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <http:conduit id="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
-      <http:client DecoupledEndpoint="http://localhost:9996/decoupled_endpoint"/>
-    </http:conduit>
-    
     <bean id="org.apache.cxf.ws.rm.RMManager" class="org.apache.cxf.ws.rm.RMManager">
         <property name="bus" ref="cxf"/>
         <property name="sourcePolicy">

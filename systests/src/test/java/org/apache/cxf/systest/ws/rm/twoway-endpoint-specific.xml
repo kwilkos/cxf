@@ -26,10 +26,6 @@
 http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schema/transports/http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
   
-    <http:conduit id="{http://cxf.apache.org/greeter_control}GreeterPort.http-conduit">
-      <http:client DecoupledEndpoint="http://localhost:9991/decoupled_endpoint"/>
-    </http:conduit>
-    
     <!-- Endpoint Level Interceptors-->
     <!-- Inserted From JaxWsEndpointImpl, EndpointImpl-->
     <bean id="wrapperClassIn" class="org.apache.cxf.jaxws.interceptors.WrapperClassInInterceptor"/>

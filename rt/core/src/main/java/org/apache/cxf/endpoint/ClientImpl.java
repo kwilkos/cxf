@@ -296,7 +296,8 @@ public class ClientImpl extends AbstractBasicInterceptorProvider implements Clie
             remaining -= (int)(end - start);
         }
         if (!Boolean.TRUE.equals(exchange.get(FINISHED))) {
-            LogUtils.log(LOG, Level.WARNING, "RESPONSE_TIMEOUT");
+            LogUtils.log(LOG, Level.WARNING, "RESPONSE_TIMEOUT",
+                exchange.get(OperationInfo.class).getName().toString());
         }
     }
 
