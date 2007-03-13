@@ -338,6 +338,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
    
     @Test
+    @Ignore
     public void testOnewayAnonymousAcksSuppressed() throws Exception {
         if (!doTestOnewayAnonymousAcksSuppressed) {
             return;
@@ -346,6 +347,7 @@ public class SequenceTest extends AbstractBusClientServerTestBase {
     }
 
     @Test
+    @Ignore
     public void testOnewayAnonymousAcksSuppressedAsyncExecutor() throws Exception {
         if (!doTestOnewayAnonymousAcksSuppressedAsyncExecutor) {
             return;
