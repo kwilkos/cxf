@@ -59,7 +59,6 @@ import org.apache.cxf.tools.util.URIParserUtil;
 import org.apache.cxf.tools.wsdlto.core.DataBindingProfile;
 import org.apache.cxf.wsdl11.WSDLServiceBuilder;
 
-
 public class JAXBDataBinding implements DataBindingProfile {
     private static final Logger LOG = LogUtils.getL7dLogger(JAXBDataBinding.class);
     private static S2JJAXBModel rawJaxbModelGenCode;
@@ -74,31 +73,30 @@ public class JAXBDataBinding implements DataBindingProfile {
         def = (Definition)env.get(Definition.class);
 
         SchemaCompilerImpl schemaCompiler = (SchemaCompilerImpl)XJC.createSchemaCompiler();
-        
-        
+
         ClassCollector classCollector = env.get(ClassCollector.class);
         ClassNameAllocatorImpl allocator = new ClassNameAllocatorImpl(classCollector);
         allocator.setInterface(serviceInfo.getInterface(), env.mapPackageName(def.getTargetNamespace()));
         schemaCompiler.setClassNameAllocator(allocator);
 
         JAXBBindErrorListener listener = new JAXBBindErrorListener(env);
-        schemaCompiler.setErrorListener(listener);        
-        //Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
+        schemaCompiler.setErrorListener(listener);
+        // Collection<SchemaInfo> schemas = serviceInfo.getSchemas();
         List<InputSource> jaxbBindings = env.getJaxbBindingFile();
-        Map<String, Element> schemaLists = 
-            (Map<String, Element>)serviceInfo.getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST); 
-        Set<String> keys = schemaLists.keySet();  
-        for (String key : keys) {           
+        Map<String, Element> schemaLists = (Map<String, Element>)serviceInfo
+            .getProperty(WSDLServiceBuilder.WSDL_SCHEMA_ELEMENT_LIST);
+        Set<String> keys = schemaLists.keySet();
+        for (String key : keys) {
             Element ele = schemaLists.get(key);
             this.removeImportElement(ele);
-            String tns = ele.getAttribute("targetNamespace");              
-            
+            String tns = ele.getAttribute("targetNamespace");
+
             if (StringUtils.isEmpty(tns)) {
                 continue;
             }
-            
+
             String excludePkg = null;
-            
+
             if (env.hasExcludeNamespace(tns)) {
                 excludePkg = env.getExcludePackageName(tns);
                 if (excludePkg != null) {
@@ -107,98 +105,67 @@ public class JAXBDataBinding implements DataBindingProfile {
                     env.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
                 }
             }
-            
+
             String pkgName = null;
             if (env.hasNamespace(tns) || env.get(ToolConstants.CFG_PACKAGENAME) != null) {
                 pkgName = env.mapPackageName(tns);
             }
-            
+
             pkgName = pkgName != null ? pkgName : excludePkg;
-                      
+
             if (pkgName != null) {
                 Node pkgNode = JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
                 if (pkgNode != null) {
                     ele.appendChild(pkgNode);
                 }
             }
-           
-            schemaCompiler.parseSchema(key, ele);
-            
-        }
-        //After XmlSchema can be fixed , these codes will be used to 
-        //get schema elements
-        /*
-            for (SchemaInfo schema : schemas) {
-            Document[] docs = schema.getSchema().getAllSchemas();
-            for (int i = 0; i < docs.length; i++) {
-                Element ele = docs[i].getDocumentElement();
-                this.removeImportElement(ele);
-      
-                String systemId = schema.getElement().getBaseURI();
-                if (systemId == null) {
-                    systemId = def.getDocumentBaseURI();
-                }
-                String tns = ele.getAttribute("targetNamespace");              
-                
-                if (StringUtils.isEmpty(tns)) {
-                    continue;
-                }
-                 
-                if (sysIdSchemeMap.containsKey(schema.getElement().getBaseURI())) {
-                    systemId = schema.getElement().getBaseURI() + "#" + tns;
-                    int index = 0;
-                    while (sysIdSchemeMap.containsKey(systemId)) {
-                        systemId = systemId + index++;
-                    }
-                    
-                }
-                
-                sysIdSchemeMap.put(systemId, ele);
-                
-                String excludePkg = null;
-                
-                if (env.hasExcludeNamespace(tns)) {
-                    excludePkg = env.getExcludePackageName(tns);
-                    if (excludePkg != null) {
-                        env.getExcludePkgList().add(excludePkg);
-                    } else {
-                        env.getExcludePkgList().add(URIParserUtil.getPackageName(tns));
-                    }
-                }
-                
-                String pkgName = null;
-                if (env.hasNamespace(tns) || env.get(ToolConstants.CFG_PACKAGENAME) != null) {
-                    pkgName = env.mapPackageName(tns);
-                }
-                
-                pkgName = pkgName != null ? pkgName : excludePkg;
-                          
-                if (pkgName != null) {
-                    Node pkgNode = JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
-                    ele.appendChild(pkgNode);
-                }
 
-                schemaCompiler.parseSchema(systemId, ele);
-            }
-            
-        }*/
+            schemaCompiler.parseSchema(key, ele);
+
+        }
+        // After XmlSchema can be fixed , these codes will be used to
+        // get schema elements
+        /*
+         * for (SchemaInfo schema : schemas) { Document[] docs =
+         * schema.getSchema().getAllSchemas(); for (int i = 0; i < docs.length;
+         * i++) { Element ele = docs[i].getDocumentElement();
+         * this.removeImportElement(ele); String systemId =
+         * schema.getElement().getBaseURI(); if (systemId == null) { systemId =
+         * def.getDocumentBaseURI(); } String tns =
+         * ele.getAttribute("targetNamespace"); if (StringUtils.isEmpty(tns)) {
+         * continue; } if
+         * (sysIdSchemeMap.containsKey(schema.getElement().getBaseURI())) {
+         * systemId = schema.getElement().getBaseURI() + "#" + tns; int index =
+         * 0; while (sysIdSchemeMap.containsKey(systemId)) { systemId = systemId +
+         * index++; } } sysIdSchemeMap.put(systemId, ele); String excludePkg =
+         * null; if (env.hasExcludeNamespace(tns)) { excludePkg =
+         * env.getExcludePackageName(tns); if (excludePkg != null) {
+         * env.getExcludePkgList().add(excludePkg); } else {
+         * env.getExcludePkgList().add(URIParserUtil.getPackageName(tns)); } }
+         * String pkgName = null; if (env.hasNamespace(tns) ||
+         * env.get(ToolConstants.CFG_PACKAGENAME) != null) { pkgName =
+         * env.mapPackageName(tns); } pkgName = pkgName != null ? pkgName :
+         * excludePkg; if (pkgName != null) { Node pkgNode =
+         * JAXBUtils.innerJaxbPackageBinding(ele, pkgName);
+         * ele.appendChild(pkgNode); } schemaCompiler.parseSchema(systemId,
+         * ele); } }
+         */
 
         for (InputSource binding : jaxbBindings) {
             schemaCompiler.parseSchema(binding);
         }
 
         rawJaxbModelGenCode = schemaCompiler.bind();
-        //This bug is fixed in latest JAXB_RI
-        //addedEnumClassToCollector(schemas, allocator);
+
+        addedEnumClassToCollector(schemaLists, allocator);
     }
 
     // JAXB bug. JAXB ClassNameCollector may not be invoked when generated
     // class is an enum. We need to use this method to add the missed file
     // to classCollector.
-   /* private void addedEnumClassToCollector(Collection<SchemaInfo> schemaList, 
-                                           ClassNameAllocatorImpl allocator) {
-        for (SchemaInfo schema : schemaList) {
-            Element schemaElement = schema.getElement();
+    private void addedEnumClassToCollector(Map<String, Element> schemaList,
+        ClassNameAllocatorImpl allocator) {
+        for (Element schemaElement : schemaList.values()) {
             String targetNamespace = schemaElement.getAttribute("targetNamespace");
             if (StringUtils.isEmpty(targetNamespace)) {
                 continue;
@@ -208,8 +175,8 @@ public class JAXBDataBinding implements DataBindingProfile {
                 allocator.assignClassName(packageName, "*");
             }
         }
-    }*/
-/*
+    }
+
     private boolean addedToClassCollector(String packageName) {
         ClassCollector classCollector = env.get(ClassCollector.class);
         List<String> files = (List<String>)classCollector.getGeneratedFileInfo();
@@ -222,7 +189,7 @@ public class JAXBDataBinding implements DataBindingProfile {
         }
         return false;
     }
-*/
+
     public void generate(ToolContext context) throws ToolException {
         initialize(context);
         if (rawJaxbModelGenCode == null) {
@@ -282,9 +249,8 @@ public class JAXBDataBinding implements DataBindingProfile {
             }
         }
         return null;
-    }   
-    
-    
+    }
+
     private void removeImportElement(Element element) {
         NodeList nodeList = element.getElementsByTagNameNS(ToolConstants.SCHEMA_URI, "import");
         List<Node> ns = new ArrayList<Node>();
@@ -297,15 +263,15 @@ public class JAXBDataBinding implements DataBindingProfile {
             Node schemaNode = item.getParentNode();
             schemaNode.removeChild(item);
         }
-      
+
     }
-    
-    public  Node cloneNode(Document document, Node node, boolean deep) throws DOMException {
+
+    public Node cloneNode(Document document, Node node, boolean deep) throws DOMException {
         if (document == null || node == null) {
             return null;
         }
         int type = node.getNodeType();
-        
+
         if (node.getOwnerDocument() == document) {
             return node.cloneNode(deep);
         }
@@ -328,7 +294,7 @@ public class JAXBDataBinding implements DataBindingProfile {
                     .getNodeValue());
             }
             break;
-       
+
         case Node.TEXT_NODE:
             clone = document.createTextNode(node.getNodeValue());
             break;
