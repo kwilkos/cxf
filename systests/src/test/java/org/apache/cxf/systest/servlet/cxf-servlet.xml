@@ -22,12 +22,17 @@
     <endpoint
         name="greeter1"        
         implementation="org.apache.hello_world_soap_http.GreeterImpl"
-        url-pattern="/greeter1" />
+        wsdl="/org/apache/cxf/systest/servlet/hello_world.wsdl"        
+        url-pattern="/greeter"/>
+        
+        <!--
 
     <endpoint
         name="greeter2"
         publisher="org.apache.cxf.jaxws.EndpointPublisherImpl"
         implementation="org.apache.hello_world_soap_http.GreeterImpl"
         url-pattern="/greeter2" />
+
+-->
 
 </endpoints>

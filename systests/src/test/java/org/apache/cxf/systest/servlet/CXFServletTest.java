@@ -33,7 +33,6 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.service.invoker.BeanInvoker;
 import org.apache.hello_world_soap_http.GreeterImpl;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -95,7 +94,9 @@ public class CXFServletTest extends AbstractServletTest {
 
         WebResponse res = client.getResponse("http://localhost/services");       
         WebLink[] links = res.getLinks();
-        assertEquals("There should get one link for service", links.length, 1);
+        //REVISIT: there are two services, one is created by cxf-servlet.xml
+        //we will remove the service created by setupJaxwsService() later.
+        assertEquals("There should get one link for service", links.length, 2);
         assertEquals(links[0].getURLString(), "http://localhost/services/Greeter?wsdl");       
         assertEquals("text/html", res.getContentType());
     }
@@ -126,11 +127,23 @@ public class CXFServletTest extends AbstractServletTest {
     }
 
     @Test
-    @Ignore
     public void testServiceWsdlNotFound() throws Exception {
         WebRequest req = new GetMethodWebRequest("http://localhost/services/NoSuchService?wsdl");
 
         expectErrorCode(req, 404, "Response code 404 required for invalid WSDL url.");
     }
+    
+    @Test
+    public void testGetImportedXSD() throws Exception {
+        ServletUnitClient client = newClient();
+        client.setExceptionsThrownOnErrorStatus(true);
 
+        WebRequest req = new GetMethodQueryWebRequest("http://localhost/services/test_import.xsd");
+        
+        WebResponse res = client.getResponse(req); 
+        assertEquals(200, res.getResponseCode());
+        //assertEquals("text/xml", res.getContentType());
+        assertTrue("the xsd should contain the completType SimpleStruct",
+                   res.getText().contains("<complexType name=\"SimpleStruct\">"));
+    }
 }

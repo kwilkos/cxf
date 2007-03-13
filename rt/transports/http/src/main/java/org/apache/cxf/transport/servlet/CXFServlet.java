@@ -240,27 +240,34 @@ public class CXFServlet extends HttpServlet {
             URL url = null;
             
             if (!"".equals(wsdlName)) {
-                
                 try {
-                    url = new URL(wsdlName);
-                } catch (MalformedURLException e) {
-                    //ignore
+                    URIResolver resolver = new URIResolver(wsdlName);
+                    if (resolver.isResolved()) {
+                        url = resolver.getURI().toURL();
+                    }
+                } catch (IOException e) {
+                    // ignore
                 }
                 if (url == null) {
                     try {
                         url = getServletConfig().getServletContext().getResource("/" + wsdlName);
                     } catch (MalformedURLException e) {
-                        //ignore
+                        // ignore
                     }
                 }
                 if (url == null) {
                     try {
                         url = getServletConfig().getServletContext().getResource(wsdlName);
                     } catch (MalformedURLException e) {
-                        //ignore
+                        // ignore
                     }
-                }                
+                }
             }
+            
+            // this wsdl url is used to locate imported schemas whose path is
+            // relative to wsdl.
+            controller.setWsdlLocation(url);
+            
             if (null == publisherName || publisherName.length() == 0) {
                 publisherName = "org.apache.cxf.jaxws.EndpointPublisherImpl";
             }

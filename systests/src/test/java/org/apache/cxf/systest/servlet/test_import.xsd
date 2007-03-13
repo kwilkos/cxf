@@ -1,0 +1,18 @@
+        <schema targetNamespace="http://apache.org/hello_world_soap_http_import"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+                xmlns:tns="http://schemas.iona.com/tests/schema_parser_import"
+                xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+		xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+            <complexType name="SimpleStruct">
+                <sequence>
+                    <element name="varFloat" type="xsd:float"/> 
+                    <element name="varInt" type="xsd:int"/> 
+                    <element name="varString" type="xsd:string"/> 
+                </sequence>
+            </complexType>
+
+	    <element name="NamedTypeElement" type="tns:SimpleStruct"/>
+
+        </schema>

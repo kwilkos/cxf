@@ -21,6 +21,7 @@ package org.apache.cxf.transport.servlet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,13 +37,17 @@ import javax.wsdl.extensions.ExtensibilityElement;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+
+import org.xml.sax.InputSource;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.helpers.HttpHeaderHelper;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageImpl;
+import org.apache.cxf.resource.ExtendedURIResolver;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.tools.common.extensions.soap.SoapAddress;
 import org.apache.cxf.tools.util.SOAPBindingUtil;
@@ -62,6 +67,7 @@ public class ServletController {
     private ServletTransportFactory transport;
     private ServletContext servletContext;
     private CXFServlet cxfServlet;
+    private URL wsdlLocation;
 
     public ServletController(ServletTransportFactory df, ServletContext servCont, CXFServlet servlet) {
         this.transport = df;
@@ -110,6 +116,10 @@ public class ServletController {
         }
     }
     
+    public void setWsdlLocation(URL location) {
+        this.wsdlLocation = location;
+    }
+    
     private void generateServiceList(HttpServletRequest request, HttpServletResponse response)
         throws IOException {
         List<ServletDestination> destinations = transport.getDestinations();
@@ -137,8 +147,15 @@ public class ServletController {
         response.setHeader(HttpHeaderHelper.CONTENT_TYPE, "text/xml");
         try {
             OutputStream os = response.getOutputStream();
-                 
-            Source source = new StreamSource(servletContext.getResourceAsStream("/WEB-INF/wsdl/" + xsdName));
+            ExtendedURIResolver resolver = new ExtendedURIResolver();
+            Source source = null;
+            if (wsdlLocation != null) {
+                InputSource inputSource = resolver.resolve(xsdName, wsdlLocation.toString());
+                source = new SAXSource(inputSource);
+
+            } else {
+                source = new StreamSource(servletContext.getResourceAsStream("/WEB-INF/wsdl/" + xsdName));
+            }
             Result result = new StreamResult(os);
             TransformerFactory.newInstance().newTransformer().transform(source, result);
             response.getOutputStream().flush();
