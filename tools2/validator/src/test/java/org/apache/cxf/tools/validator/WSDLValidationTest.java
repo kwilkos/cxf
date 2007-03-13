@@ -25,8 +25,6 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import org.apache.cxf.tools.common.ToolTestBase;
-//import org.apache.cxf.wsdl11.WSDLBuilder;
-//import org.apache.cxf.wsdl11.WSDLDefinitionBuilder;
 
 public class WSDLValidationTest extends ToolTestBase {
     public void setUp() {

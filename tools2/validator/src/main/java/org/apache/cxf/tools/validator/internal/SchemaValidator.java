@@ -392,8 +392,26 @@ class SchemaResourceResolver implements LSResourceResolver {
         NSFILEMAP.put(ToolConstants.WSDL_NAMESPACE_URI, "wsdl.xsd");
         NSFILEMAP.put(ToolConstants.SCHEMA_URI, "XMLSchema.xsd");
     }
+
+    private LSInput loadLSInput(String ns) {
+        String path = ToolConstants.CXF_SCHEMAS_DIR_INJAR + NSFILEMAP.get(ns);
+        URL url = getClass().getClassLoader().getResource(path);
+        LSInput lsin = new LSInputImpl();
+        lsin.setSystemId(url.toString());
+        try {
+            lsin.setByteStream(url.openStream());
+        } catch (IOException e) {
+            return null;
+        }
+        return lsin;
+    }
+    
     public LSInput resolveResource(String type, String namespaceURI, String publicId, String systemId,
             String baseURI) {
+        if (NSFILEMAP.containsKey(namespaceURI)) {
+            return loadLSInput(namespaceURI);
+        }
+
         LSInput lsin = null;
         String resURL = null;
         String localFile = null;
@@ -401,7 +419,7 @@ class SchemaResourceResolver implements LSResourceResolver {
             String schemaLocation = "";
             if (baseURI != null) {
                 schemaLocation = baseURI.substring(0, baseURI.lastIndexOf("/") + 1);
-            } 
+            }
             if (systemId.indexOf("http://") < 0) {
                 resURL = schemaLocation + systemId;
             } else {
