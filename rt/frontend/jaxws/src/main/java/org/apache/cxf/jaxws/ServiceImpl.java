@@ -66,7 +66,7 @@ import org.apache.cxf.jaxws.binding.soap.JaxWsSoapBindingInfoFactoryBean;
 import org.apache.cxf.jaxws.handler.HandlerResolverImpl;
 import org.apache.cxf.jaxws.handler.PortInfoImpl;
 import org.apache.cxf.jaxws.support.DummyImpl;
-import org.apache.cxf.jaxws.support.JaxWsEndpointImpl;
+import org.apache.cxf.jaxws.support.JaxWsClientEndpointImpl;
 import org.apache.cxf.jaxws.support.JaxWsServiceFactoryBean;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.Service;
@@ -131,7 +131,7 @@ public class ServiceImpl extends ServiceDelegate {
         }
 
         try {
-            return new JaxWsEndpointImpl(bus, service, ei);
+            return new JaxWsClientEndpointImpl(bus, service, ei, this);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
@@ -289,9 +289,9 @@ public class ServiceImpl extends ServiceDelegate {
             throw new WebServiceException(BUNDLE.getString("COULD_NOT_DETERMINE_PORT"));
         }
 
-        JaxWsEndpointImpl jaxwsEndpoint;
+        JaxWsClientEndpointImpl jaxwsEndpoint;
         try {
-            jaxwsEndpoint = new JaxWsEndpointImpl(bus, service, ei);
+            jaxwsEndpoint = new JaxWsClientEndpointImpl(bus, service, ei, this);
         } catch (EndpointException e) {
             throw new WebServiceException(e);
         }
