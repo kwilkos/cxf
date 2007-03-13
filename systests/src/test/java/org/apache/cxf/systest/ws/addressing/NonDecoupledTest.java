@@ -19,6 +19,8 @@
 
 package org.apache.cxf.systest.ws.addressing;
 
+import org.junit.Test;
+
 
 /**
  * Tests the addition of WS-Addressing Message Addressing Properties
@@ -31,6 +33,11 @@ public class NonDecoupledTest extends MAPTestBase {
 
     public String getConfigFileName() {
         return CONFIG;
+    }
+    
+    @Test
+    public void foo() {
+        
     }
 }
 
